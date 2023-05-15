@@ -1,5 +1,5 @@
 # IDataModule
-[Git Source](https://github.com/thrackle-io/Tron/blob/afc52571532b132ea1dea91ad1d1f1af07381e8a/src/data/IDataModule.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/ca661487b49e5b916c4fa8811d6bdafbe530a6c8/src/data/IDataModule.sol)
 
 **Inherits:**
 [IAppLevelEvents](/src/interfaces/IEvents.sol/interface.IAppLevelEvents.md)
