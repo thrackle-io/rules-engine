@@ -1,0 +1,696 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.17;
+
+/// TODO Create a wizard that creates custom versions of this contract for each implementation.
+
+import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
+import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import "../economic/ITokenRuleRouter.sol";
+import "../economic/IAssetHandlerLite.sol";
+import "../economic/AppAdministratorOnly.sol";
+import "../application/IAppManager.sol";
+import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
+import {ERC20TaggedRuleProcessorFacet} from "../economic/ruleProcessor/tagged/ERC20TaggedRuleProcessorFacet.sol";
+import {TaggedRuleProcessorDiamond} from "../economic/ruleProcessor/tagged/TaggedRuleProcessorDiamond.sol";
+import "../economic/ruleStorage/RuleCodeData.sol";
+import "../pricing/IProtocolERC721Pricing.sol";
+import "../pricing/IProtocolERC20Pricing.sol";
+import "../application/TokenStorage.sol";
+import "./data/Fees.sol";
+import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
+import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+
+/**
+ * @title Example ApplicationERC20Handler Contract
+ * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
+ * @dev This contract performs all rule checks related to the the ERC20 that implements it.
+ * @notice Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
+ */
+contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents, AppAdministratorOnly {
+    using ERC165Checker for address;
+    /**
+     * Functions added so far:
+     * minTransfer
+     * balanceLimits
+     * oracle
+     * Balance by AccessLevel
+     * Balance Limit by Risk
+     * Transaction Limit by Risk
+     * AccessLevel Account balance
+     * Risk Score Transaction Limit
+     * Risk Score Account Balance Limit
+     */
+    address public appManagerAddress;
+    string private riskScoreTokenId;
+
+    /// Data contracts
+    Fees fees;
+    bool feeActive;
+
+    /// RuleIds
+    uint32 private minTransferRuleId;
+    uint32 private oracleRuleId;
+    uint32 private minMaxBalanceRuleId;
+    uint32 private transactionLimitByRiskRuleId;
+    uint32 private adminWithdrawalRuleId;
+    uint32 private minBalByDateRuleId;
+
+    /// on-off switches for rules
+    bool private minTransferRuleActive;
+    bool private oracleRuleActive;
+    bool private minMaxBalanceRuleActive;
+    bool private transactionLimitByRiskRuleActive;
+    bool private adminWithdrawalActive;
+    bool private minBalByDateRuleActive;
+
+    ITokenRuleRouter immutable tokenRuleRouter;
+    IAppManager appManager;
+    // Pricing Module interfaces
+    IProtocolERC20Pricing erc20Pricer;
+    IProtocolERC721Pricing nftPricer;
+    address public erc20PricingAddress;
+    address public nftPricingAddress;
+
+    error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
+    error actionCheckFailed();
+    error CannotTurnOffAccessLevel0WithAccessLevelBalanceActive();
+
+    /**
+     * @dev Constructor sets params
+     * @param _tokenRuleRouterAddress address of the protocol's TokenRuleRouter contract.
+     * @param _appManagerAddress address of the application AppManager.
+     * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
+     */
+    constructor(address _tokenRuleRouterAddress, address _appManagerAddress, bool _upgradeMode) {
+        appManagerAddress = _appManagerAddress;
+        appManager = IAppManager(_appManagerAddress);
+        tokenRuleRouter = ITokenRuleRouter(_tokenRuleRouterAddress);
+        if (!_upgradeMode) {
+            deployDataContract();
+            emit HandlerDeployed(address(this), _appManagerAddress);
+        } else {
+            emit HandlerDeployedForUpgrade(address(this), _appManagerAddress);
+        }
+    }
+
+    /**
+     * @dev This function is the one called from the contract that implements this handler. It's the entry point.
+     * @param balanceFrom token balance of sender address
+     * @param balanceTo token balance of recipient address
+     * @param _from sender address
+     * @param _to recipient address
+     * @param amount number of tokens transferred
+     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
+     * @return true if all checks pass
+     */
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, ApplicationRuleProcessorDiamondLib.ActionTypes _action) external returns (bool) {
+        bool isFromAdmin = appManager.isAppAdministrator(_from);
+        bool isToAdmin = appManager.isAppAdministrator(_to);
+        // // All transfers to treasury account are allowed
+        if (!appManager.isTreasury(_to)) {
+            /// standard tagged and  rules do not apply when either to or from is an admin
+            if (!isFromAdmin && !isToAdmin) {
+                uint128 balanceValuation;
+                uint128 price;
+                uint128 transferValuation;
+                if (appManager.areAccessLevelOrRiskRulesActive()) {
+                    balanceValuation = uint128(getAccTotalValuation(_to));
+                    price = uint128(_getERC20Price(msg.sender));
+                    transferValuation = uint128((price * amount) / (10 ** ERC20(msg.sender).decimals()));
+                }
+                appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
+                _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
+                _checkNonTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
+            } else {
+                if (adminWithdrawalActive && isFromAdmin) tokenRuleRouter.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
+            }
+        }
+        /// If everything checks out, return true
+        return true;
+    }
+
+    /**
+     * @dev This function uses the protocol's tokenRuleRouter to perform the actual  rule checks.
+     * @param _balanceFrom token balance of sender address
+     * @param _balanceTo token balance of recipient address
+     * @param _from address of the from account
+     * @param _to address of the to account
+     * @param _amount number of tokens transferred
+     */
+    function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount) internal view {
+        if (minTransferRuleActive) tokenRuleRouter.checkMinTransferPasses(minTransferRuleId, _amount);
+        if (oracleRuleActive) tokenRuleRouter.checkOraclePasses(oracleRuleId, _to);
+        //added the following lines to remove warnings TODO remove later
+        _balanceFrom;
+        _balanceTo;
+        _from;
+    }
+
+    /**
+     * @dev This function uses the protocol's tokenRuleRouter to perform the actual Individual rule check.
+     * @param _balanceFrom token balance of sender address
+     * @param _balanceTo token balance of recipient address
+     * @param _from address of the from account
+     * @param _to address of the to account
+     * @param _amount number of tokens transferred
+     */
+    function _checkTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount) internal view {
+        _checkTaggedIndividualRules(_from, _to, _balanceFrom, _balanceTo, _amount);
+        /// we only ask for price if we need it since this might cause the contract to require setting the pricing contracts when there is no need
+        if (transactionLimitByRiskRuleActive) {
+            uint256 balanceValuation = getAccTotalValuation(_to);
+            uint256 price = _getERC20Price(msg.sender);
+            uint256 transferValuation = (price * _amount) / (10 ** ERC20(msg.sender).decimals());
+            _checkRiskRules(_from, _to, balanceValuation, transferValuation, _amount, price);
+        }
+    }
+
+    /**
+     * @dev This function consolidates all the tagged rules that utilize account tags.
+     * @param _balanceFrom token balance of sender address
+     * @param _balanceTo token balance of recipient address
+     * @param _from address of the from account
+     * @param _to address of the to account
+     * @param _amount number of tokens transferred
+     */
+    function _checkTaggedIndividualRules(address _from, address _to, uint256 _balanceFrom, uint256 _balanceTo, uint256 _amount) internal view {
+        if (minMaxBalanceRuleActive || minBalByDateRuleActive) {
+            // We get all tags for sender and recipient
+            bytes32[] memory toTags = appManager.getAllTags(_to);
+            bytes32[] memory fromTags = appManager.getAllTags(_from);
+            if (minMaxBalanceRuleActive) tokenRuleRouter.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+            if (minBalByDateRuleActive) tokenRuleRouter.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+        }
+    }
+
+    /**
+     * @dev This function consolidates all the Risk rules that utilize tagged account Risk scores.
+     * @param _from address of the from account
+     * @param _to address of the to account
+     * @param _balanceValuation address current balance in USD
+     * @param _transferValuation valuation of all tokens owned by the address in USD
+     * @param _amount number of tokens to be transferred
+     */
+    function _checkRiskRules(address _from, address _to, uint256 _balanceValuation, uint256 _transferValuation, uint256 _amount, uint256 _price) internal view {
+        _balanceValuation;
+        _amount;
+        _price;
+        uint8 riskScoreTo = appManager.getRiskScore(_to);
+        uint8 riskScoreFrom = appManager.getRiskScore(_from);
+        if (transactionLimitByRiskRuleActive) {
+            tokenRuleRouter.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _transferValuation);
+            tokenRuleRouter.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _transferValuation);
+        }
+    }
+
+    /**
+     * @dev Get the account's balance in dollars. It uses the registered tokens in the app manager.
+     * @notice This gets the account's balance in dollars.
+     * @param _account address to get the balance for
+     * @return totalValuation of the account in dollars with 18 decimals of precision
+     */
+    function getAccTotalValuation(address _account) public view returns (uint256 totalValuation) {
+        address[] memory tokenList = appManager.getTokenList();
+        uint256 tokenAmount;
+        /// Loop through all Nfts and ERC20s and add values to balance
+        for (uint256 i; i < tokenList.length; ) {
+            /// First check to see if user owns the asset
+            tokenAmount = (IToken(tokenList[i]).balanceOf(_account));
+
+            if (tokenAmount > 0) {
+                try IERC165(tokenList[i]).supportsInterface(0x80ac58cd) returns (bool isERC721) {
+                    if (isERC721) totalValuation += _getNFTValuePerCollection(tokenList[i], _account, tokenAmount);
+                    else {
+                        uint8 decimals = ERC20(tokenList[i]).decimals();
+                        totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
+                    }
+                } catch {
+                    uint8 decimals = ERC20(tokenList[i]).decimals();
+                    totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
+                }
+            }
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev Get the value for a specific ERC20. This is done by interacting with the pricing module
+     * @notice This gets the token's value in dollars.
+     * @param _tokenAddress the address of the token
+     * @return price the price of 1 in dollars
+     */
+    function _getERC20Price(address _tokenAddress) private view returns (uint256) {
+        if (erc20PricingAddress != address(0)) {
+            return erc20Pricer.getTokenPrice(_tokenAddress);
+        } else {
+            revert PricingModuleNotConfigured(erc20PricingAddress, nftPricingAddress);
+        }
+    }
+
+    /**
+     * @dev Get the value for a specific ERC721. This is done by interacting with the pricing module
+     * @notice This gets the token's value in dollars.
+     * @param _tokenAddress the address of the token
+     * @param _account of the token holder
+     * @param _tokenAmount amount of NFTs from _tokenAddress contract
+     * @return totalValueInThisContract in USD with 18 decimals of precision
+     */
+    function _getNFTValuePerCollection(address _tokenAddress, address _account, uint256 _tokenAmount) private view returns (uint256 totalValueInThisContract) {
+        if (nftPricingAddress != address(0)) {
+            for (uint i; i < _tokenAmount; ) {
+                totalValueInThisContract += nftPricer.getNFTPrice(_tokenAddress, ERC721Enumerable(_tokenAddress).tokenOfOwnerByIndex(_account, i));
+                unchecked {
+                    ++i;
+                }
+            }
+        } else {
+            revert PricingModuleNotConfigured(erc20PricingAddress, nftPricingAddress);
+        }
+    }
+
+    /* <><><><><><><><><><><> Fee functions <><><><><><><><><><><><><><> */
+    /**
+     * @dev This function adds a fee to the token
+     * @param _tag meta data tag for fee
+     * @param _minBalance minimum balance for fee application
+     * @param _maxBalance maximum balance for fee application
+     * @param _feePercentage fee percentage to assess
+     * @param _targetAccount target for the fee proceeds
+     */
+    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external appAdministratorOnly(appManagerAddress) {
+        fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
+        feeActive = true;
+    }
+
+    /**
+     * @dev This function adds a fee to the token
+     * @param _tag meta data tag for fee
+     */
+    function removeFee(bytes32 _tag) external appAdministratorOnly(appManagerAddress) {
+        fees.removeFee(_tag);
+    }
+
+    /**
+     * @dev returns the full mapping of fees
+     * @param _tag meta data tag for fee
+     * @return fee struct containing fee data
+     */
+    function getFee(bytes32 _tag) external view returns (Fees.Fee memory) {
+        return fees.getFee(_tag);
+    }
+
+    /**
+     * @dev returns the full mapping of fees
+     * @return feeTotal total number of fees
+     */
+    function getFeeTotal() public view returns (uint256) {
+        return fees.getFeeTotal();
+    }
+
+    /**
+     * @dev Turn fees on/off
+     * @param on_off value for fee status
+     */
+    function setFeeActivation(bool on_off) external appAdministratorOnly(appManagerAddress) {
+        feeActive = on_off;
+    }
+
+    /**
+     * @dev returns the full mapping of fees
+     * @return feeActive fee activation status
+     */
+    function isFeeActive() external view returns (bool) {
+        return feeActive;
+    }
+
+    /**
+     * @dev Get all the fees/discounts for the transaction. This is assessed and returned as two separate arrays. This was necessary because the fees may go to
+     * different target accounts. Since struct arrays cannot be function parameters for external functions, two separate arrays must be used.
+     * @param _from originating address
+     * @param _balanceFrom Token balance of the sender address
+     * @return feeCollectorAccounts list of where the fees are sent
+     * @return feePercentages list of all applicable fees/discounts
+     */
+    function getApplicableFees(address _from, uint256 _balanceFrom) public view returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages) {
+        Fees.Fee memory fee;
+        bytes32[] memory _fromTags = appManager.getAllTags(_from);
+        if (_fromTags.length != 0 && !appManager.isAppAdministrator(_from)) {
+            uint feeCount;
+            uint24 discount;
+            uint discountCount;
+            // size the dynamic arrays by maximum possible fees
+            feeCollectorAccounts = new address[](_fromTags.length);
+            feePercentages = new int24[](_fromTags.length);
+            /// loop through and accumulate the fee percentages based on tags
+            for (uint i; i < _fromTags.length; ) {
+                fee = fees.getFee(_fromTags[i]);
+                // fee must be active and the initiating account must have an acceptable balance
+                if (fee.isValue && _balanceFrom < fee.maxBalance && _balanceFrom > fee.minBalance) {
+                    // if it's a discount, accumulate it for distribution among all applicable fees
+                    if (fee.feePercentage < 0) {
+                        discount = uint24((fee.feePercentage * -1)) + discount; // convert to uint
+                        discountCount += 1;
+                    } else {
+                        feePercentages[feeCount] = fee.feePercentage;
+                        feeCollectorAccounts[feeCount] = fee.feeCollectorAccount;
+                        unchecked {
+                            ++feeCount;
+                        }
+                    }
+                }
+                unchecked {
+                    ++i;
+                }
+            }
+            /// if an applicable discount(s) was found, then distribute it among all the fees
+            if (discount > 0 && feeCount != 0) {
+                // if there are fees to discount then do so
+                if (feeCount > 0) {
+                    uint24 discountSlice = ((discount * 100) / (uint24(feeCount))) / 100;
+                    for (uint i; i < feeCount; ) {
+                        // if discount is greater than fee, then set to zero
+                        if (int24(discountSlice) > feePercentages[i]) {
+                            feePercentages[i] = 0;
+                        } else {
+                            feePercentages[i] -= int24(discountSlice);
+                        }
+                        unchecked {
+                            ++i;
+                        }
+                    }
+                }
+            }
+        }
+        return (feeCollectorAccounts, feePercentages);
+    }
+
+    /**
+     * @dev sets the address of the nft pricing contract and loads the contract.
+     * @param _address Nft Pricing Contract address.
+     */
+    function setNFTPricingAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+        nftPricingAddress = _address;
+        nftPricer = IProtocolERC721Pricing(_address);
+    }
+
+    /**
+     * @dev sets the address of the erc20 pricing contract and loads the contract.
+     * @param _address ERC20 Pricing Contract address.
+     */
+    function setERC20PricingAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+        erc20PricingAddress = _address;
+        erc20Pricer = IProtocolERC20Pricing(_address);
+    }
+
+    /// Rule Setters and Getters
+    /**
+     * @dev Set the minMaxBalanceRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setMinMaxBalanceRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        minMaxBalanceRuleId = _ruleId;
+        minMaxBalanceRuleActive = true;
+        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, address(this), _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateMinMaxBalanceRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+        minMaxBalanceRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(MIN_MAX_BALANCE_LIMIT, address(this));
+        }
+    }
+
+    /**
+     * Get the minMaxBalanceRuleId.
+     * @return minMaxBalance rule id.
+     */
+    function getMinMaxBalanceRuleId() external view returns (uint32) {
+        return minMaxBalanceRuleId;
+    }
+
+    /**
+     * @dev Tells you if the MinMaxBalanceRule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isMinMaxBalanceActive() external view returns (bool) {
+        return minMaxBalanceRuleActive;
+    }
+
+    /**
+     * @dev Set the minTransferRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setMinTransferRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        minTransferRuleId = _ruleId;
+        minTransferRuleActive = true;
+        emit ApplicationHandlerApplied(MIN_TRANSFER, address(this), _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateMinTransfereRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+        minTransferRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(MIN_TRANSFER, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(MIN_TRANSFER, address(this));
+        }
+    }
+
+    /**
+     * @dev Retrieve the minTransferRuleId
+     * @return minTransferRuleId
+     */
+    function getMinTransferRuleId() external view returns (uint32) {
+        return minTransferRuleId;
+    }
+
+    /**
+     * @dev Tells you if the MinMaxBalanceRule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isMinTransferActive() external view returns (bool) {
+        return minTransferRuleActive;
+    }
+
+    /**
+     * @dev Set the oracleRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setOracleRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        oracleRuleId = _ruleId;
+        oracleRuleActive = true;
+        emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateOracleRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+        oracleRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(ORACLE, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(ORACLE, address(this));
+        }
+    }
+
+    /**
+     * @dev Retrieve the oracle rule id
+     * @return oracleRuleId
+     */
+    function getOracleRuleId() external view returns (uint32) {
+        return oracleRuleId;
+    }
+
+    /**
+     * @dev Tells you if the Oracle Rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isOracleActive() external view returns (bool) {
+        return oracleRuleActive;
+    }
+
+    /**
+     * @dev Retrieve the transaction limit by risk rule id
+     * @return transactionLimitByRiskRuleActive rule id
+     */
+    function getTransactionLimitByRiskRule() external view returns (uint32) {
+        return transactionLimitByRiskRuleId;
+    }
+
+    /**
+     * @dev Set the accountBalanceByRiskRule. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setTransactionLimitByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        transactionLimitByRiskRuleId = _ruleId;
+        transactionLimitByRiskRuleActive = true;
+        emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, address(this), _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateTransactionLimitByRiskRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+        transactionLimitByRiskRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(TX_SIZE_BY_RISK, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(TX_SIZE_BY_RISK, address(this));
+        }
+    }
+
+    /**
+     * @dev Tells you if the transactionLimitByRiskRule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isTransactionLimitByRiskActive() external view returns (bool) {
+        return transactionLimitByRiskRuleActive;
+    }
+
+    /**
+     * @dev Set the accountBalanceByRiskRule. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
+        if (adminWithdrawalActive) {
+            tokenRuleRouter.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
+        }
+        /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
+        adminWithdrawalRuleId = _ruleId;
+        adminWithdrawalActive = true;
+        emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, address(this), _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateAdminWithdrawalRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+        /// if the rule is currently active, we check that time for current ruleId is expired
+        if (!_on) {
+            tokenRuleRouter.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
+        }
+        adminWithdrawalActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(ADMIN_WITHDRAWAL, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(ADMIN_WITHDRAWAL, address(this));
+        }
+    }
+
+    /**
+     * @dev Tells you if the admin withdrawal rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isAdminWithdrawalActive() external view returns (bool) {
+        return adminWithdrawalActive;
+    }
+
+    /**
+     * @dev Retrieve the admin withdrawal rule id
+     * @return adminWithdrawalRuleId rule id
+     */
+    function getAdminWithdrawalRuleId() external view returns (uint32) {
+        return adminWithdrawalRuleId;
+    }
+
+    /**
+     * @dev Retrieve the minimum balance by date rule id
+     * @return minBalByDateRuleId rule id
+     */
+    function getMinBalByDateRule() external view returns (uint32) {
+        return minBalByDateRuleId;
+    }
+
+    /**
+     * @dev Set the minBalByDateRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setMinBalByDateRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        minBalByDateRuleId = _ruleId;
+        minBalByDateRuleActive = true;
+        emit ApplicationHandlerApplied(MIN_BALANCE_BY_DATE, address(this), _ruleId);
+    }
+
+    /**
+     * @dev Tells you if the min bal by date rule is active or not.
+     * @param _on boolean representing if the rule is active
+     */
+    function activateMinBalByDateRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+        minBalByDateRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(MIN_BALANCE_BY_DATE, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(MIN_BALANCE_BY_DATE, address(this));
+        }
+    }
+
+    /**
+     * @dev Tells you if the minBalByDateRuleActive is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isMinBalByDateActive() external view returns (bool) {
+        return minBalByDateRuleActive;
+    }
+
+    /// -------------DATA CONTRACT DEPLOYMENT---------------
+    /**
+     * @dev Deploy all the child data contracts. Only called internally from the constructor.
+     */
+    function deployDataContract() private {
+        fees = new Fees();
+    }
+
+    /**
+     * @dev Getter for the fee rules data contract address
+     * @return feesDataAddress
+     */
+    function getFeesDataAddress() external view returns (address) {
+        return address(fees);
+    }
+
+    /**
+     * @dev This function is used to migrate the data contracts to a new CoinHandler. Use with care because it changes ownership. They will no
+     * longer be accessible from the original CoinHandler
+     * @param _newOwner address of the new CoinHandler
+     */
+    function migrateDataContracts(address _newOwner) external appAdministratorOnly(appManagerAddress) {
+        fees.transferOwnership(_newOwner);
+    }
+
+    /**
+     * @dev This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.
+     * @param _oldCoinHandlerAddress address of the old CoinHandler
+     */
+    function connectDataContracts(address _oldCoinHandlerAddress) external appAdministratorOnly(appManagerAddress) {
+        ProtocolERC20Handler oldCoinHandler = ProtocolERC20Handler(_oldCoinHandlerAddress);
+        fees = Fees(oldCoinHandler.getFeesDataAddress());
+    }
+}
+
+interface IToken {
+    function balanceOf(address owner) external view returns (uint256 balance);
+}

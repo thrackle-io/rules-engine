@@ -1,0 +1,93 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.17;
+import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import {IApplicationEvents} from "../../interfaces/IEvents.sol";
+
+/**
+ * @title Fees
+ * @notice This contract serves as a storage for fees
+ * @dev Uses DataAppManager, which has basic ownable functionality. It will get created, and therefore owned, by the creating contract
+ * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
+ */
+contract Fees is Ownable, IApplicationEvents {
+    int256 defaultFee;
+    mapping(bytes32 => Fee) feesByTag;
+    uint256 feeTotal;
+    struct Fee {
+        uint256 minBalance;
+        uint256 maxBalance;
+        int24 feePercentage;
+        address feeCollectorAccount;
+        bool isValue; // this is just for housekeeping purposes
+    }
+
+    error InvertedLimits();
+    error ValueOutOfRange(uint24 percentage);
+    error ZeroValueNotPermited();
+    error BlankTag();
+
+    /**
+     * @dev This function adds a fee to the token
+     * @param _tag meta data tag for fee
+     * @param _minBalance minimum balance for fee application
+     * @param _maxBalance maximum balance for fee application
+     * @param _feePercentage fee percentage to assess
+     * @param _targetAccount fee percentage to assess
+     */
+    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external onlyOwner {
+        if (_minBalance > _maxBalance) revert InvertedLimits();
+        if (_feePercentage < -10000 || _feePercentage > 10000) revert ValueOutOfRange(uint24(_feePercentage));
+        if (_tag == "") revert BlankTag();
+        if (_feePercentage == 0) revert ZeroValueNotPermited();
+        if (_targetAccount == address(0) && _feePercentage > 0) revert ZeroValueNotPermited();
+        // if the fee did not already exist, then increment total
+        if (!feesByTag[_tag].isValue) {
+            feeTotal += 1;
+        }
+        // if necessary, default the max balance
+        if (_maxBalance == 0) _maxBalance = getMaxUint();
+        // add the fee to the mapping. If it already exists, it will replace the old one.
+        feesByTag[_tag] = Fee(_minBalance, _maxBalance, _feePercentage, _targetAccount, true);
+        emit FeeTypeAdded(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount, block.timestamp);
+    }
+
+    /**
+     * @dev This function adds a fee to the token
+     * @param _tag meta data tag for fee
+     */
+    function removeFee(bytes32 _tag) external onlyOwner {
+        if (_tag == "") revert BlankTag();
+        // if the fee did not already exist, then decrement total
+        if (feesByTag[_tag].isValue && feeTotal > 0) {
+            feeTotal -= 1;
+        }
+        delete (feesByTag[_tag]);
+        emit FeeTypeRemoved(_tag, block.timestamp);
+    }
+
+    /**
+     * @dev returns the full mapping of fees
+     * @param _tag meta data tag for fee
+     * @return fee struct containing fee data
+     */
+    function getFee(bytes32 _tag) public view onlyOwner returns (Fee memory) {
+        return feesByTag[_tag];
+    }
+
+    /**
+     * @dev returns the full mapping of fees
+     * @return feeTotal total number of fees
+     */
+    function getFeeTotal() external view onlyOwner returns (uint256) {
+        return feeTotal;
+    }
+
+    /**
+     * @dev this is a quick and dirty way of getting the max uint without using exponents or hardcoding the 78 digit number.
+     */
+    function getMaxUint() internal pure returns (uint256) {
+        unchecked {
+            return uint256(0) - 1;
+        }
+    }
+}

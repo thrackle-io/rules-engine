@@ -1,0 +1,38 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  build-test:
+    name: Build and Test
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install dependencies
+        run: |
+          git config user.email "cloudops@thrackle.io"
+          git config user.name "CloudOps Thrackle"
+          make install
+      - name: Build
+        run: |
+          make build
+      - name: Test
+        run: |
+          make testAll

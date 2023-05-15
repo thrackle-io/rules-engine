@@ -1,0 +1,12 @@
+[profile.default]
+src = 'src'
+out = 'out'
+libs = ['lib']
+
+[profile.local]
+eth-rpc-url = 'http://localhost:8545'
+
+[profile.docker]
+eth-rpc-url = 'http://anvil:8545'
+
+# See more config options https://github.com/foundry-rs/foundry/tree/master/config

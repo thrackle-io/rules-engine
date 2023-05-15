@@ -1,0 +1,1032 @@
+# ProtocolERC20Handler
+[Git Source](https://github.com/thrackle-io/Tron/blob/afc52571532b132ea1dea91ad1d1f1af07381e8a/src/token/ProtocolERC20Handler.sol)
+
+**Inherits:**
+Ownable, [IAssetHandlerLite](/src/economic/IAssetHandlerLite.sol/interface.IAssetHandlerLite.md), [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
+
+**Author:**
+@ShaneDuncan602, @oscarsernarosero, @TJ-Everett
+
+TODO Create a wizard that creates custom versions of this contract for each implementation.
+
+Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
+
+*This contract performs all rule checks related to the the ERC20 that implements it.*
+
+
+## State Variables
+### appManagerAddress
+Functions added so far:
+minTransfer
+balanceLimits
+oracle
+Balance by AccessLevel
+Balance Limit by Risk
+Transaction Limit by Risk
+AccessLevel Account balance
+Risk Score Transaction Limit
+Risk Score Account Balance Limit
+
+
+```solidity
+address public appManagerAddress;
+```
+
+
+### riskScoreTokenId
+
+```solidity
+string private riskScoreTokenId;
+```
+
+
+### fees
+Data contracts
+
+
+```solidity
+Fees fees;
+```
+
+
+### feeActive
+
+```solidity
+bool feeActive;
+```
+
+
+### minTransferRuleId
+RuleIds
+
+
+```solidity
+uint32 private minTransferRuleId;
+```
+
+
+### oracleRuleId
+
+```solidity
+uint32 private oracleRuleId;
+```
+
+
+### minMaxBalanceRuleId
+
+```solidity
+uint32 private minMaxBalanceRuleId;
+```
+
+
+### transactionLimitByRiskRuleId
+
+```solidity
+uint32 private transactionLimitByRiskRuleId;
+```
+
+
+### adminWithdrawalRuleId
+
+```solidity
+uint32 private adminWithdrawalRuleId;
+```
+
+
+### minBalByDateRuleId
+
+```solidity
+uint32 private minBalByDateRuleId;
+```
+
+
+### minTransferRuleActive
+on-off switches for rules
+
+
+```solidity
+bool private minTransferRuleActive;
+```
+
+
+### oracleRuleActive
+
+```solidity
+bool private oracleRuleActive;
+```
+
+
+### minMaxBalanceRuleActive
+
+```solidity
+bool private minMaxBalanceRuleActive;
+```
+
+
+### transactionLimitByRiskRuleActive
+
+```solidity
+bool private transactionLimitByRiskRuleActive;
+```
+
+
+### adminWithdrawalActive
+
+```solidity
+bool private adminWithdrawalActive;
+```
+
+
+### minBalByDateRuleActive
+
+```solidity
+bool private minBalByDateRuleActive;
+```
+
+
+### tokenRuleRouter
+
+```solidity
+ITokenRuleRouter immutable tokenRuleRouter;
+```
+
+
+### appManager
+
+```solidity
+IAppManager appManager;
+```
+
+
+### erc20Pricer
+
+```solidity
+IProtocolERC20Pricing erc20Pricer;
+```
+
+
+### nftPricer
+
+```solidity
+IProtocolERC721Pricing nftPricer;
+```
+
+
+### erc20PricingAddress
+
+```solidity
+address public erc20PricingAddress;
+```
+
+
+### nftPricingAddress
+
+```solidity
+address public nftPricingAddress;
+```
+
+
+## Functions
+### constructor
+
+*Constructor sets params*
+
+
+```solidity
+constructor(address _tokenRuleRouterAddress, address _appManagerAddress, bool _upgradeMode);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenRuleRouterAddress`|`address`|address of the protocol's TokenRuleRouter contract.|
+|`_appManagerAddress`|`address`|address of the application AppManager.|
+|`_upgradeMode`|`bool`|specifies whether this is a fresh CoinHandler or an upgrade replacement.|
+
+
+### checkAllRules
+
+*This function is the one called from the contract that implements this handler. It's the entry point.*
+
+
+```solidity
+function checkAllRules(
+    uint256 balanceFrom,
+    uint256 balanceTo,
+    address _from,
+    address _to,
+    uint256 amount,
+    ApplicationRuleProcessorDiamondLib.ActionTypes _action
+) external returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`balanceFrom`|`uint256`|token balance of sender address|
+|`balanceTo`|`uint256`|token balance of recipient address|
+|`_from`|`address`|sender address|
+|`_to`|`address`|recipient address|
+|`amount`|`uint256`|number of tokens transferred|
+|`_action`|`ApplicationRuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|true if all checks pass|
+
+
+### _checkNonTaggedRules
+
+standard tagged and  rules do not apply when either to or from is an admin
+If everything checks out, return true
+
+*This function uses the protocol's tokenRuleRouter to perform the actual  rule checks.*
+
+
+```solidity
+function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount)
+    internal
+    view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_balanceFrom`|`uint256`|token balance of sender address|
+|`_balanceTo`|`uint256`|token balance of recipient address|
+|`_from`|`address`|address of the from account|
+|`_to`|`address`|address of the to account|
+|`_amount`|`uint256`|number of tokens transferred|
+
+
+### _checkTaggedRules
+
+*This function uses the protocol's tokenRuleRouter to perform the actual Individual rule check.*
+
+
+```solidity
+function _checkTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount)
+    internal
+    view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_balanceFrom`|`uint256`|token balance of sender address|
+|`_balanceTo`|`uint256`|token balance of recipient address|
+|`_from`|`address`|address of the from account|
+|`_to`|`address`|address of the to account|
+|`_amount`|`uint256`|number of tokens transferred|
+
+
+### _checkTaggedIndividualRules
+
+we only ask for price if we need it since this might cause the contract to require setting the pricing contracts when there is no need
+
+*This function consolidates all the tagged rules that utilize account tags.*
+
+
+```solidity
+function _checkTaggedIndividualRules(
+    address _from,
+    address _to,
+    uint256 _balanceFrom,
+    uint256 _balanceTo,
+    uint256 _amount
+) internal view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_from`|`address`|address of the from account|
+|`_to`|`address`|address of the to account|
+|`_balanceFrom`|`uint256`|token balance of sender address|
+|`_balanceTo`|`uint256`|token balance of recipient address|
+|`_amount`|`uint256`|number of tokens transferred|
+
+
+### _checkRiskRules
+
+*This function consolidates all the Risk rules that utilize tagged account Risk scores.*
+
+
+```solidity
+function _checkRiskRules(
+    address _from,
+    address _to,
+    uint256 _balanceValuation,
+    uint256 _transferValuation,
+    uint256 _amount,
+    uint256 _price
+) internal view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_from`|`address`|address of the from account|
+|`_to`|`address`|address of the to account|
+|`_balanceValuation`|`uint256`|address current balance in USD|
+|`_transferValuation`|`uint256`|valuation of all tokens owned by the address in USD|
+|`_amount`|`uint256`|number of tokens to be transferred|
+|`_price`|`uint256`||
+
+
+### getAccTotalValuation
+
+This gets the account's balance in dollars.
+
+*Get the account's balance in dollars. It uses the registered tokens in the app manager.*
+
+
+```solidity
+function getAccTotalValuation(address _account) public view returns (uint256 totalValuation);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_account`|`address`|address to get the balance for|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`totalValuation`|`uint256`|of the account in dollars with 18 decimals of precision|
+
+
+### _getERC20Price
+
+Loop through all Nfts and ERC20s and add values to balance
+First check to see if user owns the asset
+
+This gets the token's value in dollars.
+
+*Get the value for a specific ERC20. This is done by interacting with the pricing module*
+
+
+```solidity
+function _getERC20Price(address _tokenAddress) private view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenAddress`|`address`|the address of the token|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|price the price of 1 in dollars|
+
+
+### _getNFTValuePerCollection
+
+This gets the token's value in dollars.
+
+*Get the value for a specific ERC721. This is done by interacting with the pricing module*
+
+
+```solidity
+function _getNFTValuePerCollection(address _tokenAddress, address _account, uint256 _tokenAmount)
+    private
+    view
+    returns (uint256 totalValueInThisContract);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenAddress`|`address`|the address of the token|
+|`_account`|`address`|of the token holder|
+|`_tokenAmount`|`uint256`|amount of NFTs from _tokenAddress contract|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`totalValueInThisContract`|`uint256`|in USD with 18 decimals of precision|
+
+
+### addFee
+
+*This function adds a fee to the token*
+
+
+```solidity
+function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount)
+    external
+    appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tag`|`bytes32`|meta data tag for fee|
+|`_minBalance`|`uint256`|minimum balance for fee application|
+|`_maxBalance`|`uint256`|maximum balance for fee application|
+|`_feePercentage`|`int24`|fee percentage to assess|
+|`_targetAccount`|`address`|target for the fee proceeds|
+
+
+### removeFee
+
+*This function adds a fee to the token*
+
+
+```solidity
+function removeFee(bytes32 _tag) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tag`|`bytes32`|meta data tag for fee|
+
+
+### getFee
+
+*returns the full mapping of fees*
+
+
+```solidity
+function getFee(bytes32 _tag) external view returns (Fees.Fee memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tag`|`bytes32`|meta data tag for fee|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`Fees.Fee`|fee struct containing fee data|
+
+
+### getFeeTotal
+
+*returns the full mapping of fees*
+
+
+```solidity
+function getFeeTotal() public view returns (uint256);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|feeTotal total number of fees|
+
+
+### setFeeActivation
+
+*Turn fees on/off*
+
+
+```solidity
+function setFeeActivation(bool on_off) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`on_off`|`bool`|value for fee status|
+
+
+### isFeeActive
+
+*returns the full mapping of fees*
+
+
+```solidity
+function isFeeActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|feeActive fee activation status|
+
+
+### getApplicableFees
+
+*Get all the fees/discounts for the transaction. This is assessed and returned as two separate arrays. This was necessary because the fees may go to
+different target accounts. Since struct arrays cannot be function parameters for external functions, two separate arrays must be used.*
+
+
+```solidity
+function getApplicableFees(address _from, uint256 _balanceFrom)
+    public
+    view
+    returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_from`|`address`|originating address|
+|`_balanceFrom`|`uint256`|Token balance of the sender address|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`feeCollectorAccounts`|`address[]`|list of where the fees are sent|
+|`feePercentages`|`int24[]`|list of all applicable fees/discounts|
+
+
+### setNFTPricingAddress
+
+loop through and accumulate the fee percentages based on tags
+if an applicable discount(s) was found, then distribute it among all the fees
+
+*sets the address of the nft pricing contract and loads the contract.*
+
+
+```solidity
+function setNFTPricingAddress(address _address) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_address`|`address`|Nft Pricing Contract address.|
+
+
+### setERC20PricingAddress
+
+*sets the address of the erc20 pricing contract and loads the contract.*
+
+
+```solidity
+function setERC20PricingAddress(address _address) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_address`|`address`|ERC20 Pricing Contract address.|
+
+
+### setMinMaxBalanceRuleId
+
+Rule Setters and Getters
+
+that setting a rule will automatically activate it.
+
+*Set the minMaxBalanceRuleId. Restricted to app administrators only.*
+
+
+```solidity
+function setMinMaxBalanceRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### activateMinMaxBalanceRule
+
+*enable/disable rule. Disabling a rule will save gas on transfer transactions.*
+
+
+```solidity
+function activateMinMaxBalanceRule(bool _on) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if a rule must be checked or not.|
+
+
+### getMinMaxBalanceRuleId
+
+Get the minMaxBalanceRuleId.
+
+
+```solidity
+function getMinMaxBalanceRuleId() external view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|minMaxBalance rule id.|
+
+
+### isMinMaxBalanceActive
+
+*Tells you if the MinMaxBalanceRule is active or not.*
+
+
+```solidity
+function isMinMaxBalanceActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active|
+
+
+### setMinTransferRuleId
+
+that setting a rule will automatically activate it.
+
+*Set the minTransferRuleId. Restricted to app administrators only.*
+
+
+```solidity
+function setMinTransferRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### activateMinTransfereRule
+
+*enable/disable rule. Disabling a rule will save gas on transfer transactions.*
+
+
+```solidity
+function activateMinTransfereRule(bool _on) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if a rule must be checked or not.|
+
+
+### getMinTransferRuleId
+
+*Retrieve the minTransferRuleId*
+
+
+```solidity
+function getMinTransferRuleId() external view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|minTransferRuleId|
+
+
+### isMinTransferActive
+
+*Tells you if the MinMaxBalanceRule is active or not.*
+
+
+```solidity
+function isMinTransferActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active|
+
+
+### setOracleRuleId
+
+that setting a rule will automatically activate it.
+
+*Set the oracleRuleId. Restricted to app administrators only.*
+
+
+```solidity
+function setOracleRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### activateOracleRule
+
+*enable/disable rule. Disabling a rule will save gas on transfer transactions.*
+
+
+```solidity
+function activateOracleRule(bool _on) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if a rule must be checked or not.|
+
+
+### getOracleRuleId
+
+*Retrieve the oracle rule id*
+
+
+```solidity
+function getOracleRuleId() external view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|oracleRuleId|
+
+
+### isOracleActive
+
+*Tells you if the Oracle Rule is active or not.*
+
+
+```solidity
+function isOracleActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active|
+
+
+### getTransactionLimitByRiskRule
+
+*Retrieve the transaction limit by risk rule id*
+
+
+```solidity
+function getTransactionLimitByRiskRule() external view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|transactionLimitByRiskRuleActive rule id|
+
+
+### setTransactionLimitByRiskRuleId
+
+that setting a rule will automatically activate it.
+
+*Set the accountBalanceByRiskRule. Restricted to app administrators only.*
+
+
+```solidity
+function setTransactionLimitByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### activateTransactionLimitByRiskRule
+
+*enable/disable rule. Disabling a rule will save gas on transfer transactions.*
+
+
+```solidity
+function activateTransactionLimitByRiskRule(bool _on) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if a rule must be checked or not.|
+
+
+### isTransactionLimitByRiskActive
+
+*Tells you if the transactionLimitByRiskRule is active or not.*
+
+
+```solidity
+function isTransactionLimitByRiskActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active|
+
+
+### setAdminWithdrawalRuleId
+
+that setting a rule will automatically activate it.
+
+*Set the accountBalanceByRiskRule. Restricted to app administrators only.*
+
+
+```solidity
+function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### activateAdminWithdrawalRule
+
+if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
+after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
+
+*enable/disable rule. Disabling a rule will save gas on transfer transactions.*
+
+
+```solidity
+function activateAdminWithdrawalRule(bool _on) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if a rule must be checked or not.|
+
+
+### isAdminWithdrawalActive
+
+if the rule is currently active, we check that time for current ruleId is expired
+
+*Tells you if the admin withdrawal rule is active or not.*
+
+
+```solidity
+function isAdminWithdrawalActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active|
+
+
+### getAdminWithdrawalRuleId
+
+*Retrieve the admin withdrawal rule id*
+
+
+```solidity
+function getAdminWithdrawalRuleId() external view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|adminWithdrawalRuleId rule id|
+
+
+### getMinBalByDateRule
+
+*Retrieve the minimum balance by date rule id*
+
+
+```solidity
+function getMinBalByDateRule() external view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|minBalByDateRuleId rule id|
+
+
+### setMinBalByDateRuleId
+
+that setting a rule will automatically activate it.
+
+*Set the minBalByDateRuleId. Restricted to app administrators only.*
+
+
+```solidity
+function setMinBalByDateRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### activateMinBalByDateRule
+
+*Tells you if the min bal by date rule is active or not.*
+
+
+```solidity
+function activateMinBalByDateRule(bool _on) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if the rule is active|
+
+
+### isMinBalByDateActive
+
+*Tells you if the minBalByDateRuleActive is active or not.*
+
+
+```solidity
+function isMinBalByDateActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active|
+
+
+### deployDataContract
+
+-------------DATA CONTRACT DEPLOYMENT---------------
+
+*Deploy all the child data contracts. Only called internally from the constructor.*
+
+
+```solidity
+function deployDataContract() private;
+```
+
+### getFeesDataAddress
+
+*Getter for the fee rules data contract address*
+
+
+```solidity
+function getFeesDataAddress() external view returns (address);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|feesDataAddress|
+
+
+### migrateDataContracts
+
+*This function is used to migrate the data contracts to a new CoinHandler. Use with care because it changes ownership. They will no
+longer be accessible from the original CoinHandler*
+
+
+```solidity
+function migrateDataContracts(address _newOwner) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_newOwner`|`address`|address of the new CoinHandler|
+
+
+### connectDataContracts
+
+*This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.*
+
+
+```solidity
+function connectDataContracts(address _oldCoinHandlerAddress) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_oldCoinHandlerAddress`|`address`|address of the old CoinHandler|
+
+
+## Errors
+### PricingModuleNotConfigured
+
+```solidity
+error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
+```
+
+### actionCheckFailed
+
+```solidity
+error actionCheckFailed();
+```
+
+### CannotTurnOffAccessLevel0WithAccessLevelBalanceActive
+
+```solidity
+error CannotTurnOffAccessLevel0WithAccessLevelBalanceActive();
+```
+

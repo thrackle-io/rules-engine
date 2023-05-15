@@ -1,0 +1,32 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  build-test:
+    name: Generate Docs
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Generate documentation
+        run: |
+          git config user.email "engineering@thrackle.io"
+          git config user.name "Thrackle Engineering"
+          forge doc
+          git add .
+          git commit -m "Generate documentation"
+          git push
