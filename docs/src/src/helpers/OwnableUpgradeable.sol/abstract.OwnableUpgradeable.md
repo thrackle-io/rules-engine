@@ -1,5 +1,5 @@
 # OwnableUpgradeable
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/ca661487b49e5b916c4fa8811d6bdafbe530a6c8/src/helpers/OwnableUpgradeable.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2738cf9716e0fddfad4df13fdb6486b5987af931/src/helpers/OwnableUpgradeable.sol)
 
 **Inherits:**
 [Initializable](/src/helpers/Initializable.sol/abstract.Initializable.md), [ContextUpgradeable](/src/helpers/ContextUpgradeable.sol/abstract.ContextUpgradeable.md)

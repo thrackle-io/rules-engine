@@ -1,5 +1,5 @@
 # ProtocolERC20Handler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/ca661487b49e5b916c4fa8811d6bdafbe530a6c8/src/token/ProtocolERC20Handler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2738cf9716e0fddfad4df13fdb6486b5987af931/src/token/ProtocolERC20Handler.sol)
 
 **Inherits:**
 Ownable, [IAssetHandlerLite](/src/economic/IAssetHandlerLite.sol/interface.IAssetHandlerLite.md), [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
