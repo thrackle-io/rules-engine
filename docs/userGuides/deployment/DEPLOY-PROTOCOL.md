@@ -2,7 +2,7 @@
 [![Project Version][version-image]][version-url]
 
 ---
-Due to the architecture of the Protocol, several contracts required to be deployed to utilize the protocol. Once these are deployed, 
+Due to the architecture of the Protocol, several contracts are required to be deployed to utilize the protocol. Once these are deployed, 
 several application ecosystems may utilize these contracts independently without affecting each other. The following diagram
 is an overview of this deployment process:
 ![Protocol deployment sequence diagram](../images/ProtocolDeployment.png)
