@@ -701,7 +701,7 @@ contract ProtocolERC721A is IERC721A, Pausable, AppAdministratorOnly, IApplicati
      * @param quantity Number of tokens to transfer (used in batch minting)
      */
     function _beforeTokenTransfers(address from, address to, uint256 startTokenId, uint256 quantity) internal virtual {
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, 1, 0, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE));
+        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, 1, 0, RuleProcessorDiamondLib.ActionTypes.TRADE));
         quantity; ///added to silence warnings - remove later TODO
         startTokenId; ///added to silence warnings - remove later TODO
     }

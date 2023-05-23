@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import "../src/example/ApplicationERC20.sol";
 import "../src/example/ApplicationERC721.sol";
 import "../src/example/ApplicationAppManager.sol";
-import "../src/application/ApplicationHandler.sol";
+import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "../src/economic/TokenRuleRouter.sol";
 import "../src/economic/TokenRuleRouterProxy.sol";
@@ -57,32 +57,25 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
         ///connect data diamond with Tagged Rule Processor diamond
         taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        /// add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdminstrator);
-        /// add the AccessLevelAdmin address as a AccessLevel admin
-        appManager.addAccessTier(accessTier);
-        /// add the riskAdmin as risk admin
-        appManager.addRiskAdmin(riskAdmin);
         tokenRuleRouter = new TokenRuleRouter();
 
         /// connect the TokenRuleRouter to its child Diamond
         ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
         TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
 
+        /// Deploy app manager
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        /// add the DEAD address as a app administrator
+        appManager.addAppAdministrator(appAdministrator);
+        /// add the AccessLevelAdmin address as a AccessLevel admin
+        appManager.addAccessTier(accessTier);
+        /// add the riskAdmin as risk admin
+        appManager.addRiskAdmin(riskAdmin);
+        applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
         /// Set up the ApplicationERC721Handler
         applicationNFTHandler = new ApplicationERC721Handler(address(ruleRouterProxy), address(appManager));
         applicationCoinHandler = new ApplicationERC20Handler(address(ruleRouterProxy), address(appManager), false);
 
-        /// deploying the ERC20 token contract
-        // connect the Application Rule Processor Diamond
-        ApplicationRuleProcessorDiamond applicationRuleProcessorDiamond = getApplicationProcessorDiamond();
-        applicationHandler = appManager.applicationHandler();
-        //connect applicationHandler with rule diamond
-        applicationRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // connect applicationHandler with its diamond
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(address(applicationRuleProcessorDiamond));
         applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), address(applicationNFTHandler), "https://SampleApp.io");
         appManager.registerToken("THRK", address(applicationNFT));
 
@@ -148,7 +141,7 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         ///Switch to app administrator account for burn
         vm.stopPrank();
         vm.startPrank(randomUser2);
-        /// Burn appAdminstrator token
+        /// Burn appAdministrator token
         applicationNFT.burn(0);
         ///Return to default admin account
         vm.stopPrank();
@@ -224,7 +217,7 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         assertEq(applicationNFT.balanceOf(user2), 1);
         assertEq(applicationNFT.balanceOf(user1), 1);
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         ///update ruleId in application NFT handler
         applicationNFTHandler.setMinMaxBalanceRuleId(ruleId);
         /// make sure the minimum rules fail results in revert
@@ -295,7 +288,7 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         assertEq(applicationNFT.balanceOf(user3), 0);
         // check the allowed list type
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
         applicationNFTHandler.setOracleRuleId(_index);
@@ -1064,7 +1057,7 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
                     /// let's give back the NFTs to _user1
                     /// we update the min max balance rule so it's not a problem testing our AccessLevel
                     vm.stopPrank();
-                    vm.startPrank(appAdminstrator);
+                    vm.startPrank(appAdministrator);
                     bytes32[] memory accs1 = new bytes32[](1);
                     uint256[] memory min1 = new uint256[](1);
                     uint256[] memory max1 = new uint256[](1);
@@ -1088,7 +1081,7 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
                     applicationNFT.safeTransferFrom(_user2, _user1, 2);
                 }
                 vm.stopPrank();
-                vm.startPrank(appAdminstrator);
+                vm.startPrank(appAdministrator);
                 bytes32[] memory accs2 = new bytes32[](1);
                 uint256[] memory min2 = new uint256[](1);
                 uint256[] memory max2 = new uint256[](1);
@@ -1102,7 +1095,7 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
                 applicationNFT.safeTransferFrom(_user2, _user1, 1);
             }
             vm.stopPrank();
-            vm.startPrank(appAdminstrator);
+            vm.startPrank(appAdministrator);
             bytes32[] memory accs3 = new bytes32[](1);
             uint256[] memory min3 = new uint256[](1);
             uint256[] memory max3 = new uint256[](1);
@@ -1117,7 +1110,7 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         }
         {
             vm.stopPrank();
-            vm.startPrank(appAdminstrator);
+            vm.startPrank(appAdministrator);
             bytes32[] memory accs4 = new bytes32[](1);
             uint256[] memory min4 = new uint256[](1);
             uint256[] memory max4 = new uint256[](1);
@@ -1170,7 +1163,7 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
             balanceAmounts[4] = 200_000_000;
             {
                 vm.stopPrank();
-                vm.startPrank(appAdminstrator);
+                vm.startPrank(appAdministrator);
                 uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(appManager), balanceAmounts);
                 /// connect the rule to this handler
                 applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);

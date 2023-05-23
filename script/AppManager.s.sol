@@ -18,7 +18,7 @@ contract AppManagerScript is Script {
         uint256 privateKey = vm.envUint("PRIVATE_KEY_01");
 
         vm.startBroadcast(privateKey);
-        new AppManager(vm.envAddress("ADDRESS_01"), "Castlevania", false);
+        new AppManager(vm.envAddress("ADDRESS_01"), "Castlevania", vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"), false);
 
         vm.stopBroadcast();
     }

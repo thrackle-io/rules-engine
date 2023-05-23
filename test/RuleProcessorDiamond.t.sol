@@ -19,7 +19,7 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     AppManager public appManager;
     address defaultAdmin = address(0xAD);
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    address appAdminstrator = address(0xDEAD);
+    address appAdministrator = address(0xDEAD);
     address ac;
 
     RuleStorageDiamond ruleStorageDiamond;
@@ -34,9 +34,9 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         // Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
         tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
         // Deploy app manager
-        appManager = new AppManager(defaultAdmin, "Castlevania", false);
+        appManager = new AppManager(defaultAdmin, "Castlevania", address(0), false);
         // add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdminstrator);
+        appManager.addAppAdministrator(appAdministrator);
         ac = address(appManager);
     }
 

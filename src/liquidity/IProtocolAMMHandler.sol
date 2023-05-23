@@ -29,7 +29,7 @@ interface IProtocolAMMHandler {
         address _to,
         uint256 token_amount_0,
         uint256 token_amount_1,
-        ApplicationRuleProcessorDiamondLib.ActionTypes _action
+        RuleProcessorDiamondLib.ActionTypes _action
     ) external returns (bool);
 
     /**
@@ -42,5 +42,5 @@ interface IProtocolAMMHandler {
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return fees total assessed fee for transaction
      */
-    function assessFees(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, ApplicationRuleProcessorDiamondLib.ActionTypes _action) external returns (uint256);
+    function assessFees(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, RuleProcessorDiamondLib.ActionTypes _action) external returns (uint256);
 }

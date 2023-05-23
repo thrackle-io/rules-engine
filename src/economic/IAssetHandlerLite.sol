@@ -4,9 +4,9 @@ pragma solidity 0.8.17;
 import "../application/IAppManager.sol";
 
 /**
- * @title ITokenRuleRouter
+ * @title IAssetHandlerLite
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev the light version of the TokenRuleRouter. This is only used by the client contracts that
+ * @dev the light version of the AssetHandlers. This is only used by the client contracts that
  * implement any of the Protocol capable contracts.
  */
 
@@ -21,7 +21,7 @@ interface IAssetHandlerLite {
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return Success equals true and Failure equals false
      */
-    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, ApplicationRuleProcessorDiamondLib.ActionTypes _action) external returns (bool);
+    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, RuleProcessorDiamondLib.ActionTypes _action) external returns (bool);
 
     /**
      * @dev returns the full mapping of fees

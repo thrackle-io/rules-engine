@@ -1,5 +1,5 @@
 # ApplicationAppManager
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2738cf9716e0fddfad4df13fdb6486b5987af931/src/example/ApplicationAppManager.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/0f66d21b157a740e3d9acae765069e378935a031/src/example/ApplicationAppManager.sol)
 
 **Inherits:**
 [AppManager](/src/application/AppManager.sol/contract.AppManager.md)
@@ -19,8 +19,8 @@ This is an example implementation that App Devs can use.
 
 
 ```solidity
-constructor(address _ownerAddress, string memory _appName, bool upgradeMode)
-    AppManager(_ownerAddress, _appName, upgradeMode);
+constructor(address _ownerAddress, string memory _appName, address _tokenRuleRouterAddress, bool upgradeMode)
+    AppManager(_ownerAddress, _appName, _tokenRuleRouterAddress, upgradeMode);
 ```
 **Parameters**
 
@@ -28,6 +28,7 @@ constructor(address _ownerAddress, string memory _appName, bool upgradeMode)
 |----|----|-----------|
 |`_ownerAddress`|`address`|Address of deployer wallet|
 |`_appName`|`string`|Application Name String|
+|`_tokenRuleRouterAddress`|`address`|Address of the Protocol's token rule router|
 |`upgradeMode`|`bool`|specifies whether this is a fresh AppManager or an upgrade replacement.|
 
 

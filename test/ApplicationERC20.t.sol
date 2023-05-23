@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import "forge-std/Test.sol";
 import "../src/example/ApplicationERC20.sol";
 import "../src/example/ApplicationAppManager.sol";
-import "../src/application/ApplicationHandler.sol";
+import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "../src/economic/TokenRuleRouter.sol";
 import "../src/economic/TokenRuleRouterProxy.sol";
@@ -62,28 +62,21 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
         taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
         ///connect data diamond with Tagged Rule Processor diamond
         taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        /// add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdminstrator);
-        /// add the AccessLevelAdmin address as a AccessLevel admin
-        appManager.addAccessTier(accessTier);
-        /// add Risk Admin
-        appManager.addRiskAdmin(riskAdmin);
         tokenRuleRouter = new TokenRuleRouter();
         ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
         /// connect the TokenRuleRouter to its child Diamond
         TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
-
+        /// Deploy app manager
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        /// add the DEAD address as a app administrator
+        appManager.addAppAdministrator(appAdministrator);
+        /// add the AccessLevelAdmin address as a AccessLevel admin
+        appManager.addAccessTier(accessTier);
+        /// add Risk Admin
+        appManager.addRiskAdmin(riskAdmin);
+        applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
         /// Set up the ApplicationERC20Handler
         applicationCoinHandler = new ApplicationERC20Handler(address(ruleRouterProxy), address(appManager), false);
-        // connect the diamond to the Application Rule Processor Diamond
-        ApplicationRuleProcessorDiamond applicationRuleProcessorDiamond = getApplicationProcessorDiamond();
-        applicationHandler = appManager.applicationHandler();
-        //connect applicationHandler with rule diamond
-        applicationRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // connect applicationHandler with its diamond
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(address(applicationRuleProcessorDiamond));
 
         applicationCoin = new ApplicationERC20("FRANK", "FRANK", address(appManager), address(applicationCoinHandler));
         applicationCoin.mint(defaultAdmin, 10000000000000000000000 * (10 ** 18));
@@ -117,8 +110,8 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
 
     /// Test token transfer
     function testTransfer() public {
-        applicationCoin.transfer(appAdminstrator, 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(appAdminstrator), 10 * (10 ** 18));
+        applicationCoin.transfer(appAdministrator, 10 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(appAdministrator), 10 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(defaultAdmin), 9999999999999999999990 * (10 ** 18));
     }
 
@@ -328,14 +321,14 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 100000);
         assertEq(applicationCoin.balanceOf(user1), 100000);
-        applicationCoin.transfer(appAdminstrator, 100000);
+        applicationCoin.transfer(appAdministrator, 100000);
         vm.stopPrank();
         vm.startPrank(user1);
         applicationCoin.transfer(user2, 1000);
 
         ///set pause rule and check check that the transaction reverts
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         appManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
         vm.warp(Blocktime + 1001);
 
@@ -344,9 +337,9 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
         vm.expectRevert();
         applicationCoin.transfer(user2, 1000);
 
-        ///Check that appAdminstrators can still transfer within pausePeriod
+        ///Check that appAdministrators can still transfer within pausePeriod
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         applicationCoin.transfer(defaultAdmin, 1000);
         ///move blocktime after pause to resume transfers
         vm.warp(Blocktime + 1600);
@@ -355,7 +348,7 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
 
         ///Set multiple pause rules
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         appManager.addPauseRule(Blocktime + 1700, Blocktime + 2000);
         appManager.addPauseRule(Blocktime + 2100, Blocktime + 2500);
         appManager.addPauseRule(Blocktime + 3000, Blocktime + 3500);
@@ -456,7 +449,7 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
         applicationCoin.transfer(user3, 1001 * (10 ** 18));
     }
 
-    function testBalanceLimitByRiskScore() public {
+    function testBalanceLimitByRiskScoreERC20() public {
         uint8[] memory riskScores = new uint8[](5);
         uint48[] memory balanceLimits = new uint48[](6);
         riskScores[0] = 0;
@@ -548,7 +541,7 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
         assertEq(applicationCoin.balanceOf(user3), 5 * (10 ** 18));
         /// now turn the rule on so the transfer will fail
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         applicationHandler.activateAccessLevel0Rule(true);
         vm.stopPrank();
         vm.startPrank(rich_user);

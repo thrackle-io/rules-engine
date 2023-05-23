@@ -96,14 +96,12 @@ contract ProtocolAMM is AppAdministratorOnly, IApplicationEvents {
         /// Calculate how much token they get in return
         _amountOut = calculator.calculateSwap(reserve0, reserve1, _amountIn, 0);
         ///Check Rules(it's ok for this to be after the swap...it will revert on rule violation)
-        require(
-            handler.checkAllRules(token0.balanceOf(msg.sender), token1.balanceOf(msg.sender), msg.sender, address(this), _amountIn, _amountOut, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE)
-        );
+        require(handler.checkAllRules(token0.balanceOf(msg.sender), token1.balanceOf(msg.sender), msg.sender, address(this), _amountIn, _amountOut, RuleProcessorDiamondLib.ActionTypes.TRADE));
 
         /// update the reserves with the proper amounts(adding to token0, subtracting from token1)
         _update(reserve0 += _amountIn, reserve1 - _amountOut);
         /// Assess fees. All fees are always taken out of the collateralized token(token1)
-        uint256 fees = handler.assessFees(token0.balanceOf(msg.sender), token1.balanceOf(msg.sender), msg.sender, address(this), _amountOut, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        uint256 fees = handler.assessFees(token0.balanceOf(msg.sender), token1.balanceOf(msg.sender), msg.sender, address(this), _amountOut, RuleProcessorDiamondLib.ActionTypes.TRADE);
         /// subtract fees from collateralized token
         _amountOut -= fees;
         /// add fees to treasury
@@ -121,7 +119,7 @@ contract ProtocolAMM is AppAdministratorOnly, IApplicationEvents {
      */
     function _swap1For0(uint256 _amountIn) private returns (uint256 _amountOut) {
         /// Assess fees. All fees are always taken out of the collateralized token(token1)
-        uint256 fees = handler.assessFees(token1.balanceOf(msg.sender), token0.balanceOf(msg.sender), msg.sender, address(this), _amountIn, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        uint256 fees = handler.assessFees(token1.balanceOf(msg.sender), token0.balanceOf(msg.sender), msg.sender, address(this), _amountIn, RuleProcessorDiamondLib.ActionTypes.TRADE);
         /// subtract fees from collateralized token
         _amountIn -= fees;
         /// add fees to treasury
@@ -129,9 +127,7 @@ contract ProtocolAMM is AppAdministratorOnly, IApplicationEvents {
         /// Calculate how much token they get in return
         _amountOut = calculator.calculateSwap(reserve0, reserve1, 0, _amountIn);
         ///Check Rules
-        require(
-            handler.checkAllRules(token0.balanceOf(msg.sender), token1.balanceOf(msg.sender), msg.sender, address(this), _amountIn, _amountOut, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE)
-        );
+        require(handler.checkAllRules(token0.balanceOf(msg.sender), token1.balanceOf(msg.sender), msg.sender, address(this), _amountIn, _amountOut, RuleProcessorDiamondLib.ActionTypes.TRADE));
 
         /// update the reserves with the proper amounts(subtracting from token0, adding to token1)
         _update(reserve0 - _amountOut, reserve1 += _amountIn);

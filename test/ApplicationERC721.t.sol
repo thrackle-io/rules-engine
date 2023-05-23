@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import "forge-std/Test.sol";
 import "../src/example/ApplicationERC721.sol";
 import "../src/example/ApplicationAppManager.sol";
-import "../src/application/ApplicationHandler.sol";
+import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "../src/economic/TokenRuleRouter.sol";
 import "../src/economic/TokenRuleRouterProxy.sol";
@@ -54,30 +54,26 @@ contract ApplicationERC721Test is TaggedRuleProcessorDiamondTestUtil, DiamondTes
         taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
         ///connect data diamond with Tagged Rule Processor diamond
         taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        /// add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdminstrator);
-        /// add the AccessLevelAdmin address as a AccessLevel admin
-        appManager.addAccessTier(accessTier);
-        appManager.addAccessTier(AccessTier);
-        /// add Risk Admin
-        appManager.addRiskAdmin(riskAdmin);
         tokenRuleRouter = new TokenRuleRouter();
 
         /// connect the TokenRuleRouter to its child Diamond
         ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
         TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        /// Deploy app manager
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        /// add the DEAD address as a app administrator
+        appManager.addAppAdministrator(appAdministrator);
+        /// add the AccessLevelAdmin address as a AccessLevel admin
+        appManager.addAccessTier(accessTier);
+        appManager.addAccessTier(AccessTier);
+        /// add Risk Admin
+        appManager.addRiskAdmin(riskAdmin);
 
         /// Set up the ApplicationERC721Handler
         applicationNFTHandler = new ApplicationERC721Handler(address(ruleRouterProxy), address(appManager));
-        // connect the Application Rule Processor Diamond
-        ApplicationRuleProcessorDiamond applicationRuleProcessorDiamond = getApplicationProcessorDiamond();
-        applicationHandler = appManager.applicationHandler();
-        //connect applicationHandler with rule diamond
-        applicationRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // connect applicationHandler with its diamond
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(address(applicationRuleProcessorDiamond));
+
+        applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
+
         applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), address(applicationNFTHandler), "https://SampleApp.io");
         applicationNFTHandler.setERC721Address(address(applicationNFT));
 
@@ -107,35 +103,35 @@ contract ApplicationERC721Test is TaggedRuleProcessorDiamondTestUtil, DiamondTes
 
     function testTransfer() public {
         applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.transferFrom(defaultAdmin, appAdminstrator, 0);
+        applicationNFT.transferFrom(defaultAdmin, appAdministrator, 0);
         assertEq(applicationNFT.balanceOf(defaultAdmin), 0);
-        assertEq(applicationNFT.balanceOf(appAdminstrator), 1);
+        assertEq(applicationNFT.balanceOf(appAdministrator), 1);
     }
 
     function testBurn() public {
         ///Mint and transfer tokenId 0
         applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.transferFrom(defaultAdmin, appAdminstrator, 0);
+        applicationNFT.transferFrom(defaultAdmin, appAdministrator, 0);
         ///Mint tokenId 1
         applicationNFT.safeMint(defaultAdmin);
         ///Test token burn of token 0 and token 1
         applicationNFT.burn(1);
         ///Switch to app administrator account for burn
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
-        /// Burn appAdminstrator token
+        vm.startPrank(appAdministrator);
+        /// Burn appAdministrator token
         applicationNFT.burn(0);
         ///Return to default admin account
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         assertEq(applicationNFT.balanceOf(defaultAdmin), 0);
-        assertEq(applicationNFT.balanceOf(appAdminstrator), 0);
+        assertEq(applicationNFT.balanceOf(appAdministrator), 0);
     }
 
     function testFailBurn() public {
         ///Mint and transfer tokenId 0
         applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.transferFrom(defaultAdmin, appAdminstrator, 0);
+        applicationNFT.transferFrom(defaultAdmin, appAdministrator, 0);
         ///Mint tokenId 1
         applicationNFT.safeMint(defaultAdmin);
         ///attempt to burn token that user does not own
@@ -144,12 +140,12 @@ contract ApplicationERC721Test is TaggedRuleProcessorDiamondTestUtil, DiamondTes
 
     function testPassMinMaxAccountBalanceRule() public {
         /// mint 6 NFTs to defaultAdmin for transfer
-        applicationNFT.safeMint(appAdminstrator);
-        applicationNFT.safeMint(appAdminstrator);
-        applicationNFT.safeMint(appAdminstrator);
-        applicationNFT.safeMint(appAdminstrator);
-        applicationNFT.safeMint(appAdminstrator);
-        applicationNFT.safeMint(appAdminstrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
 
         bytes32[] memory accs = new bytes32[](1);
         uint256[] memory min = new uint256[](1);
@@ -160,15 +156,15 @@ contract ApplicationERC721Test is TaggedRuleProcessorDiamondTestUtil, DiamondTes
 
         /// set up a non admin user with tokens
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         ///transfer tokenId 1 and 2 to rich_user
-        applicationNFT.transferFrom(appAdminstrator, rich_user, 0);
-        applicationNFT.transferFrom(appAdminstrator, rich_user, 1);
+        applicationNFT.transferFrom(appAdministrator, rich_user, 0);
+        applicationNFT.transferFrom(appAdministrator, rich_user, 1);
         assertEq(applicationNFT.balanceOf(rich_user), 2);
 
         ///transfer tokenId 3 and 4 to user1
-        applicationNFT.transferFrom(appAdminstrator, user1, 3);
-        applicationNFT.transferFrom(appAdminstrator, user1, 4);
+        applicationNFT.transferFrom(appAdministrator, user1, 3);
+        applicationNFT.transferFrom(appAdministrator, user1, 4);
         assertEq(applicationNFT.balanceOf(user1), 2);
 
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(appManager), accs, min, max);
@@ -189,7 +185,7 @@ contract ApplicationERC721Test is TaggedRuleProcessorDiamondTestUtil, DiamondTes
         assertEq(applicationNFT.balanceOf(user2), 1);
         assertEq(applicationNFT.balanceOf(user1), 1);
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         ///update ruleId in application NFT handler
         applicationNFTHandler.setMinMaxBalanceRuleId(ruleId);
         /// make sure the minimum rules fail results in revert
@@ -254,7 +250,7 @@ contract ApplicationERC721Test is TaggedRuleProcessorDiamondTestUtil, DiamondTes
         assertEq(applicationNFT.balanceOf(address(69)), 0);
         // check the allowed list type
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
         applicationNFTHandler.setOracleRuleId(_index);
@@ -294,7 +290,7 @@ contract ApplicationERC721Test is TaggedRuleProcessorDiamondTestUtil, DiamondTes
         assertEq(applicationNFT.balanceOf(user1), 5);
         ///set pause rule and check check that the transaction reverts
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         appManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
         vm.warp(Blocktime + 1001);
 

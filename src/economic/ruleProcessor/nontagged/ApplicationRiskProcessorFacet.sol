@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {ApplicationRuleProcessorDiamondLib as actionDiamond, ApplicationRuleDataStorage} from "./ApplicationRuleProcessorDiamondLib.sol";
+import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {IApplicationRules as ApplicationRuleStorage} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
 
@@ -27,7 +27,7 @@ contract ApplicationRiskProcessorFacet {
      */
     function accountBalancebyRiskScore(uint32 _ruleId, uint8 _riskScore, uint128 _totalValuationTo, uint128 _amountToTransfer) external view {
         /// we create the 'data' variable which is simply a connection to the rule diamond
-        AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.applicationStorage().ruleDiamondAddress);
+        AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().nontaggedRules);
         /// validation block
         uint256 totalRules = data.getTotalAccountBalanceByRiskScoreRules();
         if ((totalRules > 0 && totalRules <= _ruleId) || totalRules == 0) revert RuleDoesNotExist();
@@ -72,7 +72,7 @@ contract ApplicationRiskProcessorFacet {
      */
     function checkMaxTxSizePerPeriodByRisk(uint32 ruleId, uint128 _usdValueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 riskScore) external view returns (uint128) {
         /// we create the 'data' variable which is simply a connection to the rule diamond
-        AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.applicationStorage().ruleDiamondAddress);
+        AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().nontaggedRules);
         /// validation block
         uint256 totalRules = data.getTotalMaxTxSizePerPeriodRules();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();

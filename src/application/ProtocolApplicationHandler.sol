@@ -2,25 +2,22 @@
 pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "src/economic/ruleProcessor/application/ApplicationRuleProcessorDiamondLib.sol";
+import "src/economic/ruleProcessor/nontagged/RuleProcessorDiamondLib.sol";
 import "../application/AppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
-import {ApplicationPauseProcessorFacet} from "src/economic/ruleProcessor/application/ApplicationPauseProcessorFacet.sol";
-import {ApplicationRiskProcessorFacet} from "src/economic/ruleProcessor/application/ApplicationRiskProcessorFacet.sol";
-import {ApplicationAccessLevelProcessorFacet} from "src/economic/ruleProcessor/application/ApplicationAccessLevelProcessorFacet.sol";
 import {IAppLevelEvents} from "../interfaces/IEvents.sol";
+import "../economic/ITokenRuleRouter.sol";
 
 /**
- * @title AppManager Contract
- * @notice This contract is the connector between the AppManagerRulesDiamond and the Application App Managers. It is maintained by the client application.
- * Deployment happens automatically when the AppManager is deployed.
+ * @title Protocol ApplicationHandler Contract
+ * @notice This contract is the rules handler for all application level rules. It is implemented via the AppManager
  * @dev This contract is injected into the appManagerss.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract ApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelEvents {
-    address applicationRuleProcessorDiamondAddress;
+contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelEvents {
     AppManager appManager;
     address appManagerAddress;
+    ITokenRuleRouter immutable tokenRuleRouter;
 
     error ZeroAddress();
 
@@ -43,11 +40,13 @@ contract ApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelEvents {
 
     /**
      * @dev Initializes the contract setting the owner as the one provided.
-     * @param _appManagerAddress Address for the appManager
+     * @param _tokenRuleRouterAddress address of the protocol's TokenRuleRouter contract.
+     * @param _appManagerAddress address of the application AppManager.
      */
-    constructor(address _appManagerAddress) {
+    constructor(address _tokenRuleRouterAddress, address _appManagerAddress) {
         appManagerAddress = _appManagerAddress;
         appManager = AppManager(_appManagerAddress);
+        tokenRuleRouter = ITokenRuleRouter(_tokenRuleRouterAddress);
         emit ApplicationHandlerDeployed(address(this));
     }
 
@@ -68,9 +67,9 @@ contract ApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelEvents {
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      * @return success Returns true if allowed, false if not allowed
      */
-    function checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external returns (bool) {
+    function checkApplicationRules(RuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external returns (bool) {
         _action;
-        checkPauseRules(address(appManager));
+        tokenRuleRouter.checkPauseRules(appManagerAddress);
         if (accountBalanceByRiskRuleActive || accountBalanceByAccessLevelRuleActive || AccessLevel0RuleActive || maxTxSizePerPeriodByRiskActive) {
             _checkRiskRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
             _checkAccessLevelRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
@@ -89,11 +88,11 @@ contract ApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelEvents {
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         if (accountBalanceByRiskRuleActive) {
-            checkAccBalanceByRisk(accountBalanceByRiskRuleId, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
+            tokenRuleRouter.checkAccBalanceByRisk(accountBalanceByRiskRuleId, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
         }
         if (maxTxSizePerPeriodByRiskActive) {
             /// we check for sender
-            usdValueTransactedInRiskPeriod[_from] = checkMaxTxSizePerPeriodByRisk(
+            usdValueTransactedInRiskPeriod[_from] = tokenRuleRouter.checkMaxTxSizePerPeriodByRisk(
                 maxTxSizePerPeriodByRiskRuleId,
                 usdValueTransactedInRiskPeriod[_from],
                 _usdAmountTransferring,
@@ -102,7 +101,7 @@ contract ApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelEvents {
             );
             lastTxDateRiskRule[_from] = uint64(block.timestamp);
             /// we check for recipient
-            usdValueTransactedInRiskPeriod[_to] = checkMaxTxSizePerPeriodByRisk(
+            usdValueTransactedInRiskPeriod[_to] = tokenRuleRouter.checkMaxTxSizePerPeriodByRisk(
                 maxTxSizePerPeriodByRiskRuleId,
                 usdValueTransactedInRiskPeriod[_to],
                 _usdAmountTransferring,
@@ -122,9 +121,9 @@ contract ApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelEvents {
     function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _amount) internal view {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        if (AccessLevel0RuleActive && appManager.isRegisteredAMM(_to)) checkAccessLevel0Passes(fromScore);
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to)) checkAccessLevel0Passes(score);
-        if (accountBalanceByAccessLevelRuleActive) checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _balanceValuation, _amount);
+        if (AccessLevel0RuleActive && appManager.isRegisteredAMM(_to)) tokenRuleRouter.checkAccessLevel0Passes(fromScore);
+        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to)) tokenRuleRouter.checkAccessLevel0Passes(score);
+        if (accountBalanceByAccessLevelRuleActive) tokenRuleRouter.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _balanceValuation, _amount);
     }
 
     /**
@@ -244,72 +243,5 @@ contract ApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelEvents {
      */
     function isMaxTxSizePerPeriodByRiskActive() external view returns (bool) {
         return maxTxSizePerPeriodByRiskActive;
-    }
-
-    /**
-     * @dev This function gets the Application Rule Processor Diamond Contract Address.
-     * @param _address address of the access action diamond contract
-     */
-    function setApplicationRuleProcessorDiamondAddress(address _address) external appAdministratorOnly(appManagerAddress) {
-        if (_address == address(0)) revert ZeroAddress();
-        applicationRuleProcessorDiamondAddress = _address;
-    }
-
-    /**
-     * @dev This function gets the Application Rule Processor Diamond Contract Address.
-     * @return applicationRuleProcessorDiamondAddress address of the access action diamond contract
-     */
-    function getApplicationRuleProcessorDiamondAddress() external view returns (address) {
-        return applicationRuleProcessorDiamondAddress;
-    }
-
-    /**
-     * @dev This function checks if the requested action is valid according to pause rules.
-     * @param _dataServer address of the Application Rule Processor Diamond contract
-     * @return success true if passes, false if not passes
-     */
-
-    function checkPauseRules(address _dataServer) internal view returns (bool) {
-        return ApplicationPauseProcessorFacet(address(applicationRuleProcessorDiamondAddress)).checkPauseRules(_dataServer);
-    }
-
-    /**
-     * @dev This function checks if the requested action is valid according to the AccountBalanceByRiskScore rule
-     * @param _ruleId Rule Identifier
-     * @param _riskScoreTo the Risk Score of the recepient account
-     * @param _totalValuationTo recepient account's beginning balance in USD with 18 decimals of precision
-     * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
-     */
-    function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScoreTo, uint128 _totalValuationTo, uint128 _amountToTransfer) internal view returns (bool) {
-        ApplicationRiskProcessorFacet(address(applicationRuleProcessorDiamondAddress)).accountBalancebyRiskScore(_ruleId, _riskScoreTo, _totalValuationTo, _amountToTransfer);
-        return true;
-    }
-
-    function checkAccBalanceByAccessLevel(uint32 _ruleId, uint8 _riskScoreTo, uint128 _totalValuationTo, uint128 _amountToTransfer) internal view returns (bool) {
-        ApplicationAccessLevelProcessorFacet(address(applicationRuleProcessorDiamondAddress)).checkBalanceByAccessLevelPasses(_ruleId, _riskScoreTo, _totalValuationTo, _amountToTransfer);
-        return true;
-    }
-
-    function checkAccessLevel0Passes(uint8 _accessLevel) internal view returns (bool) {
-        ApplicationAccessLevelProcessorFacet(address(applicationRuleProcessorDiamondAddress)).checkAccessLevel0Passes(_accessLevel);
-        return true;
-    }
-
-    /**
-     * @dev rule that checks if the tx exceeds the limit size in USD for a specific risk profile
-     * within a specified period of time.
-     * @notice that these ranges are set by ranges.
-     * @param ruleId to check against.
-     * @param _usdValueTransactedInPeriod the cumulative amount of tokens recorded in the last period.
-     * @param amount in USD of the current transaction with 18 decimals of precision.
-     * @param lastTxDate timestamp of the last transfer of this token by this address.
-     * @param riskScore of the address (0 -> 100)
-     * @return updated value for the _usdValueTransactedInPeriod. If _usdValueTransactedInPeriod are
-     * inside the current period, then this value is accumulated. If not, it is reset to current amount.
-     * @dev this check will cause a revert if the new value of _usdValueTransactedInPeriod in USD exceeds
-     * the limit for the address risk profile.
-     */
-    function checkMaxTxSizePerPeriodByRisk(uint32 ruleId, uint128 _usdValueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 riskScore) internal view returns (uint128) {
-        return ApplicationRiskProcessorFacet(address(applicationRuleProcessorDiamondAddress)).checkMaxTxSizePerPeriodByRisk(ruleId, _usdValueTransactedInPeriod, amount, lastTxDate, riskScore);
     }
 }

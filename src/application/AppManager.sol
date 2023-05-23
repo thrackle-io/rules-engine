@@ -12,7 +12,7 @@ import "../data/IGeneralTags.sol";
 import "../data/GeneralTags.sol";
 import "../data/IPauseRules.sol";
 import "../data/PauseRules.sol";
-import "./ApplicationHandler.sol";
+import "./ProtocolApplicationHandler.sol";
 import {IAppLevelEvents} from "../interfaces/IEvents.sol";
 
 /**
@@ -49,7 +49,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
     IPauseRules pauseRules;
 
     /// Access Action Contract
-    ApplicationHandler public applicationHandler;
+    ProtocolApplicationHandler public applicationHandler;
     address applicationHandlerAddress;
     bool applicationRulesActive;
 
@@ -71,9 +71,10 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev This sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts.
      * @param root address to set as the default admin and first app administrator
      * @param _appName Application Name String
+     * @param _tokenRuleRouterAddress address of the protocol's token rule router
      * @param upgradeMode specifies whether this is a fresh AppManager or an upgrade replacement.
      */
-    constructor(address root, string memory _appName, bool upgradeMode) {
+    constructor(address root, string memory _appName, address _tokenRuleRouterAddress, bool upgradeMode) {
         _setupRole(DEFAULT_ADMIN_ROLE, root);
         _setupRole(APP_ADMIN_ROLE, root);
         _setRoleAdmin(APP_ADMIN_ROLE, DEFAULT_ADMIN_ROLE);
@@ -88,7 +89,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
         } else {
             emit AppManagerDeployedForUpgrade(address(this));
         }
-        deployApplicationHandler(address(this));
+        _deployApplicationHandler(_tokenRuleRouterAddress, address(this));
     }
 
     /// -------------ADMIN---------------
@@ -480,7 +481,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      */
-    function checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external {
+    function checkApplicationRules(RuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external {
         applicationHandler.checkApplicationRules(_action, _from, _to, _usdBalanceTo, _usdAmountTransferring);
     }
 
@@ -701,8 +702,16 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @notice this is for upgrading to a new ApplicationHandler contract
      */
     function setNewApplicationHandlerAddress(address _newApplicationHandler) external onlyAppAdministrator {
-        applicationHandler = ApplicationHandler(_newApplicationHandler);
+        applicationHandler = ProtocolApplicationHandler(_newApplicationHandler);
         applicationHandlerAddress = _newApplicationHandler;
+    }
+
+    /**
+     * @dev this function returns the application handler address
+     * @return ApplicationHandler
+     */
+    function getApplicationHandlerAddress() external view returns (address) {
+        return applicationHandlerAddress;
     }
 
     /**
@@ -746,9 +755,12 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Deploy the ApplicationHandler contract. Only called internally from the constructor.
+     * @param _tokenRuleRouterAddress token rule router address for rule checks
+     * @param _appManagerAddress app manager address so handler can retrieve account info
      */
-    function deployApplicationHandler(address _appManagerAddress) private returns (address) {
-        applicationHandler = new ApplicationHandler(_appManagerAddress);
+    function _deployApplicationHandler(address _tokenRuleRouterAddress, address _appManagerAddress) private returns (address) {
+        applicationHandler = new ProtocolApplicationHandler(_tokenRuleRouterAddress, _appManagerAddress);
+        applicationHandlerAddress = address(applicationHandler);
         return applicationHandlerAddress;
     }
 

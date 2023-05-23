@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2738cf9716e0fddfad4df13fdb6486b5987af931/src/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/0f66d21b157a740e3d9acae765069e378935a031/src/application/AppManager.sol)
 
 **Inherits:**
 AccessControlEnumerable, [IAppLevelEvents](/src/interfaces/IEvents.sol/interface.IAppLevelEvents.md)
@@ -83,7 +83,7 @@ Access Action Contract
 
 
 ```solidity
-ApplicationHandler public applicationHandler;
+ProtocolApplicationHandler public applicationHandler;
 ```
 
 
@@ -167,7 +167,7 @@ string appName;
 
 
 ```solidity
-constructor(address root, string memory _appName, bool upgradeMode);
+constructor(address root, string memory _appName, address _tokenRuleRouterAddress, bool upgradeMode);
 ```
 **Parameters**
 
@@ -175,6 +175,7 @@ constructor(address root, string memory _appName, bool upgradeMode);
 |----|----|-----------|
 |`root`|`address`|address to set as the default admin and first app administrator|
 |`_appName`|`string`|Application Name String|
+|`_tokenRuleRouterAddress`|`address`|address of the protocol's token rule router|
 |`upgradeMode`|`bool`|specifies whether this is a fresh AppManager or an upgrade replacement.|
 
 
@@ -824,7 +825,7 @@ function areAccessLevelOrRiskRulesActive() external returns (bool);
 
 ```solidity
 function checkApplicationRules(
-    ApplicationRuleProcessorDiamondLib.ActionTypes _action,
+    RuleProcessorDiamondLib.ActionTypes _action,
     address _from,
     address _to,
     uint128 _usdBalanceTo,
@@ -835,7 +836,7 @@ function checkApplicationRules(
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_action`|`ApplicationRuleProcessorDiamondLib.ActionTypes`|Action to be checked|
+|`_action`|`RuleProcessorDiamondLib.ActionTypes`|Action to be checked|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
 |`_usdBalanceTo`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
@@ -1174,6 +1175,21 @@ function setNewApplicationHandlerAddress(address _newApplicationHandler) externa
 |`_newApplicationHandler`|`address`|address of new Application Handler contract|
 
 
+### getApplicationHandlerAddress
+
+*this function returns the application handler address*
+
+
+```solidity
+function getApplicationHandlerAddress() external view returns (address);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|ApplicationHandler|
+
+
 ### setAppName
 
 *Setter for application Name*
@@ -1216,14 +1232,23 @@ function migrateDataContracts(address _newOwner) external onlyAppAdministrator;
 |`_newOwner`|`address`|address of the new AppManager|
 
 
-### deployApplicationHandler
+### _deployApplicationHandler
 
 *Deploy the ApplicationHandler contract. Only called internally from the constructor.*
 
 
 ```solidity
-function deployApplicationHandler(address _appManagerAddress) private returns (address);
+function _deployApplicationHandler(address _tokenRuleRouterAddress, address _appManagerAddress)
+    private
+    returns (address);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenRuleRouterAddress`|`address`|token rule router address for rule checks|
+|`_appManagerAddress`|`address`|app manager address so handler can retrieve account info|
+
 
 ### connectDataContracts
 

@@ -1,4 +1,4 @@
-# Rules Protocol
+# Tron
 [![Project Version][version-image]][version-url]
 
 This repository contains an EVM-based protocol designed to meet the unique needs of games with tokenized assets and on-chain economies. The protocol enables the creation and management of economic and compliance controls for your game’s economy at the token level, allowing for maximum flexibility while maintaining the transparency and trustlessness of Web3.

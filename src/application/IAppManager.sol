@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "src/economic/ruleProcessor/application/ApplicationRuleProcessorDiamondLib.sol";
+import "src/economic/ruleProcessor/nontagged/RuleProcessorDiamondLib.sol";
 import "../data/IPauseRules.sol";
 
 /**
@@ -173,7 +173,7 @@ interface IAppManager {
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      */
-    function checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external;
+    function checkApplicationRules(RuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external;
 
     /**
      * @dev checks if any of the AccessLevel or Risk rules are active in order to decide to perform or not

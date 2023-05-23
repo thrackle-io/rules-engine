@@ -10,6 +10,9 @@ import {ERC721TaggedRuleProcessorFacet} from "./ruleProcessor/tagged/ERC721Tagge
 import {ERC721RuleProcessorFacet} from "./ruleProcessor/nontagged/ERC721RuleProcessorFacet.sol";
 import {FeeRuleProcessorFacet} from "./ruleProcessor/nontagged/FeeRuleProcessorFacet.sol";
 import {RiskTaggedRuleProcessorFacet} from "./ruleProcessor/tagged/RiskTaggedRuleProcessorFacet.sol";
+import {ApplicationPauseProcessorFacet} from "src/economic/ruleProcessor/nontagged/ApplicationPauseProcessorFacet.sol";
+import {ApplicationRiskProcessorFacet} from "src/economic/ruleProcessor/nontagged/ApplicationRiskProcessorFacet.sol";
+import {ApplicationAccessLevelProcessorFacet} from "src/economic/ruleProcessor/nontagged/ApplicationAccessLevelProcessorFacet.sol";
 import {TaggedRuleProcessorDiamond} from "./ruleProcessor/tagged/TaggedRuleProcessorDiamond.sol";
 
 /**
@@ -212,5 +215,65 @@ contract TokenRuleRouter is Initializable, OwnableUpgradeable {
      */
     function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags) external view {
         ERC20TaggedRuleProcessorFacet(address(taggedRuleProcessorDiamond)).checkMinBalByDatePasses(ruleId, balance, amount, toTags);
+    }
+
+    // --------------------------- APPLICATION LEVEL --------------------------------
+
+    /**
+     * @dev This function checks if the requested action is valid according to the AccountBalanceByRiskScore rule
+     * @param _ruleId Rule Identifier
+     * @param _riskScoreTo the Risk Score of the recepient account
+     * @param _totalValuationTo recepient account's beginning balance in USD with 18 decimals of precision
+     * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
+     */
+    function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScoreTo, uint128 _totalValuationTo, uint128 _amountToTransfer) external view {
+        ApplicationRiskProcessorFacet(address(tokenRuleProcessorDiamondContract)).accountBalancebyRiskScore(_ruleId, _riskScoreTo, _totalValuationTo, _amountToTransfer);
+    }
+
+    /**
+     * @dev This function checks if the requested action is valid according to the AccountBalanceByAccessLevel rule
+     * @param _ruleId Rule Identifier
+     * @param _accessLevelTo the Access Level of the recepient account
+     * @param _totalValuationTo recepient account's beginning balance in USD with 18 decimals of precision
+     * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
+     */
+    function checkAccBalanceByAccessLevel(uint32 _ruleId, uint8 _accessLevelTo, uint128 _totalValuationTo, uint128 _amountToTransfer) external view {
+        ApplicationAccessLevelProcessorFacet(address(tokenRuleProcessorDiamondContract)).checkBalanceByAccessLevelPasses(_ruleId, _accessLevelTo, _totalValuationTo, _amountToTransfer);
+    }
+
+    /**
+     * @dev rule that checks if the tx exceeds the limit size in USD for a specific risk profile
+     * within a specified period of time.
+     * @notice that these ranges are set by ranges.
+     * @param ruleId to check against.
+     * @param _usdValueTransactedInPeriod the cumulative amount of tokens recorded in the last period.
+     * @param amount in USD of the current transaction with 18 decimals of precision.
+     * @param lastTxDate timestamp of the last transfer of this token by this address.
+     * @param riskScore of the address (0 -> 100)
+     * @return updated value for the _usdValueTransactedInPeriod. If _usdValueTransactedInPeriod are
+     * inside the current period, then this value is accumulated. If not, it is reset to current amount.
+     * @dev this check will cause a revert if the new value of _usdValueTransactedInPeriod in USD exceeds
+     * the limit for the address risk profile.
+     */
+    function checkMaxTxSizePerPeriodByRisk(uint32 ruleId, uint128 _usdValueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 riskScore) external view returns (uint128) {
+        return ApplicationRiskProcessorFacet(address(tokenRuleProcessorDiamondContract)).checkMaxTxSizePerPeriodByRisk(ruleId, _usdValueTransactedInPeriod, amount, lastTxDate, riskScore);
+    }
+
+    /**
+     * @dev Ensure that Access Level = 0 rule passes. This seems like an easy rule to check but it is still
+     * abstracted to through the token rule router to allow for updates later(like special values)
+     * @param _accessLevel account access level
+     *
+     */
+    function checkAccessLevel0Passes(uint8 _accessLevel) external view {
+        ApplicationAccessLevelProcessorFacet(address(tokenRuleProcessorDiamondContract)).checkAccessLevel0Passes(_accessLevel);
+    }
+
+    /**
+     * @dev This function checks if the requested action is valid according to pause rules.
+     * @param _dataServer address of the Application Rule Processor Diamond contract
+     */
+    function checkPauseRules(address _dataServer) external view {
+        ApplicationPauseProcessorFacet(address(tokenRuleProcessorDiamondContract)).checkPauseRules(_dataServer);
     }
 }

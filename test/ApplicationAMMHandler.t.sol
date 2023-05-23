@@ -31,7 +31,6 @@ import {RuleDataFacet as Facet} from "../src/economic/ruleStorage/RuleDataFacet.
  */
 contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamondTestUtil, TaggedRuleProcessorDiamondTestUtil {
     AppManager public appManager;
-    ApplicationHandler public applicationHandler;
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     address user1 = address(1);
     address user2 = address(2);
@@ -69,27 +68,20 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
         tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        /// add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdminstrator);
-        /// add the AccessLevelAdmin address as a AccessLevel admin
-        appManager.addAccessTier(accessTier);
-        ac = address(appManager);
         /// deploy the TokenRuleRouter
         tokenRuleRouter = new TokenRuleRouter();
         /// connect the TokenRuleRouter to its child Diamonds
         ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
         TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        /// Deploy app manager
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        /// add the DEAD address as a app administrator
+        appManager.addAppAdministrator(appAdministrator);
+        /// add the AccessLevelAdmin address as a AccessLevel admin
+        appManager.addAccessTier(accessTier);
+        ac = address(appManager);
         /// Set up the ApplicationERC20Handler
         applicationAMMHandler = new ApplicationAMMHandler(address(appManager), address(ruleRouterProxy));
-        // connect the diamond to the Access Action
-        ApplicationRuleProcessorDiamond applicationRuleProcessorDiamond = getApplicationProcessorDiamond();
-        applicationHandler = appManager.applicationHandler();
-        //connect applicationHandler with rule diamond
-        applicationRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // connect applicationHandler with its diamond
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(address(applicationRuleProcessorDiamond));
 
         // create the oracles
         oracleAllowed = new OracleAllowed();
@@ -186,17 +178,17 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(ruleId, "PurchaseRule");
         ///1675723152 = Feb 6 2023 22hrs 39min 12 sec
         /// Check Rule passes
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 50, 50, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 50, 50, RuleProcessorDiamondLib.ActionTypes.TRADE);
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         uint256 lastPurchaseTotal = applicationAMMHandler.getPurchasedWithinPeriod(user2);
         assertEq(lastPurchaseTotal, 50);
         /// Check Rule Fails
         vm.expectRevert(0xa7fb7b4b);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, RuleProcessorDiamondLib.ActionTypes.TRADE);
         ///Move into new Purchase Period
         vm.warp(Blocktime + 14 hours);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, RuleProcessorDiamondLib.ActionTypes.TRADE);
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         uint256 purchaseTotal = applicationAMMHandler.getPurchasedWithinPeriod(user2);
@@ -232,7 +224,7 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         applicationAMMHandler.setSellLimitRuleId(15);
 
         /// Check Rule passes
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 50, 50, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 50, 50, RuleProcessorDiamondLib.ActionTypes.TRADE);
 
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
@@ -243,10 +235,10 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         vm.startPrank(user1);
         /// Check Rule Fails
         vm.expectRevert(0xc11d5f20);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, RuleProcessorDiamondLib.ActionTypes.TRADE);
         ///Move into new Sell Period
         vm.warp(Blocktime + 14 hours);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, RuleProcessorDiamondLib.ActionTypes.TRADE);
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         uint256 sellTotal = applicationAMMHandler.getSalesWithinPeriod(user1);
@@ -263,24 +255,24 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         /// we update the rule id in the token
         applicationAMMHandler.setMinTransferRuleId(ruleId);
         /// These should all pass
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10, 10, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE));
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 11, 11, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE));
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10000000000, 1000, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10, 10, RuleProcessorDiamondLib.ActionTypes.TRADE));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 11, 11, RuleProcessorDiamondLib.ActionTypes.TRADE));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10000000000, 1000, RuleProcessorDiamondLib.ActionTypes.TRADE));
 
         // now we check for proper failure
         vm.expectRevert(0x70311aa2);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 9, 9, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 9, 9, RuleProcessorDiamondLib.ActionTypes.TRADE);
         /// no2 change the rule and recheck
         ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(appManager), 100);
         /// we update the rule id in the token
         applicationAMMHandler.setMinTransferRuleId(ruleId);
         /// These should all pass
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 100, 100, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE));
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 111, 100, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE));
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10000000000, 1000, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 100, 100, RuleProcessorDiamondLib.ActionTypes.TRADE));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 111, 100, RuleProcessorDiamondLib.ActionTypes.TRADE));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10000000000, 1000, RuleProcessorDiamondLib.ActionTypes.TRADE));
         // now we check for proper failure
         vm.expectRevert(0x70311aa2);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 99, 99, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 99, 99, RuleProcessorDiamondLib.ActionTypes.TRADE);
     }
 
     function testMinMaxAccountBalanceRule() public {
@@ -315,16 +307,16 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         applicationAMMHandler.setMinMaxBalanceRuleIdToken0(ruleId);
         applicationAMMHandler.setMinMaxBalanceRuleIdToken1(ruleId2);
         /// execute a passing check for the minimum
-        applicationAMMHandler.checkAllRules(200, 200, user1, address(applicationAMM), 10, 10, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(200, 200, user1, address(applicationAMM), 10, 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
 
         /// execute a passing check for the maximum
-        applicationAMMHandler.checkAllRules(500, 500, user1, address(applicationAMM), 50, 50, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(500, 500, user1, address(applicationAMM), 50, 50, RuleProcessorDiamondLib.ActionTypes.TRADE);
 
         // execute a failing check for the minimum
         vm.expectRevert(0xf1737570);
-        applicationAMMHandler.checkAllRules(20, 1000, user1, address(applicationAMM), 15, 15, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(20, 1000, user1, address(applicationAMM), 15, 15, RuleProcessorDiamondLib.ActionTypes.TRADE);
         // execute a passing check for the maximum
         vm.expectRevert(0x24691f6b);
-        applicationAMMHandler.checkAllRules(1000, 800, user1, address(applicationAMM), 500, 500, ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(1000, 800, user1, address(applicationAMM), 500, 500, RuleProcessorDiamondLib.ActionTypes.TRADE);
     }
 }

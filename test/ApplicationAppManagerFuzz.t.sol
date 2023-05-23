@@ -1,15 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "forge-std/Test.sol";
 import "../src/application/AppManager.sol";
-import "../src/application/ApplicationHandler.sol";
+import "../src/example/application/ApplicationHandler.sol";
 import "../src/data/IPauseRules.sol";
 import "./DiamondTestUtil.sol";
+import "./RuleProcessorDiamondTestUtil.sol";
+import "../src/economic/TokenRuleRouter.sol";
+import "../src/economic/TokenRuleRouterProxy.sol";
+import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
 
-contract ApplicationAppManagerFuzzTest is Test, DiamondTestUtil {
+contract ApplicationAppManagerFuzzTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
     AppManager public appManager;
     ApplicationHandler public applicationHandler;
+    TokenRuleRouter tokenRuleRouter;
+    TokenRuleRouterProxy ruleRouterProxy;
+    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
+    RuleProcessorDiamond tokenRuleProcessorsDiamond;
+    RuleStorageDiamond ruleStorageDiamond;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
     bytes32 public constant USER_ROLE = keccak256("USER");
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
@@ -17,15 +25,29 @@ contract ApplicationAppManagerFuzzTest is Test, DiamondTestUtil {
     bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
     uint256 public constant TEST_DATE = 1666706998;
     string tokenName = "FEUD";
-    address[] ADDRESSES = [defaultAdmin, appAdminstrator, AccessTier, riskAdmin, user, address(0xBEEF), address(0xC0FFEE), address(0xF00D)];
+    address[] ADDRESSES = [defaultAdmin, appAdministrator, AccessTier, riskAdmin, user, address(0xBEEF), address(0xC0FFEE), address(0xF00D)];
 
     function setUp() public {
-        appManager = new AppManager(defaultAdmin, "Castlevania", false);
-        applicationHandler = appManager.applicationHandler();
+        // Deploy the Rule Storage Diamond.
+        ruleStorageDiamond = getRuleStorageDiamond();
+        // Deploy the token rule processor diamond
+        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
+        // Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
+        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
+        // Deploy the token rule processor diamond
+        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
+        //connect data diamond with Tagged Rule Processor diamond
+        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
+        tokenRuleRouter = new TokenRuleRouter();
+        /// connect the TokenRuleRouter to its child Diamond
+        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
+        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+
+        appManager = new AppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
         vm.startPrank(defaultAdmin); //set up as the default admin
-        applicationRuleProcessorDiamond = getApplicationProcessorDiamond();
+        ruleProcessorDiamond = getApplicationProcessorDiamond();
         console.log(applicationHandler.owner());
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(address(applicationRuleProcessorDiamond));
 
         console.log("AppManager Address:");
         console.log(address(appManager));
@@ -487,7 +509,7 @@ contract ApplicationAppManagerFuzzTest is Test, DiamondTestUtil {
         if (pauseRules.length > 0) {
             if (pauseRules[0].pauseStart <= block.timestamp && pauseRules[0].pauseStop > block.timestamp) vm.expectRevert();
             //appManager.checkAction(ApplicationHandlerLib.ActionTypes.SELL, user);
-            appManager.checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes.SELL, user, user, 0, 0);
+            appManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.SELL, user, user, 0, 0);
         }
     }
 }

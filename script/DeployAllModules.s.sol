@@ -2,13 +2,11 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
-import "../src/application/ApplicationHandler.sol";
 import "../src/economic/TokenRuleRouterProxy.sol";
 import {IDiamondInit} from "../src/diamond/initializers/IDiamondInit.sol";
 import {DiamondInit} from "../src/diamond/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "../src/diamond/core/DiamondCut/DiamondCutLib.sol";
 
-import {ApplicationRuleProcessorDiamond, DiamondArgs} from "../src/economic/ruleProcessor/application/ApplicationRuleProcessorDiamond.sol";
 import {RuleStorageDiamond, RuleStorageDiamondArgs} from "../src/economic/ruleStorage/RuleStorageDiamond.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/nontagged/RuleProcessorDiamond.sol";
 
@@ -40,10 +38,9 @@ contract DeployAllModulesScript is Script {
     uint256 constant privateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
     address constant ownerAddress = address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
 
-    ApplicationRuleProcessorDiamond applicationRuleProcessorDiamond;
+    RuleProcessorDiamond ruleProcessorDiamond;
     TokenRuleRouterProxy tokenRuleProxy;
     RuleStorageDiamond ruleDataDiamond;
-    RuleProcessorDiamond tokenRuleProcessors;
     TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
     TokenRuleRouter tokenRuleRouter;
 
@@ -53,10 +50,9 @@ contract DeployAllModulesScript is Script {
     function run() external {
         vm.startBroadcast(privateKey);
 
-        deployApplicationRuleProcessor();
         /// appManager = deployApplicationAppManager();
         ruleDataDiamond = deployRuleDataDiamond();
-        tokenRuleProcessors = deployRuleProcessorDiamond();
+        ruleProcessorDiamond = deployRuleProcessorDiamond();
         taggedRuleProcessorDiamond = deployTaggedRuleProcessorDiamond();
         tokenRuleRouter = deployTokenRuleRouter();
         tokenRuleProxy = deployTokenRuleRouterProxy();
@@ -64,62 +60,6 @@ contract DeployAllModulesScript is Script {
         connectAndSetupAll();
 
         vm.stopBroadcast();
-    }
-
-    /**
-     * @dev Deploy the applicationRuleProcessor module. This includes the ApplicationRuleProcessorDiamond.
-     */
-    function deployApplicationRuleProcessor() internal {
-        /// Start by deploying the DiamonInit contract.
-        DiamondInit diamondInit = new DiamondInit();
-
-        /// Register all facets.
-        string[7] memory facets = [
-            /// Native facets,
-            "DiamondCutFacet",
-            "DiamondLoupeFacet",
-            /// Raw implementation facets.
-            "ERC165Facet",
-            "ERC173Facet",
-            /// Protocol Facets
-            "ApplicationRiskProcessorFacet",
-            "ApplicationAccessLevelProcessorFacet",
-            "ApplicationPauseProcessorFacet"
-        ];
-
-        string[] memory inputs = new string[](3);
-        inputs[0] = "python3";
-        inputs[1] = "script/python/get_selectors.py";
-
-        /// Loop on each facet, deploy them and create the FacetCut.
-        for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
-            string memory facet = facets[facetIndex];
-
-            /// Deploy the facet.
-            bytes memory bytecode = vm.getCode(string.concat(facet, ".sol"));
-            address facetAddress;
-            assembly {
-                facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
-            }
-
-            /// Get the facet selectors.
-            inputs[2] = facet;
-            bytes memory res = vm.ffi(inputs);
-            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
-
-            /// Create the FacetCut struct for this facet.
-            _facetCutsApplicationProcessor.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
-        }
-
-        /// Build the DiamondArgs.
-        DiamondArgs memory diamondArgs = DiamondArgs({
-            init: address(diamondInit),
-            // NOTE: "interfaceId" can be used since "init" is the only function in IDiamondInit.
-            initCalldata: abi.encode(type(IDiamondInit).interfaceId)
-        });
-
-        /// Deploy the Global Rules Diamond.
-        applicationRuleProcessorDiamond = new ApplicationRuleProcessorDiamond(_facetCutsApplicationProcessor, diamondArgs);
     }
 
     /**
@@ -191,7 +131,7 @@ contract DeployAllModulesScript is Script {
         DiamondInit diamondInit = new DiamondInit();
 
         /// Register all facets.
-        string[7] memory facets = [
+        string[10] memory facets = [
             /// Native facets,
             "DiamondCutFacet",
             "DiamondLoupeFacet",
@@ -202,7 +142,10 @@ contract DeployAllModulesScript is Script {
             ///tokenRuleRouter (Rules setters and getters)
             "ERC20RuleProcessorFacet",
             "ERC721RuleProcessorFacet",
-            "FeeRuleProcessorFacet"
+            "FeeRuleProcessorFacet",
+            "ApplicationRiskProcessorFacet",
+            "ApplicationAccessLevelProcessorFacet",
+            "ApplicationPauseProcessorFacet"
         ];
 
         string[] memory inputs = new string[](3);
@@ -237,9 +180,9 @@ contract DeployAllModulesScript is Script {
         });
 
         /// Deploy the diamond.
-        RuleProcessorDiamond tokenRuleProcessorsDiamond = new RuleProcessorDiamond(_facetCutsRuleProcessor, diamondArgs);
+        RuleProcessorDiamond ruleProcessorDiamondDiamond = new RuleProcessorDiamond(_facetCutsRuleProcessor, diamondArgs);
 
-        return tokenRuleProcessorsDiamond;
+        return ruleProcessorDiamondDiamond;
     }
 
     /**
@@ -326,11 +269,11 @@ contract DeployAllModulesScript is Script {
      */
     function connectAndSetupAll() public {
         /// Connect the ControlsDiamonds into the ruleDataDiamond
-        tokenRuleProcessors.setRuleDataDiamond(address(ruleDataDiamond));
+        ruleProcessorDiamond.setRuleDataDiamond(address(ruleDataDiamond));
         taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleDataDiamond));
-        applicationRuleProcessorDiamond.setRuleDataDiamond(address(ruleDataDiamond));
+        ruleProcessorDiamond.setRuleDataDiamond(address(ruleDataDiamond));
 
         /// connect the TokenRuleRouter to its 2 diamonds
-        TokenRuleRouter(address(tokenRuleProxy)).initialize(payable(address(tokenRuleProcessors)), payable(address(taggedRuleProcessorDiamond)));
+        TokenRuleRouter(address(tokenRuleProxy)).initialize(payable(address(ruleProcessorDiamond)), payable(address(taggedRuleProcessorDiamond)));
     }
 }

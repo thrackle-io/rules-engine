@@ -14,7 +14,8 @@ contract ApplicationAppManager is AppManager {
      * @dev constructor sets the owner address, application name, and upgrade mode at deployment
      * @param _ownerAddress Address of deployer wallet
      * @param _appName Application Name String
+     * @param _tokenRuleRouterAddress Address of the Protocol's token rule router
      * @param upgradeMode specifies whether this is a fresh AppManager or an upgrade replacement.
      */
-    constructor(address _ownerAddress, string memory _appName, bool upgradeMode) AppManager(_ownerAddress, _appName, upgradeMode) {}
+    constructor(address _ownerAddress, string memory _appName, address _tokenRuleRouterAddress, bool upgradeMode) AppManager(_ownerAddress, _appName, _tokenRuleRouterAddress, upgradeMode) {}
 }

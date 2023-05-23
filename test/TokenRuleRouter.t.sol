@@ -12,7 +12,6 @@ import "forge-std/Test.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
 import "./TaggedRuleProcessorDiamondTestUtil.sol";
 import "../src/application/AppManager.sol";
-import "../src/application/AppManager.sol";
 import "../src/economic/TokenRuleRouterProxy.sol";
 import {TokenRuleRouter} from "../src/economic/TokenRuleRouter.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
@@ -31,7 +30,7 @@ contract TokenRuleRouterTest is Test, RuleProcessorDiamondTestUtil, TaggedRulePr
     AppManager public appManager;
     address defaultAdmin = address(0xAD);
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    address appAdminstrator = address(0xDEAD);
+    address appAdministrator = address(0xDEAD);
     address ac;
     address[] badBoys;
     address[] goodBoys;
@@ -55,16 +54,16 @@ contract TokenRuleRouterTest is Test, RuleProcessorDiamondTestUtil, TaggedRulePr
         tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
         // Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
         tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // Deploy app manager
-        appManager = new AppManager(defaultAdmin, "Castlevania", false);
-        // add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdminstrator);
-        ac = address(appManager);
         // deploy the TokenRuleRouter
         tokenRuleRouter = new TokenRuleRouter();
         //deploy and initialize Proxy to TokenRuleRouter
         ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
         TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        // Deploy app manager
+        appManager = new AppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        // add the DEAD address as a app administrator
+        appManager.addAppAdministrator(appAdministrator);
+        ac = address(appManager);
 
         // create the oracles
         oracleAllowed = new OracleAllowed();
@@ -236,7 +235,7 @@ contract TokenRuleRouterTest is Test, RuleProcessorDiamondTestUtil, TaggedRulePr
 
         // attempt to call newImplementationAddr as non admin
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
 
         vm.expectRevert("Ownable: caller is not the owner");
         ruleRouterProxy.newImplementationAddr(address(tokenRuleRouter));

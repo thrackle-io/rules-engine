@@ -18,7 +18,7 @@ contract AppManagerScript is Script {
      */
     function run() public {
         vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
-        new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", false);
+        new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"), false);
         vm.stopBroadcast();
     }
 }

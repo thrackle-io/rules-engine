@@ -1,14 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "forge-std/Test.sol";
 import "../src/application/AppManager.sol";
-import "../src/application/ApplicationHandler.sol";
+import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
+import "./RuleProcessorDiamondTestUtil.sol";
+import "../src/economic/TokenRuleRouter.sol";
+import "../src/economic/TokenRuleRouterProxy.sol";
+import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
 
-contract AppManagerTest is Test, DiamondTestUtil {
+contract AppManagerTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
     AppManager public appManager;
     ApplicationHandler public applicationHandler;
+    TokenRuleRouter tokenRuleRouter;
+    TokenRuleRouterProxy ruleRouterProxy;
+    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
+    RuleProcessorDiamond tokenRuleProcessorsDiamond;
+    RuleStorageDiamond ruleStorageDiamond;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
     bytes32 public constant USER_ROLE = keccak256("USER");
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
@@ -18,18 +26,24 @@ contract AppManagerTest is Test, DiamondTestUtil {
     string tokenName = "FEUD";
 
     function setUp() public {
-        appManager = new AppManager(defaultAdmin, "Castlevania", false);
+        // Deploy the Rule Storage Diamond.
+        ruleStorageDiamond = getRuleStorageDiamond();
+        // Deploy the token rule processor diamond
+        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
+        // Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
+        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
+        // Deploy the token rule processor diamond
+        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
+        //connect data diamond with Tagged Rule Processor diamond
+        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
+        tokenRuleRouter = new TokenRuleRouter();
+        /// connect the TokenRuleRouter to its child Diamond
+        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
+        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+
+        appManager = new AppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
         vm.startPrank(defaultAdmin); //set up as the default admin
         // connect the diamond to the Application Rule Processor Diamond
-        ApplicationRuleProcessorDiamond ruleProcessorDiamond = getApplicationProcessorDiamond();
-        applicationHandler = appManager.applicationHandler();
-        // connect applicationHandler with its diamond
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(address(ruleProcessorDiamond));
-
-        console.log("AppManager Address:");
-        console.log(address(appManager));
-        console.log("applicationHandler Address:");
-        console.log(address(applicationHandler));
 
         vm.warp(TEST_DATE); // set block.timestamp
     }
@@ -43,7 +57,7 @@ contract AppManagerTest is Test, DiamondTestUtil {
     /// Test the Default Admin roles
     function testIsDefaultAdmin() public {
         assertEq(appManager.isAdmin(defaultAdmin), true);
-        assertEq(appManager.isAdmin(appAdminstrator), false);
+        assertEq(appManager.isAdmin(appAdministrator), false);
     }
 
     /// Test the Application Administrators roles
@@ -58,11 +72,11 @@ contract AppManagerTest is Test, DiamondTestUtil {
     ///---------------APP ADMIN--------------------
     // Test the Application Administrators roles(only DEFAULT_ADMIN can add app administrator)
     function testAddAppAdministratorAppManager() public {
-        appManager.addAppAdministrator(appAdminstrator);
-        assertEq(appManager.isAppAdministrator(appAdminstrator), true);
+        appManager.addAppAdministrator(appAdministrator);
+        assertEq(appManager.isAppAdministrator(appAdministrator), true);
         assertEq(appManager.isAppAdministrator(user), false);
         vm.stopPrank(); //stop interacting as the app administrator
-        vm.startPrank(appAdminstrator); //interact as a different user
+        vm.startPrank(appAdministrator); //interact as a different user
         appManager.addAppAdministrator(address(77));
         assertTrue(appManager.isAppAdministrator(address(77)));
     }
@@ -70,8 +84,8 @@ contract AppManagerTest is Test, DiamondTestUtil {
     // Commented out because the UHGDA style admin role is not required for EVM Product
     // /// Test non default admin attempt to add app administrator
     // function testFailAddAppAdministrator() public {
-    //     appManager.addAppAdministrator(appAdminstrator);
-    //     assertEq(appManager.isAppAdministrator(appAdminstrator), true);
+    //     appManager.addAppAdministrator(appAdministrator);
+    //     assertEq(appManager.isAppAdministrator(appAdministrator), true);
     //     assertEq(appManager.isAppAdministrator(user), false);
     //     vm.stopPrank(); //stop interacting as the app administrator
     //     vm.startPrank(address(77)); //interact as a different user
@@ -80,19 +94,19 @@ contract AppManagerTest is Test, DiamondTestUtil {
 
     /// Test revoke Application Administrators role
     function testRevokeAppAdministrator() public {
-        appManager.addAppAdministrator(appAdminstrator); //set a app administrator
-        assertEq(appManager.isAppAdministrator(appAdminstrator), true);
-        assertEq(appManager.hasRole(APP_ADMIN_ROLE, appAdminstrator), true); // verify it was added as a app administrator
+        appManager.addAppAdministrator(appAdministrator); //set a app administrator
+        assertEq(appManager.isAppAdministrator(appAdministrator), true);
+        assertEq(appManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
 
-        appManager.revokeRole(APP_ADMIN_ROLE, appAdminstrator);
-        assertEq(appManager.isAppAdministrator(appAdminstrator), false);
+        appManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
+        assertEq(appManager.isAppAdministrator(appAdministrator), false);
     }
 
     /// Test failed revoke Application Administrators role
     function testFailRevokeAppAdministrator() public {
-        appManager.addAppAdministrator(appAdminstrator); //set a app administrator
-        assertEq(appManager.isAppAdministrator(appAdminstrator), true);
-        assertEq(appManager.hasRole(APP_ADMIN_ROLE, appAdminstrator), true); // verify it was added as a app administrator
+        appManager.addAppAdministrator(appAdministrator); //set a app administrator
+        assertEq(appManager.isAppAdministrator(appAdministrator), true);
+        assertEq(appManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
 
         appManager.addAppAdministrator(address(77)); //set an additional app administrator
         assertEq(appManager.isAppAdministrator(address(77)), true);
@@ -518,14 +532,14 @@ contract AppManagerTest is Test, DiamondTestUtil {
         /// create new app manager
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        AppManager appManagerNew = new AppManager(defaultAdmin, "Castlevania", true);
+        AppManager appManagerNew = new AppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
         /// migrate data contracts to new app manager
         /// set a app administrator in the new app manager
-        appManagerNew.addAppAdministrator(appAdminstrator);
+        appManagerNew.addAppAdministrator(appAdministrator);
         switchToAppAdministrator(); // create a access tier and make it the sender.
         appManager.migrateDataContracts(address(appManagerNew));
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         /// connect the old data contract to the new app manager
         appManagerNew.connectDataContracts(address(appManager));
         /// test that the data is accessible only from the new app manager
@@ -543,12 +557,12 @@ contract AppManagerTest is Test, DiamondTestUtil {
 
     ///---------------UTILITY--------------------
     function switchToAppAdministrator() public {
-        appManager.addAppAdministrator(appAdminstrator); //set a app administrator
-        assertEq(appManager.isAppAdministrator(appAdminstrator), true);
-        assertEq(appManager.hasRole(APP_ADMIN_ROLE, appAdminstrator), true); // verify it was added as a app administrator
+        appManager.addAppAdministrator(appAdministrator); //set a app administrator
+        assertEq(appManager.isAppAdministrator(appAdministrator), true);
+        assertEq(appManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
 
         vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(appAdminstrator); //interact as the created app administrator
+        vm.startPrank(appAdministrator); //interact as the created app administrator
     }
 
     function switchToAccessTier() public {

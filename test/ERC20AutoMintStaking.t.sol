@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import "forge-std/Test.sol";
 import "../src/example/ApplicationERC20.sol";
 import "../src/example/ApplicationAppManager.sol";
-import "../src/application/ApplicationHandler.sol";
+import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "../src/economic/TokenRuleRouter.sol";
 import "../src/example/ApplicationERC20Handler.sol";
@@ -55,23 +55,17 @@ contract ERC20AutoMintStakingTest is TaggedRuleProcessorDiamondTestUtil, Diamond
         taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
         //connect data diamond with Tagged Rule Processor diamond
         taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        // add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdminstrator);
 
         tokenRuleRouter = new TokenRuleRouter();
         ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-        // connect the Application Rule Processor Diamond
-        ApplicationRuleProcessorDiamond applicationRuleProcessorDiamond = getApplicationProcessorDiamond();
-        applicationHandler = appManager.applicationHandler();
-        //connect applicationHandler with rule diamond
-        applicationRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // connect applicationHandler with its diamond
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(address(applicationRuleProcessorDiamond));
+
         // connect the TokenRuleRouter to its child Diamond
         TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
 
+        // Deploy app manager
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        // add the DEAD address as a app administrator
+        appManager.addAppAdministrator(appAdministrator);
         // Set up the ApplicationERC20Handler
         applicationCoinHandler = new ApplicationERC20Handler(address(ruleRouterProxy), address(appManager), false);
         // Create two tokens and mint a bunch

@@ -4,7 +4,6 @@ pragma solidity 0.8.17;
 import "../src/example/pricing/ApplicationERC721Pricing.sol";
 import "../src/example/ApplicationERC721.sol";
 import "../src/example/ApplicationAppManager.sol";
-import "../src/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "../src/economic/TokenRuleRouter.sol";
 import "../src/economic/TokenRuleRouterProxy.sol";
@@ -33,7 +32,6 @@ contract ERC721PricingTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUti
     TokenRuleRouterProxy ruleRouterProxy;
     ApplicationAppManager appManager;
     TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
-    ApplicationHandler public applicationHandler;
     address bob = address(0xB0B);
 
     function setUp() public {
@@ -48,25 +46,17 @@ contract ERC721PricingTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUti
         taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
         ///connect data diamond with Tagged Rule Processor diamond
         taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        /// add the DEAD address as a application defaultAdmin
-        appManager.addAppAdministrator(appAdminstrator);
-
         tokenRuleRouter = new TokenRuleRouter();
         //deploy and initialize Proxy to TokenRuleRouter
         ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
         TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        /// add the DEAD address as a application defaultAdmin
+        /// Deploy app manager
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        appManager.addAppAdministrator(appAdministrator);
+
         /// Set up the ApplicationERC721Handler
         applicationNFTHandler = new ApplicationERC721Handler(address(tokenRuleRouter), address(appManager));
-
-        // connect the Application Rule Processor Diamond
-        ApplicationRuleProcessorDiamond applicationRuleProcessorDiamond = getApplicationProcessorDiamond();
-        applicationHandler = appManager.applicationHandler();
-        //connect applicationHandler with rule diamond
-        applicationRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // connect applicationHandler with its diamond
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(address(applicationRuleProcessorDiamond));
 
         /// Deploy 2 NFT contracts
         boredWhaleNFT = new ApplicationERC721("Bored Whale Island Club", "BWYC", address(appManager), address(applicationNFTHandler), "https://SampleApp.io");

@@ -37,7 +37,7 @@ contract ApplicationUIDeployAllScript is Script {
 
     function run() public {
         vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
-        ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", false);
+        ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"), false);
         applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"), address(applicationAppManager), false);
 
         applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"));

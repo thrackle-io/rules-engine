@@ -105,7 +105,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, ApplicationRuleProcessorDiamondLib.ActionTypes _action) external returns (bool) {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, RuleProcessorDiamondLib.ActionTypes _action) external returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         // // All transfers to treasury account are allowed

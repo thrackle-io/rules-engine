@@ -2,7 +2,6 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
-import "src/application/ApplicationHandler.sol";
 import "src/example/ApplicationERC20Handler.sol";
 import {ApplicationERC721Handler} from "src/example/ApplicationERC721Handler.sol";
 import "src/example/ApplicationERC20.sol";
@@ -30,7 +29,6 @@ contract ApplicationDeployAllScript is Script {
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationAMMHandler applicationAMMHandler;
-    ApplicationHandler applicationHandler;
     uint128[7] yieldPerTimeUnitArray = [1, 60, 3_600, 86_400, 604_800, 2_592_000, 31_536_000];
     uint128[7] yieldPerTimeUnitArray2 = [2, 120, 7_200, 172_800, 1_209_600, 5_184_000, 63_072_000];
     address[] applicationNFTAddresses;
@@ -39,9 +37,7 @@ contract ApplicationDeployAllScript is Script {
 
     function run() public {
         vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
-        ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", false);
-        applicationHandler = ApplicationHandler(vm.envAddress("APPLICATION_APPLICATION_HANDLER"));
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(vm.envAddress("APPLICATION_PROCESSOR_DIAMOND_CONTRACT"));
+        ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"), false);
         applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"), address(applicationAppManager), false);
         applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"));
         applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"), address(applicationAppManager));
@@ -99,9 +95,8 @@ contract ApplicationDeployAllScript is Script {
         /// register the coin treasury
         applicationAppManager.registerTreasury(vm.envAddress("FEE_TREASURY"));
         /// This is a new app manager used for upgrade testing
-        new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", true);
+        new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"), true);
         new ApplicationERC20Handler(vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"), address(applicationAppManager), true);
-        ApplicationHandler(vm.envAddress("APPLICATION_APPLICATION_HANDLER_2")).setApplicationRuleProcessorDiamondAddress(vm.envAddress("APPLICATION_PROCESSOR_DIAMOND_CONTRACT"));
         vm.stopBroadcast();
     }
 }

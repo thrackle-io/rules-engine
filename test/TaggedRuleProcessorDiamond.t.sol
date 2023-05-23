@@ -6,7 +6,6 @@ import "forge-std/Test.sol";
 import "../src/application/AppManager.sol";
 import "./TaggedRuleProcessorDiamondTestUtil.sol";
 import "../src/application/AppManager.sol";
-import "../src/economic/ruleProcessor/tagged/ERC20TaggedRuleProcessorFacet.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
 import "../src/economic/TokenRuleRouterProxy.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
@@ -16,7 +15,7 @@ import {RuleDataFacet as Facet} from "../src/economic/ruleStorage/RuleDataFacet.
 import {ERC20TaggedRuleProcessorFacet} from "../src/economic/ruleProcessor/tagged/ERC20TaggedRuleProcessorFacet.sol";
 import {TokenRuleRouter} from "../src/economic/TokenRuleRouter.sol";
 import "../src/example/ApplicationERC20Handler.sol";
-import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/nontagged/RuleProcessorDiamond.sol";
+//import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/nontagged/RuleProcessorDiamond.sol";
 import {ApplicationERC20} from "../src/example/ApplicationERC20.sol";
 
 contract TaggedRuleProcessorDiamondTest is Test, TaggedRuleProcessorDiamondTestUtil, RuleProcessorDiamondTestUtil {
@@ -35,7 +34,7 @@ contract TaggedRuleProcessorDiamondTest is Test, TaggedRuleProcessorDiamondTestU
     address ac;
     address eac;
     address defaultAdmin = address(0xAD);
-    address appAdminstrator = address(2);
+    address appAdministrator = address(2);
     address AccessTier = address(3);
     address riskAdmin = address(4);
     address user = address(5);
@@ -52,15 +51,15 @@ contract TaggedRuleProcessorDiamondTest is Test, TaggedRuleProcessorDiamondTestU
         taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
         //connect data diamond with Tagged Rule Processor diamond
         taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // Deploy app manager
-        appManager = new AppManager(defaultAdmin, "Castlevania", false);
-        // add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdminstrator);
-
-        ac = address(appManager);
         tokenRuleRouter = new TokenRuleRouter();
 
         ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
+        // Deploy app manager
+        appManager = new AppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        // add the DEAD address as a app administrator
+        appManager.addAppAdministrator(appAdministrator);
+
+        ac = address(appManager);
         TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
         // Set up the ApplicationERC20Handler
         applicationCoinHandler = new ApplicationERC20Handler(address(ruleRouterProxy), ac, false);
@@ -104,7 +103,7 @@ contract TaggedRuleProcessorDiamondTest is Test, TaggedRuleProcessorDiamondTestU
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         appManager.addGeneralTag(defaultAdmin, "Oscar"); //add tag
         assertTrue(appManager.hasTag(defaultAdmin, "Oscar"));
         vm.stopPrank();
@@ -135,7 +134,7 @@ contract TaggedRuleProcessorDiamondTest is Test, TaggedRuleProcessorDiamondTestU
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         appManager.addGeneralTag(defaultAdmin, "Oscar"); //add tag
         assertTrue(appManager.hasTag(defaultAdmin, "Oscar"));
         vm.stopPrank();
@@ -167,7 +166,7 @@ contract TaggedRuleProcessorDiamondTest is Test, TaggedRuleProcessorDiamondTestU
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         appManager.addGeneralTag(defaultAdmin, "Oscar"); //add tag
         assertTrue(appManager.hasTag(defaultAdmin, "Oscar"));
         vm.stopPrank();
@@ -198,7 +197,7 @@ contract TaggedRuleProcessorDiamondTest is Test, TaggedRuleProcessorDiamondTestU
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         appManager.addGeneralTag(defaultAdmin, "Oscar"); //add tag
         assertTrue(appManager.hasTag(defaultAdmin, "Oscar"));
         vm.stopPrank();

@@ -3,13 +3,15 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import "../src/example/ApplicationAppManager.sol";
-import "../src/application/ApplicationHandler.sol";
+import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
 import {TaggedRuleProcessorDiamond, TaggedRuleProcessorDiamondArgs} from "../src/economic/ruleProcessor/tagged/TaggedRuleProcessorDiamond.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
+import "../src/economic/TokenRuleRouter.sol";
+import "../src/economic/TokenRuleRouterProxy.sol";
 
 contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationAppManager public applicationAppManager;
@@ -17,6 +19,8 @@ contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, Diamon
     RuleProcessorDiamond tokenRuleProcessorsDiamond;
     TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
     RuleStorageDiamond ruleStorageDiamond;
+    TokenRuleRouter tokenRuleRouter;
+    TokenRuleRouterProxy ruleRouterProxy;
     ApplicationHandler public applicationHandler;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
     bytes32 public constant USER_ROLE = keccak256("USER");
@@ -39,26 +43,21 @@ contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
         ///connect data diamond with Tagged Rule Processor diamond
         taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
+        // Deploy the token rule processor diamond
+        tokenRuleRouter = new TokenRuleRouter();
+        /// connect the TokenRuleRouter to its child Diamond
+        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
+        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+
         vm.stopPrank();
         vm.startPrank(address(88));
-        applicationAppManager2 = new ApplicationAppManager(address(88), "Castlevania2", false);
+        applicationAppManager2 = new ApplicationAppManager(address(88), "Castlevania2", address(ruleRouterProxy), false);
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        applicationAppManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        // connect the diamond to the Access Action
-        ApplicationRuleProcessorDiamond applicationRuleProcessorDiamond = getApplicationProcessorDiamond();
-        applicationHandler = applicationAppManager.applicationHandler();
-        //connect applicationHandler with rule diamond
-        applicationRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // connect applicationHandler with its diamond
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(address(applicationRuleProcessorDiamond));
+        applicationAppManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        applicationHandler = ApplicationHandler(applicationAppManager.getApplicationHandlerAddress());
         /// add Risk Admin
         applicationAppManager.addRiskAdmin(riskAdmin);
-
-        console.log("applicationAppManager Address:");
-        console.log(address(applicationAppManager));
-        console.log("applicationHandler Address:");
-        console.log(address(applicationHandler));
 
         vm.warp(TEST_DATE); // set block.timestamp
     }
@@ -72,7 +71,7 @@ contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, Diamon
     /// Test the Default Admin roles
     function testIsDefaultAdmin() public {
         assertEq(applicationAppManager.isAdmin(defaultAdmin), true);
-        assertEq(applicationAppManager.isAdmin(appAdminstrator), false);
+        assertEq(applicationAppManager.isAdmin(appAdministrator), false);
     }
 
     /// Test the Application Administrators roles
@@ -87,8 +86,8 @@ contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, Diamon
     ///---------------APP ADMIN--------------------
     // Test the Application Administrators roles(only DEFAULT_ADMIN can add app administrator)
     function testAddAppAdministrator() public {
-        applicationAppManager.addAppAdministrator(appAdminstrator);
-        assertEq(applicationAppManager.isAppAdministrator(appAdminstrator), true);
+        applicationAppManager.addAppAdministrator(appAdministrator);
+        assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
         assertEq(applicationAppManager.isAppAdministrator(user), false);
     }
 
@@ -105,8 +104,8 @@ contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, Diamon
 
     /// Test non default admin attempt to add app administrator
     function testFailAddAppAdministrator() public {
-        applicationAppManager.addAppAdministrator(appAdminstrator);
-        assertEq(applicationAppManager.isAppAdministrator(appAdminstrator), true);
+        applicationAppManager.addAppAdministrator(appAdministrator);
+        assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
         assertEq(applicationAppManager.isAppAdministrator(user), false);
         vm.stopPrank(); //stop interacting as the app administrator
         vm.startPrank(address(77)); //interact as a different user
@@ -115,19 +114,19 @@ contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, Diamon
 
     /// Test revoke Application Administrators role
     function testRevokeAppAdministrator() public {
-        applicationAppManager.addAppAdministrator(appAdminstrator); //set a app administrator
-        assertEq(applicationAppManager.isAppAdministrator(appAdminstrator), true);
-        assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdminstrator), true); // verify it was added as a app administrator
+        applicationAppManager.addAppAdministrator(appAdministrator); //set a app administrator
+        assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
+        assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
 
-        applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdminstrator);
-        assertEq(applicationAppManager.isAppAdministrator(appAdminstrator), false);
+        applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
+        assertEq(applicationAppManager.isAppAdministrator(appAdministrator), false);
     }
 
     /// Test failed revoke Application Administrators role
     function testFailRevokeAppAdministrator() public {
-        applicationAppManager.addAppAdministrator(appAdminstrator); //set a app administrator
-        assertEq(applicationAppManager.isAppAdministrator(appAdminstrator), true);
-        assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdminstrator), true); // verify it was added as a app administrator
+        applicationAppManager.addAppAdministrator(appAdministrator); //set a app administrator
+        assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
+        assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
 
         applicationAppManager.addAppAdministrator(address(77)); //set an additional app administrator
         assertEq(applicationAppManager.isAppAdministrator(address(77)), true);
@@ -518,7 +517,7 @@ contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         switchToAppAdministrator(); // create a app administrator and make it the sender.
 
         // check if standard user can inquire
-        // assertTrue(applicationAppManager.checkAction(ApplicationRuleProcessorDiamondLib.ActionTypes.INQUIRE, user));
+        // assertTrue(applicationAppManager.checkAction(RuleProcessorDiamondLib.ActionTypes.INQUIRE, user));
     }
 
     /// Test the register token.
@@ -551,12 +550,12 @@ contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, Diamon
 
     ///---------------UTILITY--------------------
     function switchToAppAdministrator() public {
-        applicationAppManager.addAppAdministrator(appAdminstrator); //set a app administrator
-        assertEq(applicationAppManager.isAppAdministrator(appAdminstrator), true);
-        assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdminstrator), true); // verify it was added as a app administrator
+        applicationAppManager.addAppAdministrator(appAdministrator); //set a app administrator
+        assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
+        assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
 
         vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(appAdminstrator); //interact as the created app administrator
+        vm.startPrank(appAdministrator); //interact as the created app administrator
     }
 
     function switchToAccessTier() public {
@@ -593,24 +592,24 @@ contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, Diamon
     /// Test the checkAction. This tests all AccessLevel application compliance
     function testCheckActionWithPauseActive() public {
         // check if users can use system when not paused
-        applicationAppManager.checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
+        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
 
         // check if users can not use system when paused
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         vm.warp(1769924800); // set block.timestamp
         vm.expectRevert();
-        applicationAppManager.checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
+        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
 
         // check if users can use system after the pause rule expires
         vm.warp(1769984801); // set block.timestamp
-        applicationAppManager.checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
+        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
 
         // check if users can use system when in pause block but the pause has been deleted
         applicationAppManager.removePauseRule(1769924800, 1769984800);
         PauseRule[] memory removeTest = applicationAppManager.getPauseRules();
         assertTrue(removeTest.length == 0);
         vm.warp(1769924800); // set block.timestamp
-        applicationAppManager.checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
+        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
     }
 
     function testBalanceLimitByRiskScoreFuzzAtAppManagerLevel(uint8 _addressIndex, uint24 _amountSeed) public {
@@ -661,19 +660,19 @@ contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         vm.startPrank(_user1);
         ///Max riskScore allows for single token balance
         //applicationCoin.transfer(_user2, 1 * (10 ** 18));
-        applicationAppManager.checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user2, 0, 1 * (10 ** 18));
+        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user2, 0, 1 * (10 ** 18));
         ///Transfer more than Risk Score allows
         vm.expectRevert();
         //applicationCoin.transfer(_user2, riskBalance4 * (10 ** 18) + 1);
-        applicationAppManager.checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user2, 1 * (10 ** 18), riskBalance4 * (10 ** 18) + 1);
+        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user2, 1 * (10 ** 18), riskBalance4 * (10 ** 18) + 1);
 
         vm.expectRevert();
         //applicationCoin.transfer(_user3, riskBalance3 * (10 ** 18) + 1);
-        applicationAppManager.checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user3, 0, riskBalance3 * (10 ** 18) + 1);
+        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user3, 0, riskBalance3 * (10 ** 18) + 1);
         ///Transfer more than Risk Score allows
         vm.expectRevert();
         //applicationCoin.transfer(_user4, riskBalance1 * (10 ** 18) + 1);
-        applicationAppManager.checkApplicationRules(ApplicationRuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user4, 0, riskBalance1 * (10 ** 18) + 1);
+        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user4, 0, riskBalance1 * (10 ** 18) + 1);
     }
 
     /**

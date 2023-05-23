@@ -25,7 +25,7 @@ contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTe
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[7] memory facets = [
+        string[10] memory facets = [
             // Native facets,
             "DiamondCutFacet",
             "DiamondLoupeFacet",
@@ -36,7 +36,10 @@ contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTe
             //rule processor facets
             "ERC721RuleProcessorFacet",
             "ERC20RuleProcessorFacet",
-            "FeeRuleProcessorFacet"
+            "FeeRuleProcessorFacet",
+            "ApplicationRiskProcessorFacet",
+            "ApplicationAccessLevelProcessorFacet",
+            "ApplicationPauseProcessorFacet"
         ];
 
         string[] memory inputs = new string[](3);

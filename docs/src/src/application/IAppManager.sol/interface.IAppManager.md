@@ -1,5 +1,5 @@
 # IAppManager
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2738cf9716e0fddfad4df13fdb6486b5987af931/src/application/IAppManager.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/0f66d21b157a740e3d9acae765069e378935a031/src/application/IAppManager.sol)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -425,7 +425,7 @@ function isTreasury(address _treasuryAddress) external view returns (bool);
 
 ```solidity
 function checkApplicationRules(
-    ApplicationRuleProcessorDiamondLib.ActionTypes _action,
+    RuleProcessorDiamondLib.ActionTypes _action,
     address _from,
     address _to,
     uint128 _usdBalanceTo,
@@ -436,7 +436,7 @@ function checkApplicationRules(
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_action`|`ApplicationRuleProcessorDiamondLib.ActionTypes`|Action to be checked|
+|`_action`|`RuleProcessorDiamondLib.ActionTypes`|Action to be checked|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
 |`_usdBalanceTo`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|

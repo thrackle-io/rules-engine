@@ -1,10 +1,10 @@
 # IAssetHandlerLite
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2738cf9716e0fddfad4df13fdb6486b5987af931/src/economic/IAssetHandlerLite.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/0f66d21b157a740e3d9acae765069e378935a031/src/economic/IAssetHandlerLite.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
 
-*the light version of the TokenRuleRouter. This is only used by the client contracts that
+*the light version of the AssetHandlers. This is only used by the client contracts that
 implement any of the Protocol capable contracts.*
 
 
@@ -21,7 +21,7 @@ function checkAllRules(
     address _from,
     address _to,
     uint256 _amount,
-    ApplicationRuleProcessorDiamondLib.ActionTypes _action
+    RuleProcessorDiamondLib.ActionTypes _action
 ) external returns (bool);
 ```
 **Parameters**
@@ -33,7 +33,7 @@ function checkAllRules(
 |`_from`|`address`|Sender address|
 |`_to`|`address`|Recipient address|
 |`_amount`|`uint256`|total number of tokens to be transferred|
-|`_action`|`ApplicationRuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
+|`_action`|`RuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
 
 **Returns**
 

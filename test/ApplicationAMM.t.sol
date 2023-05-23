@@ -8,7 +8,7 @@ import "../src/example/liquidity/ApplicationAMMCalcLinear.sol";
 import "../src/example/liquidity/ApplicationAMMCalcCP.sol";
 import "../src/example/liquidity/ApplicationAMMCalcSample01.sol";
 import "../src/example/ApplicationAppManager.sol";
-import "../src/application/ApplicationHandler.sol";
+import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "../src/economic/TokenRuleRouter.sol";
 import "../src/example/ApplicationERC20Handler.sol";
@@ -74,27 +74,22 @@ contract ApplicationAMMTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUt
         taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
         ///connect data diamond with Tagged Rule Processor diamond
         taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        /// add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdminstrator);
-        appManager.addAccessTier(AccessTier);
 
         tokenRuleRouter = new TokenRuleRouter();
         ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
         /// connect the TokenRuleRouter to its child Diamond
         TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
 
+        /// Deploy app manager
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        /// add the DEAD address as a app administrator
+        appManager.addAppAdministrator(appAdministrator);
+        appManager.addAccessTier(AccessTier);
         /// Set up the ApplicationERC20Handler
         applicationCoinHandler = new ApplicationERC20Handler(address(ruleRouterProxy), address(appManager), false);
         applicationAMMHandler = new ApplicationAMMHandler(address(appManager), address(ruleRouterProxy));
-        // connect the diamond to the Access Action
-        ApplicationRuleProcessorDiamond applicationRuleProcessorDiamond = getApplicationProcessorDiamond();
-        applicationHandler = appManager.applicationHandler();
-        //connect applicationHandler with rule diamond
-        applicationRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // connect applicationHandler with its diamond
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(address(applicationRuleProcessorDiamond));
+
+        applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
 
         /// Create two tokens and mint a bunch
         applicationCoin = new ApplicationERC20("application", "GMC", address(appManager), address(applicationCoinHandler));
@@ -548,7 +543,7 @@ contract ApplicationAMMTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUt
         initializeAMMAndUsers();
         /// we add the rule.
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(appManager), 10);
         /// we update the rule id in the token
         applicationAMMHandler.setMinTransferRuleId(ruleId);
@@ -571,7 +566,7 @@ contract ApplicationAMMTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUt
         initializeAMMAndUsers();
         /// we add the rule.
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         /// make sure that no bogus fee percentage can get in
         bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 10001));
@@ -631,7 +626,7 @@ contract ApplicationAMMTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUt
 
         /// we add the rule.
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         console.logString("Create the Fee Rule");
         uint32 ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(appManager), feePercentage);
         /// we update the rule id in the token
@@ -675,7 +670,7 @@ contract ApplicationAMMTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUt
         oracleRestricted.addToSanctionsList(badBoys);
         /// connect the rule to this handler
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         applicationAMMHandler.setOracleRuleId(_index);
         vm.stopPrank();
         vm.startPrank(user1);
@@ -817,11 +812,11 @@ contract ApplicationAMMTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUt
 
     function testPauseRulesViaAppManagerAMM() public {
         initializeAMMAndUsers();
-        applicationCoin.transfer(appAdminstrator, 1000);
-        applicationCoin2.transfer(appAdminstrator, 1000);
+        applicationCoin.transfer(appAdministrator, 1000);
+        applicationCoin2.transfer(appAdministrator, 1000);
         ///set pause rule and check check that the transaction reverts
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         appManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
         vm.warp(Blocktime + 1001);
 
@@ -832,9 +827,9 @@ contract ApplicationAMMTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUt
         vm.expectRevert();
         applicationAMM.swap(address(applicationCoin), 100);
 
-        //Check that appAdminstrators can still transfer within pausePeriod
+        //Check that appAdministrators can still transfer within pausePeriod
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         applicationCoin.approve(address(applicationAMM), 10000);
         applicationCoin2.approve(address(applicationAMM), 10000);
         applicationAMM.swap(address(applicationCoin), 100);
@@ -847,7 +842,7 @@ contract ApplicationAMMTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUt
 
         ///create new pause rule to check that swaps and trasnfers are paused
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         appManager.addPauseRule(Blocktime + 1700, Blocktime + 2000);
         vm.warp(Blocktime + 1750);
 
@@ -861,7 +856,7 @@ contract ApplicationAMMTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUt
 
         ///Set multiple pause rules and ensure pauses during and regular function between
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         appManager.addPauseRule(Blocktime + 2100, Blocktime + 2500);
         appManager.addPauseRule(Blocktime + 2750, Blocktime + 3000);
         appManager.addPauseRule(Blocktime + 3150, Blocktime + 3500);
@@ -883,7 +878,7 @@ contract ApplicationAMMTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUt
         applicationAMM.swap(address(applicationCoin), 100);
 
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         // applicationAMM.swap(address(applicationCoin), 10); ///Show Application Administrators can utilize system during pauses
 
         vm.warp(Blocktime + 3015); ///Expire previous pause rule
@@ -915,7 +910,7 @@ contract ApplicationAMMTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUt
         assertEq(applicationAMM.swap(address(applicationCoin), 10), 10);
         /// turn the rule on
         vm.stopPrank();
-        vm.startPrank(appAdminstrator);
+        vm.startPrank(appAdministrator);
         applicationHandler.activateAccessLevel0Rule(true);
         /// now we check for proper failure
         vm.stopPrank();

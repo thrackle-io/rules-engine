@@ -92,15 +92,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return Success equals true if all checks pass
      */
-    function checkAllRules(
-        uint256 balanceFrom,
-        uint256 balanceTo,
-        address _from,
-        address _to,
-        uint256 amount,
-        uint256 tokenId,
-        ApplicationRuleProcessorDiamondLib.ActionTypes _action
-    ) external returns (bool) {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, uint256 tokenId, RuleProcessorDiamondLib.ActionTypes _action) external returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin

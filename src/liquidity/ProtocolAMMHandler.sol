@@ -84,7 +84,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
         address _to,
         uint256 token_amount_0,
         uint256 token_amount_1,
-        ApplicationRuleProcessorDiamondLib.ActionTypes _action
+        RuleProcessorDiamondLib.ActionTypes _action
     ) external returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
@@ -108,7 +108,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return fees total assessed fee for transaction
      */
-    function assessFees(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, ApplicationRuleProcessorDiamondLib.ActionTypes _action) external view returns (uint256) {
+    function assessFees(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, RuleProcessorDiamondLib.ActionTypes _action) external view returns (uint256) {
         /// this is to silence warning from unused parameters. NOTE: These parameters are in here for parity and possible future use.
         _balanceFrom;
         _balanceTo;

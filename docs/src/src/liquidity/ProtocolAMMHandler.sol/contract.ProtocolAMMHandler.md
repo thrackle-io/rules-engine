@@ -1,5 +1,5 @@
 # ProtocolAMMHandler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2738cf9716e0fddfad4df13fdb6486b5987af931/src/liquidity/ProtocolAMMHandler.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/0f66d21b157a740e3d9acae765069e378935a031/src/liquidity/ProtocolAMMHandler.sol)
 
 **Inherits:**
 Ownable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [IProtocolAMMHandler](/src/liquidity/IProtocolAMMHandler.sol/interface.IProtocolAMMHandler.md)
@@ -202,7 +202,7 @@ function checkAllRules(
     address _to,
     uint256 token_amount_0,
     uint256 token_amount_1,
-    ApplicationRuleProcessorDiamondLib.ActionTypes _action
+    RuleProcessorDiamondLib.ActionTypes _action
 ) external returns (bool);
 ```
 **Parameters**
@@ -215,7 +215,7 @@ function checkAllRules(
 |`_to`|`address`|recipient address|
 |`token_amount_0`|`uint256`|number of tokens transferred|
 |`token_amount_1`|`uint256`|number of tokens received|
-|`_action`|`ApplicationRuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
+|`_action`|`RuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
 
 **Returns**
 
@@ -238,7 +238,7 @@ function assessFees(
     address _from,
     address _to,
     uint256 _amount,
-    ApplicationRuleProcessorDiamondLib.ActionTypes _action
+    RuleProcessorDiamondLib.ActionTypes _action
 ) external view returns (uint256);
 ```
 **Parameters**
@@ -250,7 +250,7 @@ function assessFees(
 |`_from`|`address`|Sender address|
 |`_to`|`address`|Recipient address|
 |`_amount`|`uint256`|total number of tokens to be transferred|
-|`_action`|`ApplicationRuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
+|`_action`|`RuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
 
 **Returns**
 

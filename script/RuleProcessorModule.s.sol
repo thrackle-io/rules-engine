@@ -5,9 +5,8 @@ import "forge-std/Script.sol";
 import {IDiamondInit} from "../src/diamond/initializers/IDiamondInit.sol";
 import {DiamondInit} from "../src/diamond/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "../src/diamond/core/DiamondCut/DiamondCutLib.sol";
-import {ApplicationRuleProcessorDiamond, DiamondArgs} from "../src/economic/ruleProcessor/application/ApplicationRuleProcessorDiamond.sol";
+import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/nontagged/RuleProcessorDiamond.sol";
 import {AppManager} from "../src/application/AppManager.sol";
-import "../src/application/ApplicationHandler.sol";
 
 /**
  * @title AppManager Deploy Script
@@ -66,15 +65,15 @@ contract RuleProcessorModuleScript is Script {
             _facetCuts.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
         }
 
-        /// Build the DiamondArgs.
-        DiamondArgs memory diamondArgs = DiamondArgs({
+        /// Build the RuleProcessorDiamondArgs.
+        RuleProcessorDiamondArgs memory diamondArgs = RuleProcessorDiamondArgs({
             init: address(diamondInit),
             /// NOTE: "interfaceId" can be used since "init" is the only function in IDiamondInit.
             initCalldata: abi.encode(type(IDiamondInit).interfaceId)
         });
 
         /// Deploy the diamond.
-        new ApplicationRuleProcessorDiamond(_facetCuts, diamondArgs);
+        new RuleProcessorDiamond(_facetCuts, diamondArgs);
         vm.stopBroadcast();
     }
 }

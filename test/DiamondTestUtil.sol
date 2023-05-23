@@ -8,9 +8,9 @@ import {DiamondInit} from "../src/diamond/initializers/DiamondInit.sol";
 
 import {FacetCut, FacetCutAction} from "../src/diamond/core/DiamondCut/DiamondCutLib.sol";
 
-import {ApplicationRuleProcessorDiamond, DiamondArgs} from "../src/economic/ruleProcessor/application/ApplicationRuleProcessorDiamond.sol";
+import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/nontagged/RuleProcessorDiamond.sol";
 // import {AppManager} from "../src/application/AppManager.sol";
-import {ApplicationPauseProcessorFacet} from "../src/economic/ruleProcessor/application/ApplicationPauseProcessorFacet.sol";
+import {ApplicationPauseProcessorFacet} from "../src/economic/ruleProcessor/nontagged/ApplicationPauseProcessorFacet.sol";
 import {SampleFacet} from "../src/diamond/core/test/SampleFacet.sol";
 import {ERC173Facet} from "../src/diamond/implementations/ERC173/ERC173Facet.sol";
 import {IDiamondCut} from "../src/diamond/core/DiamondCut/IDiamondCut.sol";
@@ -20,14 +20,14 @@ contract DiamondTestUtil is GenerateSelectors {
     // NOTE: using storage array to easily "push" new FacetCut as we
     // process the facets.
     FacetCut[] private _facetCuts;
-    ApplicationRuleProcessorDiamond applicationRuleProcessorDiamond;
+    RuleProcessorDiamond ruleProcessorDiamond;
     address defaultAdmin = address(0xDEFAD);
-    address appAdminstrator = address(0xAAA);
+    address appAdministrator = address(0xAAA);
     address AccessTier = address(0xBBB);
     address riskAdmin = address(0xCCC);
     address user = address(0xDDD);
 
-    function getApplicationProcessorDiamond() public returns (ApplicationRuleProcessorDiamond diamond) {
+    function getApplicationProcessorDiamond() public returns (RuleProcessorDiamond diamond) {
         // Start by deploying the DiamonInit contract.
         DiamondInit diamondInit = new DiamondInit();
 
@@ -70,13 +70,13 @@ contract DiamondTestUtil is GenerateSelectors {
         }
 
         // Build the DiamondArgs.
-        DiamondArgs memory diamondArgs = DiamondArgs({
+        RuleProcessorDiamondArgs memory diamondArgs = RuleProcessorDiamondArgs({
             init: address(diamondInit),
             // NOTE: "interfaceId" can be used since "init" is the only function in IDiamondInit.
             initCalldata: abi.encode(type(IDiamondInit).interfaceId)
         });
 
         // Deploy the diamond.
-        return new ApplicationRuleProcessorDiamond(_facetCuts, diamondArgs);
+        return new RuleProcessorDiamond(_facetCuts, diamondArgs);
     }
 }

@@ -1,5 +1,5 @@
 # IERC721HandlerLite
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2738cf9716e0fddfad4df13fdb6486b5987af931/src/economic/IERC721HandlerLite.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/0f66d21b157a740e3d9acae765069e378935a031/src/economic/IERC721HandlerLite.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -22,7 +22,7 @@ function checkAllRules(
     address _to,
     uint256 amount,
     uint256 tokenId,
-    ApplicationRuleProcessorDiamondLib.ActionTypes _action
+    RuleProcessorDiamondLib.ActionTypes _action
 ) external returns (bool);
 ```
 **Parameters**
@@ -35,7 +35,7 @@ function checkAllRules(
 |`_to`|`address`|Recipient address|
 |`amount`|`uint256`|total number of tokens to be transferred|
 |`tokenId`|`uint256`|Id of token|
-|`_action`|`ApplicationRuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
+|`_action`|`RuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
 
 **Returns**
 

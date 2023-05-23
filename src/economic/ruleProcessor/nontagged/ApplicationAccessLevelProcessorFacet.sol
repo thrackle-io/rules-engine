@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {ApplicationRuleProcessorDiamondLib as actionDiamond, ApplicationRuleDataStorage} from "./ApplicationRuleProcessorDiamondLib.sol";
+import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {IApplicationRules as Application} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
 
@@ -25,7 +25,7 @@ contract ApplicationAccessLevelProcessorFacet {
      * @param _amountToTransfer total USD amount to be transferred with 18 decimals of precision
      */
     function checkBalanceByAccessLevelPasses(uint32 _ruleId, uint8 _accessLevel, uint256 _balance, uint256 _amountToTransfer) external view {
-        AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.applicationStorage().ruleDiamondAddress);
+        AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().nontaggedRules);
         /// Get the account's AccessLevel Level
         if (data.getTotalAccessLevelBalanceRules() != 0) {
             try data.getAccessLevelBalanceRule(_ruleId, _accessLevel) returns (uint48 max) {

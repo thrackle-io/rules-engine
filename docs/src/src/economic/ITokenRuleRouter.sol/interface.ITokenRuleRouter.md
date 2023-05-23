@@ -1,5 +1,5 @@
 # ITokenRuleRouter
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2738cf9716e0fddfad4df13fdb6486b5987af931/src/economic/ITokenRuleRouter.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/0f66d21b157a740e3d9acae765069e378935a031/src/economic/ITokenRuleRouter.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -117,21 +117,6 @@ function checkBalanceByAccessLevelPasses(
 |`_accessLevel`|`uint8`|the Access Level of the account|
 |`_balance`|`uint256`|account's beginning balance|
 |`_amountToTransfer`|`uint256`|total number of tokens to be transferred|
-
-
-### checkAccessLevel0Passes
-
-*Check if transaction passes AccessLevel 0 rule.This has no stored rule as there are no additional variables needed.*
-
-
-```solidity
-function checkAccessLevel0Passes(uint8 _accessLevel) external pure;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_accessLevel`|`uint8`|the Access Level of the account|
 
 
 ### checkPurchaseLimit
@@ -327,5 +312,116 @@ function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount,
 |`balance`|`uint256`|account's current balance|
 |`amount`|`uint256`|Number of tokens to be transferred from this account|
 |`toTags`|`bytes32[]`|Account tags applied to sender via App Manager|
+
+
+### checkAccBalanceByRisk
+
+*This function checks if the requested action is valid according to the AccountBalanceByRiskScore rule*
+
+
+```solidity
+function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScoreTo, uint128 _totalValuationTo, uint128 _amountToTransfer)
+    external
+    view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+|`_riskScoreTo`|`uint8`|the Risk Score of the recepient account|
+|`_totalValuationTo`|`uint128`|recepient account's beginning balance in USD with 18 decimals of precision|
+|`_amountToTransfer`|`uint128`|total dollar amount to be transferred in USD with 18 decimals of precision|
+
+
+### checkAccBalanceByAccessLevel
+
+*This function checks if the requested action is valid according to the AccountBalanceByAccessLevel rule*
+
+
+```solidity
+function checkAccBalanceByAccessLevel(
+    uint32 _ruleId,
+    uint8 _accessLevelTo,
+    uint128 _totalValuationTo,
+    uint128 _amountToTransfer
+) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+|`_accessLevelTo`|`uint8`|the Access Level of the recepient account|
+|`_totalValuationTo`|`uint128`|recepient account's beginning balance in USD with 18 decimals of precision|
+|`_amountToTransfer`|`uint128`|total dollar amount to be transferred in USD with 18 decimals of precision|
+
+
+### checkMaxTxSizePerPeriodByRisk
+
+that these ranges are set by ranges.
+
+*rule that checks if the tx exceeds the limit size in USD for a specific risk profile
+within a specified period of time.*
+
+*this check will cause a revert if the new value of _usdValueTransactedInPeriod in USD exceeds
+the limit for the address risk profile.*
+
+
+```solidity
+function checkMaxTxSizePerPeriodByRisk(
+    uint32 ruleId,
+    uint128 _usdValueTransactedInPeriod,
+    uint128 amount,
+    uint64 lastTxDate,
+    uint8 riskScore
+) external view returns (uint128);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|to check against.|
+|`_usdValueTransactedInPeriod`|`uint128`|the cumulative amount of tokens recorded in the last period.|
+|`amount`|`uint128`|in USD of the current transaction with 18 decimals of precision.|
+|`lastTxDate`|`uint64`|timestamp of the last transfer of this token by this address.|
+|`riskScore`|`uint8`|of the address (0 -> 100)|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint128`|updated value for the _usdValueTransactedInPeriod. If _usdValueTransactedInPeriod are inside the current period, then this value is accumulated. If not, it is reset to current amount.|
+
+
+### checkAccessLevel0Passes
+
+*Ensure that Access Level = 0 rule passes. This seems like an easy rule to check but it is still
+abstracted to through the token rule router to allow for updates later(like special values)*
+
+
+```solidity
+function checkAccessLevel0Passes(uint8 _accessLevel) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accessLevel`|`uint8`|account access level|
+
+
+### checkPauseRules
+
+*This function checks if the requested action is valid according to pause rules.*
+
+
+```solidity
+function checkPauseRules(address _dataServer) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_dataServer`|`address`|address of the Application Rule Processor Diamond contract|
 
 

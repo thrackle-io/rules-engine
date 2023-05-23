@@ -6,7 +6,7 @@ import "../src/example/ApplicationERC20.sol";
 import "../src/example/ApplicationERC721.sol";
 import "../src/example/ApplicationERC721A.sol";
 import "../src/example/ApplicationAppManager.sol";
-import "../src/application/ApplicationHandler.sol";
+import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "../src/economic/TokenRuleRouter.sol";
 import "../src/example/ApplicationERC20Handler.sol";
@@ -63,22 +63,15 @@ contract ERC721AutoMintStakingTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
         ///connect data diamond with Tagged Rule Processor diamond
         taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        /// add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdminstrator);
         tokenRuleRouter = new TokenRuleRouter();
-        // connect the Application Rule Processor Diamond
 
-        ApplicationRuleProcessorDiamond applicationRuleProcessorDiamond = getApplicationProcessorDiamond();
-        applicationHandler = appManager.applicationHandler();
-        //connect applicationHandler with rule diamond
-        applicationRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // connect applicationHandler with its diamond
-        applicationHandler.setApplicationRuleProcessorDiamondAddress(address(applicationRuleProcessorDiamond));
         /// connect the TokenRuleRouter to its child Diamond
         ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
         TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        /// Deploy app manager
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        /// add the DEAD address as a app administrator
+        appManager.addAppAdministrator(appAdministrator);
         /// Set up the Handlers
         applicationNFTHandler = new ApplicationERC721Handler(address(ruleRouterProxy), address(appManager));
         applicationNFTAHandler = new ApplicationERC721Handler(address(ruleRouterProxy), address(appManager));

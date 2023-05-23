@@ -57,12 +57,6 @@ interface ITokenRuleRouter {
     function checkBalanceByAccessLevelPasses(uint32 _ruleId, uint8 _accessLevel, uint256 _balance, uint256 _amountToTransfer) external view;
 
     /**
-     * @dev Check if transaction passes AccessLevel 0 rule.This has no stored rule as there are no additional variables needed.
-     * @param _accessLevel the Access Level of the account
-     */
-    function checkAccessLevel0Passes(uint8 _accessLevel) external pure;
-
-    /**
      * @dev This function receives a rule id for Purchase Limit details and checks that transaction passes.
      * @param ruleId Rule identifier for rule arguments
      * @param purchasedWithinPeriod Number of tokens purchased within purchase Period
@@ -152,4 +146,54 @@ interface ITokenRuleRouter {
      * @param toTags Account tags applied to sender via App Manager
      */
     function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags) external view;
+
+    // --------------------------- APPLICATION LEVEL --------------------------------
+
+    /**
+     * @dev This function checks if the requested action is valid according to the AccountBalanceByRiskScore rule
+     * @param _ruleId Rule Identifier
+     * @param _riskScoreTo the Risk Score of the recepient account
+     * @param _totalValuationTo recepient account's beginning balance in USD with 18 decimals of precision
+     * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
+     */
+    function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScoreTo, uint128 _totalValuationTo, uint128 _amountToTransfer) external view;
+
+    /**
+     * @dev This function checks if the requested action is valid according to the AccountBalanceByAccessLevel rule
+     * @param _ruleId Rule Identifier
+     * @param _accessLevelTo the Access Level of the recepient account
+     * @param _totalValuationTo recepient account's beginning balance in USD with 18 decimals of precision
+     * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
+     */
+    function checkAccBalanceByAccessLevel(uint32 _ruleId, uint8 _accessLevelTo, uint128 _totalValuationTo, uint128 _amountToTransfer) external view;
+
+    /**
+     * @dev rule that checks if the tx exceeds the limit size in USD for a specific risk profile
+     * within a specified period of time.
+     * @notice that these ranges are set by ranges.
+     * @param ruleId to check against.
+     * @param _usdValueTransactedInPeriod the cumulative amount of tokens recorded in the last period.
+     * @param amount in USD of the current transaction with 18 decimals of precision.
+     * @param lastTxDate timestamp of the last transfer of this token by this address.
+     * @param riskScore of the address (0 -> 100)
+     * @return updated value for the _usdValueTransactedInPeriod. If _usdValueTransactedInPeriod are
+     * inside the current period, then this value is accumulated. If not, it is reset to current amount.
+     * @dev this check will cause a revert if the new value of _usdValueTransactedInPeriod in USD exceeds
+     * the limit for the address risk profile.
+     */
+    function checkMaxTxSizePerPeriodByRisk(uint32 ruleId, uint128 _usdValueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 riskScore) external view returns (uint128);
+
+    /**
+     * @dev Ensure that Access Level = 0 rule passes. This seems like an easy rule to check but it is still
+     * abstracted to through the token rule router to allow for updates later(like special values)
+     * @param _accessLevel account access level
+     *
+     */
+    function checkAccessLevel0Passes(uint8 _accessLevel) external view;
+
+    /**
+     * @dev This function checks if the requested action is valid according to pause rules.
+     * @param _dataServer address of the Application Rule Processor Diamond contract
+     */
+    function checkPauseRules(address _dataServer) external view;
 }

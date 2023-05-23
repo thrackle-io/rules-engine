@@ -45,6 +45,13 @@ library RuleProcessorDiamondLib {
     bytes32 constant DIAMOND_CUT_STORAGE = keccak256("diamond-cut.storage");
     bytes32 constant RULE_DATA_POSITION = keccak256("nontagged-ruless.rule-data.storage");
 
+    enum ActionTypes {
+        PURCHASE,
+        SELL,
+        TRADE,
+        INQUIRE
+    }
+
     /**
      * @dev Function for position of rules. Every rule has its own storage.
      * @return ds Data storage for Rule Processor Storage

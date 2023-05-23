@@ -22,15 +22,7 @@ interface IERC721HandlerLite {
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return Success equals true and Failure equals false
      */
-    function checkAllRules(
-        uint256 balanceFrom,
-        uint256 balanceTo,
-        address _from,
-        address _to,
-        uint256 amount,
-        uint256 tokenId,
-        ApplicationRuleProcessorDiamondLib.ActionTypes _action
-    ) external returns (bool);
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, uint256 tokenId, RuleProcessorDiamondLib.ActionTypes _action) external returns (bool);
 
     /**
      * @dev Set the parent ERC721 address

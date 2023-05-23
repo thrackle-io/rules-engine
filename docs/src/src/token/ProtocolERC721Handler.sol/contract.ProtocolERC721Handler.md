@@ -1,5 +1,5 @@
 # ProtocolERC721Handler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2738cf9716e0fddfad4df13fdb6486b5987af931/src/token/ProtocolERC721Handler.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/0f66d21b157a740e3d9acae765069e378935a031/src/token/ProtocolERC721Handler.sol)
 
 **Inherits:**
 Ownable, [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
@@ -220,7 +220,7 @@ function checkAllRules(
     address _to,
     uint256 amount,
     uint256 tokenId,
-    ApplicationRuleProcessorDiamondLib.ActionTypes _action
+    RuleProcessorDiamondLib.ActionTypes _action
 ) external returns (bool);
 ```
 **Parameters**
@@ -233,7 +233,7 @@ function checkAllRules(
 |`_to`|`address`|recipient address|
 |`amount`|`uint256`|number of tokens transferred|
 |`tokenId`|`uint256`|the token's specific ID|
-|`_action`|`ApplicationRuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
+|`_action`|`RuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
 
 **Returns**
 
