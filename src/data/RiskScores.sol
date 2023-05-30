@@ -27,7 +27,6 @@ contract RiskScores is IRiskScores, DataModule {
      */
     function addScore(address _address, uint8 _score) public onlyOwner {
         scores[_address] = _score;
-        emit RiskScoreAdded(_address, _score, block.timestamp);
     }
 
     /**

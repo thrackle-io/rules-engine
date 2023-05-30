@@ -20,7 +20,7 @@ contract ApplicationERC721Script is Script {
     function run() public {
         vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
 
-        new ApplicationERC721("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS"), vm.envString("APPLICATION_ERC721_URI_1"));
+        new ApplicationERC721("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), vm.envAddress("RULE_PROCESSOR_DIAMOND"), false, vm.envString("APPLICATION_ERC721_URI_1"));
         // Register the token with the application's app manager
         IAppManager(vm.envAddress("APPLICATION_APP_MANAGER")).registerToken("Frankenstein", address(this));
         vm.stopBroadcast();

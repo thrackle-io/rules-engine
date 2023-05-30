@@ -4,6 +4,8 @@
 ---
 
 1. Ensure the [environment variable][environment-url] is set correctly.
+    1. Manual deployment of Handler contract for upgrading to new handler only. Handler Contract 
+    will automatically deploy from the ERC721 contract. 
 2. Copy the template from _src/example/ApplicationERC721Handler.sol_ to your desired location
 3. Change the name of the contract to suit your naming standards
     1. *Do not change the import or parent contract*
@@ -13,16 +15,18 @@
 
     ````
 5. Deploy the contract sending in the following parameters:
-    1. _Token Rules Router Address_
-       1. The Token-Rules-Router's contract address from previous steps for local deployment or from the [Deployment Directory][deploymentDirectory-url]
+    1. _RuleProcessorDiamond Address_
+       1. The RuleProcessorDiamond's contract address from previous steps for local deployment or from the [Deployment Directory][deploymentDirectory-url]
     2. _App Manager Address_
        1. The address noted from previous steps
+    3. _upgradeMode_ 
+       1. The bool representing if this is an upgraded handler contract
 
     ````
     forge create src/example/ApplicationERC721Handler.sol:ApplicationERC721Handler --constructor-args 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url  $ETH_RPC_URL
 
     ````
-6. Use the output from this deployment to take note of the GameNFTHandler's address.
+6. Use the output from this deployment to take note of the application NFTHandler's address.
     ````
     Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
     Deployed to: 0x82e01223d51Eb87e16A03E24687EDF0F294da6f1

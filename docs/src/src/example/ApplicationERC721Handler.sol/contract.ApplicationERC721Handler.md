@@ -1,5 +1,5 @@
 # ApplicationERC721Handler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/example/ApplicationERC721Handler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/example/ApplicationERC721Handler.sol)
 
 **Inherits:**
 [ProtocolERC721Handler](/src/token/ProtocolERC721Handler.sol/contract.ProtocolERC721Handler.md)
@@ -19,14 +19,15 @@ This contract is the interaction point for the application ecosystem to the prot
 
 
 ```solidity
-constructor(address _tokenRuleRouterProxyAddress, address _appManagerAddress)
-    ProtocolERC721Handler(_tokenRuleRouterProxyAddress, _appManagerAddress);
+constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode)
+    ProtocolERC721Handler(_ruleProcessorProxyAddress, _appManagerAddress, _upgradeMode);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_tokenRuleRouterProxyAddress`|`address`|Address of Token Rule Router Proxy|
+|`_ruleProcessorProxyAddress`|`address`|Address of Token Rule Router Proxy|
 |`_appManagerAddress`|`address`|Address of App Manager|
+|`_upgradeMode`|`bool`|specifies whether this is a fresh Handler or an upgrade replacement.|
 
 

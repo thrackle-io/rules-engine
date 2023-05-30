@@ -17,14 +17,15 @@ contract ApplicationERC721 is ProtocolERC721 {
      * @param _name Name of NFT
      * @param _symbol Symbol for the NFT
      * @param _appManagerAddress Address of App Manager
-     * @param _erc721HandlerAddress Address of this ERC721's handler
-     * @param baseUri URI for the base token
+     * @param _ruleProcessorProxyAddress of token rule router proxy address
+     * @param _baseUri URI for the base token
      */
     constructor(
         string memory _name,
         string memory _symbol,
         address _appManagerAddress,
-        address _erc721HandlerAddress,
-        string memory baseUri
-    ) ProtocolERC721(_name, _symbol, _appManagerAddress, _erc721HandlerAddress, baseUri) {}
+        address _ruleProcessorProxyAddress,
+        bool _upgradeMode,
+        string memory _baseUri
+    ) ProtocolERC721(_name, _symbol, _appManagerAddress, _ruleProcessorProxyAddress, _upgradeMode, baseUri) {}
 }

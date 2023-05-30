@@ -7,16 +7,16 @@
 
 ---
 
-| Term         | Definition  |
-| :--- | :---        |
-| AppManager      | Allows for creation/maintenance of permission roles, global Rules, pause windows, and user account metadata       |
-| TokenHandler    | Deployed with Protocol Supported ERC721's and Protocol Supported ERC20 tokens. Allow for applying, activating, and deactivating token specific rules         |
-| Pricing Module        | Where prices for ERC20 and ERC721 tokens are derived. It can be the default protocol pricer or a custom pricing solution        |
-| Protocol Supported ERC721| An ERC721 token that implements the protocol ProtocolERC721.        |
-| Access-Tier Provider          | External Know Your Customer(KYC) solution        |
-| Permission Roles      | Roles used by AppManager. They include: Admin, KYC Admin, and Risk Admin        |
-| Global Rule           | Rule applied to all protocol supported entities. They are created using the protocol's Rule Storage Diamond and applied in the applcation's AppManager        |
-| Token Specific Rule   | Rule applied to a specific protocol supported entity. They are created using the protocol's Rule Storage  Diamond and applied in the token's Handler        |
+| Term                      | Definition                                                                                                                                                  |
+|:--------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| AppManager                | Allows for creation/maintenance of permission roles, application rules, pause windows, user account metadata. Automatically deploys the ApplicationHandler. |
+| TokenHandler              | Deployed by Protocol Supported ERC721's and Protocol Supported ERC20 tokens. Allow for applying, activating, and deactivating token specific rules          |
+| Pricing Module            | Where prices for ERC20 and ERC721 tokens are derived. It can be the default protocol pricer or a custom pricing solution                                    |
+| Protocol Supported ERC721 | An ERC721 token that implements the protocol ProtocolERC721.                                                                                                |
+| Access-Tier Provider      | An external provider that rates or segments users based on external criteria such as Know Your Customer (KYC) solutions                                     |
+| Permission Roles          | Roles used by AppManager. They include: Admin, Access Tier Admin, and Risk Admin                                                                            |
+| Application Rule          | Rule applied to all protocol supported assets. They are created using the protocol's RuleStorageDiamond and applied in the application's AppManager        |
+| Token Specific Rule       | Rule applied to a specific protocol supported entity. They are created using the protocol's RuleStorageDiamond and applied in the token's Handler        |
 
 
 

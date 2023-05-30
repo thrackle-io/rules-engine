@@ -50,7 +50,8 @@ contract AppRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
             }
         }
         ++data.accessRuleIndex;
-        emit ProtocolRuleCreated(BALANCE_BY_AccessLevel, index);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(BALANCE_BY_ACCESSLEVEL, index, empty);
         return index;
     }
 
@@ -130,7 +131,8 @@ contract AppRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         AppRules.TxSizePerPeriodToRiskRule memory rule = AppRules.TxSizePerPeriodToRiskRule(_maxSize, _riskLevel, _period, startingDate);
         data.txSizePerPeriodToRiskRule[ruleId] = rule;
         ++data.txSizePerPeriodToRiskRuleIndex;
-        emit ProtocolRuleCreated(MAX_TX_PER_PERIOD, ruleId);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(MAX_TX_PER_PERIOD, ruleId, empty);
         return ruleId;
     }
 
@@ -201,7 +203,8 @@ contract AppRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         AppRules.AccountBalanceToRiskRule memory rule = AppRules.AccountBalanceToRiskRule(_riskScores, _balanceLimits);
         data.balanceToRiskRule[ruleId] = rule;
         ++data.balanceToRiskRuleIndex;
-        emit ProtocolRuleCreated(BALANCE_BY_RISK, ruleId);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(BALANCE_BY_RISK, ruleId, empty);
         return ruleId;
     }
 

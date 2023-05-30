@@ -6,23 +6,21 @@ import "../src/example/ApplicationERC721A.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
-import "../src/economic/TokenRuleRouter.sol";
+
 import "../src/example/ApplicationERC721Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-import "../src/economic/TokenRuleRouterProxy.sol";
-import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
+
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 
-contract ERC721ATest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract ERC721ATest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationERC721A applicationNFT;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
+    RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-    TokenRuleRouter tokenRuleRouter;
+
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationAppManager appManager;
-    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
+
     ApplicationHandler public applicationHandler;
-    TokenRuleRouterProxy ruleRouterProxy;
 
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     address user1 = address(11);
@@ -36,27 +34,22 @@ contract ERC721ATest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, Rul
         // Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy the token rule processor diamond
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        // Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
+        ruleProcessor = getRuleProcessorDiamond();
+        // Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         // Deploy the token rule processor diamond
-        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
-        //connect data diamond with Tagged Rule Processor diamond
-        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
 
-        tokenRuleRouter = new TokenRuleRouter();
-        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-        // connect the TokenRuleRouter to its child Diamond
-        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        //connect data diamond with Tagged Rule Processor diamond
+
+        // connect the Rule Processor to its child Diamond
+
         // Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
 
-        // Set up the ApplicationERC20Handler
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleRouterProxy), address(appManager));
-
-        applicationNFT = new ApplicationERC721A("PudgyParakeet", "THRK", address(applicationNFTHandler), address(appManager), "https://SampleApp.io");
+        applicationNFT = new ApplicationERC721A("PudgyParakeet", "THRK", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
+        applicationNFTHandler = ApplicationERC721Handler(applicationNFT.handlerAddress());
     }
 
     function testMintA() public {

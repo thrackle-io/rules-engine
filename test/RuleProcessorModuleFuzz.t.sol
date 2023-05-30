@@ -10,14 +10,14 @@ import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "..
 import {SampleFacet} from "../src/diamond/core/test/SampleFacet.sol";
 import {ERC173Facet} from "../src/diamond/implementations/ERC173/ERC173Facet.sol";
 import {RuleDataFacet as NonTaggedRuleFacet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
-import {TokenRuleRouter} from "../src/economic/TokenRuleRouter.sol";
+
 import "../src/application/AppManager.sol";
 
 import "./RuleProcessorDiamondTestUtil.sol";
-import "./TaggedRuleProcessorDiamondTestUtil.sol";
+
 import "../src/application/AppManager.sol";
 import "../src/application/AppManager.sol";
-import "../src/economic/TokenRuleRouterProxy.sol";
+
 import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
 import "../src/example/ApplicationERC20Handler.sol";
@@ -26,18 +26,17 @@ import "./DiamondTestUtil.sol";
 import "../src/example/pricing/ApplicationERC20Pricing.sol";
 import "../src/example/pricing/ApplicationERC721Pricing.sol";
 
-contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUtil, TaggedRuleProcessorDiamondTestUtil {
+contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     // Store the FacetCut struct for each NonTaggedRuleFacetthat is being deployed.
     // NOTE: using storage array to easily "push" new FacetCut as we
     // process the facets.
     FacetCut[] private _facetCuts;
     //AppManager public appManager;
     RuleStorageDiamond ruleStorageDiamond;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
-    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
-    TokenRuleRouter tokenRuleRouter;
+    RuleProcessorDiamond ruleProcessor;
+
     ApplicationERC20Handler applicationCoinHandler;
-    TokenRuleRouterProxy ruleRouterProxy;
+
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationAppManager appManager;
@@ -57,24 +56,18 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         // Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy the rule processor diamonds
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
-        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
+        ruleProcessor = getRuleProcessorDiamond();
 
-        // deploy the TokenRuleRouter
-        tokenRuleRouter = new TokenRuleRouter();
-        //deploy and initialize Proxy to TokenRuleRouter
-        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
+        // Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
+
         // Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         ac = address(appManager);
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleRouterProxy), address(appManager), false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
 
         // create the oracles
         oracleAllowed = new OracleAllowed();

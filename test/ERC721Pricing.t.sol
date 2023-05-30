@@ -5,11 +5,10 @@ import "../src/example/pricing/ApplicationERC721Pricing.sol";
 import "../src/example/ApplicationERC721.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "./DiamondTestUtil.sol";
-import "../src/economic/TokenRuleRouter.sol";
-import "../src/economic/TokenRuleRouterProxy.sol";
+
 import "../src/example/ApplicationERC721Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
+
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 
 /**
@@ -20,18 +19,18 @@ import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFac
  * of the contract being an ERC721 contract before setting a price for an NFT
  * @notice It simulates an NFT-marketplace price source.
  */
-contract ERC721PricingTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     //storage variable declaration
     ApplicationERC721 boredWhaleNFT;
     ApplicationERC721 boredReptilianNFT;
     ApplicationERC721Pricing openOcean;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
+    RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-    TokenRuleRouter tokenRuleRouter;
+
     ApplicationERC721Handler applicationNFTHandler;
-    TokenRuleRouterProxy ruleRouterProxy;
+    ApplicationERC721Handler applicationNFTHandler2;
     ApplicationAppManager appManager;
-    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
+
     address bob = address(0xB0B);
 
     function setUp() public {
@@ -39,28 +38,19 @@ contract ERC721PricingTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUti
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        /// Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Diploy the token rule processor diamond
-        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
-        ///connect data diamond with Tagged Rule Processor diamond
-        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        tokenRuleRouter = new TokenRuleRouter();
-        //deploy and initialize Proxy to TokenRuleRouter
-        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
-        /// add the DEAD address as a application defaultAdmin
+        ruleProcessor = getRuleProcessorDiamond();
+        /// Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
+
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
         appManager.addAppAdministrator(appAdministrator);
 
         /// Set up the ApplicationERC721Handler
-        applicationNFTHandler = new ApplicationERC721Handler(address(tokenRuleRouter), address(appManager));
-
-        /// Deploy 2 NFT contracts
-        boredWhaleNFT = new ApplicationERC721("Bored Whale Island Club", "BWYC", address(appManager), address(applicationNFTHandler), "https://SampleApp.io");
-        boredReptilianNFT = new ApplicationERC721("Board Reptilian Spaceship Club", "BRSC", address(appManager), address(applicationNFTHandler), "https://SampleApp.io");
+        boredWhaleNFT = new ApplicationERC721("Bored Whale Island Club", "BWYC", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
+        boredReptilianNFT = new ApplicationERC721("Board Reptilian Spaceship Club", "BRSC", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
+        applicationNFTHandler = ApplicationERC721Handler(boredWhaleNFT.handlerAddress());
+        applicationNFTHandler2 = ApplicationERC721Handler(boredReptilianNFT.handlerAddress());
 
         /// Deploy the pricing contract
         openOcean = new ApplicationERC721Pricing();

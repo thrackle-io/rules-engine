@@ -20,24 +20,24 @@
    ````
 4. Deploy the [Protocol][deployProtocolLocal-url]. 
 5. Deploy [AppManager][deployAppManager-url]
-6. Deploy [NFTHandler][deployNftHandler-url]
+6. Deploy [Protocol Supported NFT][deployProtocolSupportedNft-url]
 7. Deploy [Pricing Module][deployPricingModule-url] (Optional)
-8.  Create [Global Rules][createGlobalRules-url] (Optional)    
+8.  Create [Application Rules][createAppRules-url] (Optional)    
 9.  Create [NFT Specific Rules][createNftRules-url] (Optional)    
-10. Set [External KYC Provider][externalKYCProvider-url] (Optional)
-11. Deploy [Protocol Supported NFT][deployProtocolSupportedNft-url]
-12. [Set NFT Prices][settingNftPrice-url] (Optional)
+10. Set [External Access Tier Provider][externalAccessTierProvider-url] (Optional)
+11. [Set NFT Prices][settingNftPrice-url] (Optional)
     
 
 <!-- These are the body links -->
 [foundry-url]: https://book.getfoundry.sh/getting-started/installation
+[repository-url]: https://github.com/thrackle-io/Tron
 [deployProtocolLocal-url]: ../DEPLOY-PROTOCOL.md
 [deployAppManager-url]: ../DEPLOY-APPMANAGER.md
 [deployNftHandler-url]: ./DEPLOY-NFTHANDLER.md
 [deployPricingModule-url]: ../DEPLOY-PRICING.md
-[createGlobalRules-url]: ../CREATE-GLOBAL-RULES.md
+[createAppRules-url]: ../CREATE-APP-RULES.md
 [createNftRules-url]: ../CREATE-NFT-RULES.md
-[externalKYCProvider-url]: ../../accessTier/EXTERNAL-ACCESS-TIER-PROVIDER.md
+[externalAccessTierProvider-url]: ../../accessTier/EXTERNAL-ACCESS-TIER-PROVIDER.md
 [deployProtocolSupportedNft-url]: ./DEPLOY-NFT.md
 [settingNftPrice-url]: ./NFT-PRICING.md
 

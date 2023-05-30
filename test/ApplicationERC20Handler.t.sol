@@ -5,12 +5,11 @@ import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "./DiamondTestUtil.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-import "./TaggedRuleProcessorDiamondTestUtil.sol";
+
 import "../src/application/AppManager.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/ApplicationERC20Handler.sol";
-import "../src/economic/TokenRuleRouterProxy.sol";
-import {TokenRuleRouter} from "../src/economic/TokenRuleRouter.sol";
+
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {INonTaggedRules as NonTaggedRules} from "../src/economic/ruleStorage/RuleDataInterfaces.sol";
@@ -30,7 +29,7 @@ import "../src/token/data/Fees.sol";
  *      contains all the rule checks for the particular ERC20.
  * @notice It simulates the input from a token contract
  */
-contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiamondTestUtil, TaggedRuleProcessorDiamondTestUtil {
+contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiamondTestUtil {
     /// Store the FacetCut struct for each facet that is being deployed.
     /// NOTE: using storage array to easily "push" new FacetCut as we
     /// process the facets.
@@ -43,11 +42,10 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
     address[] badBoys;
     address[] goodBoys;
     uint256 Blocktime = 1675723152;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
-    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
+    RuleProcessorDiamond ruleProcessor;
+
     RuleStorageDiamond ruleStorageDiamond;
-    TokenRuleRouter tokenRuleRouter;
-    TokenRuleRouterProxy ruleRouterProxy;
+
     ApplicationERC20Handler applicationCoinHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
@@ -59,25 +57,20 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the rule processor diamonds
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
-        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// deploy the TokenRuleRouter
-        tokenRuleRouter = new TokenRuleRouter();
-        /// connect the TokenRuleRouter to its child Diamonds
-        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        ruleProcessor = getRuleProcessorDiamond();
+
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
+        /// Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
+
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the accessTier Admin
         appManager.addAccessTier(accessTier);
         ac = address(appManager);
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleRouterProxy), ac, false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), ac, false);
 
         // create the oracles
         oracleAllowed = new OracleAllowed();
@@ -453,7 +446,7 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         assertEq(1, applicationCoinHandler.getFeeTotal());
 
         /// create new handler
-        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleRouterProxy), ac, false);
+        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, false);
         /// migrate data contracts to new handler
         applicationCoinHandler.migrateDataContracts(address(applicationCoinHandlerNew));
         /// connect the old data contract to the new handler
@@ -464,5 +457,14 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
         assertEq(1, applicationCoinHandlerNew.getFeeTotal());
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert(0xba80c9e5);
+        applicationCoinHandlerNew.migrateDataContracts(address(applicationCoinHandler));
+
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        applicationCoinHandlerNew.migrateDataContracts(address(applicationCoinHandler));
     }
 }

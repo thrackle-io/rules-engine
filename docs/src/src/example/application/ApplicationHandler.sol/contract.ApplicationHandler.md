@@ -1,5 +1,5 @@
 # ApplicationHandler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/example/application/ApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/example/application/ApplicationHandler.sol)
 
 **Inherits:**
 [ProtocolApplicationHandler](/src/application/ProtocolApplicationHandler.sol/contract.ProtocolApplicationHandler.md)
@@ -20,14 +20,14 @@ Deployment happens automatically when the AppManager is deployed.
 
 
 ```solidity
-constructor(address _tokenRuleRouterAddress, address _appManagerAddress)
-    ProtocolApplicationHandler(_tokenRuleRouterAddress, _appManagerAddress);
+constructor(address _ruleProcessorProxyAddress, address _appManagerAddress)
+    ProtocolApplicationHandler(_ruleProcessorProxyAddress, _appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_tokenRuleRouterAddress`|`address`|address of the protocol's TokenRuleRouter contract.|
+|`_ruleProcessorProxyAddress`|`address`|of the protocol's Rule Processor contract.|
 |`_appManagerAddress`|`address`|address of the application AppManager.|
 
 

@@ -5,17 +5,12 @@ import "../src/application/AppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-import "../src/economic/TokenRuleRouter.sol";
-import "../src/economic/TokenRuleRouterProxy.sol";
-import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
 
-contract AppManagerTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     AppManager public appManager;
     ApplicationHandler public applicationHandler;
-    TokenRuleRouter tokenRuleRouter;
-    TokenRuleRouterProxy ruleRouterProxy;
-    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
+
+    RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
     bytes32 public constant USER_ROLE = keccak256("USER");
@@ -29,19 +24,13 @@ contract AppManagerTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, 
         // Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy the token rule processor diamond
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        // Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        // Deploy the token rule processor diamond
-        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
-        //connect data diamond with Tagged Rule Processor diamond
-        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        tokenRuleRouter = new TokenRuleRouter();
-        /// connect the TokenRuleRouter to its child Diamond
-        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        ruleProcessor = getRuleProcessorDiamond();
+        // Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
 
-        appManager = new AppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        /// connect the Rule Processor to its child Diamond
+
+        appManager = new AppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
         vm.startPrank(defaultAdmin); //set up as the default admin
         // connect the diamond to the Application Rule Processor Diamond
 
@@ -532,7 +521,7 @@ contract AppManagerTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, 
         /// create new app manager
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        AppManager appManagerNew = new AppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        AppManager appManagerNew = new AppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
         /// migrate data contracts to new app manager
         /// set a app administrator in the new app manager
         appManagerNew.addAppAdministrator(appAdministrator);

@@ -6,30 +6,30 @@ import "../src/example/ApplicationERC20.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
-import "../src/economic/TokenRuleRouter.sol";
-import "../src/economic/TokenRuleRouterProxy.sol";
+
 import "../src/example/ApplicationERC20Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
-import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
+
 import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
 import "../src/example/pricing/ApplicationERC20Pricing.sol";
 import "../src/example/pricing/ApplicationERC721Pricing.sol";
 
-contract ApplicationERC20FuzzTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationERC20 applicationCoin;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
+    RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-    TokenRuleRouter tokenRuleRouter;
+
     ApplicationERC20Handler applicationCoinHandler;
+    ApplicationERC20Handler applicationCoinHandler2;
     ApplicationAppManager appManager;
-    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
+
     ApplicationHandler public applicationHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
-    TokenRuleRouterProxy ruleRouterProxy;
+
     ApplicationERC20Pricing erc20Pricer;
     ApplicationERC721Pricing nftPricer;
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
@@ -50,31 +50,20 @@ contract ApplicationERC20FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamond
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        /// Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Diploy the token rule processor diamond
-        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
-        ///connect data diamond with Tagged Rule Processor diamond
-        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        tokenRuleRouter = new TokenRuleRouter();
-        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-        /// connect the TokenRuleRouter to its child Diamond
-        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        ruleProcessor = getRuleProcessorDiamond();
+        /// Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the AccessLevelAdmin address as a AccessLevel admin
         appManager.addAccessTier(accessTier);
 
-        /// Set up the ApplicationERC20Handler
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleRouterProxy), address(appManager), false);
-
         applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
 
-        applicationCoin = new ApplicationERC20("application", "FRANK", address(appManager), address(applicationCoinHandler));
-
+        applicationCoin = new ApplicationERC20("application", "FRANK", address(appManager), address(ruleProcessor), false);
+        applicationCoinHandler = ApplicationERC20Handler(applicationCoin.handlerAddress());
         /// register the token
         appManager.registerToken("FRANK", address(applicationCoin));
         /// set the token price
@@ -576,7 +565,9 @@ contract ApplicationERC20FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamond
         /// create secondary token, mint, and transfer to user
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager), address(applicationCoinHandler));
+        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager), address(ruleProcessor), false);
+        applicationCoinHandler2 = ApplicationERC20Handler(draculaCoin.handlerAddress());
+        applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));
         draculaCoin.mint(defaultAdmin, getMaxUint());

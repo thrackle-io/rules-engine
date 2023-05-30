@@ -20,8 +20,8 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x70243426 | InvalidDateWindow(uint256,uint256)                               |
 | 0x17a84242 | NotAdmin(address)                                                |
 | 0x27e2cba4 | NotAppAdministrator(address)                                     |
-| 0x780325b1 | NotAppAdministrator()                                            |
-| 0xebb4658e | NotAccessTierAdministrator(address)                                           |
+| 0xba80c9e5 | NotAppAdministrator()                                            |
+| 0xebb4658e | NotAccessTierAdministrator(address)                              |
 | 0x820879ac | NotRiskAdmin(address)                                            |
 | 0x9c363e25 | NotAUser(address)                                                |
 | 0xfd12da91 | AccessLevelIsNotValid(uint8)                                     |

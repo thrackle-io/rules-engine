@@ -6,7 +6,7 @@ import "forge-std/Test.sol";
 import {IDiamondInit} from "../src/diamond/initializers/IDiamondInit.sol";
 import {DiamondInit} from "../src/diamond/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "../src/diamond/core/DiamondCut/DiamondCutLib.sol";
-import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/nontagged/RuleProcessorDiamond.sol";
+import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/RuleProcessorDiamond.sol";
 import {SampleFacet} from "../src/diamond/core/test/SampleFacet.sol";
 import {ERC173Facet} from "../src/diamond/implementations/ERC173/ERC173Facet.sol";
 import {IDiamondCut} from "../src/diamond/core/DiamondCut/IDiamondCut.sol";
@@ -37,15 +37,24 @@ contract RuleProcessorModuleScript is Test {
         DiamondInit diamondInit = new DiamondInit();
 
         /// Register all facets.
-        string[5] memory facets = [
-            // Native facets,
+        string[13] memory facets = [
+            /// Native facets,
             "DiamondCutFacet",
             "DiamondLoupeFacet",
-            // Raw implementation facets.
+            /// Raw implementation facets.
             "ERC165Facet",
             "ERC173Facet",
-            // Protocol facets.
-            "ERC20RuleProcessorFacet"
+            /// Protocol facets.
+            ///ruleProcessor (Rules setters and getters)
+            "ERC20RuleProcessorFacet",
+            "ERC721RuleProcessorFacet",
+            "FeeRuleProcessorFacet",
+            "ApplicationRiskProcessorFacet",
+            "ApplicationAccessLevelProcessorFacet",
+            "ApplicationPauseProcessorFacet",
+            "ERC20TaggedRuleProcessorFacet",
+            "ERC721TaggedRuleProcessorFacet",
+            "RiskTaggedRuleProcessorFacet"
         ];
 
         string[] memory inputs = new string[](3);

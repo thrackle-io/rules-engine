@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/token/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/token/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md)
@@ -30,7 +30,7 @@ address public handlerAddress;
 ### handler
 
 ```solidity
-IAssetHandlerLite handler;
+ProtocolERC20Handler handler;
 ```
 
 
@@ -57,8 +57,13 @@ uint256 immutable MAX_SUPPLY;
 
 
 ```solidity
-constructor(string memory _name, string memory _symbol, address _appManagerAddress, address _handlerAddress)
-    ERC20(_name, _symbol);
+constructor(
+    string memory _name,
+    string memory _symbol,
+    address _appManagerAddress,
+    address _ruleProcessor,
+    bool _upgradeMode
+) ERC20(_name, _symbol);
 ```
 **Parameters**
 
@@ -67,7 +72,8 @@ constructor(string memory _name, string memory _symbol, address _appManagerAddre
 |`_name`|`string`|name of token|
 |`_symbol`|`string`|abreviated name for token (i.e. THRK)|
 |`_appManagerAddress`|`address`|address of app manager contract|
-|`_handlerAddress`|`address`|address for asset's handler contract|
+|`_ruleProcessor`|`address`|Address of the protocol rule processor|
+|`_upgradeMode`|`bool`|token deploys a Handler contract, false = handler deployed, true = upgraded token contract and no handler. _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.|
 
 
 ### pause
@@ -191,6 +197,48 @@ function flashLoan(IERC3156FlashBorrower receiver, address token, uint256 amount
 |`data`|`bytes`|arbitrary data structure for user params|
 
 
+### deployHandler
+
+These are simply to get rid of the compiler warnings.
+
+*This function is called at deployment in the constructor to deploy the Handler Contract for the Token.*
+
+
+```solidity
+function deployHandler(address _ruleProcessor, address _appManagerAddress, bool _upgradeMode)
+    private
+    returns (address);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleProcessor`|`address`|address of the rule processor|
+|`_appManagerAddress`|`address`|address of the Application Manager Contract|
+|`_upgradeMode`|`bool`|bool representing if this contract will deploy data contracts or if this is an upgrade|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|handlerAddress address of the new Handler Contract|
+
+
+### connectHandlerToToken
+
+*Function to connect Token to previously deployed Handler contract*
+
+
+```solidity
+function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_deployedHandlerAddress`|`address`|address of the currently deployed Handler Address|
+
+
 ## Errors
 ### ExceedingMaxSupply
 
@@ -202,5 +250,11 @@ error ExceedingMaxSupply();
 
 ```solidity
 error CallerNotAuthorizedToMint();
+```
+
+### ZeroAddress
+
+```solidity
+error ZeroAddress();
 ```
 

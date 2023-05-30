@@ -1,5 +1,5 @@
 # ApplicationERC721A
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/example/ApplicationERC721A.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/example/ApplicationERC721A.sol)
 
 **Inherits:**
 [ProtocolERC721A](/src/token/ProtocolERC721A.sol/contract.ProtocolERC721A.md)
@@ -22,10 +22,11 @@ This is an example implementation that App Devs should use.
 constructor(
     string memory _name,
     string memory _symbol,
-    address _erc721HandlerAddress,
     address _appManagerAddress,
-    string memory baseUri
-) ProtocolERC721A(_name, _symbol, _erc721HandlerAddress, _appManagerAddress, baseUri);
+    address _ruleProcessorProxyAddress,
+    bool _upgradeMode,
+    string memory _baseUri
+) ProtocolERC721A(_name, _symbol, _appManagerAddress, _ruleProcessorProxyAddress, _upgradeMode, baseUri);
 ```
 **Parameters**
 
@@ -33,9 +34,10 @@ constructor(
 |----|----|-----------|
 |`_name`|`string`|Name of NFT|
 |`_symbol`|`string`|Symbol for the NFT|
-|`_erc721HandlerAddress`|`address`|Address of this ERC721a's handler|
 |`_appManagerAddress`|`address`|Address of App Manager|
-|`baseUri`|`string`|URI for the base token|
+|`_ruleProcessorProxyAddress`|`address`|of token rule router proxy address|
+|`_upgradeMode`|`bool`||
+|`_baseUri`|`string`|URI for the base token|
 
 
 ### mint

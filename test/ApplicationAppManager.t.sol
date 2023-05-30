@@ -6,21 +6,15 @@ import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-import {TaggedRuleProcessorDiamond, TaggedRuleProcessorDiamondArgs} from "../src/economic/ruleProcessor/tagged/TaggedRuleProcessorDiamond.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
-import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
-import "../src/economic/TokenRuleRouter.sol";
-import "../src/economic/TokenRuleRouterProxy.sol";
 
-contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationAppManager public applicationAppManager;
     ApplicationAppManager public applicationAppManager2;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
-    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
+    RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-    TokenRuleRouter tokenRuleRouter;
-    TokenRuleRouterProxy ruleRouterProxy;
+
     ApplicationHandler public applicationHandler;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
     bytes32 public constant USER_ROLE = keccak256("USER");
@@ -36,25 +30,19 @@ contract ApplicationAppManagerTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        /// Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Diploy the token rule processor diamond
-        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
-        ///connect data diamond with Tagged Rule Processor diamond
-        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
+        ruleProcessor = getRuleProcessorDiamond();
+        /// Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         // Deploy the token rule processor diamond
-        tokenRuleRouter = new TokenRuleRouter();
-        /// connect the TokenRuleRouter to its child Diamond
-        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+
+        /// connect the Rule Processor to its child Diamond
 
         vm.stopPrank();
         vm.startPrank(address(88));
-        applicationAppManager2 = new ApplicationAppManager(address(88), "Castlevania2", address(ruleRouterProxy), false);
+        applicationAppManager2 = new ApplicationAppManager(address(88), "Castlevania2", address(ruleProcessor), false);
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        applicationAppManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        applicationAppManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
         applicationHandler = ApplicationHandler(applicationAppManager.getApplicationHandlerAddress());
         /// add Risk Admin
         applicationAppManager.addRiskAdmin(riskAdmin);

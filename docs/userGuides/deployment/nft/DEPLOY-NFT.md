@@ -13,39 +13,36 @@
 
    ````
 5. Deploy the contract sending in the parameters:
-    1. Name
-       1. Desired name of the ERC721(see [ERC721][ERC721-url] standards for more information)
-    2. Symbol
-       1. Desired symbol of the ERC721(see [ERC721][ERC721-url] standards for more information)
-    3. App Manager Address
-       1. The address noted from previous steps
-    4. NFT Handler Address
-       1. The address noted from previous steps
-    5. BaseURI
-       1. Desired baseURI of the ERC721(see [ERC721][ERC721-url] standards for more information)
+    1. _Name_ - Desired name of the ERC721(see [ERC721][ERC721-url] standards for more information)
+    2. _Symbol_ - Desired symbol of the ERC721(see [ERC721][ERC721-url] standards for more information)
+    3. _App Manager Address_ - The address noted from previous steps
+    4. _Rule Processor Address_ - The address noted from previous steps
+    5. _upgradeMode_ - A boolean value for if this deploys the token handler contract. NOTE:
+       Passing in a true boolean value will not deploy ne data contracts. 
+    6. _BaseURI_ - Desired baseURI of the ERC721(see [ERC721][ERC721-url] standards for more information)
 
          ````
-         forge create src/example/ApplicationERC721.sol:ApplicationERC721 --constructor-args "Frankenstein" "FRANKPIC" 0x0116686E2291dbd5e317F47faDBFb43B599786Ef 0x82e01223d51Eb87e16A03E24687EDF0F294da6f1 "nfturigoeshere" --private-key 0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba 
+         forge create src/example/ApplicationERC721.sol:ApplicationERC721 --constructor-args "Frankenstein" "FRANKPIC" 0x0116686E2291dbd5e317F47faDBFb43B599786Ef 0x82e01223d51Eb87e16A03E24687EDF0F294da6f1 false "nfturigoeshere" --private-key 0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba 
 
          ````
-    6. Take note of the deployed address for later use.
-      example:
-      ````
-      Deployed to: 0xbd416e972a4F2cfb378A2333F621e93D5845C055
-      Transaction hash: 0x15d2c90839f2b68130ca1fcb791fc8aaec67779667d16983b6b17c58cc78ec9a
-      ````
+6. Take note of the deployed address for later use by running the following command:
+     ````
+     cast call APP_MANAGER_ADDRESS "getApplicationHandlerAddress()(address)" -private-key OWNER_PRIVATE_KEY
+     ````
+    - Output:
+     ````
+     Deployed to: 0x3F434D50520C642A53d703cb07F2c92121f6b549
+     Transaction hash: 0x60496b04529f797842164fbc7b39e8eb172ed61249b1ca60ac00237fad8e60d3
 
-6. Register NFT
-    1.  Register NFT with its Handler
-        1.  Call the setERC721Address function on the NFTHandler created in previous steps. It accepts one parameter, the NFT address.
+8. Register NFT
+    1.  Register NFT with its Handler: Call the setERC721Address function on the NFTHandler created in previous steps. It accepts one parameter, the NFT address.
 
          ````
          cast send 0x82e01223d51Eb87e16A03E24687EDF0F294da6f1 "setERC721Address(address)" 0xbd416e972a4F2cfb378A2333F621e93D5845C055 --private-key 0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba 
 
          ````
 
-    2.  Register NFT with the App Manager
-        1.  Call the registerToken function on the App Manager created in previous steps. It accepts parameters of an identifying name and the NFT address, e.g. ("FRANKPIC", 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266) 
+    2.  Register NFT with the App Manager: Call the registerToken function on the App Manager created in previous steps. It accepts parameters of an identifying name and the NFT address, e.g. ("FRANKPIC", 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266) 
          ````
          cast send 0x0116686E2291dbd5e317F47faDBFb43B599786Ef "registerToken(string,address)" "FRANKPIC" 0xbd416e972a4F2cfb378A2333F621e93D5845C055 --private-key 0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba 
 

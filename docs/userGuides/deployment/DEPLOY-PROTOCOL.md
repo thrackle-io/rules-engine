@@ -1,10 +1,15 @@
 # Protocol Deployment
 [![Project Version][version-image]][version-url]
 
+
+
+
 ---
-Due to the architecture of the Protocol, several contracts required to be deployed to utilize the protocol. Once these are deployed, 
+Due to the architecture of the Protocol, several contracts are required to be deployed to utilize the protocol. Once these are deployed, 
 several application ecosystems may utilize these contracts independently without affecting each other. The following diagram
 is an overview of this deployment process:
+
+
 ![Protocol deployment sequence diagram](../images/ProtocolDeployment.png)
 
 1. Ensure the [environment variable][environment-url] is set correctly.
@@ -12,18 +17,20 @@ is an overview of this deployment process:
 ````
     forge script script/DeployAllModules.s.sol --ffi --broadcast --verify --rpc-url $ETH_RPC_URL
 ````
+
+# *** UNDER CONSTRUCTION ***
 - Take note of the output and locate the following addresses(from terminal output or broadcast/DeployAllModules.s.sol/31337/run-latest.json):
 ```
-      "hash": "0x23d223c2e2532026ec319dcfd224248bbaadc432348f77ea289434e07ab3a7aa",
+      "hash": "0x1902f5f3c6f2ed24ae3a64c8ddb41e72fb71b57c3404278c965dee920aa6f40f",
       "transactionType": "CREATE",
-      "contractName": "ContractRegistry",
-      "contractAddress": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "contractName": "RuleStorageDiamond",
+      "contractAddress": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8"
 
 ```
 3. Note the addresses for the following contract deployments
-   1. ContractRegistry
+   1. RuleProcessorDiamond
    2. RuleStorageDiamond
-   3. RuleHandler
+
 
 <!-- These are the body links -->
 [environment-url]: ./SET-ENVIRONMENT.md

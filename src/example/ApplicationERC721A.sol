@@ -16,17 +16,18 @@ contract ApplicationERC721A is ProtocolERC721A {
      * @param _name Name of NFT
      * @param _symbol Symbol for the NFT
      * @param _appManagerAddress Address of App Manager
-     * @param _erc721HandlerAddress Address of this ERC721a's handler
-     * @param baseUri URI for the base token
+     * @param _ruleProcessorProxyAddress of token rule router proxy address
+     * @param _baseUri URI for the base token
      */
     constructor(
         string memory _name,
         string memory _symbol,
-        address _erc721HandlerAddress,
         address _appManagerAddress,
-        string memory baseUri
-    ) ProtocolERC721A(_name, _symbol, _erc721HandlerAddress, _appManagerAddress, baseUri) {
-        _setBaseURI(baseUri);
+        address _ruleProcessorProxyAddress,
+        bool _upgradeMode,
+        string memory _baseUri
+    ) ProtocolERC721A(_name, _symbol, _appManagerAddress, _ruleProcessorProxyAddress, _upgradeMode, baseUri) {
+        _setBaseURI(_baseUri);
     }
 
     function mint(uint256 quantity) external payable {

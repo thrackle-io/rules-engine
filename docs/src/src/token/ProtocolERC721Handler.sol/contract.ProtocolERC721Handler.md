@@ -1,5 +1,5 @@
 # ProtocolERC721Handler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/token/ProtocolERC721Handler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/token/ProtocolERC721Handler.sol)
 
 **Inherits:**
 Ownable, [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
@@ -132,6 +132,22 @@ bool private adminWithdrawalActive;
 ```
 
 
+### fees
+Data contracts
+
+
+```solidity
+Fees fees;
+```
+
+
+### feeActive
+
+```solidity
+bool feeActive;
+```
+
+
 ### tradesInPeriod
 Trade Counter data
 
@@ -148,10 +164,10 @@ mapping(uint256 => uint64) lastTxDate;
 ```
 
 
-### ruleRouter
+### ruleProcessor
 
 ```solidity
-ITokenRuleRouter ruleRouter;
+IRuleProcessor ruleProcessor;
 ```
 
 
@@ -197,14 +213,15 @@ address public nftPricingAddress;
 
 
 ```solidity
-constructor(address _tokenRuleRouterAddress, address _appManagerAddress);
+constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_tokenRuleRouterAddress`|`address`|Address of token rule router proxy|
+|`_ruleProcessorProxyAddress`|`address`|of token rule router proxy|
 |`_appManagerAddress`|`address`|Address of App Manager|
+|`_upgradeMode`|`bool`|specifies whether this is a fresh CoinHandler or an upgrade replacement.|
 
 
 ### checkAllRules
@@ -246,7 +263,7 @@ function checkAllRules(
 
 standard tagged and non-tagged rules do not apply when either to or from is an admin
 
-*This function uses the protocol's tokenRuleRouter to perform the actual rule checks.*
+*This function uses the protocol's ruleProcessor to perform the actual rule checks.*
 
 
 ```solidity
@@ -273,7 +290,7 @@ function _checkNonTaggedRules(
 
 ### _checkTaggedRules
 
-*This function uses the protocol's tokenRuleRouter to perform the actual Individual rule check.*
+*This function uses the protocol's ruleProcessor to perform the actual Individual rule check.*
 
 
 ```solidity
@@ -326,7 +343,139 @@ function _checkRiskRules(
 ) internal view;
 ```
 
+### addFee
+
+*This function adds a fee to the token*
+
+
+```solidity
+function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount)
+    external
+    appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tag`|`bytes32`|meta data tag for fee|
+|`_minBalance`|`uint256`|minimum balance for fee application|
+|`_maxBalance`|`uint256`|maximum balance for fee application|
+|`_feePercentage`|`int24`|fee percentage to assess|
+|`_targetAccount`|`address`|target for the fee proceeds|
+
+
+### removeFee
+
+*This function adds a fee to the token*
+
+
+```solidity
+function removeFee(bytes32 _tag) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tag`|`bytes32`|meta data tag for fee|
+
+
+### getFee
+
+*returns the full mapping of fees*
+
+
+```solidity
+function getFee(bytes32 _tag) external view returns (Fees.Fee memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tag`|`bytes32`|meta data tag for fee|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`Fees.Fee`|fee struct containing fee data|
+
+
+### getFeeTotal
+
+*returns the full mapping of fees*
+
+
+```solidity
+function getFeeTotal() public view returns (uint256);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|feeTotal total number of fees|
+
+
+### setFeeActivation
+
+*Turn fees on/off*
+
+
+```solidity
+function setFeeActivation(bool on_off) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`on_off`|`bool`|value for fee status|
+
+
+### isFeeActive
+
+*returns the full mapping of fees*
+
+
+```solidity
+function isFeeActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|feeActive fee activation status|
+
+
+### getApplicableFees
+
+*Get all the fees/discounts for the transaction. This is assessed and returned as two separate arrays. This was necessary because the fees may go to
+different target accounts. Since struct arrays cannot be function parameters for external functions, two separate arrays must be used.*
+
+
+```solidity
+function getApplicableFees(address _from, uint256 _balanceFrom)
+    public
+    view
+    returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_from`|`address`|originating address|
+|`_balanceFrom`|`uint256`|Token balance of the sender address|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`feeCollectorAccounts`|`address[]`|list of where the fees are sent|
+|`feePercentages`|`int24[]`|list of all applicable fees/discounts|
+
+
 ### setNFTPricingAddress
+
+loop through and accumulate the fee percentages based on tags
+if an applicable discount(s) was found, then distribute it among all the fees
 
 *sets the address of the nft pricing contract and loads the contract.*
 
@@ -823,6 +972,63 @@ function getAdminWithdrawalRuleId() external view returns (uint32);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint32`|adminWithdrawalRuleId rule id|
+
+
+### deployDataContract
+
+-------------DATA CONTRACT DEPLOYMENT---------------
+
+*Deploy all the child data contracts. Only called internally from the constructor.*
+
+
+```solidity
+function deployDataContract() private;
+```
+
+### getFeesDataAddress
+
+*Getter for the fee rules data contract address*
+
+
+```solidity
+function getFeesDataAddress() external view returns (address);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|feesDataAddress|
+
+
+### migrateDataContracts
+
+*This function is used to migrate the data contracts to a new CoinHandler. Use with care because it changes ownership. They will no
+longer be accessible from the original CoinHandler*
+
+
+```solidity
+function migrateDataContracts(address _newOwner) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_newOwner`|`address`|address of the new CoinHandler|
+
+
+### connectDataContracts
+
+*This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.*
+
+
+```solidity
+function connectDataContracts(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_oldHandlerAddress`|`address`|address of the old CoinHandler|
 
 
 ## Errors

@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 Ownable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IAppLevelEvents](/src/interfaces/IEvents.sol/interface.IAppLevelEvents.md)
@@ -27,10 +27,10 @@ address appManagerAddress;
 ```
 
 
-### tokenRuleRouter
+### ruleProcessor
 
 ```solidity
-ITokenRuleRouter immutable tokenRuleRouter;
+IRuleProcessor immutable ruleProcessor;
 ```
 
 
@@ -115,13 +115,13 @@ mapping(address => uint64) lastTxDateRiskRule;
 
 
 ```solidity
-constructor(address _tokenRuleRouterAddress, address _appManagerAddress);
+constructor(address _ruleProcessorProxyAddress, address _appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_tokenRuleRouterAddress`|`address`|address of the protocol's TokenRuleRouter contract.|
+|`_ruleProcessorProxyAddress`|`address`|of the protocol's Rule Processor contract.|
 |`_appManagerAddress`|`address`|address of the application AppManager.|
 
 

@@ -11,19 +11,19 @@ pragma solidity 0.8.17;
  * @notice This contract is the interaction point for the application ecosystem to the protocol
  */
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "../economic/ITokenRuleRouter.sol";
+import "../economic/IRuleProcessor.sol";
 import "../application/IAppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
 import "../pricing/IProtocolERC721Pricing.sol";
 import "../pricing/IProtocolERC20Pricing.sol";
 import "../application/TokenStorage.sol";
+import "./data/Fees.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
 contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministratorOnly {
     /**
@@ -51,6 +51,9 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     bool private transactionLimitByRiskRuleActive;
     bool private minBalByDateRuleActive;
     bool private adminWithdrawalActive;
+    /// Data contracts
+    Fees fees;
+    bool feeActive;
 
     /// Trade Counter data
     // map the tokenId of this NFT to the number of trades in the period
@@ -58,7 +61,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     // map the tokenId of this NFT to the last transaction timestamp
     mapping(uint256 => uint64) lastTxDate;
 
-    ITokenRuleRouter ruleRouter;
+    IRuleProcessor ruleProcessor;
     IAppManager appManager;
     // Pricing Module interfaces
     IProtocolERC20Pricing erc20Pricer;
@@ -71,14 +74,19 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
 
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
-     * @param _tokenRuleRouterAddress Address of token rule router proxy
+     * @param _ruleProcessorProxyAddress of token rule router proxy
      * @param _appManagerAddress Address of App Manager
+     * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
-    constructor(address _tokenRuleRouterAddress, address _appManagerAddress) {
+    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
-        ruleRouter = ITokenRuleRouter(_tokenRuleRouterAddress);
-        emit ITokenHandlerEvents.HandlerDeployed(address(this), _appManagerAddress);
+        ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+        if (!_upgradeMode) {
+            emit HandlerDeployed(address(this), _appManagerAddress);
+        } else {
+            emit HandlerDeployedForUpgrade(address(this), _appManagerAddress);
+        }
     }
 
     /**
@@ -107,14 +115,14 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
             _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount, tokenId);
             _checkNonTaggedRules(balanceFrom, balanceTo, _from, _to, amount, tokenId);
         } else {
-            if (adminWithdrawalActive && isFromAdmin) ruleRouter.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
+            if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
         }
         // If everything checks out, return true
         return true;
     }
 
     /**
-     * @dev This function uses the protocol's tokenRuleRouter to perform the actual rule checks.
+     * @dev This function uses the protocol's ruleProcessor to perform the actual rule checks.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
@@ -123,7 +131,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @param tokenId the token's specific ID
      */
     function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 tokenId) internal {
-        if (oracleRuleActive) ruleRouter.checkOraclePasses(oracleRuleId, _to);
+        if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _to);
         _balanceFrom;
         _balanceTo;
         _from;
@@ -131,13 +139,13 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         if (tradeCounterRuleActive) {
             // get all the tags for this NFT
             bytes32[] memory tags = appManager.getAllTags(erc721Address);
-            tradesInPeriod[tokenId] = ruleRouter.checkNFTTransferCounter(tradeCounterRuleId, tradesInPeriod[tokenId], tags, lastTxDate[tokenId]);
+            tradesInPeriod[tokenId] = ruleProcessor.checkNFTTransferCounter(tradeCounterRuleId, tradesInPeriod[tokenId], tags, lastTxDate[tokenId]);
             lastTxDate[tokenId] = uint64(block.timestamp);
         }
     }
 
     /**
-     * @dev This function uses the protocol's tokenRuleRouter to perform the actual Individual rule check.
+     * @dev This function uses the protocol's ruleProcessor to perform the actual Individual rule check.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
@@ -160,8 +168,8 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
             // We get all tags for sender and recipient
             bytes32[] memory toTags = appManager.getAllTags(_to);
             bytes32[] memory fromTags = appManager.getAllTags(_from);
-            if (minMaxBalanceRuleActive) ruleRouter.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
-            if (minBalByDateRuleActive) ruleRouter.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+            if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+            if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
         }
     }
 
@@ -172,9 +180,125 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
 
         if (transactionLimitByRiskRuleActive) {
-            ruleRouter.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, thisNFTValuation);
-            ruleRouter.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, thisNFTValuation);
+            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, thisNFTValuation);
+            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, thisNFTValuation);
         }
+    }
+
+    /* <><><><><><><><><><><> Fee functions <><><><><><><><><><><><><><> */
+    /**
+     * @dev This function adds a fee to the token
+     * @param _tag meta data tag for fee
+     * @param _minBalance minimum balance for fee application
+     * @param _maxBalance maximum balance for fee application
+     * @param _feePercentage fee percentage to assess
+     * @param _targetAccount target for the fee proceeds
+     */
+    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external appAdministratorOnly(appManagerAddress) {
+        fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
+        feeActive = true;
+    }
+
+    /**
+     * @dev This function adds a fee to the token
+     * @param _tag meta data tag for fee
+     */
+    function removeFee(bytes32 _tag) external appAdministratorOnly(appManagerAddress) {
+        fees.removeFee(_tag);
+    }
+
+    /**
+     * @dev returns the full mapping of fees
+     * @param _tag meta data tag for fee
+     * @return fee struct containing fee data
+     */
+    function getFee(bytes32 _tag) external view returns (Fees.Fee memory) {
+        return fees.getFee(_tag);
+    }
+
+    /**
+     * @dev returns the full mapping of fees
+     * @return feeTotal total number of fees
+     */
+    function getFeeTotal() public view returns (uint256) {
+        return fees.getFeeTotal();
+    }
+
+    /**
+     * @dev Turn fees on/off
+     * @param on_off value for fee status
+     */
+    function setFeeActivation(bool on_off) external appAdministratorOnly(appManagerAddress) {
+        feeActive = on_off;
+    }
+
+    /**
+     * @dev returns the full mapping of fees
+     * @return feeActive fee activation status
+     */
+    function isFeeActive() external view returns (bool) {
+        return feeActive;
+    }
+
+    /**
+     * @dev Get all the fees/discounts for the transaction. This is assessed and returned as two separate arrays. This was necessary because the fees may go to
+     * different target accounts. Since struct arrays cannot be function parameters for external functions, two separate arrays must be used.
+     * @param _from originating address
+     * @param _balanceFrom Token balance of the sender address
+     * @return feeCollectorAccounts list of where the fees are sent
+     * @return feePercentages list of all applicable fees/discounts
+     */
+    function getApplicableFees(address _from, uint256 _balanceFrom) public view returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages) {
+        Fees.Fee memory fee;
+        bytes32[] memory _fromTags = appManager.getAllTags(_from);
+        if (_fromTags.length != 0 && !appManager.isAppAdministrator(_from)) {
+            uint feeCount;
+            uint24 discount;
+            uint discountCount;
+            // size the dynamic arrays by maximum possible fees
+            feeCollectorAccounts = new address[](_fromTags.length);
+            feePercentages = new int24[](_fromTags.length);
+            /// loop through and accumulate the fee percentages based on tags
+            for (uint i; i < _fromTags.length; ) {
+                fee = fees.getFee(_fromTags[i]);
+                // fee must be active and the initiating account must have an acceptable balance
+                if (fee.isValue && _balanceFrom < fee.maxBalance && _balanceFrom > fee.minBalance) {
+                    // if it's a discount, accumulate it for distribution among all applicable fees
+                    if (fee.feePercentage < 0) {
+                        discount = uint24((fee.feePercentage * -1)) + discount; // convert to uint
+                        discountCount += 1;
+                    } else {
+                        feePercentages[feeCount] = fee.feePercentage;
+                        feeCollectorAccounts[feeCount] = fee.feeCollectorAccount;
+                        unchecked {
+                            ++feeCount;
+                        }
+                    }
+                }
+                unchecked {
+                    ++i;
+                }
+            }
+            /// if an applicable discount(s) was found, then distribute it among all the fees
+            if (discount > 0 && feeCount != 0) {
+                // if there are fees to discount then do so
+                if (feeCount > 0) {
+                    uint24 discountSlice = ((discount * 100) / (uint24(feeCount))) / 100;
+                    for (uint i; i < feeCount; ) {
+                        // if discount is greater than fee, then set to zero
+                        if (int24(discountSlice) > feePercentages[i]) {
+                            feePercentages[i] = 0;
+                        } else {
+                            feePercentages[i] -= int24(discountSlice);
+                        }
+                        unchecked {
+                            ++i;
+                        }
+                    }
+                }
+            }
+        }
+        return (feeCollectorAccounts, feePercentages);
     }
 
     /**
@@ -478,7 +602,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
         if (adminWithdrawalActive) {
-            ruleRouter.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
+            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
         }
         /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
         adminWithdrawalRuleId = _ruleId;
@@ -493,7 +617,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     function activateAdminWithdrawalRule(bool _on) external appAdministratorOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired
         if (!_on) {
-            ruleRouter.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
+            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
         }
         adminWithdrawalActive = _on;
         if (_on) {
@@ -517,6 +641,40 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      */
     function getAdminWithdrawalRuleId() external view returns (uint32) {
         return adminWithdrawalRuleId;
+    }
+
+    /// -------------DATA CONTRACT DEPLOYMENT---------------
+    /**
+     * @dev Deploy all the child data contracts. Only called internally from the constructor.
+     */
+    function deployDataContract() private {
+        fees = new Fees();
+    }
+
+    /**
+     * @dev Getter for the fee rules data contract address
+     * @return feesDataAddress
+     */
+    function getFeesDataAddress() external view returns (address) {
+        return address(fees);
+    }
+
+    /**
+     * @dev This function is used to migrate the data contracts to a new CoinHandler. Use with care because it changes ownership. They will no
+     * longer be accessible from the original CoinHandler
+     * @param _newOwner address of the new CoinHandler
+     */
+    function migrateDataContracts(address _newOwner) external appAdministratorOnly(appManagerAddress) {
+        fees.transferOwnership(_newOwner);
+    }
+
+    /**
+     * @dev This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.
+     * @param _oldHandlerAddress address of the old CoinHandler
+     */
+    function connectDataContracts(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress) {
+        ProtocolERC721Handler oldHandler = ProtocolERC721Handler(_oldHandlerAddress);
+        fees = Fees(oldHandler.getFeesDataAddress());
     }
 }
 

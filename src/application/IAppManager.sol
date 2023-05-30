@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "src/economic/ruleProcessor/nontagged/RuleProcessorDiamondLib.sol";
+import "src/economic/ruleProcessor/RuleProcessorDiamondLib.sol";
 import "../data/IPauseRules.sol";
 
 /**

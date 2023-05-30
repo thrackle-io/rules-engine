@@ -5,12 +5,16 @@ import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
 import "../src/application/AppManager.sol";
-import "../src/economic/ruleProcessor/nontagged/ERC20RuleProcessorFacet.sol";
+import "../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
+import {ERC20TaggedRuleProcessorFacet} from "../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import "../src/application/AppManager.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {SampleFacet} from "../src/diamond/core/test/SampleFacet.sol";
 import {ERC173Facet} from "../src/diamond/implementations/ERC173/ERC173Facet.sol";
 import {RuleDataFacet as Facet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
+
+import "../src/example/ApplicationERC20Handler.sol";
+import {ApplicationERC20} from "../src/example/ApplicationERC20.sol";
 
 contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     // Store the FacetCut struct for each facet that is being deployed.
@@ -21,23 +25,31 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     address appAdministrator = address(0xDEAD);
     address ac;
+    ApplicationERC20 public applicationCoin;
+    RuleProcessorDiamond public ruleProcessor;
+    ApplicationERC20Handler applicationCoinHandler;
 
     RuleStorageDiamond ruleStorageDiamond;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
 
     function setUp() public {
         vm.startPrank(defaultAdmin);
         // Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Diploy the token rule processor diamond
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        // Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
+        ruleProcessor = getRuleProcessorDiamond();
+        // Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
+
         // Deploy app manager
         appManager = new AppManager(defaultAdmin, "Castlevania", address(0), false);
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         ac = address(appManager);
+
+        applicationCoin = new ApplicationERC20("application", "GMC", address(appManager), address(ruleProcessor), false);
+        // Set up the ApplicationERC20Handler
+        applicationCoinHandler = ApplicationERC20Handler(applicationCoin.handlerAddress());
+        applicationCoin.mint(defaultAdmin, 10000000000000000000000);
     }
 
     /// Test to make sure that the Diamond will upgrade
@@ -46,13 +58,13 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         //build _cut struct
         FacetCut[] memory _cut = new FacetCut[](1);
         _cut[0] = (FacetCut({facetAddress: address(_sampleFacet), action: FacetCutAction.Add, functionSelectors: generateSelectors("SampleFacet")}));
-        IDiamondCut(address(tokenRuleProcessorsDiamond)).diamondCut(_cut, address(0x0), "");
+        IDiamondCut(address(ruleProcessor)).diamondCut(_cut, address(0x0), "");
         console.log("ERC173Facet owner: ");
-        console.log(ERC173Facet(address(tokenRuleProcessorsDiamond)).owner());
-        ERC173Facet(address(tokenRuleProcessorsDiamond)).transferOwnership(defaultAdmin);
+        console.log(ERC173Facet(address(ruleProcessor)).owner());
+        ERC173Facet(address(ruleProcessor)).transferOwnership(defaultAdmin);
 
         // call a function
-        assertEq("good", SampleFacet(address(tokenRuleProcessorsDiamond)).sampleFunction());
+        assertEq("good", SampleFacet(address(ruleProcessor)).sampleFunction());
     }
 
     function testAddMinTransferRule() public {
@@ -71,18 +83,145 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     function testPassingMinTransferRule() public {
         uint32 index = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 2222);
 
-        ERC20RuleProcessorFacet(address(tokenRuleProcessorsDiamond)).checkMinTransferPasses(index, 2222);
+        ERC20RuleProcessorFacet(address(ruleProcessor)).checkMinTransferPasses(index, 2222);
     }
 
     function testNotPassingMinTransferRule() public {
         uint32 index = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 420);
         vm.expectRevert(0x70311aa2);
-        ERC20RuleProcessorFacet(address(tokenRuleProcessorsDiamond)).checkMinTransferPasses(index, 400);
+        ERC20RuleProcessorFacet(address(ruleProcessor)).checkMinTransferPasses(index, 400);
     }
 
     function testCheckingAgainstAnInexistentRule() public {
         uint32 index = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 69);
         vm.expectRevert(0x4bdf3b46);
-        ERC20RuleProcessorFacet(address(tokenRuleProcessorsDiamond)).checkMinTransferPasses(index + 1, 70);
+        ERC20RuleProcessorFacet(address(ruleProcessor)).checkMinTransferPasses(index + 1, 70);
+    }
+
+    function testMinAccountBalanceCheck() public {
+        bytes32[] memory accs = new bytes32[](3);
+        uint256[] memory min = new uint256[](3);
+        uint256[] memory max = new uint256[](3);
+
+        // add the actual rule
+
+        accs[0] = bytes32("Oscar");
+        accs[1] = bytes32("Tayler");
+        accs[2] = bytes32("Shane");
+        min[0] = uint256(10);
+        min[1] = uint256(20);
+        min[2] = uint256(30);
+        max[0] = uint256(10000000000000000000000000);
+        max[1] = uint256(10000000000000000000000000000);
+        max[2] = uint256(1000000000000000000000000000000);
+        // add empty rule at ruleId 0
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        appManager.addGeneralTag(defaultAdmin, "Oscar"); //add tag
+        assertTrue(appManager.hasTag(defaultAdmin, "Oscar"));
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        uint256 amount = 1;
+        assertEq(applicationCoin.balanceOf(defaultAdmin), 10000000000000000000000);
+        bytes32[] memory tags = appManager.getAllTags(defaultAdmin);
+
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).minAccountBalanceCheck(applicationCoin.balanceOf(defaultAdmin), tags, amount, ruleId);
+    }
+
+    function testFailsMinAccountBalanceCheck() public {
+        // add empty rule at ruleId 0
+        bytes32[] memory accs = new bytes32[](3);
+        uint256[] memory min = new uint256[](3);
+        uint256[] memory max = new uint256[](3);
+
+        // add the actual rule
+        accs[0] = bytes32("Oscar");
+        accs[1] = bytes32("Tayler");
+        accs[2] = bytes32("Shane");
+        min[0] = uint256(10);
+        min[1] = uint256(20);
+        min[2] = uint256(30);
+        max[0] = uint256(10000000000000000000000000);
+        max[1] = uint256(10000000000000000000000000000);
+        max[2] = uint256(1000000000000000000000000000000);
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        appManager.addGeneralTag(defaultAdmin, "Oscar"); //add tag
+        assertTrue(appManager.hasTag(defaultAdmin, "Oscar"));
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        uint256 amount = 10000000000000000000000;
+        assertEq(applicationCoin.balanceOf(defaultAdmin), 10000000000000000000000);
+        bytes32[] memory tags = appManager.getAllTags(defaultAdmin);
+
+        //vm.expectRevert(0xf1737570);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).minAccountBalanceCheck(applicationCoin.balanceOf(defaultAdmin), tags, amount, ruleId);
+    }
+
+    function testMaxAccountBalanceCheck() public {
+        // add empty rule at ruleId 0
+        bytes32[] memory accs = new bytes32[](3);
+        uint256[] memory min = new uint256[](3);
+        uint256[] memory max = new uint256[](3);
+
+        // add the actual rule
+        accs[0] = bytes32("Oscar");
+        accs[1] = bytes32("Tayler");
+        accs[2] = bytes32("Shane");
+        min[0] = uint256(10);
+        min[1] = uint256(20);
+        min[2] = uint256(30);
+        max[0] = uint256(10000000000000000000000000);
+        max[1] = uint256(10000000000000000000000000000);
+        max[2] = uint256(1000000000000000000000000000000);
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        appManager.addGeneralTag(defaultAdmin, "Oscar"); //add tag
+        assertTrue(appManager.hasTag(defaultAdmin, "Oscar"));
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        uint256 amount = 999;
+        assertEq(applicationCoin.balanceOf(defaultAdmin), 10000000000000000000000);
+        bytes32[] memory tags = appManager.getAllTags(defaultAdmin);
+
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(applicationCoin.balanceOf(defaultAdmin), tags, amount, ruleId);
+    }
+
+    function testFailsMaxAccountBalanceCheck() public {
+        // add empty rule at ruleId 0
+        bytes32[] memory accs = new bytes32[](3);
+        uint256[] memory min = new uint256[](3);
+        uint256[] memory max = new uint256[](3);
+
+        // add the actual rule
+        accs[0] = bytes32("Oscar");
+        accs[1] = bytes32("Tayler");
+        accs[2] = bytes32("Shane");
+        min[0] = uint256(10);
+        min[1] = uint256(20);
+        min[2] = uint256(30);
+        max[0] = uint256(10000000000000000000000000);
+        max[1] = uint256(10000000000000000000000000000);
+        max[2] = uint256(1000000000000000000000000000000);
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        appManager.addGeneralTag(defaultAdmin, "Oscar"); //add tag
+        assertTrue(appManager.hasTag(defaultAdmin, "Oscar"));
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        uint256 amount = 10000000000000000000000000;
+        assertEq(applicationCoin.balanceOf(defaultAdmin), 10000000000000000000000);
+        bytes32[] memory tags = appManager.getAllTags(defaultAdmin);
+
+        //vm.expectRevert(0x24691f6b);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(applicationCoin.balanceOf(defaultAdmin), tags, amount, ruleId);
     }
 }

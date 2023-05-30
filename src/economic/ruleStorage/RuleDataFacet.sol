@@ -46,7 +46,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         NonTaggedRules.TokenPercentagePurchaseRule memory rule = NonTaggedRules.TokenPercentagePurchaseRule(_tokenPercentage, _hoursFrozen);
         uint32 ruleId = data.percentagePurchaseRuleIndex;
         data.percentagePurchaseRules[ruleId] = rule;
-        emit ProtocolRuleCreated(PURCHASE_PERCENTAGE, ruleId);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(PURCHASE_PERCENTAGE, ruleId, empty);
         ++data.percentagePurchaseRuleIndex;
         return ruleId;
     }
@@ -86,7 +87,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         uint32 ruleId = data.percentageSellRuleIndex;
         NonTaggedRules.TokenPercentageSellRule memory rule = NonTaggedRules.TokenPercentageSellRule(_tokenPercentage, _hoursFrozen);
         data.percentageSellRules[ruleId] = rule;
-        emit ProtocolRuleCreated(SELL_PERCENTAGE, ruleId);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(SELL_PERCENTAGE, ruleId, empty);
         ++data.percentageSellRuleIndex;
         return ruleId;
     }
@@ -125,7 +127,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         NonTaggedRules.TokenPurchaseFeeByVolume memory rule = NonTaggedRules.TokenPurchaseFeeByVolume(_volume, _rateIncreased);
         uint32 ruleId = data.purchaseFeeByVolumeRuleIndex;
         data.purchaseFeeByVolumeRules[ruleId] = rule;
-        emit ProtocolRuleCreated(PURCHASE_FEE_BY_VOLUME, ruleId);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(PURCHASE_FEE_BY_VOLUME, ruleId, empty);
         ++data.purchaseFeeByVolumeRuleIndex;
         return ruleId;
     }
@@ -165,7 +168,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRules.TokenVolatilityRule(_maxVolatility, _blocksPerPeriod, _hoursFrozen);
         uint32 ruleId = data.volatilityRuleIndex;
         data.volatilityRules[ruleId] = rule;
-        emit ProtocolRuleCreated(TOKEN_VOLATILITY, ruleId);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(TOKEN_VOLATILITY, ruleId, empty);
         ++data.volatilityRuleIndex;
         return ruleId;
     }
@@ -205,7 +209,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         NonTaggedRules.TokenTradingVolumeRule memory rule = NonTaggedRules.TokenTradingVolumeRule(_maxVolume, _hoursPerPeriod, _hoursFrozen);
         uint32 ruleId = data.tradingVolumeRuleIndex;
         data.tradingVolumeRules[ruleId] = rule;
-        emit ProtocolRuleCreated(TRADING_VOLUME, ruleId);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(TRADING_VOLUME, ruleId, empty);
         ++data.tradingVolumeRuleIndex;
         return ruleId;
     }
@@ -242,7 +247,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
         data.minimumTransferRules.push(_minimumTransfer);
         uint32 ruleId = uint32(data.minimumTransferRules.length) - 1;
-        emit ProtocolRuleCreated(MIN_TRANSFER, ruleId);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(MIN_TRANSFER, ruleId, empty);
         return ruleId;
     }
 
@@ -281,7 +287,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRules.SupplyVolatilityRule(_maxChange, _hoursPerPeriod, _hoursFrozen);
         uint32 ruleId = data.supplyVolatilityRuleIndex;
         data.supplyVolatilityRules[ruleId] = rule;
-        emit ProtocolRuleCreated(SUPPLY_VOLATILITY, ruleId);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(SUPPLY_VOLATILITY, ruleId, empty);
         ++data.supplyVolatilityRuleIndex;
         return ruleId;
     }
@@ -320,7 +327,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         NonTaggedRules.OracleRule memory rule = NonTaggedRules.OracleRule(_type, _oracleAddress);
         uint32 ruleId = data.oracleRuleIndex;
         data.oracleRules[ruleId] = rule;
-        emit ProtocolRuleCreated(ORACLE, ruleId);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(ORACLE, ruleId, empty);
         ++data.oracleRuleIndex;
         return ruleId;
     }
@@ -375,7 +383,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
                 ++i;
             }
         }
-        emit ProtocolRuleCreated(NFT_TRANSFER, index);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(NFT_TRANSFER, index, empty);
         ++data.NFTTransferCounterRuleIndex;
         return index;
     }

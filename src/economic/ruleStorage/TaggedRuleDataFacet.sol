@@ -77,7 +77,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
                 ++i;
             }
         }
-        emit ProtocolRuleCreated(PURCHASE_LIMIT, index);
+        emit ProtocolRuleCreated(PURCHASE_LIMIT, index, _accountTypes);
         ++data.purchaseRulesIndex;
         return index;
     }
@@ -145,7 +145,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
                 ++i;
             }
         }
-        emit ProtocolRuleCreated(SELL_LIMIT, index);
+        emit ProtocolRuleCreated(SELL_LIMIT, index, _accountTypes);
         ++data.sellRulesIndex;
         return index;
     }
@@ -212,7 +212,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
                 ++i;
             }
         }
-        emit ProtocolRuleCreated(MIN_MAX_BALANCE_LIMIT, index);
+        emit ProtocolRuleCreated(MIN_MAX_BALANCE_LIMIT, index, _accountTypes);
         ++data.balanceLimitRuleIndex;
         return index;
     }
@@ -278,7 +278,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
                 ++i;
             }
         }
-        emit ProtocolRuleCreated(WITHDRAWAL, index);
+        emit ProtocolRuleCreated(WITHDRAWAL, index, _accountTypes);
         ++data.withdrawalRulesIndex;
         return index;
     }
@@ -320,7 +320,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         uint32 index = data.adminWithdrawalRulesIndex;
         TaggedRules.AdminWithdrawalRule memory rule = TaggedRules.AdminWithdrawalRule(_amount, _releaseDate);
         data.adminWithdrawalRulesPerToken[index] = rule;
-        emit ProtocolRuleCreated(ADMIN_WITHDRAWAL, index);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(ADMIN_WITHDRAWAL, index, empty);
         ++data.adminWithdrawalRulesIndex;
         return index;
     }
@@ -390,7 +391,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         uint32 index = data.txSizeToRiskRuleIndex;
         TaggedRules.TransactionSizeToRiskRule memory rule = TaggedRules.TransactionSizeToRiskRule(_riskScores, _txnLimits);
         data.txSizeToRiskRule[index] = rule;
-        emit ProtocolRuleCreated(TX_SIZE_BY_RISK, index);
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(TX_SIZE_BY_RISK, index, empty);
         ++data.txSizeToRiskRuleIndex;
         return index;
     }
@@ -463,7 +465,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
                 ++i;
             }
         }
-        emit ProtocolRuleCreated(MIN_ACCT_BAL_BY_DATE, index);
+        emit ProtocolRuleCreated(MIN_ACCT_BAL_BY_DATE, index, _accountTags);
         ++data.minBalByDateRulesIndex;
         return index;
     }

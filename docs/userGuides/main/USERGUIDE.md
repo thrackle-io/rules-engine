@@ -9,14 +9,6 @@
 ## User Guide
 
 ---
-### Author
-
-**Thrackle Inc.** 
-* *Initial work* - [TheProtocolRepo][repository-url] (Repository space)
-* *Released on* [Polygon Edge][chain-url] (chain)
-* [Thrackle website][Thrackle-url]
-
----
 
 
 
@@ -26,6 +18,5 @@
 [header-link]: https://github.com/thrackle-io/Tron
 [repository-url]: https://github.com/thrackle-io/Tron
 [chain-url]: https://www.polygon.com/
-[Thrackle-url]: https://www.thrackle.io
 [version-image]: https://img.shields.io/badge/Version-1.0.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/Tron

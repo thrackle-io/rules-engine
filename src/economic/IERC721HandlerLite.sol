@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import "../application/IAppManager.sol";
 
 /**
- * @title ITokenRuleRouter
+ * @title IRuleProcessor
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev the light version of the TokenRuleRouter. This is only used by the NFT contracts that
  * require tokenId

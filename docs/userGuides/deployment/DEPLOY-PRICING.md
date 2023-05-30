@@ -4,7 +4,7 @@
 ---
 
 
-In order for US-Dollar-based global rules to function properly, the protocol needs to be able to determine the price of each asset. There are two ways to accomplish this: the protocol provided example and a custom pricer.
+In order for US-Dollar-based application rules to function properly, the protocol needs to be able to determine the price of each asset. There are two ways to accomplish this: the protocol provided example and a custom pricer.
 
 ### NFT Pricing Module
 
@@ -13,7 +13,7 @@ In order for US-Dollar-based global rules to function properly, the protocol nee
     2.  It allows for setting the prices on a collection and also for individual NFT's. To use the example:
         1.  Copy the template from _src/example/pricing/ApplicationERC721Pricing.sol_ to your desired location
         2.  Change the name of the contract to suit your naming standards
-            1.  *Do not change the import or parent contract*
+            - *Do not change the import or parent contract*
         3.  Compile the contract
             ````
             forge build --use solc:0.8.17
@@ -25,13 +25,12 @@ In order for US-Dollar-based global rules to function properly, the protocol nee
             forge create src/example/pricing/ApplicationERC721Pricing.sol:ApplicationERC721Pricing --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url $ETH_RPC_URL
 
             ````
-            1.  Use the output from the previous deployment to take note of the AppManagers's address.
-                1.  example:
+            - Use the output from the previous deployment to take note of the ApplicationERC721Pricing's address.
                     ````
                     Deployed to: 0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3
                     Transaction hash: 0x44f9979c57c8799732b14e561f547c088c3428958602a817a9d77ca972ff4fde
                     ````
-2.  Custom Pricer(TODO: provide more detail)
+2.  Custom Pricer - Please reach out to the development team for more information on how to implement a custom pricing contract.
 
 
 

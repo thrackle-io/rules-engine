@@ -2,11 +2,11 @@
 pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "src/economic/ruleProcessor/nontagged/RuleProcessorDiamondLib.sol";
+import "src/economic/ruleProcessor/RuleProcessorDiamondLib.sol";
 import "../application/AppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
 import {IAppLevelEvents} from "../interfaces/IEvents.sol";
-import "../economic/ITokenRuleRouter.sol";
+import "../economic/IRuleProcessor.sol";
 
 /**
  * @title Protocol ApplicationHandler Contract
@@ -17,7 +17,7 @@ import "../economic/ITokenRuleRouter.sol";
 contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelEvents {
     AppManager appManager;
     address appManagerAddress;
-    ITokenRuleRouter immutable tokenRuleRouter;
+    IRuleProcessor immutable ruleProcessor;
 
     error ZeroAddress();
 
@@ -40,13 +40,13 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
 
     /**
      * @dev Initializes the contract setting the owner as the one provided.
-     * @param _tokenRuleRouterAddress address of the protocol's TokenRuleRouter contract.
+     * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
      * @param _appManagerAddress address of the application AppManager.
      */
-    constructor(address _tokenRuleRouterAddress, address _appManagerAddress) {
+    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress) {
         appManagerAddress = _appManagerAddress;
         appManager = AppManager(_appManagerAddress);
-        tokenRuleRouter = ITokenRuleRouter(_tokenRuleRouterAddress);
+        ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         emit ApplicationHandlerDeployed(address(this));
     }
 
@@ -69,7 +69,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
      */
     function checkApplicationRules(RuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external returns (bool) {
         _action;
-        tokenRuleRouter.checkPauseRules(appManagerAddress);
+        ruleProcessor.checkPauseRules(appManagerAddress);
         if (accountBalanceByRiskRuleActive || accountBalanceByAccessLevelRuleActive || AccessLevel0RuleActive || maxTxSizePerPeriodByRiskActive) {
             _checkRiskRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
             _checkAccessLevelRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
@@ -88,11 +88,11 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         if (accountBalanceByRiskRuleActive) {
-            tokenRuleRouter.checkAccBalanceByRisk(accountBalanceByRiskRuleId, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
+            ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
         }
         if (maxTxSizePerPeriodByRiskActive) {
             /// we check for sender
-            usdValueTransactedInRiskPeriod[_from] = tokenRuleRouter.checkMaxTxSizePerPeriodByRisk(
+            usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
                 maxTxSizePerPeriodByRiskRuleId,
                 usdValueTransactedInRiskPeriod[_from],
                 _usdAmountTransferring,
@@ -101,7 +101,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
             );
             lastTxDateRiskRule[_from] = uint64(block.timestamp);
             /// we check for recipient
-            usdValueTransactedInRiskPeriod[_to] = tokenRuleRouter.checkMaxTxSizePerPeriodByRisk(
+            usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
                 maxTxSizePerPeriodByRiskRuleId,
                 usdValueTransactedInRiskPeriod[_to],
                 _usdAmountTransferring,
@@ -121,9 +121,9 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
     function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _amount) internal view {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        if (AccessLevel0RuleActive && appManager.isRegisteredAMM(_to)) tokenRuleRouter.checkAccessLevel0Passes(fromScore);
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to)) tokenRuleRouter.checkAccessLevel0Passes(score);
-        if (accountBalanceByAccessLevelRuleActive) tokenRuleRouter.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _balanceValuation, _amount);
+        if (AccessLevel0RuleActive && appManager.isRegisteredAMM(_to)) ruleProcessor.checkAccessLevel0Passes(fromScore);
+        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to)) ruleProcessor.checkAccessLevel0Passes(score);
+        if (accountBalanceByAccessLevelRuleActive) ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _balanceValuation, _amount);
     }
 
     /**

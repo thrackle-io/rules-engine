@@ -1,5 +1,5 @@
 # DiamondInit
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/diamond/initializers/DiamondInit.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/diamond/initializers/DiamondInit.sol)
 
 **Inherits:**
 [IDiamondInit](/src/diamond/initializers/IDiamondInit.sol/interface.IDiamondInit.md)

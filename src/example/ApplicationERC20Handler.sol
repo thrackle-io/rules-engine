@@ -13,9 +13,9 @@ import "../token/ProtocolERC20Handler.sol";
 contract ApplicationERC20Handler is ProtocolERC20Handler {
     /**
      * @dev Constructor sets params
-     * @param _tokenRuleRouterProxyAddress address of the protocol's TokenRuleRouter contract.
+     * @param _ruleProcessorProxyAddress address of the protocol's Rule Processor contract.
      * @param _appManagerAddress address of the application AppManager.
      * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
-    constructor(address _tokenRuleRouterProxyAddress, address _appManagerAddress, bool _upgradeMode) ProtocolERC20Handler(_tokenRuleRouterProxyAddress, _appManagerAddress, _upgradeMode) {}
+    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode) ProtocolERC20Handler(_ruleProcessorProxyAddress, _appManagerAddress, _upgradeMode) {}
 }

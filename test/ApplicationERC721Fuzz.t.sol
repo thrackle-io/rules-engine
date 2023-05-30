@@ -2,17 +2,16 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Test.sol";
-import "../src/example/ApplicationERC20.sol";
-import "../src/example/ApplicationERC721.sol";
+import {ApplicationERC20} from "../src/example/ApplicationERC20.sol";
+import {ApplicationERC721} from "src/example/ApplicationERC721.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
-import "../src/economic/TokenRuleRouter.sol";
-import "../src/economic/TokenRuleRouterProxy.sol";
+
 import "../src/example/ApplicationERC721Handler.sol";
 import {ApplicationERC20Handler} from "../src/example/ApplicationERC20Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
+
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 import "../src/example/OracleRestricted.sol";
@@ -20,17 +19,16 @@ import "../src/example/OracleAllowed.sol";
 import "../src/example/pricing/ApplicationERC20Pricing.sol";
 import "../src/example/pricing/ApplicationERC721Pricing.sol";
 
-contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationERC721 applicationNFT;
     ApplicationERC20 draculaCoin;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
+    RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-    TokenRuleRouter tokenRuleRouter;
-    TokenRuleRouterProxy ruleRouterProxy;
+
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationAppManager appManager;
-    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
+
     ApplicationHandler public applicationHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
@@ -50,21 +48,11 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        /// Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Diploy the token rule processor diamond
-        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
-        ///connect data diamond with Tagged Rule Processor diamond
-        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        tokenRuleRouter = new TokenRuleRouter();
-
-        /// connect the TokenRuleRouter to its child Diamond
-        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
-
+        ruleProcessor = getRuleProcessorDiamond();
+        /// Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the AccessLevelAdmin address as a AccessLevel admin
@@ -72,11 +60,9 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         /// add the riskAdmin as risk admin
         appManager.addRiskAdmin(riskAdmin);
         applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
-        /// Set up the ApplicationERC721Handler
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleRouterProxy), address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleRouterProxy), address(appManager), false);
 
-        applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), address(applicationNFTHandler), "https://SampleApp.io");
+        applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
+        applicationNFTHandler = ApplicationERC721Handler(applicationNFT.handlerAddress());
         appManager.registerToken("THRK", address(applicationNFT));
 
         applicationNFTHandler.setERC721Address(address(applicationNFT));
@@ -84,7 +70,8 @@ contract ApplicationERC721FuzzTest is TaggedRuleProcessorDiamondTestUtil, Diamon
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
 
-        draculaCoin = new ApplicationERC20("applicationCoin", "DRAC", address(appManager), address(applicationCoinHandler));
+        draculaCoin = new ApplicationERC20("applicationCoin", "DRAC", address(appManager), address(ruleProcessor), false);
+        applicationCoinHandler = ApplicationERC20Handler(draculaCoin.handlerAddress());
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));
 

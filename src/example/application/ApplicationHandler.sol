@@ -13,8 +13,8 @@ import "src/application/ProtocolApplicationHandler.sol";
 contract ApplicationHandler is ProtocolApplicationHandler {
     /**
      * @dev Initializes the contract setting the owner as the one provided.
-     * @param _tokenRuleRouterAddress address of the protocol's TokenRuleRouter contract.
+     * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
      * @param _appManagerAddress address of the application AppManager.
      */
-    constructor(address _tokenRuleRouterAddress, address _appManagerAddress) ProtocolApplicationHandler(_tokenRuleRouterAddress, _appManagerAddress) {}
+    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress) ProtocolApplicationHandler(_ruleProcessorProxyAddress, _appManagerAddress) {}
 }

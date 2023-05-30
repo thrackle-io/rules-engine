@@ -10,9 +10,10 @@ import "../src/diamond/core/DiamondCut/FacetCut.sol";
 import "./RuleStorageDiamondTestUtil.sol";
 
 import {RuleStorageDiamond, RuleStorageDiamondArgs} from "../src/economic/ruleStorage/RuleStorageDiamond.sol";
-import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/nontagged/RuleProcessorDiamond.sol";
+import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/RuleProcessorDiamond.sol";
 import {RuleDataFacet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
 import {IDiamondCut} from "../src/diamond/core/DiamondCut/IDiamondCut.sol";
+import {INonTaggedRules as NonTaggedRules} from "../src/economic/ruleStorage/RuleDataInterfaces.sol";
 
 contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTestUtil {
     // Store the FacetCut struct for each facet that is being deployed.
@@ -25,7 +26,7 @@ contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTe
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[10] memory facets = [
+        string[13] memory facets = [
             // Native facets,
             "DiamondCutFacet",
             "DiamondLoupeFacet",
@@ -39,7 +40,11 @@ contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTe
             "FeeRuleProcessorFacet",
             "ApplicationRiskProcessorFacet",
             "ApplicationAccessLevelProcessorFacet",
-            "ApplicationPauseProcessorFacet"
+            "ApplicationPauseProcessorFacet",
+            //TaggedRuleFacets:
+            "ERC20TaggedRuleProcessorFacet",
+            "ERC721TaggedRuleProcessorFacet",
+            "RiskTaggedRuleProcessorFacet"
         ];
 
         string[] memory inputs = new string[](3);

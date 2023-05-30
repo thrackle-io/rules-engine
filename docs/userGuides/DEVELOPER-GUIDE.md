@@ -50,18 +50,18 @@ coming soon...
 #### Deploy The Protocol
 
 `scripts/DeployAllModules.s.sol`
-This script is responsible for deploying the whole protocol contracts. Take into account that no game-specific contracts are deployed here. Only the contracts maintained by Thrackle.
+This script is responsible for deploying the whole protocol contracts. Take into account that no game-specific contracts are deployed here.
 
 #### Deploy Some Test Game Tokens
 
-`src/example/script/GameDeployAll.s.sol`
-This script deploys the contracts that are specific for games, emulating the steps that a game dev would follow. This script deploys 2 ERC20s and 2 ERC721 tokens, among the other setup contracts.
+`src/example/script/ApplicationDeployAll.s.sol`
+This script deploys the contracts that are specific for games, emulating the steps that a application dev would follow. This script deploys 2 ERC20s and 2 ERC721 tokens, among the other setup contracts.
 
 If anvil is not listening to the commands in the scripts, make sure you have exported the local foundry profile `export FOUNDRY_PROFILE=local`.
 
 ### Other Relevant Scripts
 
-Besides the deployment of the whole ecosystem, you can also deploy specific parts of the protocol/games through different scripts. When it comes to the protocol scripts, the files can be found in the `script/` diretory. On the other hand, `src/example/script/` will hold the files that are related to specific implementations like tokens, GamesGlobalControllers, GameEconControllers, etc.
+Besides the deployment of the whole ecosystem, you can also deploy specific parts of the protocol/games through different scripts. When it comes to the protocol scripts, the files can be found in the `script/` directory. On the other hand, `src/example/script/` will hold the files that are related to specific implementations like tokens, AppManager, AppHandler, etc.
 
 ---
 ## Command Tools
@@ -75,18 +75,16 @@ This file contains various commands that can be used to ease build, testing, and
     - runs all test scripts with the correct parameters. NOTE: it is verbose. To run without all the extra info, remove -vvvvv or reduce number of "v"s to your like, ie -vv
 - make deployAll
     - deploys the entire Tron project to localhost:8545
+- make deployAllApp
+    - deploys the application examples to localhost:8545
 
 `.env`
 This contains the basic variables needed for Makefile to work properly. These are the default values for anvil so it is ok for them to be exposed. They are as follows:
 
 ```ADDRESS_01=0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 PRIVATE_KEY_01=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-APPLICATION_PROCESSOR_DIAMOND_CONTRACT=0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6
-RULE_STORAGE_DIAMOND=0x68B1D87F95878fE05B998F19b66F4baba5De1aed
-META_CONTROLS_DIAMOND=0x09635F643e140090A9A8Dcd712eD6285858ceBef
-ECONOMIC_CONTROLLER_CONTRACT=0xf5059a5D33d5853360D16C683c16e67980206f36
-ECONOMIC_CONTROLLER_PROXY=0x95401dc811bb5740090279Ba06cfA8fcF6113778
-INDIVIDUAL_CONTROLS_DIAMOND=0x851356ae760d987E095750cCeb3bC6014560891C
+RULE_STORAGE_DIAMOND=0x8A791620dd6260079BF849Dc5567aDC3F2FdC318
+RULE_PROCESSOR_DIAMOND=0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f
 ACTION_PURCHASE=0
 ACTION_SELL=1
 ACTION_TRADE=2

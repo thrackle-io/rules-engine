@@ -4,8 +4,8 @@ pragma solidity 0.8.17;
 import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-contracts/contracts/security/Pausable.sol";
 import "../economic/AppAdministratorOnly.sol";
-import "../economic/IAssetHandlerLite.sol";
 import "../application/IAppManager.sol";
+import "../../src/token/ProtocolERC20Handler.sol";
 import "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
@@ -21,27 +21,33 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     address public appManagerAddress;
     address public handlerAddress;
     // address of the Handler lite interface
-    IAssetHandlerLite handler;
+    ProtocolERC20Handler handler;
     IAppManager appManager;
 
     /// Max supply can be set only once. Zero means infinite supply.
     uint256 immutable MAX_SUPPLY;
     error ExceedingMaxSupply();
     error CallerNotAuthorizedToMint();
+    error ZeroAddress();
 
     /**
      * @dev Constructor sets name and symbol for the ERC20 token at deployment.
      * @param _name name of token
      * @param _symbol abreviated name for token (i.e. THRK)
      * @param _appManagerAddress address of app manager contract
-     * @param _handlerAddress address for asset's handler contract
+     * @param _ruleProcessor Address of the protocol rule processor
+     * @param _upgradeMode token deploys a Handler contract, false = handler deployed, true = upgraded token contract and no handler.
+     * _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.
      */
-    constructor(string memory _name, string memory _symbol, address _appManagerAddress, address _handlerAddress) ERC20(_name, _symbol) {
+    constructor(string memory _name, string memory _symbol, address _appManagerAddress, address _ruleProcessor, bool _upgradeMode) ERC20(_name, _symbol) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
-        handler = IAssetHandlerLite(_handlerAddress);
-        handlerAddress = _handlerAddress;
         MAX_SUPPLY = 0;
+
+        if (!_upgradeMode) {
+            deployHandler(_ruleProcessor, _appManagerAddress, _upgradeMode);
+        }
+
         emit NewTokenDeployed(address(this), _appManagerAddress);
     }
 
@@ -190,5 +196,28 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
         amount = amount;
         data = data;
         revert("Flashloans not allowed at this time");
+    }
+
+    /**
+     * @dev This function is called at deployment in the constructor to deploy the Handler Contract for the Token.
+     * @param _ruleProcessor address of the rule processor
+     * @param _appManagerAddress address of the Application Manager Contract
+     * @param _upgradeMode bool representing if this contract will deploy data contracts or if this is an upgrade
+     * @return handlerAddress address of the new Handler Contract
+     */
+    function deployHandler(address _ruleProcessor, address _appManagerAddress, bool _upgradeMode) private returns (address) {
+        handler = new ProtocolERC20Handler(_ruleProcessor, _appManagerAddress, _upgradeMode);
+        handlerAddress = address(handler);
+        return handlerAddress;
+    }
+
+    /**
+     * @dev Function to connect Token to previously deployed Handler contract
+     * @param _deployedHandlerAddress address of the currently deployed Handler Address
+     */
+    function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
+        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
+        handler = ProtocolERC20Handler(_deployedHandlerAddress);
+        emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
     }
 }

@@ -71,10 +71,10 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev This sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts.
      * @param root address to set as the default admin and first app administrator
      * @param _appName Application Name String
-     * @param _tokenRuleRouterAddress address of the protocol's token rule router
+     * @param _ruleProcessorProxyAddress of the protocol's rule processor diamond
      * @param upgradeMode specifies whether this is a fresh AppManager or an upgrade replacement.
      */
-    constructor(address root, string memory _appName, address _tokenRuleRouterAddress, bool upgradeMode) {
+    constructor(address root, string memory _appName, address _ruleProcessorProxyAddress, bool upgradeMode) {
         _setupRole(DEFAULT_ADMIN_ROLE, root);
         _setupRole(APP_ADMIN_ROLE, root);
         _setRoleAdmin(APP_ADMIN_ROLE, DEFAULT_ADMIN_ROLE);
@@ -89,7 +89,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
         } else {
             emit AppManagerDeployedForUpgrade(address(this));
         }
-        _deployApplicationHandler(_tokenRuleRouterAddress, address(this));
+        _deployApplicationHandler(_ruleProcessorProxyAddress, address(this));
     }
 
     /// -------------ADMIN---------------
@@ -283,6 +283,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
     function addRiskScore(address _account, uint8 _score) external onlyRiskAdmin {
         if (_score > 100) revert riskScoreOutOfRange(_score);
         riskScores.addScore(_account, _score);
+        emit RiskScoreAdded(_account, _score, block.timestamp);
     }
 
     /**
@@ -755,11 +756,11 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Deploy the ApplicationHandler contract. Only called internally from the constructor.
-     * @param _tokenRuleRouterAddress token rule router address for rule checks
+     * @param _ruleProcessorProxyAddress processor address for rule checks
      * @param _appManagerAddress app manager address so handler can retrieve account info
      */
-    function _deployApplicationHandler(address _tokenRuleRouterAddress, address _appManagerAddress) private returns (address) {
-        applicationHandler = new ProtocolApplicationHandler(_tokenRuleRouterAddress, _appManagerAddress);
+    function _deployApplicationHandler(address _ruleProcessorProxyAddress, address _appManagerAddress) private returns (address) {
+        applicationHandler = new ProtocolApplicationHandler(_ruleProcessorProxyAddress, _appManagerAddress);
         applicationHandlerAddress = address(applicationHandler);
         return applicationHandlerAddress;
     }

@@ -12,8 +12,9 @@ import "../token/ProtocolERC721Handler.sol";
 contract ApplicationERC721Handler is ProtocolERC721Handler {
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
-     * @param _tokenRuleRouterProxyAddress Address of Token Rule Router Proxy
+     * @param _ruleProcessorProxyAddress Address of Token Rule Router Proxy
      * @param _appManagerAddress Address of App Manager
+     * @param _upgradeMode specifies whether this is a fresh Handler or an upgrade replacement.
      */
-    constructor(address _tokenRuleRouterProxyAddress, address _appManagerAddress) ProtocolERC721Handler(_tokenRuleRouterProxyAddress, _appManagerAddress) {}
+    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode) ProtocolERC721Handler(_ruleProcessorProxyAddress, _appManagerAddress, _upgradeMode) {}
 }

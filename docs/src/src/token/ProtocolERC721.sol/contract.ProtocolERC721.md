@@ -1,5 +1,5 @@
 # ProtocolERC721
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/token/ProtocolERC721.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/token/ProtocolERC721.sol)
 
 **Inherits:**
 ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md)
@@ -28,7 +28,7 @@ address public handlerAddress;
 ### handler
 
 ```solidity
-IERC721HandlerLite handler;
+ProtocolERC721Handler handler;
 ```
 
 
@@ -75,7 +75,8 @@ constructor(
     string memory _name,
     string memory _symbol,
     address _appManagerAddress,
-    address _handlerAddress,
+    address _ruleProcessor,
+    bool _upgradeMode,
     string memory _baseUri
 ) ERC721(_name, _symbol);
 ```
@@ -86,7 +87,8 @@ constructor(
 |`_name`|`string`|Name of NFT|
 |`_symbol`|`string`|Symbol for the NFT|
 |`_appManagerAddress`|`address`|Address of App Manager|
-|`_handlerAddress`|`address`|Address of Handler|
+|`_ruleProcessor`|`address`|Address of the protocol rule processor|
+|`_upgradeMode`|`bool`|token deploys a Handler contract, false = handler deployed, true = upgraded token contract and no handler. _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.|
 |`_baseUri`|`string`|URI for the base token|
 
 
@@ -255,5 +257,52 @@ This function call must use less than 30 000 gas.*
 
 ```solidity
 function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool);
+```
+
+### deployHandler
+
+*This function is called at deployment in the constructor to deploy the Handler Contract for the Token.*
+
+
+```solidity
+function deployHandler(address _ruleProcessor, address _appManagerAddress, bool _upgradeModeHandler)
+    private
+    returns (address);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleProcessor`|`address`|address of the rule processor|
+|`_appManagerAddress`|`address`|address of the Application Manager Contract|
+|`_upgradeModeHandler`|`bool`|specifies whether this is a fresh Handler or an upgrade replacement.|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|handlerAddress address of the new Handler Contract|
+
+
+### connectHandlerToToken
+
+*Function to connect Token to previously deployed Handler contract*
+
+
+```solidity
+function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_deployedHandlerAddress`|`address`|address of the currently deployed Handler Address|
+
+
+## Errors
+### ZeroAddress
+
+```solidity
+error ZeroAddress();
 ```
 

@@ -6,32 +6,34 @@ import "../src/example/ApplicationERC20.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
-import "../src/economic/TokenRuleRouter.sol";
-import "../src/economic/TokenRuleRouterProxy.sol";
+
 import "../src/example/ApplicationERC20Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
-import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
+
 import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
 import "../src/example/pricing/ApplicationERC20Pricing.sol";
 import "../src/example/pricing/ApplicationERC721Pricing.sol";
+import {ApplicationAssetHandlerMod} from "./helpers/ApplicationAssetHandlerMod.sol";
 
-contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationERC20 applicationCoin;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
+    RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-    TokenRuleRouter tokenRuleRouter;
+
     ApplicationERC20Handler applicationCoinHandler;
+    ApplicationERC20Handler applicationCoinHandler2;
     ApplicationAppManager appManager;
-    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
+
     ApplicationHandler public applicationHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
-    TokenRuleRouterProxy ruleRouterProxy;
+
     ApplicationERC20Pricing erc20Pricer;
     ApplicationERC721Pricing nftPricer;
+    ApplicationAssetHandlerMod newAssetHandler;
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     address user1 = address(11);
     address user2 = address(22);
@@ -48,6 +50,7 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
     address rich_user = address(45);
     address[] badBoys;
     address[] goodBoys;
+    address ac;
     uint256 Blocktime = 1675723152;
 
     function setUp() public {
@@ -55,19 +58,12 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        /// Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Diploy the token rule processor diamond
-        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
-        ///connect data diamond with Tagged Rule Processor diamond
-        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        tokenRuleRouter = new TokenRuleRouter();
-        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-        /// connect the TokenRuleRouter to its child Diamond
-        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        ruleProcessor = getRuleProcessorDiamond();
+        /// Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        ac = address(appManager);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the AccessLevelAdmin address as a AccessLevel admin
@@ -75,11 +71,10 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
         /// add Risk Admin
         appManager.addRiskAdmin(riskAdmin);
         applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
-        /// Set up the ApplicationERC20Handler
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleRouterProxy), address(appManager), false);
 
-        applicationCoin = new ApplicationERC20("FRANK", "FRANK", address(appManager), address(applicationCoinHandler));
+        applicationCoin = new ApplicationERC20("FRANK", "FRANK", address(appManager), address(ruleProcessor), false);
         applicationCoin.mint(defaultAdmin, 10000000000000000000000 * (10 ** 18));
+        applicationCoinHandler = ApplicationERC20Handler(applicationCoin.handlerAddress());
         /// register the token
         appManager.registerToken("FRANK", address(applicationCoin));
         /// set the token price
@@ -288,7 +283,9 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
         /// create secondary token, mint, and transfer to user
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager), address(applicationCoinHandler));
+        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager), address(ruleProcessor), false);
+        applicationCoinHandler2 = ApplicationERC20Handler(draculaCoin.handlerAddress());
+        applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));
         draculaCoin.mint(defaultAdmin, 10000000000000000000000 * (10 ** 18));
@@ -793,5 +790,113 @@ contract ApplicationERC20Test is TaggedRuleProcessorDiamondTestUtil, DiamondTest
         assertEq(applicationCoin.balanceOf(user9), 100 * (10 ** 18)); // to account gets amount while ignoring fees
         assertEq(applicationCoin.balanceOf(targetAccount), 8 * (10 ** 18)); // treasury remains the same
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury remains the same
+    }
+
+    function testDataContractMigration() public {
+        /// put data in the old rule handler
+        /// Fees
+        bytes32 tag1 = "cheap";
+        uint256 minBalance = 10 * 10 ** 18;
+        uint256 maxBalance = 1000 * 10 ** 18;
+        int24 feePercentage = 300;
+        address feeCollectorAccount = appAdministrator;
+        // create one fee
+        applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        Fees.Fee memory fee = applicationCoinHandler.getFee(tag1);
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, applicationCoinHandler.getFeeTotal());
+
+        /// create new handler
+        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, true);
+        /// migrate data contracts to new handler
+        console.log(applicationCoinHandler.owner());
+        console.log(address(applicationCoin));
+        applicationCoinHandler.migrateDataContracts(address(applicationCoinHandlerNew));
+        /// connect the old data contract to the new handler
+        applicationCoinHandlerNew.connectDataContracts(address(applicationCoinHandler));
+        /// test that the data is accessible only from the new handler
+        fee = applicationCoinHandlerNew.getFee(tag1);
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, applicationCoinHandlerNew.getFeeTotal());
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert(0xba80c9e5);
+        applicationCoinHandler.migrateDataContracts(address(applicationCoinHandler));
+    }
+
+    function testHandlerUpgrading() public {
+        ///deploy new modified appliction asset handler contract
+        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, true);
+        ///connect to apptoken
+        applicationCoin.connectHandlerToToken(address(assetHandler));
+        ///connect data contract
+        applicationCoinHandler.migrateDataContracts(address(applicationCoinHandler));
+
+        assetHandler.connectDataContracts(address(applicationCoinHandler));
+
+        ///Create and activate rule in new Handler
+        bytes32[] memory accs = new bytes32[](3);
+        accs[0] = bytes32("Oscar");
+        accs[1] = bytes32("Tayler");
+        accs[2] = bytes32("Shane");
+        uint256[] memory holdAmounts = new uint256[](3);
+        holdAmounts[0] = uint256(1000 * (10 ** 18));
+        holdAmounts[1] = uint256(2000 * (10 ** 18));
+        holdAmounts[2] = uint256(3000 * (10 ** 18));
+        uint256[] memory holdPeriods = new uint256[](3);
+        holdPeriods[0] = uint32(720); // one month
+        holdPeriods[1] = uint32(4380); // six months
+        holdPeriods[2] = uint32(17520); // two years
+        uint256[] memory holdTimestamps = new uint256[](3);
+        holdTimestamps[0] = Blocktime;
+        holdTimestamps[1] = Blocktime;
+        holdTimestamps[2] = Blocktime;
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(appManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        assertEq(_index, 0);
+        assetHandler.setMinBalByDateRuleId(_index);
+
+        /// load non admin users with application coin
+        applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(rich_user), 10000 * (10 ** 18));
+        applicationCoin.transfer(user2, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
+        applicationCoin.transfer(user3, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 10000 * (10 ** 18));
+        assetHandler.setMinBalByDateRuleId(_index);
+        /// tag the user
+        appManager.addGeneralTag(rich_user, "Oscar"); ///add tag
+        assertTrue(appManager.hasTag(rich_user, "Oscar"));
+        appManager.addGeneralTag(user2, "Tayler"); ///add tag
+        assertTrue(appManager.hasTag(user2, "Tayler"));
+        appManager.addGeneralTag(user3, "Shane"); ///add tag
+        assertTrue(appManager.hasTag(user3, "Shane"));
+        /// switch to the user
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        /// attempt a transfer that violates the rule
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 9001 * (10 ** 18));
+        /// make sure a transfer that is acceptable will still pass within the freeze window.
+        applicationCoin.transfer(user1, 9000 * (10 ** 18));
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 1 * (10 ** 18));
+        /// add enough time so that it should pass
+        vm.warp(Blocktime + (720 * 1 hours));
+        applicationCoin.transfer(user1, 1 * (10 ** 18));
+
+        /// try tier 2
+        /// switch to the user
+        vm.stopPrank();
+        vm.startPrank(user2);
+        /// attempt a transfer that violates the rule
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 8001 * (10 ** 18));
+
+        console.log(assetHandler.newTestFunction());
     }
 }

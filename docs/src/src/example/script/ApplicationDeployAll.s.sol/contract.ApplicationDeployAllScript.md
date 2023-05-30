@@ -1,10 +1,10 @@
 # ApplicationDeployAllScript
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/example/script/ApplicationDeployAll.s.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/example/script/ApplicationDeployAll.s.sol)
 
 **Inherits:**
 Script
 
-Deploys the application App Manager, AppManager, ERC20, ERC721, AMM and associated handlers, pricing and oracle contracts.
+Deploys the application App Manager, AppManager, ERC20, ERC721, and associated handlers, pricing and oracle contracts.
 
 *This script will deploy all application contracts needed to test the protocol interactions.*
 
@@ -17,17 +17,17 @@ ApplicationERC20Handler applicationCoinHandler;
 ```
 
 
+### applicationCoinHandler2
+
+```solidity
+ApplicationERC20Handler applicationCoinHandler2;
+```
+
+
 ### applicationNFTHandler
 
 ```solidity
 ApplicationERC721Handler applicationNFTHandler;
-```
-
-
-### applicationAMMHandler
-
-```solidity
-ApplicationAMMHandler applicationAMMHandler;
 ```
 
 

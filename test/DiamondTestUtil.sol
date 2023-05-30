@@ -8,9 +8,9 @@ import {DiamondInit} from "../src/diamond/initializers/DiamondInit.sol";
 
 import {FacetCut, FacetCutAction} from "../src/diamond/core/DiamondCut/DiamondCutLib.sol";
 
-import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/nontagged/RuleProcessorDiamond.sol";
+import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/RuleProcessorDiamond.sol";
 // import {AppManager} from "../src/application/AppManager.sol";
-import {ApplicationPauseProcessorFacet} from "../src/economic/ruleProcessor/nontagged/ApplicationPauseProcessorFacet.sol";
+import {ApplicationPauseProcessorFacet} from "../src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol";
 import {SampleFacet} from "../src/diamond/core/test/SampleFacet.sol";
 import {ERC173Facet} from "../src/diamond/implementations/ERC173/ERC173Facet.sol";
 import {IDiamondCut} from "../src/diamond/core/DiamondCut/IDiamondCut.sol";

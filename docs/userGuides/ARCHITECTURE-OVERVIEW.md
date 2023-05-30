@@ -4,15 +4,10 @@
 
 ---
 
-The following diagram outlines the general architecture of the protocol that may be shared on-chian. Every application
-ecosystem may reuse these contracts. These contracts are also in a configuration that allows for upgradability.  
+The following diagram outlines the general architecture of the protocol. Every application
+ecosystem may reuse the purple contracts. These contracts are also in a configuration that allows for upgradability. Each 
+ecosystem must deploy the green contracts. 
 ![Protocol Architecture](./images/ProtocolOverview.png)
-
-The following diagram outlines the architecture each individual application ecosystem must deploy and hook into the previous
-Protocol architecture. This architecture is also upgradable and connects to the previous architecture
-through the TokenRuleRouterProxy contract.
-
-![Application Architecture](./images/ApplicationOverview.png)
 
 The following diagram outlines a sample deployment: 
 ![Sample Deployment](./images/ExampleDeployment.png)

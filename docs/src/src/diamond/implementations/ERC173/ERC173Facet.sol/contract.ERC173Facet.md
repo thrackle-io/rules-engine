@@ -1,5 +1,5 @@
 # ERC173Facet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/diamond/implementations/ERC173/ERC173Facet.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/diamond/implementations/ERC173/ERC173Facet.sol)
 
 **Inherits:**
 [IERC173](/src/interfaces/IERC173.sol/interface.IERC173.md), [ERC173](/src/diamond/implementations/ERC173/ERC173.sol/abstract.ERC173.md)

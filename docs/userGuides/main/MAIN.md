@@ -6,16 +6,6 @@
 >
 > All the rules are configurable and may be modified to suit the needs of each client. They can be activated/deactivated as needed. 
 
----
-## Main
-
----
-### Author
-
-**Thrackle Inc.** 
-* *Initial work* - [TheProtocolRepo][repository-url] (Repository space)
-* *Released on* [Polygon Edge][chain-url] (chain)
-* [Thrackle website][Thrackle-url]
 
 ---
 ## [Deployment Guides][deploymentGuide-url]
@@ -40,31 +30,12 @@ Should we create some sort of deployment verification test scripts?
     * Initial document creation
 
 ---
-Tasks still to do
-1. ERD address
-2. Token Rule Router Address
-3. Contract Registry Address
-   1. 
-4. Pricing module detail for custom pricing
-   1. Come up with at least one custom pricing method
-5. Token specific Rule list directory
-   1.  List of all Token specific rules, what they do, and the following function signatures:
-      1. creation function(ERD)
-      2. application function(TokenHandler)
-      3. activation/deactivation function
-6. Global rule list directory
-   1. List of all Global rules, what they do, and the following function signatures:
-      1. creation function(ERD)
-      2. application function(AppHandler)
-      3. activation/deactivation function
-7. Deployment Directory
-   1. List of all protocol deployments and their prevailing addresses
    
 <!-- These are the body links -->
-[deploymentGuide-url]: ../deployment/DEPLOYMENTGUIDES.md
+[deploymentGuide-url]: ../deployment/NFT-DEPLOYMENT.md
 [userGuide-url]: ./USERGUIDE.md
-[ruleGuide-url]: ../rules/RULEGUIDE.md
-[glossary-url]: ./GLOSSARY.md
+[ruleGuide-url]: ../rules/RULE-GUIDE.md
+[glossary-url]: ../GLOSSARY.md
 
 
 <!-- These are the header links -->
@@ -72,6 +43,5 @@ Tasks still to do
 [header-link]: https://github.com/thrackle-io/Tron
 [repository-url]: https://github.com/thrackle-io/Tron
 [chain-url]: https://www.polygon.com/
-[Thrackle-url]: https://www.thrackle.io
 [version-image]: https://img.shields.io/badge/Version-1.0.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/Tron

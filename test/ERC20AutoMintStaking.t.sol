@@ -6,12 +6,12 @@ import "../src/example/ApplicationERC20.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
-import "../src/economic/TokenRuleRouter.sol";
+
 import "../src/example/ApplicationERC20Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-import "../src/economic/TokenRuleRouterProxy.sol";
+
 import "../src/example/staking/ERC20AutoMintStaking.sol";
-import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
+
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 
 /**
@@ -20,17 +20,18 @@ import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFac
  * @dev Rewards are calculated at stake and minted to user at claim.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ERC20AutoMintStakingTest is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract ERC20AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationERC20 stakingCoin;
     ApplicationERC20 rewardCoin;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
+    RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-    TokenRuleRouter tokenRuleRouter;
+
     ApplicationERC20Handler applicationCoinHandler;
+    ApplicationERC20Handler applicationCoinHandler2;
     ApplicationAppManager appManager;
-    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
+
     ApplicationHandler public applicationHandler;
-    TokenRuleRouterProxy ruleRouterProxy;
+
     ERC20AutoMintStaking stakingContract;
 
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
@@ -48,30 +49,29 @@ contract ERC20AutoMintStakingTest is TaggedRuleProcessorDiamondTestUtil, Diamond
         // Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy the token rule processor diamond
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        // Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
+        ruleProcessor = getRuleProcessorDiamond();
+        // Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         // Diploy the token rule processor diamond
-        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
+
         //connect data diamond with Tagged Rule Processor diamond
-        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
 
-        tokenRuleRouter = new TokenRuleRouter();
-        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-
-        // connect the TokenRuleRouter to its child Diamond
-        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        // connect the Rule Processor to its child Diamond
 
         // Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         // Set up the ApplicationERC20Handler
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleRouterProxy), address(appManager), false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
         // Create two tokens and mint a bunch
-        stakingCoin = new ApplicationERC20("stakingCoin", "STK", address(appManager), address(applicationCoinHandler));
+        stakingCoin = new ApplicationERC20("stakingCoin", "STK", address(appManager), address(ruleProcessor), false);
         stakingCoin.mint(user1, 2_000_000_000_000_000_000_000_000);
-        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager), address(applicationCoinHandler));
+        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager), address(ruleProcessor), false);
+        applicationCoinHandler = ApplicationERC20Handler(stakingCoin.handlerAddress());
+
+        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager), address(ruleProcessor), false);
+        applicationCoinHandler2 = ApplicationERC20Handler(rewardCoin.handlerAddress());
 
         stakingContract = new ERC20AutoMintStaking(address(rewardCoin), address(stakingCoin), address(appManager));
 

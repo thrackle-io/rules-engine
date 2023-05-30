@@ -1,15 +1,23 @@
 # IApplicationEvents
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/interfaces/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/interfaces/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
 
 Application Events Library
 
-*This library for all events for the tagged ecosystems. Each Contract should inherit this library for emitting events.*
+*This library for all events for the Application ecosystems. Each Contract should inherit this library for emitting events.*
 
 
 ## Events
+### HandlerConnectedForUpgrade
+Application Handler
+
+
+```solidity
+event HandlerConnectedForUpgrade(address indexed applicationHandler, address indexed assetAddress);
+```
+
 ### NewTokenDeployed
 ProtocolERC20
 
@@ -187,7 +195,7 @@ ERC20Pricing
 
 
 ```solidity
-event TokenPrice(address indexed token, uint256 price);
+event TokenPrice(address indexed token, uint256 indexed price);
 ```
 
 ### SingleTokenPrice
@@ -195,13 +203,13 @@ NFTPricing
 
 
 ```solidity
-event SingleTokenPrice(address indexed collection, uint256 tokenID, uint256 price);
+event SingleTokenPrice(address indexed collection, uint256 indexed tokenID, uint256 indexed price);
 ```
 
 ### CollectionPrice
 
 ```solidity
-event CollectionPrice(address indexed collection, uint256 price);
+event CollectionPrice(address indexed collection, uint256 indexed price);
 ```
 
 ### FeeTypeAdded

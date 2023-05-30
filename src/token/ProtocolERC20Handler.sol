@@ -7,19 +7,18 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import "../economic/ITokenRuleRouter.sol";
+import "../economic/IRuleProcessor.sol";
 import "../economic/IAssetHandlerLite.sol";
 import "../economic/AppAdministratorOnly.sol";
 import "../application/IAppManager.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
-import {ERC20TaggedRuleProcessorFacet} from "../economic/ruleProcessor/tagged/ERC20TaggedRuleProcessorFacet.sol";
-import {TaggedRuleProcessorDiamond} from "../economic/ruleProcessor/tagged/TaggedRuleProcessorDiamond.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
 import "../pricing/IProtocolERC721Pricing.sol";
 import "../pricing/IProtocolERC20Pricing.sol";
 import "../application/TokenStorage.sol";
 import "./data/Fees.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
+
+// import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
 /**
@@ -65,7 +64,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
     bool private adminWithdrawalActive;
     bool private minBalByDateRuleActive;
 
-    ITokenRuleRouter immutable tokenRuleRouter;
+    IRuleProcessor immutable ruleProcessor;
     IAppManager appManager;
     // Pricing Module interfaces
     IProtocolERC20Pricing erc20Pricer;
@@ -79,14 +78,14 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
 
     /**
      * @dev Constructor sets params
-     * @param _tokenRuleRouterAddress address of the protocol's TokenRuleRouter contract.
+     * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
      * @param _appManagerAddress address of the application AppManager.
      * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
-    constructor(address _tokenRuleRouterAddress, address _appManagerAddress, bool _upgradeMode) {
+    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
-        tokenRuleRouter = ITokenRuleRouter(_tokenRuleRouterAddress);
+        ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         if (!_upgradeMode) {
             deployDataContract();
             emit HandlerDeployed(address(this), _appManagerAddress);
@@ -124,7 +123,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
                 _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
                 _checkNonTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
             } else {
-                if (adminWithdrawalActive && isFromAdmin) tokenRuleRouter.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
+                if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
             }
         }
         /// If everything checks out, return true
@@ -132,7 +131,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
     }
 
     /**
-     * @dev This function uses the protocol's tokenRuleRouter to perform the actual  rule checks.
+     * @dev This function uses the protocol's ruleProcessorto perform the actual  rule checks.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
@@ -140,8 +139,8 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
      * @param _amount number of tokens transferred
      */
     function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount) internal view {
-        if (minTransferRuleActive) tokenRuleRouter.checkMinTransferPasses(minTransferRuleId, _amount);
-        if (oracleRuleActive) tokenRuleRouter.checkOraclePasses(oracleRuleId, _to);
+        if (minTransferRuleActive) ruleProcessor.checkMinTransferPasses(minTransferRuleId, _amount);
+        if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _to);
         //added the following lines to remove warnings TODO remove later
         _balanceFrom;
         _balanceTo;
@@ -149,7 +148,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
     }
 
     /**
-     * @dev This function uses the protocol's tokenRuleRouter to perform the actual Individual rule check.
+     * @dev This function uses the protocol's ruleProcessorto perform the actual Individual rule check.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
@@ -180,8 +179,8 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
             // We get all tags for sender and recipient
             bytes32[] memory toTags = appManager.getAllTags(_to);
             bytes32[] memory fromTags = appManager.getAllTags(_from);
-            if (minMaxBalanceRuleActive) tokenRuleRouter.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
-            if (minBalByDateRuleActive) tokenRuleRouter.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+            if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+            if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
         }
     }
 
@@ -200,8 +199,8 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         if (transactionLimitByRiskRuleActive) {
-            tokenRuleRouter.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _transferValuation);
-            tokenRuleRouter.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _transferValuation);
+            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _transferValuation);
+            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _transferValuation);
         }
     }
 
@@ -575,7 +574,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
     function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
         if (adminWithdrawalActive) {
-            tokenRuleRouter.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
+            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
         }
         /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
         adminWithdrawalRuleId = _ruleId;
@@ -590,7 +589,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
     function activateAdminWithdrawalRule(bool _on) external appAdministratorOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired
         if (!_on) {
-            tokenRuleRouter.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
+            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
         }
         adminWithdrawalActive = _on;
         if (_on) {

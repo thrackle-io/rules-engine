@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/application/AppManager.sol)
 
 **Inherits:**
 AccessControlEnumerable, [IAppLevelEvents](/src/interfaces/IEvents.sol/interface.IAppLevelEvents.md)
@@ -167,7 +167,7 @@ string appName;
 
 
 ```solidity
-constructor(address root, string memory _appName, address _tokenRuleRouterAddress, bool upgradeMode);
+constructor(address root, string memory _appName, address _ruleProcessorProxyAddress, bool upgradeMode);
 ```
 **Parameters**
 
@@ -175,7 +175,7 @@ constructor(address root, string memory _appName, address _tokenRuleRouterAddres
 |----|----|-----------|
 |`root`|`address`|address to set as the default admin and first app administrator|
 |`_appName`|`string`|Application Name String|
-|`_tokenRuleRouterAddress`|`address`|address of the protocol's token rule router|
+|`_ruleProcessorProxyAddress`|`address`|of the protocol's rule processor diamond|
 |`upgradeMode`|`bool`|specifies whether this is a fresh AppManager or an upgrade replacement.|
 
 
@@ -1238,7 +1238,7 @@ function migrateDataContracts(address _newOwner) external onlyAppAdministrator;
 
 
 ```solidity
-function _deployApplicationHandler(address _tokenRuleRouterAddress, address _appManagerAddress)
+function _deployApplicationHandler(address _ruleProcessorProxyAddress, address _appManagerAddress)
     private
     returns (address);
 ```
@@ -1246,7 +1246,7 @@ function _deployApplicationHandler(address _tokenRuleRouterAddress, address _app
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_tokenRuleRouterAddress`|`address`|token rule router address for rule checks|
+|`_ruleProcessorProxyAddress`|`address`|processor address for rule checks|
 |`_appManagerAddress`|`address`|app manager address so handler can retrieve account info|
 
 

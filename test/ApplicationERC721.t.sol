@@ -6,31 +6,33 @@ import "../src/example/ApplicationERC721.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
-import "../src/economic/TokenRuleRouter.sol";
-import "../src/economic/TokenRuleRouterProxy.sol";
+
 import "../src/example/ApplicationERC721Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-import {TaggedRuleProcessorDiamondTestUtil} from "./TaggedRuleProcessorDiamondTestUtil.sol";
+
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
 import "../src/example/pricing/ApplicationERC20Pricing.sol";
 import "../src/example/pricing/ApplicationERC721Pricing.sol";
+import {ApplicationERC721HandlerMod} from "./helpers/ApplicationERC721HandlerMod.sol";
 
-contract ApplicationERC721Test is TaggedRuleProcessorDiamondTestUtil, DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationERC721 applicationNFT;
-    RuleProcessorDiamond tokenRuleProcessorsDiamond;
+    RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-    TokenRuleRouter tokenRuleRouter;
-    TokenRuleRouterProxy ruleRouterProxy;
+
     ApplicationERC721Handler applicationNFTHandler;
+    ApplicationERC721Handler applicationNFTHandler2;
     ApplicationAppManager appManager;
-    TaggedRuleProcessorDiamond taggedRuleProcessorDiamond;
+
     ApplicationHandler public applicationHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationERC20Pricing erc20Pricer;
     ApplicationERC721Pricing nftPricer;
+    ApplicationERC721HandlerMod newAssetHandler;
+
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     address user1 = address(11);
     address user2 = address(22);
@@ -47,20 +49,11 @@ contract ApplicationERC721Test is TaggedRuleProcessorDiamondTestUtil, DiamondTes
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
-        tokenRuleProcessorsDiamond = getRuleProcessorDiamond();
-        /// Connect the tokenRuleProcessorsDiamond into the ruleStorageDiamond
-        tokenRuleProcessorsDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Diploy the token rule processor diamond
-        taggedRuleProcessorDiamond = getTaggedRuleProcessorDiamond();
-        ///connect data diamond with Tagged Rule Processor diamond
-        taggedRuleProcessorDiamond.setRuleDataDiamond(address(ruleStorageDiamond));
-        tokenRuleRouter = new TokenRuleRouter();
-
-        /// connect the TokenRuleRouter to its child Diamond
-        ruleRouterProxy = new TokenRuleRouterProxy(address(tokenRuleRouter));
-        TokenRuleRouter(address(ruleRouterProxy)).initialize(payable(address(tokenRuleProcessorsDiamond)), payable(address(taggedRuleProcessorDiamond)));
+        ruleProcessor = getRuleProcessorDiamond();
+        /// Connect the ruleProcessor into the ruleStorageDiamond
+        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleRouterProxy), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the AccessLevelAdmin address as a AccessLevel admin
@@ -69,12 +62,10 @@ contract ApplicationERC721Test is TaggedRuleProcessorDiamondTestUtil, DiamondTes
         /// add Risk Admin
         appManager.addRiskAdmin(riskAdmin);
 
-        /// Set up the ApplicationERC721Handler
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleRouterProxy), address(appManager));
-
         applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
 
-        applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), address(applicationNFTHandler), "https://SampleApp.io");
+        applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
+        applicationNFTHandler = ApplicationERC721Handler(applicationNFT.handlerAddress());
         applicationNFTHandler.setERC721Address(address(applicationNFT));
 
         /// register the token
@@ -651,5 +642,124 @@ contract ApplicationERC721Test is TaggedRuleProcessorDiamondTestUtil, DiamondTes
         applicationNFT.safeTransferFrom(defaultAdmin, user1, 2);
         applicationNFTHandler.activateAdminWithdrawalRule(false);
         applicationNFTHandler.setAdminWithdrawalRuleId(1);
+    }
+
+    function testUpgradingHandlers() public {
+        ///deploy new modified appliction asset handler contract
+        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), true);
+        ///connect to apptoken
+        applicationNFT.connectHandlerToToken(address(assetHandler));
+
+        assetHandler.setERC721Address(address(applicationNFT));
+        assetHandler.setNFTPricingAddress(address(nftPricer));
+        assetHandler.setERC20PricingAddress(address(erc20Pricer));
+
+        ///Set transaction limit rule params
+        uint8[] memory riskScores = new uint8[](5);
+        uint48[] memory txnLimits = new uint48[](6);
+        riskScores[0] = 1;
+        riskScores[1] = 10;
+        riskScores[2] = 40;
+        riskScores[3] = 80;
+        riskScores[4] = 99;
+        txnLimits[0] = 20;
+        txnLimits[1] = 17;
+        txnLimits[2] = 15;
+        txnLimits[3] = 12;
+        txnLimits[4] = 11;
+        txnLimits[5] = 10;
+        uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(appManager), riskScores, txnLimits);
+
+        ///Mint NFT's (user1,2,3)
+        applicationNFT.safeMint(user1); // tokenId = 0
+        applicationNFT.safeMint(user1); // tokenId = 1
+        applicationNFT.safeMint(user1); // tokenId = 2
+        applicationNFT.safeMint(user1); // tokenId = 3
+        applicationNFT.safeMint(user1); // tokenId = 4
+        assertEq(applicationNFT.balanceOf(user1), 5);
+
+        applicationNFT.safeMint(user2); // tokenId = 5
+        applicationNFT.safeMint(user2); // tokenId = 6
+        applicationNFT.safeMint(user2); // tokenId = 7
+        assertEq(applicationNFT.balanceOf(user2), 3);
+
+        ///Set Rule in NFTHandler
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        assetHandler.setTransactionLimitByRiskRuleId(index);
+        ///Set Risk Scores for users
+        vm.stopPrank();
+        vm.startPrank(riskAdmin);
+        appManager.addRiskScore(user1, riskScores[0]);
+        appManager.addRiskScore(user2, riskScores[1]);
+        appManager.addRiskScore(user3, 49);
+
+        ///Set Pricing for NFTs 0-7
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 1, 11 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 0, 10 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 2, 12 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 3, 13 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 4, 15 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 5, 15 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 6, 17 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 7, 20 * (10 ** 18));
+
+        ///Transfer NFT's
+        ///Positive cases
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.safeTransferFrom(user1, user3, 0);
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        applicationNFT.safeTransferFrom(user3, user1, 0);
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.safeTransferFrom(user1, user2, 4);
+        applicationNFT.safeTransferFrom(user1, user2, 1);
+
+        ///Fail cases
+        vm.stopPrank();
+        vm.startPrank(user2);
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user2, user3, 7);
+
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user2, user3, 6);
+
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user2, user3, 5);
+
+        vm.stopPrank();
+        vm.startPrank(user2);
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user2, user3, 4);
+
+        ///simulate price changes
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 4, 1050 * (10 ** 16)); // in cents
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 5, 1550 * (10 ** 16)); // in cents
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 6, 11 * (10 ** 18)); // in dollars
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 7, 9 * (10 ** 18)); // in dollars
+
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationNFT.safeTransferFrom(user2, user3, 7);
+        applicationNFT.safeTransferFrom(user2, user3, 6);
+
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user2, user3, 5);
+
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationNFT.safeTransferFrom(user2, user3, 4);
+
+        address testAddress = assetHandler.newTestFunction();
+        console.log(assetHandler.newTestFunction(), testAddress);
     }
 }

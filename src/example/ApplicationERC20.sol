@@ -15,7 +15,13 @@ contract ApplicationERC20 is ProtocolERC20 {
      * @param _name Name of the token
      * @param _symbol  Symbol of the token
      * @param _appManagerAddress App Manager address
-     * @param _erc20HandlerAddress The ERC20's handler address
+     * @param _ruleProcessorProxyAddress of token rule router proxy address
      */
-    constructor(string memory _name, string memory _symbol, address _appManagerAddress, address _erc20HandlerAddress) ProtocolERC20(_name, _symbol, _appManagerAddress, _erc20HandlerAddress) {}
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _appManagerAddress,
+        address _ruleProcessorProxyAddress,
+        bool _upgradeMode
+    ) ProtocolERC20(_name, _symbol, _appManagerAddress, _ruleProcessorProxyAddress, _upgradeMode) {}
 }

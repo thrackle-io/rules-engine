@@ -7,6 +7,7 @@ import "openzeppelin-contracts/contracts/security/Pausable.sol";
 import "../economic/IERC721HandlerLite.sol";
 import "../application/IAppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
+import "../../src/token/ProtocolERC721Handler.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
 
 /**
@@ -84,7 +85,7 @@ contract ProtocolERC721A is IERC721A, Pausable, AppAdministratorOnly, IApplicati
     bytes32 private constant _TRANSFER_EVENT_SIGNATURE = 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef;
 
     ///Protocol Addresses
-    IERC721HandlerLite handler;
+    ProtocolERC721Handler handler;
     IAppManager appManager;
     address public appManagerAddress;
     address public handlerAddress;
@@ -92,6 +93,7 @@ contract ProtocolERC721A is IERC721A, Pausable, AppAdministratorOnly, IApplicati
     string public baseUri;
     /// keeps track of RULE enum version and other features
     uint8 public constant VERSION = 1;
+    error ZeroAddress();
 
     /// =============================================================
     ///                            STORAGE
@@ -143,21 +145,24 @@ contract ProtocolERC721A is IERC721A, Pausable, AppAdministratorOnly, IApplicati
     /**
      * @dev Constructor sets the name, symbol, base uri and the addresses for Handler and App Manager
      * Constructor sets the index for TokenId's
-     * @param name_ Name of Token
-     * @param symbol_ Symbol for Token
-     * @param _handlerAddress Address of asset's handler contract
-     * @param _appManagerAddress Address of Handler
-     * @param _baseUri URI for the Token
+     * @param name_ Name of NFT
+     * @param symbol_ Symbol for the NFT
+     * @param _appManagerAddress Address of App Manager
+     * @param _ruleProcessor Address of the protocol rule processor
+     * @param _upgradeMode token deploys a Handler contract, false = handler deployed, true = upgraded token contract and no handler.
+     * _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.
+     * @param _baseUri URI for the base token
      */
-    constructor(string memory name_, string memory symbol_, address _handlerAddress, address _appManagerAddress, string memory _baseUri) {
+    constructor(string memory name_, string memory symbol_, address _appManagerAddress, address _ruleProcessor, bool _upgradeMode, string memory _baseUri) {
         _name = name_;
         _symbol = symbol_;
         _currentIndex = _startTokenId();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
-        handler = IERC721HandlerLite(_handlerAddress);
         _setBaseURI(_baseUri);
-        handlerAddress = _handlerAddress;
+        if (!_upgradeMode) {
+            deployHandler(_ruleProcessor, _appManagerAddress, _upgradeMode);
+        }
         emit NewNFTDeployed(address(this), _appManagerAddress);
     }
 
@@ -1159,5 +1164,28 @@ contract ProtocolERC721A is IERC721A, Pausable, AppAdministratorOnly, IApplicati
     function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
+    }
+
+    /**
+     * @dev This function is called at deployment in the constructor to deploy the Handler Contract for the Token.
+     * @param _ruleProcessor address of the rule processor
+     * @param _appManagerAddress address of the Application Manager Contract
+     * @param _upgradeModeHandler specifies whether this is a fresh Handler or an upgrade replacement.
+     * @return handlerAddress address of the new Handler Contract
+     */
+    function deployHandler(address _ruleProcessor, address _appManagerAddress, bool _upgradeModeHandler) private returns (address) {
+        handler = new ProtocolERC721Handler(_ruleProcessor, _appManagerAddress, _upgradeModeHandler);
+        handlerAddress = address(handler);
+        return handlerAddress;
+    }
+
+    /**
+     * @dev Function to connect Token to previously deployed Handler contract
+     * @param _deployedHandlerAddress address of the currently deployed Handler Address
+     */
+    function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
+        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
+        handler = ProtocolERC721Handler(_deployedHandlerAddress);
+        emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
     }
 }

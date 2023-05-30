@@ -1,5 +1,5 @@
 # ProtocolERC20Handler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/63b22fe4cc7ce8c74a4c033635926489351a3581/src/token/ProtocolERC20Handler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/token/ProtocolERC20Handler.sol)
 
 **Inherits:**
 Ownable, [IAssetHandlerLite](/src/economic/IAssetHandlerLite.sol/interface.IAssetHandlerLite.md), [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
@@ -144,10 +144,10 @@ bool private minBalByDateRuleActive;
 ```
 
 
-### tokenRuleRouter
+### ruleProcessor
 
 ```solidity
-ITokenRuleRouter immutable tokenRuleRouter;
+IRuleProcessor immutable ruleProcessor;
 ```
 
 
@@ -193,13 +193,13 @@ address public nftPricingAddress;
 
 
 ```solidity
-constructor(address _tokenRuleRouterAddress, address _appManagerAddress, bool _upgradeMode);
+constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_tokenRuleRouterAddress`|`address`|address of the protocol's TokenRuleRouter contract.|
+|`_ruleProcessorProxyAddress`|`address`|of the protocol's Rule Processor contract.|
 |`_appManagerAddress`|`address`|address of the application AppManager.|
 |`_upgradeMode`|`bool`|specifies whether this is a fresh CoinHandler or an upgrade replacement.|
 
@@ -242,7 +242,7 @@ function checkAllRules(
 standard tagged and  rules do not apply when either to or from is an admin
 If everything checks out, return true
 
-*This function uses the protocol's tokenRuleRouter to perform the actual  rule checks.*
+*This function uses the protocol's ruleProcessorto perform the actual  rule checks.*
 
 
 ```solidity
@@ -263,7 +263,7 @@ function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address 
 
 ### _checkTaggedRules
 
-*This function uses the protocol's tokenRuleRouter to perform the actual Individual rule check.*
+*This function uses the protocol's ruleProcessorto perform the actual Individual rule check.*
 
 
 ```solidity

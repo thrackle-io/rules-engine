@@ -8,22 +8,21 @@
 **Commands are configured for zsh terminal**
 
 1. Deploy [AppManager][deployAppManager-url]
-2. Deploy [NFTHandler][deployNftHandler-url]
+2. Deploy [Protocol Supported NFT][deployProtocolSupportedNft-url]
 3. Deploy [Pricing Module][deployPricingModule-url] (Optional)
-4.  Create [Global Rules][createGlobalRules-url] (Optional)    
+4.  Create [Application Rules][createAppRules-url] (Optional)    
 5.  Create [NFT Specific Rules][createNftRules-url] (Optional)    
-6.  Set [External KYC Provider][externalKYCProvider-url] (Optional)
-7.  Deploy [Protocol Supported NFT][deployProtocolSupportedNft-url]
-8.  [Set NFT Prices][settingNftPrice-url] (Optional)
+6.  Set [External Access Tier Provider][externalAccessTierProvider-url] (Optional)
+7.  [Set NFT Prices][settingNftPrice-url] (Optional)
     
 
 <!-- These are the body links -->
 [deployAppManager-url]: ../DEPLOY-APPMANAGER.md
 [deployNftHandler-url]: ./DEPLOY-NFTHANDLER.md
 [deployPricingModule-url]: ../DEPLOY-PRICING.md
-[createGlobalRules-url]: ../CREATE-GLOBAL-RULES.md
+[createAppRules-url]: ../CREATE-APP-RULES.md
 [createNftRules-url]: ../CREATE-NFT-RULES.md
-[externalKYCProvider-url]: ../../accessTier/EXTERNAL-ACCESS-TIER-PROVIDER.md
+[externalAccessTierProvider-url]: ../../accessTier/EXTERNAL-ACCESS-TIER-PROVIDER.md
 [deployProtocolSupportedNft-url]: ./DEPLOY-NFT.md
 [settingNftPrice-url]: ./NFT-PRICING.md
 

@@ -4,18 +4,18 @@
 
 # *** UNDER CONSTRUCTION ***
 
-| Environment | Contract Name | Contract Address |
-| :--- | :---  | :--- | 
-| Polygon Mumbai | Rule Storage Diamond | 0x0000000000000000000000000000000000000000
-| Polygon Mumbai | Contract Registry     | 0x0000000000000000000000000000000000000000
+| Environment | Contract Name        | Contract Address |
+| :--- |:---------------------| :--- | 
+| Polygon Mumbai | RuleStorageDiamond | 0x0000000000000000000000000000000000000000
+| Polygon Mumbai | RuleProcessorDiamond | 0x0000000000000000000000000000000000000000
 
 
 
 
 Tasks still to do
 1. ERD address
-2. Token Rule Router Address
-3. Contract Registry Address
+2. OBE
+3. OBE
 4. Pricing module detail for custom pricing
     * Come up with at least one custom pricing method
 5. Token specific Rule list directory
@@ -23,8 +23,8 @@ Tasks still to do
     1. creation function(ERD)
     2. application function(TokenHandler)
     3. activation/deactivation function
-6. Global rule list directory
-    1. List of all Global rules, what they do, and the following function signatures:
+6. Application rule list directory
+    1. List of all Application rules, what they do, and the following function signatures:
         1. creation function(ERD)
         2. application function(AppHandler)
         3. activation/deactivation function

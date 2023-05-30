@@ -8,7 +8,6 @@
 - [example](/src/example)
 - [helpers](/src/helpers)
 - [interfaces](/src/interfaces)
-- [liquidity](/src/liquidity)
 - [pricing](/src/pricing)
 - [staking](/src/staking)
 - [token](/src/token)

@@ -59,7 +59,7 @@ interface IRuleStorageDiamondEvents {
 
 interface IEconomicEvents {
     /// Generic Rule Creation Event
-    event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId);
+    event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags);
     ///TokenRuleRouterProxy
     event newHandler(address indexed Handler);
 }
@@ -85,11 +85,13 @@ interface ITokenHandlerEvents {
 /**
  * @title Application Events
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev This library for all events for the tagged ecosystems. Each Contract should inherit this library for emitting events.
+ * @dev This library for all events for the Application ecosystems. Each Contract should inherit this library for emitting events.
  * @notice Application Events Library
  */
 
 interface IApplicationEvents {
+    /// Application Handler
+    event HandlerConnectedForUpgrade(address indexed applicationHandler, address indexed assetAddress);
     ///ProtocolERC20
     event NewTokenDeployed(address indexed applicationCoin, address indexed appManagerAddress);
     ///ProtocolERC721 & ERC721A
@@ -123,10 +125,10 @@ interface IApplicationEvents {
     event AddLiquidity(address token0, address token1, uint256 amount0, uint256 amount1);
     event RemoveLiquidity(address token, uint256 amount);
     ///ERC20Pricing
-    event TokenPrice(address indexed token, uint256 price);
+    event TokenPrice(address indexed token, uint256 indexed price);
     ///NFTPricing
-    event SingleTokenPrice(address indexed collection, uint256 tokenID, uint256 price);
-    event CollectionPrice(address indexed collection, uint256 price);
+    event SingleTokenPrice(address indexed collection, uint256 indexed tokenID, uint256 indexed price);
+    event CollectionPrice(address indexed collection, uint256 indexed price);
     ///Fees
     event FeeTypeAdded(bytes32 indexed tag, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount, uint256 date);
     event FeeTypeRemoved(bytes32 indexed tag, uint256 date);

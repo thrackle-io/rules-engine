@@ -3,4 +3,4 @@
 source ~/.bashrc
 foundryup
 pip install -r requirements.txt
-make deployAll deployAllGame
+make deployAll deployAllApp
