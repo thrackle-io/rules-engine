@@ -1,5 +1,5 @@
 # IERC165
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/b3877670eae43a9723081d42c4401502ebd5b9f6/src/interfaces/IERC165.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/941799bce65220406b4d9686c5c5f1ae7c99f4ee/src/interfaces/IERC165.sol)
 
 *Interface of the ERC165 standard, as defined in the
 https://eips.ethereum.org/EIPS/eip-165[EIP].
