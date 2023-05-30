@@ -19,7 +19,7 @@ In order to facilitate testing and deployment, the following resources were crea
 ---
 ## Test Scripts
 
-All tests are located inside the `test/` directory. To run a test, simply run in your terminal from inside the `Tron` directory:
+All tests are located inside the `test/` directory. To run a test, simply run in your terminal from inside the repository directory:
 
 ```
 forge test --ffi --match-path <TEST_FILE_LOCATION> -vvvv
@@ -74,7 +74,7 @@ This file contains various commands that can be used to ease build, testing, and
 - make testAll
     - runs all test scripts with the correct parameters. NOTE: it is verbose. To run without all the extra info, remove -vvvvv or reduce number of "v"s to your like, ie -vv
 - make deployAll
-    - deploys the entire Tron project to localhost:8545
+    - deploys the entire protocol project to localhost:8545
 - make deployAllApp
     - deploys the application examples to localhost:8545
 

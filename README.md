@@ -1,4 +1,4 @@
-# Tron
+# Rules Protocol
 
 [![Project Version][version-image]][version-url]
 
