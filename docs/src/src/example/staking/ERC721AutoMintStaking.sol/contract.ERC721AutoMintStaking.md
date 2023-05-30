@@ -1,5 +1,5 @@
 # ERC721AutoMintStaking
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/example/staking/ERC721AutoMintStaking.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/b3877670eae43a9723081d42c4401502ebd5b9f6/src/example/staking/ERC721AutoMintStaking.sol)
 
 **Inherits:**
 [IERC721Staking](/src/staking/IERC721Staking.sol/abstract.IERC721Staking.md), IERC721Receiver, Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)

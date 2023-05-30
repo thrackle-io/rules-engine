@@ -1,5 +1,5 @@
 # TaggedRuleDataFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4e5c0bf97c314267dd6acccac5053bfaa6859607/src/economic/ruleStorage/TaggedRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/b3877670eae43a9723081d42c4401502ebd5b9f6/src/economic/ruleStorage/TaggedRuleDataFacet.sol)
 
 **Inherits:**
 Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md)
