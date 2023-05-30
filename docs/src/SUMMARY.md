@@ -155,7 +155,6 @@
       - [ApplicationERC20Script](src/example/script/ApplicationCoin.s.sol/contract.ApplicationERC20Script.md)
       - [ApplicationDeployAllScript](src/example/script/ApplicationDeployAll.s.sol/contract.ApplicationDeployAllScript.md)
       - [ApplicationERC721Script](src/example/script/ApplicationERC721.s.sol/contract.ApplicationERC721Script.md)
-      - [ApplicationUIDeployAllScript](src/example/script/ApplicationUIDeploy.s.sol/contract.ApplicationUIDeployAllScript.md)
       - [ERC20AutoMintStakingDeployScript](src/example/script/ERC20AutoMintStaking.s.sol/contract.ERC20AutoMintStakingDeployScript.md)
       - [ERC20StakingContractScript](src/example/script/ERC20Staking.s.sol/contract.ERC20StakingContractScript.md)
       - [ERC721AutoMintStakingDeployScript](src/example/script/ERC721AutoMintStaking.s.sol/contract.ERC721AutoMintStakingDeployScript.md)
