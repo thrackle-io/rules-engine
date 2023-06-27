@@ -1,5 +1,5 @@
 # ApplicationERC20
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/121468a758a67e73dd1df571fd4e956242c3c973/src/example/ApplicationERC20.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2955538441cd4ad2d51a27d7c28af7eec4cd8814/src/example/ApplicationERC20.sol)
 
 **Inherits:**
 [ProtocolERC20](/src/token/ProtocolERC20.sol/contract.ProtocolERC20.md)

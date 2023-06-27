@@ -1,5 +1,5 @@
 # ERC20AutoMintStaking
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/121468a758a67e73dd1df571fd4e956242c3c973/src/example/staking/ERC20AutoMintStaking.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2955538441cd4ad2d51a27d7c28af7eec4cd8814/src/example/staking/ERC20AutoMintStaking.sol)
 
 **Inherits:**
 [IERC20Staking](/src/staking/IERC20Staking.sol/abstract.IERC20Staking.md), Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
