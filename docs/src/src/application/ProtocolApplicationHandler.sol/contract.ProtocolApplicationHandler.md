@@ -1,15 +1,15 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
-Ownable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IAppLevelEvents](/src/interfaces/IEvents.sol/interface.IAppLevelEvents.md)
+Ownable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationHandlerEvents](/src/interfaces/IEvents.sol/interface.IApplicationHandlerEvents.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
 
 This contract is the rules handler for all application level rules. It is implemented via the AppManager
 
-*This contract is injected into the appManagerss.*
+*This contract is injected into the appManagers.*
 
 
 ## State Variables
@@ -23,7 +23,7 @@ AppManager appManager;
 ### appManagerAddress
 
 ```solidity
-address appManagerAddress;
+address public appManagerAddress;
 ```
 
 
@@ -35,8 +35,7 @@ IRuleProcessor immutable ruleProcessor;
 
 
 ### accountBalanceByRiskRuleId
-Application Risk and AccessLevel rule Ids
-Risk Rule Ids
+Application level Rule Ids
 
 
 ```solidity
@@ -52,7 +51,7 @@ uint32 private maxTxSizePerPeriodByRiskRuleId;
 
 
 ### accountBalanceByRiskRuleActive
-Risk Rule on-off switches
+Application level Rule on-off switches
 
 
 ```solidity
@@ -68,7 +67,7 @@ bool private maxTxSizePerPeriodByRiskActive;
 
 
 ### accountBalanceByAccessLevelRuleId
-AccessLevel Rule Id
+AccessLevel Rule Ids
 
 
 ```solidity
@@ -76,8 +75,15 @@ uint32 private accountBalanceByAccessLevelRuleId;
 ```
 
 
+### withdrawalLimitByAccessLevelRuleId
+
+```solidity
+uint32 private withdrawalLimitByAccessLevelRuleId;
+```
+
+
 ### accountBalanceByAccessLevelRuleActive
-AccessLevel Rule on-off switch
+AccessLevel Rule on-off switches
 
 
 ```solidity
@@ -89,6 +95,13 @@ bool private accountBalanceByAccessLevelRuleActive;
 
 ```solidity
 bool private AccessLevel0RuleActive;
+```
+
+
+### withdrawalLimitByAccessLevelRuleActive
+
+```solidity
+bool private withdrawalLimitByAccessLevelRuleActive;
 ```
 
 
@@ -108,10 +121,19 @@ mapping(address => uint64) lastTxDateRiskRule;
 ```
 
 
+### usdValueTotalWithrawals
+AccessLevelWithdrawalRule data
+
+
+```solidity
+mapping(address => uint128) usdValueTotalWithrawals;
+```
+
+
 ## Functions
 ### constructor
 
-*Initializes the contract setting the owner as the one provided.*
+*Initializes the contract setting the AppManager address as the one provided and setting the ruleProcessor for protocol access*
 
 
 ```solidity
@@ -125,13 +147,13 @@ constructor(address _ruleProcessorProxyAddress, address _appManagerAddress);
 |`_appManagerAddress`|`address`|address of the application AppManager.|
 
 
-### riskOrAccessLevelRulesActive
+### requireValuations
 
-*checks if any of the AccessLevel or Risk rules are active*
+*checks if any of the balance prerequisite rules are active*
 
 
 ```solidity
-function riskOrAccessLevelRulesActive() external view returns (bool);
+function requireValuations() external view returns (bool);
 ```
 **Returns**
 
@@ -173,7 +195,7 @@ function checkApplicationRules(
 
 ### _checkRiskRules
 
-*This function consolidates all the Risk rules that utilize tagged account Risk scores.*
+*This function consolidates all the Risk rules that utilize application level Risk rules.*
 
 
 ```solidity
@@ -191,14 +213,19 @@ function _checkRiskRules(address _from, address _to, uint128 _usdBalanceTo, uint
 
 ### _checkAccessLevelRules
 
-we check for sender
-we check for recipient
+check if sender violates the rule
+check if recipient violates the rule
 
-*This function consolidates all the AccessLevel rules that utilize tagged account AccessLevel scores.*
+*This function consolidates all the application level AccessLevel rules.*
 
 
 ```solidity
-function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _amount) internal view;
+function _checkAccessLevelRules(
+    address _from,
+    address _to,
+    uint128 _usdBalanceValuation,
+    uint128 _usdAmountTransferring
+) internal;
 ```
 **Parameters**
 
@@ -206,8 +233,8 @@ function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValu
 |----|----|-----------|
 |`_from`|`address`||
 |`_to`|`address`|address of the to account|
-|`_balanceValuation`|`uint128`|address current balance in USD|
-|`_amount`|`uint128`|number of tokens transferred|
+|`_usdBalanceValuation`|`uint128`|address current balance in USD|
+|`_usdAmountTransferring`|`uint128`|number of tokens transferred|
 
 
 ### setAccountBalanceByRiskRuleId
@@ -319,13 +346,13 @@ function isAccountBalanceByAccessLevelActive() external view returns (bool);
 |`<none>`|`bool`|boolean representing if the rule is active|
 
 
-### getAccountBalanceByAccessLevelkRule
+### getAccountBalanceByAccessLevelRule
 
 *Retrieve the accountBalanceByAccessLevel rule id*
 
 
 ```solidity
-function getAccountBalanceByAccessLevelkRule() external view returns (uint32);
+function getAccountBalanceByAccessLevelRule() external view returns (uint32);
 ```
 **Returns**
 
@@ -362,6 +389,68 @@ function isAccessLevel0Active() external view returns (bool);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`bool`|boolean representing if the rule is active|
+
+
+### setWithdrawalLimitByAccessLevelRuleId
+
+that setting a rule will automatically activate it.
+
+*Set the withdrawalLimitByAccessLevelRule. Restricted to app administrators only.*
+
+
+```solidity
+function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### activateWithdrawalLimitByAccessLevelRule
+
+*enable/disable rule. Disabling a rule will save gas on transfer transactions.*
+
+
+```solidity
+function activateWithdrawalLimitByAccessLevelRule(bool _on) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if a rule must be checked or not.|
+
+
+### isWithdrawalLimitByAccessLevelActive
+
+*Tells you if the withdrawalLimitByAccessLevelRule is active or not.*
+
+
+```solidity
+function isWithdrawalLimitByAccessLevelActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active|
+
+
+### getWithdrawalLimitByAccessLevelRule
+
+*Retrieve the withdrawalLimitByAccessLevel rule id*
+
+
+```solidity
+function getWithdrawalLimitByAccessLevelRule() external view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|withdrawalLimitByAccessLevelRuleId rule id|
 
 
 ### getMaxTxSizePerPeriodByRiskRuleId

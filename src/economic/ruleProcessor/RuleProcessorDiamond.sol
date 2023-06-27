@@ -2,8 +2,8 @@
 pragma solidity 0.8.17;
 
 import {RuleProcessorDiamondLib as DiamondLib, RuleProcessorDiamondStorage, RuleDataStorage, FacetCut} from "./RuleProcessorDiamondLib.sol";
-import {ERC173Facet} from "../../diamond/implementations/ERC173/ERC173Facet.sol";
-import {ERC173Lib} from "../../diamond/implementations/ERC173/ERC173Lib.sol";
+import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
+import {ERC173Lib} from "diamond-std/implementations/ERC173/ERC173Lib.sol";
 
 /// When no function exists for function called
 error FunctionNotFound(bytes4 _functionSelector);

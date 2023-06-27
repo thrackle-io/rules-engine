@@ -5,8 +5,8 @@ import {IApplicationEvents} from "../../interfaces/IEvents.sol";
 
 /**
  * @title Fees
- * @notice This contract serves as a storage for fees
- * @dev Uses DataAppManager, which has basic ownable functionality. It will get created, and therefore owned, by the creating contract
+ * @notice This contract serves as a storage for asset transfer fees
+ * @dev This contract should not be accessed directly. All processing should go through its controlling asset(ProtocolERC20, ProtocolERC721, etc.)
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract Fees is Ownable, IApplicationEvents {
@@ -45,7 +45,7 @@ contract Fees is Ownable, IApplicationEvents {
             feeTotal += 1;
         }
         // if necessary, default the max balance
-        if (_maxBalance == 0) _maxBalance = getMaxUint();
+        if (_maxBalance == 0) _maxBalance = type(uint256).max;
         // add the fee to the mapping. If it already exists, it will replace the old one.
         feesByTag[_tag] = Fee(_minBalance, _maxBalance, _feePercentage, _targetAccount, true);
         emit FeeTypeAdded(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount, block.timestamp);
@@ -80,14 +80,5 @@ contract Fees is Ownable, IApplicationEvents {
      */
     function getFeeTotal() external view onlyOwner returns (uint256) {
         return feeTotal;
-    }
-
-    /**
-     * @dev this is a quick and dirty way of getting the max uint without using exponents or hardcoding the 78 digit number.
-     */
-    function getMaxUint() internal pure returns (uint256) {
-        unchecked {
-            return uint256(0) - 1;
-        }
     }
 }

@@ -51,10 +51,9 @@ interface IRuleStorage {
         uint32 volatilityRuleIndex;
     }
 
-    /// ******** Token Trading Volume ********
-    struct TradingVolRuleS {
-        mapping(uint32 => INonTaggedRules.TokenTradingVolumeRule) tradingVolumeRules;
-        uint32 tradingVolumeRuleIndex;
+    /// ******** Token Transfer Volume ********
+    struct TransferVolRuleS {
+        INonTaggedRules.TokenTransferVolumeRule[] transferVolumeRules;
     }
 
     /// ******** Withdrawal Rules ********
@@ -104,12 +103,20 @@ interface IRuleStorage {
     }
 
     /*****************************************
-    *************** AccessLevel Rules ****************
+    ************* AccessLevel Rules ***********
     /*****************************************/
+    /// Balance Limit by Access Level
     struct AccessLevelRuleS {
         /// ruleIndex => level => max
         mapping(uint32 => mapping(uint8 => uint48)) accessRulesPerToken;
         uint32 accessRuleIndex; /// increments every time someone adds a rule
+    }
+
+    /// Withdrawal Limit by Access Level
+    struct AccessLevelWithrawalRuleS {
+        /// ruleIndex => access level => max
+        mapping(uint32 => mapping(uint8 => uint48)) accessLevelWithdrawal;
+        uint32 accessLevelWithdrawalRuleIndex;
     }
     /*****************************************
     *************** NFT Rules ****************

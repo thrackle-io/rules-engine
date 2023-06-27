@@ -1,6 +1,5 @@
 
 
 # Contents
-- [core](/src/diamond/core)
-- [implementations](/src/diamond/implementations)
-- [initializers](/src/diamond/initializers)
+- [ProtocolNativeFacet](ProtocolNativeFacet.sol/contract.ProtocolNativeFacet.md)
+- [ProtocolRawFacet](ProtocolRawFacet.sol/contract.ProtocolRawFacet.md)

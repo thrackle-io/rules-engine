@@ -1,5 +1,5 @@
 # Fees
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/token/data/Fees.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/token/data/Fees.sol)
 
 **Inherits:**
 Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md)
@@ -7,9 +7,9 @@ Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplication
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
 
-This contract serves as a storage for fees
+This contract serves as a storage for asset transfer fees
 
-*Uses DataAppManager, which has basic ownable functionality. It will get created, and therefore owned, by the creating contract*
+*This contract should not be accessed directly. All processing should go through its controlling asset(ProtocolERC20, ProtocolERC721, etc.)*
 
 
 ## State Variables
@@ -106,15 +106,6 @@ function getFeeTotal() external view onlyOwner returns (uint256);
 |----|----|-----------|
 |`<none>`|`uint256`|feeTotal total number of fees|
 
-
-### getMaxUint
-
-*this is a quick and dirty way of getting the max uint without using exponents or hardcoding the 78 digit number.*
-
-
-```solidity
-function getMaxUint() internal pure returns (uint256);
-```
 
 ## Errors
 ### InvertedLimits

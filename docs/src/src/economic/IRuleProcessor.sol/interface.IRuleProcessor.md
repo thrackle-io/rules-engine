@@ -1,5 +1,5 @@
 # IRuleProcessor
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/economic/IRuleProcessor.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/economic/IRuleProcessor.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -410,6 +410,37 @@ function checkAccessLevel0Passes(uint8 _accessLevel) external view;
 |`_accessLevel`|`uint8`|account access level|
 
 
+### checkwithdrawalLimitsByAccessLevel
+
+that these ranges are set by ranges.
+
+*rule that checks if the withdrawal exceeds the limit size in USD for a specific access level*
+
+
+```solidity
+function checkwithdrawalLimitsByAccessLevel(
+    uint32 _ruleId,
+    uint8 _accessLevel,
+    uint128 _withdrawal,
+    uint128 _amountToTransfer
+) external view returns (uint128);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|to check against.|
+|`_accessLevel`|`uint8`|access level of the sending account|
+|`_withdrawal`|`uint128`|the amount, in USD, of previously withdrawn assets|
+|`_amountToTransfer`|`uint128`|total value of the transfer|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint128`|Sending account's new total withdrawn.|
+
+
 ### checkPauseRules
 
 *This function checks if the requested action is valid according to pause rules.*
@@ -423,5 +454,86 @@ function checkPauseRules(address _dataServer) external view;
 |Name|Type|Description|
 |----|----|-----------|
 |`_dataServer`|`address`|address of the Application Rule Processor Diamond contract|
+
+
+### checkPurchasePercentagePasses
+
+*Function receives a rule id, retrieves the rule data and checks if the Purchase Percentage Rule passes*
+
+
+```solidity
+function checkPurchasePercentagePasses(
+    uint32 ruleId,
+    uint256 currentTotalSupply,
+    uint256 amountToTransfer,
+    uint64 lastPurchaseTime,
+    uint256 totalPurchasedWithinPeriod
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|id of the rule to be checked|
+|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
+|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
+|`lastPurchaseTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`totalPurchasedWithinPeriod`|`uint256`||
+
+
+### checkSellPercentagePasses
+
+*Function receives a rule id, retrieves the rule data and checks if the Sell Percentage Rule passes*
+
+
+```solidity
+function checkSellPercentagePasses(
+    uint32 ruleId,
+    uint256 currentTotalSupply,
+    uint256 amountToTransfer,
+    uint64 lastSellTime,
+    uint256 totalSoldWithinPeriod
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|id of the rule to be checked|
+|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
+|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
+|`lastSellTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`totalSoldWithinPeriod`|`uint256`|total amount of tokens sold during period.|
+
+
+### checkTokenTransferVolumePasses
+
+*Rule checks if the token transfer volume rule will be violated.*
+
+
+```solidity
+function checkTokenTransferVolumePasses(
+    uint32 _ruleId,
+    uint256 _volume,
+    uint256 _supply,
+    uint256 _amount,
+    uint64 _lastTransferTs
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule identifier for rule arguments|
+|`_volume`|`uint256`|token's trading volume thus far|
+|`_supply`|`uint256`|Number of tokens in supply|
+|`_amount`|`uint256`|Number of tokens to be transferred from this account|
+|`_lastTransferTs`|`uint64`|the time of the last transfer|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|volumeTotal new accumulated volume|
 
 

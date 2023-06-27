@@ -12,7 +12,7 @@ import "./RuleCodeData.sol";
 /**
  * @title RuleDataFacet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev setters and getters for rules
+ * @dev setters and getters for non tagged token specific rules
  * @notice This contract sets and gets the Rules for the protocol
  */
 contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
@@ -20,9 +20,11 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
     error IndexOutOfRange();
     error PageOutOfRange();
     error PercentageValueGreaterThan9999();
+    error PercentageValueLessThan100();
     error ZeroValueNotPermited();
     error ZeroAddress();
     error BlankTag();
+    error InvalidHourOfTheDay();
 
     /**
      * Note that no update method is implemented for rules. Since reutilization of
@@ -36,14 +38,23 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
      * @dev Function to add a Token Purchase Percentage rule
      * @param _appManagerAddr Address of App Manager
      * @param _tokenPercentage Percentage of Tokens allowed to purchase
-     * @param _hoursFrozen Time period that transactions are frozen
+     * @param _purchasePeriod Time period that transactions are accumulated
+     * @param _totalSupply total supply of tokens (0 if using total supply from the token contract)
+     * @param _startingHour start time for the period
      * @return ruleId position of new rule in array
      */
-    function addPercentagePurchaseRule(address _appManagerAddr, uint16 _tokenPercentage, uint32 _hoursFrozen) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addPercentagePurchaseRule(
+        address _appManagerAddr,
+        uint16 _tokenPercentage,
+        uint32 _purchasePeriod,
+        uint256 _totalSupply,
+        uint32 _startingHour
+    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_tokenPercentage > 9999) revert PercentageValueGreaterThan9999();
-        if (_hoursFrozen == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
+        if (_purchasePeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
+        if (_startingHour > 23) revert InvalidHourOfTheDay();
         RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
-        NonTaggedRules.TokenPercentagePurchaseRule memory rule = NonTaggedRules.TokenPercentagePurchaseRule(_tokenPercentage, _hoursFrozen);
+        NonTaggedRules.TokenPercentagePurchaseRule memory rule = NonTaggedRules.TokenPercentagePurchaseRule(_tokenPercentage, _purchasePeriod, _totalSupply, _startingHour);
         uint32 ruleId = data.percentagePurchaseRuleIndex;
         data.percentagePurchaseRules[ruleId] = rule;
         bytes32[] memory empty;
@@ -77,15 +88,24 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
      * @dev Function to add a Token Sell Percentage rule
      * @param _appManagerAddr Address of App Manager
      * @param _tokenPercentage Percent of Tokens allowed to sell
-     * @param _hoursFrozen Time period that transactions are frozen
+     * @param _sellPeriod Time period that transactions are frozen
+     * @param _totalSupply total supply of tokens (0 if using total supply from the token contract)
+     * @param _startingHour start time for the period
      * @return ruleId position of new rule in array
      */
-    function addPercentageSellRule(address _appManagerAddr, uint16 _tokenPercentage, uint32 _hoursFrozen) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addPercentageSellRule(
+        address _appManagerAddr,
+        uint16 _tokenPercentage,
+        uint32 _sellPeriod,
+        uint256 _totalSupply,
+        uint32 _startingHour
+    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_tokenPercentage > 9999) revert PercentageValueGreaterThan9999();
-        if (_hoursFrozen == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
+        if (_sellPeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
+        if (_startingHour > 23) revert InvalidHourOfTheDay();
         RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
         uint32 ruleId = data.percentageSellRuleIndex;
-        NonTaggedRules.TokenPercentageSellRule memory rule = NonTaggedRules.TokenPercentageSellRule(_tokenPercentage, _hoursFrozen);
+        NonTaggedRules.TokenPercentageSellRule memory rule = NonTaggedRules.TokenPercentageSellRule(_tokenPercentage, _sellPeriod, _totalSupply, _startingHour);
         data.percentageSellRules[ruleId] = rule;
         bytes32[] memory empty;
         emit ProtocolRuleCreated(SELL_PERCENTAGE, ruleId, empty);
@@ -193,45 +213,53 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         return data.volatilityRuleIndex;
     }
 
-    /************ Token Trading Volume Getters/Setters ***********/
+    /************ Token Transfer Volume Getters/Setters ***********/
 
     /**
-     * @dev Function to add a Token Trading Volume rules
+     * @dev Function to add a Token transfer Volume rules
      * @param _appManagerAddr Address of App Manager
-     * @param _maxVolume Maximum allowed volume
+     * @param _maxVolumePercentage Maximum allowed volume percentage (this is 4 digits to allow 2 decimal places)
      * @param _hoursPerPeriod Allowed hours per period
-     * @param _hoursFrozen Time period that transactions are frozen
+     * @param _startTime Time to start the block
+     * @param _totalSupply Circulating supply value to use in calculations. If not specified, defaults to ERC20 totalSupply
      * @return ruleId position of new rule in array
      */
-    function addTradingVolumeRule(address _appManagerAddr, uint256 _maxVolume, uint8 _hoursPerPeriod, uint8 _hoursFrozen) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_maxVolume == 0 || _hoursPerPeriod == 0 || _hoursFrozen == 0) revert ZeroValueNotPermited();
-        RuleS.TradingVolRuleS storage data = Storage.volumeStorage();
-        NonTaggedRules.TokenTradingVolumeRule memory rule = NonTaggedRules.TokenTradingVolumeRule(_maxVolume, _hoursPerPeriod, _hoursFrozen);
-        uint32 ruleId = data.tradingVolumeRuleIndex;
-        data.tradingVolumeRules[ruleId] = rule;
+    function addTransferVolumeRule(
+        address _appManagerAddr,
+        uint16 _maxVolumePercentage,
+        uint8 _hoursPerPeriod,
+        uint64 _startTime,
+        uint256 _totalSupply
+    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_maxVolumePercentage == 0 || _hoursPerPeriod == 0) revert ZeroValueNotPermited();
+        if (_startTime > 23) revert InvalidHourOfTheDay();
+        if (_maxVolumePercentage > 9999) revert PercentageValueGreaterThan9999();
+        if (_maxVolumePercentage < 100) revert PercentageValueLessThan100();
+        RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
+        data.transferVolumeRules.push(NonTaggedRules.TokenTransferVolumeRule(_maxVolumePercentage, _hoursPerPeriod, _startTime, _totalSupply));
+        uint32 ruleId = uint32(data.transferVolumeRules.length) - 1;
         bytes32[] memory empty;
-        emit ProtocolRuleCreated(TRADING_VOLUME, ruleId, empty);
-        ++data.tradingVolumeRuleIndex;
+        emit ProtocolRuleCreated(TRANSFER_VOLUME, ruleId, empty);
         return ruleId;
     }
 
     /**
-     * @dev Function get Token Trading Volume Rule by index
+     * @dev Function get Token Transfer Volume Rule by index
      * @param _index position of rule in array
-     * @return TokenTradingVolumeRule rule at index position
+     * @return TokenTransferVolumeRule rule at index position
      */
-    function getTradingVolumeRule(uint32 _index) external view returns (NonTaggedRules.TokenTradingVolumeRule memory) {
-        RuleS.TradingVolRuleS storage data = Storage.volumeStorage();
-        return data.tradingVolumeRules[_index];
+    function getTransferVolumeRule(uint32 _index) external view returns (NonTaggedRules.TokenTransferVolumeRule memory) {
+        RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
+        return data.transferVolumeRules[_index];
     }
 
     /**
-     * @dev Function to get total Token Trading Volume rules
+     * @dev Function to get total Token Transfer Volume rules
      * @return Total length of array
      */
-    function getTotalTradingVolumeRules() external view returns (uint32) {
-        RuleS.TradingVolRuleS storage data = Storage.volumeStorage();
-        return data.tradingVolumeRuleIndex;
+    function getTotalTransferVolumeRules() external view returns (uint32) {
+        RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
+        return uint32(data.transferVolumeRules.length);
     }
 
     /************ Minimum Transfer Rule Getters/Setters ***********/

@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/token/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/token/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md)
@@ -23,7 +23,7 @@ address public appManagerAddress;
 ### handlerAddress
 
 ```solidity
-address public handlerAddress;
+address handlerAddress;
 ```
 
 
@@ -42,18 +42,18 @@ IAppManager appManager;
 
 
 ### MAX_SUPPLY
-Max supply can be set only once. Zero means infinite supply.
+Max supply should only be set once. Zero means infinite supply.
 
 
 ```solidity
-uint256 immutable MAX_SUPPLY;
+uint256 MAX_SUPPLY;
 ```
 
 
 ## Functions
 ### constructor
 
-*Constructor sets name and symbol for the ERC20 token at deployment.*
+*Constructor sets name and symbol for the ERC20 token and makes connections to the protocol.*
 
 
 ```solidity
@@ -78,13 +78,15 @@ constructor(
 
 ### pause
 
+Only deploy a new handler if this isn't an upgrade
+
 *pauses the contract. Only whenPaused modified functions will work once called.*
 
 *AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
 
 
 ```solidity
-function pause() public appAdministratorOnly(appManagerAddress);
+function pause() public virtual appAdministratorOnly(appManagerAddress);
 ```
 
 ### unpause
@@ -95,7 +97,7 @@ function pause() public appAdministratorOnly(appManagerAddress);
 
 
 ```solidity
-function unpause() public appAdministratorOnly(appManagerAddress);
+function unpause() public virtual appAdministratorOnly(appManagerAddress);
 ```
 
 ### _beforeTokenTransfer
@@ -135,7 +137,7 @@ Requirements:
 
 
 ```solidity
-function transfer(address to, uint256 amount) public override returns (bool);
+function transfer(address to, uint256 amount) public virtual override returns (bool);
 ```
 
 ### transferFrom
@@ -162,7 +164,7 @@ function transferFrom(address from, address to, uint256 amount) public override 
 
 
 ```solidity
-function mint(address to, uint256 amount) public;
+function mint(address to, uint256 amount) public virtual;
 ```
 **Parameters**
 
@@ -237,6 +239,21 @@ function connectHandlerToToken(address _deployedHandlerAddress) external appAdmi
 |Name|Type|Description|
 |----|----|-----------|
 |`_deployedHandlerAddress`|`address`|address of the currently deployed Handler Address|
+
+
+### getHandlerAddress
+
+*this function returns the handler address*
+
+
+```solidity
+function getHandlerAddress() external view returns (address);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|handlerAddress|
 
 
 ## Errors

@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/utils/Context.sol";
-import {ERC173} from "../../diamond/implementations/ERC173/ERC173.sol";
+import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {TaggedRuleDataFacet} from "../ruleStorage/TaggedRuleDataFacet.sol";
 import {ITaggedRules as TaggedRules} from "../ruleStorage/RuleDataInterfaces.sol";
@@ -13,7 +13,7 @@ import {ITaggedRules as TaggedRules} from "../ruleStorage/RuleDataInterfaces.sol
  * @dev Contract implements rules to be checked by Handler.
  * @notice  Implements Token Rules on Tagged Accounts.
  */
-contract ERC20TaggedRuleProcessorFacet is Context, ERC173 {
+contract ERC20TaggedRuleProcessorFacet {
     uint8 public constant VERSION = 1;
 
     error MaxBalanceExceeded();

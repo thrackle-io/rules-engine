@@ -16,7 +16,7 @@ contract ERC721StakingContractScript is Script {
     function setUp() public {}
 
     function run() public {
-        vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
+        vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER"));
         applicationTokenAddressArray = [vm.envAddress("APPLICATION_ERC721_ADDRESS_1")];
 
         uint128[7][] memory rewardsPerAddress = new uint128[7][](2);

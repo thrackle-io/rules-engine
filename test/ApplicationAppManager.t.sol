@@ -6,6 +6,7 @@ import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
+import "../src/data/PauseRule.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 
@@ -23,6 +24,8 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
     uint256 public constant TEST_DATE = 1666706998;
     address[] ADDRESSES = [address(0xFF1), address(0xFF2), address(0xFF3), address(0xFF4), address(0xFF5), address(0xFF6), address(0xFF7), address(0xFF8)];
+    uint8[] RISKSCORES = [10, 20, 30, 40, 50, 60, 70, 80];
+    uint8[] ACCESSTIERS = [1, 1, 1, 2, 2, 2, 3, 4];
     string tokenName = "FEUD";
 
     function setUp() public {
@@ -43,7 +46,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         applicationAppManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
-        applicationHandler = ApplicationHandler(applicationAppManager.getApplicationHandlerAddress());
+        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
         /// add Risk Admin
         applicationAppManager.addRiskAdmin(riskAdmin);
 
@@ -88,6 +91,12 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         assertEq(applicationAppManager2.isAppAdministrator(address(99)), false);
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
+    }
+
+    function testAddMultipleAppAdministrators() public {
+        applicationAppManager.addMultipleAppAdministrator(ADDRESSES);
+        assertEq(applicationAppManager.isAppAdministrator(address(0xFF1)), true);
+        assertEq(applicationAppManager.isAppAdministrator(user), false);
     }
 
     /// Test non default admin attempt to add app administrator
@@ -139,6 +148,19 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         applicationAppManager.addRiskAdmin(riskAdmin); //add risk admin
         assertEq(applicationAppManager.isRiskAdmin(riskAdmin), true);
+        assertEq(applicationAppManager.isRiskAdmin(address(88)), false);
+    }
+
+    // Test adding the Risk Admin roles
+    function testAddMultipleRiskAdmin() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+
+        applicationAppManager.addMultipleRiskAdmin(ADDRESSES); //add risk admins
+        /// check only addresses in array are risk admins
+        for (uint256 i; i < ADDRESSES.length; ++i) {
+            assertEq(applicationAppManager.isRiskAdmin(ADDRESSES[i]), true);
+        }
+        assertEq(applicationAppManager.isRiskAdmin(address(0xFF9)), false);
         assertEq(applicationAppManager.isRiskAdmin(address(88)), false);
     }
 
@@ -199,6 +221,17 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationAppManager.addAccessTier(AccessTier); //add AccessLevel admin
         assertEq(applicationAppManager.isAccessTier(AccessTier), true);
         assertEq(applicationAppManager.isAccessTier(address(88)), false);
+    }
+
+    function testAddMultipleAccessTier() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        applicationAppManager.addMultipleAccessTier(ADDRESSES); //add AccessLevel admin address array
+        /// check addresses in array are added as access tier admins
+        for (uint256 i; i < ADDRESSES.length; ++i) {
+            assertEq(applicationAppManager.isAccessTier(ADDRESSES[i]), true);
+        }
+        /// address not in array should = false
+        assertEq(applicationAppManager.isAccessTier(address(0xFF77)), false);
     }
 
     // Test non app administrator attempt to add the Access Tier roles
@@ -312,6 +345,48 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         assertEq(retLevel, 4);
     }
 
+    function testAddAccessLevelToMultipleAccounts() public {
+        switchToAccessTier(); // create a access tier and make it the sender.
+
+        applicationAppManager.addAccessLevelToMultipleAccounts(ADDRESSES, 4);
+        /// check addresses in array are correct access tier level
+        for (uint256 i; i < ADDRESSES.length; ++i) {
+            assertEq(applicationAppManager.getAccessLevel(ADDRESSES[i]), 4);
+        }
+        assertEq(applicationAppManager.getAccessLevel(address(0xFF9)), 0);
+        assertEq(applicationAppManager.getAccessLevel(address(user)), 0);
+    }
+
+    function testAddMultipleAccessLevels() public {
+        switchToAccessTier(); // create a access tier and make it the sender.
+
+        applicationAppManager.addMultipleAccessLevels(ADDRESSES, ACCESSTIERS);
+        /// ACCESSTIERS ARRAY [1, 1, 1, 2, 2, 2, 3, 4]
+        /// check addresses in array are correct access tier level
+        for (uint256 i; i < ADDRESSES.length; ++i) {
+            assertEq(applicationAppManager.getAccessLevel(ADDRESSES[i]), ACCESSTIERS[i]);
+        }
+
+        assertEq(applicationAppManager.getAccessLevel(address(0xFF9)), 0);
+        assertEq(applicationAppManager.getAccessLevel(address(user)), 0);
+
+        /// create mismatch tag array
+        uint8[] memory misMatchArray = new uint8[](2);
+        misMatchArray[0] = uint8(3);
+        misMatchArray[1] = uint8(77);
+
+        /// create mistmatch address array
+        address[] memory misMatchAddressArray = new address[](3);
+        misMatchAddressArray[0] = address(user);
+        misMatchAddressArray[1] = address(0xFF77);
+        misMatchAddressArray[2] = address(0xFF88);
+
+        vm.expectRevert(0x028a6c58);
+        applicationAppManager.addMultipleAccessLevels(misMatchAddressArray, RISKSCORES);
+        vm.expectRevert(0x028a6c58);
+        applicationAppManager.addMultipleAccessLevels(ADDRESSES, misMatchArray);
+    }
+
     function testFailAddAccessLevel() public {
         switchToUser(); // create a user and make it the sender.
         applicationAppManager.addAccessLevel(user, 4);
@@ -337,6 +412,41 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         switchToRiskAdmin(); // create a risk admin and make it the sender.
         applicationAppManager.addRiskScore(user, 75);
         assertEq(75, applicationAppManager.getRiskScore(user));
+    }
+
+    function testAddRiskScoreToMultipleAccounts() public {
+        switchToRiskAdmin(); // create a risk admin and make it the sender.
+
+        applicationAppManager.addRiskScoreToMultipleAccounts(ADDRESSES, 75);
+        /// check addresses in array are correct risk score
+        for (uint256 i; i < ADDRESSES.length; ++i) {
+            assertEq(applicationAppManager.getRiskScore(ADDRESSES[i]), 75);
+        }
+    }
+
+    function testAddMultipleRiskScores() public {
+        switchToRiskAdmin(); // create a risk admin and make it the sender.
+
+        applicationAppManager.addMultipleRiskScores(ADDRESSES, RISKSCORES);
+        /// check addresses in array are correct risk score
+        for (uint256 i; i < ADDRESSES.length; ++i) {
+            assertEq(applicationAppManager.getRiskScore(ADDRESSES[i]), RISKSCORES[i]);
+        }
+
+        /// create mismatch tag array
+        uint8[] memory misMatchArray = new uint8[](2);
+        misMatchArray[0] = uint8(3);
+        misMatchArray[1] = uint8(77);
+
+        /// create mistmatch address array
+        address[] memory misMatchAddressArray = new address[](3);
+        misMatchAddressArray[0] = address(user);
+        misMatchAddressArray[1] = address(0xFF77);
+        misMatchAddressArray[2] = address(0xFF88);
+        vm.expectRevert(0x028a6c58);
+        applicationAppManager.addMultipleRiskScores(misMatchAddressArray, RISKSCORES);
+        vm.expectRevert(0x028a6c58);
+        applicationAppManager.addMultipleRiskScores(ADDRESSES, misMatchArray);
     }
 
     function testGetRiskScore() public {
@@ -465,6 +575,57 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         switchToAppAdministrator(); // create a app administrator and make it the sender.
         applicationAppManager.addGeneralTag(user, "TAG1"); //add tag
         assertTrue(applicationAppManager.hasTag(user, "TAG1"));
+
+        applicationAppManager.addGeneralTag(user, "TAG1"); //add tag again to test event emission for TagAlreadyApplied event
+    }
+
+    // Test adding the general tag to multiple accounts
+    function testAddGeneralTagToMultipleAccounts() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+
+        applicationAppManager.addGeneralTagToMultipleAccounts(ADDRESSES, "TAG1"); //add tag
+        assertTrue(applicationAppManager.hasTag(address(0xFF1), "TAG1"));
+
+        applicationAppManager.addGeneralTag(address(0xFF1), "TAG1"); //add tag again to test event emission for TagAlreadyApplied event
+    }
+
+    // Test adding multiple general tags to multiple accounts
+    function testAddMultipleGeneralTagsToMultipleAccouns() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+
+        /// Create Tag Array
+        bytes32[] memory genTags = new bytes32[](8);
+        genTags[0] = bytes32("TAG");
+        genTags[1] = bytes32("TAG1");
+        genTags[2] = bytes32("TAG2");
+        genTags[3] = bytes32("TAG3");
+        genTags[4] = bytes32("TAG4");
+        genTags[5] = bytes32("TAG5");
+        genTags[6] = bytes32("TAG6");
+        genTags[7] = bytes32("TAG7");
+        /// create mismatch tag array
+        bytes32[] memory misMatchArray = new bytes32[](2);
+        misMatchArray[0] = bytes32("TAG");
+        misMatchArray[1] = bytes32("TAG1");
+
+        /// create mistmatch address array
+        address[] memory misMatchAddressArray = new address[](3);
+        misMatchAddressArray[0] = address(user);
+        misMatchAddressArray[1] = address(0xFF77);
+        misMatchAddressArray[2] = address(0xFF88);
+
+        applicationAppManager.addMultipleGeneralTagToMultipleAccounts(ADDRESSES, genTags); //add tags
+        assertTrue(applicationAppManager.hasTag(address(0xFF1), "TAG"));
+        assertTrue(applicationAppManager.hasTag(address(0xFF2), "TAG1"));
+        assertTrue(applicationAppManager.hasTag(address(0xFF8), "TAG7"));
+
+        vm.expectRevert(0x028a6c58);
+        applicationAppManager.addMultipleGeneralTagToMultipleAccounts(misMatchAddressArray, genTags);
+
+        vm.expectRevert(0x028a6c58);
+        applicationAppManager.addMultipleGeneralTagToMultipleAccounts(ADDRESSES, misMatchArray);
+
+        applicationAppManager.addGeneralTag(address(0xFF1), "TAG1"); //add tag again to test event emission for TagAlreadyApplied event
     }
 
     // Test when tag is invalid

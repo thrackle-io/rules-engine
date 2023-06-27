@@ -15,7 +15,7 @@ contract ERC20AutoMintStakingDeployScript is Script {
     function setUp() public {}
 
     function run() public {
-        vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
+        vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER"));
         new ERC20AutoMintStaking(vm.envAddress("APPLICATION_ERC20_ADDRESS_2"), vm.envAddress("APPLICATION_ERC20_ADDRESS"), vm.envAddress("APPLICATION_APP_MANAGER"));
         vm.stopBroadcast();
     }

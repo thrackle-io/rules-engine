@@ -1,8 +1,8 @@
 # ApplicationPauseProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol)
 
 **Inherits:**
-[ERC173](/src/diamond/implementations/ERC173/ERC173.sol/abstract.ERC173.md)
+ERC173
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett

@@ -14,7 +14,7 @@ contract OracleRestrictedScript is Script {
     function setUp() public {}
 
     function run() public {
-        vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
+        vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER"));
         new OracleRestricted();
         vm.stopBroadcast();
     }

@@ -12,8 +12,30 @@ is an overview of this deployment process:
 
 ![Protocol deployment sequence diagram](../images/ProtocolDeployment.png)
 
-1. Ensure the [environment variable][environment-url] is set correctly.
-2. Open a terminal, navigate to the cloned repo directory and run the build script
+1. Open a new terminal
+2. Set the RPC URL
+   1. Choose the RPC URL that corresponds with the desired environment.
+   2. Export it to zsh
+        ````
+        export ETH_RPC_URL=http://localhost:8545
+        ````
+3. Set the Protocol Owner Address
+   1. This is the account that will "own" all the protocol contracts and have full permissions to upgrade.
+   2. Export it to zsh
+        ````
+        export LOCAL_DEPLOYMENT_OWNER=desired address
+        ````
+4. Set the Protocol Owner Private Key
+   1. This is the private key for the account that will "own" all the protocol contracts. This should correspond to the Application Admin Address set in Step 2. NOTE: This account needs to have sufficient funds to cover deployment costs.
+   2. Export it to zsh
+        ````
+        export LOCAL_DEPLOYMENT_OWNER_KEY=desired private key
+        ```` 
+5. In the same terminal as above, ensure that the Foundry installation is current
+   ````
+   foundryUp
+   ````
+6. In the same terminal as above, navigate to the cloned repo directory and run the build script
 ````
     forge script script/DeployAllModules.s.sol --ffi --broadcast --verify --rpc-url $ETH_RPC_URL
 ````

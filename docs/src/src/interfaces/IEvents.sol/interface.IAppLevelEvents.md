@@ -1,5 +1,5 @@
 # IAppLevelEvents
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/interfaces/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/interfaces/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -22,12 +22,6 @@ event RoleCheck(string contractName, string functionName, address checkedAddress
 
 ```solidity
 event AppManagerDeployed(address indexed deployedAddress);
-```
-
-### ApplicationHandlerDeployed
-
-```solidity
-event ApplicationHandlerDeployed(address indexed deployedAddress);
 ```
 
 ### AppManagerDeployedForUpgrade
@@ -112,6 +106,12 @@ event GeneralTagAdded(address indexed _address, bytes32 indexed _tag, uint256 da
 event GeneralTagRemoved(address indexed _address, bytes32 indexed _tag, uint256 date);
 ```
 
+### TagAlreadyApplied
+
+```solidity
+event TagAlreadyApplied(address indexed _address);
+```
+
 ### AccessLevelAdded
 AccessLevels
 
@@ -131,13 +131,13 @@ PauseRules
 
 
 ```solidity
-event PauseRuleAdded(uint256 pauseStart, uint256 pauseStop);
+event PauseRuleAdded(uint256 indexed pauseStart, uint256 indexed pauseStop);
 ```
 
 ### PauseRuleRemoved
 
 ```solidity
-event PauseRuleRemoved(uint256 pauseStart, uint256 pauseStop);
+event PauseRuleRemoved(uint256 indexed pauseStart, uint256 indexed pauseStop);
 ```
 
 ### RiskScoreAdded

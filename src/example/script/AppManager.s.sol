@@ -17,8 +17,8 @@ contract AppManagerScript is Script {
      * @dev This function runs the script
      */
     function run() public {
-        vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
-        new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", vm.envAddress("TOKEN_RULE_ROUTER_PROXY_CONTRACT"), false);
+        vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
+        new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", vm.envAddress("RULE_PROCESSOR_DIAMOND"), false);
         vm.stopBroadcast();
     }
 }

@@ -11,9 +11,6 @@ import "../data/IPauseRules.sol";
  * @notice Interface for app manager server functions.
  */
 interface IAppManager {
-    /// Events
-    event RoleCheck(string contractName, string functionName, address checkedAddress, bytes32 checkedRole);
-
     /**
      * @dev This function is where the default admin role is actually checked
      * @param account address to be checked
@@ -89,12 +86,6 @@ interface IAppManager {
      * @return accessLevelProvider Address of the access levelprovider
      */
     function getAccessLevelProvider() external view returns (address);
-
-    /**
-     * @dev Get the address of the registry contract
-     * @return contractRegistryAddress Address of the registry contract
-     */
-    function getContractRegistryAddress() external view returns (address);
 
     /**
      * @dev This function allows the devs to register their token contract addresses. This keeps everything in sync and will aid with the token factory
@@ -176,9 +167,8 @@ interface IAppManager {
     function checkApplicationRules(RuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external;
 
     /**
-     * @dev checks if any of the AccessLevel or Risk rules are active in order to decide to perform or not
-     * the USD valuation of assets
+     * @dev checks if any of the balance prerequisite rules are active
      * @return true if one or more rules are active
      */
-    function areAccessLevelOrRiskRulesActive() external returns (bool);
+    function requireValuations() external returns (bool);
 }

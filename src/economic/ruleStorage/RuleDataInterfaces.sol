@@ -17,13 +17,17 @@ interface INonTaggedRules {
     /// ******** Token Purchase Percentage Rules ********
     struct TokenPercentagePurchaseRule {
         uint16 tokenPercentage; /// from 0000 to 10000 => 0.00% to 100.00%.
-        uint32 hoursFrozen;
+        uint32 purchasePeriod;
+        uint256 totalSupply; /// set 0 to use erc20 totalSupply
+        uint64 startTime; /// start of time period for the rule
     }
 
     /// ******** Token Percentage Sell Rules ********
     struct TokenPercentageSellRule {
         uint16 tokenPercentage; /// from 0000 to 10000 => 0.00% to 100.00%.
-        uint32 hoursFrozen;
+        uint32 sellPeriod;
+        uint256 totalSupply; /// set 0 to use erc20 totalSupply
+        uint64 startTime; ///start of time period for the rule
     }
 
     /// ******** Token Purchase Fee By Volume Rules ********
@@ -45,7 +49,13 @@ interface INonTaggedRules {
         uint8 hoursPerPeriod;
         uint8 hoursFrozen;
     }
-
+    /// ******** Token Transfer Volume ********
+    struct TokenTransferVolumeRule {
+        uint16 maxVolume; // this is a percentage with 2 decimals of precision(2500 = 25%)
+        uint8 period; // hours
+        uint64 startingTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
+        uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
+    }
     /// ******** Supply Volatility ********
     struct SupplyVolatilityRule {
         uint16 maxChange; /// from 0000 to 10000 => 0.00% to 100.00%.
@@ -75,7 +85,7 @@ interface ITaggedRules {
     /// ******** Account Sell Rules ********
     struct SellRule {
         uint256 sellAmount; /// token units
-        uint32 sellPeriod; /// check back on this
+        uint32 sellPeriod; /// hours
         uint64 startTime; /// Time the rule is created
     }
     /// ******** Account Withdrawal Rules ********

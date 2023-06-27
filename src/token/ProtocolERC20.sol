@@ -19,19 +19,19 @@ import {IApplicationEvents} from "../interfaces/IEvents.sol";
  */
 contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, AppAdministratorOnly, IApplicationEvents {
     address public appManagerAddress;
-    address public handlerAddress;
-    // address of the Handler lite interface
+    address handlerAddress;
+    // address of the Handler
     ProtocolERC20Handler handler;
     IAppManager appManager;
 
-    /// Max supply can be set only once. Zero means infinite supply.
-    uint256 immutable MAX_SUPPLY;
+    /// Max supply should only be set once. Zero means infinite supply.
+    uint256 MAX_SUPPLY;
     error ExceedingMaxSupply();
     error CallerNotAuthorizedToMint();
     error ZeroAddress();
 
     /**
-     * @dev Constructor sets name and symbol for the ERC20 token at deployment.
+     * @dev Constructor sets name and symbol for the ERC20 token and makes connections to the protocol.
      * @param _name name of token
      * @param _symbol abreviated name for token (i.e. THRK)
      * @param _appManagerAddress address of app manager contract
@@ -42,8 +42,8 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     constructor(string memory _name, string memory _symbol, address _appManagerAddress, address _ruleProcessor, bool _upgradeMode) ERC20(_name, _symbol) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
-        MAX_SUPPLY = 0;
 
+        /// Only deploy a new handler if this isn't an upgrade
         if (!_upgradeMode) {
             deployHandler(_ruleProcessor, _appManagerAddress, _upgradeMode);
         }
@@ -55,7 +55,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * @dev pauses the contract. Only whenPaused modified functions will work once called.
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      */
-    function pause() public appAdministratorOnly(appManagerAddress) {
+    function pause() public virtual appAdministratorOnly(appManagerAddress) {
         _pause();
     }
 
@@ -63,7 +63,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * @dev Unpause the contract. Only whenNotPaused modified functions will work once called. default state of contract is unpaused.
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      */
-    function unpause() public appAdministratorOnly(appManagerAddress) {
+    function unpause() public virtual appAdministratorOnly(appManagerAddress) {
         _unpause();
     }
 
@@ -94,7 +94,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * - `to` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address to, uint256 amount) public override returns (bool) {
+    function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address owner = _msgSender();
         // if transfer fees/discounts are defined then process them first
         if (handler.isFeeActive()) {
@@ -171,7 +171,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * @param to recipient address
      * @param amount number of tokens to mint
      */
-    function mint(address to, uint256 amount) public {
+    function mint(address to, uint256 amount) public virtual {
         ///check that the address calling mint is authorized(appAdminstrator, AMM or Staking Contract)
         if (!appManager.isAppAdministrator(msg.sender) && !appManager.isRegisteredStaking(msg.sender) && !appManager.isRegisteredAMM(msg.sender)) {
             revert CallerNotAuthorizedToMint();
@@ -217,7 +217,16 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
+        handlerAddress = _deployedHandlerAddress;
         handler = ProtocolERC20Handler(_deployedHandlerAddress);
         emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
+    }
+
+    /**
+     * @dev this function returns the handler address
+     * @return handlerAddress
+     */
+    function getHandlerAddress() external view returns (address) {
+        return handlerAddress;
     }
 }

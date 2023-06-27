@@ -2,6 +2,7 @@
 
 # Contents
 - [application](/src/example/application)
+- [liquidity](/src/example/liquidity)
 - [pricing](/src/example/pricing)
 - [script](/src/example/script)
 - [staking](/src/example/staking)
@@ -11,5 +12,7 @@
 - [ApplicationERC721](ApplicationERC721.sol/contract.ApplicationERC721.md)
 - [ApplicationERC721A](ApplicationERC721A.sol/contract.ApplicationERC721A.md)
 - [ApplicationERC721Handler](ApplicationERC721Handler.sol/contract.ApplicationERC721Handler.md)
+- [ApplicationERC721U](ApplicationERC721U.sol/contract.ApplicationERC721U.md)
+- [ApplicationERC721UProxy](ApplicationERC721UProxy.sol/contract.ApplicationERC721UProxy.md)
 - [OracleAllowed](OracleAllowed.sol/contract.OracleAllowed.md)
 - [OracleRestricted](OracleRestricted.sol/contract.OracleRestricted.md)

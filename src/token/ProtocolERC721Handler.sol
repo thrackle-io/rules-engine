@@ -11,21 +11,20 @@ pragma solidity 0.8.17;
  * @notice This contract is the interaction point for the application ecosystem to the protocol
  */
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
+import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
+import "openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import "../economic/IRuleProcessor.sol";
 import "../application/IAppManager.sol";
-import "../economic/AppAdministratorOnly.sol";
+import "../economic/AppAdministratorOrOwnerOnly.sol";
 import "../pricing/IProtocolERC721Pricing.sol";
 import "../pricing/IProtocolERC20Pricing.sol";
-import "../application/TokenStorage.sol";
 import "./data/Fees.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
-import "openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
-contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministratorOnly {
+contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministratorOrOwnerOnly {
     /**
      * Functions added so far:
      * minAccountBalance
@@ -44,6 +43,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     uint32 private tradeCounterRuleId;
     uint32 private transactionLimitByRiskRuleId;
     uint32 private adminWithdrawalRuleId;
+    uint32 private tokenTransferVolumeRuleId;
     /// on-off switches for rules
     bool private oracleRuleActive;
     bool private minMaxBalanceRuleActive;
@@ -51,6 +51,11 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     bool private transactionLimitByRiskRuleActive;
     bool private minBalByDateRuleActive;
     bool private adminWithdrawalActive;
+    bool private tokenTransferVolumeRuleActive;
+
+    /// token level accumulators
+    uint256 private transferVolume;
+    uint64 private lastTransferTs;
     /// Data contracts
     Fees fees;
     bool feeActive;
@@ -107,7 +112,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         if (!isFromAdmin && !isToAdmin) {
             uint128 balanceValuation;
             uint128 transferValuation;
-            if (appManager.areAccessLevelOrRiskRulesActive()) {
+            if (appManager.requireValuations()) {
                 balanceValuation = uint128(getAccTotalValuation(_to));
                 transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, tokenId));
             }
@@ -135,17 +140,20 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         _balanceFrom;
         _balanceTo;
         _from;
-        _amount;
         if (tradeCounterRuleActive) {
             // get all the tags for this NFT
             bytes32[] memory tags = appManager.getAllTags(erc721Address);
             tradesInPeriod[tokenId] = ruleProcessor.checkNFTTransferCounter(tradeCounterRuleId, tradesInPeriod[tokenId], tags, lastTxDate[tokenId]);
             lastTxDate[tokenId] = uint64(block.timestamp);
         }
+        if (tokenTransferVolumeRuleActive) {
+            transferVolume = ruleProcessor.checkTokenTransferVolumePasses(tokenTransferVolumeRuleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
+            lastTransferTs = uint64(block.timestamp);
+        }
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the actual Individual rule check.
+     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
@@ -163,6 +171,14 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         }
     }
 
+    /**
+     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged non-risk rule checks.
+     * @param _from address of the from account
+     * @param _to address of the to account
+     * @param _balanceFrom token balance of sender address
+     * @param _balanceTo token balance of recipient address
+     * @param _amount number of tokens transferred
+     */
     function _checkTaggedIndividualRules(address _from, address _to, uint256 _balanceFrom, uint256 _balanceTo, uint256 _amount) internal view {
         if (minMaxBalanceRuleActive || minBalByDateRuleActive) {
             // We get all tags for sender and recipient
@@ -173,15 +189,23 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         }
     }
 
-    function _checkRiskRules(address _from, address _to, uint256 currentAssetValuation, uint256 _amount, uint256 thisNFTValuation) internal view {
-        currentAssetValuation;
+    /**
+     * @dev This function uses the protocol's ruleProcessor to perform the risk rule checks.(Ones that require risk score values)
+     * @param _from address of the from account
+     * @param _to address of the to account
+     * @param _currentAssetValuation current total valuation of all assets
+     * @param _amount number of tokens transferred
+     * @param _thisNFTValuation valuation of NFT in question
+     */
+    function _checkRiskRules(address _from, address _to, uint256 _currentAssetValuation, uint256 _amount, uint256 _thisNFTValuation) internal view {
+        _currentAssetValuation;
         _amount;
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
 
         if (transactionLimitByRiskRuleActive) {
-            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, thisNFTValuation);
-            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, thisNFTValuation);
+            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _thisNFTValuation);
+            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _thisNFTValuation);
         }
     }
 
@@ -194,7 +218,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @param _feePercentage fee percentage to assess
      * @param _targetAccount target for the fee proceeds
      */
-    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external appAdministratorOnly(appManagerAddress) {
+    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external appAdministratorOrOwnerOnly(appManagerAddress) {
         fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
         feeActive = true;
     }
@@ -203,7 +227,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev This function adds a fee to the token
      * @param _tag meta data tag for fee
      */
-    function removeFee(bytes32 _tag) external appAdministratorOnly(appManagerAddress) {
+    function removeFee(bytes32 _tag) external appAdministratorOrOwnerOnly(appManagerAddress) {
         fees.removeFee(_tag);
     }
 
@@ -228,7 +252,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev Turn fees on/off
      * @param on_off value for fee status
      */
-    function setFeeActivation(bool on_off) external appAdministratorOnly(appManagerAddress) {
+    function setFeeActivation(bool on_off) external appAdministratorOrOwnerOnly(appManagerAddress) {
         feeActive = on_off;
     }
 
@@ -305,7 +329,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev sets the address of the nft pricing contract and loads the contract.
      * @param _address Nft Pricing Contract address.
      */
-    function setNFTPricingAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+    function setNFTPricingAddress(address _address) external appAdministratorOrOwnerOnly(appManagerAddress) {
         nftPricingAddress = _address;
         nftPricer = IProtocolERC721Pricing(_address);
     }
@@ -314,7 +338,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev sets the address of the erc20 pricing contract and loads the contract.
      * @param _address ERC20 Pricing Contract address.
      */
-    function setERC20PricingAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+    function setERC20PricingAddress(address _address) external appAdministratorOrOwnerOnly(appManagerAddress) {
         erc20PricingAddress = _address;
         erc20Pricer = IProtocolERC20Pricing(_address);
     }
@@ -376,7 +400,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     function _getNFTValuePerCollection(address _tokenAddress, address _account, uint256 _tokenAmount) private view returns (uint256 totalValueInThisContract) {
         if (nftPricingAddress != address(0)) {
             for (uint i; i < _tokenAmount; ) {
-                totalValueInThisContract += nftPricer.getNFTPrice(_tokenAddress, ERC721Enumerable(_tokenAddress).tokenOfOwnerByIndex(_account, i));
+                totalValueInThisContract += nftPricer.getNFTPrice(_tokenAddress, IERC721Enumerable(_tokenAddress).tokenOfOwnerByIndex(_account, i));
                 unchecked {
                     ++i;
                 }
@@ -391,7 +415,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setMinMaxBalanceRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setMinMaxBalanceRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
         minMaxBalanceRuleId = _ruleId;
         minMaxBalanceRuleActive = true;
         emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, address(this), _ruleId);
@@ -401,7 +425,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateMinMaxBalanceRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateMinMaxBalanceRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress) {
         minMaxBalanceRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT, address(this));
@@ -431,7 +455,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setOracleRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setOracleRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
         oracleRuleId = _ruleId;
         oracleRuleActive = true;
         emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
@@ -441,7 +465,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateOracleRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateOracleRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress) {
         oracleRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(ORACLE, address(this));
@@ -471,7 +495,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setTradeCounterRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setTradeCounterRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
         tradeCounterRuleId = _ruleId;
         tradeCounterRuleActive = true;
         emit ApplicationHandlerApplied(NFT_TRANSFER, address(this), _ruleId);
@@ -481,7 +505,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateTradeCounterRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateTradeCounterRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress) {
         tradeCounterRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(NFT_TRANSFER, address(this));
@@ -510,7 +534,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev Set the parent ERC721 address
      * @param _address address of the ERC721
      */
-    function setERC721Address(address _address) external appAdministratorOnly(appManagerAddress) {
+    function setERC721Address(address _address) external appAdministratorOrOwnerOnly(appManagerAddress) {
         erc721Address = _address;
     }
 
@@ -523,11 +547,11 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     }
 
     /**
-     * @dev Set the accountBalanceByRiskRule. Restricted to app administrators only.
+     * @dev Set the TransactionLimitByRiskRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setTransactionLimitByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setTransactionLimitByRiskRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
         transactionLimitByRiskRuleId = _ruleId;
         transactionLimitByRiskRuleActive = true;
         emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, address(this), _ruleId);
@@ -537,7 +561,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateTransactionLimitByRiskRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateTransactionLimitByRiskRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress) {
         transactionLimitByRiskRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(TX_SIZE_BY_RISK, address(this));
@@ -567,7 +591,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setMinBalByDateRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setMinBalByDateRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
         minBalByDateRuleId = _ruleId;
         minBalByDateRuleActive = true;
         emit ApplicationHandlerApplied(MIN_BALANCE_BY_DATE, address(this), _ruleId);
@@ -577,7 +601,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev Tells you if the min bal by date rule is active or not.
      * @param _on boolean representing if the rule is active
      */
-    function activateMinBalByDateRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateMinBalByDateRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress) {
         minBalByDateRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(MIN_BALANCE_BY_DATE, address(this));
@@ -595,11 +619,11 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     }
 
     /**
-     * @dev Set the accountBalanceByRiskRule. Restricted to app administrators only.
+     * @dev Set the AdminWithdrawalRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
         if (adminWithdrawalActive) {
             ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
@@ -614,7 +638,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAdminWithdrawalRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateAdminWithdrawalRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired
         if (!_on) {
             ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
@@ -643,6 +667,38 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         return adminWithdrawalRuleId;
     }
 
+    /**
+     * @dev Retrieve the token transfer volume rule id
+     * @return tokenTransferVolumeRuleId rule id
+     */
+    function getTokenTransferVolumeRule() external view returns (uint32) {
+        return tokenTransferVolumeRuleId;
+    }
+
+    /**
+     * @dev Set the tokenTransferVolumeRuleId. Restricted to game admins only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setTokenTransferVolumeRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        tokenTransferVolumeRuleId = _ruleId;
+        tokenTransferVolumeRuleActive = true;
+        emit ApplicationHandlerApplied(TRANSFER_VOLUME, address(this), _ruleId);
+    }
+
+    /**
+     * @dev Tells you if the token transfer volume rule is active or not.
+     * @param _on boolean representing if the rule is active
+     */
+    function activateTokenTransferVolumeRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        tokenTransferVolumeRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(TRANSFER_VOLUME, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(TRANSFER_VOLUME, address(this));
+        }
+    }
+
     /// -------------DATA CONTRACT DEPLOYMENT---------------
     /**
      * @dev Deploy all the child data contracts. Only called internally from the constructor.
@@ -664,15 +720,17 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * longer be accessible from the original CoinHandler
      * @param _newOwner address of the new CoinHandler
      */
-    function migrateDataContracts(address _newOwner) external appAdministratorOnly(appManagerAddress) {
+    function migrateDataContracts(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress) {
         fees.transferOwnership(_newOwner);
+        /// Also transfer ownership of this contract to the new asset
+        transferPermissionOwnership(_newOwner, appManagerAddress);
     }
 
     /**
      * @dev This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.
      * @param _oldHandlerAddress address of the old CoinHandler
      */
-    function connectDataContracts(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress) {
+    function connectDataContracts(address _oldHandlerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
         ProtocolERC721Handler oldHandler = ProtocolERC721Handler(_oldHandlerAddress);
         fees = Fees(oldHandler.getFeesDataAddress());
     }
@@ -680,4 +738,6 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
 
 interface IToken {
     function balanceOf(address owner) external view returns (uint256 balance);
+
+    function totalSupply() external view returns (uint256);
 }

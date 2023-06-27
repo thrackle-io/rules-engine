@@ -15,19 +15,6 @@ contract ERC721RuleProcessorFacet {
     error MaxNFTTransferReached();
     error RuleDoesNotExist();
 
-    //TODO: Min/Max account balance rule for NFT (META - no tag/ use tokenId)
-
-    /**
-     * @dev Check if transaction passes minAccountBalanceERC721 rule
-     * @param balanceFrom Number of tokens held by sender address
-     * @param tokenId Token ID being transferred
-     * @param amount Number of tokens being transferred
-     * @param ruleId Rule identifier for rule arguments
-     */
-    function minAccountBalanceERC721(uint256 balanceFrom, bytes32[] calldata tokenId, uint256 amount, uint32 ruleId) external view {
-        //update if there are  rules that apply to ERC721/ERC721A
-    }
-
     /**
      * @dev This function receives a rule id, which it uses to get the NFT Trade Counter rule to check if the transfer is valid.
      * @param ruleId Rule identifier for rule arguments

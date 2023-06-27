@@ -1,5 +1,5 @@
 # IProtocolERC721Pricing
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/pricing/IProtocolERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/pricing/IProtocolERC721Pricing.sol)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -12,7 +12,7 @@ This contract is a simple pricing mechanism only. Its main purpose is to store p
 ## Functions
 ### getNFTPrice
 
-*gets the price fot an NFT. It will return the NFT's specific price, or the
+*gets the price for an NFT. It will return the NFT's specific price, or the
 price of the collection if no specific price hsa been given*
 
 

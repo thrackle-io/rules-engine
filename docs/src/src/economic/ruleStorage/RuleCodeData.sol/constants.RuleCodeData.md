@@ -1,5 +1,5 @@
 # Constants
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/economic/ruleStorage/RuleCodeData.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/economic/ruleStorage/RuleCodeData.sol)
 
 ### AMM_FEE
 
@@ -109,10 +109,10 @@ bytes32 constant PURCHASE_FEE_BY_VOLUME = "PURCHASE_FEE_BY_VOLUME";
 bytes32 constant TOKEN_VOLATILITY = "TOKEN_VOLATILITY";
 ```
 
-### TRADING_VOLUME
+### TRANSFER_VOLUME
 
 ```solidity
-bytes32 constant TRADING_VOLUME = "TRADING_VOLUME";
+bytes32 constant TRANSFER_VOLUME = "TRANSFER_VOLUME";
 ```
 
 ### MIN_TRANSFER
@@ -137,5 +137,11 @@ bytes32 constant ORACLE = "ORACLE";
 
 ```solidity
 bytes32 constant NFT_TRANSFER = "NFT_TRANSFER";
+```
+
+### ACCESS_LEVEL_WITHDRAWAL
+
+```solidity
+bytes32 constant ACCESS_LEVEL_WITHDRAWAL = "ACCESS_LEVEL_WITHDRAWAL";
 ```
 

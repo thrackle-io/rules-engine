@@ -3,12 +3,12 @@ pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
 import "./helpers/GenerateSelectors.sol";
-import "../src/diamond/core/DiamondCut/FacetCut.sol";
-import {IDiamondInit} from "../src/diamond/initializers/IDiamondInit.sol";
-import {DiamondInit} from "../src/diamond/initializers/DiamondInit.sol";
+import "diamond-std/core/DiamondCut/FacetCut.sol";
+import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
+import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {RuleStorageDiamond, RuleStorageDiamondArgs} from "../src/economic/ruleStorage/RuleStorageDiamond.sol";
 import {RuleDataFacet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
-import {IDiamondCut} from "../src/diamond/core/DiamondCut/IDiamondCut.sol";
+import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 
 contract RuleStorageDiamondTestUtil is GenerateSelectors {
     // Store the FacetCut struct for each facet that is being deployed.
@@ -21,13 +21,11 @@ contract RuleStorageDiamondTestUtil is GenerateSelectors {
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[8] memory facets = [
+        string[6] memory facets = [
             // Native facets,
-            "DiamondCutFacet",
-            "DiamondLoupeFacet",
+            "ProtocolNativeFacet",
             // Raw implementation facets.
-            "ERC165Facet",
-            "ERC173Facet",
+            "ProtocolRawFacet",
             // Protocol facets.
             "RuleDataFacet",
             "TaggedRuleDataFacet",

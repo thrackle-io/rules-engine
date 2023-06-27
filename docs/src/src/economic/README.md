@@ -4,6 +4,6 @@
 - [ruleProcessor](/src/economic/ruleProcessor)
 - [ruleStorage](/src/economic/ruleStorage)
 - [AppAdministratorOnly](AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
-- [IAssetHandlerLite](IAssetHandlerLite.sol/interface.IAssetHandlerLite.md)
-- [IERC721HandlerLite](IERC721HandlerLite.sol/interface.IERC721HandlerLite.md)
+- [AppAdministratorOnlyU](AppAdministratorOnlyU.sol/contract.AppAdministratorOnlyU.md)
+- [AppAdministratorOrOwnerOnly](AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md)
 - [IRuleProcessor](IRuleProcessor.sol/interface.IRuleProcessor.md)

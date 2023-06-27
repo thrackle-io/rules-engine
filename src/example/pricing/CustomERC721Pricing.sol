@@ -7,7 +7,7 @@ import "../../pricing/IProtocolERC721Pricing.sol";
 import "../../economic/AppAdministratorOnly.sol";
 
 /**
- * @title CustomERC721 Pricing template contract
+ * @title CustomERC721 Pricing example contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is an example of how one could implement a custom pricing solution. It uses a Chainlink Price Feed to get the token price
  */

@@ -9,7 +9,7 @@ In order for US-Dollar-based application rules to function properly, the protoco
 ### NFT Pricing Module
 
 1.  Protocol provided example:
-    1.  Ensure the [environment variable][environment-url] is set correctly.
+    1.  Ensure the [environment variables][environment-url] are set correctly.
     2.  It allows for setting the prices on a collection and also for individual NFT's. To use the example:
         1.  Copy the template from _src/example/pricing/ApplicationERC721Pricing.sol_ to your desired location
         2.  Change the name of the contract to suit your naming standards
@@ -22,14 +22,18 @@ In order for US-Dollar-based application rules to function properly, the protoco
         4.  Deploy the contract. (no parameters required)
 
             ````
-            forge create src/example/pricing/ApplicationERC721Pricing.sol:ApplicationERC721Pricing --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url $ETH_RPC_URL
+            forge create src/example/pricing/ApplicationERC721Pricing.sol:ApplicationERC721Pricing --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
             ````
-            - Use the output from the previous deployment to take note of the ApplicationERC721Pricing's address.
-                    ````
-                    Deployed to: 0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3
-                    Transaction hash: 0x44f9979c57c8799732b14e561f547c088c3428958602a817a9d77ca972ff4fde
-                    ````
+        5. locate the address from the output, example:
+            ````
+            Deployed to: 0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575
+            Transaction hash: 0xeac248a8c7dfd3c09927f607723acebeb1f6e1efb6bd6eef8f273982c762b526
+            ````
+            2. Set the environment variable
+            ````
+            export APPLICATION_PRICER=address from output
+            ````
 2.  Custom Pricer - Please reach out to the development team for more information on how to implement a custom pricing contract.
 
 

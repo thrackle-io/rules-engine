@@ -18,7 +18,7 @@ contract ApplicationERC721Script is Script {
      * @dev This function runs the script
      */
     function run() public {
-        vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
+        vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
 
         new ApplicationERC721("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), vm.envAddress("RULE_PROCESSOR_DIAMOND"), false, vm.envString("APPLICATION_ERC721_URI_1"));
         // Register the token with the application's app manager

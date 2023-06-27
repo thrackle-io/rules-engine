@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {ERC173} from "src/diamond/implementations/ERC173/ERC173.sol";
+import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
 import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {IApplicationRules as ApplicationRuleStorage} from "src/economic/ruleStorage/RuleDataInterfaces.sol";

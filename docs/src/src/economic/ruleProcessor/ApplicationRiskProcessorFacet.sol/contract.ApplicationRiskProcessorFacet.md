@@ -1,5 +1,5 @@
 # ApplicationRiskProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -13,7 +13,20 @@ in terms of USD with 18 decimals of precision.
 ## Functions
 ### checkAccBalanceByRisk
 
-*Account balance for Risk Score*
+_balanceLimits size must be equal to _riskLevel + 1 since the _balanceLimits must
+specify the maximum tx size for anything below the first level and between the highest risk score and 100. This also
+means that the positioning of the arrays is ascendant in terms of risk levels, and
+descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+will apply to all risk scores of 100.)
+eg.
+risk scores      balances         resultant logic
+-----------      --------         ---------------
+25             1000            0-24  =  1000
+50              500            25-49 =   500
+75              250            50-74 =   250
+100            75-99 =   100
+
+*Account balance by Risk Score*
 
 
 ```solidity
@@ -27,22 +40,34 @@ function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScore, uint128 _totalV
 |----|----|-----------|
 |`_ruleId`|`uint32`|Rule Identifier for rule arguments|
 |`_riskScore`|`uint8`|the Risk Score of the recepient account|
-|`_totalValuationTo`|`uint128`|recepient account's beginning balance in USD with 18 decimals of precision|
+|`_totalValuationTo`|`uint128`|recipient account's beginning balance in USD with 18 decimals of precision|
 |`_amountToTransfer`|`uint128`|total dollar amount to be transferred in USD with 18 decimals of precision|
 
 
 ### checkMaxTxSizePerPeriodByRisk
 
-we create the 'data' variable which is simply a connection to the rule diamond
-validation block
-we procede to retrieve the rule
-we perform the rule check
+create the 'data' variable which is simply a connection to the rule diamond
+retrieve the rule
+perform the rule check
 If risk score is within the rule riskLevel array, find the maxBalance for that risk Score
 maxBalance must be multiplied by 10 ** 18 to account for decimals in token pricing in USD
 Jump out of loop once risk score is matched to array index
 Check if Risk Score is higher than highest riskLevel for rule
 
 that these ranges are set by ranges.
+
+_balanceLimits size must be equal to _riskLevel + 1 since the _balanceLimits must
+specify the maximum tx size for anything below the first level and between the highest risk score and 100. This also
+means that the positioning of the arrays is ascendant in terms of risk levels, and
+descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+will apply to all risk scores of 100.)
+eg.
+risk scores      balances         resultant logic
+-----------      --------         ---------------
+25             1000            0-24  =  1000
+50              500            25-49 =   500
+75              250            50-74 =   250
+100            75-99 =   100
 
 *rule that checks if the tx exceeds the limit size in USD for a specific risk profile
 within a specified period of time.*

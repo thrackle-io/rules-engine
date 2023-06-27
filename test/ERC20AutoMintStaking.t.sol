@@ -68,10 +68,10 @@ contract ERC20AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         stakingCoin = new ApplicationERC20("stakingCoin", "STK", address(appManager), address(ruleProcessor), false);
         stakingCoin.mint(user1, 2_000_000_000_000_000_000_000_000);
         rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler = ApplicationERC20Handler(stakingCoin.handlerAddress());
+        applicationCoinHandler = ApplicationERC20Handler(stakingCoin.getHandlerAddress());
 
         rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler2 = ApplicationERC20Handler(rewardCoin.handlerAddress());
+        applicationCoinHandler2 = ApplicationERC20Handler(rewardCoin.getHandlerAddress());
 
         stakingContract = new ERC20AutoMintStaking(address(rewardCoin), address(stakingCoin), address(appManager));
 

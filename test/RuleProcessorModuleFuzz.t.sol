@@ -7,8 +7,7 @@ import {TaggedRuleDataFacet as TaggedRuleDataFacet} from "../src/economic/ruleSt
 import "./RuleStorageDiamondTestUtil.sol";
 import "../src/application/AppManager.sol";
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "../src/economic/ruleStorage/RuleDataInterfaces.sol";
-import {SampleFacet} from "../src/diamond/core/test/SampleFacet.sol";
-import {ERC173Facet} from "../src/diamond/implementations/ERC173/ERC173Facet.sol";
+import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {RuleDataFacet as NonTaggedRuleFacet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
 
 import "../src/application/AppManager.sol";
@@ -34,9 +33,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
     //AppManager public appManager;
     RuleStorageDiamond ruleStorageDiamond;
     RuleProcessorDiamond ruleProcessor;
-
     ApplicationERC20Handler applicationCoinHandler;
-
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationAppManager appManager;
@@ -49,6 +46,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
     address[] badBoys;
     address[] goodBoys;
     uint256 Blocktime = 1675723152;
+    uint256 totalSupply = 100_000_000_000;
     address[] ADDRESSES = [defaultAdmin, appAdministrator, address(0xAAA), address(0xBBB), address(0xCCC), address(0xBEEF), address(0xC0FFEE), address(0xF00D)];
 
     function setUp() public {
@@ -81,145 +79,145 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         //     NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, i+1);
         //     unchecked{ ++i;}
         // }
+        vm.warp(Blocktime); 
     }
 
     /***************** Test Setters and Getters *****************/
 
     /*********************** Purchase *******************/
-    /// Simple setting and getting (REFACTOR WITH NEW PURCHASE RULE FORMAT)
-    // function testSettingPurchaseFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB,
-    //     uint32 pPeriodA, uint32 pPeriodB, uint32 fPeriodA, uint32 fPeriodB)
-    //     public
-    //     {
-    //     vm.warp(Blocktime);
-    //     vm.stopPrank();
-    //     address sender = ADDRESSES[addressIndex%ADDRESSES.length];
-    //     vm.startPrank(sender);
-    //     /// manual tag necessary because of memory issue.
-    //     bytes32[] memory accs = new bytes32[](2);
-    //     accs[0] = "tagA";
-    //     accs[1] = "tagB";
-    //     uint256[] memory pAmounts = new uint256[](2);
-    //     pAmounts[0] = amountA;
-    //     pAmounts[1] = amountB;
-    //     uint32[] memory pPeriods = new uint32[](2);
-    //     pPeriods[0] = pPeriodA;
-    //     pPeriods[1] = pPeriodB;
-    //     uint32[] memory fPeriods = new uint32[](2);
-    //     fPeriods[0] = fPeriodA;
-    //     fPeriods[1] = fPeriodB;
-    //     if((sender != defaultAdmin && sender != appAdministrator) || amountA == 0 || amountB == 0 ||
-    //         pPeriodA == 0 || pPeriodB == 0 || fPeriodA == 0 || fPeriodB == 0)
-    //         vm.expectRevert();
-    //     uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, fPeriods);
-    //     if((sender == defaultAdmin || sender == appAdministrator)  &&  amountA > 0 && amountB > 0 &&
-    //         pPeriodA > 0 && pPeriodB > 0 && fPeriodA > 0 && fPeriodB > 0) {
-    //         assertEq(_index, 0);
-    //         TaggedRules.PurchaseRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(_index, "tagA");
-    //         assertEq(rule.purchaseAmount, amountA);
-    //         assertEq(rule.startTime, fPeriodA);
-    //         assertEq(rule.purchasePeriod, pPeriodA);
+    /// Simple setting and getting
+    function testSettingPurchaseFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint32 pPeriodA, uint32 pPeriodB, uint32 fPeriodA, uint32 fPeriodB) public {
+        if (fPeriodA > 23) {
+            fPeriodA = 23;
+        }
 
-    //         /// testing different input sized
-    //         bytes32[] memory invalidAccs = new bytes32[](3);
-    //         invalidAccs[0] = "A";
-    //         invalidAccs[1] = "B";
-    //         invalidAccs[2] = "c";
+        if (fPeriodB > 23) {
+            fPeriodB = 23;
+        }
+        vm.warp(Blocktime);
+        vm.stopPrank();
+        address sender = ADDRESSES[addressIndex % ADDRESSES.length];
+        vm.startPrank(sender);
+        /// manual tag necessary because of memory issue.
+        bytes32[] memory accs = new bytes32[](2);
+        accs[0] = "tagA";
+        accs[1] = "tagB";
+        uint256[] memory pAmounts = new uint256[](2);
+        pAmounts[0] = amountA;
+        pAmounts[1] = amountB;
+        uint32[] memory pPeriods = new uint32[](2);
+        pPeriods[0] = pPeriodA;
+        pPeriods[1] = pPeriodB;
+        uint32[] memory fPeriods = new uint32[](2);
+        fPeriods[0] = fPeriodA;
+        fPeriods[1] = fPeriodB;
+        if ((sender != defaultAdmin && sender != appAdministrator) || amountA == 0 || amountB == 0 || pPeriodA == 0 || pPeriodB == 0 || fPeriodA == 0 || fPeriodB == 0) vm.expectRevert();
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, fPeriods);
+        if ((sender == defaultAdmin || sender == appAdministrator) && amountA > 0 && amountB > 0 && pPeriodA > 0 && pPeriodB > 0 && fPeriodA > 0 && fPeriodB > 0) {
+            assertEq(_index, 0);
+            TaggedRules.PurchaseRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(_index, "tagA");
+            assertEq(rule.purchaseAmount, amountA);
+            assertEq(rule.purchasePeriod, pPeriodA);
 
-    //         vm.expectRevert();
-    //         _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, invalidAccs, pAmounts, pPeriods, fPeriods);
+            /// testing different input sized
+            bytes32[] memory invalidAccs = new bytes32[](3);
+            invalidAccs[0] = "A";
+            invalidAccs[1] = "B";
+            invalidAccs[2] = "c";
 
-    //         /// testing adding a second rule
-    //         // _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, fPeriods);
-    //         // assertEq(_index, 1);
-    //         // rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(_index, "tagB");
-    //         // assertEq(rule.purchaseAmount, amountB);
-    //         // assertEq(rule.startTime, fPeriodB);
-    //         // assertEq(rule.purchasePeriod, pPeriodB);
+            vm.expectRevert();
+            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, invalidAccs, pAmounts, pPeriods, fPeriods);
 
-    //         /// testing total rules
-    //         //assertEq(TaggedRuleDataFacet(address(ruleStorageDiamond)).getTotalPurchaseRule(), 2);
+            /// testing adding a second rule
+            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, fPeriods);
+            assertEq(_index, 1);
+            rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(_index, "tagB");
+            assertEq(rule.purchaseAmount, amountB);
+            assertEq(rule.purchasePeriod, pPeriodB);
 
-    //     }
-
-    // }
+            /// testing total rules
+            assertEq(TaggedRuleDataFacet(address(ruleStorageDiamond)).getTotalPurchaseRule(), 2);
+        }
+    }
 
     // /************************ Sell *************************/
-    // /// Simple setting and getting
+    /// Simple setting and getting
 
-    // function testSettingSell(uint8 addressIndex, uint192 amountA, uint192 amountB,
-    //                     uint32 dFrozenA, uint32 dFrozenB, bytes32 accA, bytes32 accB) public {
-    //     vm.warp(Blocktime);
-    //     vm.assume(accA != accB);
-    //     vm.assume(accA != bytes32("") && accB != bytes32("") );
-    //     vm.stopPrank();
-    //     address sender = ADDRESSES[addressIndex%ADDRESSES.length];
-    //     vm.startPrank(sender);
-    //     bytes32[] memory accs = new bytes32[](2);
-    //     accs[0] = accA;
-    //     accs[1] = accB;
-    //     uint192[] memory sAmounts = new uint192[](2);
-    //     sAmounts[0] = amountA;
-    //     sAmounts[1] = amountB;
-    //     uint32[] memory dFrozen = new uint32[](2);
-    //     dFrozen[0] = dFrozenA;
-    //     dFrozen[1] = dFrozenB;
-    //     uint32[] memory startTimes = new uint32[](2);
-    //     startTimes[0] = dFrozenA;
-    //     startTimes[1] = dFrozenB;
+    function testSettingSellFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint32 dFrozenA, uint32 dFrozenB, uint32 sTimeA, uint32 sTimeB, bytes32 accA, bytes32 accB) public {
+        if (sTimeA > 23) {
+            sTimeA = 23;
+        }
 
-    //     if((sender != defaultAdmin && sender != appAdministrator) || amountA == 0 || amountB == 0 ||
-    //         dFrozenA == 0 || dFrozenB == 0 ) vm.expectRevert();
-    //     uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSetOfSellRule(ac, accs, sAmounts, dFrozen, startTimes);
-    //     if((sender == defaultAdmin || sender == appAdministrator) && amountA > 0 && amountB > 0 &&
-    //         dFrozenA > 0 && dFrozenB > 0) {
-    //         assertEq(_index, 0);
-    //         TaggedRules.SellRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getSellRuleByIndex(_index, accA);
-    //         assertEq(rule.sellAmount, amountA);
-    //         assertEq(rule.sellPeriod, dFrozenA);
+        if (sTimeB > 23) {
+            sTimeB = 23;
+        }
+        vm.warp(Blocktime);
+        vm.assume(accA != accB);
+        vm.assume(accA != bytes32("") && accB != bytes32(""));
+        vm.stopPrank();
+        address sender = ADDRESSES[addressIndex % ADDRESSES.length];
+        vm.startPrank(sender);
+        bytes32[] memory accs = new bytes32[](2);
+        accs[0] = accA;
+        accs[1] = accB;
+        uint192[] memory sAmounts = new uint192[](2);
+        sAmounts[0] = amountA;
+        sAmounts[1] = amountB;
+        uint32[] memory dFrozen = new uint32[](2);
+        dFrozen[0] = dFrozenA;
+        dFrozen[1] = dFrozenB;
+        uint32[] memory startTimes = new uint32[](2);
+        startTimes[0] = sTimeA;
+        startTimes[1] = sTimeB;
 
-    //         /// testing different input sized
-    //         bytes32[] memory invalidAccs = new bytes32[](3);
-    //         invalidAccs[0] = "A";
-    //         invalidAccs[1] = "B";
-    //         invalidAccs[2] = "c";
+        if ((sender != defaultAdmin && sender != appAdministrator) || amountA == 0 || amountB == 0 || dFrozenA == 0 || dFrozenB == 0) vm.expectRevert();
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, dFrozen, startTimes);
+        if ((sender == defaultAdmin || sender == appAdministrator) && amountA > 0 && amountB > 0 && dFrozenA > 0 && dFrozenB > 0) {
+            assertEq(_index, 0);
+            TaggedRules.SellRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getSellRuleByIndex(_index, accA);
+            assertEq(rule.sellPeriod, dFrozenA);
 
-    //         vm.expectRevert();
-    //         _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSetOfSellRule(ac, invalidAccs, sAmounts, dFrozen, startTimes);
+            /// testing different input sized
+            bytes32[] memory invalidAccs = new bytes32[](3);
+            invalidAccs[0] = "A";
+            invalidAccs[1] = "B";
+            invalidAccs[2] = "c";
 
-    //         /// testing adding a second rule
-    //         _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSetOfSellRule(ac, accs, sAmounts, dFrozen, startTimes);
-    //         assertEq(_index, 1);
-    //         rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getSellRuleByIndex(_index, accB);
-    //         assertEq(rule.sellAmount, amountB);
-    //         assertEq(rule.sellPeriod, dFrozenB);
+            vm.expectRevert();
+            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, invalidAccs, sAmounts, dFrozen, startTimes);
 
-    //         /// testing total rules
-    //         assertEq(TaggedRuleDataFacet(address(ruleStorageDiamond)).getTotalSellRule(), 2);
-    //     }
-    // }
+            /// testing adding a second rule
+            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, dFrozen, startTimes);
+            assertEq(_index, 1);
+            rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getSellRuleByIndex(_index, accB);
+            assertEq(rule.sellPeriod, dFrozenB);
+
+            /// testing total rules
+            assertEq(TaggedRuleDataFacet(address(ruleStorageDiamond)).getTotalSellRule(), 2);
+        }
+    }
 
     /************************ Token Purchase Percentage **********************/
     /// Simple setting and getting
 
-    function testSettingPurchasePercentage(uint8 addressIndex, uint16 pct, uint32 hFrozen) public {
+    function testSettingPurchasePercentage(uint8 addressIndex, uint16 pct) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
         /// test only admin can add rule, and values are within acceptable range
-        if ((sender != defaultAdmin && sender != appAdministrator) || pct > 9999 || pct == 0 || hFrozen == 0) vm.expectRevert();
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, pct, hFrozen);
-        if ((sender == defaultAdmin || sender == appAdministrator) && pct <= 9999 && hFrozen > 0 && pct > 0) {
+        if ((sender != defaultAdmin && sender != appAdministrator) || pct > 9999 || pct == 0) vm.expectRevert();
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, pct, 24, totalSupply, 7);
+        if ((sender == defaultAdmin || sender == appAdministrator) && pct <= 9999 && pct > 0) {
             assertEq(_index, 0);
             NonTaggedRules.TokenPercentagePurchaseRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctPurchaseRule(_index);
-            assertEq(rule.hoursFrozen, hFrozen);
+            assertEq(rule.purchasePeriod, 24);
 
             /// testing adding a second rule
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 666, 14);
+            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 666, 24, totalSupply, 7);
             assertEq(_index, 1);
             rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctPurchaseRule(_index);
             assertEq(rule.tokenPercentage, 666);
-            assertEq(rule.hoursFrozen, 14);
+            assertEq(rule.purchasePeriod, 24);
 
             /// test total rules
             assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalPctPurchaseRule(), 2);
@@ -229,24 +227,24 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
     /************************ Token Sell Percentage **********************/
     /// Simple setting and getting
 
-    function testSettingSellPercentage(uint8 addressIndex, uint16 pct, uint32 hFrozen) public {
+    function testSettingSellPercentage(uint8 addressIndex, uint16 pct) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
 
         /// test only admin can add rule, and values are withing acceptable range
-        if ((sender != defaultAdmin && sender != appAdministrator) || pct > 9999 || hFrozen == 0 || pct == 0) vm.expectRevert();
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, pct, hFrozen);
-        if ((sender == defaultAdmin || sender == appAdministrator) && pct <= 9999 && hFrozen > 0 && pct > 0) {
+        if ((sender != defaultAdmin && sender != appAdministrator) || pct > 9999 || pct == 0) vm.expectRevert();
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, pct, 24, totalSupply, 7);
+        if ((sender == defaultAdmin || sender == appAdministrator) && pct <= 9999 && pct > 0) {
             assertEq(_index, 0);
             NonTaggedRules.TokenPercentageSellRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctSellRule(_index);
-            assertEq(rule.hoursFrozen, hFrozen);
+            assertEq(rule.sellPeriod, 24);
             /// testing adding a second rule
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 666, 14);
+            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 666, 24, totalSupply, 7);
             assertEq(_index, 1);
             rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctSellRule(_index);
             assertEq(rule.tokenPercentage, 666);
-            assertEq(rule.hoursFrozen, 14);
+            assertEq(rule.sellPeriod, 24);
 
             /// testing total rules
             assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalPctSellRule(), 2);
@@ -309,32 +307,32 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         }
     }
 
-    /*********************** Token Trading Volume ************************/
+    /*********************** Token Transfer Volume ************************/
     /// Simple setting and getting
 
-    function testSettingTradingVolume(uint8 addressIndex, uint256 maxVolume, uint8 hPeriod, uint8 hFrozen) public {
+    function testSettingTransferVolumeFuzz(uint8 addressIndex, uint16 maxVolume, uint8 hPeriod, uint64 startTime) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
 
         /// test only admin can add rule, and values are withing acceptable range
-        if ((sender != defaultAdmin && sender != appAdministrator) || maxVolume == 0 || hPeriod == 0 || hFrozen == 0) vm.expectRevert();
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTradingVolumeRule(ac, maxVolume, hPeriod, hFrozen);
-        if ((sender == defaultAdmin || sender == appAdministrator) && maxVolume > 0 && hPeriod > 0 && hFrozen > 0) {
+        if ((sender != defaultAdmin && sender != appAdministrator) || maxVolume < 100 || maxVolume > 9999 || hPeriod == 0 || startTime > 23) vm.expectRevert();
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, maxVolume, hPeriod, startTime, 0);
+        if ((sender == defaultAdmin || sender == appAdministrator) && maxVolume > 100 && maxVolume <= 9999 && hPeriod > 0 && startTime > 0 && startTime < 24) {
             assertEq(_index, 0);
-            NonTaggedRules.TokenTradingVolumeRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTradingVolumeRule(_index);
-            assertEq(rule.hoursFrozen, hFrozen);
+            NonTaggedRules.TokenTransferVolumeRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
+            assertEq(rule.startingTime, startTime);
 
             /// testing adding a second rule
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTradingVolumeRule(ac, 200000000000000000000000000, 1, 36);
+            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 2000, 1, 12, 0);
             assertEq(_index, 1);
-            rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTradingVolumeRule(_index);
-            assertEq(rule.maxVolume, 200000000000000000000000000);
-            assertEq(rule.hoursPerPeriod, 1);
-            assertEq(rule.hoursFrozen, 36);
+            rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
+            assertEq(rule.maxVolume, 2000);
+            assertEq(rule.period, 1);
+            assertEq(rule.startingTime, 12);
 
             /// testing total rules
-            assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalTradingVolumeRules(), 2);
+            assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalTransferVolumeRules(), 2);
         }
     }
 
@@ -585,10 +583,23 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         }
     }
 
-    function testEconActionsFuzz(uint8 addressFrom, uint8 addressTo, uint128 min, bytes32 tag, uint128 bMin, uint128 bMax, uint128 transferAmount, uint128 balanceTo, uint128 balanceFrom) public {
+    function testEconActionsFuzz(
+        uint8 addressFrom,
+        uint8 addressTo,
+        uint128 min,
+        bytes32 tagFrom,
+        bytes32 tagTo,
+        uint128 bMin,
+        uint128 bMax,
+        uint128 transferAmount,
+        uint128 balanceTo,
+        uint128 balanceFrom
+    ) public {
         balanceTo;
         vm.assume(addressFrom % ADDRESSES.length != addressTo % ADDRESSES.length);
-        vm.assume(tag != "");
+        vm.assume(tagFrom != "");
+        vm.assume(tagTo != "");
+        vm.assume(tagFrom != tagTo && tagTo != tagFrom);
         vm.assume(balanceFrom >= transferAmount);
         address from = ADDRESSES[addressFrom % ADDRESSES.length];
         address to = ADDRESSES[addressTo % ADDRESSES.length];
@@ -606,8 +617,8 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
 
         /// Prepearing for rule
         {
-            appManager.addGeneralTag(from, tag); ///add tag
-            appManager.addGeneralTag(to, tag); ///add tag
+            appManager.addGeneralTag(from, tagFrom); ///add tag
+            appManager.addGeneralTag(to, tagTo); ///add tag
             /// add a minMaxBalance rule
             if (bMin == 0 || bMax == 0 || bMin > bMax) vm.expectRevert();
             bytes32[] memory _accountTypes = new bytes32[](1);
@@ -615,7 +626,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
             uint256[] memory _maximum = new uint256[](1);
 
             // Set the rule data
-            _accountTypes[0] = tag;
+            _accountTypes[0] = tagTo;
             /// we receive uint128 to avoid overflow, so we convert to uint256
             _minimum[0] = uint256(bMin);
             _maximum[0] = uint256(bMax);

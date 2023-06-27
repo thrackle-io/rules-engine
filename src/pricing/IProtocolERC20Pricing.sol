@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 /**
- * @title ERC20 Pricing dummy interface
+ * @title ERC20 Pricing interface
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is a simple pricing mechanism only. Its main purpose is to store prices.
  * @dev This contract doesn't allow any marketplace operations.

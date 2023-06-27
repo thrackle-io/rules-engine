@@ -1,5 +1,5 @@
 # GeneralTags
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/data/GeneralTags.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/data/GeneralTags.sol)
 
 **Inherits:**
 [DataModule](/src/data/DataModule.sol/contract.DataModule.md), [IGeneralTags](/src/data/IGeneralTags.sol/interface.IGeneralTags.md)
@@ -48,8 +48,6 @@ function addTag(address _address, bytes32 _tag) public onlyOwner;
 
 ### _removeTag
 
-first, check to see if the tag already exists for the user
-
 *Helper function to remove tags*
 
 
@@ -86,7 +84,7 @@ function removeTag(address _address, bytes32 _tag) external onlyOwner;
 
 
 ```solidity
-function hasTag(address _address, bytes32 _tag) external view returns (bool);
+function hasTag(address _address, bytes32 _tag) public view returns (bool);
 ```
 **Parameters**
 

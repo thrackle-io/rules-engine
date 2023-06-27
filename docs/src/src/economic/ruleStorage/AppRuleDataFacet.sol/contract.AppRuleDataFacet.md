@@ -1,5 +1,5 @@
 # AppRuleDataFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/economic/ruleStorage/AppRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/economic/ruleStorage/AppRuleDataFacet.sol)
 
 **Inherits:**
 Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md)
@@ -9,7 +9,7 @@ Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.
 
 This contract sets and gets the App Rules for the protocol
 
-*Setters and getters for App Rules*
+*Setters and getters for Application level Rules*
 
 
 ## Functions
@@ -45,7 +45,7 @@ function addAccessLevelBalanceRule(address _appManagerAddr, uint48[] calldata _b
 
 ### getAccessLevelBalanceRule
 
-*Function to get the AccessLevel Balance rule in the rule set that belongs to an AccessLevel Level*
+*Function to get the AccessLevel Balance rule in the rule set that belongs to the Access Level*
 
 
 ```solidity
@@ -80,14 +80,89 @@ function getTotalAccessLevelBalanceRules() external view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
+### addAccessLevelWithdrawalRule
+
+that position within the array matters. Posotion 0 represents access levellevel 0,
+and position 4 represents level 4.
+
+*Function add a Accessc Level Withdrawal rule*
+
+*Function has AppAdministratorOnly Modifier and takes AppManager Address Param*
+
+
+```solidity
+function addAccessLevelWithdrawalRule(address _appManagerAddr, uint48[] calldata _withdrawalAmounts)
+    external
+    appAdministratorOnly(_appManagerAddr)
+    returns (uint32);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_appManagerAddr`|`address`|Address of App Manager|
+|`_withdrawalAmounts`|`uint48[]`|withdrawal amaount restrictions for each 5 levels from level 0 to 4 in whole USD.|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|position of new rule in array|
+
+
+### getAccessLevelWithdrawalRule
+
+validation block
+
+*Function to get the Access Level Withdrawal rule in the rule set that belongs to the Access Level*
+
+
+```solidity
+function getAccessLevelWithdrawalRule(uint32 _index, uint8 _accessLevel) external view returns (uint48);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
+|`_accessLevel`|`uint8`|AccessLevel Level to check|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint48`|balanceAmount balance allowed for access levellevel|
+
+
+### getTotalAccessLevelWithdrawalRules
+
+*Function to get total AccessLevel withdrawal rules*
+
+
+```solidity
+function getTotalAccessLevelWithdrawalRules() external view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|Total number of access level withdrawal rules|
+
+
 ### addMaxTxSizePerPeriodByRiskRule
 
-_maxSize size must be equal to _riskLevel + 1 since the _maxSize must
-specify the maximum tx size for anything between the highest risk score and 100
-which should be specified in the last position of the _riskLevel. This also
+_maxSize size must be equal to _riskLevel + 1 since the _balanceLimits must
+specifies the maximum tx size for anything below the first level and between the highest risk score and 100. This also
 means that the positioning of the arrays is ascendant in terms of risk levels, and
 descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
 will apply to all risk scores of 100.)
+eg.
+risk scores      balances         resultant logic
+-----------      --------         ---------------
+25             1000            0-24  =  1000
+50              500            25-49 =   500
+75              250            50-74 =   250
+100            75-99 =   100
 
 *Function add a Max Tx Size Per Period By Risk rule*
 
@@ -162,12 +237,18 @@ function getTotalMaxTxSizePerPeriodRules() external view returns (uint32);
 
 ### addAccountBalanceByRiskScore
 
-_maxSize size must be equal to _riskLevel + 1 since the _maxSize must
-specify the maximum tx size for anything between the highest risk score and 100
-which should be specified in the last position of the _riskLevel. This also
+_balanceLimits size must be equal to _riskLevel + 1 since the _balanceLimits must
+specifies the maximum tx size for anything below the first level and between the highest risk score and 100. This also
 means that the positioning of the arrays is ascendant in terms of risk levels, and
 descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
 will apply to all risk scores of 100.)
+eg.
+risk scores      balances         resultant logic
+-----------      --------         ---------------
+25             1000            0-24  =  1000
+50              500            25-49 =   500
+75              250            50-74 =   250
+100            75-99 =   100
 
 *Function to add new AccountBalanceByRiskScore Rules*
 
@@ -285,6 +366,12 @@ error InvalidHourOfTheDay();
 
 ```solidity
 error BalanceAmountsShouldHave5Levels(uint8 inputLevels);
+```
+
+### WithdrawalAmountsShouldHave5Levels
+
+```solidity
+error WithdrawalAmountsShouldHave5Levels(uint8 inputLevels);
 ```
 
 ### RiskLevelCannotExceed99

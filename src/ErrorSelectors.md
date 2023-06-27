@@ -53,6 +53,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x028a6c58 | InputArraysMustHaveSameLength()                                  |
 | 0x1390f2a1 | IndexOutOfRange()                                                |
 | 0xaa2738a4 | PercentageValueGreaterThan9999()                                 |
+| 0x7d9b7dbc | PercentageValueLessThan100()                                     |
 | 0x984cc2a2 | PageOutOfRange()                                                 |
 | 0xeeb9d4f7 | InvertedLimits()                                                 |
 | 0x5b2790b5 | AmountsAreZero()                                                 |
@@ -96,3 +97,9 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x58512490 | ValueOutOfRange(uint24)                                          |
 | 0x8f802168 | CallerNotAuthorizedToMint()                                      |
 | 0x4f2f02d2 | ApplicationPaused(uint,uint)                                     |
+| 0xfd2ac9bc | InputArraysSizesNotValid()                                       |
+| 0x77d0d408 | TagAlreadyApplied()                                              |
+| 0x2bbc9aea | WithdrawalExceedsAccessLevelAllowedLimit()                       |
+| 0xb634aad9 | PurchasePercentageReached()                                      |
+| 0xb17ff693 | SellPercentageReached()                                          |
+| 0x3627495d | TransferExceedsMaxVolumeAllowed()                                |

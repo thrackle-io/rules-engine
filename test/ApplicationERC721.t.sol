@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "forge-std/Test.sol";
 import "../src/example/ApplicationERC721.sol";
-import "../src/example/ApplicationAppManager.sol";
+import {ApplicationAppManager} from "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 
@@ -62,11 +62,10 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         /// add Risk Admin
         appManager.addRiskAdmin(riskAdmin);
 
-        applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
+        applicationHandler = ApplicationHandler(appManager.getHandlerAddress());
 
         applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
         applicationNFTHandler = ApplicationERC721Handler(applicationNFT.handlerAddress());
-        applicationNFTHandler.setERC721Address(address(applicationNFT));
 
         /// register the token
         appManager.registerToken("THRK", address(applicationNFT));
@@ -644,7 +643,79 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFTHandler.setAdminWithdrawalRuleId(1);
     }
 
-    function testUpgradingHandlers() public {
+    /// test the transfer volume rule in erc721
+    function testTransferVolumeRuleNFT() public {
+        /// set the rule for 40% in 2 hours, starting at midnight
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 2000, 2, 0, 0);
+        assertEq(_index, 0);
+        NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
+        assertEq(rule.maxVolume, 2000);
+        assertEq(rule.period, 2);
+        assertEq(rule.startingTime, 0);
+        // mint 10 nft's to non admin user
+        for (uint i = 0; i < 10; i++) {
+            applicationNFT.safeMint(user1);
+        }
+        // apply the rule
+        applicationNFTHandler.setTokenTransferVolumeRuleId(_index);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        // transfer under the threshold
+        applicationNFT.safeTransferFrom(user1, user2, 0);
+        // transfer one that hits the percentage
+        vm.expectRevert(0x3627495d);
+        applicationNFT.safeTransferFrom(user1, user2, 1);
+        /// now move a little over 2 hours into the future to make sure the next block will work
+        vm.warp(Blocktime + 121 minutes);
+        applicationNFT.safeTransferFrom(user1, user2, 1);
+        /// now violate the rule in this block and ensure revert
+        vm.expectRevert(0x3627495d);
+        applicationNFT.safeTransferFrom(user1, user2, 2);
+        /// now move 1 day into the future and try again
+        vm.warp(Blocktime + 1 days);
+        applicationNFT.safeTransferFrom(user1, user2, 2);
+        /// once again, break the rule
+        vm.expectRevert(0x3627495d);
+        applicationNFT.safeTransferFrom(user1, user2, 3);
+    }
+
+    /// test the transfer volume rule in erc721
+    function testNFTTransferVolumeRuleWithSupplySet() public {
+        /// set the rule for 2% in 2 hours, starting at midnight
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 200, 2, 0, 100);
+        assertEq(_index, 0);
+        NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
+        assertEq(rule.maxVolume, 200);
+        assertEq(rule.period, 2);
+        assertEq(rule.startingTime, 0);
+        // mint 10 nft's to non admin user
+        for (uint i = 0; i < 10; i++) {
+            applicationNFT.safeMint(user1);
+        }
+        // apply the rule
+        applicationNFTHandler.setTokenTransferVolumeRuleId(_index);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        // transfer under the threshold
+        applicationNFT.safeTransferFrom(user1, user2, 0);
+        // transfer one that hits the percentage
+        vm.expectRevert(0x3627495d);
+        applicationNFT.safeTransferFrom(user1, user2, 1);
+        /// now move a little over 2 hours into the future to make sure the next block will work
+        vm.warp(Blocktime + 121 minutes);
+        applicationNFT.safeTransferFrom(user1, user2, 1);
+        /// now violate the rule in this block and ensure revert
+        vm.expectRevert(0x3627495d);
+        applicationNFT.safeTransferFrom(user1, user2, 2);
+        /// now move 1 day into the future and try again
+        vm.warp(Blocktime + 1 days);
+        applicationNFT.safeTransferFrom(user1, user2, 2);
+        /// once again, break the rule
+        vm.expectRevert(0x3627495d);
+        applicationNFT.safeTransferFrom(user1, user2, 3);
+    }
+
+    function testUpgradingHandlersERC721() public {
         ///deploy new modified appliction asset handler contract
         ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), true);
         ///connect to apptoken

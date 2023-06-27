@@ -1,5 +1,5 @@
 # ERC721RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/economic/ruleProcessor/ERC721RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/economic/ruleProcessor/ERC721RuleProcessorFacet.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -10,26 +10,6 @@ Implements NFT Rule checks for rules
 
 
 ## Functions
-### minAccountBalanceERC721
-
-*Check if transaction passes minAccountBalanceERC721 rule*
-
-
-```solidity
-function minAccountBalanceERC721(uint256 balanceFrom, bytes32[] calldata tokenId, uint256 amount, uint32 ruleId)
-    external
-    view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`balanceFrom`|`uint256`|Number of tokens held by sender address|
-|`tokenId`|`bytes32[]`|Token ID being transferred|
-|`amount`|`uint256`|Number of tokens being transferred|
-|`ruleId`|`uint32`|Rule identifier for rule arguments|
-
-
 ### checkNFTTransferCounter
 
 *This function receives a rule id, which it uses to get the NFT Trade Counter rule to check if the transfer is valid.*

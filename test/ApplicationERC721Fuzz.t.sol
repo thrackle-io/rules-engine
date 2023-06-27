@@ -2,13 +2,14 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Test.sol";
+import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {ApplicationERC20} from "../src/example/ApplicationERC20.sol";
 import {ApplicationERC721} from "src/example/ApplicationERC721.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 
-import "../src/example/ApplicationERC721Handler.sol";
+import {ApplicationERC721Handler} from "../src/example/ApplicationERC721Handler.sol";
 import {ApplicationERC20Handler} from "../src/example/ApplicationERC20Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
 
@@ -59,24 +60,23 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         appManager.addAccessTier(accessTier);
         /// add the riskAdmin as risk admin
         appManager.addRiskAdmin(riskAdmin);
-        applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
+        applicationHandler = ApplicationHandler(appManager.getHandlerAddress());
 
         applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
         applicationNFTHandler = ApplicationERC721Handler(applicationNFT.handlerAddress());
         appManager.registerToken("THRK", address(applicationNFT));
 
-        applicationNFTHandler.setERC721Address(address(applicationNFT));
         // create the oracles
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
 
         draculaCoin = new ApplicationERC20("applicationCoin", "DRAC", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler = ApplicationERC20Handler(draculaCoin.handlerAddress());
+        applicationCoinHandler = ApplicationERC20Handler(draculaCoin.getHandlerAddress());
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));
 
         //activateBalanceByAccessLevelRule
-        draculaCoin.mint(defaultAdmin, getMaxUint());
+        draculaCoin.mint(defaultAdmin, type(uint256).max);
 
         /// set the token price
         nftPricer = new ApplicationERC721Pricing();
@@ -85,6 +85,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
         /// connect ERC20 pricer to applicationCoinHandler
         applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
+        applicationCoinHandler.setNFTPricingAddress(address(nftPricer));
         vm.warp(Blocktime); // set block.timestamp
     }
 
@@ -565,8 +566,8 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
 
-        draculaCoin.transfer(_user1, getMaxUint());
-        assertEq(draculaCoin.balanceOf(_user1), getMaxUint());
+        draculaCoin.transfer(_user1, type(uint256).max);
+        assertEq(draculaCoin.balanceOf(_user1), type(uint256).max);
         erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * (10 ** 18));
         // set the access levellevel for the user4
@@ -738,17 +739,17 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         /// let's go to the future in the middle of the period
         vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
         /// now, if the user's risk profile is in the highest range, this transfer should revert
-        if (risk > _riskLevel[2]) vm.expectRevert();
+        if (risk >= _riskLevel[2]) vm.expectRevert();
         console.log(risk);
         applicationNFT.safeTransferFrom(user1, user2, 1);
         /// 2
         /// if the user's risk profile is in the second to the highest range, this transfer should revert
-        if (risk > _riskLevel[1]) vm.expectRevert();
+        if (risk >= _riskLevel[1]) vm.expectRevert();
         console.log(risk);
         applicationNFT.safeTransferFrom(user1, user2, 2);
         /// 10_001
         /// if the user's risk profile is in the second to the lowest range, this transfer should revert
-        if (risk > _riskLevel[0]) vm.expectRevert();
+        if (risk >= _riskLevel[0]) vm.expectRevert();
         console.log(risk);
         applicationNFT.safeTransferFrom(user1, user2, 3);
         /// 100_000_000 - 10_000 + 10_001 = 100_000_000 + 1 = 100_000_001
@@ -792,17 +793,17 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.safeTransferFrom(user2, user1, 6);
         /// 1
         /// now, if the user's risk profile is in the highest range, this transfer should revert
-        if (risk > _riskLevel[2]) vm.expectRevert();
+        if (risk >= _riskLevel[2]) vm.expectRevert();
         console.log(risk);
         applicationNFT.safeTransferFrom(user2, user1, 7);
         /// 2
         /// if the user's risk profile is in the second to the highest range, this transfer should revert
-        if (risk > _riskLevel[1]) vm.expectRevert();
+        if (risk >= _riskLevel[1]) vm.expectRevert();
         console.log(risk);
         applicationNFT.safeTransferFrom(user2, user1, 8);
         /// 90_001
         /// if the user's risk profile is in the second to the lowest range, this transfer should revert
-        if (risk > _riskLevel[0]) vm.expectRevert();
+        if (risk >= _riskLevel[0]) vm.expectRevert();
         console.log(risk);
         applicationNFT.safeTransferFrom(user2, user1, 9);
         /// 900_000_000 - 90_000 + 90_001 = 900_000_000 + 1 = 900_000_001
@@ -849,10 +850,10 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         // we apply random risk score to user2
         appManager.addRiskScore(_user2, riskScore);
 
-        // we find the mas balance user2
+        // we find the max balance user2
         uint32 maxBalanceForUser2;
         for (uint i; i < balanceLimits.length - 1; ) {
-            if (riskScore <= riskScores[i]) maxBalanceForUser2 = uint32(balanceLimits[i]);
+            if (riskScore < riskScores[i]) maxBalanceForUser2 = uint32(balanceLimits[i]);
             unchecked {
                 ++i;
             }
@@ -866,16 +867,112 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         vm.stopPrank();
         vm.startPrank(_user1);
-        if (priceA > uint112(maxBalanceForUser2) * (10 ** 18)) vm.expectRevert();
+        if (priceA >= uint112(maxBalanceForUser2) * (10 ** 18)) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user1, _user2, 0);
         if (priceA <= uint112(maxBalanceForUser2) * (10 ** 18)) {
-            if (uint64(priceA) + uint64(priceB) > uint112(maxBalanceForUser2) * (10 ** 18)) vm.expectRevert();
+            if (uint64(priceA) + uint64(priceB) >= uint112(maxBalanceForUser2) * (10 ** 18)) vm.expectRevert();
             applicationNFT.safeTransferFrom(_user1, _user2, 1);
-            if (uint64(priceA) + uint64(priceB) <= uint112(maxBalanceForUser2) * (10 ** 18)) {
+            if (uint64(priceA) + uint64(priceB) < uint112(maxBalanceForUser2) * (10 ** 18)) {
                 if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(maxBalanceForUser2) * (10 ** 18)) vm.expectRevert();
                 applicationNFT.safeTransferFrom(_user1, _user2, 2);
             }
         }
+    }
+
+    function testWithdrawalLimitByAccessLevelFuzz(uint8 _addressIndex, uint8 accessLevel) public {
+        for (uint i; i < 30; ) {
+            applicationNFT.safeMint(defaultAdmin);
+            nftPricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * (10 ** 18)); //setting at $10 * (ID + 1)
+            assertEq(nftPricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * (10 ** 18));
+            unchecked {
+                ++i;
+            }
+        }
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
+        address _user1 = addressList[0];
+        address _user2 = addressList[1];
+        address _user3 = addressList[2];
+        address _user4 = addressList[3];
+        /// set up a non admin user with tokens
+        applicationNFT.safeTransferFrom(defaultAdmin, _user1, 0); // a 10-dollar NFT
+        assertEq(applicationNFT.balanceOf(_user1), 1);
+        applicationNFT.safeTransferFrom(defaultAdmin, _user3, 1); // an 20-dollar NFT
+        assertEq(applicationNFT.balanceOf(_user3), 1);
+        applicationNFT.safeTransferFrom(defaultAdmin, _user4, 4); // a 50-dollar NFT
+        assertEq(applicationNFT.balanceOf(_user4), 1);
+        applicationNFT.safeTransferFrom(defaultAdmin, _user4, 19); // a 200-dollar NFT
+        assertEq(applicationNFT.balanceOf(_user4), 2);
+
+        /// ensure access level is between 0-4
+        if (accessLevel > 4) {
+            accessLevel = 4;
+        }
+        /// create rule params
+        uint48[] memory withdrawalLimits = new uint48[](5);
+        withdrawalLimits[0] = 0;
+        withdrawalLimits[1] = 10;
+        withdrawalLimits[2] = 20;
+        withdrawalLimits[3] = 50;
+        withdrawalLimits[4] = 250;
+        uint32 index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelWithdrawalRule(address(appManager), withdrawalLimits);
+        applicationHandler.setWithdrawalLimitByAccessLevelRuleId(index);
+        /// assign accessLevels to users
+        vm.stopPrank();
+        vm.startPrank(accessTier);
+        appManager.addAccessLevel(_user1, accessLevel);
+        appManager.addAccessLevel(_user3, accessLevel);
+        appManager.addAccessLevel(_user4, accessLevel);
+        /// set token pricing
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        /// ERC20 tokens priced $1 USD
+        draculaCoin.transfer(_user1, 1000 * (10 ** 18));
+        assertEq(draculaCoin.balanceOf(_user1), 1000 * (10 ** 18));
+        draculaCoin.transfer(_user2, 25 * (10 ** 18));
+        assertEq(draculaCoin.balanceOf(_user2), 25 * (10 ** 18));
+        draculaCoin.transfer(_user3, 10 * (10 ** 18));
+        assertEq(draculaCoin.balanceOf(_user3), 10 * (10 ** 18));
+        draculaCoin.transfer(_user4, 50 * (10 ** 18));
+        assertEq(draculaCoin.balanceOf(_user4), 50 * (10 ** 18));
+        erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * (10 ** 18)); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * (10 ** 18));
+
+        ///perform transfers
+        vm.stopPrank();
+        vm.startPrank(_user1);
+        if (accessLevel < 1) vm.expectRevert();
+        applicationNFT.safeTransferFrom(_user1, _user2, 0);
+
+        vm.stopPrank();
+        vm.startPrank(_user3);
+        if (accessLevel < 2) vm.expectRevert();
+        applicationNFT.safeTransferFrom(_user3, _user2, 1);
+
+        vm.stopPrank();
+        vm.startPrank(_user4);
+        if (accessLevel < 3) vm.expectRevert();
+        applicationNFT.safeTransferFrom(_user4, _user2, 4);
+
+        /// transfer erc20 tokens
+        vm.stopPrank();
+        vm.startPrank(_user4);
+        if (accessLevel < 4) vm.expectRevert();
+        draculaCoin.transfer(_user2, 50 * (10 ** 18));
+
+        vm.stopPrank();
+        vm.startPrank(accessTier);
+        appManager.addAccessLevel(_user2, accessLevel);
+
+        /// reduce pricing
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        erc20Pricer.setSingleTokenPrice(address(draculaCoin), 5 * (10 ** 17)); //setting at $.50
+        assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 5 * (10 ** 17));
+
+        vm.stopPrank();
+        vm.startPrank(_user2);
+        if (accessLevel < 2) vm.expectRevert();
+        draculaCoin.transfer(_user4, 25 * (10 ** 18));
     }
 
     function testTheWholeProtocolThroughNFT(uint32 priceA, uint32 priceB, uint16 priceC, uint8 riskScore, bytes32 tag1) public {
@@ -886,6 +983,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address _user2 = address(0xaa22);
         address _user3 = address(0xbb33);
         address _user4 = address(0xee44);
+
         uint32 maxBalanceForUser2;
         bool reached3;
         ///Add GeneralTag to account
@@ -913,6 +1011,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
                 goodBoys.push(_user1);
                 goodBoys.push(_user2);
                 goodBoys.push(_user3);
+                goodBoys.push(address(0xee55));
                 oracleAllowed.addToAllowList(goodBoys);
                 uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 1, address(oracleAllowed));
                 applicationNFTHandler.setOracleRuleId(_index);
@@ -932,7 +1031,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
             balanceLimits[5] = 0;
             // we find the mas balance user2
             for (uint i; i < balanceLimits.length - 1; ) {
-                if (riskScore <= riskScores[i]) maxBalanceForUser2 = uint32(balanceLimits[i]);
+                if (riskScore < riskScores[i]) maxBalanceForUser2 = uint32(balanceLimits[i]);
                 unchecked {
                     ++i;
                 }
@@ -1135,11 +1234,10 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
                 applicationNFT.safeTransferFrom(_user3, _user1, 3);
             }
 
-            if (!reached3) {}
-
             uint8 accessLevel = riskScore % 5;
             vm.stopPrank();
             vm.startPrank(accessTier);
+            _user2 = address(0xee55);
             appManager.addAccessLevel(_user2, accessLevel);
             // add the rule.
             uint48[] memory balanceAmounts = new uint48[](5);
@@ -1155,22 +1253,24 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
                 /// connect the rule to this handler
                 applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);
             }
-            /// test risk rules
-            vm.stopPrank();
-            vm.startPrank(_user1);
-            if (priceA > uint(balanceAmounts[accessLevel]) * (10 ** 18)) vm.expectRevert();
-            applicationNFT.safeTransferFrom(_user1, _user2, 0);
+            {
+                /// test access level rules
+                vm.stopPrank();
+                vm.startPrank(_user1);
+                if (priceA > uint(balanceAmounts[accessLevel]) * (10 ** 18)) vm.expectRevert();
+                applicationNFT.safeTransferFrom(_user1, _user2, 0);
 
-            if (priceA <= uint120(balanceAmounts[accessLevel]) * (10 ** 18)) {
-                if (uint64(priceA) + uint64(priceB) > uint120(balanceAmounts[accessLevel]) * (10 ** 18)) vm.expectRevert();
-                applicationNFT.safeTransferFrom(_user1, _user2, 1);
+                if (priceA <= uint120(balanceAmounts[accessLevel]) * (10 ** 18)) {
+                    if (uint64(priceA) + uint64(priceB) > uint120(balanceAmounts[accessLevel]) * (10 ** 18)) vm.expectRevert();
+                    applicationNFT.safeTransferFrom(_user1, _user2, 1);
 
-                if (uint64(priceA) + uint64(priceB) <= uint112(balanceAmounts[accessLevel]) * (10 ** 18)) {
-                    if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(balanceAmounts[accessLevel]) * (10 ** 18)) vm.expectRevert();
-                    applicationNFT.safeTransferFrom(_user1, _user2, 2);
+                    if (uint64(priceA) + uint64(priceB) <= uint112(balanceAmounts[accessLevel]) * (10 ** 18)) {
+                        if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(balanceAmounts[accessLevel]) * (10 ** 18)) vm.expectRevert();
+                        applicationNFT.safeTransferFrom(_user1, _user2, 2);
 
-                    if (uint(priceA) + uint(priceB) + uint(priceC) <= uint112(balanceAmounts[accessLevel]) * (10 ** 18)) {
-                        /// balanceLimit rule should fail since _user2 now would have 4
+                        if (uint(priceA) + uint(priceB) + uint(priceC) <= uint112(balanceAmounts[accessLevel]) * (10 ** 18)) {
+                            /// balanceLimit rule should fail since _user2 now would have 4
+                        }
                     }
                 }
             }
@@ -1210,12 +1310,54 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         }
     }
 
-    /**
-     * @dev this is a quick and dirty way of getting the max uint without using exponents or hardcoding the 78 digit number.
-     */
-    function getMaxUint() public pure returns (uint256) {
-        unchecked {
-            return uint256(0) - 1;
+    /// test the token transfer volume rule in erc721
+    function testTokenTransferVolumeRuleFuzzNFT(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public {
+        if (_period == 0) _period = 1;
+        //since NFT's take so long to mint, don't test for below 10% because the test pool will only be 10 NFT's
+        if (_maxPercent < 100) _maxPercent = 100;
+        if (_maxPercent > 9999) _maxPercent = 9999;
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
+        address rich_user = addressList[0];
+        address _user1 = addressList[1];
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), _maxPercent, _period, 0, 0);
+        assertEq(_index, 0);
+        NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
+        assertEq(rule.maxVolume, _maxPercent);
+        assertEq(rule.period, _period);
+        assertEq(rule.startingTime, 0);
+        /// load non admin users with nft's
+        // mint 10 nft's to non admin user
+        for (uint i = 0; i < 10; i++) {
+            applicationNFT.safeMint(rich_user);
+        }
+        // apply the rule
+        applicationNFTHandler.setTokenTransferVolumeRuleId(_index);
+        /// determine the maximum transfer amount
+        uint256 maxSize = uint256(_maxPercent) / 1000;
+        console.logUint(maxSize);
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        /// make sure that transfer under the threshold works
+        if (maxSize > 1) {
+            for (uint i = 0; i < maxSize - 1; i++) {
+                applicationNFT.safeTransferFrom(rich_user, _user1, i);
+            }
+            assertEq(applicationNFT.balanceOf(_user1), maxSize - 1);
+        }
+        /// Now break the rule
+        if (maxSize == 0) {
+            vm.expectRevert(0x3627495d);
+            applicationNFT.safeTransferFrom(rich_user, _user1, 0);
+        } else {
+            /// account for decimal percentages
+            if (uint256(_maxPercent) % 1000 == 0) {
+                vm.expectRevert(0x3627495d);
+                applicationNFT.safeTransferFrom(rich_user, _user1, maxSize - 1);
+            } else {
+                applicationNFT.safeTransferFrom(rich_user, _user1, maxSize - 1);
+                vm.expectRevert(0x3627495d);
+                applicationNFT.safeTransferFrom(rich_user, _user1, maxSize);
+            }
         }
     }
 

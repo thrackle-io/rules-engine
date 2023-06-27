@@ -1,5 +1,5 @@
 # RuleDataFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/economic/ruleStorage/RuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/economic/ruleStorage/RuleDataFacet.sol)
 
 **Inherits:**
 Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md)
@@ -9,7 +9,7 @@ Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.
 
 This contract sets and gets the Rules for the protocol
 
-*setters and getters for rules*
+*setters and getters for non tagged token specific rules*
 
 
 ## Functions
@@ -24,10 +24,13 @@ Token Purchase Percentage Getters/Setters **********
 
 
 ```solidity
-function addPercentagePurchaseRule(address _appManagerAddr, uint16 _tokenPercentage, uint32 _hoursFrozen)
-    external
-    appAdministratorOnly(_appManagerAddr)
-    returns (uint32);
+function addPercentagePurchaseRule(
+    address _appManagerAddr,
+    uint16 _tokenPercentage,
+    uint32 _purchasePeriod,
+    uint256 _totalSupply,
+    uint32 _startingHour
+) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -35,7 +38,9 @@ function addPercentagePurchaseRule(address _appManagerAddr, uint16 _tokenPercent
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_tokenPercentage`|`uint16`|Percentage of Tokens allowed to purchase|
-|`_hoursFrozen`|`uint32`|Time period that transactions are frozen|
+|`_purchasePeriod`|`uint32`|Time period that transactions are accumulated|
+|`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
+|`_startingHour`|`uint32`|start time for the period|
 
 **Returns**
 
@@ -88,10 +93,13 @@ Token Sell Percentage Getters/Setters **********
 
 
 ```solidity
-function addPercentageSellRule(address _appManagerAddr, uint16 _tokenPercentage, uint32 _hoursFrozen)
-    external
-    appAdministratorOnly(_appManagerAddr)
-    returns (uint32);
+function addPercentageSellRule(
+    address _appManagerAddr,
+    uint16 _tokenPercentage,
+    uint32 _sellPeriod,
+    uint256 _totalSupply,
+    uint32 _startingHour
+) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -99,7 +107,9 @@ function addPercentageSellRule(address _appManagerAddr, uint16 _tokenPercentage,
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_tokenPercentage`|`uint16`|Percent of Tokens allowed to sell|
-|`_hoursFrozen`|`uint32`|Time period that transactions are frozen|
+|`_sellPeriod`|`uint32`|Time period that transactions are frozen|
+|`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
+|`_startingHour`|`uint32`|start time for the period|
 
 **Returns**
 
@@ -276,27 +286,31 @@ function getTotalVolatilityRules() external view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### addTradingVolumeRule
+### addTransferVolumeRule
 
-Token Trading Volume Getters/Setters **********
+Token Transfer Volume Getters/Setters **********
 
-*Function to add a Token Trading Volume rules*
+*Function to add a Token transfer Volume rules*
 
 
 ```solidity
-function addTradingVolumeRule(address _appManagerAddr, uint256 _maxVolume, uint8 _hoursPerPeriod, uint8 _hoursFrozen)
-    external
-    appAdministratorOnly(_appManagerAddr)
-    returns (uint32);
+function addTransferVolumeRule(
+    address _appManagerAddr,
+    uint16 _maxVolumePercentage,
+    uint8 _hoursPerPeriod,
+    uint64 _startTime,
+    uint256 _totalSupply
+) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_maxVolume`|`uint256`|Maximum allowed volume|
+|`_maxVolumePercentage`|`uint16`|Maximum allowed volume percentage (this is 4 digits to allow 2 decimal places)|
 |`_hoursPerPeriod`|`uint8`|Allowed hours per period|
-|`_hoursFrozen`|`uint8`|Time period that transactions are frozen|
+|`_startTime`|`uint64`|Time to start the block|
+|`_totalSupply`|`uint256`|Circulating supply value to use in calculations. If not specified, defaults to ERC20 totalSupply|
 
 **Returns**
 
@@ -305,13 +319,13 @@ function addTradingVolumeRule(address _appManagerAddr, uint256 _maxVolume, uint8
 |`<none>`|`uint32`|ruleId position of new rule in array|
 
 
-### getTradingVolumeRule
+### getTransferVolumeRule
 
-*Function get Token Trading Volume Rule by index*
+*Function get Token Transfer Volume Rule by index*
 
 
 ```solidity
-function getTradingVolumeRule(uint32 _index) external view returns (NonTaggedRules.TokenTradingVolumeRule memory);
+function getTransferVolumeRule(uint32 _index) external view returns (NonTaggedRules.TokenTransferVolumeRule memory);
 ```
 **Parameters**
 
@@ -323,16 +337,16 @@ function getTradingVolumeRule(uint32 _index) external view returns (NonTaggedRul
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`NonTaggedRules.TokenTradingVolumeRule`|TokenTradingVolumeRule rule at index position|
+|`<none>`|`NonTaggedRules.TokenTransferVolumeRule`|TokenTransferVolumeRule rule at index position|
 
 
-### getTotalTradingVolumeRules
+### getTotalTransferVolumeRules
 
-*Function to get total Token Trading Volume rules*
+*Function to get total Token Transfer Volume rules*
 
 
 ```solidity
-function getTotalTradingVolumeRules() external view returns (uint32);
+function getTotalTransferVolumeRules() external view returns (uint32);
 ```
 **Returns**
 
@@ -651,6 +665,12 @@ error PageOutOfRange();
 error PercentageValueGreaterThan9999();
 ```
 
+### PercentageValueLessThan100
+
+```solidity
+error PercentageValueLessThan100();
+```
+
 ### ZeroValueNotPermited
 
 ```solidity
@@ -667,5 +687,11 @@ error ZeroAddress();
 
 ```solidity
 error BlankTag();
+```
+
+### InvalidHourOfTheDay
+
+```solidity
+error InvalidHourOfTheDay();
 ```
 

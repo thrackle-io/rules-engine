@@ -8,10 +8,10 @@ import "./RuleStorageDiamondTestUtil.sol";
 import "../src/application/AppManager.sol";
 import {TaggedRuleDataFacet as TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "../src/economic/ruleStorage/RuleDataInterfaces.sol";
-import {SampleFacet} from "../src/diamond/core/test/SampleFacet.sol";
-import {ERC173Facet} from "../src/diamond/implementations/ERC173/ERC173Facet.sol";
+import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {RuleDataFacet as NonTaggedRuleFacet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
+import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 
 contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     // Store the FacetCut struct for each NonTaggedRuleFacetthat is being deployed.
@@ -24,6 +24,8 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     address appAdministrator = address(0xB0B);
     address ac;
+    uint256 totalSupply = 100_000_000_000;
+    uint32 startTime = 12;
     uint256 Blocktime = 1675723152;
 
     function setUp() public {
@@ -35,6 +37,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         ac = address(appManager);
+        vm.warp(Blocktime); 
     }
 
     /// Test to make sure that the Diamond will upgrade
@@ -292,35 +295,36 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /************************ Token Purchase Percentage **********************/
     /// Simple setting and getting
     function testSettingPurchasePercentage() public {
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 5000, 7);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 5000, 24, totalSupply, startTime);
         assertEq(_index, 0);
         NonTaggedRules.TokenPercentagePurchaseRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctPurchaseRule(_index);
-        assertEq(rule.hoursFrozen, 7);
+        assertEq(rule.purchasePeriod, 24);
 
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 666, 14);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 666, 24, totalSupply, startTime);
         assertEq(_index, 1);
         rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctPurchaseRule(_index);
         assertEq(rule.tokenPercentage, 666);
-        assertEq(rule.hoursFrozen, 14);
+        assertEq(rule.purchasePeriod, 24);
     }
+
 
     /// testing only appAdministrators can add Purchase Rule
     function testSettingPurchasePctRuleWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 5000, 7);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 5000, 24, totalSupply, startTime);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 5000, 7);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 5000, 24, totalSupply, startTime);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(appAdministrator)); //interact as a different user
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 5000, 7);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 5000, 24, totalSupply, startTime);
         assertEq(_index, 0);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(defaultAdmin)); //interact as a different user
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 5000, 7);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 5000, 24, totalSupply, startTime);
         assertEq(_index, 1);
     }
 
@@ -328,7 +332,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     function testTotalRulesOnPurchasePercentage() public {
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
-            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 500 + i, 1 + i);
+            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 500 + i, 1 + i, totalSupply, startTime);
         }
         assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalPctPurchaseRule(), _indexes.length);
     }
@@ -336,35 +340,35 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /************************ Token Sell Percentage **********************/
     /// Simple setting and getting
     function testSettingSellPercentage() public {
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 5000, 7);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 5000, 24, totalSupply, startTime);
         assertEq(_index, 0);
         NonTaggedRules.TokenPercentageSellRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctSellRule(_index);
-        assertEq(rule.hoursFrozen, 7);
+        assertEq(rule.sellPeriod, 24);
 
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 666, 14);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 666, 24, totalSupply, startTime);
         assertEq(_index, 1);
         rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctSellRule(_index);
         assertEq(rule.tokenPercentage, 666);
-        assertEq(rule.hoursFrozen, 14);
+        assertEq(rule.sellPeriod, 24);
     }
 
     /// testing only appAdministrators can add sell pct Rule
-    function testSettingSellePctRuleWithoutAppAdministratorAccount() public {
+    function testSettingSellPctRuleWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 5000, 7);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 5000, 24, totalSupply, startTime);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 5000, 7);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 5000, 24, totalSupply, startTime);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(appAdministrator)); //interact as a different user
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 5000, 7);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 5000, 24, totalSupply, startTime);
         assertEq(_index, 0);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(defaultAdmin)); //interact as a different user
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 5000, 7);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 5000, 24, totalSupply, startTime);
         assertEq(_index, 1);
     }
 
@@ -372,7 +376,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     function testTotalRulesOnSellPercentage() public {
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
-            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 500 + i, 1 + i);
+            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 500 + i, 1 + i, totalSupply, 1);
         }
         assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalPctSellRule(), _indexes.length);
     }
@@ -466,49 +470,50 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalVolatilityRules(), _indexes.length);
     }
 
-    /*********************** Token Trading Volume ************************/
+    /*********************** Token Transfer Volume ************************/
     /// Simple setting and getting
-    function testSettingTradingVolume() public {
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTradingVolumeRule(ac, 100000000000000000000000000, 2, 24);
+    function testSettingTransferVolume() public {
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 1000, 2, 23, 0);
         assertEq(_index, 0);
-        NonTaggedRules.TokenTradingVolumeRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTradingVolumeRule(_index);
-        assertEq(rule.hoursFrozen, 24);
+        NonTaggedRules.TokenTransferVolumeRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
+        assertEq(rule.startingTime, 23);
 
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTradingVolumeRule(ac, 200000000000000000000000000, 1, 36);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 2000, 1, 12, 1_000_000_000_000_000 * 10 ** 18);
         assertEq(_index, 1);
-        rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTradingVolumeRule(_index);
-        assertEq(rule.maxVolume, 200000000000000000000000000);
-        assertEq(rule.hoursPerPeriod, 1);
-        assertEq(rule.hoursFrozen, 36);
+        rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
+        assertEq(rule.maxVolume, 2000);
+        assertEq(rule.period, 1);
+        assertEq(rule.startingTime, 12);
+        assertEq(rule.totalSupply, 1_000_000_000_000_000 * 10 ** 18);
     }
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
-    function testSettingVolumeRuleWithoutAppAdministratorAccount() public {
+    function testSettingVolumeRuleWithoutappAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addTradingVolumeRule(ac, 100000000000000000000000000, 2, 24);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 4000, 2, 23, 0);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addTradingVolumeRule(ac, 100000000000000000000000000, 2, 24);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 4000, 2, 23, 0);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(appAdministrator)); //interact as a different user
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTradingVolumeRule(ac, 100000000000000000000000000, 2, 24);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 4000, 2, 23, 0);
         assertEq(_index, 0);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(defaultAdmin)); //interact as a different user
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTradingVolumeRule(ac, 100000000000000000000000000, 2, 24);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 4000, 2, 23, 0);
         assertEq(_index, 1);
     }
 
     /// testing total rules
-    function testTotalRulesOnTradingVolume() public {
+    function testTotalRulesOnTransferVolume() public {
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
-            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTradingVolumeRule(ac, 5000 + i, 60 + i, 24 + i);
+            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 5000 + i, 60 + i, i % 5, 0);
         }
-        assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalTradingVolumeRules(), _indexes.length);
+        assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalTransferVolumeRules(), _indexes.length);
     }
 
     /*********************** Minimum Transfer ************************/

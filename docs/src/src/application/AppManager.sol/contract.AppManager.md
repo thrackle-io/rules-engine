@@ -1,15 +1,15 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/application/AppManager.sol)
 
 **Inherits:**
-AccessControlEnumerable, [IAppLevelEvents](/src/interfaces/IEvents.sol/interface.IAppLevelEvents.md)
+[IAppManager](/src/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/interfaces/IEvents.sol/interface.IAppLevelEvents.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
 
 This contract is the permissions contract
 
-*This uses AccessControlEnumerable to maintain user roles and allows for metadata to be saved for users.*
+*This uses AccessControlEnumerable to maintain user permissions, handles metadata storage, and checks application level rules via its handler.*
 
 
 ## State Variables
@@ -79,7 +79,7 @@ IPauseRules pauseRules;
 
 
 ### applicationHandler
-Access Action Contract
+Application Handler Contract
 
 
 ```solidity
@@ -163,7 +163,7 @@ string appName;
 ## Functions
 ### constructor
 
-*This sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts.*
+*This constructor sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.*
 
 
 ```solidity
@@ -249,7 +249,7 @@ function isAppAdministrator(address account) public view returns (bool);
 
 
 ```solidity
-function addAppAdministrator(address account) public onlyAppAdministrator;
+function addAppAdministrator(address account) external onlyAppAdministrator;
 ```
 **Parameters**
 
@@ -258,13 +258,28 @@ function addAppAdministrator(address account) public onlyAppAdministrator;
 |`account`|`address`|address to be added|
 
 
+### addMultipleAppAdministrator
+
+*Add an array of accounts to the app administrator role. Restricted to admins.*
+
+
+```solidity
+function addMultipleAppAdministrator(address[] memory _accounts) external onlyAppAdministrator;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|address array to be added|
+
+
 ### renounceAppAdministrator
 
 *Remove oneself from the app administrator role.*
 
 
 ```solidity
-function renounceAppAdministrator() public;
+function renounceAppAdministrator() external;
 ```
 
 ### onlyAccessTierAdministrator
@@ -305,7 +320,7 @@ function isAccessTier(address account) public view returns (bool);
 
 
 ```solidity
-function addAccessTier(address account) public onlyAppAdministrator;
+function addAccessTier(address account) external onlyAppAdministrator;
 ```
 **Parameters**
 
@@ -314,13 +329,28 @@ function addAccessTier(address account) public onlyAppAdministrator;
 |`account`|`address`|address to be added as a access tier|
 
 
+### addMultipleAccessTier
+
+*Add a list of accounts to the access tier role. Restricted to app administrators.*
+
+
+```solidity
+function addMultipleAccessTier(address[] memory account) external onlyAppAdministrator;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address[]`|address to be added as a access tier|
+
+
 ### renounceAccessTier
 
 *Remove oneself from the access tier role.*
 
 
 ```solidity
-function renounceAccessTier() public;
+function renounceAccessTier() external;
 ```
 
 ### onlyRiskAdmin
@@ -361,7 +391,7 @@ function isRiskAdmin(address account) public view returns (bool);
 
 
 ```solidity
-function addRiskAdmin(address account) public onlyAppAdministrator;
+function addRiskAdmin(address account) external onlyAppAdministrator;
 ```
 **Parameters**
 
@@ -370,20 +400,35 @@ function addRiskAdmin(address account) public onlyAppAdministrator;
 |`account`|`address`|address to be added|
 
 
+### addMultipleRiskAdmin
+
+*Add a list of accounts to the risk admin role. Restricted to app administrators.*
+
+
+```solidity
+function addMultipleRiskAdmin(address[] memory account) external onlyAppAdministrator;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address[]`|address to be added|
+
+
 ### renounceRiskAdmin
 
 *Remove oneself from the risk admin role.*
 
 
 ```solidity
-function renounceRiskAdmin() public;
+function renounceRiskAdmin() external;
 ```
 
 ### onlyUser
 
 -------------USER---------------
 The user roles are stored in a separate data contract
-Restricted to members of the user role.
+These roles can be used to specify if the account is simply a verified user in the application.
 
 *Checks if the msg.sender is in the user role*
 
@@ -419,7 +464,7 @@ function isUser(address _address) public view returns (bool);
 
 
 ```solidity
-function addUser(address _account) public onlyAppAdministrator;
+function addUser(address _account) external onlyAppAdministrator;
 ```
 **Parameters**
 
@@ -434,7 +479,7 @@ function addUser(address _account) public onlyAppAdministrator;
 
 
 ```solidity
-function removeUser(address _account) public onlyAppAdministrator;
+function removeUser(address _account) external onlyAppAdministrator;
 ```
 **Parameters**
 
@@ -461,13 +506,49 @@ function addAccessLevel(address _account, uint8 _level) external onlyAccessTierA
 |`_level`|`uint8`|Access Level to add|
 
 
+### addAccessLevelToMultipleAccounts
+
+*Add the Access Level(0-4) to multiple accounts. Restricted to Access Tiers.*
+
+
+```solidity
+function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level)
+    external
+    onlyAccessTierAdministrator;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|address upon which to apply the Access Level|
+|`_level`|`uint8`|Access Level to add|
+
+
+### addMultipleAccessLevels
+
+*Add the Access Level(0-4) to the list of account. Restricted to Access Tiers.*
+
+
+```solidity
+function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level)
+    external
+    onlyAccessTierAdministrator;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|address array upon which to apply the Access Level|
+|`_level`|`uint8[]`|Access Level array to add|
+
+
 ### getAccessLevel
 
 *Get the AccessLevel Score for the specified account*
 
 
 ```solidity
-function getAccessLevel(address _account) public view returns (uint8);
+function getAccessLevel(address _account) external view returns (uint8);
 ```
 **Parameters**
 
@@ -500,13 +581,45 @@ function addRiskScore(address _account, uint8 _score) external onlyRiskAdmin;
 |`_score`|`uint8`|Risk Score(0-100)|
 
 
+### addRiskScoreToMultipleAccounts
+
+*Add the Risk Score to each address in array. Restricted to Risk Admins.*
+
+
+```solidity
+function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyRiskAdmin;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|address array upon which to apply the Risk Score|
+|`_score`|`uint8`|Risk Score(0-100)|
+
+
+### addMultipleRiskScores
+
+*Add the Risk Score at index to Account at index in array. Restricted to Risk Admins.*
+
+
+```solidity
+function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyRiskAdmin;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|address array upon which to apply the Risk Score|
+|`_scores`|`uint8[]`|Risk Score array (0-100)|
+
+
 ### getRiskScore
 
 *Get the Risk Score for an account.*
 
 
 ```solidity
-function getRiskScore(address _account) public view returns (uint8);
+function getRiskScore(address _account) external view returns (uint8);
 ```
 **Parameters**
 
@@ -572,7 +685,7 @@ function getPauseRules() external view returns (PauseRule[] memory);
 
 ### cleanOutdatedRules
 
-*Remove any expried pause windows.*
+*Remove any expired pause windows.*
 
 
 ```solidity
@@ -583,7 +696,7 @@ function cleanOutdatedRules() external;
 
 -------------MAINTAIN GENERAL TAGS---------------
 
-*Add a general tag to an account. Restricted to Application Administrators.*
+*Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.*
 
 
 ```solidity
@@ -595,6 +708,40 @@ function addGeneralTag(address _account, bytes32 _tag) external onlyAppAdministr
 |----|----|-----------|
 |`_account`|`address`|Address to be tagged|
 |`_tag`|`bytes32`|Tag for the account. Can be any allowed string variant|
+
+
+### addGeneralTagToMultipleAccounts
+
+*Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.*
+
+
+```solidity
+function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyAppAdministrator;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|Address array to be tagged|
+|`_tag`|`bytes32`|Tag for the account. Can be any allowed string variant|
+
+
+### addMultipleGeneralTagToMultipleAccounts
+
+*Add a general tag to an account at index in array. Restricted to Application Administrators. Loops through existing tags on accounts and will emit  an event if tag is already applied.*
+
+
+```solidity
+function addMultipleGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tag)
+    external
+    onlyAppAdministrator;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|Address array to be tagged|
+|`_tag`|`bytes32[]`|Tag array for the account at index. Can be any allowed string variant|
 
 
 ### removeGeneralTag
@@ -619,7 +766,7 @@ function removeGeneralTag(address _account, bytes32 _tag) external onlyAppAdmini
 
 
 ```solidity
-function hasTag(address _account, bytes32 _tag) external view returns (bool);
+function hasTag(address _account, bytes32 _tag) public view returns (bool);
 ```
 **Parameters**
 
@@ -641,7 +788,7 @@ function hasTag(address _account, bytes32 _tag) external view returns (bool);
 
 
 ```solidity
-function getAllTags(address _address) public view returns (bytes32[] memory);
+function getAllTags(address _address) external view returns (bytes32[] memory);
 ```
 **Parameters**
 
@@ -662,7 +809,7 @@ function getAllTags(address _address) public view returns (bytes32[] memory);
 
 
 ```solidity
-function setRiskProvider(address _provider) public onlyAppAdministrator;
+function setRiskProvider(address _provider) external onlyAppAdministrator;
 ```
 **Parameters**
 
@@ -677,7 +824,7 @@ function setRiskProvider(address _provider) public onlyAppAdministrator;
 
 
 ```solidity
-function getRiskProvider() public view returns (address);
+function getRiskProvider() external view returns (address);
 ```
 **Returns**
 
@@ -692,7 +839,7 @@ function getRiskProvider() public view returns (address);
 
 
 ```solidity
-function setGeneralTagProvider(address _provider) public onlyAppAdministrator;
+function setGeneralTagProvider(address _provider) external onlyAppAdministrator;
 ```
 **Parameters**
 
@@ -707,7 +854,7 @@ function setGeneralTagProvider(address _provider) public onlyAppAdministrator;
 
 
 ```solidity
-function getGeneralTagProvider() public view returns (address);
+function getGeneralTagProvider() external view returns (address);
 ```
 **Returns**
 
@@ -722,7 +869,7 @@ function getGeneralTagProvider() public view returns (address);
 
 
 ```solidity
-function setAccountProvider(address _provider) public onlyAppAdministrator;
+function setAccountProvider(address _provider) external onlyAppAdministrator;
 ```
 **Parameters**
 
@@ -737,7 +884,7 @@ function setAccountProvider(address _provider) public onlyAppAdministrator;
 
 
 ```solidity
-function getAccountProvider() public view returns (address);
+function getAccountProvider() external view returns (address);
 ```
 **Returns**
 
@@ -752,7 +899,7 @@ function getAccountProvider() public view returns (address);
 
 
 ```solidity
-function setPauseRuleProvider(address _provider) public onlyAppAdministrator;
+function setPauseRuleProvider(address _provider) external onlyAppAdministrator;
 ```
 **Parameters**
 
@@ -767,7 +914,7 @@ function setPauseRuleProvider(address _provider) public onlyAppAdministrator;
 
 
 ```solidity
-function getPauseRulesProvider() public view returns (address);
+function getPauseRulesProvider() external view returns (address);
 ```
 **Returns**
 
@@ -782,7 +929,7 @@ function getPauseRulesProvider() public view returns (address);
 
 
 ```solidity
-function setAccessLevelProvider(address _accessLevelProvider) public onlyAppAdministrator;
+function setAccessLevelProvider(address _accessLevelProvider) external onlyAppAdministrator;
 ```
 **Parameters**
 
@@ -797,7 +944,7 @@ function setAccessLevelProvider(address _accessLevelProvider) public onlyAppAdmi
 
 
 ```solidity
-function getAccessLevelProvider() public view returns (address);
+function getAccessLevelProvider() external view returns (address);
 ```
 **Returns**
 
@@ -806,17 +953,22 @@ function getAccessLevelProvider() public view returns (address);
 |`<none>`|`address`|accessLevelProvider Address of the Access Level provider|
 
 
-### areAccessLevelOrRiskRulesActive
+### requireValuations
 
 APPLICATION CHECKS
 
-*checks if any of the AccessLevel or Risk rules are active in order to decide to perform or not
-the USD valuation of assets*
+*checks if any of the balance prerequisite rules are active*
 
 
 ```solidity
-function areAccessLevelOrRiskRulesActive() external returns (bool);
+function requireValuations() external returns (bool);
 ```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|true if one or more rules are active|
+
 
 ### checkApplicationRules
 
@@ -845,7 +997,7 @@ function checkApplicationRules(
 
 ### registerToken
 
-*This function allows the devs to register their token contract addresses. This keeps everything in sync and will aid with the token factory*
+*This function allows the devs to register their token contract addresses. This keeps everything in sync and will aid with the token factory and application level balance checks.*
 
 
 ```solidity
@@ -903,7 +1055,7 @@ function getTokenID(address _tokenAddress) external view returns (string memory)
 
 ### deregisterToken
 
-*This function allows the devs to deregister a token contract address. This keeps everything in sync and will aid with the token factory*
+*This function allows the devs to deregister a token contract address. This keeps everything in sync and will aid with the token factory and application level balance checks.*
 
 
 ```solidity
@@ -953,7 +1105,7 @@ function registerAMM(address _AMMAddress) external onlyAppAdministrator;
 
 
 ```solidity
-function isRegisteredAMM(address _AMMAddress) public view returns (bool);
+function isRegisteredAMM(address _AMMAddress) external view returns (bool);
 ```
 **Parameters**
 
@@ -1175,19 +1327,19 @@ function setNewApplicationHandlerAddress(address _newApplicationHandler) externa
 |`_newApplicationHandler`|`address`|address of new Application Handler contract|
 
 
-### getApplicationHandlerAddress
+### getHandlerAddress
 
 *this function returns the application handler address*
 
 
 ```solidity
-function getApplicationHandlerAddress() external view returns (address);
+function getHandlerAddress() external view returns (address);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`address`|ApplicationHandler|
+|`<none>`|`address`|handlerAddress|
 
 
 ### setAppName
@@ -1342,5 +1494,17 @@ error actionCheckFailed();
 
 ```solidity
 error ZeroAddress();
+```
+
+### InputArraysMustHaveSameLength
+
+```solidity
+error InputArraysMustHaveSameLength();
+```
+
+### ZeroAddressNotAllowed
+
+```solidity
+error ZeroAddressNotAllowed();
 ```
 

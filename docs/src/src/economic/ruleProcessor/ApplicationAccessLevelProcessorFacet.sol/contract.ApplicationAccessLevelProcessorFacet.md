@@ -1,5 +1,5 @@
 # ApplicationAccessLevelProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -31,9 +31,34 @@ function checkAccBalanceByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint12
 |`_amountToTransfer`|`uint128`|total USD amount to be transferred with 18 decimals of precision|
 
 
+### checkwithdrawalLimitsByAccessLevel
+
+Get the account's AccessLevel
+max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
+
+*Check if transaction passes Withdrawal by AccessLevel rule.*
+
+
+```solidity
+function checkwithdrawalLimitsByAccessLevel(
+    uint32 _ruleId,
+    uint8 _accessLevel,
+    uint128 _usdWithdrawalTotal,
+    uint128 _usdAmountTransferring
+) external view returns (uint128);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier for rule arguments|
+|`_accessLevel`|`uint8`|the Access Level of the account|
+|`_usdWithdrawalTotal`|`uint128`|account's total amount withdrawn in USD with 18 decimals of precision|
+|`_usdAmountTransferring`|`uint128`|total USD amount to be transferred with 18 decimals of precision|
+
+
 ### checkAccessLevel0Passes
 
-Get the account's AccessLevel Level
 max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
 
 *Check if transaction passes AccessLevel 0 rule.This has no stored rule as there are no additional variables needed.*
@@ -60,6 +85,12 @@ error RuleDoesNotExist();
 
 ```solidity
 error BalanceExceedsAccessLevelAllowedLimit();
+```
+
+### WithdrawalExceedsAccessLevelAllowedLimit
+
+```solidity
+error WithdrawalExceedsAccessLevelAllowedLimit();
 ```
 
 ### NotAllowedForAccessLevel

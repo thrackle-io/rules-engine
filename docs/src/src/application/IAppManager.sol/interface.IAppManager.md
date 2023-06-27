@@ -1,5 +1,5 @@
 # IAppManager
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/application/IAppManager.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/application/IAppManager.sol)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -230,21 +230,6 @@ function getAccessLevelProvider() external view returns (address);
 |`<none>`|`address`|accessLevelProvider Address of the access levelprovider|
 
 
-### getContractRegistryAddress
-
-*Get the address of the registry contract*
-
-
-```solidity
-function getContractRegistryAddress() external view returns (address);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`address`|contractRegistryAddress Address of the registry contract|
-
-
 ### registerToken
 
 *This function allows the devs to register their token contract addresses. This keeps everything in sync and will aid with the token factory*
@@ -443,14 +428,13 @@ function checkApplicationRules(
 |`_usdAmountTransferring`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
 
 
-### areAccessLevelOrRiskRulesActive
+### requireValuations
 
-*checks if any of the AccessLevel or Risk rules are active in order to decide to perform or not
-the USD valuation of assets*
+*checks if any of the balance prerequisite rules are active*
 
 
 ```solidity
-function areAccessLevelOrRiskRulesActive() external returns (bool);
+function requireValuations() external returns (bool);
 ```
 **Returns**
 
@@ -458,13 +442,4 @@ function areAccessLevelOrRiskRulesActive() external returns (bool);
 |----|----|-----------|
 |`<none>`|`bool`|true if one or more rules are active|
 
-
-## Events
-### RoleCheck
-Events
-
-
-```solidity
-event RoleCheck(string contractName, string functionName, address checkedAddress, bytes32 checkedRole);
-```
 

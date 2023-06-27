@@ -5,41 +5,45 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "src/economic/ruleProcessor/RuleProcessorDiamondLib.sol";
 import "../application/AppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
-import {IAppLevelEvents} from "../interfaces/IEvents.sol";
+import "../economic/ruleStorage/RuleCodeData.sol";
+import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/IRuleProcessor.sol";
 
 /**
  * @title Protocol ApplicationHandler Contract
  * @notice This contract is the rules handler for all application level rules. It is implemented via the AppManager
- * @dev This contract is injected into the appManagerss.
+ * @dev This contract is injected into the appManagers.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelEvents {
+contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicationHandlerEvents {
     AppManager appManager;
-    address appManagerAddress;
+    address public appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
 
     error ZeroAddress();
 
-    /// Application Risk and AccessLevel rule Ids
-    /// Risk Rule Ids
+    /// Application level Rule Ids
     uint32 private accountBalanceByRiskRuleId;
     uint32 private maxTxSizePerPeriodByRiskRuleId;
-    /// Risk Rule on-off switches
+    /// Application level Rule on-off switches
     bool private accountBalanceByRiskRuleActive;
     bool private maxTxSizePerPeriodByRiskActive;
-    /// AccessLevel Rule Id
+    /// AccessLevel Rule Ids
     uint32 private accountBalanceByAccessLevelRuleId;
-    /// AccessLevel Rule on-off switch
+    uint32 private withdrawalLimitByAccessLevelRuleId;
+    /// AccessLevel Rule on-off switches
     bool private accountBalanceByAccessLevelRuleActive;
     bool private AccessLevel0RuleActive;
+    bool private withdrawalLimitByAccessLevelRuleActive;
 
     /// MaxTxSizePerPeriodByRisk data
     mapping(address => uint128) usdValueTransactedInRiskPeriod;
     mapping(address => uint64) lastTxDateRiskRule;
+    /// AccessLevelWithdrawalRule data
+    mapping(address => uint128) usdValueTotalWithrawals;
 
     /**
-     * @dev Initializes the contract setting the owner as the one provided.
+     * @dev Initializes the contract setting the AppManager address as the one provided and setting the ruleProcessor for protocol access
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
      * @param _appManagerAddress address of the application AppManager.
      */
@@ -47,15 +51,15 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
         appManagerAddress = _appManagerAddress;
         appManager = AppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
-        emit ApplicationHandlerDeployed(address(this));
+        emit ApplicationHandlerDeployed(address(this), _appManagerAddress);
     }
 
     /**
-     * @dev checks if any of the AccessLevel or Risk rules are active
+     * @dev checks if any of the balance prerequisite rules are active
      * @return true if one or more rules are active
      */
-    function riskOrAccessLevelRulesActive() external view returns (bool) {
-        return accountBalanceByRiskRuleActive || accountBalanceByAccessLevelRuleActive || AccessLevel0RuleActive || maxTxSizePerPeriodByRiskActive;
+    function requireValuations() external view returns (bool) {
+        return accountBalanceByRiskRuleActive || accountBalanceByAccessLevelRuleActive || maxTxSizePerPeriodByRiskActive || withdrawalLimitByAccessLevelRuleActive;
     }
 
     /**
@@ -70,7 +74,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
     function checkApplicationRules(RuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external returns (bool) {
         _action;
         ruleProcessor.checkPauseRules(appManagerAddress);
-        if (accountBalanceByRiskRuleActive || accountBalanceByAccessLevelRuleActive || AccessLevel0RuleActive || maxTxSizePerPeriodByRiskActive) {
+        if (accountBalanceByRiskRuleActive || accountBalanceByAccessLevelRuleActive || AccessLevel0RuleActive || maxTxSizePerPeriodByRiskActive || withdrawalLimitByAccessLevelRuleActive) {
             _checkRiskRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
             _checkAccessLevelRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
         }
@@ -78,7 +82,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
     }
 
     /**
-     * @dev This function consolidates all the Risk rules that utilize tagged account Risk scores.
+     * @dev This function consolidates all the Risk rules that utilize application level Risk rules.
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
@@ -91,7 +95,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
             ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
         }
         if (maxTxSizePerPeriodByRiskActive) {
-            /// we check for sender
+            /// check if sender violates the rule
             usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
                 maxTxSizePerPeriodByRiskRuleId,
                 usdValueTransactedInRiskPeriod[_from],
@@ -100,7 +104,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
                 riskScoreFrom
             );
             lastTxDateRiskRule[_from] = uint64(block.timestamp);
-            /// we check for recipient
+            /// check if recipient violates the rule
             usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
                 maxTxSizePerPeriodByRiskRuleId,
                 usdValueTransactedInRiskPeriod[_to],
@@ -108,22 +112,26 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
                 lastTxDateRiskRule[_to],
                 riskScoreTo
             );
+            // set the last timestamp of check
             lastTxDateRiskRule[_to] = uint64(block.timestamp);
         }
     }
 
     /**
-     * @dev This function consolidates all the AccessLevel rules that utilize tagged account AccessLevel scores.
+     * @dev This function consolidates all the application level AccessLevel rules.
      * @param _to address of the to account
-     * @param _balanceValuation address current balance in USD
-     * @param _amount number of tokens transferred
+     * @param _usdBalanceValuation address current balance in USD
+     * @param _usdAmountTransferring number of tokens transferred
      */
-    function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _amount) internal view {
+    function _checkAccessLevelRules(address _from, address _to, uint128 _usdBalanceValuation, uint128 _usdAmountTransferring) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
         if (AccessLevel0RuleActive && appManager.isRegisteredAMM(_to)) ruleProcessor.checkAccessLevel0Passes(fromScore);
         if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to)) ruleProcessor.checkAccessLevel0Passes(score);
-        if (accountBalanceByAccessLevelRuleActive) ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _balanceValuation, _amount);
+        if (accountBalanceByAccessLevelRuleActive) ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
+        if (withdrawalLimitByAccessLevelRuleActive) {
+            usdValueTotalWithrawals[_from] = ruleProcessor.checkwithdrawalLimitsByAccessLevel(withdrawalLimitByAccessLevelRuleId, fromScore, usdValueTotalWithrawals[_from], _usdAmountTransferring);
+        }
     }
 
     /**
@@ -134,6 +142,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
     function setAccountBalanceByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
         accountBalanceByRiskRuleId = _ruleId;
         accountBalanceByRiskRuleActive = true;
+        emit ApplicationRuleApplied(BALANCE_BY_RISK, _ruleId);
     }
 
     /**
@@ -168,6 +177,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
     function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
         accountBalanceByAccessLevelRuleId = _ruleId;
         accountBalanceByAccessLevelRuleActive = true;
+        emit ApplicationRuleApplied(BALANCE_BY_ACCESSLEVEL, _ruleId);
     }
 
     /**
@@ -190,7 +200,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
      * @dev Retrieve the accountBalanceByAccessLevel rule id
      * @return accountBalanceByAccessLevelRuleId rule id
      */
-    function getAccountBalanceByAccessLevelkRule() external view returns (uint32) {
+    function getAccountBalanceByAccessLevelRule() external view returns (uint32) {
         return accountBalanceByAccessLevelRuleId;
     }
 
@@ -211,6 +221,41 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
     }
 
     /**
+     * @dev Set the withdrawalLimitByAccessLevelRule. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        withdrawalLimitByAccessLevelRuleId = _ruleId;
+        withdrawalLimitByAccessLevelRuleActive = true;
+        emit ApplicationRuleApplied(ACCESS_LEVEL_WITHDRAWAL, _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateWithdrawalLimitByAccessLevelRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+        withdrawalLimitByAccessLevelRuleActive = _on;
+    }
+
+    /**
+     * @dev Tells you if the withdrawalLimitByAccessLevelRule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isWithdrawalLimitByAccessLevelActive() external view returns (bool) {
+        return withdrawalLimitByAccessLevelRuleActive;
+    }
+
+    /**
+     * @dev Retrieve the withdrawalLimitByAccessLevel rule id
+     * @return withdrawalLimitByAccessLevelRuleId rule id
+     */
+    function getWithdrawalLimitByAccessLevelRule() external view returns (uint32) {
+        return withdrawalLimitByAccessLevelRuleId;
+    }
+
+    /**
      * @dev Retrieve the oracle rule id
      * @return MaxTxSizePerPeriodByRisk rule id for specified token
      */
@@ -226,6 +271,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IAppLevelE
     function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
         maxTxSizePerPeriodByRiskRuleId = _ruleId;
         maxTxSizePerPeriodByRiskActive = true;
+        emit ApplicationRuleApplied(MAX_TX_PER_PERIOD, _ruleId);
     }
 
     /**

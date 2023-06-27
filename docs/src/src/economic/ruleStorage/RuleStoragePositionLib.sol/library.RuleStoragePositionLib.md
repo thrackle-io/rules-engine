@@ -1,12 +1,12 @@
 # RuleStoragePositionLib
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/economic/ruleStorage/RuleStoragePositionLib.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/economic/ruleStorage/RuleStoragePositionLib.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
 
 Library for Rules
 
-*This contract serves as the storage library for the rules Diamond*
+*This contract serves as the storage library for the rules Diamond. It basically serves up the storage position for all rules*
 
 
 ## State Variables
@@ -159,6 +159,13 @@ bytes32 constant AMM_FEE_RULE_POSITION = keccak256("AMM.fee-rule");
 ```
 
 
+### ACCESS_LEVEL_WITHDRAWAL_RULE_POSITION
+
+```solidity
+bytes32 constant ACCESS_LEVEL_WITHDRAWAL_RULE_POSITION = keccak256("token.access-level-withdrawal-rule");
+```
+
+
 ## Functions
 ### purchaseStorage
 
@@ -256,13 +263,13 @@ function priceVolatilityStorage() internal pure returns (IRuleStorage.Volatility
 
 
 ```solidity
-function volumeStorage() internal pure returns (IRuleStorage.TradingVolRuleS storage ds);
+function volumeStorage() internal pure returns (IRuleStorage.TransferVolRuleS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.TradingVolRuleS`|Data Storage of Volume Rule|
+|`ds`|`IRuleStorage.TransferVolRuleS`|Data Storage of Volume Rule|
 
 
 ### withdrawalStorage
@@ -458,5 +465,20 @@ function minBalByDateRuleStorage() internal pure returns (IRuleStorage.MinBalByD
 |Name|Type|Description|
 |----|----|-----------|
 |`ds`|`IRuleStorage.MinBalByDateRuleS`|Data Storage of Minimum Balance by Date rule|
+
+
+### accessLevelWithdrawalRuleStorage
+
+*Function to store Access Level Withdrawal rules*
+
+
+```solidity
+function accessLevelWithdrawalRuleStorage() internal pure returns (IRuleStorage.AccessLevelWithrawalRuleS storage ds);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ds`|`IRuleStorage.AccessLevelWithrawalRuleS`|Data Storage of Access Level Withdrawal rule|
 
 

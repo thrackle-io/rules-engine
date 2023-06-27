@@ -6,7 +6,7 @@ import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
 
 /**
- * @title Base ERC20 Pricing template contract
+ * @title ERC20 Pricing template contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is a simple pricing mechanism only. Its main purpose is to store prices.
  * @dev This contract doesn't allow any marketplace operations.

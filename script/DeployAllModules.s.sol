@@ -3,9 +3,9 @@ pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
 
-import {IDiamondInit} from "../src/diamond/initializers/IDiamondInit.sol";
-import {DiamondInit} from "../src/diamond/initializers/DiamondInit.sol";
-import {FacetCut, FacetCutAction} from "../src/diamond/core/DiamondCut/DiamondCutLib.sol";
+import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
+import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
+import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
 
 import {RuleStorageDiamond, RuleStorageDiamondArgs} from "../src/economic/ruleStorage/RuleStorageDiamond.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/RuleProcessorDiamond.sol";
@@ -33,8 +33,8 @@ contract DeployAllModulesScript is Script {
     FacetCut[] private _facetCutsRuleProcessor;
     FacetCut[] private _facetCutsTaggedRuleProcessor;
     /// address and private key used to for deployment
-    uint256 constant privateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
-    address constant ownerAddress = address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+    uint256 privateKey;
+    address ownerAddress;
 
     RuleProcessorDiamond ruleProcessorDiamond;
     RuleStorageDiamond ruleDataDiamond;
@@ -43,6 +43,8 @@ contract DeployAllModulesScript is Script {
      * @dev This is the main function that gets called by the Makefile or CLI
      */
     function run() external {
+        privateKey = vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY");
+        ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
 
         /// appManager = deployApplicationAppManager();
@@ -64,13 +66,11 @@ contract DeployAllModulesScript is Script {
         DiamondInit diamondInit = new DiamondInit();
 
         /// Register all facets.
-        string[8] memory facets = [
+        string[6] memory facets = [
             /// Native facets,
-            "DiamondCutFacet",
-            "DiamondLoupeFacet",
+            "ProtocolNativeFacet",
             /// Raw implementation facets.
-            "ERC165Facet",
-            "ERC173Facet",
+            "ProtocolRawFacet",
             /// Protocol facets.
             "RuleDataFacet",
             "TaggedRuleDataFacet",
@@ -123,15 +123,12 @@ contract DeployAllModulesScript is Script {
         DiamondInit diamondInit = new DiamondInit();
 
         /// Register all facets.
-        string[13] memory facets = [
+        string[11] memory facets = [
             /// Native facets,
-            "DiamondCutFacet",
-            "DiamondLoupeFacet",
+            "ProtocolNativeFacet",
             /// Raw implementation facets.
-            "ERC165Facet",
-            "ERC173Facet",
+            "ProtocolRawFacet",
             /// Protocol facets.
-            ///ruleProcessor (Rules setters and getters)
             "ERC20RuleProcessorFacet",
             "ERC721RuleProcessorFacet",
             "FeeRuleProcessorFacet",

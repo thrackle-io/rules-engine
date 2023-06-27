@@ -21,7 +21,7 @@ import "src/example/staking/ERC721AutoMintStaking.sol";
  * @dev This script will deploy all application contracts needed to test the protocol interactions.
  * @notice Deploys the application App Manager, AppManager, ERC20, ERC721, and associated handlers, pricing and oracle contracts.
  */
-contract ApplicationDeployAllScript is Script {
+contract ApplicationDeployAllWithAMMScript is Script {
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationERC20Handler applicationCoinHandler2;
     ApplicationERC721Handler applicationNFTHandler;
@@ -53,11 +53,9 @@ contract ApplicationDeployAllScript is Script {
         applicationAppManager.registerToken("Dracula Coin", address(coin2));
         applicationAppManager.registerToken("Frankenstein Picture", address(nft1));
         /// initialize Handlers
-        applicationCoinHandler = ApplicationERC20Handler(coin1.handlerAddress());
-        applicationCoinHandler2 = ApplicationERC20Handler(coin2.handlerAddress());
-        applicationNFTHandler = ApplicationERC721Handler(nft1.handlerAddress());
-        // register NFT with NFT Handler(for tagging purposes and application of NFT trade counters
-        applicationNFTHandler.setERC721Address(address(nft1));
+        applicationCoinHandler = ApplicationERC20Handler(coin1.getHandlerAddress());
+        applicationCoinHandler2 = ApplicationERC20Handler(coin2.getHandlerAddress());
+        applicationNFTHandler = ApplicationERC721Handler(nft1.getHandlerAddress());
         /// Set the token's prices
         ApplicationERC721Pricing openOcean = new ApplicationERC721Pricing();
         ApplicationERC20Pricing exchange = new ApplicationERC20Pricing();
@@ -67,6 +65,8 @@ contract ApplicationDeployAllScript is Script {
         /// Link the pricing module to the Franks ApplicationERC20Handler
         applicationCoinHandler.setERC20PricingAddress(address(exchange));
         applicationCoinHandler.setNFTPricingAddress(address(openOcean));
+        applicationCoinHandler2.setERC20PricingAddress(address(exchange));
+        applicationCoinHandler2.setNFTPricingAddress(address(openOcean));
         applicationNFTHandler.setERC20PricingAddress(address(exchange));
         applicationNFTHandler.setNFTPricingAddress(address(openOcean));
         /// Deploy ERC20 Staking and set reward rate

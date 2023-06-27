@@ -1,5 +1,5 @@
 # IToken
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/token/ProtocolERC20Handler.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/token/ProtocolERC20Handler.sol)
 
 
 ## Functions
@@ -8,5 +8,19 @@
 
 ```solidity
 function balanceOf(address owner) external view returns (uint256 balance);
+```
+
+### totalSupply
+
+
+```solidity
+function totalSupply() external view returns (uint256);
+```
+
+### decimals
+
+
+```solidity
+function decimals() external view returns (uint8);
 ```
 

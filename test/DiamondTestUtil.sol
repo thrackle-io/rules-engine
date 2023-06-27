@@ -3,17 +3,16 @@ pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
 import "./helpers/GenerateSelectors.sol";
-import {IDiamondInit} from "../src/diamond/initializers/IDiamondInit.sol";
-import {DiamondInit} from "../src/diamond/initializers/DiamondInit.sol";
+import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
+import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 
-import {FacetCut, FacetCutAction} from "../src/diamond/core/DiamondCut/DiamondCutLib.sol";
+import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
 
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/RuleProcessorDiamond.sol";
 // import {AppManager} from "../src/application/AppManager.sol";
 import {ApplicationPauseProcessorFacet} from "../src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol";
-import {SampleFacet} from "../src/diamond/core/test/SampleFacet.sol";
-import {ERC173Facet} from "../src/diamond/implementations/ERC173/ERC173Facet.sol";
-import {IDiamondCut} from "../src/diamond/core/DiamondCut/IDiamondCut.sol";
+import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
+import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 
 contract DiamondTestUtil is GenerateSelectors {
     // Store the FacetCut struct for each facet that is being deployed.
@@ -32,13 +31,11 @@ contract DiamondTestUtil is GenerateSelectors {
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[7] memory facets = [
+        string[5] memory facets = [
             // Native facets,
-            "DiamondCutFacet",
-            "DiamondLoupeFacet",
+            "ProtocolNativeFacet",
             // Raw implementation facets.
-            "ERC165Facet",
-            "ERC173Facet",
+            "ProtocolRawFacet",
             // Protocol facets.
             "ApplicationRiskProcessorFacet",
             "ApplicationAccessLevelProcessorFacet",

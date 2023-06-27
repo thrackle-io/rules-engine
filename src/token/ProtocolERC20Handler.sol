@@ -5,21 +5,15 @@ pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "../economic/IRuleProcessor.sol";
-import "../economic/IAssetHandlerLite.sol";
 import "../economic/AppAdministratorOnly.sol";
 import "../application/IAppManager.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
 import "../pricing/IProtocolERC721Pricing.sol";
 import "../pricing/IProtocolERC20Pricing.sol";
-import "../application/TokenStorage.sol";
 import "./data/Fees.sol";
-
-// import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract
@@ -27,7 +21,7 @@ import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerabl
  * @dev This contract performs all rule checks related to the the ERC20 that implements it.
  * @notice Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
  */
-contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents, AppAdministratorOnly {
+contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorOnly {
     using ERC165Checker for address;
     /**
      * Functions added so far:
@@ -55,6 +49,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
     uint32 private transactionLimitByRiskRuleId;
     uint32 private adminWithdrawalRuleId;
     uint32 private minBalByDateRuleId;
+    uint32 private tokenTransferVolumeRuleId;
 
     /// on-off switches for rules
     bool private minTransferRuleActive;
@@ -63,6 +58,11 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
     bool private transactionLimitByRiskRuleActive;
     bool private adminWithdrawalActive;
     bool private minBalByDateRuleActive;
+    bool private tokenTransferVolumeRuleActive;
+
+    /// token level accumulators
+    uint256 private transferVolume;
+    uint64 private lastTransferTs;
 
     IRuleProcessor immutable ruleProcessor;
     IAppManager appManager;
@@ -114,10 +114,10 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
                 uint128 balanceValuation;
                 uint128 price;
                 uint128 transferValuation;
-                if (appManager.areAccessLevelOrRiskRulesActive()) {
+                if (appManager.requireValuations()) {
                     balanceValuation = uint128(getAccTotalValuation(_to));
                     price = uint128(_getERC20Price(msg.sender));
-                    transferValuation = uint128((price * amount) / (10 ** ERC20(msg.sender).decimals()));
+                    transferValuation = uint128((price * amount) / (10 ** IToken(msg.sender).decimals()));
                 }
                 appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
                 _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
@@ -138,9 +138,13 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
      * @param _to address of the to account
      * @param _amount number of tokens transferred
      */
-    function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount) internal view {
+    function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount) internal {
         if (minTransferRuleActive) ruleProcessor.checkMinTransferPasses(minTransferRuleId, _amount);
         if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _to);
+        if (tokenTransferVolumeRuleActive) {
+            transferVolume = ruleProcessor.checkTokenTransferVolumePasses(tokenTransferVolumeRuleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
+            lastTransferTs = uint64(block.timestamp);
+        }
         //added the following lines to remove warnings TODO remove later
         _balanceFrom;
         _balanceTo;
@@ -148,7 +152,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessorto perform the actual Individual rule check.
+     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
@@ -161,7 +165,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
         if (transactionLimitByRiskRuleActive) {
             uint256 balanceValuation = getAccTotalValuation(_to);
             uint256 price = _getERC20Price(msg.sender);
-            uint256 transferValuation = (price * _amount) / (10 ** ERC20(msg.sender).decimals());
+            uint256 transferValuation = (price * _amount) / (10 ** IToken(msg.sender).decimals());
             _checkRiskRules(_from, _to, balanceValuation, transferValuation, _amount, price);
         }
     }
@@ -193,7 +197,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
      * @param _amount number of tokens to be transferred
      */
     function _checkRiskRules(address _from, address _to, uint256 _balanceValuation, uint256 _transferValuation, uint256 _amount, uint256 _price) internal view {
-        _balanceValuation;
+        _balanceValuation; // this is to get rid of compiler warnings...these variables will be used in the future.
         _amount;
         _price;
         uint8 riskScoreTo = appManager.getRiskScore(_to);
@@ -222,11 +226,11 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
                 try IERC165(tokenList[i]).supportsInterface(0x80ac58cd) returns (bool isERC721) {
                     if (isERC721) totalValuation += _getNFTValuePerCollection(tokenList[i], _account, tokenAmount);
                     else {
-                        uint8 decimals = ERC20(tokenList[i]).decimals();
+                        uint8 decimals = IToken(tokenList[i]).decimals();
                         totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
                     }
                 } catch {
-                    uint8 decimals = ERC20(tokenList[i]).decimals();
+                    uint8 decimals = IToken(tokenList[i]).decimals();
                     totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
                 }
             }
@@ -261,7 +265,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
     function _getNFTValuePerCollection(address _tokenAddress, address _account, uint256 _tokenAmount) private view returns (uint256 totalValueInThisContract) {
         if (nftPricingAddress != address(0)) {
             for (uint i; i < _tokenAmount; ) {
-                totalValueInThisContract += nftPricer.getNFTPrice(_tokenAddress, ERC721Enumerable(_tokenAddress).tokenOfOwnerByIndex(_account, i));
+                totalValueInThisContract += nftPricer.getNFTPrice(_tokenAddress, IERC721Enumerable(_tokenAddress).tokenOfOwnerByIndex(_account, i));
                 unchecked {
                     ++i;
                 }
@@ -535,7 +539,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
     }
 
     /**
-     * @dev Set the accountBalanceByRiskRule. Restricted to app administrators only.
+     * @dev Set the TransactionLimitByRiskRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
@@ -567,7 +571,7 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
     }
 
     /**
-     * @dev Set the accountBalanceByRiskRule. Restricted to app administrators only.
+     * @dev Set the AdminWithdrawalRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
@@ -655,6 +659,46 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
         return minBalByDateRuleActive;
     }
 
+    /**
+     * @dev Retrieve the token transfer volume rule id
+     * @return tokenTransferVolumeRuleId rule id
+     */
+    function getTokenTransferVolumeRule() external view returns (uint32) {
+        return tokenTransferVolumeRuleId;
+    }
+
+    /**
+     * @dev Set the tokenTransferVolumeRuleId. Restricted to game admins only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setTokenTransferVolumeRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        tokenTransferVolumeRuleId = _ruleId;
+        tokenTransferVolumeRuleActive = true;
+        emit ApplicationHandlerApplied(TRANSFER_VOLUME, address(this), _ruleId);
+    }
+
+    /**
+     * @dev Tells you if the token transfer volume rule is active or not.
+     * @param _on boolean representing if the rule is active
+     */
+    function activateTokenTransferVolumeRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+        tokenTransferVolumeRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(TRANSFER_VOLUME, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(TRANSFER_VOLUME, address(this));
+        }
+    }
+
+    /**
+     * @dev Tells you if the minBalByDateRuleActive is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isTokenTransferVolumeActive() external view returns (bool) {
+        return tokenTransferVolumeRuleActive;
+    }
+
     /// -------------DATA CONTRACT DEPLOYMENT---------------
     /**
      * @dev Deploy all the child data contracts. Only called internally from the constructor.
@@ -682,14 +726,18 @@ contract ProtocolERC20Handler is Ownable, IAssetHandlerLite, ITokenHandlerEvents
 
     /**
      * @dev This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.
-     * @param _oldCoinHandlerAddress address of the old CoinHandler
+     * @param _oldHandlerAddress address of the old CoinHandler
      */
-    function connectDataContracts(address _oldCoinHandlerAddress) external appAdministratorOnly(appManagerAddress) {
-        ProtocolERC20Handler oldCoinHandler = ProtocolERC20Handler(_oldCoinHandlerAddress);
-        fees = Fees(oldCoinHandler.getFeesDataAddress());
+    function connectDataContracts(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress) {
+        ProtocolERC20Handler oldHandler = ProtocolERC20Handler(_oldHandlerAddress);
+        fees = Fees(oldHandler.getFeesDataAddress());
     }
 }
 
 interface IToken {
     function balanceOf(address owner) external view returns (uint256 balance);
+
+    function totalSupply() external view returns (uint256);
+
+    function decimals() external view returns (uint8);
 }

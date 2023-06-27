@@ -5,22 +5,28 @@
 
 ## Setting NFT Price for Protocol Pricer
 
-1.  Ensure the [environment variable][environment-url] is set correctly.
+1.  Ensure the [environment variables][environment-url] are set correctly.
 2.  Set the price for each collection
     1.  Call the setNFTCollectionPrice function on the NFTPricing contract from previous steps. It accepts parameters of NFTAddress and price, e.g. (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 1 * 10**18)
         1.  Price is 18 decimals so 1 * 10**18 = $1
         2.  Collection price may be updated at any time
          ````
-         cast send 0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3 "setNFTCollectionPrice(address,uint256)" 0xbd416e972a4F2cfb378A2333F621e93D5845C055 1000000000000000000 --private-key 0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba --rpc-url $ETH_RPC_URL
+         cast send $NFT_PRICER "setNFTCollectionPrice(address,uint256)" $APPLICATION_ERC721_1 1000000000000000000 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
          ````
-    2.  If pricing for specific tokenId's is required, they can be set by calling the setSingleNFTPrice function on the newly deployed contract from 13.4.1. It accepts parameters of NFTAddress, tokenId, and price, e.g. (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266,12, 1 * 10**18)
+    2.  If pricing for specific tokenId's is required, they can be set by calling the setSingleNFTPrice function on the NFTPricing contract. It accepts parameters of NFTAddress, tokenId, and price, e.g. (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266,12, 1 * 10**18)
         1.  Price is 18 decimals so 1 * 10**18 = $1
         2.  Individual prices may be updated at any time    
          ````
-         cast send 0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3 "setSingleNFTPrice(address,uint256,uint256)" 0xbd416e972a4F2cfb378A2333F621e93D5845C055 1 1000000000000000000 --private-key 0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba --rpc-url $ETH_RPC_URL
-
+         cast send $NFT_PRICER "setSingleNFTPrice(address,uint256,uint256)" $APPLICATION_ERC721_1 1 1000000000000000000 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
          ````
+    3. Connect the pricing module to any Protocol Supported ERC721's or ERC20's
+   
+        - Run the following for each asset's handler:
+           ````
+           cast send $APPLICATION_ERC721_HANDLER "setNFTPricingAddress(address)"  $NFT_PRICER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+           ````
+
 
 
 ## Setting NFT Price for Custom Pricer

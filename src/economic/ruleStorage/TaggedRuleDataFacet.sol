@@ -11,7 +11,7 @@ import "../AppAdministratorOnly.sol";
 /**
  * @title Tagged Rule Data Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev setters and getters for Tagged rules
+ * @dev setters and getters for Tagged token specific rules
  * @notice This contract sets and gets the Tagged Rules for the protocol. Rules will be applied via General Tags to accounts.
  */
 

@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "src/example/staking/ERC721AutoMintStaking.sol";
 
 /**
- * @title Create a ERC721 Aut Mint Staking Contract
+ * @title Create a ERC721 Auto Mint Staking Contract
  * @dev creates a staking contracts with APPLICATION_ERC20_ADDRESS_2 as rewards token and APPLICATION_ERC721_ADDRESS_1 as stakeable NFT
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
@@ -16,7 +16,7 @@ contract ERC721AutoMintStakingDeployScript is Script {
     function setUp() public {}
 
     function run() public {
-        vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
+        vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER"));
         applicationTokenAddressArray = [vm.envAddress("APPLICATION_ERC721_ADDRESS_1")];
         uint128[7][] memory rewardsPerAddress = new uint128[7][](2);
         rewardsPerAddress[0] = yieldPerTimeUnitArray;

@@ -1,5 +1,5 @@
 # TaggedRuleDataFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/economic/ruleStorage/TaggedRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/economic/ruleStorage/TaggedRuleDataFacet.sol)
 
 **Inherits:**
 Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md)
@@ -9,7 +9,7 @@ Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.
 
 This contract sets and gets the Tagged Rules for the protocol. Rules will be applied via General Tags to accounts.
 
-*setters and getters for Tagged rules*
+*setters and getters for Tagged token specific rules*
 
 
 ## Functions

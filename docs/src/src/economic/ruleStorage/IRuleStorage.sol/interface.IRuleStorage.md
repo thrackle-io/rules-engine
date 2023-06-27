@@ -1,5 +1,5 @@
 # IRuleStorage
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/economic/ruleStorage/IRuleStorage.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/economic/ruleStorage/IRuleStorage.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -77,14 +77,13 @@ struct VolatilityRuleS {
 }
 ```
 
-### TradingVolRuleS
-******** Token Trading Volume ********
+### TransferVolRuleS
+******** Token Transfer Volume ********
 
 
 ```solidity
-struct TradingVolRuleS {
-    mapping(uint32 => INonTaggedRules.TokenTradingVolumeRule) tradingVolumeRules;
-    uint32 tradingVolumeRuleIndex;
+struct TransferVolRuleS {
+    INonTaggedRules.TokenTransferVolumeRule[] transferVolumeRules;
 }
 ```
 
@@ -165,14 +164,26 @@ struct OracleRuleS {
 ```
 
 ### AccessLevelRuleS
-AccessLevel Rules ****************
+AccessLevel Rules ***********
 /****************************************
+Balance Limit by Access Level
 
 
 ```solidity
 struct AccessLevelRuleS {
     mapping(uint32 => mapping(uint8 => uint48)) accessRulesPerToken;
     uint32 accessRuleIndex;
+}
+```
+
+### AccessLevelWithrawalRuleS
+Withdrawal Limit by Access Level
+
+
+```solidity
+struct AccessLevelWithrawalRuleS {
+    mapping(uint32 => mapping(uint8 => uint48)) accessLevelWithdrawal;
+    uint32 accessLevelWithdrawalRuleIndex;
 }
 ```
 

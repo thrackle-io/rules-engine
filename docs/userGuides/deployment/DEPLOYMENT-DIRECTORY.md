@@ -4,10 +4,12 @@
 
 # *** UNDER CONSTRUCTION ***
 
-| Environment | Contract Name        | Contract Address |
-| :--- |:---------------------| :--- | 
-| Polygon Mumbai | RuleStorageDiamond | 0x0000000000000000000000000000000000000000
-| Polygon Mumbai | RuleProcessorDiamond | 0x0000000000000000000000000000000000000000
+| Version | Environment | Contract Name        | Contract Address |
+| :--- | :--- |:---------------------| :--- | 
+| v0.0.3 | Polygon Mumbai | RuleStorageDiamond | 0x53599C890aC5f0B643994F2C88d636bd407F0728
+| v0.0.3 | Polygon Mumbai | RuleProcessorDiamond | 0x7a19Cc45e6466349eC5864774cdE8F6aB6c5E9C3
+| v0.0.3 | Polygon PoS | RuleStorageDiamond | TBD
+| v0.0.3 | Polygon PoS | RuleProcessorDiamond | TBD
 
 
 

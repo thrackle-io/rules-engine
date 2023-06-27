@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 
 /**
- * @title Example On-chain Oracle
+ * @title Example On-chain Restrict-List Oracle
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This is an example on-chain oracle that maintains a restricted list.
  * @dev This is intended to be a model only. It stores the allow list internally and returns bool true if address is in list.

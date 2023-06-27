@@ -1,7 +1,6 @@
 
 
 # Contents
-- [helper](/src/data/helper)
 - [AccessLevels](AccessLevels.sol/contract.AccessLevels.md)
 - [Accounts](Accounts.sol/contract.Accounts.md)
 - [DataModule](DataModule.sol/contract.DataModule.md)

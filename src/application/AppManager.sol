@@ -17,11 +17,11 @@ import {IAppLevelEvents} from "../interfaces/IEvents.sol";
 
 /**
  * @title App Manager Contract
- * @dev This uses AccessControlEnumerable to maintain user roles and allows for metadata to be saved for users.
+ * @dev This uses AccessControlEnumerable to maintain user permissions, handles metadata storage, and checks application level rules via its handler.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is the permissions contract
  */
-contract AppManager is AccessControlEnumerable, IAppLevelEvents {
+contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
     error riskScoreOutOfRange(uint8 riskScore);
     error InvalidDateWindow(uint256 startDate, uint256 endDate);
@@ -35,6 +35,8 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
     error NoAddressToRemove();
     error actionCheckFailed();
     error ZeroAddress();
+    error InputArraysMustHaveSameLength();
+    error ZeroAddressNotAllowed();
 
     bytes32 constant USER_ROLE = keccak256("USER");
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
@@ -48,7 +50,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
     IGeneralTags generalTags;
     IPauseRules pauseRules;
 
-    /// Access Action Contract
+    /// Application Handler Contract
     ProtocolApplicationHandler public applicationHandler;
     address applicationHandlerAddress;
     bool applicationRulesActive;
@@ -68,7 +70,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
     string appName;
 
     /**
-     * @dev This sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts.
+     * @dev This constructor sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.
      * @param root address to set as the default admin and first app administrator
      * @param _appName Application Name String
      * @param _ruleProcessorProxyAddress of the protocol's rule processor diamond
@@ -132,15 +134,29 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the app administrator role. Restricted to admins.
      * @param account address to be added
      */
-    function addAppAdministrator(address account) public onlyAppAdministrator {
+    function addAppAdministrator(address account) external onlyAppAdministrator {
         grantRole(APP_ADMIN_ROLE, account);
         emit AddAppAdministrator(account);
     }
 
     /**
+     * @dev Add an array of accounts to the app administrator role. Restricted to admins.
+     * @param _accounts address array to be added
+     */
+    function addMultipleAppAdministrator(address[] memory _accounts) external onlyAppAdministrator {
+        for (uint256 i; i < _accounts.length; ) {
+            grantRole(APP_ADMIN_ROLE, _accounts[i]);
+            emit AddAppAdministrator(_accounts[i]);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
      * @dev Remove oneself from the app administrator role.
      */
-    function renounceAppAdministrator() public {
+    function renounceAppAdministrator() external {
         renounceRole(APP_ADMIN_ROLE, msg.sender);
         emit RemoveAppAdministrator(address(msg.sender));
     }
@@ -167,15 +183,29 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the access tier role. Restricted to app administrators.
      * @param account address to be added as a access tier
      */
-    function addAccessTier(address account) public onlyAppAdministrator {
+    function addAccessTier(address account) external onlyAppAdministrator {
         grantRole(ACCESS_TIER_ADMIN_ROLE, account);
         emit AccessTierAdded(account);
     }
 
     /**
+     * @dev Add a list of accounts to the access tier role. Restricted to app administrators.
+     * @param account address to be added as a access tier
+     */
+    function addMultipleAccessTier(address[] memory account) external onlyAppAdministrator {
+        for (uint256 i; i < account.length; ) {
+            grantRole(ACCESS_TIER_ADMIN_ROLE, account[i]);
+            emit AccessTierAdded(account[i]);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
      * @dev Remove oneself from the access tier role.
      */
-    function renounceAccessTier() public {
+    function renounceAccessTier() external {
         renounceRole(ACCESS_TIER_ADMIN_ROLE, msg.sender);
         emit AccessTierRemoved(address(msg.sender));
     }
@@ -202,22 +232,36 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the risk admin role. Restricted to app administrators.
      * @param account address to be added
      */
-    function addRiskAdmin(address account) public onlyAppAdministrator {
+    function addRiskAdmin(address account) external onlyAppAdministrator {
         grantRole(RISK_ADMIN_ROLE, account);
         emit RiskAdminAdded(account);
     }
 
     /**
+     * @dev Add a list of accounts to the risk admin role. Restricted to app administrators.
+     * @param account address to be added
+     */
+    function addMultipleRiskAdmin(address[] memory account) external onlyAppAdministrator {
+        for (uint256 i; i < account.length; ) {
+            grantRole(RISK_ADMIN_ROLE, account[i]);
+            emit RiskAdminAdded(account[i]);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
      * @dev Remove oneself from the risk admin role.
      */
-    function renounceRiskAdmin() public {
+    function renounceRiskAdmin() external {
         renounceRole(RISK_ADMIN_ROLE, msg.sender);
         emit RiskAdminRemoved(address(msg.sender));
     }
 
     /// -------------USER---------------
     /// The user roles are stored in a separate data contract
-    /// Restricted to members of the user role.
+    /// These roles can be used to specify if the account is simply a verified user in the application.
     /**
      * @dev Checks if the msg.sender is in the user role
      */
@@ -239,7 +283,8 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the user role. Restricted to app administrators.
      * @param _account address to be added as a user
      */
-    function addUser(address _account) public onlyAppAdministrator {
+    function addUser(address _account) external onlyAppAdministrator {
+        if (_account == address(0)) revert ZeroAddressNotAllowed();
         accounts.addAccount(_account);
     }
 
@@ -247,7 +292,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove an account from the user role. Restricted to app administrators.
      * @param _account address to be removed as a user
      */
-    function removeUser(address _account) public onlyAppAdministrator {
+    function removeUser(address _account) external onlyAppAdministrator {
         accounts.removeAccount(_account);
     }
 
@@ -259,9 +304,42 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @param _level Access Level to add
      */
     function addAccessLevel(address _account, uint8 _level) external onlyAccessTierAdministrator {
-        if (_level < 255 && _level > 4) revert AccessLevelIsNotValid(_level);
+        if (_level > 4) revert AccessLevelIsNotValid(_level);
         accessLevels.addLevel(_account, _level);
         emit AccessLevelAdded(_account, _level, block.timestamp);
+    }
+
+    /**
+     * @dev Add the Access Level(0-4) to multiple accounts. Restricted to Access Tiers.
+     * @param _accounts address upon which to apply the Access Level
+     * @param _level Access Level to add
+     */
+    function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external onlyAccessTierAdministrator {
+        if (_level > 4) revert AccessLevelIsNotValid(_level);
+        for (uint256 i; i < _accounts.length; ) {
+            accessLevels.addLevel(_accounts[i], _level);
+            emit AccessLevelAdded(_accounts[i], _level, block.timestamp);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev Add the Access Level(0-4) to the list of account. Restricted to Access Tiers.
+     * @param _accounts address array upon which to apply the Access Level
+     * @param _level Access Level array to add
+     */
+    function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyAccessTierAdministrator {
+        if (_level.length != _accounts.length) revert InputArraysMustHaveSameLength();
+        for (uint256 i; i < _accounts.length; ) {
+            if (_level[i] > 4) revert AccessLevelIsNotValid(_level[i]);
+            accessLevels.addLevel(_accounts[i], _level[i]);
+            emit AccessLevelAdded(_accounts[i], _level[i], block.timestamp);
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /**
@@ -269,7 +347,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @param _account address of the user
      * @return
      */
-    function getAccessLevel(address _account) public view returns (uint8) {
+    function getAccessLevel(address _account) external view returns (uint8) {
         return accessLevels.getAccessLevel(_account);
     }
 
@@ -287,11 +365,44 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
+     * @dev  Add the Risk Score to each address in array. Restricted to Risk Admins.
+     * @param _accounts address array upon which to apply the Risk Score
+     * @param _score Risk Score(0-100)
+     */
+    function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyRiskAdmin {
+        if (_score > 100) revert riskScoreOutOfRange(_score);
+        for (uint256 i; i < _accounts.length; ) {
+            riskScores.addScore(_accounts[i], _score);
+            emit RiskScoreAdded(_accounts[i], _score, block.timestamp);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev  Add the Risk Score at index to Account at index in array. Restricted to Risk Admins.
+     * @param _accounts address array upon which to apply the Risk Score
+     * @param _scores Risk Score array (0-100)
+     */
+    function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyRiskAdmin {
+        if (_scores.length != _accounts.length) revert InputArraysMustHaveSameLength();
+        for (uint256 i; i < _accounts.length; ) {
+            if (_scores[i] > 100) revert riskScoreOutOfRange(_scores[i]);
+            riskScores.addScore(_accounts[i], _scores[i]);
+            emit RiskScoreAdded(_accounts[i], _scores[i], block.timestamp);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
      * @dev Get the Risk Score for an account.
      * @param _account address upon which the risk score was set
      * @return score risk score(0-100)
      */
-    function getRiskScore(address _account) public view returns (uint8) {
+    function getRiskScore(address _account) external view returns (uint8) {
         return riskScores.getRiskScore(_account);
     }
 
@@ -327,7 +438,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev Remove any expried pause windows.
+     * @dev Remove any expired pause windows.
      */
     function cleanOutdatedRules() external {
         pauseRules.cleanOutdatedRules();
@@ -336,14 +447,59 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
     /// -------------MAINTAIN GENERAL TAGS---------------
 
     /**
-     * @dev Add a general tag to an account. Restricted to Application Administrators.
+     * @dev Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.
      * @param _account Address to be tagged
      * @param _tag Tag for the account. Can be any allowed string variant
      */
     function addGeneralTag(address _account, bytes32 _tag) external onlyAppAdministrator {
         if (keccak256(abi.encodePacked(_tag)) == keccak256(abi.encodePacked(""))) revert BlankTag();
-        generalTags.addTag(_account, _tag);
-        emit GeneralTagAdded(_account, _tag, block.timestamp);
+        if (hasTag(_account, _tag)) {
+            emit TagAlreadyApplied(_account);
+        } else {
+            generalTags.addTag(_account, _tag);
+            emit GeneralTagAdded(_account, _tag, block.timestamp);
+        }
+    }
+
+    /**
+     * @dev Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.
+     * @param _accounts Address array to be tagged
+     * @param _tag Tag for the account. Can be any allowed string variant
+     */
+    function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyAppAdministrator {
+        if (keccak256(abi.encodePacked(_tag)) == keccak256(abi.encodePacked(""))) revert BlankTag();
+        for (uint256 i; i < _accounts.length; ) {
+            if (hasTag(_accounts[i], _tag)) {
+                emit TagAlreadyApplied(_accounts[i]);
+            } else {
+                generalTags.addTag(_accounts[i], _tag);
+                emit GeneralTagAdded(_accounts[i], _tag, block.timestamp);
+            }
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev Add a general tag to an account at index in array. Restricted to Application Administrators. Loops through existing tags on accounts and will emit  an event if tag is already applied.
+     * @param _accounts Address array to be tagged
+     * @param _tag Tag array for the account at index. Can be any allowed string variant
+     */
+    function addMultipleGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tag) external onlyAppAdministrator {
+        if (_accounts.length != _tag.length) revert InputArraysMustHaveSameLength();
+        for (uint256 i; i < _accounts.length; ) {
+            if (keccak256(abi.encodePacked(_tag[i])) == keccak256(abi.encodePacked(""))) revert BlankTag();
+            if (hasTag(_accounts[i], _tag[i])) {
+                emit TagAlreadyApplied(_accounts[i]);
+            } else {
+                generalTags.addTag(_accounts[i], _tag[i]);
+                emit GeneralTagAdded(_accounts[i], _tag[i], block.timestamp);
+            }
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /**
@@ -362,7 +518,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @param _tag Tag to be checked for
      * @return success true if account has the tag, false if it does not
      */
-    function hasTag(address _account, bytes32 _tag) external view returns (bool) {
+    function hasTag(address _account, bytes32 _tag) public view returns (bool) {
         return generalTags.hasTag(_account, _tag);
     }
 
@@ -371,7 +527,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @param _address Address to retrieve the tags
      * @return tags Array of all tags for the account
      */
-    function getAllTags(address _address) public view returns (bytes32[] memory) {
+    function getAllTags(address _address) external view returns (bytes32[] memory) {
         return generalTags.getAllTags(_address);
     }
 
@@ -379,7 +535,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev  Set the address of the Risk Provider contract. Restricted to Application Administrators
      * @param _provider Address of the provider
      */
-    function setRiskProvider(address _provider) public onlyAppAdministrator {
+    function setRiskProvider(address _provider) external onlyAppAdministrator {
         if (_provider == address(0)) revert ZeroAddress();
         riskScores = IRiskScores(_provider);
     }
@@ -388,7 +544,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev Get the address of the risk score provider
      * @return provider Address of the provider
      */
-    function getRiskProvider() public view returns (address) {
+    function getRiskProvider() external view returns (address) {
         return address(riskScores);
     }
 
@@ -396,7 +552,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev  Set the address of the General Tag Provider contract. Restricted to Application Administrators
      * @param _provider Address of the provider
      */
-    function setGeneralTagProvider(address _provider) public onlyAppAdministrator {
+    function setGeneralTagProvider(address _provider) external onlyAppAdministrator {
         if (_provider == address(0)) revert ZeroAddress();
         generalTags = IGeneralTags(_provider);
     }
@@ -405,7 +561,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev Get the address of the general tag provider
      * @return provider Address of the provider
      */
-    function getGeneralTagProvider() public view returns (address) {
+    function getGeneralTagProvider() external view returns (address) {
         return address(generalTags);
     }
 
@@ -413,7 +569,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev  Set the address of the Account Provider contract. Restricted to Application Administrators
      * @param _provider Address of the provider
      */
-    function setAccountProvider(address _provider) public onlyAppAdministrator {
+    function setAccountProvider(address _provider) external onlyAppAdministrator {
         if (_provider == address(0)) revert ZeroAddress();
         accounts = IAccounts(_provider);
     }
@@ -422,7 +578,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev Get the address of the account provider
      * @return provider Address of the provider
      */
-    function getAccountProvider() public view returns (address) {
+    function getAccountProvider() external view returns (address) {
         return address(accounts);
     }
 
@@ -430,7 +586,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev  Set the address of the Pause Rule Provider contract. Restricted to Application Administrators
      * @param _provider Address of the provider
      */
-    function setPauseRuleProvider(address _provider) public onlyAppAdministrator {
+    function setPauseRuleProvider(address _provider) external onlyAppAdministrator {
         if (_provider == address(0)) revert ZeroAddress();
         pauseRules = IPauseRules(_provider);
     }
@@ -439,7 +595,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev Get the address of the pause rules provider
      * @return provider Address of the provider
      */
-    function getPauseRulesProvider() public view returns (address) {
+    function getPauseRulesProvider() external view returns (address) {
         return address(pauseRules);
     }
 
@@ -447,7 +603,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev  Set the address of the Access Level Provider contract. Restricted to Application Administrators
      * @param _accessLevelProvider Address of the Access Level provider
      */
-    function setAccessLevelProvider(address _accessLevelProvider) public onlyAppAdministrator {
+    function setAccessLevelProvider(address _accessLevelProvider) external onlyAppAdministrator {
         if (_accessLevelProvider == address(0)) revert ZeroAddress();
         accessLevels = IAccessLevels(_accessLevelProvider);
     }
@@ -456,17 +612,17 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev Get the address of the Access Level provider
      * @return accessLevelProvider Address of the Access Level provider
      */
-    function getAccessLevelProvider() public view returns (address) {
+    function getAccessLevelProvider() external view returns (address) {
         return address(accessLevels);
     }
 
     /** APPLICATION CHECKS */
     /**
-     * @dev checks if any of the AccessLevel or Risk rules are active in order to decide to perform or not
-     * the USD valuation of assets
+     * @dev checks if any of the balance prerequisite rules are active
+     * @return true if one or more rules are active
      */
-    function areAccessLevelOrRiskRulesActive() external returns (bool) {
-        if (applicationHandler.riskOrAccessLevelRulesActive()) {
+    function requireValuations() external returns (bool) {
+        if (applicationHandler.requireValuations()) {
             applicationRulesActive = true;
         } else {
             applicationRulesActive = false;
@@ -487,7 +643,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev This function allows the devs to register their token contract addresses. This keeps everything in sync and will aid with the token factory
+     * @dev This function allows the devs to register their token contract addresses. This keeps everything in sync and will aid with the token factory and application level balance checks.
      * @param _token The token identifier(may be NFT or ERC20)
      * @param _tokenAddress Address corresponding to the tokenId
      */
@@ -516,7 +672,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev This function allows the devs to deregister a token contract address. This keeps everything in sync and will aid with the token factory
+     * @dev This function allows the devs to deregister a token contract address. This keeps everything in sync and will aid with the token factory and application level balance checks.
      * @param _tokenId The token id(may be NFT or ERC20)
      */
     function deregisterToken(string calldata _tokenId) external onlyAppAdministrator {
@@ -562,7 +718,7 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
      * @dev This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions
      * @param _AMMAddress Address for the AMM
      */
-    function isRegisteredAMM(address _AMMAddress) public view returns (bool) {
+    function isRegisteredAMM(address _AMMAddress) external view returns (bool) {
         for (uint256 i = 0; i < ammList.length; ) {
             if (ammList[i] == _AMMAddress) {
                 return true;
@@ -709,9 +865,9 @@ contract AppManager is AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev this function returns the application handler address
-     * @return ApplicationHandler
+     * @return handlerAddress
      */
-    function getApplicationHandlerAddress() external view returns (address) {
+    function getHandlerAddress() external view returns (address) {
         return applicationHandlerAddress;
     }
 

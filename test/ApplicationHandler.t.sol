@@ -37,7 +37,7 @@ contract ApplicationHandlerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         appManager.addAppAdministrator(defaultAdmin);
         appManager.addAccessTier(defaultAdmin);
         appManager.addRiskAdmin(defaultAdmin);
-        applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
+        applicationHandler = ApplicationHandler(appManager.getHandlerAddress());
     }
 
     /// Test the checkAction. This tests all application compliance

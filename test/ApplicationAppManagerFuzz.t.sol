@@ -36,7 +36,7 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
         /// connect the Rule Processor to its child Diamond
 
         appManager = new AppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
-        applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
+        applicationHandler = ApplicationHandler(appManager.getHandlerAddress());
         vm.startPrank(defaultAdmin); //set up as the default admin
         ruleProcessorDiamond = getApplicationProcessorDiamond();
         console.log(applicationHandler.owner());
@@ -74,6 +74,18 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
         if (sender == defaultAdmin) {
             assertTrue(appManager.isAppAdministrator(admin));
             assertFalse(appManager.isAppAdministrator(address(0xBABE)));
+        }
+    }
+
+    function testAddMultipleAppAdministrator(uint8 addressIndexA) public {
+        vm.stopPrank();
+        address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
+        vm.startPrank(sender);
+        if (sender != defaultAdmin) vm.expectRevert();
+        appManager.addMultipleAppAdministrator(ADDRESSES);
+        if (sender == defaultAdmin) {
+            assertTrue(appManager.isAppAdministrator(appAdministrator));
+            assertFalse(appManager.isAppAdministrator(address(0xFF77)));
         }
     }
 
@@ -135,6 +147,26 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
             vm.startPrank(random);
             if (random != defaultAdmin && random != admin) vm.expectRevert();
             appManager.addRiskAdmin(random); //add risk admin
+        }
+    }
+
+    function testAddMultipleRiskAdmins(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+        vm.stopPrank();
+        address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
+        address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
+        address random = ADDRESSES[addressIndexC % ADDRESSES.length];
+        vm.startPrank(sender);
+        if (sender != defaultAdmin) vm.expectRevert();
+        appManager.addAppAdministrator(admin);
+        if (sender == defaultAdmin) {
+            vm.stopPrank();
+            vm.startPrank(admin);
+            appManager.addMultipleRiskAdmin(ADDRESSES); //add risk admins
+            assertTrue(appManager.isRiskAdmin(random));
+            assertTrue(appManager.isRiskAdmin(address(0xF00D)));
+            assertTrue(appManager.isRiskAdmin(address(0xBEEF)));
+            assertTrue(appManager.isRiskAdmin(address(0xC0FFEE)));
+            assertFalse(appManager.isRiskAdmin(address(88)));
         }
     }
 
@@ -204,6 +236,27 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
             vm.startPrank(random);
             if (random != defaultAdmin && random != admin) vm.expectRevert();
             appManager.addAccessTier(address(0xBABE)); //add AccessLevel
+        }
+    }
+
+    // Test adding the Access Tier roles for multiple addresses
+    function testMultipleAddAccessTier(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+        vm.stopPrank();
+        address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
+        address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
+        address random = ADDRESSES[addressIndexC % ADDRESSES.length];
+        vm.startPrank(sender);
+        if (sender != defaultAdmin) vm.expectRevert();
+        appManager.addAppAdministrator(admin);
+        if (sender == defaultAdmin) {
+            vm.stopPrank();
+            vm.startPrank(admin);
+            appManager.addMultipleAccessTier(ADDRESSES); //add AccessLevel admins
+            assertTrue(appManager.isAccessTier(random));
+            assertTrue(appManager.isAccessTier(address(0xF00D)));
+            assertTrue(appManager.isAccessTier(address(0xBEEF)));
+            assertTrue(appManager.isAccessTier(address(0xC0FFEE)));
+            assertFalse(appManager.isAccessTier(address(88)));
         }
     }
 
@@ -312,9 +365,9 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
             assertTrue(appManager.isAccessTier(admin));
             vm.stopPrank();
             vm.startPrank(random);
-            if (random != admin || (AccessLevel > 4 && AccessLevel < 255)) vm.expectRevert();
+            if (random != admin || (AccessLevel > 4)) vm.expectRevert();
             appManager.addAccessLevel(address(0xBABE), AccessLevel);
-            if (random == admin && (AccessLevel < 4 || AccessLevel == 255)) {
+            if (random == admin && (AccessLevel < 4)) {
                 assertEq(appManager.getAccessLevel(address(0xBABE)), AccessLevel);
                 /// testing update
                 appManager.addAccessLevel(address(0xBABE), 1);
@@ -350,6 +403,7 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
     ///---------------GENERAL TAGS--------------------
     // Test adding the general tags
     function testAddGeneralTag(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, bytes32 Tag1, bytes32 Tag2) public {
+        vm.assume(Tag1 != Tag2 && Tag2 != Tag1);
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -371,6 +425,39 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
         }
     }
 
+    function testAddMultipleGenTagsToMulitpleAccounts(uint8 addressIndexA, uint8 addressIndexB, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3, bytes32 Tag4) public {
+        vm.assume(Tag1 != Tag2 && Tag2 != Tag3 && Tag3 != Tag4 && Tag4 != Tag1 && Tag4 != Tag2 && Tag3 != Tag1);
+        vm.assume(Tag1 != "" && Tag2 != "" && Tag3 != "" && Tag4 != "");
+        vm.stopPrank();
+        address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
+        address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
+
+        bytes32[] memory genTags = new bytes32[](8);
+        genTags[0] = Tag1;
+        genTags[1] = Tag1;
+        genTags[2] = Tag2;
+        genTags[3] = Tag2;
+        genTags[4] = Tag3;
+        genTags[5] = Tag3;
+        genTags[6] = Tag4;
+        genTags[7] = Tag4;
+
+        vm.startPrank(sender);
+        if (sender != defaultAdmin) vm.expectRevert();
+        appManager.addAppAdministrator(admin);
+        ///Test to ensure non admins cannot call function
+        if (sender == defaultAdmin) {
+            vm.stopPrank();
+            vm.startPrank(admin);
+            appManager.addMultipleGeneralTagToMultipleAccounts(ADDRESSES, genTags);
+            /// Test to prove addresses in array are tagged by index matched to secon array of tags
+            assertTrue(appManager.hasTag(user, Tag3));
+            assertTrue(appManager.hasTag(address(0xBEEF), Tag3));
+            assertTrue(appManager.hasTag(address(0xC0FFEE), Tag4));
+            assertTrue(appManager.hasTag(address(0xF00D), Tag4));
+        }
+    }
+
     function testRemoveGeneralTag(uint8 addressIndexA, uint8 addressIndexB, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3, bytes32 Tag4) public {
         vm.assume(Tag1 != Tag2 && Tag2 != Tag3 && Tag3 != Tag4 && Tag4 != Tag1 && Tag4 != Tag2 && Tag3 != Tag1);
 
@@ -386,16 +473,14 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
             assertTrue(appManager.hasTag(address(0xBABE), Tag1));
             assertFalse(appManager.hasTag(address(0xBABE), Tag2));
         }
-        /// add secind tag
+        /// add second tag
         if (Tag2 == "") vm.expectRevert();
         appManager.addGeneralTag(address(0xBABE), Tag2); //add tag
         if (Tag2 != "") {
             assertTrue(appManager.hasTag(address(0xBABE), Tag2));
             assertFalse(appManager.hasTag(address(0xBABE), Tag3));
         }
-        /// add a repeated third tag
-        if (Tag3 == "") vm.expectRevert();
-        appManager.addGeneralTag(address(0xBABE), Tag3); //add tag
+        /// add a third tag
         if (Tag3 == "") vm.expectRevert();
         appManager.addGeneralTag(address(0xBABE), Tag3); //add tag
         if (Tag3 != "") {

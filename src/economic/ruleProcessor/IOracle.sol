@@ -5,7 +5,7 @@ pragma solidity 0.8.17;
  * @title Sanction and Permission Oracle Interface
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This stores the function signature for external oracles
- * @dev Both "white list" and "black list" oracles will use this interface
+ * @dev Both "allow list" and "restrict list" oracles will use this interface
  */
 interface IOracle {
     /**

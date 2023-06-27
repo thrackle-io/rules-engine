@@ -6,7 +6,7 @@ import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {IApplicationRules as ApplicationRuleStorage} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
 
 /**
- * @title Risk Score Handler Facet Contract
+ * @title Risk Score Processor Facet Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev This contract implements rules to be checked by Handler.
  * @notice Risk Score Rules on  Tagged Accounts. All risk rules are measured in
@@ -19,25 +19,36 @@ contract ApplicationRiskProcessorFacet {
     error BalanceExceedsRiskScoreLimit();
 
     /**
-     * @dev Account balance for Risk Score
+     * @dev Account balance by Risk Score
      * @param _ruleId Rule Identifier for rule arguments
      * @param _riskScore the Risk Score of the recepient account
-     * @param _totalValuationTo recepient account's beginning balance in USD with 18 decimals of precision
+     * @param _totalValuationTo recipient account's beginning balance in USD with 18 decimals of precision
      * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
+     * @notice _balanceLimits size must be equal to _riskLevel + 1 since the _balanceLimits must
+     * specify the maximum tx size for anything below the first level and between the highest risk score and 100. This also
+     * means that the positioning of the arrays is ascendant in terms of risk levels, and
+     * descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+     * will apply to all risk scores of 100.)
+     * eg.
+     * risk scores      balances         resultant logic
+     * -----------      --------         ---------------
+     *    25             1000            0-24  =  1000
+     *    50              500            25-49 =   500
+     *    75              250            50-74 =   250
+     *                    100            75-99 =   100
      */
     function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScore, uint128 _totalValuationTo, uint128 _amountToTransfer) external view {
-        /// we create the 'data' variable which is simply a connection to the rule diamond
+        /// create the 'data' variable which is simply a connection to the rule diamond
         AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().rules);
-        /// validation block
         uint256 totalRules = data.getTotalAccountBalanceByRiskScoreRules();
         if ((totalRules > 0 && totalRules <= _ruleId) || totalRules == 0) revert RuleDoesNotExist();
-        /// we procede to retrieve the rule
+        /// retrieve the rule
         ApplicationRuleStorage.AccountBalanceToRiskRule memory rule = data.getAccountBalanceByRiskScore(_ruleId);
-        /// we perform the rule check
         uint total = _totalValuationTo + _amountToTransfer;
-        ///If risk score is within the rule riskLevel array, find the maxBalance for that risk Score
+        /// perform the rule check
         for (uint256 i; i < rule.riskLevel.length; ) {
-            if (_riskScore <= rule.riskLevel[i]) {
+            ///If risk score is within the rule riskLevel array, find the maxBalance for that risk Score
+            if (_riskScore < rule.riskLevel[i]) {
                 /// maxBalance must be multiplied by 10 ** 18 to account for decimals in token pricing in USD
                 if (total > uint(rule.maxBalance[i]) * (10 ** 18)) {
                     revert BalanceExceedsRiskScoreLimit();
@@ -51,7 +62,7 @@ contract ApplicationRiskProcessorFacet {
             }
         }
         ///Check if Risk Score is higher than highest riskLevel for rule
-        if (_riskScore > rule.riskLevel[rule.riskLevel.length - 1]) {
+        if (_riskScore >= rule.riskLevel[rule.riskLevel.length - 1]) {
             if (total > uint256(rule.maxBalance[rule.maxBalance.length - 1]) * (10 ** 18)) revert BalanceExceedsRiskScoreLimit();
         }
     }
@@ -69,6 +80,18 @@ contract ApplicationRiskProcessorFacet {
      * inside the current period, then this value is accumulated. If not, it is reset to current amount.
      * @dev this check will cause a revert if the new value of _usdValueTransactedInPeriod in USD exceeds
      * the limit for the address risk profile.
+     * @notice _balanceLimits size must be equal to _riskLevel + 1 since the _balanceLimits must
+     * specify the maximum tx size for anything below the first level and between the highest risk score and 100. This also
+     * means that the positioning of the arrays is ascendant in terms of risk levels, and
+     * descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+     * will apply to all risk scores of 100.)
+     * eg.
+     * risk scores      balances         resultant logic
+     * -----------      --------         ---------------
+     *    25             1000            0-24  =  1000
+     *    50              500            25-49 =   500
+     *    75              250            50-74 =   250
+     *                    100            75-99 =   100
      */
     function checkMaxTxSizePerPeriodByRisk(uint32 ruleId, uint128 _usdValueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 riskScore) external view returns (uint128) {
         /// we create the 'data' variable which is simply a connection to the rule diamond
@@ -88,7 +111,7 @@ contract ApplicationRiskProcessorFacet {
             amountTransactedInPeriod = amount + _usdValueTransactedInPeriod;
         }
         for (uint256 i; i < rule.riskLevel.length; ) {
-            if (riskScore <= rule.riskLevel[i]) {
+            if (riskScore < rule.riskLevel[i]) {
                 /// we found our range. Now we check...
                 if (amountTransactedInPeriod > uint256(rule.maxSize[i]) * (10 ** 18)) revert MaxTxSizePerPeriodReached(riskScore, rule.maxSize[i], rule.period);
                 /// since we found our range, and it didn't revert, we can leave and update

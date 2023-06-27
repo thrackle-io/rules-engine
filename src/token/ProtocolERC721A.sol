@@ -4,7 +4,6 @@ pragma solidity ^0.8.17;
 
 import "../interfaces/IERC721A.sol";
 import "openzeppelin-contracts/contracts/security/Pausable.sol";
-import "../economic/IERC721HandlerLite.sol";
 import "../application/IAppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
 import "../../src/token/ProtocolERC721Handler.sol";
@@ -1185,7 +1184,16 @@ contract ProtocolERC721A is IERC721A, Pausable, AppAdministratorOnly, IApplicati
      */
     function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
+        handlerAddress = _deployedHandlerAddress;
         handler = ProtocolERC721Handler(_deployedHandlerAddress);
         emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
+    }
+
+    /**
+     * @dev this function returns the handler address
+     * @return handlerAddress
+     */
+    function getHandlerAddress() external view returns (address) {
+        return handlerAddress;
     }
 }

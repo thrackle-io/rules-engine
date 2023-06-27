@@ -12,7 +12,6 @@ interface IAppLevelEvents {
     ///AppManager
     event RoleCheck(string contractName, string functionName, address checkedAddress, bytes32 checkedRole);
     event AppManagerDeployed(address indexed deployedAddress);
-    event ApplicationHandlerDeployed(address indexed deployedAddress);
     event AppManagerDeployedForUpgrade(address indexed deployedAddress);
     event AppManagerUpgrade(address indexed deployedAddress, address replacedAddress);
     event RemoveFromRegistry(string contractName, address contractAddress);
@@ -28,15 +27,29 @@ interface IAppLevelEvents {
     ///GeneralTags
     event GeneralTagAdded(address indexed _address, bytes32 indexed _tag, uint256 date);
     event GeneralTagRemoved(address indexed _address, bytes32 indexed _tag, uint256 date);
+    event TagAlreadyApplied(address indexed _address);
     ///AccessLevels
     event AccessLevelAdded(address indexed _address, uint8 indexed _level, uint256 date);
     event AccessLevelRemoved(address indexed _address, uint256 date);
     ///PauseRules
-    event PauseRuleAdded(uint256 pauseStart, uint256 pauseStop);
-    event PauseRuleRemoved(uint256 pauseStart, uint256 pauseStop);
+    event PauseRuleAdded(uint256 indexed pauseStart, uint256 indexed pauseStop);
+    event PauseRuleRemoved(uint256 indexed pauseStart, uint256 indexed pauseStop);
     ///RiskScores
     event RiskScoreAdded(address indexed _address, uint8 _score, uint256 date);
     event RiskScoreRemoved(address indexed _address, uint256 date);
+}
+
+/**
+ * @title Application Handler Events Interface
+ * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
+ * @dev This library for all events in the Protocol module for the protocol. Each contract in the Protocol module should inherit this library for emitting events.
+ * @notice Protocol Module Events Library
+ */
+
+interface IApplicationHandlerEvents {
+    event ApplicationHandlerDeployed(address indexed deployedAddress, address indexed appManager);
+    // Rule applied
+    event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
 }
 
 /**
@@ -76,6 +89,7 @@ interface ITokenHandlerEvents {
     event HandlerDeployedForUpgrade(address indexed applicationHandler, address indexed appManager);
     /// Rule applied
     event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId);
+
     /// Rule deactivated
     event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
     /// Rule activated

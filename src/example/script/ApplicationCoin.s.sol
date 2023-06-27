@@ -18,7 +18,7 @@ contract ApplicationERC20Script is Script {
      * @dev This function runs the script
      */
     function run() public {
-        vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
+        vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
 
         new ApplicationERC20("Frankenstein Coin", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), vm.envAddress("RULE_PROCESSOR_DIAMOND"), false);
         // Register the token with the application's app manager

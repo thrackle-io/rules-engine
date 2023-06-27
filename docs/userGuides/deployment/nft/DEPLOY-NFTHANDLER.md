@@ -15,22 +15,24 @@
 
     ````
 5. Deploy the contract sending in the following parameters:
-    1. _RuleProcessorDiamond Address_
-       1. The RuleProcessorDiamond's contract address from previous steps for local deployment or from the [Deployment Directory][deploymentDirectory-url]
-    2. _App Manager Address_
-       1. The address noted from previous steps
+    1. _RuleProcessorAddress_ - The address noted from previous steps and set as an environment variable($RULE_PROCESSOR_DIAMOND).
+    2. _App Manager Address_ - The address noted from previous steps and set as an environment variable($APPLICATION_APP_MANAGER).
     3. _upgradeMode_ 
        1. The bool representing if this is an upgraded handler contract
+    4. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
+    ````
+    forge create src/example/deploy/FrankensteinERC721Handler.sol:FrankensteinERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
     ````
-    forge create src/example/ApplicationERC721Handler.sol:ApplicationERC721Handler --constructor-args 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url  $ETH_RPC_URL
-
+6. Use the output from the deployment to set an environment variable for NFT Handler's address.
+    1. Locate the address from the output, example:
     ````
-6. Use the output from this deployment to take note of the application NFTHandler's address.
+    Deployed to: 0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575
+    Transaction hash: 0xeac248a8c7dfd3c09927f607723acebeb1f6e1efb6bd6eef8f273982c762b526
     ````
-    Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-    Deployed to: 0x82e01223d51Eb87e16A03E24687EDF0F294da6f1
-    Transaction hash: 0xf74e37c3d173896d67c723e7b5e7a73648e7ec0d2585046b9eaea35ff921c624
+    2. Set the environment variable
+    ````
+    export APPLICATION_ERC721_1_HANDLER=address from output
     ````
 
 

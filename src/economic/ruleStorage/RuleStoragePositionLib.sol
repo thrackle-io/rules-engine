@@ -5,7 +5,7 @@ import "./IRuleStorage.sol";
 /**
  * @title Rules Storage Library
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev This contract serves as the storage library for the rules Diamond
+ * @dev This contract serves as the storage library for the rules Diamond. It basically serves up the storage position for all rules
  * @notice Library for Rules
  */
 library RuleStoragePositionLib {
@@ -30,8 +30,8 @@ library RuleStoragePositionLib {
     bytes32 constant BALANCE_LIMIT_TO_RISK_RULE_POSITION = keccak256("token.balance-limit-to-risk");
     bytes32 constant NFT_TRANSFER_RULE_POSITION = keccak256("NFT.transfer-rule");
     bytes32 constant MIN_BAL_BY_DATE_RULE_POSITION = keccak256("token.min-bal-by-date-rule");
-
     bytes32 constant AMM_FEE_RULE_POSITION = keccak256("AMM.fee-rule");
+    bytes32 constant ACCESS_LEVEL_WITHDRAWAL_RULE_POSITION = keccak256("token.access-level-withdrawal-rule");
 
     /**
      * @dev Function to store Purchase rules
@@ -103,7 +103,7 @@ library RuleStoragePositionLib {
      * @dev Function to store Volume rules
      * @return ds Data Storage of Volume Rule
      */
-    function volumeStorage() internal pure returns (IRuleStorage.TradingVolRuleS storage ds) {
+    function volumeStorage() internal pure returns (IRuleStorage.TransferVolRuleS storage ds) {
         bytes32 position = VOLUME_RULE_POSITION;
         assembly {
             ds.slot := position
@@ -248,6 +248,17 @@ library RuleStoragePositionLib {
      */
     function minBalByDateRuleStorage() internal pure returns (IRuleStorage.MinBalByDateRuleS storage ds) {
         bytes32 position = MIN_BAL_BY_DATE_RULE_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
+
+    /**
+     * @dev Function to store Access Level Withdrawal rules
+     * @return ds Data Storage of Access Level Withdrawal rule
+     */
+    function accessLevelWithdrawalRuleStorage() internal pure returns (IRuleStorage.AccessLevelWithrawalRuleS storage ds) {
+        bytes32 position = ACCESS_LEVEL_WITHDRAWAL_RULE_POSITION;
         assembly {
             ds.slot := position
         }

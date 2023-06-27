@@ -1,5 +1,5 @@
 # Accounts
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/data/Accounts.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/data/Accounts.sol)
 
 **Inherits:**
 [DataModule](/src/data/DataModule.sol/contract.DataModule.md), [IAccounts](/src/data/IAccounts.sol/interface.IAccounts.md)
@@ -9,7 +9,7 @@
 
 This contract serves as a storage server for user accounts
 
-*Uses DataAppManager, which has basic ownable functionality. It will get created, and therefore owned, by the app manager*
+*Uses DataModule, which has basic ownable functionality. It will get created, and therefore owned, by the app manager*
 
 
 ## State Variables

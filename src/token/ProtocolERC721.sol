@@ -7,7 +7,6 @@ import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "../economic/IERC721HandlerLite.sol";
 import "../application/IAppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
 import "../../src/token/ProtocolERC721Handler.sol";
@@ -67,8 +66,17 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @notice this is called in the constructor and can be called to update URI metadata pointer
      * @param _baseUri URI to the metadata file(s) for the contract
      */
-    function setBaseURI(string memory _baseUri) public appAdministratorOnly(appManagerAddress) {
+    function setBaseURI(string memory _baseUri) public virtual appAdministratorOnly(appManagerAddress) {
         baseUri = _baseUri;
+    }
+
+    /**
+     * @dev Function to set URI for specific token
+     * @param tokenId Id of token to update
+     * @return tokenURI new URI for token Id
+     */
+    function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
+        return ERC721URIStorage.tokenURI(tokenId);
     }
 
     /*************** END setters and getters ************/
@@ -76,7 +84,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @dev AppAdministratorOnly function takes appManagerAddress as parameter
      * Function puases contract and prevents functions with whenNotPaused modifier
      */
-    function pause() public appAdministratorOnly(appManagerAddress) {
+    function pause() public virtual appAdministratorOnly(appManagerAddress) {
         _pause();
     }
 
@@ -84,7 +92,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @dev Unpause the contract. Only whenNotPaused modified functions will work once called. default state of contract is unpaused.
      * AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      */
-    function unpause() public appAdministratorOnly(appManagerAddress) {
+    function unpause() public virtual appAdministratorOnly(appManagerAddress) {
         _unpause();
     }
 
@@ -125,19 +133,10 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     }
 
     /**
-     * @dev Function to set URI for specific token
-     * @param tokenId Id of token to update
-     * @return tokenURI new URI for token Id
-     */
-    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
-        return ERC721URIStorage.tokenURI(tokenId);
-    }
-
-    /**
      * @dev Function to withdraw Ether sent to contract
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      */
-    function withdraw() public payable appAdministratorOnly(appManagerAddress) {
+    function withdraw() public payable virtual appAdministratorOnly(appManagerAddress) {
         (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(success);
     }
@@ -172,6 +171,8 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      */
     function deployHandler(address _ruleProcessor, address _appManagerAddress, bool _upgradeModeHandler) private returns (address) {
         handler = new ProtocolERC721Handler(_ruleProcessor, _appManagerAddress, _upgradeModeHandler);
+        /// register the token with its handler
+        handler.setERC721Address(address(this));
         handlerAddress = address(handler);
         return handlerAddress;
     }
@@ -182,7 +183,16 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      */
     function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
+        handlerAddress = _deployedHandlerAddress;
         handler = ProtocolERC721Handler(_deployedHandlerAddress);
         emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
+    }
+
+    /**
+     * @dev this function returns the handler address
+     * @return handlerAddress
+     */
+    function getHandlerAddress() external view returns (address) {
+        return handlerAddress;
     }
 }

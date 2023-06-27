@@ -8,24 +8,27 @@
 **Commands are configured for zsh terminal**
 
 1. Ensure that [Foundry][foundry-url] is installed and functioning properly
-2. Pull the repository
+2. Install eth-abi
+   ````
+   pip install eth-abi
+   ````
+3. Pull the repository
    1. Clone the [repository][repository-url]
    ````
    git clone [repository-url]
    ````
-
-3. Start Anvil
+4. Start Anvil
    ````
    anvil
    ````
-4. Deploy the [Protocol][deployProtocolLocal-url]. 
-5. Deploy [AppManager][deployAppManager-url]
-6. Deploy [Protocol Supported NFT][deployProtocolSupportedNft-url]
-7. Deploy [Pricing Module][deployPricingModule-url] (Optional)
-8.  Create [Application Rules][createAppRules-url] (Optional)    
-9.  Create [NFT Specific Rules][createNftRules-url] (Optional)    
-10. Set [External Access Tier Provider][externalAccessTierProvider-url] (Optional)
-11. [Set NFT Prices][settingNftPrice-url] (Optional)
+5. Deploy the [Protocol][deployProtocolLocal-url]. 
+6. Deploy [AppManager][deployAppManager-url]
+7. Deploy [Protocol Supported NFT][deployProtocolSupportedNft-url]
+8. Deploy [Pricing Module][deployPricingModule-url] (Optional)
+9.  Create [Application Rules][createAppRules-url] (Optional)    
+10. Create [NFT Specific Rules][createNftRules-url] (Optional)    
+11. Set [External Access Tier Provider][externalAccessTierProvider-url] (Optional)
+12. [Set NFT Prices][settingNftPrice-url] (Optional)
     
 
 <!-- These are the body links -->

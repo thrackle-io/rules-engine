@@ -6,7 +6,7 @@ import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
 
 /**
- * @title Base NFT Pricing Template Contract
+ * @title ERC721 Pricing Template Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is a simple pricing mechanism only. Its main purpose is to store prices.
  * @dev This contract allows for setting prices on entire collections or by tokenId

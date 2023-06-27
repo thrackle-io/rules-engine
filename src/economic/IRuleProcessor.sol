@@ -192,8 +192,61 @@ interface IRuleProcessor {
     function checkAccessLevel0Passes(uint8 _accessLevel) external view;
 
     /**
+     * @dev rule that checks if the withdrawal exceeds the limit size in USD for a specific access level
+     * @notice that these ranges are set by ranges.
+     * @param _ruleId to check against.
+     * @param _accessLevel access level of the sending account
+     * @param _withdrawal the amount, in USD, of previously withdrawn assets
+     * @param _amountToTransfer total value of the transfer
+     * @return Sending account's new total withdrawn.
+     */
+    function checkwithdrawalLimitsByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _withdrawal, uint128 _amountToTransfer) external view returns (uint128);
+
+    /**
      * @dev This function checks if the requested action is valid according to pause rules.
      * @param _dataServer address of the Application Rule Processor Diamond contract
      */
     function checkPauseRules(address _dataServer) external view;
+
+    /**
+     * @dev Function receives a rule id, retrieves the rule data and checks if the Purchase Percentage Rule passes
+     * @param ruleId id of the rule to be checked
+     * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
+     * @param amountToTransfer total number of tokens to be transferred in transaction.
+     * @param lastPurchaseTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
+     */
+    function checkPurchasePercentagePasses(
+        uint32 ruleId,
+        uint256 currentTotalSupply,
+        uint256 amountToTransfer,
+        uint64 lastPurchaseTime,
+        uint256 totalPurchasedWithinPeriod
+    ) external view returns (uint256);
+
+    /**
+     * @dev Function receives a rule id, retrieves the rule data and checks if the Sell Percentage Rule passes
+     * @param ruleId id of the rule to be checked
+     * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
+     * @param amountToTransfer total number of tokens to be transferred in transaction.
+     * @param lastSellTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
+     * @param totalSoldWithinPeriod total amount of tokens sold during period.
+     */
+    function checkSellPercentagePasses(
+        uint32 ruleId, 
+        uint256 currentTotalSupply, 
+        uint256 amountToTransfer, 
+        uint64 lastSellTime, 
+        uint256 totalSoldWithinPeriod
+    ) external view returns (uint256);
+
+    /**
+     * @dev Rule checks if the token transfer volume rule will be violated.
+     * @param _ruleId Rule identifier for rule arguments
+     * @param _volume token's trading volume thus far
+     * @param _amount Number of tokens to be transferred from this account
+     * @param _supply Number of tokens in supply
+     * @param _lastTransferTs the time of the last transfer
+     * @return volumeTotal new accumulated volume
+     */
+    function checkTokenTransferVolumePasses(uint32 _ruleId, uint256 _volume, uint256 _supply, uint256 _amount, uint64 _lastTransferTs) external view returns (uint256);
 }

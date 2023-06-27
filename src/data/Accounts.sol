@@ -6,7 +6,7 @@ import "./IAccounts.sol";
 /**
  * @title User accounts
  * @notice This contract serves as a storage server for user accounts
- * @dev Uses DataAppManager, which has basic ownable functionality. It will get created, and therefore owned, by the app manager
+ * @dev Uses DataModule, which has basic ownable functionality. It will get created, and therefore owned, by the app manager
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract Accounts is DataModule, IAccounts {

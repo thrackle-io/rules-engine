@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "../../diamond/core/DiamondCut/FacetCut.sol";
+import "diamond-std/core/DiamondCut/FacetCut.sol";
 
 error NoSelectorsGivenToAdd();
 error NotContractOwner(address _user, address _contractOwner);

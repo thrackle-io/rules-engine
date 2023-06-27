@@ -9,8 +9,8 @@ import "../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import "../src/application/AppManager.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import {SampleFacet} from "../src/diamond/core/test/SampleFacet.sol";
-import {ERC173Facet} from "../src/diamond/implementations/ERC173/ERC173Facet.sol";
+import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
+import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 import {RuleDataFacet as Facet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
 
 import "../src/example/ApplicationERC20Handler.sol";
@@ -48,7 +48,7 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
 
         applicationCoin = new ApplicationERC20("application", "GMC", address(appManager), address(ruleProcessor), false);
         // Set up the ApplicationERC20Handler
-        applicationCoinHandler = ApplicationERC20Handler(applicationCoin.handlerAddress());
+        applicationCoinHandler = ApplicationERC20Handler(applicationCoin.getHandlerAddress());
         applicationCoin.mint(defaultAdmin, 10000000000000000000000);
     }
 

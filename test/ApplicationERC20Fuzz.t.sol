@@ -60,10 +60,10 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         /// add the AccessLevelAdmin address as a AccessLevel admin
         appManager.addAccessTier(accessTier);
 
-        applicationHandler = ApplicationHandler(appManager.getApplicationHandlerAddress());
+        applicationHandler = ApplicationHandler(appManager.getHandlerAddress());
 
         applicationCoin = new ApplicationERC20("application", "FRANK", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler = ApplicationERC20Handler(applicationCoin.handlerAddress());
+        applicationCoinHandler = ApplicationERC20Handler(applicationCoin.getHandlerAddress());
         /// register the token
         appManager.registerToken("FRANK", address(applicationCoin));
         /// set the token price
@@ -100,7 +100,7 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         if (_transferAmount == 340282366920938463463374607431768211455) {
             _transferAmount -= 1;
         }
-        applicationCoin.mint(defaultAdmin, getMaxUint());
+        applicationCoin.mint(defaultAdmin, type(uint256).max);
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address _user1 = addressList[0];
         address _user2 = addressList[1];
@@ -138,7 +138,7 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
             uint256 maxAmount;
             uint256 minAmount;
             {
-                applicationCoin.mint(defaultAdmin, getMaxUint());
+                applicationCoin.mint(defaultAdmin, type(uint256).max);
                 _richUser = addressList[0];
                 _user1 = addressList[1];
                 _user2 = addressList[2];
@@ -212,7 +212,7 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
      * @dev Test the oracle rule, both allow and restrict types
      */
     function testOracleFuzz(uint8 _addressIndex) public {
-        applicationCoin.mint(defaultAdmin, getMaxUint());
+        applicationCoin.mint(defaultAdmin, type(uint256).max);
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         address _user1 = addressList[0];
         address _user2 = addressList[1];
@@ -319,17 +319,17 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         /// let's go to the future in the middle of the period
         vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
         /// now, if the user's risk profile is in the highest range, this transfer should revert
-        if (risk > _riskLevel[2]) vm.expectRevert();
+        if (risk >= _riskLevel[2]) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user2, 1 * (10 ** 18));
         /// 2
         /// if the user's risk profile is in the second to the highest range, this transfer should revert
-        if (risk > _riskLevel[1]) vm.expectRevert();
+        if (risk >= _riskLevel[1]) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user2, 10_000 * (10 ** 18) - 1);
         /// 10_001
         /// if the user's risk profile is in the second to the lowest range, this transfer should revert
-        if (risk > _riskLevel[0]) vm.expectRevert();
+        if (risk >= _riskLevel[0]) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user2, 100_000_000 * (10 ** 18) - 10_000 * (10 ** 18));
         /// 100_000_000 - 10_000 + 10_001 = 100_000_000 + 1 = 100_000_001
@@ -376,17 +376,17 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         applicationCoin.transfer(user1, 1 * (10 ** 18));
         /// 1
         /// now, if the user's risk profile is in the highest range, this transfer should revert
-        if (risk > _riskLevel[2]) vm.expectRevert();
+        if (risk >= _riskLevel[2]) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user1, 1 * (10 ** 18));
         /// 2
         /// if the user's risk profile is in the second to the highest range, this transfer should revert
-        if (risk > _riskLevel[1]) vm.expectRevert();
+        if (risk >= _riskLevel[1]) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user1, 90_000 * (10 ** 18) - 1);
         /// 90_001
         /// if the user's risk profile is in the second to the lowest range, this transfer should revert
-        if (risk > _riskLevel[0]) vm.expectRevert();
+        if (risk >= _riskLevel[0]) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user1, 900_000_000 * (10 ** 18) - 90_000 * (10 ** 18));
         /// 900_000_000 - 90_000 + 90_001 = 900_000_000 + 1 = 900_000_001
@@ -444,15 +444,15 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
     }
 
     function testBalanceLimitByRiskScoreFuzz(uint8 _addressIndex, uint24 _amountSeed) public {
-        applicationCoin.mint(defaultAdmin, getMaxUint());
+        applicationCoin.mint(defaultAdmin, type(uint256).max);
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
         address _user1 = addressList[0];
         address _user2 = addressList[1];
         address _user3 = addressList[2];
         address _user4 = addressList[3];
         /// set up a non admin user with tokens
-        applicationCoin.transfer(_user1, getMaxUint());
-        assertEq(applicationCoin.balanceOf(_user1), getMaxUint());
+        applicationCoin.transfer(_user1, type(uint256).max);
+        assertEq(applicationCoin.balanceOf(_user1), type(uint256).max);
         // set up amounts(accounting for too big and too small numbers)
         if (_amountSeed == 0) {
             _amountSeed = 1;
@@ -510,15 +510,15 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
      * @dev Test the Balance By AccessLevel rule
      */
     function testCoinBalanceByAccessLevelRulePassesFuzz(uint8 _addressIndex, uint24 _amountSeed) public {
-        applicationCoin.mint(defaultAdmin, getMaxUint());
+        applicationCoin.mint(defaultAdmin, type(uint256).max);
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
         address _user1 = addressList[0];
         address _user2 = addressList[1];
         address _user3 = addressList[2];
         address _user4 = addressList[3];
         /// set up a non admin user with tokens
-        applicationCoin.transfer(_user1, getMaxUint());
-        assertEq(applicationCoin.balanceOf(_user1), getMaxUint());
+        applicationCoin.transfer(_user1, type(uint256).max);
+        assertEq(applicationCoin.balanceOf(_user1), type(uint256).max);
         // set up amounts(accounting for too big and too small numbers)
         if (_amountSeed == 0) {
             _amountSeed = 1;
@@ -566,13 +566,13 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler2 = ApplicationERC20Handler(draculaCoin.handlerAddress());
+        applicationCoinHandler2 = ApplicationERC20Handler(draculaCoin.getHandlerAddress());
         applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));
-        draculaCoin.mint(defaultAdmin, getMaxUint());
-        draculaCoin.transfer(_user1, getMaxUint());
-        assertEq(draculaCoin.balanceOf(_user1), getMaxUint());
+        draculaCoin.mint(defaultAdmin, type(uint256).max);
+        draculaCoin.transfer(_user1, type(uint256).max);
+        assertEq(draculaCoin.balanceOf(_user1), type(uint256).max);
         erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * (10 ** 18));
         // set the access levellevel for the user4
@@ -597,7 +597,7 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
 
     function testAdminWithdrawalFuzz(uint256 amount, uint32 secondsForward) public {
         /// we load the admin with tokens
-        applicationCoin.mint(defaultAdmin, getMaxUint());
+        applicationCoin.mint(defaultAdmin, type(uint256).max);
         /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(appManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
 
@@ -610,7 +610,7 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         applicationCoinHandler.setAdminWithdrawalRuleId(1);
 
         vm.warp(block.timestamp + secondsForward);
-        if (secondsForward < 365 days && getMaxUint() - amount < 1_000_000 * (10 ** 18)) vm.expectRevert();
+        if (secondsForward < 365 days && type(uint256).max - amount < 1_000_000 * (10 ** 18)) vm.expectRevert();
         applicationCoin.transfer(user1, amount);
 
         /// if last rule is expired, we should be able to turn off and update the rule
@@ -628,7 +628,7 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         vm.assume(_amountSeed < 1000);
         vm.assume(tag1 != "" && tag2 != "" && tag3 != "");
         vm.assume(tag1 != tag2 && tag1 != tag3);
-        applicationCoin.mint(defaultAdmin, getMaxUint());
+        applicationCoin.mint(defaultAdmin, type(uint256).max);
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         rich_user = addressList[0];
         user1 = addressList[1];
@@ -704,24 +704,6 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
     }
 
     /**
-     * @dev this is a quick and dirty way of getting the max uint without using exponents or hardcoding the 78 digit number.
-     */
-    function getMaxUint() public pure returns (uint256) {
-        unchecked {
-            return uint256(0) - 1;
-        }
-    }
-
-    /**
-     * @dev this is a quick and dirty way of getting the max uint without using exponents or hardcoding the 78 digit number.
-     */
-    function getMaxUint24() public pure returns (uint24) {
-        unchecked {
-            return uint24(0) - 1;
-        }
-    }
-
-    /**
      * @dev this function ensures that unique addresses can be randomly retrieved from the address array.
      */
     function getUniqueAddresses(uint256 _seed, uint8 _number) public view returns (address[] memory _addressList) {
@@ -764,7 +746,7 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
     function testTransactionFeeTableFuzz(uint8 _addressIndex, uint24 _amountSeed, int24 _feeSeed, int24 _discountSeed) public {
         // this logic was used because vm.assume was skipping too many values.
         if (_amountSeed == 0) _amountSeed = 1;
-        if (_amountSeed > (getMaxUint24() / 10000)) _amountSeed = (getMaxUint24() / 10000);
+        if (_amountSeed > (type(uint24).max / 10000)) _amountSeed = (type(uint24).max / 10000);
         if (_feeSeed > 10000) _feeSeed = 10000;
         if (_feeSeed <= 0) _feeSeed = 1;
         if (_discountSeed > 0) _discountSeed = 0;
@@ -775,9 +757,9 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         address fromUser = addressList[0];
         address treasury = addressList[1];
         address toUser = addressList[2];
-        uint256 fromUserBalance = getMaxUint() - 1;
+        uint256 fromUserBalance = type(uint256).max - 1;
         applicationCoin.mint(fromUser, fromUserBalance);
-        uint256 maxBalance = getMaxUint();
+        uint256 maxBalance = type(uint256).max;
         address targetAccount = treasury;
         // create a fee
         applicationCoinHandler.addFee("fee", 0, maxBalance, _feeSeed, targetAccount);
@@ -826,7 +808,7 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
     function testTransactionFeeTableTransferFromFuzz(uint8 _addressIndex, uint24 _amountSeed, int24 _feeSeed, int24 _discountSeed) public {
         // this logic was used because vm.assume was skipping too many values.
         if (_amountSeed == 0) _amountSeed = 1;
-        if (_amountSeed > (getMaxUint24() / 10000)) _amountSeed = (getMaxUint24() / 10000);
+        if (_amountSeed > (type(uint24).max / 10000)) _amountSeed = (type(uint24).max / 10000);
         if (_feeSeed > 10000) _feeSeed = 10000;
         if (_feeSeed <= 0) _feeSeed = 1;
         if (_discountSeed > 0) _discountSeed = 0;
@@ -838,15 +820,15 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         address treasury = addressList[1];
         address toUser = addressList[2];
         address transferFromUser = addressList[3];
-        uint256 fromUserBalance = getMaxUint() - 1;
+        uint256 fromUserBalance = type(uint256).max - 1;
         applicationCoin.mint(fromUser, fromUserBalance);
         address targetAccount = treasury;
         // create a fee
-        applicationCoinHandler.addFee("fee", 0, getMaxUint(), _feeSeed, targetAccount);
+        applicationCoinHandler.addFee("fee", 0, type(uint256).max, _feeSeed, targetAccount);
         Fees.Fee memory fee = applicationCoinHandler.getFee("fee");
         assertEq(fee.feePercentage, _feeSeed);
         assertEq(fee.minBalance, 0);
-        assertEq(fee.maxBalance, getMaxUint());
+        assertEq(fee.maxBalance, type(uint256).max);
         assertEq(1, applicationCoinHandler.getFeeTotal());
 
         // now test the fee assessment
@@ -854,11 +836,11 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         // if the discount is set, then set it up too
         if (_discountSeed != 0) {
             appManager.addGeneralTag(fromUser, "discount"); ///add tag
-            applicationCoinHandler.addFee("discount", 0, getMaxUint(), _discountSeed, address(0));
+            applicationCoinHandler.addFee("discount", 0, type(uint256).max, _discountSeed, address(0));
             fee = applicationCoinHandler.getFee("discount");
             assertEq(fee.feePercentage, _discountSeed);
             assertEq(fee.minBalance, 0);
-            assertEq(fee.maxBalance, getMaxUint());
+            assertEq(fee.maxBalance, type(uint256).max);
             assertEq(2, applicationCoinHandler.getFeeTotal());
         }
         // make sure standard fee works
@@ -885,5 +867,44 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
             assertEq(applicationCoin.balanceOf(toUser), _amountSeed - (_amountSeed * uint24(_feeSeed)) / 10000);
             assertEq(applicationCoin.balanceOf(targetAccount), (_amountSeed * uint24(_feeSeed)) / 10000);
         }
+    }
+
+    /// test the token transfer volume rule in erc20
+    function testTokenTransferVolumeRuleFuzzCoin(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public {
+        if (_period == 0) _period = 1;
+        if (_maxPercent < 100) _maxPercent = 100;
+        if (_maxPercent > 9999) _maxPercent = 9999;
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
+        rich_user = addressList[0];
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), _maxPercent, _period, 0, 0);
+        assertEq(_index, 0);
+        NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
+        assertEq(rule.maxVolume, _maxPercent);
+        assertEq(rule.period, _period);
+        assertEq(rule.startingTime, 0);
+        /// load non admin users with game coin
+        applicationCoin.mint(rich_user, 100_000);
+        assertEq(applicationCoin.balanceOf(rich_user), 100_000);
+        /// apply the rule
+        applicationCoinHandler.setTokenTransferVolumeRuleId(_index);
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        /// determine the maximum transfer amount
+        uint256 maxSize = uint256(_maxPercent) * 10;
+        /// make sure that transfer under the threshold works
+        applicationCoin.transfer(user1, maxSize - 1);
+        assertEq(applicationCoin.balanceOf(user1), maxSize - 1);
+        /// now violate the rule and ensure revert
+        vm.expectRevert(0x3627495d);
+        applicationCoin.transfer(user1, 1);
+        assertEq(applicationCoin.balanceOf(user1), maxSize - 1);
+        /// now move 1 block into the future and make sure it works
+        vm.warp(block.timestamp + (uint256(_period) * 1 hours) + 1 minutes);
+        applicationCoin.transfer(user1, 1);
+        assertEq(applicationCoin.balanceOf(user1), maxSize);
+        /// now violate the rule in this block and ensure revert
+        vm.expectRevert(0x3627495d);
+        applicationCoin.transfer(user2, maxSize);
+        assertEq(applicationCoin.balanceOf(user2), 0);
     }
 }

@@ -1,5 +1,5 @@
 # ProtocolERC721
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/token/ProtocolERC721.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/token/ProtocolERC721.sol)
 
 **Inherits:**
 ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md)
@@ -117,13 +117,34 @@ this is called in the constructor and can be called to update URI metadata point
 
 
 ```solidity
-function setBaseURI(string memory _baseUri) public appAdministratorOnly(appManagerAddress);
+function setBaseURI(string memory _baseUri) public virtual appAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_baseUri`|`string`|URI to the metadata file(s) for the contract|
+
+
+### tokenURI
+
+*Function to set URI for specific token*
+
+
+```solidity
+function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`tokenId`|`uint256`|Id of token to update|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|tokenURI new URI for token Id|
 
 
 ### pause
@@ -135,7 +156,7 @@ Function puases contract and prevents functions with whenNotPaused modifier*
 
 
 ```solidity
-function pause() public appAdministratorOnly(appManagerAddress);
+function pause() public virtual appAdministratorOnly(appManagerAddress);
 ```
 
 ### unpause
@@ -145,7 +166,7 @@ AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as 
 
 
 ```solidity
-function unpause() public appAdministratorOnly(appManagerAddress);
+function unpause() public virtual appAdministratorOnly(appManagerAddress);
 ```
 
 ### safeMint
@@ -203,27 +224,6 @@ function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) when
 |`tokenId`|`uint256`|Id of token to be burned|
 
 
-### tokenURI
-
-*Function to set URI for specific token*
-
-
-```solidity
-function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`tokenId`|`uint256`|Id of token to update|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`string`|tokenURI new URI for token Id|
-
-
 ### withdraw
 
 *Function to withdraw Ether sent to contract*
@@ -232,7 +232,7 @@ function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage
 
 
 ```solidity
-function withdraw() public payable appAdministratorOnly(appManagerAddress);
+function withdraw() public payable virtual appAdministratorOnly(appManagerAddress);
 ```
 
 ### setAppManagerAddress
@@ -286,6 +286,8 @@ function deployHandler(address _ruleProcessor, address _appManagerAddress, bool 
 
 ### connectHandlerToToken
 
+register the token with its handler
+
 *Function to connect Token to previously deployed Handler contract*
 
 
@@ -297,6 +299,21 @@ function connectHandlerToToken(address _deployedHandlerAddress) external appAdmi
 |Name|Type|Description|
 |----|----|-----------|
 |`_deployedHandlerAddress`|`address`|address of the currently deployed Handler Address|
+
+
+### getHandlerAddress
+
+*this function returns the handler address*
+
+
+```solidity
+function getHandlerAddress() external view returns (address);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|handlerAddress|
 
 
 ## Errors

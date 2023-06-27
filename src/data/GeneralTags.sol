@@ -26,7 +26,6 @@ contract GeneralTags is DataModule, IGeneralTags {
      */
     function addTag(address _address, bytes32 _tag) public onlyOwner {
         require(_tag != "");
-        /// first, check to see if the tag already exists for the user
         tagRecords[_address].push(_tag);
     }
 
@@ -64,7 +63,7 @@ contract GeneralTags is DataModule, IGeneralTags {
      * @param _tag metadata tag
      * @return hasTag true if it has the tag, false if it doesn't
      */
-    function hasTag(address _address, bytes32 _tag) external view returns (bool) {
+    function hasTag(address _address, bytes32 _tag) public view returns (bool) {
         for (uint256 i = 0; i < tagRecords[_address].length; ) {
             if (keccak256(abi.encodePacked(tagRecords[_address][i])) == keccak256(abi.encodePacked(_tag))) {
                 return true;

@@ -1,8 +1,8 @@
 # ProtocolERC20Handler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/4f7789968960e18493ff0b85b09856f12969daac/src/token/ProtocolERC20Handler.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/68f4a826ed4aff2c87e6d1264dce053ee793c987/src/token/ProtocolERC20Handler.sol)
 
 **Inherits:**
-Ownable, [IAssetHandlerLite](/src/economic/IAssetHandlerLite.sol/interface.IAssetHandlerLite.md), [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
+Ownable, [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -100,6 +100,13 @@ uint32 private minBalByDateRuleId;
 ```
 
 
+### tokenTransferVolumeRuleId
+
+```solidity
+uint32 private tokenTransferVolumeRuleId;
+```
+
+
 ### minTransferRuleActive
 on-off switches for rules
 
@@ -141,6 +148,29 @@ bool private adminWithdrawalActive;
 
 ```solidity
 bool private minBalByDateRuleActive;
+```
+
+
+### tokenTransferVolumeRuleActive
+
+```solidity
+bool private tokenTransferVolumeRuleActive;
+```
+
+
+### transferVolume
+token level accumulators
+
+
+```solidity
+uint256 private transferVolume;
+```
+
+
+### lastTransferTs
+
+```solidity
+uint64 private lastTransferTs;
 ```
 
 
@@ -247,8 +277,7 @@ If everything checks out, return true
 
 ```solidity
 function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount)
-    internal
-    view;
+    internal;
 ```
 **Parameters**
 
@@ -263,7 +292,7 @@ function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address 
 
 ### _checkTaggedRules
 
-*This function uses the protocol's ruleProcessorto perform the actual Individual rule check.*
+*This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.*
 
 
 ```solidity
@@ -782,7 +811,7 @@ function getTransactionLimitByRiskRule() external view returns (uint32);
 
 that setting a rule will automatically activate it.
 
-*Set the accountBalanceByRiskRule. Restricted to app administrators only.*
+*Set the TransactionLimitByRiskRule. Restricted to app administrators only.*
 
 
 ```solidity
@@ -829,7 +858,7 @@ function isTransactionLimitByRiskActive() external view returns (bool);
 
 that setting a rule will automatically activate it.
 
-*Set the accountBalanceByRiskRule. Restricted to app administrators only.*
+*Set the AdminWithdrawalRule. Restricted to app administrators only.*
 
 
 ```solidity
@@ -954,6 +983,68 @@ function isMinBalByDateActive() external view returns (bool);
 |`<none>`|`bool`|boolean representing if the rule is active|
 
 
+### getTokenTransferVolumeRule
+
+*Retrieve the token transfer volume rule id*
+
+
+```solidity
+function getTokenTransferVolumeRule() external view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|tokenTransferVolumeRuleId rule id|
+
+
+### setTokenTransferVolumeRuleId
+
+that setting a rule will automatically activate it.
+
+*Set the tokenTransferVolumeRuleId. Restricted to game admins only.*
+
+
+```solidity
+function setTokenTransferVolumeRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### activateTokenTransferVolumeRule
+
+*Tells you if the token transfer volume rule is active or not.*
+
+
+```solidity
+function activateTokenTransferVolumeRule(bool _on) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if the rule is active|
+
+
+### isTokenTransferVolumeActive
+
+*Tells you if the minBalByDateRuleActive is active or not.*
+
+
+```solidity
+function isTokenTransferVolumeActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active|
+
+
 ### deployDataContract
 
 -------------DATA CONTRACT DEPLOYMENT---------------
@@ -1002,13 +1093,13 @@ function migrateDataContracts(address _newOwner) external appAdministratorOnly(a
 
 
 ```solidity
-function connectDataContracts(address _oldCoinHandlerAddress) external appAdministratorOnly(appManagerAddress);
+function connectDataContracts(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_oldCoinHandlerAddress`|`address`|address of the old CoinHandler|
+|`_oldHandlerAddress`|`address`|address of the old CoinHandler|
 
 
 ## Errors
