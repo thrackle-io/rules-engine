@@ -1,5 +1,5 @@
 # IERC20Staking
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/2955538441cd4ad2d51a27d7c28af7eec4cd8814/src/staking/IERC20Staking.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/staking/IERC20Staking.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
