@@ -26,6 +26,11 @@ contract DataModule is IDataModule, Ownable {
         _;
     }
 
+    /**
+     * @dev updates the dataModuleAppManagerAddress value
+     * @param _appManagerAddress New address
+     * @notice only app administrators or owner of this contract can invoke this function successfully.
+     */
     function setAppManagerAddress(address _appManagerAddress) external appAdminstratorOrOwnerOnly {
         dataModuleAppManagerAddress = _appManagerAddress;
     }

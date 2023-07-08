@@ -3,15 +3,15 @@ pragma solidity 0.8.17;
 
 import {IAppManager} from "../application/IAppManager.sol";
 import "openzeppelin-contracts/contracts/utils/Context.sol";
+import { IAppAdministratorOnlyErrors } from "../interfaces/IErrors.sol";
 
 /**
  * @title Application Administrators Only Modifier Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev appAdministratorOnly modifier encapsulated for easy imports.
  */
-contract AppAdministratorOnly is Context {
-    error AppManagerNotConnected();
-    error NotAppAdministrator();
+contract AppAdministratorOnly is Context,IAppAdministratorOnlyErrors {
+
 
     /**
      * @dev Modifier ensures function caller is a App Admin

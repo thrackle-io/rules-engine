@@ -23,21 +23,17 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
     address[] ADDRESSES = [defaultAdmin, appAdministrator, AccessTier, riskAdmin, user, address(0xBEEF), address(0xC0FFEE), address(0xF00D)];
 
     function setUp() public {
+        vm.startPrank(defaultAdmin); //set up as the default admin
         // Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy the token rule processor diamond
         ruleProcessor = getRuleProcessorDiamond();
         // Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-        // Deploy the token rule processor diamond
 
-        //connect data diamond with Tagged Rule Processor diamond
-
-        /// connect the Rule Processor to its child Diamond
-
-        appManager = new AppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
-        applicationHandler = ApplicationHandler(appManager.getHandlerAddress());
-        vm.startPrank(defaultAdmin); //set up as the default admin
+        appManager = new AppManager(defaultAdmin, "Castlevania", false);
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         ruleProcessorDiamond = getApplicationProcessorDiamond();
         console.log(applicationHandler.owner());
 
@@ -586,7 +582,7 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
         if (pauseRules.length > 0) {
             if (pauseRules[0].pauseStart <= block.timestamp && pauseRules[0].pauseStop > block.timestamp) vm.expectRevert();
             //appManager.checkAction(ApplicationHandlerLib.ActionTypes.SELL, user);
-            appManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.SELL, user, user, 0, 0);
+            appManager.checkApplicationRules(ActionTypes.SELL, user, user, 0, 0);
         }
     }
 }

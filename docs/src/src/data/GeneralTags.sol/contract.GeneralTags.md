@@ -1,5 +1,5 @@
 # GeneralTags
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/data/GeneralTags.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/data/GeneralTags.sol)
 
 **Inherits:**
 [DataModule](/src/data/DataModule.sol/contract.DataModule.md), [IGeneralTags](/src/data/IGeneralTags.sol/interface.IGeneralTags.md)
@@ -32,6 +32,9 @@ constructor();
 
 ### addTag
 
+there is a hard limit of 10 tags per address. This limit is also enforced by the
+protocol, so keeping this limit here prevents transfers to unexpectedly revert.
+
 *Add the tag. Restricted to owner.*
 
 
@@ -44,6 +47,25 @@ function addTag(address _address, bytes32 _tag) public onlyOwner;
 |----|----|-----------|
 |`_address`|`address`|user address|
 |`_tag`|`bytes32`|metadata tag to be added|
+
+
+### addGeneralTagToMultipleAccounts
+
+there is a hard limit of 10 tags per address. This limit is also enforced by the
+protocol, so keeping this limit here prevents transfers to unexpectedly revert.
+
+*Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.*
+
+
+```solidity
+function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|Address array to be tagged|
+|`_tag`|`bytes32`|Tag for the account. Can be any allowed string variant|
 
 
 ### _removeTag

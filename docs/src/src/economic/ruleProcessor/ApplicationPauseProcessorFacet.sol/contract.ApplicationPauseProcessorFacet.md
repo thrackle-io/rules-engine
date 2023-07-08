@@ -1,8 +1,8 @@
 # ApplicationPauseProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol)
 
 **Inherits:**
-ERC173
+ERC173, [IPauseRuleErrors](/src/interfaces/IErrors.sol/interface.IPauseRuleErrors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -33,11 +33,4 @@ function checkPauseRules(address _dataServer) external view returns (bool);
 |----|----|-----------|
 |`<none>`|`bool`|success true if passes, false if not passes|
 
-
-## Errors
-### ApplicationPaused
-
-```solidity
-error ApplicationPaused(uint256 started, uint256 ends);
-```
 

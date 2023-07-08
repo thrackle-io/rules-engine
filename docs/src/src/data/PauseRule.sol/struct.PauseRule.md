@@ -1,5 +1,5 @@
 # PauseRule
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/data/PauseRule.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/data/PauseRule.sol)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -12,7 +12,6 @@ struct PauseRule {
     uint256 dateCreated;
     uint256 pauseStart;
     uint256 pauseStop;
-    bool active;
 }
 ```
 

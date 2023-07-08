@@ -10,6 +10,7 @@ pragma solidity 0.8.17;
 
 interface IAppLevelEvents {
     ///AppManager
+    event HandlerConnected(address indexed handlerAddress, address indexed appManager); 
     event RoleCheck(string contractName, string functionName, address checkedAddress, bytes32 checkedRole);
     event AppManagerDeployed(address indexed deployedAddress);
     event AppManagerDeployedForUpgrade(address indexed deployedAddress);
@@ -89,6 +90,7 @@ interface ITokenHandlerEvents {
     event HandlerDeployedForUpgrade(address indexed applicationHandler, address indexed appManager);
     /// Rule applied
     event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId);
+    event ApplicationHandlerSimpleApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint256 indexed param1);
 
     /// Rule deactivated
     event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
@@ -105,7 +107,8 @@ interface ITokenHandlerEvents {
 
 interface IApplicationEvents {
     /// Application Handler
-    event HandlerConnectedForUpgrade(address indexed applicationHandler, address indexed assetAddress);
+    event HandlerConnectedForUpgrade(address indexed applicationHandler, address indexed assetAddress); // should we get rid of this one...
+    event HandlerConnected(address indexed handlerAddress, address indexed assetAddress); // ...in favor of this one since regular deploy and upgrade now looks the same?
     ///ProtocolERC20
     event NewTokenDeployed(address indexed applicationCoin, address indexed appManagerAddress);
     ///ProtocolERC721 & ERC721A

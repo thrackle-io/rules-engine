@@ -1,8 +1,8 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/token/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/token/ProtocolERC20.sol)
 
 **Inherits:**
-ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md)
+ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [IProtocolERC20Errors](/src/interfaces/IErrors.sol/interface.IProtocolERC20Errors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -17,13 +17,6 @@ This is the base contract for all protocol ERC20s
 
 ```solidity
 address public appManagerAddress;
-```
-
-
-### handlerAddress
-
-```solidity
-address handlerAddress;
 ```
 
 
@@ -57,13 +50,7 @@ uint256 MAX_SUPPLY;
 
 
 ```solidity
-constructor(
-    string memory _name,
-    string memory _symbol,
-    address _appManagerAddress,
-    address _ruleProcessor,
-    bool _upgradeMode
-) ERC20(_name, _symbol);
+constructor(string memory _name, string memory _symbol, address _appManagerAddress) ERC20(_name, _symbol);
 ```
 **Parameters**
 
@@ -71,14 +58,10 @@ constructor(
 |----|----|-----------|
 |`_name`|`string`|name of token|
 |`_symbol`|`string`|abreviated name for token (i.e. THRK)|
-|`_appManagerAddress`|`address`|address of app manager contract|
-|`_ruleProcessor`|`address`|Address of the protocol rule processor|
-|`_upgradeMode`|`bool`|token deploys a Handler contract, false = handler deployed, true = upgraded token contract and no handler. _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.|
+|`_appManagerAddress`|`address`|address of app manager contract _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.|
 
 
 ### pause
-
-Only deploy a new handler if this isn't an upgrade
 
 *pauses the contract. Only whenPaused modified functions will work once called.*
 
@@ -199,46 +182,21 @@ function flashLoan(IERC3156FlashBorrower receiver, address token, uint256 amount
 |`data`|`bytes`|arbitrary data structure for user params|
 
 
-### deployHandler
+### connectHandlerToToken
 
 These are simply to get rid of the compiler warnings.
-
-*This function is called at deployment in the constructor to deploy the Handler Contract for the Token.*
-
-
-```solidity
-function deployHandler(address _ruleProcessor, address _appManagerAddress, bool _upgradeMode)
-    private
-    returns (address);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleProcessor`|`address`|address of the rule processor|
-|`_appManagerAddress`|`address`|address of the Application Manager Contract|
-|`_upgradeMode`|`bool`|bool representing if this contract will deploy data contracts or if this is an upgrade|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`address`|handlerAddress address of the new Handler Contract|
-
-
-### connectHandlerToToken
 
 *Function to connect Token to previously deployed Handler contract*
 
 
 ```solidity
-function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress);
+function connectHandlerToToken(address _handlerAddress) external appAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_deployedHandlerAddress`|`address`|address of the currently deployed Handler Address|
+|`_handlerAddress`|`address`|address of the currently deployed Handler Address|
 
 
 ### getHandlerAddress
@@ -255,23 +213,4 @@ function getHandlerAddress() external view returns (address);
 |----|----|-----------|
 |`<none>`|`address`|handlerAddress|
 
-
-## Errors
-### ExceedingMaxSupply
-
-```solidity
-error ExceedingMaxSupply();
-```
-
-### CallerNotAuthorizedToMint
-
-```solidity
-error CallerNotAuthorizedToMint();
-```
-
-### ZeroAddress
-
-```solidity
-error ZeroAddress();
-```
 

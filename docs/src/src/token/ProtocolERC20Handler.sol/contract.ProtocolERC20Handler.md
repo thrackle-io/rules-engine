@@ -1,8 +1,8 @@
 # ProtocolERC20Handler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/token/ProtocolERC20Handler.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/token/ProtocolERC20Handler.sol)
 
 **Inherits:**
-Ownable, [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
+Ownable, [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IAssetHandlerErrors](/src/interfaces/IErrors.sol/interface.IAssetHandlerErrors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -107,6 +107,13 @@ uint32 private tokenTransferVolumeRuleId;
 ```
 
 
+### totalSupplyVolatilityRuleId
+
+```solidity
+uint32 private totalSupplyVolatilityRuleId;
+```
+
+
 ### minTransferRuleActive
 on-off switches for rules
 
@@ -158,6 +165,13 @@ bool private tokenTransferVolumeRuleActive;
 ```
 
 
+### totalSupplyVolatilityRuleActive
+
+```solidity
+bool private totalSupplyVolatilityRuleActive;
+```
+
+
 ### transferVolume
 token level accumulators
 
@@ -171,6 +185,27 @@ uint256 private transferVolume;
 
 ```solidity
 uint64 private lastTransferTs;
+```
+
+
+### lastSupplyUpdateTime
+
+```solidity
+uint64 private lastSupplyUpdateTime;
+```
+
+
+### volumeTotalForPeriod
+
+```solidity
+int256 private volumeTotalForPeriod;
+```
+
+
+### totalSupplyForPeriod
+
+```solidity
+uint256 private totalSupplyForPeriod;
 ```
 
 
@@ -246,7 +281,7 @@ function checkAllRules(
     address _from,
     address _to,
     uint256 amount,
-    RuleProcessorDiamondLib.ActionTypes _action
+    ActionTypes _action
 ) external returns (bool);
 ```
 **Parameters**
@@ -258,7 +293,7 @@ function checkAllRules(
 |`_from`|`address`|sender address|
 |`_to`|`address`|recipient address|
 |`amount`|`uint256`|number of tokens transferred|
-|`_action`|`RuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
+|`_action`|`ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
 
 **Returns**
 
@@ -269,7 +304,7 @@ function checkAllRules(
 
 ### _checkNonTaggedRules
 
-standard tagged and  rules do not apply when either to or from is an admin
+standard rules do not apply when either to or from is an admin
 If everything checks out, return true
 
 *This function uses the protocol's ruleProcessorto perform the actual  rule checks.*
@@ -291,6 +326,8 @@ function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address 
 
 
 ### _checkTaggedRules
+
+rule requires ruleID and either to or from address be zero address (mint/burn)
 
 *This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.*
 
@@ -1032,11 +1069,73 @@ function activateTokenTransferVolumeRule(bool _on) external appAdministratorOnly
 
 ### isTokenTransferVolumeActive
 
-*Tells you if the minBalByDateRuleActive is active or not.*
+*Tells you if the token transfer volume rule is active or not.*
 
 
 ```solidity
 function isTokenTransferVolumeActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active|
+
+
+### getTotalSupplyVolatilityRule
+
+*Retrieve the total supply volatility rule id*
+
+
+```solidity
+function getTotalSupplyVolatilityRule() external view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|totalSupplyVolatilityRuleId rule id|
+
+
+### setTotalSupplyVolatilityRuleId
+
+that setting a rule will automatically activate it.
+
+*Set the tokenTransferVolumeRuleId. Restricted to game admins only.*
+
+
+```solidity
+function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### activateTotalSupplyVolatilityRule
+
+*Tells you if the token total Supply Volatility rule is active or not.*
+
+
+```solidity
+function activateTotalSupplyVolatilityRule(bool _on) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if the rule is active|
+
+
+### isTotalSupplyVolatilityActive
+
+*Tells you if the Total Supply Volatility is active or not.*
+
+
+```solidity
+function isTotalSupplyVolatilityActive() external view returns (bool);
 ```
 **Returns**
 
@@ -1101,23 +1200,4 @@ function connectDataContracts(address _oldHandlerAddress) external appAdministra
 |----|----|-----------|
 |`_oldHandlerAddress`|`address`|address of the old CoinHandler|
 
-
-## Errors
-### PricingModuleNotConfigured
-
-```solidity
-error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
-```
-
-### actionCheckFailed
-
-```solidity
-error actionCheckFailed();
-```
-
-### CannotTurnOffAccessLevel0WithAccessLevelBalanceActive
-
-```solidity
-error CannotTurnOffAccessLevel0WithAccessLevelBalanceActive();
-```
 

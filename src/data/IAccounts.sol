@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 import "./IDataModule.sol";
+import {IInputErrors, IZeroAddressError} from  "../interfaces/IErrors.sol";
 
 /**
  * @title User accounts
@@ -8,7 +9,7 @@ import "./IDataModule.sol";
  * @dev Uses IDataModule, which has basic ownable functionality. It will get created, and therefore owned, by the app manager
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-interface IAccounts is IDataModule {
+interface IAccounts is IDataModule, IInputErrors, IZeroAddressError {
     /**
      * @dev Add the account. Restricted to owner.
      * @param _account user address

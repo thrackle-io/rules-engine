@@ -16,6 +16,14 @@ contract OracleAllowed is Ownable {
     event AllowedAddressAdded(address addrs);
     event AllowedAddressesRemoved(address[] addrs);
     event NotAllowedAddress(address indexed addr);
+    event AllowListOracleDeployed();
+
+    /**
+     * @dev Constructor that only serves the purpose of notifying the indexer of its creation via event
+     */
+    constructor(){
+        emit AllowListOracleDeployed();
+    }
 
     /**
      * @dev Return the contract name
@@ -62,7 +70,7 @@ contract OracleAllowed is Ownable {
      * @return allowed returns true if in the allowed list, false if not.
      */
     function isAllowed(address addr) public view returns (bool) {
-        return allowedAddresses[addr] == true;
+        return allowedAddresses[addr];
     }
 
     /**

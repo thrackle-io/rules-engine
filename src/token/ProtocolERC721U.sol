@@ -10,10 +10,10 @@ import "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.s
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/utils/CountersUpgradeable.sol";
-import "../application/IAppManager.sol";
-import "../economic/AppAdministratorOnlyU.sol";
-import "../../src/token/ProtocolERC721Handler.sol";
+import "src/economic/AppAdministratorOnlyU.sol";
+import "src/token/IProtocolERC721Handler.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
+import {IZeroAddressError} from "../interfaces/IErrors.sol";
 
 /**
  * @title ERC721 Upgradeable Protocol Contract
@@ -30,60 +30,42 @@ contract ProtocolERC721U is
     UUPSUpgradeable,
     AppAdministratorOnlyU,
     IApplicationEvents,
-    PausableUpgradeable
+    PausableUpgradeable,
+    IZeroAddressError
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     address public appManagerAddress;
     address public handlerAddress;
-    ProtocolERC721Handler handler;
-    IAppManager appManager;
+    IProtocolERC721Handler handler;
     CountersUpgradeable.Counter private _tokenIdCounter;
 
     /// Base Contract URI
     string public baseUri;
     /// keeps track of RULE enum version and other features
     uint8 public constant VERSION = 1;
-    error ZeroAddress();
 
     /**
      * @dev Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
      * @param _name Name of NFT
      * @param _symbol Symbol for the NFT
      * @param _appManagerAddress Address of App Manager
-     * @param _ruleProcessorProxyAddress of token rule router proxy address
-     * @param _baseUri URI for the base token
      */
-    function initialize(
-        string memory _name,
-        string memory _symbol,
-        address _appManagerAddress,
-        address _ruleProcessorProxyAddress,
-        bool _upgradeMode,
-        string memory _baseUri
-    ) external virtual appAdministratorOnly(_appManagerAddress) initializer {
+    function initialize(string memory _name, string memory _symbol, address _appManagerAddress) external virtual appAdministratorOnly(_appManagerAddress) initializer {
         __ERC721_init(_name, _symbol);
         __ERC721Enumerable_init();
         __ERC721URIStorage_init();
         __Ownable_init();
         __UUPSUpgradeable_init();
         __Pausable_init();
-        _initializeProtocol(_appManagerAddress, _ruleProcessorProxyAddress, _upgradeMode, _baseUri);
+        _initializeProtocol(_appManagerAddress);
     }
 
     /**
      * @dev Private Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
      * @param _appManagerAddress Address of App Manager
-     * @param _ruleProcessorProxyAddress of token rule router proxy address
-     * @param _baseUri URI for the base token
      */
-    function _initializeProtocol(address _appManagerAddress, address _ruleProcessorProxyAddress, bool _upgradeMode, string memory _baseUri) private onlyInitializing {
-        // _tokenIdCounter.increment();
+    function _initializeProtocol(address _appManagerAddress) private onlyInitializing {
         appManagerAddress = _appManagerAddress;
-        appManager = IAppManager(_appManagerAddress);
-        setBaseURI(_baseUri);
-        if (!_upgradeMode) {
-            deployHandler(_ruleProcessorProxyAddress, _appManagerAddress, _upgradeMode);
-        }
         emit NewNFTDeployed(address(this), _appManagerAddress);
     }
 
@@ -137,7 +119,7 @@ contract ProtocolERC721U is
      * @notice Add appAdministratorOnly modifier to restrict minting privilages
      * @param to Address of recipient
      */
-    function safeMint(address to) public virtual {
+    function safeMint(address to) public payable virtual {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -153,7 +135,7 @@ contract ProtocolERC721U is
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
         // Rule Processor Module Check
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, 1, tokenId, RuleProcessorDiamondLib.ActionTypes.TRADE));
+        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, 1, tokenId, ActionTypes.TRADE));
 
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
@@ -173,19 +155,13 @@ contract ProtocolERC721U is
      */
     function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
         appManagerAddress = _appManagerAddress;
-        appManager = IAppManager(_appManagerAddress);
     }
 
     /**
-     * @dev This function is called at deployment in the constructor to deploy the Handler Contract for the Token.
-     * @param _ruleProcessor address of the rule processor
-     * @param _appManagerAddress address of the Application Manager Contract
-     * @param _upgradeModeHandler specifies whether this is a fresh Handler or an upgrade replacement.
-     * @return handlerAddress address of the new Handler Contract
+     * @dev this function returns the handler address
+     * @return handlerAddress
      */
-    function deployHandler(address _ruleProcessor, address _appManagerAddress, bool _upgradeModeHandler) private returns (address) {
-        handler = new ProtocolERC721Handler(_ruleProcessor, _appManagerAddress, _upgradeModeHandler);
-        handlerAddress = address(handler);
+    function getHandlerAddress() external view returns (address) {
         return handlerAddress;
     }
 
@@ -196,15 +172,7 @@ contract ProtocolERC721U is
     function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
-        handler = ProtocolERC721Handler(_deployedHandlerAddress);
+        handler = IProtocolERC721Handler(handlerAddress);
         emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
-    }
-
-    /**
-     * @dev this function returns the handler address
-     * @return handlerAddress
-     */
-    function getHandlerAddress() external view returns (address) {
-        return handlerAddress;
     }
 }

@@ -7,6 +7,7 @@ import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {IFeeRules as Fee} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
+import {IInputErrors} from "../../interfaces/IErrors.sol";
 import "./RuleCodeData.sol";
 
 /**
@@ -15,13 +16,8 @@ import "./RuleCodeData.sol";
  * @dev Contains the setters and getters for fee rules
  * @notice This contract sets and gets the Fee Rules for the protocol
  */
-contract FeeRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
-    error InputArraysMustHaveSameLength();
-    error IndexOutOfRange();
-    error ValueOutOfRange(uint256 percentage);
-    error ZeroValueNotPermited();
-    error PageOutOfRange();
-
+contract FeeRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors {
+    
     /************ AMM Fee Getters/Setters ***********/
 
     /**

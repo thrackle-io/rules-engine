@@ -67,7 +67,7 @@ contract ERC20AutoMintStaking is IERC20Staking, Context, AppAdministratorOnly {
      */
     function stake(uint amount, uint8 _unitsOfTime, uint8 _stakingForUnitsOfTime) external override {
         /// enforce minimum-stake rule
-        if (amount == 0 || amount < minimumAmount) revert NotStakingEnough(minimumAmount);
+        if (amount < minimumAmount) revert NotStakingEnough(minimumAmount);
         /// making sure the stake inputs makes sense
         if (_stakingForUnitsOfTime == 0) revert NotStakingForAnyTime();
         if (_unitsOfTime > 6) revert InvalidTimeUnit();

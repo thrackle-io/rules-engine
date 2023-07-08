@@ -7,6 +7,7 @@ import {ApplicationERC721Handler} from "src/example/ApplicationERC721Handler.sol
 import "src/example/ApplicationERC20.sol";
 import {ApplicationERC721} from "src/example/ApplicationERC721.sol";
 import {ApplicationAppManager} from "src/example/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import "src/example/pricing/ApplicationERC20Pricing.sol";
@@ -21,7 +22,7 @@ import "src/example/staking/ERC721AutoMintStaking.sol";
  * @dev This script will deploy all application contracts needed to test the protocol interactions.
  * @notice Deploys the application App Manager, AppManager, ERC20, ERC721, and associated handlers, pricing and oracle contracts.
  */
-contract ApplicationDeployAllWithAMMScript is Script {
+contract ApplicationDeployAllScript is Script {
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationERC20Handler applicationCoinHandler2;
     ApplicationERC721Handler applicationNFTHandler;
@@ -33,29 +34,30 @@ contract ApplicationDeployAllWithAMMScript is Script {
 
     function run() public {
         vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
-        ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", vm.envAddress("RULE_PROCESSOR_DIAMOND"), false);
-        /// create two ERC20 tokens
-        ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), false);
-        ApplicationERC20 coin2 = new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), false);
+        ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", false);
+        ApplicationHandler applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
+        applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
+        /// create ERC20 token 1
+        applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"),  address(applicationAppManager), false);
+        ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
+        coin1.connectHandlerToToken(address(applicationCoinHandler));
+        /// create ERC20 token 2
+        applicationCoinHandler2 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"),  address(applicationAppManager), false);
+        ApplicationERC20 coin2 = new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager));
+        coin2.connectHandlerToToken(address(applicationCoinHandler2));
+        /// oracle
         new OracleAllowed();
         new OracleRestricted();
         /// create NFT
-        ApplicationERC721 nft1 = new ApplicationERC721(
-            "Frankenstein",
-            "FRANKPIC",
-            address(applicationAppManager),
-            vm.envAddress("RULE_PROCESSOR_DIAMOND"),
-            false,
-            vm.envString("APPLICATION_ERC721_URI_1")
-        );
+        ApplicationERC721 nft1 = new ApplicationERC721("Frankenstein", "FRANKPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
+        applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), false);
+        nft1.connectHandlerToToken(address(applicationNFTHandler));
+        applicationNFTHandler.setERC721Address(address(nft1));
+
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("Frankenstein Coin", address(coin1));
         applicationAppManager.registerToken("Dracula Coin", address(coin2));
         applicationAppManager.registerToken("Frankenstein Picture", address(nft1));
-        /// initialize Handlers
-        applicationCoinHandler = ApplicationERC20Handler(coin1.getHandlerAddress());
-        applicationCoinHandler2 = ApplicationERC20Handler(coin2.getHandlerAddress());
-        applicationNFTHandler = ApplicationERC721Handler(nft1.getHandlerAddress());
         /// Set the token's prices
         ApplicationERC721Pricing openOcean = new ApplicationERC721Pricing();
         ApplicationERC20Pricing exchange = new ApplicationERC20Pricing();
@@ -89,7 +91,7 @@ contract ApplicationDeployAllWithAMMScript is Script {
         /// register the coin treasury
         applicationAppManager.registerTreasury(vm.envAddress("FEE_TREASURY"));
         /// This is a new app manager used for upgrade testing
-        new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", vm.envAddress("RULE_PROCESSOR_DIAMOND"), true);
+        new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", true);
         new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), true);
         vm.stopBroadcast();
     }

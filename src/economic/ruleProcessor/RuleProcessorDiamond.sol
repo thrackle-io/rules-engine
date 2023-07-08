@@ -46,7 +46,7 @@ contract RuleProcessorDiamond is ERC173Facet {
 
     /**
      * @dev Function retrieves Rule Data Diamond
-     * @return taggedRules Address of the Rule Data Diamond
+     * @return Address of the Rule Data Diamond
      */
     function getRuleDataDiamondAddress() external view returns (address) {
         RuleDataStorage storage data = DiamondLib.ruleDataStorage();

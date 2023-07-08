@@ -2,6 +2,7 @@
 
 # Contents
 - [application](/src/example/application)
+- [liquidity](/src/example/liquidity)
 - [pricing](/src/example/pricing)
 - [script](/src/example/script)
 - [staking](/src/example/staking)

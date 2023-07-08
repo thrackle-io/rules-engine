@@ -1,5 +1,5 @@
 # ApplicationERC20
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/example/ApplicationERC20.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/example/ApplicationERC20.sol)
 
 **Inherits:**
 [ProtocolERC20](/src/token/ProtocolERC20.sol/contract.ProtocolERC20.md)
@@ -19,13 +19,8 @@ This is an example implementation that App Devs should use.
 
 
 ```solidity
-constructor(
-    string memory _name,
-    string memory _symbol,
-    address _appManagerAddress,
-    address _ruleProcessorProxyAddress,
-    bool _upgradeMode
-) ProtocolERC20(_name, _symbol, _appManagerAddress, _ruleProcessorProxyAddress, _upgradeMode);
+constructor(string memory _name, string memory _symbol, address _appManagerAddress)
+    ProtocolERC20(_name, _symbol, _appManagerAddress);
 ```
 **Parameters**
 
@@ -34,7 +29,21 @@ constructor(
 |`_name`|`string`|Name of the token|
 |`_symbol`|`string`| Symbol of the token|
 |`_appManagerAddress`|`address`|App Manager address|
-|`_ruleProcessorProxyAddress`|`address`|of token rule router proxy address|
-|`_upgradeMode`|`bool`||
+
+
+### mint
+
+*Function mints new tokens. Allows for free and open minting of tokens. Comment out to use appAdministatorOnly minting.*
+
+
+```solidity
+function mint(address to, uint256 amount) public override;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`to`|`address`|recipient address|
+|`amount`|`uint256`|number of tokens to mint|
 
 

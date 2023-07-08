@@ -7,6 +7,7 @@ import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
+import {IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors} from "../../interfaces/IErrors.sol";
 import "./RuleCodeData.sol";
 
 /**
@@ -15,16 +16,7 @@ import "./RuleCodeData.sol";
  * @dev setters and getters for non tagged token specific rules
  * @notice This contract sets and gets the Rules for the protocol
  */
-contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
-    error InputArraysMustHaveSameLength();
-    error IndexOutOfRange();
-    error PageOutOfRange();
-    error PercentageValueGreaterThan9999();
-    error PercentageValueLessThan100();
-    error ZeroValueNotPermited();
-    error ZeroAddress();
-    error BlankTag();
-    error InvalidHourOfTheDay();
+contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors {
 
     /**
      * Note that no update method is implemented for rules. Since reutilization of
@@ -50,7 +42,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         uint256 _totalSupply,
         uint32 _startingHour
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_tokenPercentage > 9999) revert PercentageValueGreaterThan9999();
+        if (_tokenPercentage > 9999) revert ValueOutOfRange(_tokenPercentage);
         if (_purchasePeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
         if (_startingHour > 23) revert InvalidHourOfTheDay();
         RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
@@ -100,7 +92,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
         uint256 _totalSupply,
         uint32 _startingHour
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_tokenPercentage > 9999) revert PercentageValueGreaterThan9999();
+        if (_tokenPercentage > 9999) revert ValueOutOfRange(_tokenPercentage);
         if (_sellPeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
         if (_startingHour > 23) revert InvalidHourOfTheDay();
         RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
@@ -182,10 +174,10 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
      * @param _hoursFrozen Time period that transactions are frozen
      * @return ruleId position of new rule in array
      */
-    function addVolatilityRule(address _appManagerAddr, uint16 _maxVolatility, uint8 _blocksPerPeriod, uint8 _hoursFrozen) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addVolatilityRule(address _appManagerAddr, uint16 _maxVolatility, uint8 _blocksPerPeriod, uint8 _hoursFrozen, uint256 _totalSupply) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_maxVolatility == 0 || _blocksPerPeriod == 0 || _hoursFrozen == 0) revert ZeroValueNotPermited();
         RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
-        NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRules.TokenVolatilityRule(_maxVolatility, _blocksPerPeriod, _hoursFrozen);
+        NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRules.TokenVolatilityRule(_maxVolatility, _blocksPerPeriod, _hoursFrozen, _totalSupply);
         uint32 ruleId = data.volatilityRuleIndex;
         data.volatilityRules[ruleId] = rule;
         bytes32[] memory empty;
@@ -233,8 +225,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_maxVolumePercentage == 0 || _hoursPerPeriod == 0) revert ZeroValueNotPermited();
         if (_startTime > 23) revert InvalidHourOfTheDay();
-        if (_maxVolumePercentage > 9999) revert PercentageValueGreaterThan9999();
-        if (_maxVolumePercentage < 100) revert PercentageValueLessThan100();
+        if (_maxVolumePercentage > 9999) revert ValueOutOfRange(_maxVolumePercentage);
+        if (_maxVolumePercentage < 100) revert ValueOutOfRange(_maxVolumePercentage);
         RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
         data.transferVolumeRules.push(NonTaggedRules.TokenTransferVolumeRule(_maxVolumePercentage, _hoursPerPeriod, _startTime, _totalSupply));
         uint32 ruleId = uint32(data.transferVolumeRules.length) - 1;
@@ -304,15 +296,17 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
     /**
      * @dev Function Token Supply Volatility rules
      * @param _appManagerAddr Address of App Manager
-     * @param _maxChange Maximum amount of change allowed
-     * @param _hoursPerPeriod Allowed hours per period
-     * @param _hoursFrozen Hours that transactions are frozen
+     * @param _maxVolumePercentage Maximum amount of change allowed. This is not capped and will allow for values greater than 100%.
+     * Since there is no cap for _maxVolumePercentage this could allow burning of full totalSupply() if over 100% (10000).
+     * @param _period Allowed hours per period
+     * @param _startTime Hours that transactions are frozen
      * @return ruleId position of new rule in array
      */
-    function addSupplyVolatilityRule(address _appManagerAddr, uint16 _maxChange, uint8 _hoursPerPeriod, uint8 _hoursFrozen) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_maxChange == 0 || _hoursPerPeriod == 0 || _hoursFrozen == 0) revert ZeroValueNotPermited();
+    function addSupplyVolatilityRule(address _appManagerAddr, uint16 _maxVolumePercentage, uint8 _period, uint8 _startTime, uint256 _totalSupply) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_maxVolumePercentage == 0 || _period == 0 || _startTime == 0) revert ZeroValueNotPermited();
+        if (_startTime > 23) revert InvalidHourOfTheDay();
         RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
-        NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRules.SupplyVolatilityRule(_maxChange, _hoursPerPeriod, _hoursFrozen);
+        NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRules.SupplyVolatilityRule(_maxVolumePercentage, _period, _startTime, _totalSupply);
         uint32 ruleId = data.supplyVolatilityRuleIndex;
         data.supplyVolatilityRules[ruleId] = rule;
         bytes32[] memory empty;
@@ -345,7 +339,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
     /**
      * @dev Function add an Oracle rule
      * @param _appManagerAddr Address of App Manager
-     * @param _type type of Oracle Rule
+     * @param _type type of Oracle Rule --> 0 = restricted; 1 = allowed
      * @param _oracleAddress Address of Oracle
      * @return ruleId position of rule in storage
      */

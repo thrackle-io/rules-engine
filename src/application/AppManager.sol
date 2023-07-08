@@ -13,6 +13,7 @@ import "../data/GeneralTags.sol";
 import "../data/IPauseRules.sol";
 import "../data/PauseRules.sol";
 import "./ProtocolApplicationHandler.sol";
+import "src/economic/ruleProcessor/ActionEnum.sol";
 import {IAppLevelEvents} from "../interfaces/IEvents.sol";
 
 /**
@@ -22,21 +23,7 @@ import {IAppLevelEvents} from "../interfaces/IEvents.sol";
  * @notice This contract is the permissions contract
  */
 contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
-    error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
-    error riskScoreOutOfRange(uint8 riskScore);
-    error InvalidDateWindow(uint256 startDate, uint256 endDate);
-    error NotAdmin(address _address);
-    error NotAppAdministrator(address _address);
-    error NotAccessTierAdministrator(address _address);
-    error NotRiskAdmin(address _address);
-    error NotAUser(address _address);
-    error AccessLevelIsNotValid(uint8 accessLevel);
-    error BlankTag();
-    error NoAddressToRemove();
-    error actionCheckFailed();
-    error ZeroAddress();
-    error InputArraysMustHaveSameLength();
-    error ZeroAddressNotAllowed();
+    
 
     bytes32 constant USER_ROLE = keccak256("USER");
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
@@ -73,10 +60,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This constructor sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.
      * @param root address to set as the default admin and first app administrator
      * @param _appName Application Name String
-     * @param _ruleProcessorProxyAddress of the protocol's rule processor diamond
      * @param upgradeMode specifies whether this is a fresh AppManager or an upgrade replacement.
      */
-    constructor(address root, string memory _appName, address _ruleProcessorProxyAddress, bool upgradeMode) {
+    constructor(address root, string memory _appName, bool upgradeMode) {
         _setupRole(DEFAULT_ADMIN_ROLE, root);
         _setupRole(APP_ADMIN_ROLE, root);
         _setRoleAdmin(APP_ADMIN_ROLE, DEFAULT_ADMIN_ROLE);
@@ -91,23 +77,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         } else {
             emit AppManagerDeployedForUpgrade(address(this));
         }
-        _deployApplicationHandler(_ruleProcessorProxyAddress, address(this));
     }
 
-    /// -------------ADMIN---------------
-    /**
-     * @dev Modifier used to restrict to default admin role
-     */
-    modifier onlyAdmin() {
-        if (!isAdmin(msg.sender)) revert NotAdmin(msg.sender);
-        _;
-    }
-
-    /**
-     * @dev This function is where the default admin role is actually checked
-     * @param account address to be checked
-     * @return success true if admin, false if not
-     */
+    // /// -------------ADMIN---------------
+    // /**
+    //  * @dev This function is where the default admin role is actually checked
+    //  * @param account address to be checked
+    //  * @return success true if admin, false if not
+    //  */
     function isAdmin(address account) public view returns (bool) {
         return hasRole(DEFAULT_ADMIN_ROLE, account);
     }
@@ -117,7 +94,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Checks if msg.sender is a Application Administrators role
      */
     modifier onlyAppAdministrator() {
-        if (!isAppAdministrator(msg.sender)) revert NotAppAdministrator(msg.sender);
+        if (!isAppAdministrator(msg.sender)) revert NotAppAdministrator();
         _;
     }
 
@@ -284,8 +261,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _account address to be added as a user
      */
     function addUser(address _account) external onlyAppAdministrator {
-        if (_account == address(0)) revert ZeroAddressNotAllowed();
         accounts.addAccount(_account);
+        emit AccountAdded(_account, block.timestamp);
     }
 
     /**
@@ -304,9 +281,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _level Access Level to add
      */
     function addAccessLevel(address _account, uint8 _level) external onlyAccessTierAdministrator {
-        if (_level > 4) revert AccessLevelIsNotValid(_level);
         accessLevels.addLevel(_account, _level);
-        emit AccessLevelAdded(_account, _level, block.timestamp);
     }
 
     /**
@@ -315,14 +290,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _level Access Level to add
      */
     function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external onlyAccessTierAdministrator {
-        if (_level > 4) revert AccessLevelIsNotValid(_level);
-        for (uint256 i; i < _accounts.length; ) {
-            accessLevels.addLevel(_accounts[i], _level);
-            emit AccessLevelAdded(_accounts[i], _level, block.timestamp);
-            unchecked {
-                ++i;
-            }
-        }
+        accessLevels.addAccessLevelToMultipleAccounts(_accounts, _level);
     }
 
     /**
@@ -333,9 +301,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyAccessTierAdministrator {
         if (_level.length != _accounts.length) revert InputArraysMustHaveSameLength();
         for (uint256 i; i < _accounts.length; ) {
-            if (_level[i] > 4) revert AccessLevelIsNotValid(_level[i]);
             accessLevels.addLevel(_accounts[i], _level[i]);
-            emit AccessLevelAdded(_accounts[i], _level[i], block.timestamp);
             unchecked {
                 ++i;
             }
@@ -359,9 +325,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _score Risk Score(0-100)
      */
     function addRiskScore(address _account, uint8 _score) external onlyRiskAdmin {
-        if (_score > 100) revert riskScoreOutOfRange(_score);
         riskScores.addScore(_account, _score);
-        emit RiskScoreAdded(_account, _score, block.timestamp);
     }
 
     /**
@@ -370,14 +334,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _score Risk Score(0-100)
      */
     function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyRiskAdmin {
-        if (_score > 100) revert riskScoreOutOfRange(_score);
-        for (uint256 i; i < _accounts.length; ) {
-            riskScores.addScore(_accounts[i], _score);
-            emit RiskScoreAdded(_accounts[i], _score, block.timestamp);
-            unchecked {
-                ++i;
-            }
-        }
+        riskScores.addRiskScoreToMultipleAccounts(_accounts, _score);
     }
 
     /**
@@ -388,9 +345,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyRiskAdmin {
         if (_scores.length != _accounts.length) revert InputArraysMustHaveSameLength();
         for (uint256 i; i < _accounts.length; ) {
-            if (_scores[i] > 100) revert riskScoreOutOfRange(_scores[i]);
             riskScores.addScore(_accounts[i], _scores[i]);
-            emit RiskScoreAdded(_accounts[i], _scores[i], block.timestamp);
             unchecked {
                 ++i;
             }
@@ -414,9 +369,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _pauseStop End of the pause window
      */
     function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyAppAdministrator {
-        if (_pauseStop <= _pauseStart || _pauseStart < block.timestamp) {
-            revert InvalidDateWindow(_pauseStart, _pauseStop);
-        }
+        
         pauseRules.addPauseRule(_pauseStart, _pauseStop);
     }
 
@@ -450,52 +403,32 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.
      * @param _account Address to be tagged
      * @param _tag Tag for the account. Can be any allowed string variant
+     * @notice there is a hard limit of 10 tags per address.
      */
     function addGeneralTag(address _account, bytes32 _tag) external onlyAppAdministrator {
-        if (keccak256(abi.encodePacked(_tag)) == keccak256(abi.encodePacked(""))) revert BlankTag();
-        if (hasTag(_account, _tag)) {
-            emit TagAlreadyApplied(_account);
-        } else {
-            generalTags.addTag(_account, _tag);
-            emit GeneralTagAdded(_account, _tag, block.timestamp);
-        }
+        generalTags.addTag(_account, _tag);
     }
 
     /**
      * @dev Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.
      * @param _accounts Address array to be tagged
      * @param _tag Tag for the account. Can be any allowed string variant
+     * @notice there is a hard limit of 10 tags per address.
      */
     function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyAppAdministrator {
-        if (keccak256(abi.encodePacked(_tag)) == keccak256(abi.encodePacked(""))) revert BlankTag();
-        for (uint256 i; i < _accounts.length; ) {
-            if (hasTag(_accounts[i], _tag)) {
-                emit TagAlreadyApplied(_accounts[i]);
-            } else {
-                generalTags.addTag(_accounts[i], _tag);
-                emit GeneralTagAdded(_accounts[i], _tag, block.timestamp);
-            }
-            unchecked {
-                ++i;
-            }
-        }
+         generalTags.addGeneralTagToMultipleAccounts(_accounts, _tag);
     }
 
     /**
      * @dev Add a general tag to an account at index in array. Restricted to Application Administrators. Loops through existing tags on accounts and will emit  an event if tag is already applied.
      * @param _accounts Address array to be tagged
      * @param _tag Tag array for the account at index. Can be any allowed string variant
+     * @notice there is a hard limit of 10 tags per address. 
      */
     function addMultipleGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tag) external onlyAppAdministrator {
         if (_accounts.length != _tag.length) revert InputArraysMustHaveSameLength();
         for (uint256 i; i < _accounts.length; ) {
-            if (keccak256(abi.encodePacked(_tag[i])) == keccak256(abi.encodePacked(""))) revert BlankTag();
-            if (hasTag(_accounts[i], _tag[i])) {
-                emit TagAlreadyApplied(_accounts[i]);
-            } else {
-                generalTags.addTag(_accounts[i], _tag[i]);
-                emit GeneralTagAdded(_accounts[i], _tag[i], block.timestamp);
-            }
+            generalTags.addTag(_accounts[i], _tag[i]);
             unchecked {
                 ++i;
             }
@@ -509,7 +442,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function removeGeneralTag(address _account, bytes32 _tag) external onlyAppAdministrator {
         generalTags.removeTag(_account, _tag);
-        emit GeneralTagRemoved(_account, _tag, block.timestamp);
     }
 
     /**
@@ -638,7 +570,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      */
-    function checkApplicationRules(RuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external {
+    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external {
         applicationHandler.checkApplicationRules(_action, _from, _to, _usdBalanceTo, _usdAmountTransferring);
     }
 
@@ -861,6 +793,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function setNewApplicationHandlerAddress(address _newApplicationHandler) external onlyAppAdministrator {
         applicationHandler = ProtocolApplicationHandler(_newApplicationHandler);
         applicationHandlerAddress = _newApplicationHandler;
+        emit HandlerConnected( applicationHandlerAddress, address(this)); 
     }
 
     /**
@@ -908,17 +841,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         pauseRules.setAppManagerAddress(_newOwner);
         pauseRules.transferDataOwnership(_newOwner);
         emit AppManagerUpgrade(_newOwner, address(this));
-    }
-
-    /**
-     * @dev Deploy the ApplicationHandler contract. Only called internally from the constructor.
-     * @param _ruleProcessorProxyAddress processor address for rule checks
-     * @param _appManagerAddress app manager address so handler can retrieve account info
-     */
-    function _deployApplicationHandler(address _ruleProcessorProxyAddress, address _appManagerAddress) private returns (address) {
-        applicationHandler = new ProtocolApplicationHandler(_ruleProcessorProxyAddress, _appManagerAddress);
-        applicationHandlerAddress = address(applicationHandler);
-        return applicationHandlerAddress;
     }
 
     /**

@@ -14,6 +14,7 @@ import "../economic/ruleStorage/RuleCodeData.sol";
 import "../pricing/IProtocolERC721Pricing.sol";
 import "../pricing/IProtocolERC20Pricing.sol";
 import "./data/Fees.sol";
+import { IAssetHandlerErrors } from "../interfaces/IErrors.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract
@@ -21,7 +22,7 @@ import "./data/Fees.sol";
  * @dev This contract performs all rule checks related to the the ERC20 that implements it.
  * @notice Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
  */
-contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorOnly {
+contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorOnly, IAssetHandlerErrors {
     using ERC165Checker for address;
     /**
      * Functions added so far:
@@ -50,6 +51,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     uint32 private adminWithdrawalRuleId;
     uint32 private minBalByDateRuleId;
     uint32 private tokenTransferVolumeRuleId;
+    uint32 private totalSupplyVolatilityRuleId; 
 
     /// on-off switches for rules
     bool private minTransferRuleActive;
@@ -59,10 +61,14 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     bool private adminWithdrawalActive;
     bool private minBalByDateRuleActive;
     bool private tokenTransferVolumeRuleActive;
+    bool private totalSupplyVolatilityRuleActive; 
 
     /// token level accumulators
     uint256 private transferVolume;
-    uint64 private lastTransferTs;
+    uint64 private lastTransferTs; 
+    uint64 private lastSupplyUpdateTime;
+    int256 private volumeTotalForPeriod; 
+    uint256 private totalSupplyForPeriod; 
 
     IRuleProcessor immutable ruleProcessor;
     IAppManager appManager;
@@ -72,9 +78,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     address public erc20PricingAddress;
     address public nftPricingAddress;
 
-    error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
-    error actionCheckFailed();
-    error CannotTurnOffAccessLevel0WithAccessLevelBalanceActive();
+
 
     /**
      * @dev Constructor sets params
@@ -104,12 +108,12 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, RuleProcessorDiamondLib.ActionTypes _action) external returns (bool) {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, ActionTypes _action) external returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         // // All transfers to treasury account are allowed
         if (!appManager.isTreasury(_to)) {
-            /// standard tagged and  rules do not apply when either to or from is an admin
+            /// standard rules do not apply when either to or from is an admin
             if (!isFromAdmin && !isToAdmin) {
                 uint128 balanceValuation;
                 uint128 price;
@@ -144,6 +148,11 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
         if (tokenTransferVolumeRuleActive) {
             transferVolume = ruleProcessor.checkTokenTransferVolumePasses(tokenTransferVolumeRuleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
             lastTransferTs = uint64(block.timestamp);
+        }
+        /// rule requires ruleID and either to or from address be zero address (mint/burn)
+        if (totalSupplyVolatilityRuleActive && (_from == address(0x00) || _to == address(0x00))) {
+            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(totalSupplyVolatilityRuleId, volumeTotalForPeriod, totalSupplyForPeriod, IToken(msg.sender).totalSupply(), _to == address(0x00)? int(_amount) * -1:int(_amount), lastSupplyUpdateTime);
+            lastSupplyUpdateTime = uint64(block.timestamp); 
         }
         //added the following lines to remove warnings TODO remove later
         _balanceFrom;
@@ -692,11 +701,51 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     }
 
     /**
-     * @dev Tells you if the minBalByDateRuleActive is active or not.
+     * @dev Tells you if the token transfer volume rule is active or not.
      * @return boolean representing if the rule is active
      */
     function isTokenTransferVolumeActive() external view returns (bool) {
         return tokenTransferVolumeRuleActive;
+    }
+
+    /**
+     * @dev Retrieve the total supply volatility rule id
+     * @return totalSupplyVolatilityRuleId rule id
+     */
+    function getTotalSupplyVolatilityRule() external view returns (uint32) {
+        return totalSupplyVolatilityRuleId;
+    }
+
+    /**
+     * @dev Set the tokenTransferVolumeRuleId. Restricted to game admins only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        totalSupplyVolatilityRuleId = _ruleId;
+        totalSupplyVolatilityRuleActive = true;
+        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, address(this), _ruleId);
+    }
+
+    /**
+     * @dev Tells you if the token total Supply Volatility rule is active or not.
+     * @param _on boolean representing if the rule is active
+     */
+    function activateTotalSupplyVolatilityRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+        totalSupplyVolatilityRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(SUPPLY_VOLATILITY, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(SUPPLY_VOLATILITY, address(this));
+        }
+    }
+
+    /**
+     * @dev Tells you if the Total Supply Volatility is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isTotalSupplyVolatilityActive() external view returns (bool) {
+        return totalSupplyVolatilityRuleActive;
     }
 
     /// -------------DATA CONTRACT DEPLOYMENT---------------

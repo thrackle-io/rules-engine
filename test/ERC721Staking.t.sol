@@ -6,14 +6,12 @@ import "../src/example/ApplicationERC20.sol";
 import {ApplicationERC721} from "../src/example/ApplicationERC721.sol";
 import {ApplicationERC721A} from "../src/example/ApplicationERC721A.sol";
 import "../src/example/ApplicationAppManager.sol";
+import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
-
 import "../src/example/ApplicationERC20Handler.sol";
 import {ApplicationERC721Handler} from "../src/example/ApplicationERC721Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-
 import "../src/example/staking/ERC721Staking.sol";
-
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 
 /**
@@ -29,13 +27,12 @@ contract ERC721StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationERC721 testNFT;
     RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationERC721Handler applicationNFTAHandler;
     ApplicationAppManager appManager;
-
     ERC721Staking stakingContract;
+    ApplicationHandler public applicationHandler;
 
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     address user1 = address(0xAAA);
@@ -57,29 +54,34 @@ contract ERC721StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
+        /// connect the appHandler to the appManager
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         /// deploying the ERC721  contract
-        applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
-        applicationNFTHandler = ApplicationERC721Handler(applicationNFT.getHandlerAddress());
+        applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), "https://SampleApp.io");
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
 
         appManager.registerToken("THRK", address(applicationNFT));
         /// deploy ERC721A contract
-        applicationNFTA = new ApplicationERC721A("PudgyParakeet", "THRKA", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
-        applicationNFTAHandler = ApplicationERC721Handler(applicationNFTA.getHandlerAddress());
-        applicationNFTAHandler.setERC721Address(address(applicationNFTA));
+        applicationNFTA = new ApplicationERC721A("PudgyParakeet", "THRKA", address(appManager), "https://SampleApp.io");
+        applicationNFTAHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTA.connectHandlerToToken(address(applicationNFTAHandler));
         appManager.registerToken("THRKA", address(applicationNFTA));
         // Create Reward Coin
-        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler = ApplicationERC20Handler(rewardCoin.getHandlerAddress());
+        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager));
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        rewardCoin.connectHandlerToToken(address(applicationCoinHandler));
         ///Create ERC721 Staking Contract
         applicationTokens = [address(applicationNFT), address(applicationNFTA)];
         uint128[7][] memory rewardsPerAddress = new uint128[7][](2);
         rewardsPerAddress[0] = ruleAArray;
         rewardsPerAddress[1] = ruleBArray;
         ///Test NFT for testing staking collection update function (not wired up to handlers)
-        testNFT = new ApplicationERC721("TestOnly", "TST", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
+        testNFT = new ApplicationERC721("TestOnly", "TST", address(appManager), "https://SampleApp.io");
         stakingContract = new ERC721Staking(address(rewardCoin), applicationTokens, rewardsPerAddress, address(appManager));
 
         rewardCoin.mint(address(stakingContract), 2_000_000_000_000);
@@ -97,11 +99,11 @@ contract ERC721StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
     function testConstructorInvalidSetup() public {
         ///Test NFT for testing staking collection update function (not wired up to handlers)
-        ApplicationERC721 nft1 = new ApplicationERC721("TestOnly", "TST", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
+        ApplicationERC721 nft1 = new ApplicationERC721("TestOnly", "TST", address(appManager), "https://SampleApp.io");
         uint128[7][] memory rewardsPerAddress = new uint128[7][](1);
         rewardsPerAddress[0] = ruleAArray;
         // Create Reward Coin
-        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager), address(ruleProcessor), false);
+        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager));
         ///Create ERC721 Staking Contract
         applicationTokens = [address(nft1), address(applicationNFTA)];
         vm.expectRevert(0x028a6c58);

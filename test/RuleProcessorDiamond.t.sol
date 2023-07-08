@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
 import "../src/application/AppManager.sol";
-import "../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
+import {ERC20RuleProcessorFacet} from "../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import "../src/application/AppManager.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
@@ -28,7 +28,6 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     ApplicationERC20 public applicationCoin;
     RuleProcessorDiamond public ruleProcessor;
     ApplicationERC20Handler applicationCoinHandler;
-
     RuleStorageDiamond ruleStorageDiamond;
 
     function setUp() public {
@@ -41,14 +40,14 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
 
         // Deploy app manager
-        appManager = new AppManager(defaultAdmin, "Castlevania", address(0), false);
+        appManager = new AppManager(defaultAdmin, "Castlevania", false);
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         ac = address(appManager);
 
-        applicationCoin = new ApplicationERC20("application", "GMC", address(appManager), address(ruleProcessor), false);
-        // Set up the ApplicationERC20Handler
-        applicationCoinHandler = ApplicationERC20Handler(applicationCoin.getHandlerAddress());
+        applicationCoin = new ApplicationERC20("application", "GMC", address(appManager));
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
         applicationCoin.mint(defaultAdmin, 10000000000000000000000);
     }
 
@@ -128,6 +127,45 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         bytes32[] memory tags = appManager.getAllTags(defaultAdmin);
 
         ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).minAccountBalanceCheck(applicationCoin.balanceOf(defaultAdmin), tags, amount, ruleId);
+    }
+
+    function testMaxTagEnforcementThroughMinAccountBalanceCheck() public {
+        bytes32[] memory accs = new bytes32[](3);
+        uint256[] memory min = new uint256[](3);
+        uint256[] memory max = new uint256[](3);
+
+        // add the actual rule
+
+        accs[0] = bytes32("Oscar");
+        accs[1] = bytes32("Tayler");
+        accs[2] = bytes32("Shane");
+        min[0] = uint256(10);
+        min[1] = uint256(20);
+        min[2] = uint256(30);
+        max[0] = uint256(10000000000000000000000000);
+        max[1] = uint256(10000000000000000000000000000);
+        max[2] = uint256(1000000000000000000000000000000);
+        // add empty rule at ruleId 0
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        for(uint i=1; i < 11; i++){
+            appManager.addGeneralTag(defaultAdmin,  bytes32(i)); //add tag
+        }
+        vm.expectRevert(0xa3afb2e2);
+        appManager.addGeneralTag(defaultAdmin, "xtra tag"); //add tag should fail
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        uint256 amount = 1;
+        assertEq(applicationCoin.balanceOf(defaultAdmin), 10000000000000000000000);
+        bytes32[] memory tags = new bytes32[](11);
+        for(uint i=1; i < 12; i++){
+            tags[i-1] = bytes32(i); //add tag
+        }
+        console.log(uint(tags[10]));
+        vm.expectRevert(0xa3afb2e2);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).minAccountBalanceCheck(10000000000000000000000, tags, amount, ruleId);
     }
 
     function testFailsMinAccountBalanceCheck() public {

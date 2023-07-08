@@ -52,26 +52,24 @@ contract ERC20AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         ruleProcessor = getRuleProcessorDiamond();
         // Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-        // Diploy the token rule processor diamond
-
-        //connect data diamond with Tagged Rule Processor diamond
-
-        // connect the Rule Processor to its child Diamond
 
         // Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         // Set up the ApplicationERC20Handler
         applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
         // Create two tokens and mint a bunch
-        stakingCoin = new ApplicationERC20("stakingCoin", "STK", address(appManager), address(ruleProcessor), false);
+        stakingCoin = new ApplicationERC20("stakingCoin", "STK", address(appManager));
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        stakingCoin.connectHandlerToToken(address(applicationCoinHandler));
         stakingCoin.mint(user1, 2_000_000_000_000_000_000_000_000);
-        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler = ApplicationERC20Handler(stakingCoin.getHandlerAddress());
 
-        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler2 = ApplicationERC20Handler(rewardCoin.getHandlerAddress());
+        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager));
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        rewardCoin.connectHandlerToToken(address(applicationCoinHandler));
 
         stakingContract = new ERC20AutoMintStaking(address(rewardCoin), address(stakingCoin), address(appManager));
 

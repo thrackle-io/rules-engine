@@ -1,5 +1,8 @@
 # FeeRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleProcessor/FeeRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleProcessor/FeeRuleProcessorFacet.sol)
+
+**Inherits:**
+[IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -25,11 +28,4 @@ function assessAMMFee(uint32 _ruleId, uint256 _collateralizedTokenAmount) extern
 |`_ruleId`|`uint32`|Rule Identifier for rule arguments|
 |`_collateralizedTokenAmount`|`uint256`|total number of collateralized tokens to be swapped(this could be the "token in" or "token out" as the fees are always * assessed from the collateralized token)|
 
-
-## Errors
-### RuleDoesNotExist
-
-```solidity
-error RuleDoesNotExist();
-```
 

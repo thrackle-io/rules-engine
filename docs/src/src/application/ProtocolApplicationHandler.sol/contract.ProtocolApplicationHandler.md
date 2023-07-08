@@ -1,8 +1,8 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
-Ownable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationHandlerEvents](/src/interfaces/IEvents.sol/interface.IApplicationHandlerEvents.md)
+Ownable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationHandlerEvents](/src/interfaces/IEvents.sol/interface.IApplicationHandlerEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -153,7 +153,7 @@ constructor(address _ruleProcessorProxyAddress, address _appManagerAddress);
 
 
 ```solidity
-function requireValuations() external view returns (bool);
+function requireValuations() public view returns (bool);
 ```
 **Returns**
 
@@ -169,7 +169,7 @@ function requireValuations() external view returns (bool);
 
 ```solidity
 function checkApplicationRules(
-    RuleProcessorDiamondLib.ActionTypes _action,
+    ActionTypes _action,
     address _from,
     address _to,
     uint128 _usdBalanceTo,
@@ -180,7 +180,7 @@ function checkApplicationRules(
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_action`|`RuleProcessorDiamondLib.ActionTypes`|Action to be checked|
+|`_action`|`ActionTypes`|Action to be checked|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
 |`_usdBalanceTo`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
@@ -514,11 +514,4 @@ function isMaxTxSizePerPeriodByRiskActive() external view returns (bool);
 |----|----|-----------|
 |`<none>`|`bool`|boolean representing if the rule is active for specified token|
 
-
-## Errors
-### ZeroAddress
-
-```solidity
-error ZeroAddress();
-```
 

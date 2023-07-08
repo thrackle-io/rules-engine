@@ -11,16 +11,10 @@ pragma solidity ^0.8.17;
 import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 
-abstract contract IERC721Staking {
-    error DepositFailed();
-    error NotStakingEnough(uint256 minStake);
-    error NotStakingForAnyTime();
-    error RewardPoolLow(uint256 balance);
-    error NoRewardsToClaim();
-    error RewardsWillBeZero();
-    error InvalidTimeUnit();
-    error TokenNotValidToStake();
-    error TokenNotAvailableToWithdraw();
+import { IStakingErrors, IERC721StakingErrors } from "../interfaces/IErrors.sol";
+
+abstract contract IERC721Staking is IStakingErrors, IERC721StakingErrors{
+    
 
     event NewStake(address indexed staker, uint256 indexed tokenId, uint256 stakingPeriodInSeconds, uint256 indexed stakingSince);
     event RewardsClaimed(address indexed staker, uint256 indexed tokenId, uint256 rewards, uint256 indexed stakingSince, uint256 date);

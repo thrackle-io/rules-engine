@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "./DiamondTestUtil.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-
+import "../src/example/application/ApplicationHandler.sol";
 import "../src/application/AppManager.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/ApplicationERC20Handler.sol";
@@ -42,9 +42,8 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
     address[] goodBoys;
     uint256 Blocktime = 1675723152;
     RuleProcessorDiamond ruleProcessor;
-
+    ApplicationHandler public applicationHandler;
     RuleStorageDiamond ruleStorageDiamond;
-
     ApplicationERC20Handler applicationCoinHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
@@ -63,12 +62,14 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
 
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the accessTier Admin
         appManager.addAccessTier(accessTier);
         ac = address(appManager);
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), ac, false);
 
         // create the oracles
@@ -139,7 +140,7 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         minBalance = 10 * 10 ** 18;
         maxBalance = 1000 * 10 ** 18;
         feePercentage = 10001;
-        bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint24)"));
+        bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 10001));
         applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
     }
@@ -287,15 +288,15 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         /// connect the rule to this handler
         applicationCoinHandler.setMinMaxBalanceRuleId(ruleId);
         /// execute a passing check for the minimum
-        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
         /// execute a passing check for the maximum
-        applicationCoinHandler.checkAllRules(1000, 0, user1, user2, 500, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(1000, 0, user1, user2, 500, ActionTypes.TRADE);
         // execute a failing check for the minimum
         vm.expectRevert(0xf1737570);
-        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
         // execute a passing check for the maximum
         vm.expectRevert(0x24691f6b);
-        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
     }
 
     /// now disable since it won't work unless an ERC20 is using it
@@ -313,10 +314,10 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         applicationCoinHandler.setOracleRuleId(_index);
         // test that the oracle works
         // This one should pass
-        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
         // This one should fail
         vm.expectRevert(0x6bdfffc0);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
 
         // check the allowed list type
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 1, address(oracleAllowed));
@@ -326,10 +327,10 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
         // This one should pass
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(59), 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, address(59), 10, ActionTypes.TRADE);
         // This one should fail
         vm.expectRevert(0x7304e213);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
 
         // Finally, check the invalid type
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 2, address(oracleAllowed));
@@ -354,27 +355,27 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         /// connect the rule to this handler
         applicationCoinHandler.setMinMaxBalanceRuleId(ruleId);
         /// execute a passing check for the minimum
-        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
         /// execute a passing check for the maximum
-        applicationCoinHandler.checkAllRules(1000, 0, user1, user2, 500, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(1000, 0, user1, user2, 500, ActionTypes.TRADE);
         // execute a failing check for the minimum
         vm.expectRevert(0xf1737570);
-        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
         // execute a failing check for the maximum
         vm.expectRevert(0x24691f6b);
-        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
         /// turning rules off
         applicationCoinHandler.activateMinMaxBalanceRule(false);
         /// now we can "break" the rules
-        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, RuleProcessorDiamondLib.ActionTypes.TRADE);
-        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
         /// turning rules back on
         applicationCoinHandler.activateMinMaxBalanceRule(true);
         /// now we cannot break the rules again
         vm.expectRevert(0xf1737570);
-        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
         vm.expectRevert(0x24691f6b);
-        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
 
         // add the rule.
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 0, address(oracleRestricted));
@@ -389,10 +390,10 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         applicationCoinHandler.setOracleRuleId(_index);
         // test that the oracle works
         // This one should pass
-        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
         // This one should fail
         vm.expectRevert(0x6bdfffc0);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
 
         // check the allowed list type
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 1, address(oracleAllowed));
@@ -402,26 +403,26 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
         // This one should pass
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(59), 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, address(59), 10, ActionTypes.TRADE);
         // This one should fail
         vm.expectRevert(0x7304e213);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
 
         // Finally, check the invalid type
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 2, address(oracleAllowed));
         /// connect the rule to this handler
         applicationCoinHandler.setOracleRuleId(_index);
         vm.expectRevert(0x2a15491e);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
 
         /// let's turn the rule off
         applicationCoinHandler.activateOracleRule(false);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
 
         /// let's turn it back on
         applicationCoinHandler.activateOracleRule(true);
         vm.expectRevert(0x2a15491e);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, RuleProcessorDiamondLib.ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
     }
 
     ///---------------UPGRADEABILITY---------------

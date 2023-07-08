@@ -10,6 +10,7 @@ import "./IAccounts.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract Accounts is DataModule, IAccounts {
+
     mapping(address => bool) public accounts;
 
     /**
@@ -24,6 +25,7 @@ contract Accounts is DataModule, IAccounts {
      * @param _account user address
      */
     function addAccount(address _account) external onlyOwner {
+        if (_account == address(0)) revert ZeroAddress();
         accounts[_account] = true;
         emit AccountAdded(_account, block.timestamp);
     }

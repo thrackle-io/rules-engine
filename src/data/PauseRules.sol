@@ -26,10 +26,13 @@ contract PauseRules is IPauseRules, DataModule {
      * @param _pauseStop pause window stop timestamp
      */
     function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) public onlyOwner {
-        require(pauseRules.length < 15, "Max rules reached");
+        if(pauseRules.length >= 15) revert MaxPauseRulesReached();
+        
         cleanOutdatedRules();
-        require(_pauseStart > block.timestamp && _pauseStop > _pauseStart, "bad dates");
-        PauseRule memory pauseRule = PauseRule(block.timestamp, _pauseStart, _pauseStop, true);
+        if (_pauseStop <= _pauseStart || _pauseStart <= block.timestamp) {
+            revert InvalidDateWindow(_pauseStart, _pauseStop);
+        }
+        PauseRule memory pauseRule = PauseRule(block.timestamp, _pauseStart, _pauseStop);
         pauseRules.push(pauseRule);
         emit PauseRuleAdded(_pauseStart, _pauseStop);
     }

@@ -59,6 +59,8 @@ pragma solidity 0.8.17;
 
 //         // Deploy app manager
 //         appManager = new AppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+//         applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+//         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
 //         // add the DEAD address as a app administrator
 //         appManager.addAppAdministrator(appAdministrator);
 //         ac = address(appManager);

@@ -10,5 +10,4 @@ struct PauseRule {
     uint256 dateCreated;
     uint256 pauseStart;
     uint256 pauseStop;
-    bool active;
 }

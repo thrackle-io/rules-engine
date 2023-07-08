@@ -1,8 +1,8 @@
 # ProtocolERC721
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/token/ProtocolERC721.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/token/ProtocolERC721.sol)
 
 **Inherits:**
-ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md)
+ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -28,7 +28,7 @@ address public handlerAddress;
 ### handler
 
 ```solidity
-ProtocolERC721Handler handler;
+IProtocolERC721Handler handler;
 ```
 
 
@@ -71,14 +71,8 @@ uint8 public constant VERSION = 1;
 
 
 ```solidity
-constructor(
-    string memory _name,
-    string memory _symbol,
-    address _appManagerAddress,
-    address _ruleProcessor,
-    bool _upgradeMode,
-    string memory _baseUri
-) ERC721(_name, _symbol);
+constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri)
+    ERC721(_name, _symbol);
 ```
 **Parameters**
 
@@ -87,8 +81,6 @@ constructor(
 |`_name`|`string`|Name of NFT|
 |`_symbol`|`string`|Symbol for the NFT|
 |`_appManagerAddress`|`address`|Address of App Manager|
-|`_ruleProcessor`|`address`|Address of the protocol rule processor|
-|`_upgradeMode`|`bool`|token deploys a Handler contract, false = handler deployed, true = upgraded token contract and no handler. _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.|
 |`_baseUri`|`string`|URI for the base token|
 
 
@@ -172,12 +164,13 @@ function unpause() public virtual appAdministratorOnly(appManagerAddress);
 ### safeMint
 
 Add appAdministratorOnly modifier to restrict minting privilages
+Function is payable for child contracts to override with priced mint function.
 
 *Function mints new a new token to caller with tokenId incremented by 1 from previous minted token.*
 
 
 ```solidity
-function safeMint(address to) public virtual whenNotPaused;
+function safeMint(address to) public payable virtual whenNotPaused;
 ```
 **Parameters**
 
@@ -259,34 +252,7 @@ This function call must use less than 30 000 gas.*
 function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool);
 ```
 
-### deployHandler
-
-*This function is called at deployment in the constructor to deploy the Handler Contract for the Token.*
-
-
-```solidity
-function deployHandler(address _ruleProcessor, address _appManagerAddress, bool _upgradeModeHandler)
-    private
-    returns (address);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleProcessor`|`address`|address of the rule processor|
-|`_appManagerAddress`|`address`|address of the Application Manager Contract|
-|`_upgradeModeHandler`|`bool`|specifies whether this is a fresh Handler or an upgrade replacement.|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`address`|handlerAddress address of the new Handler Contract|
-
-
 ### connectHandlerToToken
-
-register the token with its handler
 
 *Function to connect Token to previously deployed Handler contract*
 
@@ -315,11 +281,4 @@ function getHandlerAddress() external view returns (address);
 |----|----|-----------|
 |`<none>`|`address`|handlerAddress|
 
-
-## Errors
-### ZeroAddress
-
-```solidity
-error ZeroAddress();
-```
 

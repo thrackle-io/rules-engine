@@ -8,9 +8,9 @@ Ownable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
 
 This contract is the connector between the AppManagerRulesDiamond and the Application App Managers. It is maintained by the client application.
-Deployment happens automatically when the AppManager is deployed.
+It is connected to the AppManager post deployment via setNewApplicationHandlerAddress function.
 
-*This contract is injected into the appManagerss.*
+*This contract is connected to the appManagers after deployment via setNewApplicationHandlerAddress function.*
 
 
 ## State Variables

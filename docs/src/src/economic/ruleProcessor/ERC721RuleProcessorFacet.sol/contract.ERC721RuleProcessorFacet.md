@@ -1,5 +1,8 @@
 # ERC721RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleProcessor/ERC721RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleProcessor/ERC721RuleProcessorFacet.sol)
+
+**Inherits:**
+[IERC721Errors](/src/interfaces/IErrors.sol/interface.IERC721Errors.md), [IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [IMaxTagLimitError](/src/interfaces/IErrors.sol/interface.IMaxTagLimitError.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -33,16 +36,19 @@ function checkNFTTransferCounter(
 |`lastTransferTime`|`uint64`|block.timestamp of most recent transaction from sender.|
 
 
-## Errors
-### MaxNFTTransferReached
+### checkNFTHoldTime
+
+*This function receives data needed to check Minimum hold time rule. This a simple rule and thus is not stored in the rule storage diamond.*
+
 
 ```solidity
-error MaxNFTTransferReached();
+function checkNFTHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view;
 ```
+**Parameters**
 
-### RuleDoesNotExist
+|Name|Type|Description|
+|----|----|-----------|
+|`_holdHours`|`uint32`|minimum number of hours the asset must be held|
+|`_ownershipTs`|`uint256`|beginning of hold period|
 
-```solidity
-error RuleDoesNotExist();
-```
 

@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {TaggedRuleDataFacet} from "../ruleStorage/TaggedRuleDataFacet.sol";
 import {ITaggedRules as TaggedRules} from "../ruleStorage/RuleDataInterfaces.sol";
+import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
 
 /**
  * @title Risk Rules Handler Facet Contract
@@ -12,11 +13,8 @@ import {ITaggedRules as TaggedRules} from "../ruleStorage/RuleDataInterfaces.sol
  * @notice Implements Risk Rules on Tagged Accounts. All risk rules are measured in
  * in terms of USD with 18 decimals of precision.
  */
-contract RiskTaggedRuleProcessorFacet {
-    error RuleDoesNotExist();
-    error MaxTxSizePerPeriodReached(uint8 riskScore, uint256 maxTxSize, uint8 hoursOfPeriod);
-    error TransactionExceedsRiskScoreLimit();
-    error BalanceExceedsRiskScoreLimit();
+contract RiskTaggedRuleProcessorFacet is IRuleProcessorErrors, IRiskErrors {
+   
 
     /**
      * @dev Transaction Limit for Risk Score

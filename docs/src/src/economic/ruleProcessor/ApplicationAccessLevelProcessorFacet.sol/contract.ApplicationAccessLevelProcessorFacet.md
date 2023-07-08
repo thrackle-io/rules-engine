@@ -1,10 +1,13 @@
 # ApplicationAccessLevelProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol)
+
+**Inherits:**
+[IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [IAccessLevelErrors](/src/interfaces/IErrors.sol/interface.IAccessLevelErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
 
-Implements AccessLevel Rule Checks on Tagged Accounts. AccessLevel rules are measured in
+Implements AccessLevel Rule Checks. AccessLevel rules are measured in
 in terms of USD with 18 decimals of precision.
 
 *This contract implements rules to be checked by Handler.*
@@ -73,29 +76,4 @@ function checkAccessLevel0Passes(uint8 _accessLevel) external pure;
 |----|----|-----------|
 |`_accessLevel`|`uint8`|the Access Level of the account|
 
-
-## Errors
-### RuleDoesNotExist
-
-```solidity
-error RuleDoesNotExist();
-```
-
-### BalanceExceedsAccessLevelAllowedLimit
-
-```solidity
-error BalanceExceedsAccessLevelAllowedLimit();
-```
-
-### WithdrawalExceedsAccessLevelAllowedLimit
-
-```solidity
-error WithdrawalExceedsAccessLevelAllowedLimit();
-```
-
-### NotAllowedForAccessLevel
-
-```solidity
-error NotAllowedForAccessLevel();
-```
 

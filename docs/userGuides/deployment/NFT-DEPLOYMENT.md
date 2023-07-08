@@ -14,9 +14,8 @@
 1. The Protocol must be deployed to the target chain, or is currently deployed to the target chain.
 2. An AppManager must be deployed to the target chain, or is currently deployed to the target chain.
    - NOTE: AppManagers must be reused by all tokens in the ecosystem
-3. An NFTHandler is deployed with each NFT on the target chain.
-4. A ProtocolSupportedNFT must be be deployed to the target chain
-   - The ProtocolSupportedNFT will also deploy a new NFTHandler.
+3. A ProtocolSupportedNFT must be be deployed to the target chain
+4. An NFTHandler must be deployed with each NFT and connected accordingly.
 
 
 ### Manual Deployments

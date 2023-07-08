@@ -10,6 +10,7 @@ import "./IGeneralTags.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract GeneralTags is DataModule, IGeneralTags {
+
     mapping(address => bytes32[]) public tagRecords;
 
     /**
@@ -23,10 +24,39 @@ contract GeneralTags is DataModule, IGeneralTags {
      * @dev Add the tag. Restricted to owner.
      * @param _address user address
      * @param _tag metadata tag to be added
+     * @notice there is a hard limit of 10 tags per address. This limit is also enforced by the
+     * protocol, so keeping this limit here prevents transfers to unexpectedly revert.
      */
     function addTag(address _address, bytes32 _tag) public onlyOwner {
-        require(_tag != "");
-        tagRecords[_address].push(_tag);
+        if(_tag == "") revert BlankTag();
+        if (hasTag(_address, _tag)) emit TagAlreadyApplied(_address);
+        else {
+            if( tagRecords[_address].length >= 10) revert MaxTagLimitReached();
+            tagRecords[_address].push(_tag);
+            emit GeneralTagAdded(_address, _tag, block.timestamp);
+        }
+    }
+
+    /**
+     * @dev Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.
+     * @param _accounts Address array to be tagged
+     * @param _tag Tag for the account. Can be any allowed string variant
+     * @notice there is a hard limit of 10 tags per address. This limit is also enforced by the
+     * protocol, so keeping this limit here prevents transfers to unexpectedly revert.
+     */
+    function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyOwner {
+        if(_tag == "") revert BlankTag();
+        for (uint256 i; i < _accounts.length; ) {
+            if (hasTag(_accounts[i], _tag)) emit TagAlreadyApplied(_accounts[i]);
+            else{
+                if( tagRecords[_accounts[i]].length >= 10) revert MaxTagLimitReached();
+                tagRecords[_accounts[i]].push(_tag);
+                emit GeneralTagAdded(_accounts[i], _tag, block.timestamp);
+            }
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /**
@@ -55,6 +85,7 @@ contract GeneralTags is DataModule, IGeneralTags {
                 ++i;
             }
         }
+        emit GeneralTagRemoved(_address, _tag, block.timestamp);
     }
 
     /**

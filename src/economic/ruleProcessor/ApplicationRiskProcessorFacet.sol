@@ -4,19 +4,17 @@ pragma solidity 0.8.17;
 import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {IApplicationRules as ApplicationRuleStorage} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
+import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
 
 /**
  * @title Risk Score Processor Facet Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev This contract implements rules to be checked by Handler.
- * @notice Risk Score Rules on  Tagged Accounts. All risk rules are measured in
+ * @notice Risk Score Rules. All risk rules are measured in
  * in terms of USD with 18 decimals of precision.
  */
-contract ApplicationRiskProcessorFacet {
-    error RuleDoesNotExist();
-    error MaxTxSizePerPeriodReached(uint8 riskScore, uint256 maxTxSize, uint8 hoursOfPeriod);
-    error TransactionExceedsRiskScoreLimit();
-    error BalanceExceedsRiskScoreLimit();
+contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
+    
 
     /**
      * @dev Account balance by Risk Score

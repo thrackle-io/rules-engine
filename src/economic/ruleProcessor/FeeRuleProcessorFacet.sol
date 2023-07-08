@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {FeeRuleDataFacet} from "../ruleStorage/FeeRuleDataFacet.sol";
 import {IFeeRules as Fee} from "../ruleStorage/RuleDataInterfaces.sol";
+import {IRuleProcessorErrors} from "../../interfaces/IErrors.sol";
 
 /**
  * @title Fee Rule Processor Facet Contract
@@ -11,8 +12,7 @@ import {IFeeRules as Fee} from "../ruleStorage/RuleDataInterfaces.sol";
  * @dev Facet in charge of the logic to check fee rule compliance
  * @notice Implements Token Fee Rules on Accounts.
  */
-contract FeeRuleProcessorFacet {
-    error RuleDoesNotExist();
+contract FeeRuleProcessorFacet is IRuleProcessorErrors{
 
     /**
      * @dev Assess the fee associated with the AMM Fee Rule

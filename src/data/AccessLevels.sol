@@ -26,7 +26,25 @@ contract AccessLevels is IAccessLevels, DataModule {
      * @param _level access levellevel(0-4)
      */
     function addLevel(address _address, uint8 _level) public onlyOwner {
+        if (_level > 4) revert AccessLevelIsNotValid(_level);
         levels[_address] = _level;
+        emit AccessLevelAdded(_address, _level, block.timestamp);
+    }
+
+    /**
+     * @dev Add the Access Level(0-4) to multiple accounts. Restricted to Access Tiers.
+     * @param _accounts address upon which to apply the Access Level
+     * @param _level Access Level to add
+     */
+    function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external onlyOwner {
+        if (_level > 4) revert AccessLevelIsNotValid(_level);
+        for (uint256 i; i < _accounts.length; ) {
+            levels[_accounts[i]] = _level;
+            emit AccessLevelAdded(_accounts[i], _level, block.timestamp);
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /**

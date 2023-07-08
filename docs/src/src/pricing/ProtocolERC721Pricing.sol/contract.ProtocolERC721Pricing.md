@@ -1,8 +1,8 @@
 # ProtocolERC721Pricing
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/pricing/ProtocolERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/pricing/ProtocolERC721Pricing.sol)
 
 **Inherits:**
-Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md)
+Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IProtocolERC721Pricing](/src/pricing/IProtocolERC721Pricing.sol/interface.IProtocolERC721Pricing.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -84,11 +84,4 @@ function getNFTPrice(address nftContract, uint256 id) external view returns (uin
 |----|----|-----------|
 |`price`|`uint256`|of the Token in weis of dollars. 10^18 => $ 1.00 USD 999_999_999_999_999_999 = 0xDE0B6B3A763FFFF, 1_000_000_000_000_000_000 = DE0B6B3A7640000|
 
-
-## Errors
-### NotAnNFTContract
-
-```solidity
-error NotAnNFTContract(address nftContract);
-```
 

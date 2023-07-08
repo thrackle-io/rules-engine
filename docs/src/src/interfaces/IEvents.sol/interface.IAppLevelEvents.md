@@ -1,5 +1,5 @@
 # IAppLevelEvents
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/interfaces/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/interfaces/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -10,9 +10,15 @@ Protocol Module Events Library
 
 
 ## Events
-### RoleCheck
+### HandlerConnected
 AppManager
 
+
+```solidity
+event HandlerConnected(address indexed handlerAddress, address indexed appManager);
+```
+
+### RoleCheck
 
 ```solidity
 event RoleCheck(string contractName, string functionName, address checkedAddress, bytes32 checkedRole);

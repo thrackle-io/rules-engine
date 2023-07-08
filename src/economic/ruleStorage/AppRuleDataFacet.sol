@@ -5,6 +5,7 @@ import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {IApplicationRules as AppRules} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
+import {IInputErrors, IAppRuleInputErrors, IRiskInputErrors} from "../../interfaces/IErrors.sol";
 import "../AppAdministratorOnly.sol";
 import "./RuleCodeData.sol";
 
@@ -15,14 +16,8 @@ import "./RuleCodeData.sol";
  * @notice This contract sets and gets the App Rules for the protocol
  */
 
-contract AppRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
-    error IndexOutOfRange();
-    error WrongArrayOrder();
-    error InputArraysSizesNotValid();
-    error InvalidHourOfTheDay();
-    error BalanceAmountsShouldHave5Levels(uint8 inputLevels);
-    error WithdrawalAmountsShouldHave5Levels(uint8 inputLevels);
-    error RiskLevelCannotExceed99();
+contract AppRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, IAppRuleInputErrors, IRiskInputErrors {
+    
 
     //*********************** AccessLevel Rules ********************************************** */
     /**

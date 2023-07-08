@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import "./PauseRule.sol";
 import "./IDataModule.sol";
+import { IPauseRuleErrors } from "../interfaces/IErrors.sol";
 
 /**
  * @title Pause Rule Interface
@@ -10,7 +11,7 @@ import "./IDataModule.sol";
  * @dev Contains Pause Rule Storage and retrieval function definitions
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-interface IPauseRules is IDataModule {
+interface IPauseRules is IDataModule, IPauseRuleErrors {
     /**
      * @dev Add the pause rule to the account. Restricted to the owner
      * @param _pauseStart pause window start timestamp

@@ -9,14 +9,11 @@ import "../src/application/AppManager.sol";
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "../src/economic/ruleStorage/RuleDataInterfaces.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {RuleDataFacet as NonTaggedRuleFacet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
-
 import "../src/application/AppManager.sol";
-
+import "../src/example/application/ApplicationHandler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-
 import "../src/application/AppManager.sol";
 import "../src/application/AppManager.sol";
-
 import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
 import "../src/example/ApplicationERC20Handler.sol";
@@ -39,6 +36,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
     ApplicationAppManager appManager;
     ApplicationERC20Pricing erc20Pricer;
     ApplicationERC721Pricing nftPricer;
+    ApplicationHandler public applicationHandler;
     //address defaultAdmin = address(0xDEFAD);
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     //address appAdministrator = address(0xB0B);
@@ -55,18 +53,15 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy the rule processor diamonds
         ruleProcessor = getRuleProcessorDiamond();
-
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-        // Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-
         // Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         ac = address(appManager);
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
-
         // create the oracles
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
@@ -288,19 +283,18 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
 
         /// test only admin can add rule, and values are withing acceptable range
         if ((sender != defaultAdmin && sender != appAdministrator) || maxVolatility == 0 || blocks == 0 || hFrozen == 0) vm.expectRevert();
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, maxVolatility, blocks, hFrozen);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, maxVolatility, blocks, hFrozen, totalSupply);
         if ((sender == defaultAdmin || sender == appAdministrator) && maxVolatility > 0 && blocks > 0 && hFrozen > 0) {
             assertEq(_index, 0);
             NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getVolatilityRule(_index);
-            assertEq(rule.hoursFrozen, hFrozen);
 
             /// testing adding a second rule
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 666, 100, 16);
+            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 666, 100, 16, totalSupply);
             assertEq(_index, 1);
             rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getVolatilityRule(_index);
-            assertEq(rule.hoursFrozen, 16);
+            assertEq(rule.startingTime, 16);
             assertEq(rule.maxVolatility, 666);
-            assertEq(rule.blocksPerPeriod, 100);
+            assertEq(rule.period, 100);
 
             /// testing total rules
             assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalVolatilityRules(), 2);
@@ -438,19 +432,22 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
-
+        vm.assume(maxChange < 9999 && maxChange > 0);
+        if (maxChange < 100) maxChange = 100;
+        if (hFrozen > 23) hFrozen = 23; 
+        if (hPeriod > 23) hPeriod = 23;
         if ((sender != defaultAdmin && sender != appAdministrator) || maxChange == 0 || hPeriod == 0 || hFrozen == 0) vm.expectRevert();
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, maxChange, hPeriod, hFrozen);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, maxChange, hPeriod, hFrozen, totalSupply);
         if (!((sender != defaultAdmin && sender != appAdministrator) || maxChange == 0 || hPeriod == 0 || hFrozen == 0)) {
             assertEq(_index, 0);
             NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getSupplyVolatilityRule(_index);
-            assertEq(rule.hoursFrozen, hFrozen);
+            assertEq(rule.startingTime, hFrozen);
 
             /// testing adding a second rule
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 5000, 100, 26);
+            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 5000, 23, 12, totalSupply);
             assertEq(_index, 1);
             rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getSupplyVolatilityRule(_index);
-            assertEq(rule.hoursFrozen, 26);
+            assertEq(rule.startingTime, 12);
 
             /// testing total rules
             assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalSupplyVolatilityRules(), 2);

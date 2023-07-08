@@ -7,10 +7,11 @@ import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "../application/IAppManager.sol";
-import "../economic/AppAdministratorOnly.sol";
-import "../../src/token/ProtocolERC721Handler.sol";
+import "src/application/IAppManager.sol";
+import "src/economic/AppAdministratorOnly.sol";
+import "src/token/IProtocolERC721Handler.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
+import {IZeroAddressError} from "../interfaces/IErrors.sol";
 
 /**
  * @title ERC721 Base Contract
@@ -18,11 +19,11 @@ import {IApplicationEvents} from "../interfaces/IEvents.sol";
  * @notice This is the base contract for all protocol ERC721s
  */
 
-contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, AppAdministratorOnly, IApplicationEvents {
+contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, AppAdministratorOnly, IApplicationEvents, IZeroAddressError {
     using Counters for Counters.Counter;
     address public appManagerAddress;
     address public handlerAddress;
-    ProtocolERC721Handler handler;
+    IProtocolERC721Handler handler;
     IAppManager appManager;
     Counters.Counter private _tokenIdCounter;
 
@@ -30,25 +31,18 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     string public baseUri;
     /// keeps track of RULE enum version and other features
     uint8 public constant VERSION = 1;
-    error ZeroAddress();
 
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
      * @param _name Name of NFT
      * @param _symbol Symbol for the NFT
      * @param _appManagerAddress Address of App Manager
-     * @param _ruleProcessor Address of the protocol rule processor
-     * * @param _upgradeMode token deploys a Handler contract, false = handler deployed, true = upgraded token contract and no handler.
-     * _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.
      * @param _baseUri URI for the base token
      */
-    constructor(string memory _name, string memory _symbol, address _appManagerAddress, address _ruleProcessor, bool _upgradeMode, string memory _baseUri) ERC721(_name, _symbol) {
+    constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ERC721(_name, _symbol) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         setBaseURI(_baseUri);
-        if (!_upgradeMode) {
-            deployHandler(_ruleProcessor, _appManagerAddress, _upgradeMode);
-        }
         emit NewNFTDeployed(address(this), _appManagerAddress);
     }
 
@@ -99,9 +93,10 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     /**
      * @dev Function mints new a new token to caller with tokenId incremented by 1 from previous minted token.
      * @notice Add appAdministratorOnly modifier to restrict minting privilages
+     * Function is payable for child contracts to override with priced mint function.
      * @param to Address of recipient
      */
-    function safeMint(address to) public virtual whenNotPaused {
+    function safeMint(address to) public payable virtual whenNotPaused {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -117,10 +112,9 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) whenNotPaused {
         // Rule Processor Module Check
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, 1, tokenId, RuleProcessorDiamondLib.ActionTypes.TRADE));
+        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, 1, tokenId, ActionTypes.TRADE));
 
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
-        //return(tradesPerToken[tokenId]);
     }
 
     /// The following functions are overrides required by Solidity.
@@ -163,28 +157,13 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     }
 
     /**
-     * @dev This function is called at deployment in the constructor to deploy the Handler Contract for the Token.
-     * @param _ruleProcessor address of the rule processor
-     * @param _appManagerAddress address of the Application Manager Contract
-     * @param _upgradeModeHandler specifies whether this is a fresh Handler or an upgrade replacement.
-     * @return handlerAddress address of the new Handler Contract
-     */
-    function deployHandler(address _ruleProcessor, address _appManagerAddress, bool _upgradeModeHandler) private returns (address) {
-        handler = new ProtocolERC721Handler(_ruleProcessor, _appManagerAddress, _upgradeModeHandler);
-        /// register the token with its handler
-        handler.setERC721Address(address(this));
-        handlerAddress = address(handler);
-        return handlerAddress;
-    }
-
-    /**
      * @dev Function to connect Token to previously deployed Handler contract
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
     function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
-        handler = ProtocolERC721Handler(_deployedHandlerAddress);
+        handler = IProtocolERC721Handler(_deployedHandlerAddress);
         emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
     }
 

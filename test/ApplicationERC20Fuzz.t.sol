@@ -6,12 +6,10 @@ import "../src/example/ApplicationERC20.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
-
 import "../src/example/ApplicationERC20Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
-
 import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
 import "../src/example/pricing/ApplicationERC20Pricing.sol";
@@ -21,15 +19,12 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
     ApplicationERC20 applicationCoin;
     RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationERC20Handler applicationCoinHandler2;
     ApplicationAppManager appManager;
-
     ApplicationHandler public applicationHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
-
     ApplicationERC20Pricing erc20Pricer;
     ApplicationERC721Pricing nftPricer;
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
@@ -54,16 +49,18 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         /// Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the AccessLevelAdmin address as a AccessLevel admin
         appManager.addAccessTier(accessTier);
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
 
-        applicationHandler = ApplicationHandler(appManager.getHandlerAddress());
-
-        applicationCoin = new ApplicationERC20("application", "FRANK", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler = ApplicationERC20Handler(applicationCoin.getHandlerAddress());
+        applicationCoin = new ApplicationERC20("application", "FRANK", address(appManager));
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
+        
         /// register the token
         appManager.registerToken("FRANK", address(applicationCoin));
         /// set the token price
@@ -565,8 +562,9 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         /// create secondary token, mint, and transfer to user
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler2 = ApplicationERC20Handler(draculaCoin.getHandlerAddress());
+        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager));
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        draculaCoin.connectHandlerToToken(address(applicationCoinHandler));
         applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));
@@ -906,5 +904,98 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         vm.expectRevert(0x3627495d);
         applicationCoin.transfer(user2, maxSize);
         assertEq(applicationCoin.balanceOf(user2), 0);
+    }
+
+    function testTotalSupplyVolatilityFuzz(uint8 _addressIndex, uint256 amount, uint16 volLimit) public {
+        /// test params 
+        vm.assume(volLimit < 9999 && volLimit > 0);
+        if (volLimit < 100) volLimit = 100;
+        vm.assume(amount < 9999 * (10**18)); 
+        vm.warp(Blocktime); 
+        uint8 rulePeriod = 24; /// 24 hours 
+        uint8 startingTime = 12; /// start at noon 
+        uint256 tokenSupply = 0; /// calls totalSupply() for the token
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
+        user1 = addressList[0];
+        /// mint initial supply 
+        uint256 initialSupply = 100_000 * (10**18);
+        uint256 volume = uint256(volLimit) * 10;
+        applicationCoin.mint(defaultAdmin, initialSupply); 
+        /// create and activate rule 
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), volLimit, rulePeriod, startingTime, tokenSupply);
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index);
+        /// test mint 
+        vm.stopPrank();
+        vm.startPrank(user1); 
+        if (user1 != defaultAdmin) {
+            if (amount > initialSupply - volume) {
+                vm.expectRevert(0x81af27fa); 
+                applicationCoin.mint(user1, amount);
+            }
+        }
+        // /// test burn 
+        if (user1 != defaultAdmin) {
+            if (amount > uint(applicationCoin.totalSupply()) - volume) {
+                vm.expectRevert(0x81af27fa); 
+                applicationCoin.burn(amount);
+            }
+        }
+
+        /// reset the total supply 
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        applicationCoin.burn(applicationCoin.totalSupply());
+        applicationCoin.mint(defaultAdmin, initialSupply);
+        vm.warp(Blocktime + 36 hours);
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        uint256 transferAmount = uint256(volLimit) * (10 * (10**18)); 
+        applicationCoin.mint(user1, (transferAmount - (1 * (10**18))));
+        vm.expectRevert();
+        applicationCoin.mint(user1, transferAmount);
+
+        applicationCoin.transfer(defaultAdmin, applicationCoin.balanceOf(user1)); 
+
+        /// test minimum volatility limits 
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        applicationCoin.burn(applicationCoin.balanceOf(defaultAdmin));
+        applicationCoin.mint(defaultAdmin, initialSupply);
+        console.logUint(applicationCoin.totalSupply()); 
+        vm.warp(Blocktime + 96 hours);
+        uint16 volatilityLimit = 1; /// 0.01% 
+        uint32 _ruleIndex = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_ruleIndex);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.mint(user1, 5 * (10 ** 18));
+        applicationCoin.mint(user1, 4 * (10 ** 18));
+        applicationCoin.mint(user1, 1 * (10 ** 18));
+        vm.expectRevert();
+        applicationCoin.mint(user1, 1_000_000_000_000_000); /// 0.0001 tokens 
+
+        /// test above 100% volatility limits 
+        applicationCoin.transfer(defaultAdmin, applicationCoin.balanceOf(user1));
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        applicationCoin.burn(applicationCoin.balanceOf(defaultAdmin));
+        applicationCoin.mint(defaultAdmin, initialSupply);
+        console.logUint(applicationCoin.totalSupply()); 
+        vm.warp(Blocktime + 120 hours);
+        uint16 newVolatilityLimit = 50000; /// 500%
+        uint32 _newRuleIndex = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), newVolatilityLimit, rulePeriod, startingTime, tokenSupply);
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_newRuleIndex);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.mint(user1, 450000 * (10 ** 18));
+        applicationCoin.mint(user1, 50000 * (10 ** 18));
+        applicationCoin.burn(50000 * (10 ** 18));
+        applicationCoin.mint(user1, 50000 * (10 ** 18));
+        applicationCoin.burn(50000 * (10 ** 18));
+        applicationCoin.mint(user1, 50000 * (10 ** 18));
+        applicationCoin.burn(50000 * (10 ** 18));
+
+
     }
 }

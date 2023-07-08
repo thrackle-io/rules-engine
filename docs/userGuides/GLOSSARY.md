@@ -9,7 +9,8 @@
 
 | Term                      | Definition                                                                                                                                                  |
 |:--------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| AppManager                | Allows for creation/maintenance of permission roles, application rules, pause windows, user account metadata. Automatically deploys the ApplicationHandler. |
+| AppManager                | Allows for creation/maintenance of permission roles, application rules, pause windows, user account metadata. |
+| ApplicationHandler        | Connection to Rules Protocol for the AppManager. |
 | TokenHandler              | Deployed by Protocol Supported ERC721's and Protocol Supported ERC20 tokens. Allow for applying, activating, and deactivating token specific rules          |
 | Pricing Module            | Where prices for ERC20 and ERC721 tokens are derived. It can be the default protocol pricer or a custom pricing solution                                    |
 | Protocol Supported ERC721 | An ERC721 token that implements the protocol ProtocolERC721.                                                                                                |

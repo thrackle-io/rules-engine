@@ -1,5 +1,5 @@
 # RuleStoragePositionLib
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleStorage/RuleStoragePositionLib.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleStorage/RuleStoragePositionLib.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -110,10 +110,10 @@ bytes32 constant ORACLE_RULE_POSITION = keccak256("all.oracle");
 ```
 
 
-### AccessLevel_RULE_POSITION
+### ACCESS_LEVEL_RULE_POSITION
 
 ```solidity
-bytes32 constant AccessLevel_RULE_POSITION = keccak256("token.access");
+bytes32 constant ACCESS_LEVEL_RULE_POSITION = keccak256("token.access");
 ```
 
 

@@ -1,8 +1,8 @@
 # AppAdministratorOrOwnerOnly
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/AppAdministratorOrOwnerOnly.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/AppAdministratorOrOwnerOnly.sol)
 
 **Inherits:**
-Ownable
+Ownable, [IAppAdministratorOnlyErrors](/src/interfaces/IErrors.sol/interface.IAppAdministratorOnlyErrors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -44,17 +44,4 @@ function transferPermissionOwnership(address newOwner, address appManagerAddress
 |`newOwner`|`address`|The address to receive ownership|
 |`appManagerAddress`|`address`|address of the app manager for permission check Can only be called by the current owner.|
 
-
-## Errors
-### AppManagerNotConnected
-
-```solidity
-error AppManagerNotConnected();
-```
-
-### NotAppAdministratorOrOwner
-
-```solidity
-error NotAppAdministratorOrOwner();
-```
 

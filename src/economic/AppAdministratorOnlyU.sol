@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {IAppManager} from "../application/IAppManager.sol";
+import { IAppAdministratorOnlyErrors } from "../interfaces/IErrors.sol";
 import "openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol";
 
 /**
@@ -9,9 +10,7 @@ import "openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.so
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev appAdministratorOnly modifier encapsulated for easy imports.
  */
-contract AppAdministratorOnlyU is ContextUpgradeable {
-    error AppManagerNotConnected();
-    error NotAppAdministrator();
+contract AppAdministratorOnlyU is ContextUpgradeable, IAppAdministratorOnlyErrors {
 
     /**
      * @dev Modifier ensures function caller is a App Admin

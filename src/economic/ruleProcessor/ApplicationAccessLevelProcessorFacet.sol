@@ -4,19 +4,17 @@ pragma solidity 0.8.17;
 import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {IApplicationRules as Application} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
+import {IRuleProcessorErrors, IAccessLevelErrors} from "../../interfaces/IErrors.sol";
 
 /**
  * @title AccessLevel Handler Facet Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev This contract implements rules to be checked by Handler.
- * @notice Implements AccessLevel Rule Checks on Tagged Accounts. AccessLevel rules are measured in
+ * @notice Implements AccessLevel Rule Checks. AccessLevel rules are measured in
  * in terms of USD with 18 decimals of precision.
  */
-contract ApplicationAccessLevelProcessorFacet {
-    error RuleDoesNotExist();
-    error BalanceExceedsAccessLevelAllowedLimit();
-    error WithdrawalExceedsAccessLevelAllowedLimit();
-    error NotAllowedForAccessLevel();
+contract ApplicationAccessLevelProcessorFacet is IRuleProcessorErrors, IAccessLevelErrors{
+   
 
     /**
      * @dev Check if transaction passes Balance by AccessLevel rule.

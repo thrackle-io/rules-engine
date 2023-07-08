@@ -9,8 +9,7 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
  * @dev This is intended to be a model only. It stores the allow list internally and returns bool true if address is in list.
  */
 contract OracleRestricted is Ownable {
-    constructor() {}
-
+   
     mapping(address => bool) private sanctionedAddresses;
 
     event SanctionedAddress(address indexed addr);
@@ -18,6 +17,14 @@ contract OracleRestricted is Ownable {
     event SanctionedAddressesAdded(address[] addrs);
     event SanctionedAddressAdded(address addrs);
     event SanctionedAddressesRemoved(address[] addrs);
+    event SanctionedListOracleDeployed();
+
+    /**
+     * @dev Constructor that only serves the purpose of notifying the indexer of its creation via event
+     */
+     constructor(){
+        emit SanctionedListOracleDeployed();
+    }
 
     /**
      * @dev Return the contract name

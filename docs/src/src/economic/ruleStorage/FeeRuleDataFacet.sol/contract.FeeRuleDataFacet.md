@@ -1,8 +1,8 @@
 # FeeRuleDataFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleStorage/FeeRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleStorage/FeeRuleDataFacet.sol)
 
 **Inherits:**
-Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md)
+Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -77,35 +77,4 @@ function getTotalAMMFeeRules() external view returns (uint32);
 |----|----|-----------|
 |`<none>`|`uint32`|total ammFeeRules array length|
 
-
-## Errors
-### InputArraysMustHaveSameLength
-
-```solidity
-error InputArraysMustHaveSameLength();
-```
-
-### IndexOutOfRange
-
-```solidity
-error IndexOutOfRange();
-```
-
-### ValueOutOfRange
-
-```solidity
-error ValueOutOfRange(uint256 percentage);
-```
-
-### ZeroValueNotPermited
-
-```solidity
-error ZeroValueNotPermited();
-```
-
-### PageOutOfRange
-
-```solidity
-error PageOutOfRange();
-```
 

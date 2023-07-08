@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
-
 import "../src/example/pricing/ApplicationERC721Pricing.sol";
 import "../src/example/ApplicationERC721.sol";
 import "../src/example/ApplicationAppManager.sol";
+import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
-
 import "../src/example/ApplicationERC721Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 
 /**
@@ -26,11 +24,10 @@ contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationERC721Pricing openOcean;
     RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationERC721Handler applicationNFTHandler2;
     ApplicationAppManager appManager;
-
+    ApplicationHandler public applicationHandler;
     address bob = address(0xB0B);
 
     function setUp() public {
@@ -43,14 +40,18 @@ contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
 
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         appManager.addAppAdministrator(appAdministrator);
 
         /// Set up the ApplicationERC721Handler
-        boredWhaleNFT = new ApplicationERC721("Bored Whale Island Club", "BWYC", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
-        boredReptilianNFT = new ApplicationERC721("Board Reptilian Spaceship Club", "BRSC", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
-        applicationNFTHandler = ApplicationERC721Handler(boredWhaleNFT.handlerAddress());
-        applicationNFTHandler2 = ApplicationERC721Handler(boredReptilianNFT.handlerAddress());
+        boredWhaleNFT = new ApplicationERC721("Bored Whale Island Club", "BWYC", address(appManager), "https://SampleApp.io");
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        boredWhaleNFT.connectHandlerToToken(address(applicationNFTHandler));
+        boredReptilianNFT = new ApplicationERC721("Board Reptilian Spaceship Club", "BRSC", address(appManager), "https://SampleApp.io");
+        applicationNFTHandler2 = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        boredReptilianNFT.connectHandlerToToken(address(applicationNFTHandler2));
 
         /// Deploy the pricing contract
         openOcean = new ApplicationERC721Pricing();

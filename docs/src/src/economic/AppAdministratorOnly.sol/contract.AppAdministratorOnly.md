@@ -1,8 +1,8 @@
 # AppAdministratorOnly
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/AppAdministratorOnly.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/AppAdministratorOnly.sol)
 
 **Inherits:**
-Context
+Context, [IAppAdministratorOnlyErrors](/src/interfaces/IErrors.sol/interface.IAppAdministratorOnlyErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -25,17 +25,4 @@ modifier appAdministratorOnly(address _appManagerAddr);
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 
-
-## Errors
-### AppManagerNotConnected
-
-```solidity
-error AppManagerNotConnected();
-```
-
-### NotAppAdministrator
-
-```solidity
-error NotAppAdministrator();
-```
 

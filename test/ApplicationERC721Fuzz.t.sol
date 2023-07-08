@@ -8,11 +8,9 @@ import {ApplicationERC721} from "src/example/ApplicationERC721.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
-
 import {ApplicationERC721Handler} from "../src/example/ApplicationERC721Handler.sol";
 import {ApplicationERC20Handler} from "../src/example/ApplicationERC20Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 import "../src/example/OracleRestricted.sol";
@@ -25,11 +23,9 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
     ApplicationERC20 draculaCoin;
     RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationAppManager appManager;
-
     ApplicationHandler public applicationHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
@@ -53,25 +49,29 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         /// Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the AccessLevelAdmin address as a AccessLevel admin
         appManager.addAccessTier(accessTier);
         /// add the riskAdmin as risk admin
         appManager.addRiskAdmin(riskAdmin);
-        applicationHandler = ApplicationHandler(appManager.getHandlerAddress());
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
 
-        applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
-        applicationNFTHandler = ApplicationERC721Handler(applicationNFT.handlerAddress());
+        applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), "https://SampleApp.io");
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
+        applicationNFTHandler.setERC721Address(address(applicationNFT));
         appManager.registerToken("THRK", address(applicationNFT));
 
         // create the oracles
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
 
-        draculaCoin = new ApplicationERC20("applicationCoin", "DRAC", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler = ApplicationERC20Handler(draculaCoin.getHandlerAddress());
+        draculaCoin = new ApplicationERC20("applicationCoin", "DRAC", address(appManager));
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        draculaCoin.connectHandlerToToken(address(applicationCoinHandler));
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));
 
@@ -975,6 +975,60 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         draculaCoin.transfer(_user4, 25 * (10 ** 18));
     }
 
+    function testTotalSupplyVolatilityERC721Fuzz(uint8 _addressIndex, uint16 volLimit) public {
+        /// test params 
+        vm.assume(volLimit < 9999 && volLimit > 0);
+        if (volLimit < 100) volLimit = 100;
+        vm.warp(Blocktime); 
+        uint8 rulePeriod = 24; /// 24 hours 
+        uint8 startingTime = 12; /// start at noon 
+        uint256 tokenSupply = 0; /// calls totalSupply() for the token
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
+        address rich_user = addressList[0];
+        /// mint initial supply 
+        for (uint i = 0; i < 10; i++) {
+            applicationNFT.safeMint(defaultAdmin);
+        }
+        applicationNFT.safeTransferFrom(defaultAdmin, rich_user, 9);
+        /// create and activate rule 
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), volLimit, rulePeriod, startingTime, tokenSupply);
+        applicationNFTHandler.setTotalSupplyVolatilityRuleId(_index);
+
+        /// determine the maximum burn/mint amount for inital test 
+        uint256 maxVol = uint256(volLimit) / 1000;
+        console.logUint(maxVol);
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        /// make sure that transfer under the threshold works
+        if (maxVol >= 1) {
+            for (uint i = 0; i < maxVol - 1; i++) {
+                applicationNFT.safeMint(rich_user);
+            }
+            assertEq(applicationNFT.balanceOf(rich_user), maxVol);
+        }
+        if (maxVol == 0) {
+            vm.expectRevert();
+            applicationNFT.safeMint(rich_user);
+        } 
+        if (maxVol == 0) {
+            vm.expectRevert();
+            applicationNFT.safeMint(rich_user);
+        } 
+        /// at vol limit 
+        if ((10000 / applicationNFT.totalSupply()) > volLimit) {
+            vm.expectRevert();
+            applicationNFT.burn(9); 
+        } else {
+            applicationNFT.burn(9);
+            applicationNFT.safeMint(rich_user); // token 10
+            applicationNFT.burn(10);
+            applicationNFT.safeMint(rich_user);
+            applicationNFT.burn(11);
+        }
+        
+
+    }
+
     function testTheWholeProtocolThroughNFT(uint32 priceA, uint32 priceB, uint16 priceC, uint8 riskScore, bytes32 tag1) public {
         vm.assume(priceA > 0 && priceB > 0 && priceC > 0);
         vm.assume(tag1 != "");
@@ -1358,6 +1412,42 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
                 vm.expectRevert(0x3627495d);
                 applicationNFT.safeTransferFrom(rich_user, _user1, maxSize);
             }
+        }
+    }
+
+    /// test the minimum hold time rule in erc721
+    function testNFTMinimumHoldTimeFuzz(uint8 _addressIndex, uint32 _hours) public {
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
+        address _user1 = addressList[0];
+        address _user2 = addressList[1];
+        // hold time range must be between 1 hour and 5 years
+        if (_hours == 0 || _hours > 43830) {
+            vm.expectRevert();
+            applicationNFTHandler.setMinimumHoldTimeHours(_hours);
+        } else {
+            /// set the rule for x hours
+            applicationNFTHandler.setMinimumHoldTimeHours(_hours);
+            assertEq(applicationNFTHandler.getMinimumHoldTimeHours(), _hours);
+            // mint 1 nft to non admin user(this should set their ownership start time)
+            applicationNFT.safeMint(_user1);
+            vm.stopPrank();
+            vm.startPrank(_user1);
+            // transfer should fail
+            vm.expectRevert(0x6d12e45a);
+            applicationNFT.safeTransferFrom(_user1, _user2, 0);
+            // move forward in time x hours and it should pass
+            Blocktime = Blocktime + (_hours * 1 hours);
+            vm.warp(Blocktime);
+            applicationNFT.safeTransferFrom(_user1, _user2, 0);
+            // the original owner was able to transfer but the new owner should not be able to because the time resets
+            vm.stopPrank();
+            vm.startPrank(_user2);
+            vm.expectRevert(0x6d12e45a);
+            applicationNFT.safeTransferFrom(_user2, _user1, 0);
+            // move forward in time x hours and it should pass
+            Blocktime = Blocktime + (_hours * 1 hours);
+            vm.warp(Blocktime);
+            applicationNFT.safeTransferFrom(_user2, _user1, 0);
         }
     }
 

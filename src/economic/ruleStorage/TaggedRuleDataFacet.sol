@@ -5,6 +5,7 @@ import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
+import { IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors} from "../../interfaces/IErrors.sol";
 import "./RuleCodeData.sol";
 import "../AppAdministratorOnly.sol";
 
@@ -15,23 +16,14 @@ import "../AppAdministratorOnly.sol";
  * @notice This contract sets and gets the Tagged Rules for the protocol. Rules will be applied via General Tags to accounts.
  */
 
-contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents {
+contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors {
     /**
      * Note that no update method is implemented. Since reutilization of
      * rules is encouraged, it is preferred to add an extra rule to the
      * set instead of modifying an existing one.
      */
 
-    error InputArraysMustHaveSameLength();
-    error IndexOutOfRange();
-    error InvertedLimits();
-    error ZeroValueNotPermited();
-    error DateInThePast(uint256 date);
-    error BlankTag();
-    error StartTimeNotValid();
-    error InputArraysSizesNotValid();
-    error WrongArrayOrder();
-    error RiskLevelCannotExceed99();
+
 
     /********************** Purchase Getters/Setters ***********************/
     /**

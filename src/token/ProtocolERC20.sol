@@ -10,6 +10,7 @@ import "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
+import { IZeroAddressError, IProtocolERC20Errors } from "../interfaces/IErrors.sol";
 
 /**
  * @title ERC20 Base Contract
@@ -17,36 +18,25 @@ import {IApplicationEvents} from "../interfaces/IEvents.sol";
  * @notice This is the base contract for all protocol ERC20s
  * @dev The only thing to recognize is that flash minting is added but not allowed...yet
  */
-contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, AppAdministratorOnly, IApplicationEvents {
+contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, AppAdministratorOnly, IApplicationEvents, IZeroAddressError, IProtocolERC20Errors {
     address public appManagerAddress;
-    address handlerAddress;
     // address of the Handler
     ProtocolERC20Handler handler;
     IAppManager appManager;
 
     /// Max supply should only be set once. Zero means infinite supply.
     uint256 MAX_SUPPLY;
-    error ExceedingMaxSupply();
-    error CallerNotAuthorizedToMint();
-    error ZeroAddress();
 
     /**
      * @dev Constructor sets name and symbol for the ERC20 token and makes connections to the protocol.
      * @param _name name of token
      * @param _symbol abreviated name for token (i.e. THRK)
      * @param _appManagerAddress address of app manager contract
-     * @param _ruleProcessor Address of the protocol rule processor
-     * @param _upgradeMode token deploys a Handler contract, false = handler deployed, true = upgraded token contract and no handler.
      * _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.
      */
-    constructor(string memory _name, string memory _symbol, address _appManagerAddress, address _ruleProcessor, bool _upgradeMode) ERC20(_name, _symbol) {
+    constructor(string memory _name, string memory _symbol, address _appManagerAddress) ERC20(_name, _symbol) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
-
-        /// Only deploy a new handler if this isn't an upgrade
-        if (!_upgradeMode) {
-            deployHandler(_ruleProcessor, _appManagerAddress, _upgradeMode);
-        }
 
         emit NewTokenDeployed(address(this), _appManagerAddress);
     }
@@ -75,7 +65,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {
         /// Rule Processor Module Check
-        require(handler.checkAllRules(balanceOf(from), balanceOf(to), from, to, amount, RuleProcessorDiamondLib.ActionTypes.TRADE));
+        require(handler.checkAllRules(balanceOf(from), balanceOf(to), from, to, amount, ActionTypes.TRADE));
         super._beforeTokenTransfer(from, to, amount);
     }
 
@@ -199,27 +189,13 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     }
 
     /**
-     * @dev This function is called at deployment in the constructor to deploy the Handler Contract for the Token.
-     * @param _ruleProcessor address of the rule processor
-     * @param _appManagerAddress address of the Application Manager Contract
-     * @param _upgradeMode bool representing if this contract will deploy data contracts or if this is an upgrade
-     * @return handlerAddress address of the new Handler Contract
-     */
-    function deployHandler(address _ruleProcessor, address _appManagerAddress, bool _upgradeMode) private returns (address) {
-        handler = new ProtocolERC20Handler(_ruleProcessor, _appManagerAddress, _upgradeMode);
-        handlerAddress = address(handler);
-        return handlerAddress;
-    }
-
-    /**
      * @dev Function to connect Token to previously deployed Handler contract
-     * @param _deployedHandlerAddress address of the currently deployed Handler Address
+     * @param _handlerAddress address of the currently deployed Handler Address
      */
-    function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
-        if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
-        handlerAddress = _deployedHandlerAddress;
-        handler = ProtocolERC20Handler(_deployedHandlerAddress);
-        emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
+    function connectHandlerToToken(address _handlerAddress) external appAdministratorOnly(appManagerAddress) {
+        if (_handlerAddress == address(0)) revert ZeroAddress();
+        handler = ProtocolERC20Handler(_handlerAddress);
+        emit HandlerConnected(_handlerAddress, address(this));
     }
 
     /**
@@ -227,6 +203,6 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * @return handlerAddress
      */
     function getHandlerAddress() external view returns (address) {
-        return handlerAddress;
+        return address(handler);
     }
 }

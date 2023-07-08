@@ -1,5 +1,5 @@
 # INonTaggedRules
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleStorage/RuleDataInterfaces.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleStorage/RuleDataInterfaces.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -63,8 +63,9 @@ struct TokenPurchaseFeeByVolume {
 ```solidity
 struct TokenVolatilityRule {
     uint16 maxVolatility;
-    uint8 blocksPerPeriod;
-    uint8 hoursFrozen;
+    uint8 period;
+    uint64 startingTime;
+    uint256 totalSupply;
 }
 ```
 
@@ -100,8 +101,9 @@ struct TokenTransferVolumeRule {
 ```solidity
 struct SupplyVolatilityRule {
     uint16 maxChange;
-    uint8 hoursPerPeriod;
-    uint8 hoursFrozen;
+    uint8 period;
+    uint64 startingTime;
+    uint256 totalSupply;
 }
 ```
 

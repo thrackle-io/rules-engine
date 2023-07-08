@@ -1,8 +1,8 @@
 # ProtocolERC721Handler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/token/ProtocolERC721Handler.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/token/ProtocolERC721Handler.sol)
 
 **Inherits:**
-Ownable, [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOrOwnerOnly](/src/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md)
+Ownable, [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOrOwnerOnly](/src/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md), [IAssetHandlerErrors](/src/interfaces/IErrors.sol/interface.IAssetHandlerErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -95,6 +95,13 @@ uint32 private tokenTransferVolumeRuleId;
 ```
 
 
+### totalSupplyVolatilityRuleId
+
+```solidity
+uint32 private totalSupplyVolatilityRuleId;
+```
+
+
 ### oracleRuleActive
 on-off switches for rules
 
@@ -146,6 +153,29 @@ bool private tokenTransferVolumeRuleActive;
 ```
 
 
+### totalSupplyVolatilityRuleActive
+
+```solidity
+bool private totalSupplyVolatilityRuleActive;
+```
+
+
+### minimumHoldTimeRuleActive
+
+```solidity
+bool private minimumHoldTimeRuleActive;
+```
+
+
+### minimumHoldTimeHours
+simple rule(with single parameter) variables
+
+
+```solidity
+uint32 private minimumHoldTimeHours;
+```
+
+
 ### transferVolume
 token level accumulators
 
@@ -159,6 +189,27 @@ uint256 private transferVolume;
 
 ```solidity
 uint64 private lastTransferTs;
+```
+
+
+### lastSupplyUpdateTime
+
+```solidity
+uint64 private lastSupplyUpdateTime;
+```
+
+
+### volumeTotalForPeriod
+
+```solidity
+int256 private volumeTotalForPeriod;
+```
+
+
+### totalSupplyForPeriod
+
+```solidity
+uint256 private totalSupplyForPeriod;
 ```
 
 
@@ -191,6 +242,15 @@ mapping(uint256 => uint256) tradesInPeriod;
 
 ```solidity
 mapping(uint256 => uint64) lastTxDate;
+```
+
+
+### ownershipStart
+Minimum Hold time data
+
+
+```solidity
+mapping(uint256 => uint256) ownershipStart;
 ```
 
 
@@ -266,8 +326,8 @@ function checkAllRules(
     address _from,
     address _to,
     uint256 amount,
-    uint256 tokenId,
-    RuleProcessorDiamondLib.ActionTypes _action
+    uint256 _tokenId,
+    ActionTypes _action
 ) external returns (bool);
 ```
 **Parameters**
@@ -279,8 +339,8 @@ function checkAllRules(
 |`_from`|`address`|sender address|
 |`_to`|`address`|recipient address|
 |`amount`|`uint256`|number of tokens transferred|
-|`tokenId`|`uint256`|the token's specific ID|
-|`_action`|`RuleProcessorDiamondLib.ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
+|`_tokenId`|`uint256`|the token's specific ID|
+|`_action`|`ActionTypes`|Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)|
 
 **Returns**
 
@@ -292,6 +352,7 @@ function checkAllRules(
 ### _checkNonTaggedRules
 
 standard tagged and non-tagged rules do not apply when either to or from is an admin
+set the ownership start time for the token if the Minimum Hold time rule is active
 
 *This function uses the protocol's ruleProcessor to perform the actual rule checks.*
 
@@ -319,6 +380,8 @@ function _checkNonTaggedRules(
 
 
 ### _checkTaggedRules
+
+rule requires ruleID and either to or from address be zero address (mint/burn)
 
 *This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.*
 
@@ -395,6 +458,21 @@ function _checkRiskRules(
 |`_currentAssetValuation`|`uint256`|current total valuation of all assets|
 |`_amount`|`uint256`|number of tokens transferred|
 |`_thisNFTValuation`|`uint256`|valuation of NFT in question|
+
+
+### _checkSimpleRules
+
+*This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)*
+
+
+```solidity
+function _checkSimpleRules(uint256 _tokenId) internal view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|the specific token in question|
 
 
 ### addFee
@@ -1075,6 +1153,117 @@ function activateTokenTransferVolumeRule(bool _on) external appAdministratorOrOw
 |`_on`|`bool`|boolean representing if the rule is active|
 
 
+### getTotalSupplyVolatilityRule
+
+*Retrieve the total supply volatility rule id*
+
+
+```solidity
+function getTotalSupplyVolatilityRule() external view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|totalSupplyVolatilityRuleId rule id|
+
+
+### setTotalSupplyVolatilityRuleId
+
+that setting a rule will automatically activate it.
+
+*Set the tokenTransferVolumeRuleId. Restricted to game admins only.*
+
+
+```solidity
+function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### activateTotalSupplyVolatilityRule
+
+*Tells you if the token total Supply Volatility rule is active or not.*
+
+
+```solidity
+function activateTotalSupplyVolatilityRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if the rule is active|
+
+
+### isTotalSupplyVolatilityActive
+
+*Tells you if the Total Supply Volatility is active or not.*
+
+
+```solidity
+function isTotalSupplyVolatilityActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active|
+
+
+### activateMinimumHoldTimeRule
+
+-------------SIMPLE RULE SETTERS and GETTERS---------------
+
+*Tells you if the minimum hold time rule is active or not.*
+
+
+```solidity
+function activateMinimumHoldTimeRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if the rule is active|
+
+
+### setMinimumHoldTimeHours
+
+*Setter the minimum hold time rule hold hours*
+
+
+```solidity
+function setMinimumHoldTimeHours(uint32 _minimumHoldTimeHours)
+    external
+    appAdministratorOrOwnerOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_minimumHoldTimeHours`|`uint32`|minimum amount of time to hold the asset|
+
+
+### getMinimumHoldTimeHours
+
+*Get the minimum hold time rule hold hours*
+
+
+```solidity
+function getMinimumHoldTimeHours() external view returns (uint256);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|minimumHoldTimeHours minimum amount of time to hold the asset|
+
+
 ### deployDataContract
 
 -------------DATA CONTRACT DEPLOYMENT---------------
@@ -1133,17 +1322,4 @@ function connectDataContracts(address _oldHandlerAddress) external appAdministra
 |----|----|-----------|
 |`_oldHandlerAddress`|`address`|address of the old CoinHandler|
 
-
-## Errors
-### PricingModuleNotConfigured
-
-```solidity
-error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
-```
-
-### CannotTurnOffAccessLevel0WithAccessLevelBalanceActive
-
-```solidity
-error CannotTurnOffAccessLevel0WithAccessLevelBalanceActive();
-```
 

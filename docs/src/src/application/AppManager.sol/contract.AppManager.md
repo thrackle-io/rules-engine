@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/interfaces/IEvents.sol/interface.IAppLevelEvents.md)
@@ -167,7 +167,7 @@ string appName;
 
 
 ```solidity
-constructor(address root, string memory _appName, address _ruleProcessorProxyAddress, bool upgradeMode);
+constructor(address root, string memory _appName, bool upgradeMode);
 ```
 **Parameters**
 
@@ -175,41 +175,15 @@ constructor(address root, string memory _appName, address _ruleProcessorProxyAdd
 |----|----|-----------|
 |`root`|`address`|address to set as the default admin and first app administrator|
 |`_appName`|`string`|Application Name String|
-|`_ruleProcessorProxyAddress`|`address`|of the protocol's rule processor diamond|
 |`upgradeMode`|`bool`|specifies whether this is a fresh AppManager or an upgrade replacement.|
 
 
-### onlyAdmin
-
--------------ADMIN---------------
-
-*Modifier used to restrict to default admin role*
-
-
-```solidity
-modifier onlyAdmin();
-```
-
 ### isAdmin
-
-*This function is where the default admin role is actually checked*
 
 
 ```solidity
 function isAdmin(address account) public view returns (bool);
 ```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`account`|`address`|address to be checked|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|success true if admin, false if not|
-
 
 ### onlyAppAdministrator
 
@@ -696,6 +670,8 @@ function cleanOutdatedRules() external;
 
 -------------MAINTAIN GENERAL TAGS---------------
 
+there is a hard limit of 10 tags per address.
+
 *Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.*
 
 
@@ -712,6 +688,8 @@ function addGeneralTag(address _account, bytes32 _tag) external onlyAppAdministr
 
 ### addGeneralTagToMultipleAccounts
 
+there is a hard limit of 10 tags per address.
+
 *Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.*
 
 
@@ -727,6 +705,8 @@ function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _ta
 
 
 ### addMultipleGeneralTagToMultipleAccounts
+
+there is a hard limit of 10 tags per address.
 
 *Add a general tag to an account at index in array. Restricted to Application Administrators. Loops through existing tags on accounts and will emit  an event if tag is already applied.*
 
@@ -977,7 +957,7 @@ function requireValuations() external returns (bool);
 
 ```solidity
 function checkApplicationRules(
-    RuleProcessorDiamondLib.ActionTypes _action,
+    ActionTypes _action,
     address _from,
     address _to,
     uint128 _usdBalanceTo,
@@ -988,7 +968,7 @@ function checkApplicationRules(
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_action`|`RuleProcessorDiamondLib.ActionTypes`|Action to be checked|
+|`_action`|`ActionTypes`|Action to be checked|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
 |`_usdBalanceTo`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
@@ -1384,24 +1364,6 @@ function migrateDataContracts(address _newOwner) external onlyAppAdministrator;
 |`_newOwner`|`address`|address of the new AppManager|
 
 
-### _deployApplicationHandler
-
-*Deploy the ApplicationHandler contract. Only called internally from the constructor.*
-
-
-```solidity
-function _deployApplicationHandler(address _ruleProcessorProxyAddress, address _appManagerAddress)
-    private
-    returns (address);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleProcessorProxyAddress`|`address`|processor address for rule checks|
-|`_appManagerAddress`|`address`|app manager address so handler can retrieve account info|
-
-
 ### connectDataContracts
 
 *This function is used to connect data contracts from an old AppManager to the current AppManager.*
@@ -1416,95 +1378,4 @@ function connectDataContracts(address _oldAppManagerAddress) external onlyAppAdm
 |----|----|-----------|
 |`_oldAppManagerAddress`|`address`|address of the old AppManager|
 
-
-## Errors
-### PricingModuleNotConfigured
-
-```solidity
-error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
-```
-
-### riskScoreOutOfRange
-
-```solidity
-error riskScoreOutOfRange(uint8 riskScore);
-```
-
-### InvalidDateWindow
-
-```solidity
-error InvalidDateWindow(uint256 startDate, uint256 endDate);
-```
-
-### NotAdmin
-
-```solidity
-error NotAdmin(address _address);
-```
-
-### NotAppAdministrator
-
-```solidity
-error NotAppAdministrator(address _address);
-```
-
-### NotAccessTierAdministrator
-
-```solidity
-error NotAccessTierAdministrator(address _address);
-```
-
-### NotRiskAdmin
-
-```solidity
-error NotRiskAdmin(address _address);
-```
-
-### NotAUser
-
-```solidity
-error NotAUser(address _address);
-```
-
-### AccessLevelIsNotValid
-
-```solidity
-error AccessLevelIsNotValid(uint8 accessLevel);
-```
-
-### BlankTag
-
-```solidity
-error BlankTag();
-```
-
-### NoAddressToRemove
-
-```solidity
-error NoAddressToRemove();
-```
-
-### actionCheckFailed
-
-```solidity
-error actionCheckFailed();
-```
-
-### ZeroAddress
-
-```solidity
-error ZeroAddress();
-```
-
-### InputArraysMustHaveSameLength
-
-```solidity
-error InputArraysMustHaveSameLength();
-```
-
-### ZeroAddressNotAllowed
-
-```solidity
-error ZeroAddressNotAllowed();
-```
 

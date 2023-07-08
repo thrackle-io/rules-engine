@@ -5,10 +5,8 @@ import "forge-std/Script.sol";
 import "./helpers/GenerateSelectors.sol";
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
 import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
-
 import "diamond-std/core/DiamondCut/FacetCut.sol";
 import "./RuleStorageDiamondTestUtil.sol";
-
 import {RuleStorageDiamond, RuleStorageDiamondArgs} from "../src/economic/ruleStorage/RuleStorageDiamond.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/RuleProcessorDiamond.sol";
 import {RuleDataFacet} from "../src/economic/ruleStorage/RuleDataFacet.sol";

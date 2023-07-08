@@ -1,8 +1,8 @@
 # TaggedRuleDataFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleStorage/TaggedRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleStorage/TaggedRuleDataFacet.sol)
 
 **Inherits:**
-Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md)
+Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IRiskInputErrors](/src/interfaces/IErrors.sol/interface.IRiskInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md), [ITagRuleInputErrors](/src/interfaces/IErrors.sol/interface.ITagRuleInputErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -15,6 +15,9 @@ This contract sets and gets the Tagged Rules for the protocol. Rules will be app
 ## Functions
 ### addPurchaseRule
 
+Note that no update method is implemented. Since reutilization of
+rules is encouraged, it is preferred to add an extra rule to the
+set instead of modifying an existing one.
 Purchase Getters/Setters **********************
 
 *Function add a Token Purchase Percentage rule*
@@ -681,69 +684,4 @@ function getTotalMinBalByDateRule() external view returns (uint32);
 |----|----|-----------|
 |`<none>`|`uint32`|Total length of array|
 
-
-## Errors
-### InputArraysMustHaveSameLength
-Note that no update method is implemented. Since reutilization of
-rules is encouraged, it is preferred to add an extra rule to the
-set instead of modifying an existing one.
-
-
-```solidity
-error InputArraysMustHaveSameLength();
-```
-
-### IndexOutOfRange
-
-```solidity
-error IndexOutOfRange();
-```
-
-### InvertedLimits
-
-```solidity
-error InvertedLimits();
-```
-
-### ZeroValueNotPermited
-
-```solidity
-error ZeroValueNotPermited();
-```
-
-### DateInThePast
-
-```solidity
-error DateInThePast(uint256 date);
-```
-
-### BlankTag
-
-```solidity
-error BlankTag();
-```
-
-### StartTimeNotValid
-
-```solidity
-error StartTimeNotValid();
-```
-
-### InputArraysSizesNotValid
-
-```solidity
-error InputArraysSizesNotValid();
-```
-
-### WrongArrayOrder
-
-```solidity
-error WrongArrayOrder();
-```
-
-### RiskLevelCannotExceed99
-
-```solidity
-error RiskLevelCannotExceed99();
-```
 

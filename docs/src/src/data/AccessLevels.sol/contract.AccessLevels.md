@@ -1,5 +1,5 @@
 # AccessLevels
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/data/AccessLevels.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/data/AccessLevels.sol)
 
 **Inherits:**
 [IAccessLevels](/src/data/IAccessLevels.sol/interface.IAccessLevels.md), [DataModule](/src/data/DataModule.sol/contract.DataModule.md)
@@ -44,6 +44,22 @@ function addLevel(address _address, uint8 _level) public onlyOwner;
 |----|----|-----------|
 |`_address`|`address`|address of the account|
 |`_level`|`uint8`|access levellevel(0-4)|
+
+
+### addAccessLevelToMultipleAccounts
+
+*Add the Access Level(0-4) to multiple accounts. Restricted to Access Tiers.*
+
+
+```solidity
+function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|address upon which to apply the Access Level|
+|`_level`|`uint8`|Access Level to add|
 
 
 ### removelevel

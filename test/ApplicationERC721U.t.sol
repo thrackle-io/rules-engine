@@ -7,10 +7,8 @@ import "../src/example/ApplicationERC721UProxy.sol";
 import {ApplicationAppManager} from "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
-
 import "../src/example/ApplicationERC721Handler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
@@ -24,11 +22,9 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
     ApplicationERC721UProxy applicationNFTProxy;
     RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationERC721Handler applicationNFTHandler2;
     ApplicationAppManager appManager;
-
     ApplicationHandler public applicationHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
@@ -57,7 +53,7 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         /// Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the AccessLevelAdmin address as a AccessLevel admin
@@ -65,13 +61,14 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         appManager.addAccessTier(AccessTier);
         /// add Risk Admin
         appManager.addRiskAdmin(riskAdmin);
-
-        applicationHandler = ApplicationHandler(appManager.getHandlerAddress());
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
 
         applicationNFT = new ApplicationERC721U();
         applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFT), proxyOwner, "");
-        ApplicationERC721U(address(applicationNFTProxy)).initialize("Prime Eternal", "CHAMP", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
-        applicationNFTHandler = ApplicationERC721Handler(ApplicationERC721U(address(applicationNFTProxy)).handlerAddress());
+        ApplicationERC721U(address(applicationNFTProxy)).initialize("Prime Eternal", "CHAMP", address(appManager));
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        ApplicationERC721U(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         applicationNFTHandler.setERC721Address(address(applicationNFTProxy));

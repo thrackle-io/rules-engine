@@ -21,29 +21,30 @@
     ````
     forge create src/example/deploy/CastlevaniaAppManager.sol:CastlevaniaAppManager --constructor-args $APP_ADMIN_1 "Castlevania" $RULE_PROCESSOR_DIAMOND false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
     ````
-6. Use the output from the deployment to set an environment variable for AppManager's address.
-    1. Locate the address from the output, example:
+    6. Locate the address from the output, example:
     ````
-    Deployed to: 0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575
-    Transaction hash: 0xeac248a8c7dfd3c09927f607723acebeb1f6e1efb6bd6eef8f273982c762b526
+    0x0116686E2291dbd5e317F47faDBFb43B599786Ef
     ````
-    2. Set the environment variable
+    7. Set the environment variable
     ````
     export APPLICATION_APP_MANAGER=address from output
     ````
-7. Retrieve the Handler address that was automatically deployed by the AppManager to set an environment variable:
+6. Deploy the applicationHandler contract with the following parameters:
+    1. _rule processor diamond address_ - The address of the RuleProcessorDiamond contract set in Step 1.
+    2. _application app manager address_ - The address of the app manager deployed in previous step.
+    3. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
     ````
-    cast call $APPLICATION_APP_MANAGER "getHandlerAddress()(address)" --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+    forge create src/example/deploy/ApplicationHandler.sol:CastlevaniaHandler --constructor-args $RULE_PROCESSOR_DIAMOND $APP_MANAGER_ADDRESS --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
     ````
-    1. Locate the address from the output, example:
+    4. Locate the address from the output, example:
     ````
     0x0C25Bc46542acb274F055D7368F9Bec7fB23aE74
     ````
-    2. Set the environment variable
+    5. Set the environment variable
     ````
     export APPLICATION_APPLICATION_HANDLER=address from output
     ````
-8. [Create additional administrators][createAdminRole-url] (Optional)
+7. [Create additional administrators][createAdminRole-url] (Optional)
    
 
 

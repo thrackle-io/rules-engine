@@ -1,8 +1,8 @@
 # ProtocolERC721U
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/token/ProtocolERC721U.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/token/ProtocolERC721U.sol)
 
 **Inherits:**
-Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable, [AppAdministratorOnlyU](/src/economic/AppAdministratorOnlyU.sol/contract.AppAdministratorOnlyU.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), PausableUpgradeable
+Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable, [AppAdministratorOnlyU](/src/economic/AppAdministratorOnlyU.sol/contract.AppAdministratorOnlyU.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), PausableUpgradeable, [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -28,14 +28,7 @@ address public handlerAddress;
 ### handler
 
 ```solidity
-ProtocolERC721Handler handler;
-```
-
-
-### appManager
-
-```solidity
-IAppManager appManager;
+IProtocolERC721Handler handler;
 ```
 
 
@@ -71,14 +64,11 @@ uint8 public constant VERSION = 1;
 
 
 ```solidity
-function initialize(
-    string memory _name,
-    string memory _symbol,
-    address _appManagerAddress,
-    address _ruleProcessorProxyAddress,
-    bool _upgradeMode,
-    string memory _baseUri
-) external virtual appAdministratorOnly(_appManagerAddress) initializer;
+function initialize(string memory _name, string memory _symbol, address _appManagerAddress)
+    external
+    virtual
+    appAdministratorOnly(_appManagerAddress)
+    initializer;
 ```
 **Parameters**
 
@@ -87,9 +77,6 @@ function initialize(
 |`_name`|`string`|Name of NFT|
 |`_symbol`|`string`|Symbol for the NFT|
 |`_appManagerAddress`|`address`|Address of App Manager|
-|`_ruleProcessorProxyAddress`|`address`|of token rule router proxy address|
-|`_upgradeMode`|`bool`||
-|`_baseUri`|`string`|URI for the base token|
 
 
 ### _initializeProtocol
@@ -98,21 +85,13 @@ function initialize(
 
 
 ```solidity
-function _initializeProtocol(
-    address _appManagerAddress,
-    address _ruleProcessorProxyAddress,
-    bool _upgradeMode,
-    string memory _baseUri
-) private onlyInitializing;
+function _initializeProtocol(address _appManagerAddress) private onlyInitializing;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddress`|`address`|Address of App Manager|
-|`_ruleProcessorProxyAddress`|`address`|of token rule router proxy address|
-|`_upgradeMode`|`bool`||
-|`_baseUri`|`string`|URI for the base token|
 
 
 ### _authorizeUpgrade
@@ -208,7 +187,7 @@ Add appAdministratorOnly modifier to restrict minting privilages
 
 
 ```solidity
-function safeMint(address to) public virtual;
+function safeMint(address to) public payable virtual;
 ```
 **Parameters**
 
@@ -259,29 +238,19 @@ function withdraw() public payable virtual appAdministratorOnly(appManagerAddres
 function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress);
 ```
 
-### deployHandler
+### getHandlerAddress
 
-*This function is called at deployment in the constructor to deploy the Handler Contract for the Token.*
+*this function returns the handler address*
 
 
 ```solidity
-function deployHandler(address _ruleProcessor, address _appManagerAddress, bool _upgradeModeHandler)
-    private
-    returns (address);
+function getHandlerAddress() external view returns (address);
 ```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleProcessor`|`address`|address of the rule processor|
-|`_appManagerAddress`|`address`|address of the Application Manager Contract|
-|`_upgradeModeHandler`|`bool`|specifies whether this is a fresh Handler or an upgrade replacement.|
-
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`address`|handlerAddress address of the new Handler Contract|
+|`<none>`|`address`|handlerAddress|
 
 
 ### connectHandlerToToken
@@ -298,26 +267,4 @@ function connectHandlerToToken(address _deployedHandlerAddress) external appAdmi
 |----|----|-----------|
 |`_deployedHandlerAddress`|`address`|address of the currently deployed Handler Address|
 
-
-### getHandlerAddress
-
-*this function returns the handler address*
-
-
-```solidity
-function getHandlerAddress() external view returns (address);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`address`|handlerAddress|
-
-
-## Errors
-### ZeroAddress
-
-```solidity
-error ZeroAddress();
-```
 

@@ -8,6 +8,8 @@ import "../economic/AppAdministratorOnly.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
 import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/IRuleProcessor.sol";
+import "src/economic/ruleProcessor/ActionEnum.sol";
+import { IInputErrors } from "../interfaces/IErrors.sol";
 
 /**
  * @title Protocol ApplicationHandler Contract
@@ -15,12 +17,10 @@ import "../economic/IRuleProcessor.sol";
  * @dev This contract is injected into the appManagers.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicationHandlerEvents {
+contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicationHandlerEvents, IInputErrors {
     AppManager appManager;
     address public appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
-
-    error ZeroAddress();
 
     /// Application level Rule Ids
     uint32 private accountBalanceByRiskRuleId;
@@ -58,7 +58,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @dev checks if any of the balance prerequisite rules are active
      * @return true if one or more rules are active
      */
-    function requireValuations() external view returns (bool) {
+    function requireValuations() public view returns (bool) {
         return accountBalanceByRiskRuleActive || accountBalanceByAccessLevelRuleActive || maxTxSizePerPeriodByRiskActive || withdrawalLimitByAccessLevelRuleActive;
     }
 
@@ -71,10 +71,10 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      * @return success Returns true if allowed, false if not allowed
      */
-    function checkApplicationRules(RuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external returns (bool) {
+    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external returns (bool) {
         _action;
         ruleProcessor.checkPauseRules(appManagerAddress);
-        if (accountBalanceByRiskRuleActive || accountBalanceByAccessLevelRuleActive || AccessLevel0RuleActive || maxTxSizePerPeriodByRiskActive || withdrawalLimitByAccessLevelRuleActive) {
+        if (requireValuations() || AccessLevel0RuleActive) {
             _checkRiskRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
             _checkAccessLevelRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
         }

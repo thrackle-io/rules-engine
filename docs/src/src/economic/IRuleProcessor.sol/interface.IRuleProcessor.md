@@ -1,5 +1,5 @@
 # IRuleProcessor
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/IRuleProcessor.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/IRuleProcessor.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -535,5 +535,55 @@ function checkTokenTransferVolumePasses(
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint256`|volumeTotal new accumulated volume|
+
+
+### checkTotalSupplyVolatilityPasses
+
+*Rule checks if the total supply volatility rule will be violated.*
+
+
+```solidity
+function checkTotalSupplyVolatilityPasses(
+    uint32 _ruleId,
+    int256 _volumeTotalForPeriod,
+    uint256 _totalSupplyForPeriod,
+    uint256 _supply,
+    int256 _amount,
+    uint64 _lastSupplyUpdateTime
+) external view returns (int256, uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule identifier for rule arguments|
+|`_volumeTotalForPeriod`|`int256`|token's increase/decreased volume total in period|
+|`_totalSupplyForPeriod`|`uint256`|token total supply updated at begining of period|
+|`_supply`|`uint256`|Number of tokens in supply|
+|`_amount`|`int256`|Number of tokens to be minted/burned|
+|`_lastSupplyUpdateTime`|`uint64`|the time of the last transfer|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`int256`|volumeTotal new accumulated volume|
+|`<none>`|`uint256`||
+
+
+### checkNFTHoldTime
+
+*This function receives data needed to check Minimum hold time rule. This a simple rule and thus is not stored in the rule storage diamond.*
+
+
+```solidity
+function checkNFTHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_holdHours`|`uint32`|minimum number of hours the asset must be held|
+|`_ownershipTs`|`uint256`|beginning of hold period|
 
 

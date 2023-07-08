@@ -1,10 +1,13 @@
 # ApplicationRiskProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)
+
+**Inherits:**
+[IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [IRiskErrors](/src/interfaces/IErrors.sol/interface.IRiskErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
 
-Risk Score Rules on  Tagged Accounts. All risk rules are measured in
+Risk Score Rules. All risk rules are measured in
 in terms of USD with 18 decimals of precision.
 
 *This contract implements rules to be checked by Handler.*
@@ -101,29 +104,4 @@ function checkMaxTxSizePerPeriodByRisk(
 |----|----|-----------|
 |`<none>`|`uint128`|updated value for the _usdValueTransactedInPeriod. If _usdValueTransactedInPeriod are inside the current period, then this value is accumulated. If not, it is reset to current amount.|
 
-
-## Errors
-### RuleDoesNotExist
-
-```solidity
-error RuleDoesNotExist();
-```
-
-### MaxTxSizePerPeriodReached
-
-```solidity
-error MaxTxSizePerPeriodReached(uint8 riskScore, uint256 maxTxSize, uint8 hoursOfPeriod);
-```
-
-### TransactionExceedsRiskScoreLimit
-
-```solidity
-error TransactionExceedsRiskScoreLimit();
-```
-
-### BalanceExceedsRiskScoreLimit
-
-```solidity
-error BalanceExceedsRiskScoreLimit();
-```
 

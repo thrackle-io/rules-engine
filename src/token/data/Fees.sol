@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {IApplicationEvents} from "../../interfaces/IEvents.sol";
+import {IInputErrors, ITagInputErrors} from "../../interfaces/IErrors.sol";
 
 /**
  * @title Fees
@@ -9,7 +10,7 @@ import {IApplicationEvents} from "../../interfaces/IEvents.sol";
  * @dev This contract should not be accessed directly. All processing should go through its controlling asset(ProtocolERC20, ProtocolERC721, etc.)
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract Fees is Ownable, IApplicationEvents {
+contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors{
     int256 defaultFee;
     mapping(bytes32 => Fee) feesByTag;
     uint256 feeTotal;
@@ -20,12 +21,6 @@ contract Fees is Ownable, IApplicationEvents {
         address feeCollectorAccount;
         bool isValue; // this is just for housekeeping purposes
     }
-
-    error InvertedLimits();
-    error ValueOutOfRange(uint24 percentage);
-    error ZeroValueNotPermited();
-    error BlankTag();
-
     /**
      * @dev This function adds a fee to the token
      * @param _tag meta data tag for fee

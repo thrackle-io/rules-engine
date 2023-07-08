@@ -1,8 +1,8 @@
 # Fees
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/token/data/Fees.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/token/data/Fees.sol)
 
 **Inherits:**
-Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md)
+Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -106,31 +106,6 @@ function getFeeTotal() external view onlyOwner returns (uint256);
 |----|----|-----------|
 |`<none>`|`uint256`|feeTotal total number of fees|
 
-
-## Errors
-### InvertedLimits
-
-```solidity
-error InvertedLimits();
-```
-
-### ValueOutOfRange
-
-```solidity
-error ValueOutOfRange(uint24 percentage);
-```
-
-### ZeroValueNotPermited
-
-```solidity
-error ZeroValueNotPermited();
-```
-
-### BlankTag
-
-```solidity
-error BlankTag();
-```
 
 ## Structs
 ### Fee

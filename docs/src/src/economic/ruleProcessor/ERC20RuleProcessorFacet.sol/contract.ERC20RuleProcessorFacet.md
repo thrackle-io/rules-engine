@@ -1,5 +1,8 @@
 # ERC20RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
+
+**Inherits:**
+[IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [IERC20Errors](/src/interfaces/IErrors.sol/interface.IERC20Errors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -135,52 +138,25 @@ function checkTokenTransferVolumePasses(
 |`<none>`|`uint256`|volumeTotal new accumulated volume|
 
 
-## Errors
-### BelowMinTransfer
+### checkTotalSupplyVolatilityPasses
+
+we create the 'data' variable which is simply a connection to the rule diamond
+validation block
+we procede to retrieve the rule
+we perform the rule check
+This means that the last trades "tradesWithinPeriod" were inside current period,
+and we need to acumulate this trade to the those ones
+if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
+
 
 ```solidity
-error BelowMinTransfer();
-```
-
-### AddressIsRestricted
-
-```solidity
-error AddressIsRestricted();
-```
-
-### AddressNotOnAllowedList
-
-```solidity
-error AddressNotOnAllowedList();
-```
-
-### OracleTypeInvalid
-
-```solidity
-error OracleTypeInvalid();
-```
-
-### RuleDoesNotExist
-
-```solidity
-error RuleDoesNotExist();
-```
-
-### PurchasePercentageReached
-
-```solidity
-error PurchasePercentageReached();
-```
-
-### SellPercentageReached
-
-```solidity
-error SellPercentageReached();
-```
-
-### TransferExceedsMaxVolumeAllowed
-
-```solidity
-error TransferExceedsMaxVolumeAllowed();
+function checkTotalSupplyVolatilityPasses(
+    uint32 _ruleId,
+    int256 _volumeTotalForPeriod,
+    uint256 _tokenTotalSupply,
+    uint256 _supply,
+    int256 _amount,
+    uint64 _lastSupplyUpdateTime
+) external view returns (int256, uint256);
 ```
 

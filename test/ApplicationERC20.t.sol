@@ -62,7 +62,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
         ac = address(appManager);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
@@ -70,11 +70,15 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         appManager.addAccessTier(accessTier);
         /// add Risk Admin
         appManager.addRiskAdmin(riskAdmin);
-        applicationHandler = ApplicationHandler(appManager.getHandlerAddress());
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
 
-        applicationCoin = new ApplicationERC20("FRANK", "FRANK", address(appManager), address(ruleProcessor), false);
+        applicationCoin = new ApplicationERC20("FRANK", "FRANK", address(appManager));
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
+
         applicationCoin.mint(defaultAdmin, 10_000_000_000_000_000_000_000 * (10 ** 18));
-        applicationCoinHandler = ApplicationERC20Handler(applicationCoin.getHandlerAddress());
+        
         /// register the token
         appManager.registerToken("FRANK", address(applicationCoin));
         /// set the token price
@@ -94,13 +98,11 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(defaultAdmin), 10000000000000000000000 * (10 ** 18));
     }
 
-    /// Test Mint and Mint Fail
+    /// Test Mint
     function testMint() public {
         applicationCoin.mint(defaultAdmin, 1000);
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0x8f802168);
-        applicationCoin.mint(user1, 10000);
     }
 
     /// Test token transfer
@@ -290,8 +292,9 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// create secondary token, mint, and transfer to user
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager), address(ruleProcessor), false);
-        applicationCoinHandler2 = ApplicationERC20Handler(draculaCoin.getHandlerAddress());
+        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager));
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        draculaCoin.connectHandlerToToken(address(applicationCoinHandler));
         applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));
@@ -938,6 +941,62 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.expectRevert(0x3627495d);
         applicationCoin.transfer(user1, 1 * 10 ** 18);
         assertEq(applicationCoin.balanceOf(user1), 79_999 * (10 ** 18));
+    }
+
+    /// test supply volatility rule 
+    function testSupplyVolatilityRule() public {
+        /// burn tokens to specific supply
+        applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
+        applicationCoin.mint(defaultAdmin, 100_000 * (10 ** 18));
+        applicationCoin.transfer(user1, 5000 * (10**18));
+
+        /// create rule params 
+        uint16 volatilityLimit = 1000; /// 10% 
+        uint8 rulePeriod = 24; /// 24 hours 
+        uint8 startingTime = 12; /// start at noon 
+        uint256 tokenSupply = 0; /// calls totalSupply() for the token 
+
+        /// set rule id and activate 
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, volatilityLimit, rulePeriod, startingTime, tokenSupply);
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index); 
+        /// move within period 
+        vm.warp(Blocktime + 13 hours);
+        console.log(applicationCoin.totalSupply()); 
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// mint tokens to the cap 
+        applicationCoin.mint(user1, 1);
+        applicationCoin.mint(user1, 1000 * (10 ** 18));
+        applicationCoin.mint(user1, 8000 * (10 ** 18));
+        /// fail transactions (mint and burn with passing transfers)
+        vm.expectRevert(0x81af27fa);
+        applicationCoin.mint(user1, 6500 * (10 ** 18));
+
+        /// move out of rule period 
+        vm.warp(Blocktime + 40 hours);
+        applicationCoin.mint(user1, 2550 * (10 ** 18));
+
+        /// burn tokens 
+        /// move into fresh period 
+        vm.warp(Blocktime + 95 hours);
+        applicationCoin.burn(1000 * (10 ** 18));
+        applicationCoin.burn(1000 * (10 ** 18));
+        applicationCoin.burn(8000 * (10 ** 18));
+
+        vm.expectRevert(0x81af27fa);
+        applicationCoin.burn(2550 * (10 ** 18)); 
+
+        applicationCoin.mint(user1, 2550 * (10 ** 18));
+        applicationCoin.burn(2550 * (10 ** 18)); 
+        applicationCoin.mint(user1, 2550 * (10 ** 18));
+        applicationCoin.burn(2550 * (10 ** 18));
+        applicationCoin.mint(user1, 2550 * (10 ** 18));
+        applicationCoin.burn(2550 * (10 ** 18));
+        applicationCoin.mint(user1, 2550 * (10 ** 18));
+        applicationCoin.burn(2550 * (10 ** 18));
+
+
+
     }
 
     function testDataContractMigration() public {

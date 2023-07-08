@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
+import "./IProtocolERC20Pricing.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
 
 /**
@@ -11,7 +12,7 @@ import {IApplicationEvents} from "../interfaces/IEvents.sol";
  * @notice This contract is a simple pricing mechanism only. Its main purpose is to store prices.
  * @dev This contract doesn't allow any marketplace operations.
  */
-contract ProtocolERC20Pricing is Ownable, IApplicationEvents {
+contract ProtocolERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricing {
     mapping(address => uint256) public tokenPrices;
 
     /**

@@ -1,5 +1,5 @@
 # OracleRestricted
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/example/OracleRestricted.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/example/OracleRestricted.sol)
 
 **Inherits:**
 Ownable
@@ -22,6 +22,8 @@ mapping(address => bool) private sanctionedAddresses;
 
 ## Functions
 ### constructor
+
+*Constructor that only serves the purpose of notifying the indexer of its creation via event*
 
 
 ```solidity
@@ -159,5 +161,11 @@ event SanctionedAddressAdded(address addrs);
 
 ```solidity
 event SanctionedAddressesRemoved(address[] addrs);
+```
+
+### SanctionedListOracleDeployed
+
+```solidity
+event SanctionedListOracleDeployed();
 ```
 

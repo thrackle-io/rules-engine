@@ -33,7 +33,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         // Deploy the diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy app manager
-        appManager = new AppManager(defaultAdmin, "Castlevania", address(0), false);
+        appManager = new AppManager(defaultAdmin, "Castlevania", false);
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         ac = address(appManager);
@@ -428,17 +428,17 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** Token Volatility ************************/
     /// Simple setting and getting
     function testSettingTokenVolatility() public {
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24, totalSupply);
         assertEq(_index, 0);
         NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getVolatilityRule(_index);
-        assertEq(rule.hoursFrozen, 24);
+        assertEq(rule.startingTime, 24);
 
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 666, 100, 16);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 666, 100, 16, totalSupply);
         assertEq(_index, 1);
         rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getVolatilityRule(_index);
-        assertEq(rule.hoursFrozen, 16);
+        assertEq(rule.startingTime, 16);
         assertEq(rule.maxVolatility, 666);
-        assertEq(rule.blocksPerPeriod, 100);
+        assertEq(rule.period, 100);
     }
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
@@ -446,18 +446,18 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24, totalSupply);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24, totalSupply);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(appAdministrator)); //interact as a different user
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24, totalSupply);
         assertEq(_index, 0);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(defaultAdmin)); //interact as a different user
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24, totalSupply);
         assertEq(_index, 1);
     }
 
@@ -465,7 +465,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     function testTotalRulesOnTokenVolatility() public {
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
-            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000 + i, 60 + i, 24 + i);
+            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000 + i, 60 + i, 24 + i, totalSupply);
         }
         assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalVolatilityRules(), _indexes.length);
     }
@@ -675,15 +675,15 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** Supply Volatility ************************/
     /// Simple setting and getting
     function testSettingSupplyVolatility() public {
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 65000, 255, 255);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, 12, totalSupply);
         assertEq(_index, 0);
         NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getSupplyVolatilityRule(_index);
-        assertEq(rule.hoursFrozen, 255);
+        assertEq(rule.startingTime, 12);
 
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 5000, 100, 26);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 5000, 24, 12, totalSupply);
         assertEq(_index, 1);
         rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getSupplyVolatilityRule(_index);
-        assertEq(rule.hoursFrozen, 26);
+        assertEq(rule.startingTime, 12);
     }
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
@@ -691,18 +691,18 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 65000, 255, 255);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, 12, totalSupply);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 65000, 255, 255);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, 12, totalSupply);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(appAdministrator)); //interact as a different user
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 65000, 255, 255);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, 12, totalSupply);
         assertEq(_index, 0);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(defaultAdmin)); //interact as a different user
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 65000, 255, 255);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, 12, totalSupply);
         assertEq(_index, 1);
     }
 
@@ -710,7 +710,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     function testTotalRulesOnSupplyVolatility() public {
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
-            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 65000 + i, 55 + i, 25 + i);
+            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500 + i, 24 + i, 12, totalSupply);
         }
         assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalSupplyVolatilityRules(), _indexes.length);
     }

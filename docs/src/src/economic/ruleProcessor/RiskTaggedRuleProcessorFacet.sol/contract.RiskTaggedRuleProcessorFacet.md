@@ -1,5 +1,8 @@
 # RiskTaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleProcessor/RiskTaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleProcessor/RiskTaggedRuleProcessorFacet.sol)
+
+**Inherits:**
+[IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [IRiskErrors](/src/interfaces/IErrors.sol/interface.IRiskErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -27,29 +30,4 @@ function checkTransactionLimitByRiskScore(uint32 _ruleId, uint8 _riskScore, uint
 |`_riskScore`|`uint8`|the Risk Score of the account|
 |`_amountToTransfer`|`uint256`|total USD amount to be transferred with 18 decimals of precision|
 
-
-## Errors
-### RuleDoesNotExist
-
-```solidity
-error RuleDoesNotExist();
-```
-
-### MaxTxSizePerPeriodReached
-
-```solidity
-error MaxTxSizePerPeriodReached(uint8 riskScore, uint256 maxTxSize, uint8 hoursOfPeriod);
-```
-
-### TransactionExceedsRiskScoreLimit
-
-```solidity
-error TransactionExceedsRiskScoreLimit();
-```
-
-### BalanceExceedsRiskScoreLimit
-
-```solidity
-error BalanceExceedsRiskScoreLimit();
-```
 

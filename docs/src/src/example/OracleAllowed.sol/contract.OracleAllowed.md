@@ -1,5 +1,5 @@
 # OracleAllowed
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/example/OracleAllowed.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/example/OracleAllowed.sol)
 
 **Inherits:**
 Ownable
@@ -21,6 +21,15 @@ mapping(address => bool) private allowedAddresses;
 
 
 ## Functions
+### constructor
+
+*Constructor that only serves the purpose of notifying the indexer of its creation via event*
+
+
+```solidity
+constructor();
+```
+
 ### name
 
 *Return the contract name*
@@ -152,5 +161,11 @@ event AllowedAddressesRemoved(address[] addrs);
 
 ```solidity
 event NotAllowedAddress(address indexed addr);
+```
+
+### AllowListOracleDeployed
+
+```solidity
+event AllowListOracleDeployed();
 ```
 

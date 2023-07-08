@@ -1,5 +1,8 @@
 # IERC20Staking
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/staking/IERC20Staking.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/staking/IERC20Staking.sol)
+
+**Inherits:**
+[IStakingErrors](/src/interfaces/IErrors.sol/interface.IStakingErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -90,48 +93,5 @@ event RewardsClaimed(
 
 ```solidity
 event StakeWithdrawal(address indexed staker, uint256 indexed amount, uint256 date);
-```
-
-## Errors
-### DepositFailed
-
-```solidity
-error DepositFailed();
-```
-
-### NotStakingEnough
-
-```solidity
-error NotStakingEnough(uint256 minStake);
-```
-
-### NotStakingForAnyTime
-
-```solidity
-error NotStakingForAnyTime();
-```
-
-### RewardPoolLow
-
-```solidity
-error RewardPoolLow(uint256 balance);
-```
-
-### NoRewardsToClaim
-
-```solidity
-error NoRewardsToClaim();
-```
-
-### RewardsWillBeZero
-
-```solidity
-error RewardsWillBeZero();
-```
-
-### InvalidTimeUnit
-
-```solidity
-error InvalidTimeUnit();
 ```
 

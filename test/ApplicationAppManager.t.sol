@@ -15,8 +15,8 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     ApplicationAppManager public applicationAppManager2;
     RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
-
     ApplicationHandler public applicationHandler;
+    ApplicationHandler public applicationHandler2;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
     bytes32 public constant USER_ROLE = keccak256("USER");
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
@@ -36,17 +36,16 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         ruleProcessor = getRuleProcessorDiamond();
         /// Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-        // Deploy the token rule processor diamond
-
-        /// connect the Rule Processor to its child Diamond
-
         vm.stopPrank();
         vm.startPrank(address(88));
-        applicationAppManager2 = new ApplicationAppManager(address(88), "Castlevania2", address(ruleProcessor), false);
+        applicationAppManager2 = new ApplicationAppManager(address(88), "Castlevania2", false);
+        applicationHandler2 = new ApplicationHandler(address(ruleProcessor), address(applicationAppManager));
+        applicationAppManager2.setNewApplicationHandlerAddress(address(applicationHandler2));
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        applicationAppManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
-        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
+        applicationAppManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(applicationAppManager));
+        applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
         /// add Risk Admin
         applicationAppManager.addRiskAdmin(riskAdmin);
 
@@ -523,7 +522,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         }
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 15);
-        vm.expectRevert(bytes("Max rules reached"));
+        vm.expectRevert(0xd30bd9c5);
         applicationAppManager.addPauseRule(TEST_DATE + 150, TEST_DATE + 160);
         vm.warp(TEST_DATE);
     }
@@ -661,14 +660,6 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         assertEq(address(88), applicationAppManager.getAccessLevelProvider());
     }
 
-    /// Test the checkAction. This tests all application compliance
-    function testCheckAction() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        // check if standard user can inquire
-        // assertTrue(applicationAppManager.checkAction(RuleProcessorDiamondLib.ActionTypes.INQUIRE, user));
-    }
-
     /// Test the register token.
     function testRegisterToken() public {
         applicationAppManager.registerToken("Frankenstein", address(77));
@@ -741,24 +732,24 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     /// Test the checkAction. This tests all AccessLevel application compliance
     function testCheckActionWithPauseActive() public {
         // check if users can use system when not paused
-        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
+        applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
 
         // check if users can not use system when paused
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         vm.warp(1769924800); // set block.timestamp
         vm.expectRevert();
-        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
+        applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
 
         // check if users can use system after the pause rule expires
         vm.warp(1769984801); // set block.timestamp
-        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
+        applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
 
         // check if users can use system when in pause block but the pause has been deleted
         applicationAppManager.removePauseRule(1769924800, 1769984800);
         PauseRule[] memory removeTest = applicationAppManager.getPauseRules();
         assertTrue(removeTest.length == 0);
         vm.warp(1769924800); // set block.timestamp
-        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.INQUIRE, user, user, 0, 0);
+        applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
     }
 
     function testBalanceLimitByRiskScoreFuzzAtAppManagerLevel(uint8 _addressIndex, uint24 _amountSeed) public {
@@ -809,19 +800,19 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         vm.startPrank(_user1);
         ///Max riskScore allows for single token balance
         //applicationCoin.transfer(_user2, 1 * (10 ** 18));
-        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user2, 0, 1 * (10 ** 18));
+        applicationAppManager.checkApplicationRules(ActionTypes.TRADE, _user1, _user2, 0, 1 * (10 ** 18));
         ///Transfer more than Risk Score allows
         vm.expectRevert();
         //applicationCoin.transfer(_user2, riskBalance4 * (10 ** 18) + 1);
-        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user2, 1 * (10 ** 18), riskBalance4 * (10 ** 18) + 1);
+        applicationAppManager.checkApplicationRules(ActionTypes.TRADE, _user1, _user2, 1 * (10 ** 18), riskBalance4 * (10 ** 18) + 1);
 
         vm.expectRevert();
         //applicationCoin.transfer(_user3, riskBalance3 * (10 ** 18) + 1);
-        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user3, 0, riskBalance3 * (10 ** 18) + 1);
+        applicationAppManager.checkApplicationRules(ActionTypes.TRADE, _user1, _user3, 0, riskBalance3 * (10 ** 18) + 1);
         ///Transfer more than Risk Score allows
         vm.expectRevert();
         //applicationCoin.transfer(_user4, riskBalance1 * (10 ** 18) + 1);
-        applicationAppManager.checkApplicationRules(RuleProcessorDiamondLib.ActionTypes.TRADE, _user1, _user4, 0, riskBalance1 * (10 ** 18) + 1);
+        applicationAppManager.checkApplicationRules(ActionTypes.TRADE, _user1, _user4, 0, riskBalance1 * (10 ** 18) + 1);
     }
 
     /**

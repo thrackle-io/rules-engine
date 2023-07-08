@@ -23,8 +23,9 @@ import "../pricing/IProtocolERC20Pricing.sol";
 import "./data/Fees.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
+import { IAssetHandlerErrors } from "../interfaces/IErrors.sol";
 
-contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministratorOrOwnerOnly {
+contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministratorOrOwnerOnly, IAssetHandlerErrors {
     /**
      * Functions added so far:
      * minAccountBalance
@@ -44,6 +45,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     uint32 private transactionLimitByRiskRuleId;
     uint32 private adminWithdrawalRuleId;
     uint32 private tokenTransferVolumeRuleId;
+    uint32 private totalSupplyVolatilityRuleId;
     /// on-off switches for rules
     bool private oracleRuleActive;
     bool private minMaxBalanceRuleActive;
@@ -52,10 +54,18 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     bool private minBalByDateRuleActive;
     bool private adminWithdrawalActive;
     bool private tokenTransferVolumeRuleActive;
+    bool private totalSupplyVolatilityRuleActive;
+    bool private minimumHoldTimeRuleActive;
+
+    /// simple rule(with single parameter) variables
+    uint32 private minimumHoldTimeHours;
 
     /// token level accumulators
     uint256 private transferVolume;
     uint64 private lastTransferTs;
+    uint64 private lastSupplyUpdateTime;
+    int256 private volumeTotalForPeriod; 
+    uint256 private totalSupplyForPeriod; 
     /// Data contracts
     Fees fees;
     bool feeActive;
@@ -66,6 +76,9 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     // map the tokenId of this NFT to the last transaction timestamp
     mapping(uint256 => uint64) lastTxDate;
 
+    /// Minimum Hold time data
+    mapping(uint256 => uint256) ownershipStart;
+
     IRuleProcessor ruleProcessor;
     IAppManager appManager;
     // Pricing Module interfaces
@@ -73,9 +86,6 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     IProtocolERC721Pricing nftPricer;
     address public erc20PricingAddress;
     address public nftPricingAddress;
-
-    error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
-    error CannotTurnOffAccessLevel0WithAccessLevelBalanceActive();
 
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
@@ -101,11 +111,11 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @param _from sender address
      * @param _to recipient address
      * @param amount number of tokens transferred
-     * @param tokenId the token's specific ID
+     * @param _tokenId the token's specific ID
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return Success equals true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, uint256 tokenId, RuleProcessorDiamondLib.ActionTypes _action) external returns (bool) {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, uint256 _tokenId, ActionTypes _action) external returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
@@ -114,14 +124,17 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
             uint128 transferValuation;
             if (appManager.requireValuations()) {
                 balanceValuation = uint128(getAccTotalValuation(_to));
-                transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, tokenId));
+                transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
             }
             appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
-            _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount, tokenId);
-            _checkNonTaggedRules(balanceFrom, balanceTo, _from, _to, amount, tokenId);
+            _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount, _tokenId);
+            _checkNonTaggedRules(balanceFrom, balanceTo, _from, _to, amount, _tokenId);
+            _checkSimpleRules(_tokenId);
         } else {
             if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
         }
+        /// set the ownership start time for the token if the Minimum Hold time rule is active
+        if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
         // If everything checks out, return true
         return true;
     }
@@ -149,6 +162,11 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         if (tokenTransferVolumeRuleActive) {
             transferVolume = ruleProcessor.checkTokenTransferVolumePasses(tokenTransferVolumeRuleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
             lastTransferTs = uint64(block.timestamp);
+        }
+        /// rule requires ruleID and either to or from address be zero address (mint/burn)
+        if (totalSupplyVolatilityRuleActive && (_from == address(0x00) || _to == address(0x00))) {
+            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(totalSupplyVolatilityRuleId, volumeTotalForPeriod, totalSupplyForPeriod, IToken(msg.sender).totalSupply(), _to == address(0x00)? int(_amount) * -1:int(_amount), lastSupplyUpdateTime);
+            lastSupplyUpdateTime = uint64(block.timestamp); 
         }
     }
 
@@ -207,6 +225,14 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
             ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _thisNFTValuation);
             ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _thisNFTValuation);
         }
+    }
+
+    /**
+     * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
+     * @param _tokenId the specific token in question
+     */
+    function _checkSimpleRules(uint256 _tokenId) internal view {
+        if (minimumHoldTimeRuleActive && ownershipStart[_tokenId] > 0) ruleProcessor.checkNFTHoldTime(minimumHoldTimeHours, ownershipStart[_tokenId]);
     }
 
     /* <><><><><><><><><><><> Fee functions <><><><><><><><><><><><><><> */
@@ -697,6 +723,80 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         } else {
             emit ApplicationHandlerDeactivated(TRANSFER_VOLUME, address(this));
         }
+    }
+
+        /**
+     * @dev Retrieve the total supply volatility rule id
+     * @return totalSupplyVolatilityRuleId rule id
+     */
+    function getTotalSupplyVolatilityRule() external view returns (uint32) {
+        return totalSupplyVolatilityRuleId;
+    }
+
+    /**
+     * @dev Set the tokenTransferVolumeRuleId. Restricted to game admins only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        totalSupplyVolatilityRuleId = _ruleId;
+        totalSupplyVolatilityRuleActive = true;
+        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, address(this), _ruleId);
+    }
+
+    /**
+     * @dev Tells you if the token total Supply Volatility rule is active or not.
+     * @param _on boolean representing if the rule is active
+     */
+    function activateTotalSupplyVolatilityRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        totalSupplyVolatilityRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(SUPPLY_VOLATILITY, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(SUPPLY_VOLATILITY, address(this));
+        }
+    }
+
+    /**
+     * @dev Tells you if the Total Supply Volatility is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isTotalSupplyVolatilityActive() external view returns (bool) {
+        return totalSupplyVolatilityRuleActive;
+    }
+
+    /// -------------SIMPLE RULE SETTERS and GETTERS---------------
+    /**
+     * @dev Tells you if the minimum hold time rule is active or not.
+     * @param _on boolean representing if the rule is active
+     */
+    function activateMinimumHoldTimeRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        minimumHoldTimeRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(MINIMUM_HOLD_TIME, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(MINIMUM_HOLD_TIME, address(this));
+        }
+    }
+
+    /**
+     * @dev Setter the minimum hold time rule hold hours
+     * @param _minimumHoldTimeHours minimum amount of time to hold the asset
+     */
+    function setMinimumHoldTimeHours(uint32 _minimumHoldTimeHours) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        if (_minimumHoldTimeHours == 0) revert ZeroValueNotPermited();
+        if (_minimumHoldTimeHours > 43830) revert PeriodExceeds5Years();
+        minimumHoldTimeHours = _minimumHoldTimeHours;
+        minimumHoldTimeRuleActive = true;
+        emit ApplicationHandlerSimpleApplied(MINIMUM_HOLD_TIME, address(this), uint256(minimumHoldTimeHours));
+    }
+
+    /**
+     * @dev Get the minimum hold time rule hold hours
+     * @return minimumHoldTimeHours minimum amount of time to hold the asset
+     */
+    function getMinimumHoldTimeHours() external view returns (uint256) {
+        return minimumHoldTimeHours;
     }
 
     /// -------------DATA CONTRACT DEPLOYMENT---------------

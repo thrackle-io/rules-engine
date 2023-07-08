@@ -1,5 +1,8 @@
 # ERC721TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol)
+
+**Inherits:**
+[IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [ITagRuleErrors](/src/interfaces/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/interfaces/IErrors.sol/interface.IMaxTagLimitError.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -72,23 +75,4 @@ function maxAccountBalanceERC721(uint256 balanceTo, bytes32[] calldata toTags, u
 |`toTags`|`bytes32[]`|Account tags applied to recipient via App Manager|
 |`ruleId`|`uint32`|Rule identifier for rule arguments|
 
-
-## Errors
-### RuleDoesNotExist
-
-```solidity
-error RuleDoesNotExist();
-```
-
-### BalanceBelowMin
-
-```solidity
-error BalanceBelowMin();
-```
-
-### MaxBalanceExceeded
-
-```solidity
-error MaxBalanceExceeded();
-```
 

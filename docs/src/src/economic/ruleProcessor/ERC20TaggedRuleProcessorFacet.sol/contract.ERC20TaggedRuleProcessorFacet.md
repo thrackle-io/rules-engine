@@ -1,5 +1,8 @@
 # ERC20TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
+
+**Inherits:**
+[IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [ITagRuleErrors](/src/interfaces/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/interfaces/IErrors.sol/interface.IMaxTagLimitError.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -224,35 +227,4 @@ function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount,
 |`amount`|`uint256`|Number of tokens to be transferred from this account|
 |`toTags`|`bytes32[]`|Account tags applied to sender via App Manager|
 
-
-## Errors
-### MaxBalanceExceeded
-
-```solidity
-error MaxBalanceExceeded();
-```
-
-### BalanceBelowMin
-
-```solidity
-error BalanceBelowMin();
-```
-
-### RuleDoesNotExist
-
-```solidity
-error RuleDoesNotExist();
-```
-
-### TxnInFreezeWindow
-
-```solidity
-error TxnInFreezeWindow();
-```
-
-### TemporarySellRestriction
-
-```solidity
-error TemporarySellRestriction();
-```
 

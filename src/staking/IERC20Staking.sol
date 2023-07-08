@@ -9,16 +9,11 @@ pragma solidity ^0.8.17;
  */
 
 import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import { IStakingErrors } from "../interfaces/IErrors.sol";
 
 //// add context contract
-abstract contract IERC20Staking {
-    error DepositFailed();
-    error NotStakingEnough(uint256 minStake);
-    error NotStakingForAnyTime();
-    error RewardPoolLow(uint256 balance);
-    error NoRewardsToClaim();
-    error RewardsWillBeZero();
-    error InvalidTimeUnit();
+abstract contract IERC20Staking is IStakingErrors{
+    
 
     event NewStake(address indexed staker, uint256 indexed staked, uint256 stakingPeriodInSeconds, uint256 indexed stakingSince);
     event RewardsClaimed(address indexed staker, uint256 indexed staked, uint256 rewards, uint256 indexed stakingSince, uint256 date);

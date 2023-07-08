@@ -24,7 +24,7 @@ library RuleStoragePositionLib {
     bytes32 constant BALANCE_LIMIT_RULE_POSITION = keccak256("token.balance-limit");
     bytes32 constant SUPPLY_VOLATILITY_RULE_POSITION = keccak256("token.supply-volatility");
     bytes32 constant ORACLE_RULE_POSITION = keccak256("all.oracle");
-    bytes32 constant AccessLevel_RULE_POSITION = keccak256("token.access");
+    bytes32 constant ACCESS_LEVEL_RULE_POSITION = keccak256("token.access");
     bytes32 constant TX_SIZE_TO_RISK_RULE_POSITION = keccak256("token.tx-size-to-risk");
     bytes32 constant TX_SIZE_PER_PERIOD_TO_RISK_RULE_POSITION = keccak256("token.tx-size-per-period-to-risk");
     bytes32 constant BALANCE_LIMIT_TO_RISK_RULE_POSITION = keccak256("token.balance-limit-to-risk");
@@ -181,7 +181,7 @@ library RuleStoragePositionLib {
      * @return ds Data Storage of AccessLevel Rule
      */
     function accessStorage() internal pure returns (IRuleStorage.AccessLevelRuleS storage ds) {
-        bytes32 position = AccessLevel_RULE_POSITION;
+        bytes32 position = ACCESS_LEVEL_RULE_POSITION;
         assembly {
             ds.slot := position
         }

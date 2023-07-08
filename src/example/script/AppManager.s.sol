@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
 import {ApplicationAppManager} from "src/example/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
 
 /**
  * @title App Manager Deployment Script
@@ -18,7 +19,9 @@ contract AppManagerScript is Script {
      */
     function run() public {
         vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
-        new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", vm.envAddress("RULE_PROCESSOR_DIAMOND"), false);
+        ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", false);
+        ApplicationHandler applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
+        applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
         vm.stopBroadcast();
     }
 }

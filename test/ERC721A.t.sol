@@ -37,19 +37,17 @@ contract ERC721ATest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         ruleProcessor = getRuleProcessorDiamond();
         // Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-        // Deploy the token rule processor diamond
-
-        //connect data diamond with Tagged Rule Processor diamond
-
-        // connect the Rule Processor to its child Diamond
-
         // Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
 
-        applicationNFT = new ApplicationERC721A("PudgyParakeet", "THRK", address(appManager), address(ruleProcessor), false, "https://SampleApp.io");
+        applicationNFT = new ApplicationERC721A("PudgyParakeet", "THRK", address(appManager), "https://SampleApp.io");
         applicationNFTHandler = ApplicationERC721Handler(applicationNFT.handlerAddress());
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
     }
 
     function testMintA() public {

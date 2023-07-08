@@ -1,5 +1,5 @@
 # IApplicationEvents
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/interfaces/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/interfaces/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -16,6 +16,12 @@ Application Handler
 
 ```solidity
 event HandlerConnectedForUpgrade(address indexed applicationHandler, address indexed assetAddress);
+```
+
+### HandlerConnected
+
+```solidity
+event HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
 ```
 
 ### NewTokenDeployed

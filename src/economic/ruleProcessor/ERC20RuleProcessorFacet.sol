@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {RuleDataFacet} from "../ruleStorage/RuleDataFacet.sol";
 import {INonTaggedRules as NonTaggedRules} from "../ruleStorage/RuleDataInterfaces.sol";
+import {IRuleProcessorErrors, IERC20Errors} from "../../interfaces/IErrors.sol";
 import "../ruleStorage/RuleCodeData.sol";
 import "./IOracle.sol";
 
@@ -13,16 +14,7 @@ import "./IOracle.sol";
  * @dev Facet in charge of the logic to check token rules compliance
  * @notice Implements Token Fee Rules on Accounts.
  */
-contract ERC20RuleProcessorFacet {
-    error BelowMinTransfer();
-    error AddressIsRestricted();
-    error AddressNotOnAllowedList();
-    error OracleTypeInvalid();
-    error RuleDoesNotExist();
-    error PurchasePercentageReached();
-    error SellPercentageReached();
-    error TransferExceedsMaxVolumeAllowed();
-
+contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors{
     /**
      * @dev Check if transaction passes minTransfer rule.
      * @param _ruleId Rule Identifier for rule arguments
@@ -79,7 +71,7 @@ contract ERC20RuleProcessorFacet {
      * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
      * @param amountToTransfer total number of tokens to be transferred in transaction.
      * @param lastPurchaseTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
-     * @param purchasedWithinPeriod total amount of tokens purchased in current period 
+     * @param purchasedWithinPeriod total amount of tokens purchased in current period
      */
     function checkPurchasePercentagePasses(
         uint32 ruleId,
@@ -113,15 +105,9 @@ contract ERC20RuleProcessorFacet {
      * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
      * @param amountToTransfer total number of tokens to be transferred in transaction.
      * @param lastSellTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
-     * @param soldWithinPeriod total amount of tokens sold within current period 
+     * @param soldWithinPeriod total amount of tokens sold within current period
      */
-    function checkSellPercentagePasses(
-        uint32 ruleId, 
-        uint256 currentTotalSupply, 
-        uint256 amountToTransfer, 
-        uint64 lastSellTime, 
-        uint256 soldWithinPeriod
-    ) external view returns (uint256) {
+    function checkSellPercentagePasses(uint32 ruleId, uint256 currentTotalSupply, uint256 amountToTransfer, uint64 lastSellTime, uint256 soldWithinPeriod) external view returns (uint256) {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
         uint totalRules = data.getTotalPctSellRule();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
@@ -169,17 +155,52 @@ contract ERC20RuleProcessorFacet {
             if (rule.totalSupply != 0) {
                 _supply = rule.totalSupply;
             }
-            if (((_volume * 100000000) / _supply) < uint(rule.maxVolume) * 10000) {
-                // This if statement is to prevent unnecessary calculations to acceptable transfers
-            } else {
-                // If it reaches here, then it was either equal or greater than the acceptable volume. Then we must check the remainder
-                if ((_volume * 100000000) / _supply >= uint(rule.maxVolume) * 10000 || ((_volume * 100000000) % _supply > 0)) {
-                    revert TransferExceedsMaxVolumeAllowed();
-                }
+            // we check the numbers against the rule  
+            if ((_volume * 100000000) / _supply >= uint(rule.maxVolume) * 10000 ) {
+                revert TransferExceedsMaxVolumeAllowed();
             }
         } catch {
             revert RuleDoesNotExist();
         }
         return _volume;
+    }
+
+    function checkTotalSupplyVolatilityPasses(
+        uint32 _ruleId, 
+        int256 _volumeTotalForPeriod,
+        uint256 _tokenTotalSupply,
+        uint256 _supply, 
+        int256 _amount, 
+        uint64 _lastSupplyUpdateTime
+        ) external view returns (int256, uint256) {
+        int256 volatility; 
+        /// we create the 'data' variable which is simply a connection to the rule diamond
+        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
+        /// validation block
+        if ((data.getTotalSupplyVolatilityRules() == 0)) revert RuleDoesNotExist();
+        /// we procede to retrieve the rule
+        try data.getSupplyVolatilityRule(_ruleId) returns (NonTaggedRules.SupplyVolatilityRule memory rule) {
+            /// check if totalSupply is specified in rule params 
+            if (rule.totalSupply != 0) {
+                _supply = rule.totalSupply;
+            }
+            /// check if current transaction is inside rule period 
+            if (((block.timestamp - rule.startingTime) % (uint256(rule.period) * 1 hours)) >= (block.timestamp - _lastSupplyUpdateTime)) {
+            /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler) 
+                _volumeTotalForPeriod += _amount;
+            } else {
+                _volumeTotalForPeriod = _amount; 
+                /// update total supply of token when outside of rule period 
+                _tokenTotalSupply = _supply; 
+            }
+            volatility = (_volumeTotalForPeriod * 100000000) / int(_tokenTotalSupply);
+            if (volatility < 0) volatility = volatility * -1;
+            if (uint256(volatility) > uint(rule.maxChange) * 10000) {
+                revert TotalSupplyVolatilityLimitReached();
+            } 
+        } catch {
+            revert RuleDoesNotExist();
+        }
+        return (_volumeTotalForPeriod, _tokenTotalSupply);
     }
 }

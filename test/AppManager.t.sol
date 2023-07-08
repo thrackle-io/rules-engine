@@ -9,7 +9,6 @@ import "./RuleProcessorDiamondTestUtil.sol";
 contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     AppManager public appManager;
     ApplicationHandler public applicationHandler;
-
     RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
@@ -21,6 +20,7 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     string tokenName = "FEUD";
 
     function setUp() public {
+        vm.startPrank(defaultAdmin); //set up as the default admin
         // Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy the token rule processor diamond
@@ -28,12 +28,9 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         // Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
 
-        /// connect the Rule Processor to its child Diamond
-
-        appManager = new AppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
-        vm.startPrank(defaultAdmin); //set up as the default admin
-        // connect the diamond to the Application Rule Processor Diamond
-
+        appManager = new AppManager(defaultAdmin, "Castlevania", false);
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         vm.warp(TEST_DATE); // set block.timestamp
     }
 
@@ -426,7 +423,7 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         }
         PauseRule[] memory test = appManager.getPauseRules();
         assertTrue(test.length == 15);
-        vm.expectRevert(bytes("Max rules reached"));
+        vm.expectRevert(0xd30bd9c5);
         appManager.addPauseRule(TEST_DATE + 150, TEST_DATE + 160);
         vm.warp(TEST_DATE);
     }
@@ -521,7 +518,7 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// create new app manager
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        AppManager appManagerNew = new AppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+        AppManager appManagerNew = new AppManager(defaultAdmin, "Castlevania", false);
         /// migrate data contracts to new app manager
         /// set a app administrator in the new app manager
         appManagerNew.addAppAdministrator(appAdministrator);

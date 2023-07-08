@@ -1,5 +1,5 @@
 # OracleRestrictedScript
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/example/script/OracleRestricted.s.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/example/script/OracleRestricted.s.sol)
 
 **Inherits:**
 Script

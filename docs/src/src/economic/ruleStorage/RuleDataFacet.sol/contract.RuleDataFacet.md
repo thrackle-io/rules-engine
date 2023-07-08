@@ -1,8 +1,8 @@
 # RuleDataFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleStorage/RuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleStorage/RuleDataFacet.sol)
 
 **Inherits:**
-Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md)
+Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [IAppRuleInputErrors](/src/interfaces/IErrors.sol/interface.IAppRuleInputErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -229,10 +229,13 @@ Token Volatility Getters/Setters **********
 
 
 ```solidity
-function addVolatilityRule(address _appManagerAddr, uint16 _maxVolatility, uint8 _blocksPerPeriod, uint8 _hoursFrozen)
-    external
-    appAdministratorOnly(_appManagerAddr)
-    returns (uint32);
+function addVolatilityRule(
+    address _appManagerAddr,
+    uint16 _maxVolatility,
+    uint8 _blocksPerPeriod,
+    uint8 _hoursFrozen,
+    uint256 _totalSupply
+) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -242,6 +245,7 @@ function addVolatilityRule(address _appManagerAddr, uint16 _maxVolatility, uint8
 |`_maxVolatility`|`uint16`|Maximum allowed volume|
 |`_blocksPerPeriod`|`uint8`|Allowed blocks per period|
 |`_hoursFrozen`|`uint8`|Time period that transactions are frozen|
+|`_totalSupply`|`uint256`||
 
 **Returns**
 
@@ -426,19 +430,23 @@ Supply Volatility Getters/Setters **********
 
 
 ```solidity
-function addSupplyVolatilityRule(address _appManagerAddr, uint16 _maxChange, uint8 _hoursPerPeriod, uint8 _hoursFrozen)
-    external
-    appAdministratorOnly(_appManagerAddr)
-    returns (uint32);
+function addSupplyVolatilityRule(
+    address _appManagerAddr,
+    uint16 _maxVolumePercentage,
+    uint8 _period,
+    uint8 _startTime,
+    uint256 _totalSupply
+) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_maxChange`|`uint16`|Maximum amount of change allowed|
-|`_hoursPerPeriod`|`uint8`|Allowed hours per period|
-|`_hoursFrozen`|`uint8`|Hours that transactions are frozen|
+|`_maxVolumePercentage`|`uint16`|Maximum amount of change allowed. This is not capped and will allow for values greater than 100%. Since there is no cap for _maxVolumePercentage this could allow burning of full totalSupply() if over 100% (10000).|
+|`_period`|`uint8`|Allowed hours per period|
+|`_startTime`|`uint8`|Hours that transactions are frozen|
+|`_totalSupply`|`uint256`||
 
 **Returns**
 
@@ -501,7 +509,7 @@ function addOracleRule(address _appManagerAddr, uint8 _type, address _oracleAddr
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_type`|`uint8`|type of Oracle Rule|
+|`_type`|`uint8`|type of Oracle Rule --> 0 = restricted; 1 = allowed|
 |`_oracleAddress`|`address`|Address of Oracle|
 
 **Returns**
@@ -639,59 +647,4 @@ function getTotalNFTTransferCounterRules() external view returns (uint32);
 |----|----|-----------|
 |`<none>`|`uint32`|Total length of array|
 
-
-## Errors
-### InputArraysMustHaveSameLength
-
-```solidity
-error InputArraysMustHaveSameLength();
-```
-
-### IndexOutOfRange
-
-```solidity
-error IndexOutOfRange();
-```
-
-### PageOutOfRange
-
-```solidity
-error PageOutOfRange();
-```
-
-### PercentageValueGreaterThan9999
-
-```solidity
-error PercentageValueGreaterThan9999();
-```
-
-### PercentageValueLessThan100
-
-```solidity
-error PercentageValueLessThan100();
-```
-
-### ZeroValueNotPermited
-
-```solidity
-error ZeroValueNotPermited();
-```
-
-### ZeroAddress
-
-```solidity
-error ZeroAddress();
-```
-
-### BlankTag
-
-```solidity
-error BlankTag();
-```
-
-### InvalidHourOfTheDay
-
-```solidity
-error InvalidHourOfTheDay();
-```
 

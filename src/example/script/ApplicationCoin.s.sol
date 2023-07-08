@@ -20,7 +20,7 @@ contract ApplicationERC20Script is Script {
     function run() public {
         vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
 
-        new ApplicationERC20("Frankenstein Coin", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), vm.envAddress("RULE_PROCESSOR_DIAMOND"), false);
+        new ApplicationERC20("Frankenstein Coin", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"));
         // Register the token with the application's app manager
         IAppManager(vm.envAddress("APPLICATION_APP_MANAGER")).registerToken("Frankenstein Coin", address(this));
         vm.stopBroadcast();

@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "src/economic/ruleProcessor/RuleProcessorDiamondLib.sol";
+
+import "src/economic/ruleProcessor/ActionEnum.sol";
 import "../data/IPauseRules.sol";
+import { IAppManagerErrors, IAppAdministratorOnlyErrors, IInputErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 
 /**
  * @title App Manager Inquiry Interface
@@ -10,7 +12,7 @@ import "../data/IPauseRules.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice Interface for app manager server functions.
  */
-interface IAppManager {
+interface IAppManager is IAppManagerErrors, IAppAdministratorOnlyErrors, IInputErrors, IZeroAddressError {
     /**
      * @dev This function is where the default admin role is actually checked
      * @param account address to be checked
@@ -164,7 +166,7 @@ interface IAppManager {
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      */
-    function checkApplicationRules(RuleProcessorDiamondLib.ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external;
+    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external;
 
     /**
      * @dev checks if any of the balance prerequisite rules are active

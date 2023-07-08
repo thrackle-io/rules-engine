@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
+import "./IProtocolERC721Pricing.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
 
 /**
@@ -11,13 +12,12 @@ import {IApplicationEvents} from "../interfaces/IEvents.sol";
  * @notice This contract is a simple pricing mechanism only. Its main purpose is to store prices.
  * @dev This contract allows for setting prices on entire collections or by tokenId
  */
-contract ProtocolERC721Pricing is Ownable, IApplicationEvents {
+contract ProtocolERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pricing {
     using ERC165Checker for address;
 
     mapping(address => mapping(uint256 => uint256)) public nftPrice;
     mapping(address => uint256) public collectionPrice;
 
-    error NotAnNFTContract(address nftContract);
 
     /**
      * @dev set the price for a single NFT from a collection

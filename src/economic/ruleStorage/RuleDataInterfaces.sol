@@ -39,8 +39,9 @@ interface INonTaggedRules {
     /// ******** Token Volatility ********
     struct TokenVolatilityRule {
         uint16 maxVolatility; /// from 0000 to 10000 => 0.00% to 100.00%.
-        uint8 blocksPerPeriod;
-        uint8 hoursFrozen;
+        uint8 period; // hours
+        uint64 startingTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
+        uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
     }
 
     /// ******** Token Trading Volume ********
@@ -59,12 +60,13 @@ interface INonTaggedRules {
     /// ******** Supply Volatility ********
     struct SupplyVolatilityRule {
         uint16 maxChange; /// from 0000 to 10000 => 0.00% to 100.00%.
-        uint8 hoursPerPeriod;
-        uint8 hoursFrozen;
+        uint8 period; // hours
+        uint64 startingTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
+        uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
     }
     /// ******** Oracle ********
     struct OracleRule {
-        uint8 oracleType; /// enum value
+        uint8 oracleType; /// enum value --> 0 = restricted; 1 = allowed
         address oracleAddress;
     }
     /// ******** NFT ********

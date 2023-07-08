@@ -1,8 +1,8 @@
 # AppRuleDataFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleStorage/AppRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleStorage/AppRuleDataFacet.sol)
 
 **Inherits:**
-Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md)
+Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IAppRuleInputErrors](/src/interfaces/IErrors.sol/interface.IAppRuleInputErrors.md), [IRiskInputErrors](/src/interfaces/IErrors.sol/interface.IRiskInputErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -336,47 +336,4 @@ function getTotalAccountBalanceByRiskScoreRules() external view returns (uint32)
 |----|----|-----------|
 |`<none>`|`uint32`|Total length of array|
 
-
-## Errors
-### IndexOutOfRange
-
-```solidity
-error IndexOutOfRange();
-```
-
-### WrongArrayOrder
-
-```solidity
-error WrongArrayOrder();
-```
-
-### InputArraysSizesNotValid
-
-```solidity
-error InputArraysSizesNotValid();
-```
-
-### InvalidHourOfTheDay
-
-```solidity
-error InvalidHourOfTheDay();
-```
-
-### BalanceAmountsShouldHave5Levels
-
-```solidity
-error BalanceAmountsShouldHave5Levels(uint8 inputLevels);
-```
-
-### WithdrawalAmountsShouldHave5Levels
-
-```solidity
-error WithdrawalAmountsShouldHave5Levels(uint8 inputLevels);
-```
-
-### RiskLevelCannotExceed99
-
-```solidity
-error RiskLevelCannotExceed99();
-```
 

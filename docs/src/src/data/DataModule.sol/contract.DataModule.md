@@ -1,5 +1,5 @@
 # DataModule
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/data/DataModule.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/data/DataModule.sol)
 
 **Inherits:**
 [IDataModule](/src/data/IDataModule.sol/interface.IDataModule.md), Ownable
@@ -34,10 +34,20 @@ modifier appAdminstratorOrOwnerOnly();
 
 ### setAppManagerAddress
 
+only app administrators or owner of this contract can invoke this function successfully.
+
+*updates the dataModuleAppManagerAddress value*
+
 
 ```solidity
 function setAppManagerAddress(address _appManagerAddress) external appAdminstratorOrOwnerOnly;
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_appManagerAddress`|`address`|New address|
+
 
 ### transferDataOwnership
 

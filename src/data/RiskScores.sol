@@ -11,6 +11,7 @@ import "./IRiskScores.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract RiskScores is IRiskScores, DataModule {
+
     mapping(address => uint8) public scores;
 
     /**
@@ -26,7 +27,25 @@ contract RiskScores is IRiskScores, DataModule {
      * @param _score risk score (0-100)
      */
     function addScore(address _address, uint8 _score) public onlyOwner {
+        if (_score > 100) revert riskScoreOutOfRange(_score);
         scores[_address] = _score;
+        emit RiskScoreAdded(_address, _score, block.timestamp);
+    }
+
+    /**
+     * @dev  Add the Risk Score to each address in array. Restricted to Risk Admins.
+     * @param _accounts address array upon which to apply the Risk Score
+     * @param _score Risk Score(0-100)
+     */
+    function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyOwner {
+        if (_score > 100) revert riskScoreOutOfRange(_score);
+        for (uint256 i; i < _accounts.length; ) {
+            scores[_accounts[i]] = _score;
+            emit RiskScoreAdded(_accounts[i], _score, block.timestamp);
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 # Constants
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/9adfea3f253340fbb4af30cdc0009d491b72e160/src/economic/ruleStorage/RuleCodeData.sol)
+[Git Source](https://github.com/thrackle-io/Tron/blob/239d60d1c3cbbef1a9f14ff953593a8a908ddbe0/src/economic/ruleStorage/RuleCodeData.sol)
 
 ### AMM_FEE
 
@@ -143,5 +143,11 @@ bytes32 constant NFT_TRANSFER = "NFT_TRANSFER";
 
 ```solidity
 bytes32 constant ACCESS_LEVEL_WITHDRAWAL = "ACCESS_LEVEL_WITHDRAWAL";
+```
+
+### MINIMUM_HOLD_TIME
+
+```solidity
+bytes32 constant MINIMUM_HOLD_TIME = "MINIMUM_HOLD_TIME";
 ```
 
