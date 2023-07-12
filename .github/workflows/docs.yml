@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - external
 
 env:
   FOUNDRY_PROFILE: ci
@@ -26,6 +27,7 @@ jobs:
         run: |
           git config user.email "engineering@thrackle.io"
           git config user.name "Thrackle Engineering"
+          rm -rf docs/src/src
           forge doc
           git add .
           git commit -m "Generate documentation"
