@@ -1,5 +1,5 @@
 # GeneralTags
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/2eb992c5f8a67ecb6f7fb3675bc386aaa483c728/src/data/GeneralTags.sol)
+[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/data/GeneralTags.sol)
 
 **Inherits:**
 [DataModule](/src/data/DataModule.sol/contract.DataModule.md), [IGeneralTags](/src/data/IGeneralTags.sol/interface.IGeneralTags.md)
