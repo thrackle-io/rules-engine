@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tron
+  name: tron
+  namespace: default
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: tron
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: tron
+    spec:
+      containers:
+      - env:
+        - name: FOUNDRY_PROFILE
+          value: docker
+        envFrom:
+        - configMapRef:
+            name: tron
+        image: {{ECR_REPOSITORY}}
+        imagePullPolicy: Always
+        name: tron
+        
