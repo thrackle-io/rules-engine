@@ -1,0 +1,65 @@
+name: K8s Build and Deploy
+
+on:
+  push:
+    branches:
+      - ony/deployment-changes
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY:
+  ANVIL_DEPLOYMENT_FILE: k8s/anvil/deployment.yaml
+  TRON_DEPLOYMENT_FILE: k8s/tron/deployment.yaml
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.K8S_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.K8S_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl
+          curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+          echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+          sudo apt-get update
+          sudo apt-get install -y awscli kubectl
+
+      - name: Configure AWS CLI
+        run: |
+          aws eks update-kubeconfig --name universus --region ${{ env.AWS_REGION }}
+
+      - name: Set Image Tags
+        run: |
+          echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-${GITHUB_SHA::7}' >> $GITHUB_ENV
+          echo 'TRON_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:tron-${GITHUB_SHA::7}' >> $GITHUB_ENV
+
+      - name: Build and Push Docker Images
+        run: |
+          docker build -t ${{ env.ANVIL_IMAGE_TAG }} -f Dockerfile.anvil .
+          docker build -t ${{ env.TRON_IMAGE_TAG }} -f Dockerfile.tron .
+          docker push ${{ env.ANVIL_IMAGE_TAG }}
+          docker push ${{ env.TRON_IMAGE_TAG }}
+
+      - name: Update Deployment Files
+        run: |
+          sed -i "s|{{ECR_REPOSITORY}}|'${{ env.ANVIL_IMAGE_TAG }}'|g" ${{ env.ANVIL_DEPLOYMENT_FILE }}
+          sed -i "s|{{ECR_REPOSITORY}}|'${{ env.TRON_IMAGE_TAG }}'|g" ${{ env.TRON_DEPLOYMENT_FILE }}
+
+      - name: Apply Kubernetes Deployments
+        run: |
+          kubectl apply -f ${{ env.ANVIL_DEPLOYMENT_FILE }}
+          kubectl apply -f ${{ env.TRON_DEPLOYMENT_FILE }}
