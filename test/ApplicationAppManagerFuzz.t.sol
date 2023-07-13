@@ -10,7 +10,6 @@ import "./RuleProcessorDiamondTestUtil.sol";
 contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     AppManager public appManager;
     ApplicationHandler public applicationHandler;
-
     RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
@@ -570,6 +569,7 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
         /// add a pause rule
         if (start >= end || start <= block.timestamp) vm.expectRevert();
         appManager.addPauseRule(start, end);
+        applicationHandler.activatePauseRule(true); 
 
         /// go to the future
         vm.warp(forward);

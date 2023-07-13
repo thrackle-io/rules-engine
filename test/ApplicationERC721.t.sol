@@ -281,6 +281,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         appManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
+        applicationHandler.activatePauseRule(true); 
         vm.warp(Blocktime + 1001);
 
         vm.stopPrank();

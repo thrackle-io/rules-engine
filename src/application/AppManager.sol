@@ -369,7 +369,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _pauseStop End of the pause window
      */
     function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyAppAdministrator {
-        
         pauseRules.addPauseRule(_pauseStart, _pauseStop);
     }
 

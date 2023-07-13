@@ -736,6 +736,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         // check if users can not use system when paused
         applicationAppManager.addPauseRule(1769924800, 1769984800);
+        applicationHandler.activatePauseRule(true); 
         vm.warp(1769924800); // set block.timestamp
         vm.expectRevert();
         applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
