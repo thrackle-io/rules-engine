@@ -3,7 +3,7 @@ name: K8s Build and Deploy
 on:
   push:
     branches:
-      - ony/deployment-changes
+      - internal 
 
 env:
   AWS_REGION: us-east-1
