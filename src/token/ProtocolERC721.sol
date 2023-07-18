@@ -142,6 +142,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
+        emit AppManagerAddressSet(_appManagerAddress);
     }
 
     /**

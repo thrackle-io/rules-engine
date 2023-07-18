@@ -155,6 +155,7 @@ contract ProtocolERC721U is
      */
     function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
         appManagerAddress = _appManagerAddress;
+        emit AppManagerAddressSet(_appManagerAddress);
     }
 
     /**

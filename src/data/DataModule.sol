@@ -33,6 +33,7 @@ contract DataModule is IDataModule, Ownable {
      */
     function setAppManagerAddress(address _appManagerAddress) external appAdminstratorOrOwnerOnly {
         dataModuleAppManagerAddress = _appManagerAddress;
+        emit AppManagerAddressSet(_appManagerAddress);
     }
 
     /**

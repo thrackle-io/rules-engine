@@ -1158,6 +1158,7 @@ contract ProtocolERC721A is IERC721A, Pausable, AppAdministratorOnly, IApplicati
     function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
+        emit AppManagerAddressSet(_appManagerAddress);
     }
 
     /**

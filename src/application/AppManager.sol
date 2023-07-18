@@ -23,8 +23,6 @@ import {IAppLevelEvents} from "../interfaces/IEvents.sol";
  * @notice This contract is the permissions contract
  */
 contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
-    
-
     bytes32 constant USER_ROLE = keccak256("USER");
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     bytes32 constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
@@ -369,7 +367,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _pauseStop End of the pause window
      */
     function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyAppAdministrator {
-        
         pauseRules.addPauseRule(_pauseStart, _pauseStop);
     }
 
@@ -416,14 +413,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @notice there is a hard limit of 10 tags per address.
      */
     function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyAppAdministrator {
-         generalTags.addGeneralTagToMultipleAccounts(_accounts, _tag);
+        generalTags.addGeneralTagToMultipleAccounts(_accounts, _tag);
     }
 
     /**
      * @dev Add a general tag to an account at index in array. Restricted to Application Administrators. Loops through existing tags on accounts and will emit  an event if tag is already applied.
      * @param _accounts Address array to be tagged
      * @param _tag Tag array for the account at index. Can be any allowed string variant
-     * @notice there is a hard limit of 10 tags per address. 
+     * @notice there is a hard limit of 10 tags per address.
      */
     function addMultipleGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tag) external onlyAppAdministrator {
         if (_accounts.length != _tag.length) revert InputArraysMustHaveSameLength();
@@ -470,6 +467,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function setRiskProvider(address _provider) external onlyAppAdministrator {
         if (_provider == address(0)) revert ZeroAddress();
         riskScores = IRiskScores(_provider);
+        emit RiskProviderSet(_provider);
     }
 
     /**
@@ -487,6 +485,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function setGeneralTagProvider(address _provider) external onlyAppAdministrator {
         if (_provider == address(0)) revert ZeroAddress();
         generalTags = IGeneralTags(_provider);
+        emit GeneralTagProviderSet(_provider);
     }
 
     /**
@@ -504,6 +503,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function setAccountProvider(address _provider) external onlyAppAdministrator {
         if (_provider == address(0)) revert ZeroAddress();
         accounts = IAccounts(_provider);
+        emit AccountProviderSet(_provider);
     }
 
     /**
@@ -521,6 +521,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function setPauseRuleProvider(address _provider) external onlyAppAdministrator {
         if (_provider == address(0)) revert ZeroAddress();
         pauseRules = IPauseRules(_provider);
+        emit PauseRuleProviderSet(_provider);
     }
 
     /**
@@ -533,11 +534,12 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev  Set the address of the Access Level Provider contract. Restricted to Application Administrators
-     * @param _accessLevelProvider Address of the Access Level provider
+     * @param _provider Address of the Access Level provider
      */
-    function setAccessLevelProvider(address _accessLevelProvider) external onlyAppAdministrator {
-        if (_accessLevelProvider == address(0)) revert ZeroAddress();
-        accessLevels = IAccessLevels(_accessLevelProvider);
+    function setAccessLevelProvider(address _provider) external onlyAppAdministrator {
+        if (_provider == address(0)) revert ZeroAddress();
+        accessLevels = IAccessLevels(_provider);
+        emit AccessLevelProviderSet(_provider);
     }
 
     /**
@@ -583,6 +585,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
         tokenList.push(_tokenAddress);
+        emit TokenRegistered(_token, _tokenAddress);
     }
 
     /**
@@ -644,6 +647,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function registerAMM(address _AMMAddress) external onlyAppAdministrator {
         if (_AMMAddress == address(0)) revert ZeroAddress();
         ammList.push(_AMMAddress);
+        emit AMMRegistered(_AMMAddress);
     }
 
     /**
@@ -693,6 +697,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function registerTreasury(address _treasuryAddress) external onlyAppAdministrator {
         if (_treasuryAddress == address(0)) revert ZeroAddress();
         treasuryList.push(_treasuryAddress);
+        emit TreasuryRegistered(_treasuryAddress);
     }
 
     /**
@@ -711,6 +716,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function registerStaking(address _stakingAddress) external onlyAppAdministrator {
         if (_stakingAddress == address(0)) revert ZeroAddress();
         stakingList.push(_stakingAddress);
+        emit StakingRegistered(_stakingAddress);
     }
 
     /**
@@ -793,7 +799,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function setNewApplicationHandlerAddress(address _newApplicationHandler) external onlyAppAdministrator {
         applicationHandler = ProtocolApplicationHandler(_newApplicationHandler);
         applicationHandlerAddress = _newApplicationHandler;
-        emit HandlerConnected( applicationHandlerAddress, address(this)); 
+        emit HandlerConnected(applicationHandlerAddress, address(this));
     }
 
     /**

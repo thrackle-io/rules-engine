@@ -10,11 +10,12 @@ pragma solidity 0.8.17;
 
 interface IAppLevelEvents {
     ///AppManager
-    event HandlerConnected(address indexed handlerAddress, address indexed appManager); 
+    event HandlerConnected(address indexed handlerAddress, address indexed appManager);
     event RoleCheck(string contractName, string functionName, address checkedAddress, bytes32 checkedRole);
     event AppManagerDeployed(address indexed deployedAddress);
     event AppManagerDeployedForUpgrade(address indexed deployedAddress);
     event AppManagerUpgrade(address indexed deployedAddress, address replacedAddress);
+    event AppManagerAddressSet(address indexed _address);
     event RemoveFromRegistry(string contractName, address contractAddress);
     event RiskAdminAdded(address newAdmin);
     event RiskAdminRemoved(address removedAdmin);
@@ -22,20 +23,30 @@ interface IAppLevelEvents {
     event AccessTierRemoved(address removedAdmin);
     event AddAppAdministrator(address newAppAdministrator);
     event RemoveAppAdministrator(address removedAppAdministrator);
+    ///Registrations
+    event TokenRegistered(string indexed _token, address indexed _address);
+    event AMMRegistered(address indexed _address);
+    event TreasuryRegistered(address indexed _address);
+    event StakingRegistered(address indexed _address);
     ///Accounts
+    event AccountProviderSet(address indexed _address);
     event AccountAdded(address indexed account, uint256 date);
     event AccountRemoved(address indexed account, uint256 date);
     ///GeneralTags
+    event GeneralTagProviderSet(address indexed _address);
     event GeneralTagAdded(address indexed _address, bytes32 indexed _tag, uint256 date);
     event GeneralTagRemoved(address indexed _address, bytes32 indexed _tag, uint256 date);
     event TagAlreadyApplied(address indexed _address);
     ///AccessLevels
+    event AccessLevelProviderSet(address indexed _address);
     event AccessLevelAdded(address indexed _address, uint8 indexed _level, uint256 date);
     event AccessLevelRemoved(address indexed _address, uint256 date);
     ///PauseRules
+    event PauseRuleProviderSet(address indexed _address);
     event PauseRuleAdded(uint256 indexed pauseStart, uint256 indexed pauseStop);
     event PauseRuleRemoved(uint256 indexed pauseStart, uint256 indexed pauseStop);
     ///RiskScores
+    event RiskProviderSet(address indexed _address);
     event RiskScoreAdded(address indexed _address, uint8 _score, uint256 date);
     event RiskScoreRemoved(address indexed _address, uint256 date);
 }
@@ -96,6 +107,14 @@ interface ITokenHandlerEvents {
     event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
     /// Rule activated
     event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
+    event AppManagerAddressSet(address indexed _address);
+    /// Fees
+    event FeeActivationSet(bool indexed _activation);
+    /// Pricing
+    event ERC721PricingAddressSet(address indexed _address);
+    event ERC20PricingAddressSet(address indexed _address);
+    /// Configuration
+    event ERC721AddressSet(address indexed _address);
 }
 
 /**
@@ -149,4 +168,6 @@ interface IApplicationEvents {
     ///Fees
     event FeeTypeAdded(bytes32 indexed tag, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount, uint256 date);
     event FeeTypeRemoved(bytes32 indexed tag, uint256 date);
+    ///AppManager set
+    event AppManagerAddressSet(address indexed _address);
 }

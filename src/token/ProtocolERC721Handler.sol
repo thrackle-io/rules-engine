@@ -23,7 +23,7 @@ import "../pricing/IProtocolERC20Pricing.sol";
 import "./data/Fees.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
-import { IAssetHandlerErrors } from "../interfaces/IErrors.sol";
+import {IAssetHandlerErrors} from "../interfaces/IErrors.sol";
 
 contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministratorOrOwnerOnly, IAssetHandlerErrors {
     /**
@@ -64,8 +64,8 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     uint256 private transferVolume;
     uint64 private lastTransferTs;
     uint64 private lastSupplyUpdateTime;
-    int256 private volumeTotalForPeriod; 
-    uint256 private totalSupplyForPeriod; 
+    int256 private volumeTotalForPeriod;
+    uint256 private totalSupplyForPeriod;
     /// Data contracts
     Fees fees;
     bool feeActive;
@@ -165,8 +165,15 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
         if (totalSupplyVolatilityRuleActive && (_from == address(0x00) || _to == address(0x00))) {
-            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(totalSupplyVolatilityRuleId, volumeTotalForPeriod, totalSupplyForPeriod, IToken(msg.sender).totalSupply(), _to == address(0x00)? int(_amount) * -1:int(_amount), lastSupplyUpdateTime);
-            lastSupplyUpdateTime = uint64(block.timestamp); 
+            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(
+                totalSupplyVolatilityRuleId,
+                volumeTotalForPeriod,
+                totalSupplyForPeriod,
+                IToken(msg.sender).totalSupply(),
+                _to == address(0x00) ? int(_amount) * -1 : int(_amount),
+                lastSupplyUpdateTime
+            );
+            lastSupplyUpdateTime = uint64(block.timestamp);
         }
     }
 
@@ -280,6 +287,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      */
     function setFeeActivation(bool on_off) external appAdministratorOrOwnerOnly(appManagerAddress) {
         feeActive = on_off;
+        emit FeeActivationSet(on_off);
     }
 
     /**
@@ -358,6 +366,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     function setNFTPricingAddress(address _address) external appAdministratorOrOwnerOnly(appManagerAddress) {
         nftPricingAddress = _address;
         nftPricer = IProtocolERC721Pricing(_address);
+        emit ERC721PricingAddressSet(_address);
     }
 
     /**
@@ -367,6 +376,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     function setERC20PricingAddress(address _address) external appAdministratorOrOwnerOnly(appManagerAddress) {
         erc20PricingAddress = _address;
         erc20Pricer = IProtocolERC20Pricing(_address);
+        emit ERC20PricingAddressSet(_address);
     }
 
     /**
@@ -725,7 +735,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         }
     }
 
-        /**
+    /**
      * @dev Retrieve the total supply volatility rule id
      * @return totalSupplyVolatilityRuleId rule id
      */

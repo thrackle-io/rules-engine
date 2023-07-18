@@ -54,6 +54,7 @@ contract ProtocolERC721Umin is Initializable, AppAdministratorOnlyU, IApplicatio
      */
     function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
         appManagerAddress = _appManagerAddress;
+        emit AppManagerAddressSet(_appManagerAddress);
     }
 
     /**
