@@ -112,6 +112,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param account address to be added
      */
     function addAppAdministrator(address account) external onlyAppAdministrator {
+        if (account == address(0)) revert ZeroAddress(); 
         grantRole(APP_ADMIN_ROLE, account);
         emit AddAppAdministrator(account);
     }
@@ -161,6 +162,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param account address to be added as a access tier
      */
     function addAccessTier(address account) external onlyAppAdministrator {
+        if (account == address(0)) revert ZeroAddress();
         grantRole(ACCESS_TIER_ADMIN_ROLE, account);
         emit AccessTierAdded(account);
     }
@@ -210,6 +212,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param account address to be added
      */
     function addRiskAdmin(address account) external onlyAppAdministrator {
+        if (account == address(0)) revert ZeroAddress();
         grantRole(RISK_ADMIN_ROLE, account);
         emit RiskAdminAdded(account);
     }
@@ -579,6 +582,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _tokenAddress Address corresponding to the tokenId
      */
     function registerToken(string calldata _token, address _tokenAddress) external onlyAppAdministrator {
+        if (_tokenAddress == address(0)) revert ZeroAddress();
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
         for (uint256 i = 0; i < tokenList.length;) {
@@ -806,6 +810,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @notice this is for upgrading to a new ApplicationHandler contract
      */
     function setNewApplicationHandlerAddress(address _newApplicationHandler) external onlyAppAdministrator {
+        if (_newApplicationHandler == address(0)) revert ZeroAddress();
         applicationHandler = ProtocolApplicationHandler(_newApplicationHandler);
         applicationHandlerAddress = _newApplicationHandler;
         emit HandlerConnected( applicationHandlerAddress, address(this)); 
@@ -863,6 +868,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _oldAppManagerAddress address of the old AppManager
      */
     function connectDataContracts(address _oldAppManagerAddress) external onlyAppAdministrator {
+        if (_oldAppManagerAddress == address(0)) revert ZeroAddress();
         AppManager oldAppManager = AppManager(_oldAppManagerAddress);
         accounts = Accounts(oldAppManager.getAccountDataAddress());
         accessLevels = IAccessLevels(oldAppManager.getAccessLevelDataAddress());

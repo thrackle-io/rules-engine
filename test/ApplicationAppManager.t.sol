@@ -39,7 +39,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         vm.stopPrank();
         vm.startPrank(address(88));
         applicationAppManager2 = new ApplicationAppManager(address(88), "Castlevania2", false);
-        applicationHandler2 = new ApplicationHandler(address(ruleProcessor), address(applicationAppManager));
+        applicationHandler2 = new ApplicationHandler(address(ruleProcessor), address(applicationAppManager2));
         applicationAppManager2.setNewApplicationHandlerAddress(address(applicationHandler2));
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
@@ -280,6 +280,45 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         vm.startPrank(address(77)); //interact as a different user
 
         applicationAppManager.revokeRole(ACCESS_TIER_ADMIN_ROLE, AccessTier);
+    }
+
+    ///---------------Zero Address checks--------------------
+    function testZeroAddressCheckAppManager() public {
+        vm.expectRevert(); 
+        applicationAppManager.connectDataContracts(address(0));
+        vm.expectRevert(); 
+        applicationAppManager.setNewApplicationHandlerAddress(address(0));
+        vm.expectRevert(); 
+        applicationAppManager.registerStaking(address(0));
+        vm.expectRevert(); 
+        applicationAppManager.registerTreasury(address(0));
+        vm.expectRevert(); 
+        applicationAppManager.registerAMM(address(0));
+        vm.expectRevert(); 
+        applicationAppManager.registerToken("FRANKS", address(0));
+        vm.expectRevert(); 
+        applicationAppManager.setAccessLevelProvider(address(0x0));
+        vm.expectRevert(); 
+        applicationAppManager.setPauseRuleProvider(address(0));
+        vm.expectRevert(); 
+        applicationAppManager.setAccountProvider(address(0));
+        vm.expectRevert(); 
+        applicationAppManager.setGeneralTagProvider(address(0));
+        vm.expectRevert(); 
+        applicationAppManager.setRiskProvider(address(0));
+
+        vm.expectRevert(); 
+        applicationAppManager.addAppAdministrator(address(0));
+        vm.expectRevert(); 
+        applicationAppManager.addAccessTier(address(0));
+        vm.expectRevert(); 
+        applicationAppManager.addRiskAdmin(address(0));
+
+        vm.expectRevert(); 
+        new ApplicationHandler(address(0), address(applicationAppManager));
+
+        vm.expectRevert(); 
+        new ApplicationHandler(address(ruleProcessor), address(0x0));
     }
 
     ///---------------USER ADMIN--------------------

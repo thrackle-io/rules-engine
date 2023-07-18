@@ -30,6 +30,7 @@ contract ProtocolERC721Umin is Initializable, AppAdministratorOnlyU, IApplicatio
     }
 
     function __ProtocolERC721_init_unchained(address _appManagerAddress) internal onlyInitializing {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         emit NewNFTDeployed(address(this), _appManagerAddress);
     }
@@ -53,6 +54,7 @@ contract ProtocolERC721Umin is Initializable, AppAdministratorOnlyU, IApplicatio
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      */
     function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
     }
 

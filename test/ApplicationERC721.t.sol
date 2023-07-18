@@ -127,6 +127,29 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFT.burn(0);
     }
 
+    function testZeroAddressChecksERC721() public {
+        vm.expectRevert();
+        new ApplicationERC721("FRANK", "FRANK", address(0x0), "https://SampleApp.io");
+        vm.expectRevert();
+        applicationNFT.connectHandlerToToken(address(0));
+        
+        /// test both address checks in constructor 
+        vm.expectRevert();
+        new ApplicationERC721Handler(address(0x0), ac, false);
+        vm.expectRevert();
+        new ApplicationERC721Handler(address(ruleProcessor), address(0x0), false);
+
+        /// test all contract address setters in handler for zero address check 
+        vm.expectRevert();
+        applicationNFTHandler.migrateDataContracts(address(0));
+        vm.expectRevert();
+        applicationNFTHandler.connectDataContracts(address(0));
+        vm.expectRevert();
+        applicationNFTHandler.setNFTPricingAddress(address(0x00));
+        vm.expectRevert();
+        applicationNFTHandler.setERC20PricingAddress(address(0x00));
+    }
+
     function testPassMinMaxAccountBalanceRule() public {
         /// mint 6 NFTs to defaultAdmin for transfer
         applicationNFT.safeMint(appAdministrator);

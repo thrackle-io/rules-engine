@@ -98,6 +98,10 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(_index, "Tayler");
         assertEq(rule.purchaseAmount, 20000000);
         assertEq(rule.purchasePeriod, 2);
+
+        /// test zero address check 
+        vm.expectRevert(); 
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(address(0), accs, pAmounts, pPeriods, sTimes);
     }
 
     /// testing only appAdministrators can add Purchase Rule
@@ -215,6 +219,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getSellRuleByIndex(_index, "Tayler");
         assertEq(rule.sellAmount, 20000000);
         assertEq(rule.sellPeriod, 22);
+        vm.expectRevert();
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(0), accs, sAmounts, sPeriod, sTimes);
+
     }
 
     /// testing only appAdministrators can add Purchase Rule
@@ -305,6 +312,8 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctPurchaseRule(_index);
         assertEq(rule.tokenPercentage, 666);
         assertEq(rule.purchasePeriod, 24);
+        vm.expectRevert(); 
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(0), 666, 24, totalSupply, startTime);
     }
 
 
@@ -439,6 +448,8 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         assertEq(rule.startingTime, 16);
         assertEq(rule.maxVolatility, 666);
         assertEq(rule.period, 100);
+        vm.expectRevert();
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(address(0), 666, 100, 16, totalSupply);
     }
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
@@ -485,6 +496,8 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         assertEq(rule.period, 1);
         assertEq(rule.startingTime, 12);
         assertEq(rule.totalSupply, 1_000_000_000_000_000 * 10 ** 18);
+        vm.expectRevert();
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(0), 2000, 1, 12, 1_000_000_000_000_000 * 10 ** 18);
     }
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
@@ -528,6 +541,8 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         assertEq(_index, 1);
         rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getMinimumTransferRule(_index);
         assertEq(rule, 300000000000000);
+        vm.expectRevert();
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(0), 300000000000000);
     }
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
@@ -594,6 +609,8 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getBalanceLimitRule(_index, "Tayler");
         assertEq(rule.minimum, 20000000);
         assertEq(rule.maximum, 20000000000000000000000000000000000000);
+        vm.expectRevert();
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(0), accs, min, max);
     }
 
     /// testing only appAdministrators can add Balance Limit Rule

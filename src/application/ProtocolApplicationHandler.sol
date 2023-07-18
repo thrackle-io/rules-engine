@@ -9,7 +9,7 @@ import "../economic/ruleStorage/RuleCodeData.sol";
 import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/IRuleProcessor.sol";
 import "src/economic/ruleProcessor/ActionEnum.sol";
-import { IInputErrors } from "../interfaces/IErrors.sol";
+import {IZeroAddressError, IInputErrors} from "../interfaces/IErrors.sol";
 
 /**
  * @title Protocol ApplicationHandler Contract
@@ -17,7 +17,7 @@ import { IInputErrors } from "../interfaces/IErrors.sol";
  * @dev This contract is injected into the appManagers.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicationHandlerEvents, IInputErrors {
+contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicationHandlerEvents, IInputErrors, IZeroAddressError {
     AppManager appManager;
     address public appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
@@ -48,6 +48,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @param _appManagerAddress address of the application AppManager.
      */
     constructor(address _ruleProcessorProxyAddress, address _appManagerAddress) {
+        if (_ruleProcessorProxyAddress == address(0) || _appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = AppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);

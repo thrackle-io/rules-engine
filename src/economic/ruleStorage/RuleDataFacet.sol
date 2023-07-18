@@ -42,6 +42,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
         uint256 _totalSupply,
         uint32 _startingHour
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_tokenPercentage > 9999) revert ValueOutOfRange(_tokenPercentage);
         if (_purchasePeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
         if (_startingHour > 23) revert InvalidHourOfTheDay();
@@ -92,6 +93,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
         uint256 _totalSupply,
         uint32 _startingHour
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_tokenPercentage > 9999) revert ValueOutOfRange(_tokenPercentage);
         if (_sellPeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
         if (_startingHour > 23) revert InvalidHourOfTheDay();
@@ -134,6 +136,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return ruleId position of new rule in array
      */
     function addPurchaseFeeByVolumeRule(address _appManagerAddr, uint256 _volume, uint16 _rateIncreased) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_volume == 0 || _rateIncreased == 0) revert ZeroValueNotPermited();
         RuleS.PurchaseFeeByVolRuleS storage data = Storage.purchaseFeeByVolumeStorage();
         NonTaggedRules.TokenPurchaseFeeByVolume memory rule = NonTaggedRules.TokenPurchaseFeeByVolume(_volume, _rateIncreased);
@@ -175,6 +178,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return ruleId position of new rule in array
      */
     function addVolatilityRule(address _appManagerAddr, uint16 _maxVolatility, uint8 _blocksPerPeriod, uint8 _hoursFrozen, uint256 _totalSupply) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_maxVolatility == 0 || _blocksPerPeriod == 0 || _hoursFrozen == 0) revert ZeroValueNotPermited();
         RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
         NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRules.TokenVolatilityRule(_maxVolatility, _blocksPerPeriod, _hoursFrozen, _totalSupply);
@@ -223,6 +227,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
         uint64 _startTime,
         uint256 _totalSupply
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_maxVolumePercentage == 0 || _hoursPerPeriod == 0) revert ZeroValueNotPermited();
         if (_startTime > 23) revert InvalidHourOfTheDay();
         if (_maxVolumePercentage > 9999) revert ValueOutOfRange(_maxVolumePercentage);
@@ -263,6 +268,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return ruleId position of new rule in array
      */
     function addMinimumTransferRule(address _appManagerAddr, uint256 _minimumTransfer) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_minimumTransfer == 0) revert ZeroValueNotPermited();
         RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
         data.minimumTransferRules.push(_minimumTransfer);
@@ -344,6 +350,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return ruleId position of rule in storage
      */
     function addOracleRule(address _appManagerAddr, uint8 _type, address _oracleAddress) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_oracleAddress == address(0)) revert ZeroAddress();
         RuleS.OracleRuleS storage data = Storage.oracleStorage();
         NonTaggedRules.OracleRule memory rule = NonTaggedRules.OracleRule(_type, _oracleAddress);
@@ -383,8 +390,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return _nftTransferCounterRules which returns location of rule in array
      */
     function addNFTTransferCounterRule(address _appManagerAddr, bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_nftTypes.length != _tradesAllowed.length) revert InputArraysMustHaveSameLength();
-
         return _addNFTTransferCounterRule(_nftTypes, _tradesAllowed);
     }
 

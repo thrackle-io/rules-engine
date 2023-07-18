@@ -467,4 +467,22 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         vm.startPrank(appAdministrator);
         applicationCoinHandlerNew.migrateDataContracts(address(applicationCoinHandler));
     }
+    function testZeroAddressErrors() public {
+        /// test both address checks in constructor 
+        vm.expectRevert();
+        new ApplicationERC20Handler(address(0x0), ac, false);
+        vm.expectRevert();
+        new ApplicationERC20Handler(address(ruleProcessor), address(0x0), false);
+
+        /// test all contract address setters in handler for zero address check 
+        vm.expectRevert();
+        applicationCoinHandler.migrateDataContracts(address(0));
+        vm.expectRevert();
+        applicationCoinHandler.connectDataContracts(address(0));
+        vm.expectRevert();
+        applicationCoinHandler.setNFTPricingAddress(address(0x00));
+        vm.expectRevert();
+        applicationCoinHandler.setERC20PricingAddress(address(0x00)); 
+
+    }
 }

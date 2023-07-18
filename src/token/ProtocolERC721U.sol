@@ -65,6 +65,7 @@ contract ProtocolERC721U is
      * @param _appManagerAddress Address of App Manager
      */
     function _initializeProtocol(address _appManagerAddress) private onlyInitializing {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         emit NewNFTDeployed(address(this), _appManagerAddress);
     }
@@ -154,6 +155,7 @@ contract ProtocolERC721U is
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      */
     function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
     }
 
