@@ -64,13 +64,4 @@ contract AccessLevels is IAccessLevels, DataModule {
     function getAccessLevel(address _account) external view returns (uint8) {
         return (levels[_account]);
     }
-
-    /**
-     * @dev Check if an account has a Access Level
-     * @param _address address of the account
-     * @return hasAccessLevel true if it has a level, false if it doesn't
-     */
-    function hasAccessLevel(address _address) external view returns (bool) {
-        return levels[_address] > 0;
-    }
 }
