@@ -112,6 +112,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param account address to be added
      */
     function addAppAdministrator(address account) external onlyAppAdministrator {
+        if (account == address(0)) revert ZeroAddress(); 
         grantRole(APP_ADMIN_ROLE, account);
         emit AddAppAdministrator(account);
     }
@@ -161,6 +162,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param account address to be added as a access tier
      */
     function addAccessTier(address account) external onlyAppAdministrator {
+        if (account == address(0)) revert ZeroAddress();
         grantRole(ACCESS_TIER_ADMIN_ROLE, account);
         emit AccessTierAdded(account);
     }
@@ -210,6 +212,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param account address to be added
      */
     function addRiskAdmin(address account) external onlyAppAdministrator {
+        if (account == address(0)) revert ZeroAddress();
         grantRole(RISK_ADMIN_ROLE, account);
         emit RiskAdminAdded(account);
     }
@@ -580,6 +583,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _tokenAddress Address corresponding to the tokenId
      */
     function registerToken(string calldata _token, address _tokenAddress) external onlyAppAdministrator {
+        if (_tokenAddress == address(0)) revert ZeroAddress();
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
         tokenList.push(_tokenAddress);

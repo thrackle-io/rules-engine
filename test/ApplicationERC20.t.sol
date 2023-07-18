@@ -112,6 +112,14 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(defaultAdmin), 9999999999999999999990 * (10 ** 18));
     }
 
+    function testZeroAddressChecksERC20() public {
+        vm.expectRevert();
+        new ApplicationERC20("FRANK", "FRANK", address(0x0));
+        vm.expectRevert();
+        applicationCoin.connectHandlerToToken(address(0));
+        
+    }
+
     /// test updating min transfer rule
     function testPassesMinTransferRule() public {
         /// We add the empty rule at index 0
