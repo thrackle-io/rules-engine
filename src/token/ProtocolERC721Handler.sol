@@ -20,7 +20,6 @@ import "../application/IAppManager.sol";
 import "../economic/AppAdministratorOrOwnerOnly.sol";
 import "../pricing/IProtocolERC721Pricing.sol";
 import "../pricing/IProtocolERC20Pricing.sol";
-import "./data/Fees.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
 import { IAssetHandlerErrors } from "../interfaces/IErrors.sol";
@@ -66,9 +65,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     uint64 private lastSupplyUpdateTime;
     int256 private volumeTotalForPeriod; 
     uint256 private totalSupplyForPeriod; 
-    /// Data contracts
-    Fees fees;
-    bool feeActive;
+
 
     /// Trade Counter data
     // map the tokenId of this NFT to the number of trades in the period
@@ -233,122 +230,6 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      */
     function _checkSimpleRules(uint256 _tokenId) internal view {
         if (minimumHoldTimeRuleActive && ownershipStart[_tokenId] > 0) ruleProcessor.checkNFTHoldTime(minimumHoldTimeHours, ownershipStart[_tokenId]);
-    }
-
-    /* <><><><><><><><><><><> Fee functions <><><><><><><><><><><><><><> */
-    /**
-     * @dev This function adds a fee to the token
-     * @param _tag meta data tag for fee
-     * @param _minBalance minimum balance for fee application
-     * @param _maxBalance maximum balance for fee application
-     * @param _feePercentage fee percentage to assess
-     * @param _targetAccount target for the fee proceeds
-     */
-    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external appAdministratorOrOwnerOnly(appManagerAddress) {
-        fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
-        feeActive = true;
-    }
-
-    /**
-     * @dev This function adds a fee to the token
-     * @param _tag meta data tag for fee
-     */
-    function removeFee(bytes32 _tag) external appAdministratorOrOwnerOnly(appManagerAddress) {
-        fees.removeFee(_tag);
-    }
-
-    /**
-     * @dev returns the full mapping of fees
-     * @param _tag meta data tag for fee
-     * @return fee struct containing fee data
-     */
-    function getFee(bytes32 _tag) external view returns (Fees.Fee memory) {
-        return fees.getFee(_tag);
-    }
-
-    /**
-     * @dev returns the full mapping of fees
-     * @return feeTotal total number of fees
-     */
-    function getFeeTotal() public view returns (uint256) {
-        return fees.getFeeTotal();
-    }
-
-    /**
-     * @dev Turn fees on/off
-     * @param on_off value for fee status
-     */
-    function setFeeActivation(bool on_off) external appAdministratorOrOwnerOnly(appManagerAddress) {
-        feeActive = on_off;
-    }
-
-    /**
-     * @dev returns the full mapping of fees
-     * @return feeActive fee activation status
-     */
-    function isFeeActive() external view returns (bool) {
-        return feeActive;
-    }
-
-    /**
-     * @dev Get all the fees/discounts for the transaction. This is assessed and returned as two separate arrays. This was necessary because the fees may go to
-     * different target accounts. Since struct arrays cannot be function parameters for external functions, two separate arrays must be used.
-     * @param _from originating address
-     * @param _balanceFrom Token balance of the sender address
-     * @return feeCollectorAccounts list of where the fees are sent
-     * @return feePercentages list of all applicable fees/discounts
-     */
-    function getApplicableFees(address _from, uint256 _balanceFrom) public view returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages) {
-        Fees.Fee memory fee;
-        bytes32[] memory _fromTags = appManager.getAllTags(_from);
-        if (_fromTags.length != 0 && !appManager.isAppAdministrator(_from)) {
-            uint feeCount;
-            uint24 discount;
-            uint discountCount;
-            // size the dynamic arrays by maximum possible fees
-            feeCollectorAccounts = new address[](_fromTags.length);
-            feePercentages = new int24[](_fromTags.length);
-            /// loop through and accumulate the fee percentages based on tags
-            for (uint i; i < _fromTags.length; ) {
-                fee = fees.getFee(_fromTags[i]);
-                // fee must be active and the initiating account must have an acceptable balance
-                if (fee.isValue && _balanceFrom < fee.maxBalance && _balanceFrom > fee.minBalance) {
-                    // if it's a discount, accumulate it for distribution among all applicable fees
-                    if (fee.feePercentage < 0) {
-                        discount = uint24((fee.feePercentage * -1)) + discount; // convert to uint
-                        discountCount += 1;
-                    } else {
-                        feePercentages[feeCount] = fee.feePercentage;
-                        feeCollectorAccounts[feeCount] = fee.feeCollectorAccount;
-                        unchecked {
-                            ++feeCount;
-                        }
-                    }
-                }
-                unchecked {
-                    ++i;
-                }
-            }
-            /// if an applicable discount(s) was found, then distribute it among all the fees
-            if (discount > 0 && feeCount != 0) {
-                // if there are fees to discount then do so
-                if (feeCount > 0) {
-                    uint24 discountSlice = ((discount * 100) / (uint24(feeCount))) / 100;
-                    for (uint i; i < feeCount; ) {
-                        // if discount is greater than fee, then set to zero
-                        if (int24(discountSlice) > feePercentages[i]) {
-                            feePercentages[i] = 0;
-                        } else {
-                            feePercentages[i] -= int24(discountSlice);
-                        }
-                        unchecked {
-                            ++i;
-                        }
-                    }
-                }
-            }
-        }
-        return (feeCollectorAccounts, feePercentages);
     }
 
     /**
@@ -797,42 +678,6 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      */
     function getMinimumHoldTimeHours() external view returns (uint256) {
         return minimumHoldTimeHours;
-    }
-
-    /// -------------DATA CONTRACT DEPLOYMENT---------------
-    /**
-     * @dev Deploy all the child data contracts. Only called internally from the constructor.
-     */
-    function deployDataContract() private {
-        fees = new Fees();
-    }
-
-    /**
-     * @dev Getter for the fee rules data contract address
-     * @return feesDataAddress
-     */
-    function getFeesDataAddress() external view returns (address) {
-        return address(fees);
-    }
-
-    /**
-     * @dev This function is used to migrate the data contracts to a new CoinHandler. Use with care because it changes ownership. They will no
-     * longer be accessible from the original CoinHandler
-     * @param _newOwner address of the new CoinHandler
-     */
-    function migrateDataContracts(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress) {
-        fees.transferOwnership(_newOwner);
-        /// Also transfer ownership of this contract to the new asset
-        transferPermissionOwnership(_newOwner, appManagerAddress);
-    }
-
-    /**
-     * @dev This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.
-     * @param _oldHandlerAddress address of the old CoinHandler
-     */
-    function connectDataContracts(address _oldHandlerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
-        ProtocolERC721Handler oldHandler = ProtocolERC721Handler(_oldHandlerAddress);
-        fees = Fees(oldHandler.getFeesDataAddress());
     }
 }
 
