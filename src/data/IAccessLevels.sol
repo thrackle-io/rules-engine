@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import "./IDataModule.sol";
-import { IAccessLevelErrors } from "../interfaces/IErrors.sol";
+import {IAccessLevelErrors} from "../interfaces/IErrors.sol";
 
 /**
  * @title AccessLevel Levels interface
@@ -30,13 +30,6 @@ interface IAccessLevels is IDataModule, IAccessLevelErrors {
      * @return level Access Level(0-4)
      */
     function getAccessLevel(address _account) external view returns (uint8);
-
-    /**
-     * @dev Check if an account has a Access Level
-     * @param _address address of the account
-     * @return hasAccessLevel true if it has a level, false if it doesn't
-     */
-    function hasAccessLevel(address _address) external view returns (bool);
 
     /**
      * @dev Add the Access Level(0-4) to multiple accounts. Restricted to Access Tiers.
