@@ -64,10 +64,10 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     uint256 private transferVolume;
     uint64 private lastTransferTs;
     uint64 private lastSupplyUpdateTime;
-    int256 private volumeTotalForPeriod; 
-    uint256 private totalSupplyForPeriod; 
+    int256 private volumeTotalForPeriod;
+    uint256 private totalSupplyForPeriod;
     /// NFT Collection Valuation Limit
-    uint256 private nftValuationLimit; 
+    uint256 private nftValuationLimit;
     /// Data contracts
     Fees fees;
     bool feeActive;
@@ -100,7 +100,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
-        /// Default value of 100 may be changed at any time with setNFTValuationLimit called by an app admin. 
+        /// Default value of 100 may be changed at any time with setNFTValuationLimit called by an app admin.
         setNFTValuationLimit(100);
         if (!_upgradeMode) {
             emit HandlerDeployed(address(this), _appManagerAddress);
@@ -169,9 +169,16 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
             lastTransferTs = uint64(block.timestamp);
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
-        if (totalSupplyVolatilityRuleActive && (_from == address(0) || _to == address(0))) {
-            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(totalSupplyVolatilityRuleId, volumeTotalForPeriod, totalSupplyForPeriod, IToken(msg.sender).totalSupply(), _to == address(0)? int(_amount) * -1:int(_amount), lastSupplyUpdateTime);
-            lastSupplyUpdateTime = uint64(block.timestamp); 
+        if (totalSupplyVolatilityRuleActive && (_from == address(0x00) || _to == address(0x00))) {
+            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(
+                totalSupplyVolatilityRuleId,
+                volumeTotalForPeriod,
+                totalSupplyForPeriod,
+                IToken(msg.sender).totalSupply(),
+                _to == address(0x00) ? int(_amount) * -1 : int(_amount),
+                lastSupplyUpdateTime
+            );
+            lastSupplyUpdateTime = uint64(block.timestamp);
         }
     }
 
@@ -285,6 +292,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      */
     function setFeeActivation(bool on_off) external appAdministratorOrOwnerOnly(appManagerAddress) {
         feeActive = on_off;
+        emit FeeActivationSet(on_off);
     }
 
     /**
@@ -364,6 +372,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         if (_address == address(0)) revert ZeroAddress();
         nftPricingAddress = _address;
         nftPricer = IProtocolERC721Pricing(_address);
+        emit ERC721PricingAddressSet(_address);
     }
 
     /**
@@ -374,6 +383,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         if (_address == address(0)) revert ZeroAddress();
         erc20PricingAddress = _address;
         erc20Pricer = IProtocolERC20Pricing(_address);
+        emit ERC20PricingAddressSet(_address);
     }
 
     /**
@@ -392,7 +402,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
 
             if (tokenAmount > 0) {
                 try IERC165(tokenList[i]).supportsInterface(0x80ac58cd) returns (bool isERC721) {
-                    if (isERC721 && tokenAmount >= nftValuationLimit) totalValuation += _getNFTCollectionValue(tokenList[i], tokenAmount); 
+                    if (isERC721 && tokenAmount >= nftValuationLimit) totalValuation += _getNFTCollectionValue(tokenList[i], tokenAmount);
                     else if (isERC721 && tokenAmount < nftValuationLimit) totalValuation += _getNFTValuePerCollection(tokenList[i], _account, tokenAmount);
                     else {
                         uint8 decimals = ERC20(tokenList[i]).decimals();
@@ -449,7 +459,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @notice This function gets the total token value in dollars of all tokens owned in each collection by address.
      * @param _tokenAddress the address of the token
      * @param _tokenAmount amount of NFTs from _tokenAddress contract
-     * @return totalValueInThisContract total valuation of tokens by collection in whole USD 
+     * @return totalValueInThisContract total valuation of tokens by collection in whole USD
      */
     function _getNFTCollectionValue(address _tokenAddress, uint256 _tokenAmount) private view returns (uint256 totalValueInThisContract) {
         if (nftPricingAddress != address(0)) {
@@ -458,6 +468,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
             revert PricingModuleNotConfigured(erc20PricingAddress, nftPricingAddress);
         }
     }
+
     /**
      * @dev Set the minMaxBalanceRuleId. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
@@ -643,7 +654,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     function setMinBalByDateRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
         minBalByDateRuleId = _ruleId;
         minBalByDateRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_BALANCE_BY_DATE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, address(this), _ruleId);
     }
 
     /**
@@ -653,9 +664,9 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     function activateMinBalByDateRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress) {
         minBalByDateRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MIN_BALANCE_BY_DATE, address(this));
+            emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE, address(this));
         } else {
-            emit ApplicationHandlerDeactivated(MIN_BALANCE_BY_DATE, address(this));
+            emit ApplicationHandlerDeactivated(MIN_ACCT_BAL_BY_DATE, address(this));
         }
     }
 
@@ -748,7 +759,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         }
     }
 
-        /**
+    /**
      * @dev Retrieve the total supply volatility rule id
      * @return totalSupplyVolatilityRuleId rule id
      */
@@ -823,23 +834,22 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     }
 
     /**
-     * @dev Set the NFT Valuation limit that will check collection price vs looping through each tokenId in collections 
+     * @dev Set the NFT Valuation limit that will check collection price vs looping through each tokenId in collections
      * @param _newNFTValuationLimit set the number of NFTs in a wallet that will check for collection price vs individual token prices
      */
     function setNFTValuationLimit(uint256 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(appManagerAddress) {
-        nftValuationLimit = _newNFTValuationLimit; 
-        emit NFTValuationLimitUpdated(_newNFTValuationLimit, address(this));  
+        nftValuationLimit = _newNFTValuationLimit;
+        emit NFTValuationLimitUpdated(_newNFTValuationLimit, address(this));
     }
 
     /**
      * @dev Get the nftValuationLimit
-     * @return nftValautionLimit number of NFTs in a wallet that will check for collection price vs individual token prices 
+     * @return nftValautionLimit number of NFTs in a wallet that will check for collection price vs individual token prices
      */
-    function getNFTValuationLimit() external view returns(uint256) {
-        return nftValuationLimit; 
+    function getNFTValuationLimit() external view returns (uint256) {
+        return nftValuationLimit;
     }
 
-    
     /// -------------DATA CONTRACT DEPLOYMENT---------------
     /**
      * @dev Deploy all the child data contracts. Only called internally from the constructor.

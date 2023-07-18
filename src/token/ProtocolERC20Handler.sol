@@ -51,7 +51,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     uint32 private adminWithdrawalRuleId;
     uint32 private minBalByDateRuleId;
     uint32 private tokenTransferVolumeRuleId;
-    uint32 private totalSupplyVolatilityRuleId; 
+    uint32 private totalSupplyVolatilityRuleId;
 
     /// on-off switches for rules
     bool private minTransferRuleActive;
@@ -61,14 +61,14 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     bool private adminWithdrawalActive;
     bool private minBalByDateRuleActive;
     bool private tokenTransferVolumeRuleActive;
-    bool private totalSupplyVolatilityRuleActive; 
+    bool private totalSupplyVolatilityRuleActive;
 
     /// token level accumulators
     uint256 private transferVolume;
-    uint64 private lastTransferTs; 
+    uint64 private lastTransferTs;
     uint64 private lastSupplyUpdateTime;
-    int256 private volumeTotalForPeriod; 
-    uint256 private totalSupplyForPeriod; 
+    int256 private volumeTotalForPeriod;
+    uint256 private totalSupplyForPeriod;
 
     IRuleProcessor immutable ruleProcessor;
     IAppManager appManager;
@@ -77,8 +77,6 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     IProtocolERC721Pricing nftPricer;
     address public erc20PricingAddress;
     address public nftPricingAddress;
-
-
 
     /**
      * @dev Constructor sets params
@@ -151,9 +149,16 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
             lastTransferTs = uint64(block.timestamp);
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
-        if (totalSupplyVolatilityRuleActive && (_from == address(0) || _to == address(0))) {
-            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(totalSupplyVolatilityRuleId, volumeTotalForPeriod, totalSupplyForPeriod, IToken(msg.sender).totalSupply(), _to == address(0)? int(_amount) * -1:int(_amount), lastSupplyUpdateTime);
-            lastSupplyUpdateTime = uint64(block.timestamp); 
+        if (totalSupplyVolatilityRuleActive && (_from == address(0x00) || _to == address(0x00))) {
+            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(
+                totalSupplyVolatilityRuleId,
+                volumeTotalForPeriod,
+                totalSupplyForPeriod,
+                IToken(msg.sender).totalSupply(),
+                _to == address(0x00) ? int(_amount) * -1 : int(_amount),
+                lastSupplyUpdateTime
+            );
+            lastSupplyUpdateTime = uint64(block.timestamp);
         }
         //added the following lines to remove warnings TODO remove later
         _balanceFrom;
@@ -330,6 +335,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      */
     function setFeeActivation(bool on_off) external appAdministratorOnly(appManagerAddress) {
         feeActive = on_off;
+        emit FeeActivationSet(on_off);
     }
 
     /**
@@ -409,6 +415,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
         if (_address == address(0)) revert ZeroAddress();
         nftPricingAddress = _address;
         nftPricer = IProtocolERC721Pricing(_address);
+        emit ERC721PricingAddressSet(_address);
     }
 
     /**
@@ -647,7 +654,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     function setMinBalByDateRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
         minBalByDateRuleId = _ruleId;
         minBalByDateRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_BALANCE_BY_DATE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, address(this), _ruleId);
     }
 
     /**
@@ -657,9 +664,9 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     function activateMinBalByDateRule(bool _on) external appAdministratorOnly(appManagerAddress) {
         minBalByDateRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MIN_BALANCE_BY_DATE, address(this));
+            emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE, address(this));
         } else {
-            emit ApplicationHandlerDeactivated(MIN_BALANCE_BY_DATE, address(this));
+            emit ApplicationHandlerDeactivated(MIN_ACCT_BAL_BY_DATE, address(this));
         }
     }
 
