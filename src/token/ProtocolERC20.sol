@@ -10,7 +10,7 @@ import "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
-import { IZeroAddressError, IProtocolERC20Errors } from "../interfaces/IErrors.sol";
+import {IZeroAddressError, IProtocolERC20Errors} from "../interfaces/IErrors.sol";
 
 /**
  * @title ERC20 Base Contract
@@ -170,6 +170,15 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
             revert ExceedingMaxSupply();
         }
         _mint(to, amount);
+    }
+
+    /**
+     * @dev Function to set the appManagerAddress and connect to the new appManager
+     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
+     */
+    function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
+        appManagerAddress = _appManagerAddress;
+        appManager = IAppManager(_appManagerAddress);
     }
 
     /**
