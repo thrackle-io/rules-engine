@@ -14,7 +14,7 @@ import "../economic/ruleStorage/RuleCodeData.sol";
 import "../pricing/IProtocolERC721Pricing.sol";
 import "../pricing/IProtocolERC20Pricing.sol";
 import "./data/Fees.sol";
-import { IAssetHandlerErrors } from "../interfaces/IErrors.sol";
+import {IZeroAddressError, IAssetHandlerErrors} from "../interfaces/IErrors.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract
@@ -22,7 +22,7 @@ import { IAssetHandlerErrors } from "../interfaces/IErrors.sol";
  * @dev This contract performs all rule checks related to the the ERC20 that implements it.
  * @notice Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
  */
-contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorOnly, IAssetHandlerErrors {
+contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorOnly, IAssetHandlerErrors, IZeroAddressError {
     using ERC165Checker for address;
     /**
      * Functions added so far:
@@ -87,6 +87,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
     constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode) {
+        if (_ruleProcessorProxyAddress == address(0) || _appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
@@ -150,8 +151,8 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
             lastTransferTs = uint64(block.timestamp);
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
-        if (totalSupplyVolatilityRuleActive && (_from == address(0x00) || _to == address(0x00))) {
-            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(totalSupplyVolatilityRuleId, volumeTotalForPeriod, totalSupplyForPeriod, IToken(msg.sender).totalSupply(), _to == address(0x00)? int(_amount) * -1:int(_amount), lastSupplyUpdateTime);
+        if (totalSupplyVolatilityRuleActive && (_from == address(0) || _to == address(0))) {
+            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(totalSupplyVolatilityRuleId, volumeTotalForPeriod, totalSupplyForPeriod, IToken(msg.sender).totalSupply(), _to == address(0)? int(_amount) * -1:int(_amount), lastSupplyUpdateTime);
             lastSupplyUpdateTime = uint64(block.timestamp); 
         }
         //added the following lines to remove warnings TODO remove later
@@ -405,6 +406,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @param _address Nft Pricing Contract address.
      */
     function setNFTPricingAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+        if (_address == address(0)) revert ZeroAddress();
         nftPricingAddress = _address;
         nftPricer = IProtocolERC721Pricing(_address);
     }
@@ -414,6 +416,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @param _address ERC20 Pricing Contract address.
      */
     function setERC20PricingAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+        if (_address == address(0)) revert ZeroAddress();
         erc20PricingAddress = _address;
         erc20Pricer = IProtocolERC20Pricing(_address);
     }
@@ -770,6 +773,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @param _newOwner address of the new CoinHandler
      */
     function migrateDataContracts(address _newOwner) external appAdministratorOnly(appManagerAddress) {
+        if (_newOwner == address(0)) revert ZeroAddress();
         fees.transferOwnership(_newOwner);
     }
 
@@ -778,6 +782,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @param _oldHandlerAddress address of the old CoinHandler
      */
     function connectDataContracts(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress) {
+        if (_oldHandlerAddress == address(0)) revert ZeroAddress();
         ProtocolERC20Handler oldHandler = ProtocolERC20Handler(_oldHandlerAddress);
         fees = Fees(oldHandler.getFeesDataAddress());
     }

@@ -151,6 +151,7 @@ contract ProtocolERC721A is IERC721A, Pausable, AppAdministratorOnly, IApplicati
      * @param _baseUri URI for the base token
      */
     constructor(string memory name_, string memory symbol_, address _appManagerAddress, string memory _baseUri) {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         _name = name_;
         _symbol = symbol_;
         _currentIndex = _startTokenId();
@@ -1156,6 +1157,7 @@ contract ProtocolERC721A is IERC721A, Pausable, AppAdministratorOnly, IApplicati
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      */
     function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
     }

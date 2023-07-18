@@ -40,6 +40,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @param _baseUri URI for the base token
      */
     constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ERC721(_name, _symbol) {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         setBaseURI(_baseUri);
@@ -140,6 +141,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      */
     function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
     }

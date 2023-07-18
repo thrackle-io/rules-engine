@@ -791,6 +791,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @notice this is for upgrading to a new ApplicationHandler contract
      */
     function setNewApplicationHandlerAddress(address _newApplicationHandler) external onlyAppAdministrator {
+        if (_newApplicationHandler == address(0)) revert ZeroAddress();
         applicationHandler = ProtocolApplicationHandler(_newApplicationHandler);
         applicationHandlerAddress = _newApplicationHandler;
         emit HandlerConnected( applicationHandlerAddress, address(this)); 
@@ -848,6 +849,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _oldAppManagerAddress address of the old AppManager
      */
     function connectDataContracts(address _oldAppManagerAddress) external onlyAppAdministrator {
+        if (_oldAppManagerAddress == address(0)) revert ZeroAddress();
         AppManager oldAppManager = AppManager(_oldAppManagerAddress);
         accounts = Accounts(oldAppManager.getAccountDataAddress());
         accessLevels = IAccessLevels(oldAppManager.getAccessLevelDataAddress());

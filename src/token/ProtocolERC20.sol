@@ -10,7 +10,7 @@ import "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
-import { IZeroAddressError, IProtocolERC20Errors } from "../interfaces/IErrors.sol";
+import {IZeroAddressError, IProtocolERC20Errors} from "../interfaces/IErrors.sol";
 
 /**
  * @title ERC20 Base Contract
@@ -35,6 +35,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.
      */
     constructor(string memory _name, string memory _symbol, address _appManagerAddress) ERC20(_name, _symbol) {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
 
