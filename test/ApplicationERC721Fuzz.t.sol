@@ -60,9 +60,8 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
 
         applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), "https://SampleApp.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(applicationNFT), false);
         applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
-        applicationNFTHandler.setERC721Address(address(applicationNFT));
         appManager.registerToken("THRK", address(applicationNFT));
 
         // create the oracles

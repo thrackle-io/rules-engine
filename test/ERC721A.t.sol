@@ -45,8 +45,7 @@ contract ERC721ATest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         appManager.addAppAdministrator(appAdministrator);
 
         applicationNFT = new ApplicationERC721A("PudgyParakeet", "THRK", address(appManager), "https://SampleApp.io");
-        applicationNFTHandler = ApplicationERC721Handler(applicationNFT.handlerAddress());
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(applicationNFT), false);
         applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
     }
 

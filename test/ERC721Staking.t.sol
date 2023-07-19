@@ -62,13 +62,13 @@ contract ERC721StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         /// deploying the ERC721  contract
         applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), "https://SampleApp.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(applicationNFT), false);
         applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
 
         appManager.registerToken("THRK", address(applicationNFT));
         /// deploy ERC721A contract
         applicationNFTA = new ApplicationERC721A("PudgyParakeet", "THRKA", address(appManager), "https://SampleApp.io");
-        applicationNFTAHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTAHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(applicationNFTA), false);
         applicationNFTA.connectHandlerToToken(address(applicationNFTAHandler));
         appManager.registerToken("THRKA", address(applicationNFTA));
         // Create Reward Coin
