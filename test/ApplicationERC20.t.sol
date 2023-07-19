@@ -74,7 +74,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
 
         applicationCoin = new ApplicationERC20("FRANK", "FRANK", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(applicationCoin), false);
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
 
         applicationCoin.mint(defaultAdmin, 10_000_000_000_000_000_000_000 * (10 ** 18));
@@ -300,8 +300,8 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
-        draculaCoin.connectHandlerToToken(address(applicationCoinHandler));
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(draculaCoin), false);
+        draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
         applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));
@@ -1045,7 +1045,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(1, applicationCoinHandler.getFeeTotal());
 
         /// create new handler
-        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, true);
+        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, address(applicationCoin), true);
         /// migrate data contracts to new handler
         console.log(applicationCoinHandler.owner());
         console.log(address(applicationCoin));
@@ -1068,7 +1068,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
     function testHandlerUpgradingWithFeeMigration() public {
         ///deploy new modified appliction asset handler contract
-        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, true);
+        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, address(applicationCoin), true);
         ///connect to apptoken
         applicationCoin.connectHandlerToToken(address(assetHandler));
         bytes32 tag1 = "cheap";
@@ -1157,7 +1157,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
     function testHandlerUpgradingWithoutFeeMigration() public {
         ///deploy new modified appliction asset handler contract
-        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, true);
+        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, address(applicationCoin), true);
         ///connect to apptoken
         applicationCoin.connectHandlerToToken(address(assetHandler));
 

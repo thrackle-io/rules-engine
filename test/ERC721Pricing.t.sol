@@ -47,10 +47,10 @@ contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
         /// Set up the ApplicationERC721Handler
         boredWhaleNFT = new ApplicationERC721("Bored Whale Island Club", "BWYC", address(appManager), "https://SampleApp.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(boredWhaleNFT), false);
         boredWhaleNFT.connectHandlerToToken(address(applicationNFTHandler));
         boredReptilianNFT = new ApplicationERC721("Board Reptilian Spaceship Club", "BRSC", address(appManager), "https://SampleApp.io");
-        applicationNFTHandler2 = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTHandler2 = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(boredReptilianNFT), false);
         boredReptilianNFT.connectHandlerToToken(address(applicationNFTHandler2));
 
         /// Deploy the pricing contract

@@ -46,7 +46,7 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         ac = address(appManager);
 
         applicationCoin = new ApplicationERC20("application", "GMC", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(applicationCoin), false);
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
         applicationCoin.mint(defaultAdmin, 10000000000000000000000);
     }
@@ -150,8 +150,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        for(uint i=1; i < 11; i++){
-            appManager.addGeneralTag(defaultAdmin,  bytes32(i)); //add tag
+        for (uint i = 1; i < 11; i++) {
+            appManager.addGeneralTag(defaultAdmin, bytes32(i)); //add tag
         }
         vm.expectRevert(0xa3afb2e2);
         appManager.addGeneralTag(defaultAdmin, "xtra tag"); //add tag should fail
@@ -160,8 +160,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         uint256 amount = 1;
         assertEq(applicationCoin.balanceOf(defaultAdmin), 10000000000000000000000);
         bytes32[] memory tags = new bytes32[](11);
-        for(uint i=1; i < 12; i++){
-            tags[i-1] = bytes32(i); //add tag
+        for (uint i = 1; i < 12; i++) {
+            tags[i - 1] = bytes32(i); //add tag
         }
         console.log(uint(tags[10]));
         vm.expectRevert(0xa3afb2e2);

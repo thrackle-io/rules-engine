@@ -62,9 +62,8 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
 
         applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), "https://SampleApp.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(applicationNFT), false);
         applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
-        applicationNFTHandler.setERC721Address(address(applicationNFT));
 
         /// register the token
         appManager.registerToken("THRK", address(applicationNFT));
@@ -135,11 +134,12 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         /// test both address checks in constructor
         vm.expectRevert();
-        new ApplicationERC721Handler(address(0x0), ac, false);
+        new ApplicationERC721Handler(address(0x0), ac, address(applicationNFT), false);
         vm.expectRevert();
-        new ApplicationERC721Handler(address(ruleProcessor), address(0x0), false);
+        new ApplicationERC721Handler(address(ruleProcessor), ac, address(applicationNFT), false);
+        vm.expectRevert();
+        new ApplicationERC721Handler(address(ruleProcessor), address(0x0), address(0x0), false);
 
-        /// test all contract address setters in handler for zero address check
         vm.expectRevert();
         applicationNFTHandler.setNFTPricingAddress(address(0x00));
         vm.expectRevert();
@@ -813,7 +813,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFT.safeMint(user1);
     }
 
-    function testNFTValuation() public {
+    function testNFTValuationOrig() public {
         /// mint NFTs and set price to $1USD for each token
         for (uint i = 0; i < 10; i++) {
             applicationNFT.safeMint(user1);
@@ -858,9 +858,9 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         vm.startPrank(defaultAdmin);
         /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
         ApplicationERC721 applicationNFT2 = new ApplicationERC721("ToughTurtles", "THTR", address(appManager), "https://SampleApp.io");
-        ApplicationERC721Handler applicationNFTHandler2 = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
-        applicationNFT2.connectHandlerToToken(address(applicationNFTHandler));
-        applicationNFTHandler2.setERC721Address(address(applicationNFT2));
+        console.log("applicationNFT2", address(applicationNFT2));
+        ApplicationERC721Handler applicationNFTHandler2 = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(applicationNFT2), false);
+        applicationNFT2.connectHandlerToToken(address(applicationNFTHandler2));
         /// register the token
         appManager.registerToken("THTR", address(applicationNFT2));
         ///Pricing Contracts
@@ -933,9 +933,8 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
     function testBatchMintAndBurn() public {
         /// create the batch capable NFT
         ApplicationERC721WithBatchMintBurn nftBurner = new ApplicationERC721WithBatchMintBurn("BeanBabyBurner", "THRK", address(appManager), "https://SampleApp.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(nftBurner), false);
         nftBurner.connectHandlerToToken(address(applicationNFTHandler));
-        applicationNFTHandler.setERC721Address(address(nftBurner));
         /// cannot batch burn
         /// non admins cannot batch mint
         vm.stopPrank();
@@ -949,11 +948,10 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
     function testUpgradingHandlersERC721() public {
         ///deploy new modified appliction asset handler contract
-        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), true);
+        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), address(applicationNFT), true);
         ///connect to apptoken
         applicationNFT.connectHandlerToToken(address(assetHandler));
 
-        assetHandler.setERC721Address(address(applicationNFT));
         assetHandler.setNFTPricingAddress(address(nftPricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
 

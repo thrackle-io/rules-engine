@@ -24,7 +24,12 @@ contract ApplicationERC721UScript is Script {
         ApplicationERC721U applicationNFT = new ApplicationERC721U();
         ApplicationERC721UProxy applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFT), vm.envAddress("APPLICATIONERC721U_PROXY_OWNER_ADDRESS"), "");
         ApplicationERC721U(address(applicationNFTProxy)).initialize("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"));
-        ApplicationERC721Handler applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), vm.envAddress("APPLICATION_APP_MANAGER"), false);
+        ApplicationERC721Handler applicationNFTHandler = new ApplicationERC721Handler(
+            vm.envAddress("RULE_PROCESSOR_DIAMOND"),
+            vm.envAddress("APPLICATION_APP_MANAGER"),
+            address(applicationNFT),
+            false
+        );
         ApplicationERC721U(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
         // Register the token with the application's app manager
         IAppManager(vm.envAddress("APPLICATION_APP_MANAGER")).registerToken("Frankenstein", address(applicationNFTProxy));
