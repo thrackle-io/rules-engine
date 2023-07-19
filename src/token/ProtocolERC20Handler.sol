@@ -14,7 +14,7 @@ import "../economic/ruleStorage/RuleCodeData.sol";
 import "../pricing/IProtocolERC721Pricing.sol";
 import "../pricing/IProtocolERC20Pricing.sol";
 import "./data/Fees.sol";
-import { IAssetHandlerErrors } from "../interfaces/IErrors.sol";
+import {IAssetHandlerErrors} from "../interfaces/IErrors.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract
@@ -51,7 +51,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     uint32 private adminWithdrawalRuleId;
     uint32 private minBalByDateRuleId;
     uint32 private tokenTransferVolumeRuleId;
-    uint32 private totalSupplyVolatilityRuleId; 
+    uint32 private totalSupplyVolatilityRuleId;
 
     /// on-off switches for rules
     bool private minTransferRuleActive;
@@ -61,14 +61,14 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     bool private adminWithdrawalActive;
     bool private minBalByDateRuleActive;
     bool private tokenTransferVolumeRuleActive;
-    bool private totalSupplyVolatilityRuleActive; 
+    bool private totalSupplyVolatilityRuleActive;
 
     /// token level accumulators
     uint256 private transferVolume;
-    uint64 private lastTransferTs; 
+    uint64 private lastTransferTs;
     uint64 private lastSupplyUpdateTime;
-    int256 private volumeTotalForPeriod; 
-    uint256 private totalSupplyForPeriod; 
+    int256 private volumeTotalForPeriod;
+    uint256 private totalSupplyForPeriod;
 
     IRuleProcessor immutable ruleProcessor;
     IAppManager appManager;
@@ -78,18 +78,18 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     address public erc20PricingAddress;
     address public nftPricingAddress;
 
-
-
     /**
      * @dev Constructor sets params
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
      * @param _appManagerAddress address of the application AppManager.
+     * @param _assetAddress address of the controlling asset.
      * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
-    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode) {
+    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress, bool _upgradeMode) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+        transferOwnership(_assetAddress);
         if (!_upgradeMode) {
             deployDataContract();
             emit HandlerDeployed(address(this), _appManagerAddress);
@@ -108,7 +108,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, ActionTypes _action) external returns (bool) {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, ActionTypes _action) external onlyOwner returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         // // All transfers to treasury account are allowed
@@ -151,8 +151,15 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
         if (totalSupplyVolatilityRuleActive && (_from == address(0x00) || _to == address(0x00))) {
-            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(totalSupplyVolatilityRuleId, volumeTotalForPeriod, totalSupplyForPeriod, IToken(msg.sender).totalSupply(), _to == address(0x00)? int(_amount) * -1:int(_amount), lastSupplyUpdateTime);
-            lastSupplyUpdateTime = uint64(block.timestamp); 
+            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(
+                totalSupplyVolatilityRuleId,
+                volumeTotalForPeriod,
+                totalSupplyForPeriod,
+                IToken(msg.sender).totalSupply(),
+                _to == address(0x00) ? int(_amount) * -1 : int(_amount),
+                lastSupplyUpdateTime
+            );
+            lastSupplyUpdateTime = uint64(block.timestamp);
         }
         //added the following lines to remove warnings TODO remove later
         _balanceFrom;

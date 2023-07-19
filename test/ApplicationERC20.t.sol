@@ -74,11 +74,11 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
 
         applicationCoin = new ApplicationERC20("FRANK", "FRANK", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(applicationCoin), false);
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
 
         applicationCoin.mint(defaultAdmin, 10_000_000_000_000_000_000_000 * (10 ** 18));
-        
+
         /// register the token
         appManager.registerToken("FRANK", address(applicationCoin));
         /// set the token price
@@ -293,8 +293,8 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
-        draculaCoin.connectHandlerToToken(address(applicationCoinHandler));
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(draculaCoin), false);
+        draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
         applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));
@@ -943,28 +943,28 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(user1), 79_999 * (10 ** 18));
     }
 
-    /// test supply volatility rule 
+    /// test supply volatility rule
     function testSupplyVolatilityRule() public {
         /// burn tokens to specific supply
         applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
         applicationCoin.mint(defaultAdmin, 100_000 * (10 ** 18));
-        applicationCoin.transfer(user1, 5000 * (10**18));
+        applicationCoin.transfer(user1, 5000 * (10 ** 18));
 
-        /// create rule params 
-        uint16 volatilityLimit = 1000; /// 10% 
-        uint8 rulePeriod = 24; /// 24 hours 
-        uint8 startingTime = 12; /// start at noon 
-        uint256 tokenSupply = 0; /// calls totalSupply() for the token 
+        /// create rule params
+        uint16 volatilityLimit = 1000; /// 10%
+        uint8 rulePeriod = 24; /// 24 hours
+        uint8 startingTime = 12; /// start at noon
+        uint256 tokenSupply = 0; /// calls totalSupply() for the token
 
-        /// set rule id and activate 
+        /// set rule id and activate
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index); 
-        /// move within period 
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index);
+        /// move within period
         vm.warp(Blocktime + 13 hours);
-        console.log(applicationCoin.totalSupply()); 
+        console.log(applicationCoin.totalSupply());
         vm.stopPrank();
         vm.startPrank(user1);
-        /// mint tokens to the cap 
+        /// mint tokens to the cap
         applicationCoin.mint(user1, 1);
         applicationCoin.mint(user1, 1000 * (10 ** 18));
         applicationCoin.mint(user1, 8000 * (10 ** 18));
@@ -972,31 +972,28 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.expectRevert(0x81af27fa);
         applicationCoin.mint(user1, 6500 * (10 ** 18));
 
-        /// move out of rule period 
+        /// move out of rule period
         vm.warp(Blocktime + 40 hours);
         applicationCoin.mint(user1, 2550 * (10 ** 18));
 
-        /// burn tokens 
-        /// move into fresh period 
+        /// burn tokens
+        /// move into fresh period
         vm.warp(Blocktime + 95 hours);
         applicationCoin.burn(1000 * (10 ** 18));
         applicationCoin.burn(1000 * (10 ** 18));
         applicationCoin.burn(8000 * (10 ** 18));
 
         vm.expectRevert(0x81af27fa);
-        applicationCoin.burn(2550 * (10 ** 18)); 
+        applicationCoin.burn(2550 * (10 ** 18));
 
-        applicationCoin.mint(user1, 2550 * (10 ** 18));
-        applicationCoin.burn(2550 * (10 ** 18)); 
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
-
-
-
+        applicationCoin.mint(user1, 2550 * (10 ** 18));
+        applicationCoin.burn(2550 * (10 ** 18));
     }
 
     function testDataContractMigration() public {
@@ -1016,7 +1013,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(1, applicationCoinHandler.getFeeTotal());
 
         /// create new handler
-        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, true);
+        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, address(applicationCoin), true);
         /// migrate data contracts to new handler
         console.log(applicationCoinHandler.owner());
         console.log(address(applicationCoin));
@@ -1038,7 +1035,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
     function testHandlerUpgrading() public {
         ///deploy new modified appliction asset handler contract
-        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, true);
+        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, address(applicationCoin), true);
         ///connect to apptoken
         applicationCoin.connectHandlerToToken(address(assetHandler));
         ///connect data contract

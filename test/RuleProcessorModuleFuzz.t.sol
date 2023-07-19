@@ -5,22 +5,23 @@ import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import {TaggedRuleDataFacet as TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import "./RuleStorageDiamondTestUtil.sol";
-import "../src/application/AppManager.sol";
+import "src/application/AppManager.sol";
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "../src/economic/ruleStorage/RuleDataInterfaces.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {RuleDataFacet as NonTaggedRuleFacet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
-import "../src/application/AppManager.sol";
-import "../src/example/application/ApplicationHandler.sol";
+import "src/application/AppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-import "../src/application/AppManager.sol";
-import "../src/application/AppManager.sol";
-import "../src/example/OracleRestricted.sol";
-import "../src/example/OracleAllowed.sol";
-import "../src/example/ApplicationERC20Handler.sol";
-import "../src/example/ApplicationAppManager.sol";
+import "src/application/AppManager.sol";
+import "src/application/AppManager.sol";
+import "src/example/OracleRestricted.sol";
+import "src/example/OracleAllowed.sol";
+import "src/example/ApplicationERC20Handler.sol";
+import "src/example/ApplicationERC20.sol";
+import "src/example/ApplicationAppManager.sol";
 import "./DiamondTestUtil.sol";
-import "../src/example/pricing/ApplicationERC20Pricing.sol";
-import "../src/example/pricing/ApplicationERC721Pricing.sol";
+import "src/example/pricing/ApplicationERC20Pricing.sol";
+import "src/example/pricing/ApplicationERC721Pricing.sol";
 
 contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     // Store the FacetCut struct for each NonTaggedRuleFacetthat is being deployed.
@@ -31,6 +32,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
     RuleStorageDiamond ruleStorageDiamond;
     RuleProcessorDiamond ruleProcessor;
     ApplicationERC20Handler applicationCoinHandler;
+    ApplicationERC20 applicationCoin;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationAppManager appManager;
@@ -61,7 +63,8 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         ac = address(appManager);
         applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoin = new ApplicationERC20("TestCoin", "TCN", address(appManager));
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(applicationCoin), false);
         // create the oracles
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
@@ -74,7 +77,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         //     NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, i+1);
         //     unchecked{ ++i;}
         // }
-        vm.warp(Blocktime); 
+        vm.warp(Blocktime);
     }
 
     /***************** Test Setters and Getters *****************/
@@ -434,7 +437,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         vm.startPrank(sender);
         vm.assume(maxChange < 9999 && maxChange > 0);
         if (maxChange < 100) maxChange = 100;
-        if (hFrozen > 23) hFrozen = 23; 
+        if (hFrozen > 23) hFrozen = 23;
         if (hPeriod > 23) hPeriod = 23;
         if ((sender != defaultAdmin && sender != appAdministrator) || maxChange == 0 || hPeriod == 0 || hFrozen == 0) vm.expectRevert();
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, maxChange, hPeriod, hFrozen, totalSupply);

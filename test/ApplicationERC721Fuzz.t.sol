@@ -70,7 +70,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         oracleRestricted = new OracleRestricted();
 
         draculaCoin = new ApplicationERC20("applicationCoin", "DRAC", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(draculaCoin), false);
         draculaCoin.connectHandlerToToken(address(applicationCoinHandler));
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));
@@ -976,25 +976,25 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
     }
 
     function testTotalSupplyVolatilityERC721Fuzz(uint8 _addressIndex, uint16 volLimit) public {
-        /// test params 
+        /// test params
         vm.assume(volLimit < 9999 && volLimit > 0);
         if (volLimit < 100) volLimit = 100;
-        vm.warp(Blocktime); 
-        uint8 rulePeriod = 24; /// 24 hours 
-        uint8 startingTime = 12; /// start at noon 
+        vm.warp(Blocktime);
+        uint8 rulePeriod = 24; /// 24 hours
+        uint8 startingTime = 12; /// start at noon
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         address rich_user = addressList[0];
-        /// mint initial supply 
+        /// mint initial supply
         for (uint i = 0; i < 10; i++) {
             applicationNFT.safeMint(defaultAdmin);
         }
         applicationNFT.safeTransferFrom(defaultAdmin, rich_user, 9);
-        /// create and activate rule 
+        /// create and activate rule
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), volLimit, rulePeriod, startingTime, tokenSupply);
         applicationNFTHandler.setTotalSupplyVolatilityRuleId(_index);
 
-        /// determine the maximum burn/mint amount for inital test 
+        /// determine the maximum burn/mint amount for inital test
         uint256 maxVol = uint256(volLimit) / 1000;
         console.logUint(maxVol);
         vm.stopPrank();
@@ -1009,15 +1009,15 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         if (maxVol == 0) {
             vm.expectRevert();
             applicationNFT.safeMint(rich_user);
-        } 
+        }
         if (maxVol == 0) {
             vm.expectRevert();
             applicationNFT.safeMint(rich_user);
-        } 
-        /// at vol limit 
+        }
+        /// at vol limit
         if ((10000 / applicationNFT.totalSupply()) > volLimit) {
             vm.expectRevert();
-            applicationNFT.burn(9); 
+            applicationNFT.burn(9);
         } else {
             applicationNFT.burn(9);
             applicationNFT.safeMint(rich_user); // token 10
@@ -1025,8 +1025,6 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
             applicationNFT.safeMint(rich_user);
             applicationNFT.burn(11);
         }
-        
-
     }
 
     function testTheWholeProtocolThroughNFT(uint32 priceA, uint32 priceB, uint16 priceC, uint8 riskScore, bytes32 tag1) public {

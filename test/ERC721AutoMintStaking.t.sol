@@ -72,7 +72,7 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
         appManager.registerToken("THRKA", address(applicationNFTA));
         // Create Reward Coin
         rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(rewardCoin), false);
         rewardCoin.connectHandlerToToken(address(applicationCoinHandler));
         ///Create ERC721 Staking Contract
         applicationTokens = [address(applicationNFT), address(applicationNFTA)];
