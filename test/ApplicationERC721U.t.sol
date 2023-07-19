@@ -67,11 +67,10 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         applicationNFT = new ApplicationERC721U();
         applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFT), proxyOwner, "");
         ApplicationERC721U(address(applicationNFTProxy)).initialize("Prime Eternal", "CHAMP", address(appManager));
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(applicationNFTProxy), false);
         ApplicationERC721U(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        applicationNFTHandler.setERC721Address(address(applicationNFTProxy));
         /// register the token
         appManager.registerToken("THRK", address(applicationNFTProxy));
 
@@ -774,11 +773,10 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
 
     function testUpgradingHandlersUpgradeable() public {
         ///deploy new modified appliction asset handler contract
-        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), true);
+        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), address(applicationNFTProxy), true);
         ///connect to apptoken
         ApplicationERC721U(address(applicationNFTProxy)).connectHandlerToToken(address(assetHandler));
 
-        assetHandler.setERC721Address(address(applicationNFTProxy));
         assetHandler.setNFTPricingAddress(address(nftPricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
 
@@ -904,11 +902,10 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         ///deploy new modified appliction asset handler contract
-        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), true);
+        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), address(applicationNFTProxy), true);
         ///connect to apptoken
         ApplicationERC721U(address(applicationNFTProxy)).connectHandlerToToken(address(assetHandler));
 
-        assetHandler.setERC721Address(address(applicationNFTProxy));
         assetHandler.setNFTPricingAddress(address(nftPricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
 

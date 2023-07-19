@@ -59,19 +59,21 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
         appManager.addAppAdministrator(appAdministrator);
         /// deploying the ERC721  contract
         applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), "https://SampleApp.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(applicationNFT), false);
         applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
 
         appManager.registerToken("THRK", address(applicationNFT));
+
         /// deploy ERC721 contract
         applicationNFT2 = new ApplicationERC721("PudgyParakeet", "THRKA", address(appManager), "https://SampleApp.io");
-        applicationNFT2Handler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFT2Handler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(applicationNFT2), false);
         applicationNFT2.connectHandlerToToken(address(applicationNFT2Handler));
         applicationNFT2Handler.setERC721Address(address(applicationNFT2));
         appManager.registerToken("THRKA", address(applicationNFT2));
+
         // Create Reward Coin
         rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(rewardCoin), false);
         rewardCoin.connectHandlerToToken(address(applicationCoinHandler));
         ///Create ERC721 Staking Contract
         applicationTokens = [address(applicationNFT), address(applicationNFT2)];
@@ -80,7 +82,7 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
         rewardsPerAddress[1] = ruleBArray;
         ///Test NFT for testing staking collection update function (not wired up to handlers)
         testNFT = new ApplicationERC721("TestOnly", "TST", address(appManager), "https://SampleApp.io");
-        testNFT.connectHandlerToToken(address(new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false)));
+        testNFT.connectHandlerToToken(address(new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(testNFT), false)));
         stakingContract = new ERC721AutoMintStaking(address(rewardCoin), applicationTokens, rewardsPerAddress, address(appManager));
 
         /// Register stakingContract for Minting
@@ -100,7 +102,7 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
     function testConstructorInvalidSetup() public {
         ///Test NFT for testing staking collection update function (not wired up to handlers)
         ApplicationERC721 nft1 = new ApplicationERC721("TestOnly", "TST", address(appManager), "https://SampleApp.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(nft1), false);
         nft1.connectHandlerToToken(address(applicationNFTHandler));
         uint128[7][] memory rewardsPerAddress = new uint128[7][](1);
         rewardsPerAddress[0] = ruleAArray;

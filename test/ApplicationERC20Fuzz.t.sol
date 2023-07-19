@@ -59,7 +59,7 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
 
         applicationCoin = new ApplicationERC20("application", "FRANK", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(applicationCoin), false);
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
 
         /// register the token
@@ -564,8 +564,8 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
-        draculaCoin.connectHandlerToToken(address(applicationCoinHandler));
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(draculaCoin), false);
+        draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
         applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         appManager.registerToken("DRAC", address(draculaCoin));

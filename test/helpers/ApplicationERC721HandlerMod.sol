@@ -14,9 +14,15 @@ contract ApplicationERC721HandlerMod is ProtocolERC721Handler {
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
      * @param _ruleProcessorProxyAddress of Rule processor Proxy
      * @param _appManagerAddress Address of App Manager
+     * @param _assetAddress Address of the controlling address
      * @param _upgradeMode specifies whether this is a fresh Handler or an upgrade replacement.
      */
-    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode) ProtocolERC721Handler(_ruleProcessorProxyAddress, _appManagerAddress, _upgradeMode) {}
+    constructor(
+        address _ruleProcessorProxyAddress,
+        address _appManagerAddress,
+        address _assetAddress,
+        bool _upgradeMode
+    ) ProtocolERC721Handler(_ruleProcessorProxyAddress, _appManagerAddress, _assetAddress, _upgradeMode) {}
 
     /**
      * This function is used for testing the upgradability of the Handler contract.

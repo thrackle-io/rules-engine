@@ -5,21 +5,21 @@ import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "./DiamondTestUtil.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-import "../src/example/application/ApplicationHandler.sol";
-import "../src/application/AppManager.sol";
-import "../src/example/ApplicationAppManager.sol";
-import "../src/example/ApplicationERC20Handler.sol";
+import "src/example/application/ApplicationHandler.sol";
+import "src/application/AppManager.sol";
+import "src/example/ApplicationAppManager.sol";
+import "src/example/ApplicationERC20Handler.sol";
 
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {INonTaggedRules as NonTaggedRules} from "../src/economic/ruleStorage/RuleDataInterfaces.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {RuleDataFacet as Facet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
-import "../src/example/OracleRestricted.sol";
-import "../src/example/OracleAllowed.sol";
-import "../src/example/pricing/ApplicationERC20Pricing.sol";
-import "../src/example/pricing/ApplicationERC721Pricing.sol";
-import "../src/token/data/Fees.sol";
+import "src/example/OracleRestricted.sol";
+import "src/example/OracleAllowed.sol";
+import "src/example/pricing/ApplicationERC20Pricing.sol";
+import "src/example/pricing/ApplicationERC721Pricing.sol";
+import "src/token/data/Fees.sol";
 
 /**
  * @title Application Coin Handler Test
@@ -70,7 +70,8 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         ac = address(appManager);
         applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), ac, false);
+        /// create erc20 handler but with admin as its owner so it can call the handler directly
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), ac, defaultAdmin, false);
 
         // create the oracles
         oracleAllowed = new OracleAllowed();
@@ -446,7 +447,7 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         assertEq(1, applicationCoinHandler.getFeeTotal());
 
         /// create new handler
-        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, false);
+        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, address(this), false);
         /// connect the old data contract to the new handler
         applicationCoinHandler.proposeDataContractMigration(address(applicationCoinHandlerNew));
         applicationCoinHandlerNew.confirmDataContractMigration(address(applicationCoinHandler));
@@ -471,11 +472,10 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
     function testZeroAddressErrors() public {
         /// test both address checks in constructor
         vm.expectRevert();
-        new ApplicationERC20Handler(address(0x0), ac, false);
+        new ApplicationERC20Handler(address(0x0), ac, defaultAdmin, false);
         vm.expectRevert();
-        new ApplicationERC20Handler(address(ruleProcessor), address(0x0), false);
+        new ApplicationERC20Handler(address(ruleProcessor), address(0x0), defaultAdmin, false);
 
-        /// test all contract address setters in handler for zero address check
         vm.expectRevert();
         applicationCoinHandler.setNFTPricingAddress(address(0x00));
         vm.expectRevert();

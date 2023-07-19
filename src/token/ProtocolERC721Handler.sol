@@ -71,13 +71,16 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon {
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
      * @param _ruleProcessorProxyAddress of token rule router proxy
      * @param _appManagerAddress Address of App Manager
+     * @param _assetAddress Address of the controlling address
      * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
-    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode) {
-        if (_ruleProcessorProxyAddress == address(0) || _appManagerAddress == address(0)) revert ZeroAddress();
+    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress, bool _upgradeMode) {
+        if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+        transferOwnership(_assetAddress);
+        setERC721Address(_assetAddress);
         /// Default value of 100 may be changed at any time with setNFTValuationLimit called by an app admin.
         setNFTValuationLimit(100);
         if (!_upgradeMode) {
@@ -98,7 +101,8 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon {
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return _success equals true if all checks pass
      */
-    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external returns (bool) {
+
+    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external onlyOwner returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
@@ -350,7 +354,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon {
      * @dev Set the parent ERC721 address
      * @param _address address of the ERC721
      */
-    function setERC721Address(address _address) external appAdministratorOrOwnerOnly(appManagerAddress) {
+    function setERC721Address(address _address) public appAdministratorOrOwnerOnly(appManagerAddress) {
         if (_address == address(0)) revert ZeroAddress();
         erc721Address = _address;
     }

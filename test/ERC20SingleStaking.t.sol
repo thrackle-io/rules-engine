@@ -56,17 +56,15 @@ contract ERC20StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
 
-        // Set up the ApplicationERC20Handler
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
         // Create two tokens and mint a bunch
         stakingCoin = new ApplicationERC20("stakingCoin", "STK", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(stakingCoin), false);
         stakingCoin.connectHandlerToToken(address(applicationCoinHandler));
         stakingCoin.mint(user1, 2_000_000_000_000_000_000_000_000);
 
         rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
-        rewardCoin.connectHandlerToToken(address(applicationCoinHandler));
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(rewardCoin), false);
+        rewardCoin.connectHandlerToToken(address(applicationCoinHandler2));
 
         stakingContract = new ERC20Staking(address(rewardCoin), address(stakingCoin), address(appManager));
 
