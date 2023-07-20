@@ -369,7 +369,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _pauseStop End of the pause window
      */
     function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyAppAdministrator {
-        
         pauseRules.addPauseRule(_pauseStart, _pauseStop);
     }
 
@@ -582,6 +581,12 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function registerToken(string calldata _token, address _tokenAddress) external onlyAppAdministrator {
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
+        for (uint256 i = 0; i < tokenList.length;) {
+            if (tokenList[i] == _tokenAddress) revert AddressAlreadyRegistered();
+            unchecked {
+                ++i;
+            }
+        }
         tokenList.push(_tokenAddress);
     }
 
@@ -617,6 +622,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev This function removes an address from a dynamic address array by putting the last element in the one to remove and then removing last element.
+     * @notice This function should only be called with arrays that are free of duplicates. 
      * @param _addressArray The array to have an address removed
      * @param _address The address to remove
      */
@@ -624,17 +630,23 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         if (_addressArray.length == 0) {
             revert NoAddressToRemove();
         }
+        if (_addressArray.length == 1) {
+            if (_addressArray[0] == _address) {
+                _addressArray.pop();
+            }
+        }
         if (_addressArray.length > 1) {
-            for (uint256 i = 0; i < _addressArray.length; ) {
+            for (uint256 i = 0; i < _addressArray.length;) {
                 if (_addressArray[i] == _address) {
                     _addressArray[i] = _addressArray[_addressArray.length - 1];
+                    _addressArray.pop();
+                    break;
                 }
                 unchecked {
                     ++i;
                 }
             }
         }
-        _addressArray.pop();
     }
 
     /**
@@ -643,6 +655,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function registerAMM(address _AMMAddress) external onlyAppAdministrator {
         if (_AMMAddress == address(0)) revert ZeroAddress();
+        if (isRegisteredAMM(_AMMAddress)) revert AddressAlreadyRegistered(); 
         ammList.push(_AMMAddress);
     }
 
@@ -650,7 +663,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions
      * @param _AMMAddress Address for the AMM
      */
-    function isRegisteredAMM(address _AMMAddress) external view returns (bool) {
+    function isRegisteredAMM(address _AMMAddress) public view returns (bool) {
         for (uint256 i = 0; i < ammList.length; ) {
             if (ammList[i] == _AMMAddress) {
                 return true;
@@ -674,7 +687,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function allows the devs to register their treasury addresses. This will allow for token level rule exemptions
      * @param _treasuryAddress Address for the treasury
      */
-    function isTreasury(address _treasuryAddress) external view returns (bool) {
+    function isTreasury(address _treasuryAddress) public view returns (bool) {
         for (uint256 i = 0; i < treasuryList.length; ) {
             if (treasuryList[i] == _treasuryAddress) {
                 return true;
@@ -692,6 +705,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function registerTreasury(address _treasuryAddress) external onlyAppAdministrator {
         if (_treasuryAddress == address(0)) revert ZeroAddress();
+        if (isTreasury(_treasuryAddress)) revert AddressAlreadyRegistered();
         treasuryList.push(_treasuryAddress);
     }
 
@@ -710,6 +724,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function registerStaking(address _stakingAddress) external onlyAppAdministrator {
         if (_stakingAddress == address(0)) revert ZeroAddress();
+        if (isRegisteredStaking(_stakingAddress)) revert AddressAlreadyRegistered();
         stakingList.push(_stakingAddress);
     }
 
@@ -717,7 +732,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function allows the devs to register their Staking contract addresses.
      * @param _stakingAddress Address for the Staking Contract
      */
-    function isRegisteredStaking(address _stakingAddress) external view returns (bool) {
+    function isRegisteredStaking(address _stakingAddress) public view returns (bool) {
         for (uint256 i = 0; i < stakingList.length; ) {
             if (stakingList[i] == _stakingAddress) {
                 return true;
