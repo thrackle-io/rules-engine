@@ -677,16 +677,16 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address testToken2 = address(0x222);
         address testToken3 = address(0x333);
         address testToken4 = address(0x444);
-
+        /// register multiple tokens 
         applicationAppManager.registerToken("TestCoin1", testToken1);
         applicationAppManager.registerToken("TestCoin2", testToken2);
         applicationAppManager.registerToken("TestCoin3", testToken3);
 
-        /// added user 2 twice to test _removeAddress 
+        /// remove token 2 
         applicationAppManager.deregisterToken("TestCoin2");
         /// call the token list and check the length 
         address[] memory list = applicationAppManager.getTokenList();
-        assertEq(list.length, 2); /// array length should be 2 (removed duplicated address)
+        assertEq(list.length, 2);
         /// try to register same token twice 
         applicationAppManager.registerToken("TestCoin4", testToken4);
         vm.expectRevert();
@@ -697,7 +697,8 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     function testRegisterAMM() public {
         applicationAppManager.registerAMM(address(77));
         assertTrue(applicationAppManager.isRegisteredAMM(address(77)));
-        vm.expectRevert();
+        /// this is expected to fail because you cannot register same address more than once
+        vm.expectRevert(); 
         applicationAppManager.registerAMM(address(77));
     }
 
