@@ -10,7 +10,6 @@ import "./IGeneralTags.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract GeneralTags is DataModule, IGeneralTags {
-
     mapping(address => bytes32[]) public tagRecords;
 
     /**
@@ -28,10 +27,10 @@ contract GeneralTags is DataModule, IGeneralTags {
      * protocol, so keeping this limit here prevents transfers to unexpectedly revert.
      */
     function addTag(address _address, bytes32 _tag) public onlyOwner {
-        if(_tag == "") revert BlankTag();
+        if (_tag == "") revert BlankTag();
         if (hasTag(_address, _tag)) emit TagAlreadyApplied(_address);
         else {
-            if( tagRecords[_address].length >= 10) revert MaxTagLimitReached();
+            if (tagRecords[_address].length >= 10) revert MaxTagLimitReached();
             tagRecords[_address].push(_tag);
             emit GeneralTagAdded(_address, _tag, block.timestamp);
         }
@@ -45,11 +44,11 @@ contract GeneralTags is DataModule, IGeneralTags {
      * protocol, so keeping this limit here prevents transfers to unexpectedly revert.
      */
     function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyOwner {
-        if(_tag == "") revert BlankTag();
+        if (_tag == "") revert BlankTag();
         for (uint256 i; i < _accounts.length; ) {
             if (hasTag(_accounts[i], _tag)) emit TagAlreadyApplied(_accounts[i]);
-            else{
-                if( tagRecords[_accounts[i]].length >= 10) revert MaxTagLimitReached();
+            else {
+                if (tagRecords[_accounts[i]].length >= 10) revert MaxTagLimitReached();
                 tagRecords[_accounts[i]].push(_tag);
                 emit GeneralTagAdded(_accounts[i], _tag, block.timestamp);
             }
@@ -77,15 +76,18 @@ contract GeneralTags is DataModule, IGeneralTags {
      */
     function removeTag(address _address, bytes32 _tag) external onlyOwner {
         uint256 i;
+        bool removed;
         while (i < tagRecords[_address].length) {
             while (tagRecords[_address].length > 0 && i < tagRecords[_address].length && keccak256(abi.encodePacked(tagRecords[_address][i])) == keccak256(abi.encodePacked(_tag))) {
                 _removeTag(_address, i);
+                removed = true;
             }
             unchecked {
                 ++i;
             }
         }
-        emit GeneralTagRemoved(_address, _tag, block.timestamp);
+        /// only one event should be emitted and only if a tag was actually removed
+        if (removed) emit GeneralTagRemoved(_address, _tag, block.timestamp);
     }
 
     /**
