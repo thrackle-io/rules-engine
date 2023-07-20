@@ -86,7 +86,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
     constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress, bool _upgradeMode) {
-        if (appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _appManagerAddress == address(0)) revert ZeroAddress();
+        if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);

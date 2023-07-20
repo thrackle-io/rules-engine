@@ -39,7 +39,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         vm.stopPrank();
         vm.startPrank(address(88));
         applicationAppManager2 = new ApplicationAppManager(address(88), "Castlevania2", false);
-        applicationHandler2 = new ApplicationHandler(address(ruleProcessor), address(applicationAppManager));
+        applicationHandler2 = new ApplicationHandler(address(ruleProcessor), address(applicationAppManager2));
         applicationAppManager2.setNewApplicationHandlerAddress(address(applicationHandler2));
         vm.stopPrank();
         vm.startPrank(defaultAdmin);

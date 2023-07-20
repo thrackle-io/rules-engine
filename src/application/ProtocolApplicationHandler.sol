@@ -9,7 +9,7 @@ import "../economic/ruleStorage/RuleCodeData.sol";
 import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/IRuleProcessor.sol";
 import "src/economic/ruleProcessor/ActionEnum.sol";
-import { IInputErrors } from "../interfaces/IErrors.sol";
+import {IZeroAddressError, IInputErrors} from "../interfaces/IErrors.sol";
 
 /**
  * @title Protocol ApplicationHandler Contract
@@ -17,7 +17,7 @@ import { IInputErrors } from "../interfaces/IErrors.sol";
  * @dev This contract is injected into the appManagers.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicationHandlerEvents, IInputErrors {
+contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicationHandlerEvents, IInputErrors, IZeroAddressError {
     AppManager appManager;
     address public appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
@@ -48,9 +48,11 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @param _appManagerAddress address of the application AppManager.
      */
     constructor(address _ruleProcessorProxyAddress, address _appManagerAddress) {
+        if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = AppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+        transferOwnership(_appManagerAddress);
         emit ApplicationHandlerDeployed(address(this), _appManagerAddress);
     }
 
@@ -71,7 +73,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      * @return success Returns true if allowed, false if not allowed
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external returns (bool) {
+    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external onlyOwner returns (bool) {
         _action;
         ruleProcessor.checkPauseRules(appManagerAddress);
         if (requireValuations() || AccessLevel0RuleActive) {
