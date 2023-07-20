@@ -306,7 +306,6 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationAppManager.addUser(user); //add user
         assertEq(applicationAppManager.isUser(user), true);
         assertEq(applicationAppManager.isUser(address(88)), false);
-
         applicationAppManager.removeUser(user);
         assertEq(applicationAppManager.isUser(user), false);
     }
@@ -672,12 +671,34 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         assertEq(address(77), applicationAppManager.getTokenAddress("Frankenstein"));
         applicationAppManager.deregisterToken("Frankenstein");
         assertEq(address(0), applicationAppManager.getTokenAddress("Frankenstein"));
+
+        /// test _removeAddress with multiple tokens 
+        address testToken1 = address(0x111);
+        address testToken2 = address(0x222);
+        address testToken3 = address(0x333);
+        address testToken4 = address(0x444);
+
+        applicationAppManager.registerToken("TestCoin1", testToken1);
+        applicationAppManager.registerToken("TestCoin2", testToken2);
+        applicationAppManager.registerToken("TestCoin3", testToken3);
+
+        /// added user 2 twice to test _removeAddress 
+        applicationAppManager.deregisterToken("TestCoin2");
+        /// call the token list and check the length 
+        address[] memory list = applicationAppManager.getTokenList();
+        assertEq(list.length, 2); /// array length should be 2 (removed duplicated address)
+        /// try to register same token twice 
+        applicationAppManager.registerToken("TestCoin4", testToken4);
+        vm.expectRevert();
+        applicationAppManager.registerToken("TestCoin4", testToken4);
     }
 
     /// Test the register AMM.
     function testRegisterAMM() public {
         applicationAppManager.registerAMM(address(77));
         assertTrue(applicationAppManager.isRegisteredAMM(address(77)));
+        vm.expectRevert();
+        applicationAppManager.registerAMM(address(77));
     }
 
     /// Test the deregister AMM.
@@ -686,6 +707,27 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         assertTrue(applicationAppManager.isRegisteredAMM(address(77)));
         applicationAppManager.deRegisterAMM(address(77));
         assertFalse(applicationAppManager.isRegisteredAMM(address(77)));
+    }
+
+    function testRegisterAddresses() public {
+        /// check registration of staking and treasury 
+        applicationAppManager.registerTreasury(address(0x111));
+        assertTrue(applicationAppManager.isTreasury(address(0x111)));  
+        vm.expectRevert();
+        applicationAppManager.registerTreasury(address(0x111));
+
+        applicationAppManager.registerTreasury(address(0x222));
+        applicationAppManager.registerTreasury(address(0x333));
+        applicationAppManager.deRegisterTreasury(address(0x111));
+
+        applicationAppManager.registerStaking(address(0x222));
+        assertTrue(applicationAppManager.isRegisteredStaking(address(0x222)));
+        vm.expectRevert();
+        applicationAppManager.registerStaking(address(0x222));
+
+        applicationAppManager.registerStaking(address(0x111));
+        applicationAppManager.registerStaking(address(0x333));
+
     }
 
     ///---------------UTILITY--------------------
