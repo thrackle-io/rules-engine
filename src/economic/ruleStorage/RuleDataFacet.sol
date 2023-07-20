@@ -408,12 +408,12 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
             if (_nftTypes[i] == bytes32("")) revert BlankTag();
             NonTaggedRules.NFTTradeCounterRule memory rule = NonTaggedRules.NFTTradeCounterRule(_tradesAllowed[i], true);
             data.NFTTransferCounterRule[index][_nftTypes[i]] = rule;
+            bytes32[] memory empty;
+            emit ProtocolRuleCreated(NFT_TRANSFER, index, empty);
             unchecked {
                 ++i;
             }
         }
-        bytes32[] memory empty;
-        emit ProtocolRuleCreated(NFT_TRANSFER, index, empty);
         ++data.NFTTransferCounterRuleIndex;
         return index;
     }

@@ -10,7 +10,7 @@ import {IInputErrors, ITagInputErrors} from "../../interfaces/IErrors.sol";
  * @dev This contract should not be accessed directly. All processing should go through its controlling asset(ProtocolERC20, ProtocolERC721, etc.)
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors{
+contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors {
     int256 defaultFee;
     mapping(bytes32 => Fee) feesByTag;
     uint256 feeTotal;
@@ -21,6 +21,7 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors{
         address feeCollectorAccount;
         bool isValue; // this is just for housekeeping purposes
     }
+
     /**
      * @dev This function adds a fee to the token
      * @param _tag meta data tag for fee
@@ -52,12 +53,14 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors{
      */
     function removeFee(bytes32 _tag) external onlyOwner {
         if (_tag == "") revert BlankTag();
-        // if the fee did not already exist, then decrement total
-        if (feesByTag[_tag].isValue && feeTotal > 0) {
-            feeTotal -= 1;
+        if (feesByTag[_tag].isValue) {
+            delete (feesByTag[_tag]);
+            emit FeeTypeRemoved(_tag, block.timestamp);
+            // if the fee did exist and was active, then decrement total
+            if (feeTotal > 0) {
+                feeTotal -= 1;
+            }
         }
-        delete (feesByTag[_tag]);
-        emit FeeTypeRemoved(_tag, block.timestamp);
     }
 
     /**
