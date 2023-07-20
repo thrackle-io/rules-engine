@@ -5,7 +5,7 @@ import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
-import { IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors} from "../../interfaces/IErrors.sol";
+import {IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors} from "../../interfaces/IErrors.sol";
 import "./RuleCodeData.sol";
 import "../AppAdministratorOnly.sol";
 
@@ -22,8 +22,6 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * rules is encouraged, it is preferred to add an extra rule to the
      * set instead of modifying an existing one.
      */
-
-
 
     /********************** Purchase Getters/Setters ***********************/
     /**
