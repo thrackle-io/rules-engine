@@ -23,9 +23,9 @@ import "../pricing/IProtocolERC20Pricing.sol";
 import "./data/Fees.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
-import {IAssetHandlerErrors} from "../interfaces/IErrors.sol";
+import {IZeroAddressError, IAssetHandlerErrors} from "../interfaces/IErrors.sol";
 
-contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministratorOrOwnerOnly, IAssetHandlerErrors {
+contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministratorOrOwnerOnly, IAssetHandlerErrors, IZeroAddressError {
     /**
      * Functions added so far:
      * minAccountBalance
@@ -95,6 +95,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
     constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress, bool _upgradeMode) {
+        if (appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);

@@ -14,7 +14,7 @@ import "../economic/ruleStorage/RuleCodeData.sol";
 import "../pricing/IProtocolERC721Pricing.sol";
 import "../pricing/IProtocolERC20Pricing.sol";
 import "./data/Fees.sol";
-import {IAssetHandlerErrors} from "../interfaces/IErrors.sol";
+import {IZeroAddressError, IAssetHandlerErrors} from "../interfaces/IErrors.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract
@@ -22,7 +22,7 @@ import {IAssetHandlerErrors} from "../interfaces/IErrors.sol";
  * @dev This contract performs all rule checks related to the the ERC20 that implements it.
  * @notice Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
  */
-contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorOnly, IAssetHandlerErrors {
+contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorOnly, IAssetHandlerErrors, IZeroAddressError {
     using ERC165Checker for address;
     /**
      * Functions added so far:
@@ -86,6 +86,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
     constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress, bool _upgradeMode) {
+        if (appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
