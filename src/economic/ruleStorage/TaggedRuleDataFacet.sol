@@ -5,7 +5,7 @@ import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
-import { IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors} from "../../interfaces/IErrors.sol";
+import { IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError} from "../../interfaces/IErrors.sol";
 import "./RuleCodeData.sol";
 import "../AppAdministratorOnly.sol";
 
@@ -16,7 +16,7 @@ import "../AppAdministratorOnly.sol";
  * @notice This contract sets and gets the Tagged Rules for the protocol. Rules will be applied via General Tags to accounts.
  */
 
-contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors {
+contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError {
     /**
      * Note that no update method is implemented. Since reutilization of
      * rules is encouraged, it is preferred to add an extra rule to the
@@ -43,6 +43,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         uint32[] calldata _purchasePeriods,
         uint32[] calldata _startTimes
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_accountTypes.length != _purchaseAmounts.length || _accountTypes.length != _purchasePeriods.length || _accountTypes.length != _startTimes.length) revert InputArraysMustHaveSameLength();
         return _addPurchaseRule(_accountTypes, _purchaseAmounts, _purchasePeriods, _startTimes);
     }
@@ -112,6 +113,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         uint32[] calldata _sellPeriod,
         uint32[] calldata _startTimes
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length) revert InputArraysMustHaveSameLength();
 
         return _addSellRule(_accountTypes, _sellAmounts, _sellPeriod, _startTimes);
@@ -179,6 +181,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         uint256[] calldata _minimum,
         uint256[] calldata _maximum
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_accountTypes.length != _minimum.length || _accountTypes.length != _maximum.length) revert InputArraysMustHaveSameLength();
 
         return _addBalanceLimitRules(_accountTypes, _minimum, _maximum);
@@ -245,6 +248,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         uint256[] calldata _amount,
         uint256[] calldata _releaseDate
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_accountTypes.length != _amount.length) revert InputArraysMustHaveSameLength();
         if (_accountTypes.length != _releaseDate.length) revert InputArraysMustHaveSameLength();
         return _addWithdrawalRule(_accountTypes, _amount, _releaseDate);
@@ -355,6 +359,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * will apply to all risk scores of 100.)
      */
     function addTransactionLimitByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _txnLimits) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_txnLimits.length != _riskScores.length + 1) revert InputArraysSizesNotValid();
         if (_riskScores[_riskScores.length - 1] > 99) revert RiskLevelCannotExceed99();
         for (uint i = 1; i < _riskScores.length; ) {
@@ -427,6 +432,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         uint256[] calldata _holdPeriods,
         uint256[] calldata _startTimestamps
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress(); 
         if (_accountTags.length != _holdAmounts.length || _accountTags.length != _holdPeriods.length || _accountTags.length != _startTimestamps.length) revert InputArraysMustHaveSameLength();
         return _addMinBalByDateRule(_accountTags, _holdAmounts, _holdPeriods, _startTimestamps);
     }
