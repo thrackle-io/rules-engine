@@ -369,7 +369,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _pauseStop End of the pause window
      */
     function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyAppAdministrator {
-        
         pauseRules.addPauseRule(_pauseStart, _pauseStop);
     }
 
@@ -623,6 +622,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev This function removes an address from a dynamic address array by putting the last element in the one to remove and then removing last element.
+     * @notice This function should only be called with arrays that are free of duplicates. 
      * @param _addressArray The array to have an address removed
      * @param _address The address to remove
      */
@@ -630,11 +630,17 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         if (_addressArray.length == 0) {
             revert NoAddressToRemove();
         }
-        if (_addressArray.length >= 1) {
-            for (uint256 i = 0; i < _addressArray.length; ) {
+        if (_addressArray.length == 1) {
+            if (_addressArray[0] == _address) {
+                _addressArray.pop();
+            }
+        }
+        if (_addressArray.length > 1) {
+            for (uint256 i = 0; i < _addressArray.length;) {
                 if (_addressArray[i] == _address) {
                     _addressArray[i] = _addressArray[_addressArray.length - 1];
                     _addressArray.pop();
+                    break;
                 }
                 unchecked {
                     ++i;
