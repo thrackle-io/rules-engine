@@ -174,4 +174,6 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     function getHandlerAddress() external view returns (address) {
         return handlerAddress;
     }
+
+    function proposeOwner() external pure {}
 }
