@@ -448,14 +448,14 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.safeTransferFrom(_user1, _user2, 0); // a 10-dollar NFT
         applicationNFT.safeTransferFrom(_user1, _user2, 1); // a 20-dollar NFT
 
-        if (risk > 99) vm.expectRevert();
+        if (risk >= 99) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user1, _user2, 2); // a 30-dollar NFT
 
         vm.stopPrank();
         vm.startPrank(_user2);
         applicationNFT.safeTransferFrom(_user2, _user1, 0); // a 10-dollar NFT
 
-        if (risk > 40) vm.expectRevert();
+        if (risk >= 40) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user2, _user1, 5); // a 60-dollar NFT
 
         vm.stopPrank();

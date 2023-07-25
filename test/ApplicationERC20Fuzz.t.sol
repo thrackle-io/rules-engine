@@ -430,13 +430,13 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         vm.stopPrank();
         vm.startPrank(user1);
 
-        if (risk > _riskLevel[2]) vm.expectRevert();
+        if (risk >= _riskLevel[2]) vm.expectRevert();
         applicationCoin.transfer(user2, 11 * (10 ** 18));
 
-        if (risk > 75) vm.expectRevert();
+        if (risk >= 75) vm.expectRevert();
         applicationCoin.transfer(user2, 11 * (10 ** 18));
 
-        if (risk > 50) vm.expectRevert();
+        if (risk >= 50) vm.expectRevert();
         applicationCoin.transfer(user2, 10001 * (10 ** 18));
     }
 
