@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "src/economic/AppAdministratorOnly.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
-import {IZeroAddressError} from "../interfaces/IErrors.sol";
+import {IAppManagerUserErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 
 /**
  * @title Protocol Token Common Contract
@@ -11,16 +11,28 @@ import {IZeroAddressError} from "../interfaces/IErrors.sol";
  * @notice This contract contains common variables and functions for all Protocol Tokens
  */
 
-contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvents, IZeroAddressError {
+contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvents, IZeroAddressError, IAppManagerUserErrors {
+    address private newAppManagerAddress;
     address public appManagerAddress;
     IAppManager appManager;
 
     /**
-     * @dev Function to set the appManagerAddress and connect to the new appManager
-     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
+     * @dev this function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process
+     * @param _newAppManagerAddress the new address being proposed
      */
-    function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
-        appManagerAddress = _appManagerAddress;
-        appManager = IAppManager(_appManagerAddress);
+    function proposeAppManagerAddress(address _newAppManagerAddress) external appAdministratorOnly(appManagerAddress) {
+        if (_newAppManagerAddress == address(0)) revert ZeroAddress();
+        newAppManagerAddress = _newAppManagerAddress;
+    }
+
+    /**
+     * @dev this function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address
+     */
+    function confirmAppManagerAddress() external {
+        if (newAppManagerAddress == address(0)) revert NoProposalHasBeenMade();
+        if (msg.sender != newAppManagerAddress) revert ConfirmerDoesNotMatchProposedAddress();
+        appManagerAddress = newAppManagerAddress;
+        appManager = IAppManager(appManagerAddress);
+        delete newAppManagerAddress;
     }
 }

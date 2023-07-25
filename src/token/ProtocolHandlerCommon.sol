@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import {IAssetHandlerErrors} from "../interfaces/IErrors.sol";
+import {IAssetHandlerErrors, IAppManagerUserErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
 import "src/economic/ruleStorage/RuleCodeData.sol";
 import "src/economic/IRuleProcessor.sol";
@@ -12,6 +12,7 @@ import "src/pricing/IProtocolERC721Pricing.sol";
 import "src/pricing/IProtocolERC20Pricing.sol";
 import "src/economic/AppAdministratorOrOwnerOnly.sol";
 import "src/economic/AppAdministratorOnly.sol";
+import "src/application/IAppManagerUser.sol";
 
 /**
  * @title Protocol Handler Common
@@ -19,7 +20,7 @@ import "src/economic/AppAdministratorOnly.sol";
  * @notice This contract contains common variables and functions for all Protocol Asset Handlers
  */
 
-contract ProtocolHandlerCommon is IAssetHandlerErrors, ITokenHandlerEvents, AppAdministratorOrOwnerOnly {
+contract ProtocolHandlerCommon is IAppManagerUser, IAppManagerUserErrors, IZeroAddressError, ITokenHandlerEvents, IAssetHandlerErrors, AppAdministratorOrOwnerOnly {
     address private newAppManagerAddress;
     address public appManagerAddress;
     IRuleProcessor ruleProcessor;
@@ -34,7 +35,8 @@ contract ProtocolHandlerCommon is IAssetHandlerErrors, ITokenHandlerEvents, AppA
      * @dev this function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process
      * @param _newAppManagerAddress the new address being proposed
      */
-    function proposeAppManagerAddress(address _newAppManagerAddress) external {
+    function proposeAppManagerAddress(address _newAppManagerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        if (_newAppManagerAddress == address(0)) revert ZeroAddress();
         newAppManagerAddress = _newAppManagerAddress;
     }
 
@@ -42,6 +44,7 @@ contract ProtocolHandlerCommon is IAssetHandlerErrors, ITokenHandlerEvents, AppA
      * @dev this function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address
      */
     function confirmAppManagerAddress() external {
+        if (newAppManagerAddress == address(0)) revert NoProposalHasBeenMade();
         if (msg.sender != newAppManagerAddress) revert ConfirmerDoesNotMatchProposedAddress();
         appManagerAddress = newAppManagerAddress;
         appManager = IAppManager(appManagerAddress);

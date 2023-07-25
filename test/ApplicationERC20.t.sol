@@ -78,7 +78,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
 
         applicationCoin.mint(defaultAdmin, 10_000_000_000_000_000_000_000 * (10 ** 18));
-        
+
         /// register the token
         appManager.registerToken("FRANK", address(applicationCoin));
         /// set the token price
@@ -943,28 +943,28 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(user1), 79_999 * (10 ** 18));
     }
 
-    /// test supply volatility rule 
+    /// test supply volatility rule
     function testSupplyVolatilityRule() public {
         /// burn tokens to specific supply
         applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
         applicationCoin.mint(defaultAdmin, 100_000 * (10 ** 18));
-        applicationCoin.transfer(user1, 5000 * (10**18));
+        applicationCoin.transfer(user1, 5000 * (10 ** 18));
 
-        /// create rule params 
-        uint16 volatilityLimit = 1000; /// 10% 
-        uint8 rulePeriod = 24; /// 24 hours 
-        uint8 startingTime = 12; /// start at noon 
-        uint256 tokenSupply = 0; /// calls totalSupply() for the token 
+        /// create rule params
+        uint16 volatilityLimit = 1000; /// 10%
+        uint8 rulePeriod = 24; /// 24 hours
+        uint8 startingTime = 12; /// start at noon
+        uint256 tokenSupply = 0; /// calls totalSupply() for the token
 
-        /// set rule id and activate 
+        /// set rule id and activate
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index); 
-        /// move within period 
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index);
+        /// move within period
         vm.warp(Blocktime + 13 hours);
-        console.log(applicationCoin.totalSupply()); 
+        console.log(applicationCoin.totalSupply());
         vm.stopPrank();
         vm.startPrank(user1);
-        /// mint tokens to the cap 
+        /// mint tokens to the cap
         applicationCoin.mint(user1, 1);
         applicationCoin.mint(user1, 1000 * (10 ** 18));
         applicationCoin.mint(user1, 8000 * (10 ** 18));
@@ -972,31 +972,28 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.expectRevert(0x81af27fa);
         applicationCoin.mint(user1, 6500 * (10 ** 18));
 
-        /// move out of rule period 
+        /// move out of rule period
         vm.warp(Blocktime + 40 hours);
         applicationCoin.mint(user1, 2550 * (10 ** 18));
 
-        /// burn tokens 
-        /// move into fresh period 
+        /// burn tokens
+        /// move into fresh period
         vm.warp(Blocktime + 95 hours);
         applicationCoin.burn(1000 * (10 ** 18));
         applicationCoin.burn(1000 * (10 ** 18));
         applicationCoin.burn(8000 * (10 ** 18));
 
         vm.expectRevert(0x81af27fa);
-        applicationCoin.burn(2550 * (10 ** 18)); 
+        applicationCoin.burn(2550 * (10 ** 18));
 
-        applicationCoin.mint(user1, 2550 * (10 ** 18));
-        applicationCoin.burn(2550 * (10 ** 18)); 
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
-
-
-
+        applicationCoin.mint(user1, 2550 * (10 ** 18));
+        applicationCoin.burn(2550 * (10 ** 18));
     }
 
     function testDataContractMigration() public {
@@ -1105,5 +1102,38 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.transfer(user1, 8001 * (10 ** 18));
 
         console.log(assetHandler.newTestFunction());
+    }
+
+    function testUpgradeAppManager20() public {
+        address newAdmin = address(75);
+        /// create a new app manager
+        ApplicationAppManager appManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
+        /// propose a new AppManager
+        applicationCoin.proposeAppManagerAddress(address(appManager2));
+        /// confirm the app manager
+        vm.stopPrank();
+        vm.startPrank(newAdmin);
+        appManager2.confirmAppManager(address(applicationCoin));
+        /// test to ensure it still works
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        applicationCoin.transfer(appAdministrator, 10 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(appAdministrator), 10 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(defaultAdmin), 9999999999999999999990 * (10 ** 18));
+
+        /// Test fail scenarios
+        vm.stopPrank();
+        vm.startPrank(newAdmin);
+        // zero address
+        vm.expectRevert(0xd92e233d);
+        applicationCoin.proposeAppManagerAddress(address(0));
+        // no proposed address
+        vm.expectRevert(0x821e0eeb);
+        appManager2.confirmAppManager(address(applicationCoin));
+        // non proposer tries to confirm
+        applicationCoin.proposeAppManagerAddress(address(appManager2));
+        ApplicationAppManager appManager3 = new ApplicationAppManager(newAdmin, "Castlevania3", false);
+        vm.expectRevert(0x41284967);
+        appManager3.confirmAppManager(address(applicationCoin));
     }
 }

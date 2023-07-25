@@ -148,5 +148,9 @@ interface IAssetHandlerErrors {
     error CannotTurnOffAccessLevel0WithAccessLevelBalanceActive();
     error PeriodExceeds5Years();
     error ZeroValueNotPermited();
+}
+
+interface IAppManagerUserErrors {
     error ConfirmerDoesNotMatchProposedAddress();
+    error NoProposalHasBeenMade();
 }

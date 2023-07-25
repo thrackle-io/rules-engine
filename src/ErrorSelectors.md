@@ -111,3 +111,4 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x6d12e45a | MinimumHoldTimePeriodNotReached()                                |
 | 0x771d7f93 | PeriodExceeds5Years()                                            |
 | 0x41284967 | ConfirmerDoesNotMatchProposedAddress()                           |
+| 0x821e0eeb | NoProposalHasBeenMade()                                          |
