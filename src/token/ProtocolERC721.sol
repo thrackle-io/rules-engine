@@ -7,11 +7,9 @@ import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "src/application/IAppManager.sol";
+import "./ProtocolTokenCommon.sol";
 import "src/economic/AppAdministratorOnly.sol";
 import "src/token/IProtocolERC721Handler.sol";
-import {IApplicationEvents} from "../interfaces/IEvents.sol";
-import {IZeroAddressError} from "../interfaces/IErrors.sol";
 
 /**
  * @title ERC721 Base Contract
@@ -19,12 +17,10 @@ import {IZeroAddressError} from "../interfaces/IErrors.sol";
  * @notice This is the base contract for all protocol ERC721s
  */
 
-contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, AppAdministratorOnly, IApplicationEvents, IZeroAddressError {
+contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon {
     using Counters for Counters.Counter;
-    address public appManagerAddress;
     address public handlerAddress;
     IProtocolERC721Handler handler;
-    IAppManager appManager;
     Counters.Counter private _tokenIdCounter;
 
     /// Base Contract URI
@@ -136,15 +132,6 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     }
 
     /**
-     * @dev Function to set the appManagerAddress and connect to the new appManager
-     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
-     */
-    function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
-        appManagerAddress = _appManagerAddress;
-        appManager = IAppManager(_appManagerAddress);
-    }
-
-    /**
      * @dev Returns true if this contract implements the interface defined by
      * `interfaceId`. See the corresponding
      * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
@@ -174,6 +161,4 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     function getHandlerAddress() external view returns (address) {
         return handlerAddress;
     }
-
-    function proposeOwner() external pure {}
 }

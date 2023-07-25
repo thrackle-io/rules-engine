@@ -5,16 +5,9 @@ pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
-import "../economic/IRuleProcessor.sol";
-import "../economic/AppAdministratorOnly.sol";
-import "../application/IAppManager.sol";
-import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
-import "../economic/ruleStorage/RuleCodeData.sol";
-import "../pricing/IProtocolERC721Pricing.sol";
-import "../pricing/IProtocolERC20Pricing.sol";
+
 import "./data/Fees.sol";
-import { IAssetHandlerErrors } from "../interfaces/IErrors.sol";
+import "./ProtocolHandlerCommon.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract
@@ -22,7 +15,7 @@ import { IAssetHandlerErrors } from "../interfaces/IErrors.sol";
  * @dev This contract performs all rule checks related to the the ERC20 that implements it.
  * @notice Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
  */
-contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorOnly, IAssetHandlerErrors {
+contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministratorOnly {
     using ERC165Checker for address;
     /**
      * Functions added so far:
@@ -36,7 +29,6 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * Risk Score Transaction Limit
      * Risk Score Account Balance Limit
      */
-    address public appManagerAddress;
     string private riskScoreTokenId;
 
     /// Data contracts
@@ -51,7 +43,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     uint32 private adminWithdrawalRuleId;
     uint32 private minBalByDateRuleId;
     uint32 private tokenTransferVolumeRuleId;
-    uint32 private totalSupplyVolatilityRuleId; 
+    uint32 private totalSupplyVolatilityRuleId;
 
     /// on-off switches for rules
     bool private minTransferRuleActive;
@@ -61,24 +53,14 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
     bool private adminWithdrawalActive;
     bool private minBalByDateRuleActive;
     bool private tokenTransferVolumeRuleActive;
-    bool private totalSupplyVolatilityRuleActive; 
+    bool private totalSupplyVolatilityRuleActive;
 
     /// token level accumulators
     uint256 private transferVolume;
-    uint64 private lastTransferTs; 
+    uint64 private lastTransferTs;
     uint64 private lastSupplyUpdateTime;
-    int256 private volumeTotalForPeriod; 
-    uint256 private totalSupplyForPeriod; 
-
-    IRuleProcessor immutable ruleProcessor;
-    IAppManager appManager;
-    // Pricing Module interfaces
-    IProtocolERC20Pricing erc20Pricer;
-    IProtocolERC721Pricing nftPricer;
-    address public erc20PricingAddress;
-    address public nftPricingAddress;
-
-
+    int256 private volumeTotalForPeriod;
+    uint256 private totalSupplyForPeriod;
 
     /**
      * @dev Constructor sets params
@@ -151,8 +133,15 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
         if (totalSupplyVolatilityRuleActive && (_from == address(0x00) || _to == address(0x00))) {
-            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(totalSupplyVolatilityRuleId, volumeTotalForPeriod, totalSupplyForPeriod, IToken(msg.sender).totalSupply(), _to == address(0x00)? int(_amount) * -1:int(_amount), lastSupplyUpdateTime);
-            lastSupplyUpdateTime = uint64(block.timestamp); 
+            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(
+                totalSupplyVolatilityRuleId,
+                volumeTotalForPeriod,
+                totalSupplyForPeriod,
+                IToken(msg.sender).totalSupply(),
+                _to == address(0x00) ? int(_amount) * -1 : int(_amount),
+                lastSupplyUpdateTime
+            );
+            lastSupplyUpdateTime = uint64(block.timestamp);
         }
         //added the following lines to remove warnings TODO remove later
         _balanceFrom;
@@ -217,73 +206,6 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
         }
     }
 
-    /**
-     * @dev Get the account's balance in dollars. It uses the registered tokens in the app manager.
-     * @notice This gets the account's balance in dollars.
-     * @param _account address to get the balance for
-     * @return totalValuation of the account in dollars with 18 decimals of precision
-     */
-    function getAccTotalValuation(address _account) public view returns (uint256 totalValuation) {
-        address[] memory tokenList = appManager.getTokenList();
-        uint256 tokenAmount;
-        /// Loop through all Nfts and ERC20s and add values to balance
-        for (uint256 i; i < tokenList.length; ) {
-            /// First check to see if user owns the asset
-            tokenAmount = (IToken(tokenList[i]).balanceOf(_account));
-
-            if (tokenAmount > 0) {
-                try IERC165(tokenList[i]).supportsInterface(0x80ac58cd) returns (bool isERC721) {
-                    if (isERC721) totalValuation += _getNFTValuePerCollection(tokenList[i], _account, tokenAmount);
-                    else {
-                        uint8 decimals = IToken(tokenList[i]).decimals();
-                        totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
-                    }
-                } catch {
-                    uint8 decimals = IToken(tokenList[i]).decimals();
-                    totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
-                }
-            }
-            unchecked {
-                ++i;
-            }
-        }
-    }
-
-    /**
-     * @dev Get the value for a specific ERC20. This is done by interacting with the pricing module
-     * @notice This gets the token's value in dollars.
-     * @param _tokenAddress the address of the token
-     * @return price the price of 1 in dollars
-     */
-    function _getERC20Price(address _tokenAddress) private view returns (uint256) {
-        if (erc20PricingAddress != address(0)) {
-            return erc20Pricer.getTokenPrice(_tokenAddress);
-        } else {
-            revert PricingModuleNotConfigured(erc20PricingAddress, nftPricingAddress);
-        }
-    }
-
-    /**
-     * @dev Get the value for a specific ERC721. This is done by interacting with the pricing module
-     * @notice This gets the token's value in dollars.
-     * @param _tokenAddress the address of the token
-     * @param _account of the token holder
-     * @param _tokenAmount amount of NFTs from _tokenAddress contract
-     * @return totalValueInThisContract in USD with 18 decimals of precision
-     */
-    function _getNFTValuePerCollection(address _tokenAddress, address _account, uint256 _tokenAmount) private view returns (uint256 totalValueInThisContract) {
-        if (nftPricingAddress != address(0)) {
-            for (uint i; i < _tokenAmount; ) {
-                totalValueInThisContract += nftPricer.getNFTPrice(_tokenAddress, IERC721Enumerable(_tokenAddress).tokenOfOwnerByIndex(_account, i));
-                unchecked {
-                    ++i;
-                }
-            }
-        } else {
-            revert PricingModuleNotConfigured(erc20PricingAddress, nftPricingAddress);
-        }
-    }
-
     /* <><><><><><><><><><><> Fee functions <><><><><><><><><><><><><><> */
     /**
      * @dev This function adds a fee to the token
@@ -293,7 +215,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @param _feePercentage fee percentage to assess
      * @param _targetAccount target for the fee proceeds
      */
-    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external appAdministratorOnly(appManagerAddress) {
+    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external appAdministratorOrOwnerOnly(appManagerAddress) {
         fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
         feeActive = true;
     }
@@ -302,7 +224,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @dev This function adds a fee to the token
      * @param _tag meta data tag for fee
      */
-    function removeFee(bytes32 _tag) external appAdministratorOnly(appManagerAddress) {
+    function removeFee(bytes32 _tag) external appAdministratorOrOwnerOnly(appManagerAddress) {
         fees.removeFee(_tag);
     }
 
@@ -327,7 +249,7 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
      * @dev Turn fees on/off
      * @param on_off value for fee status
      */
-    function setFeeActivation(bool on_off) external appAdministratorOnly(appManagerAddress) {
+    function setFeeActivation(bool on_off) external appAdministratorOrOwnerOnly(appManagerAddress) {
         feeActive = on_off;
     }
 
@@ -398,24 +320,6 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
             }
         }
         return (feeCollectorAccounts, feePercentages);
-    }
-
-    /**
-     * @dev sets the address of the nft pricing contract and loads the contract.
-     * @param _address Nft Pricing Contract address.
-     */
-    function setNFTPricingAddress(address _address) external appAdministratorOnly(appManagerAddress) {
-        nftPricingAddress = _address;
-        nftPricer = IProtocolERC721Pricing(_address);
-    }
-
-    /**
-     * @dev sets the address of the erc20 pricing contract and loads the contract.
-     * @param _address ERC20 Pricing Contract address.
-     */
-    function setERC20PricingAddress(address _address) external appAdministratorOnly(appManagerAddress) {
-        erc20PricingAddress = _address;
-        erc20Pricer = IProtocolERC20Pricing(_address);
     }
 
     /// Rule Setters and Getters
@@ -781,12 +685,4 @@ contract ProtocolERC20Handler is Ownable, ITokenHandlerEvents, AppAdministratorO
         ProtocolERC20Handler oldHandler = ProtocolERC20Handler(_oldHandlerAddress);
         fees = Fees(oldHandler.getFeesDataAddress());
     }
-}
-
-interface IToken {
-    function balanceOf(address owner) external view returns (uint256 balance);
-
-    function totalSupply() external view returns (uint256);
-
-    function decimals() external view returns (uint8);
 }
