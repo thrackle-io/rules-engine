@@ -532,6 +532,12 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.startPrank(rich_user);
         vm.expectRevert(0x3fac082d);
         applicationCoin.transfer(user3, 5 * (10 ** 18));
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        vm.expectRevert(0x3fac082d);
+        applicationCoin.transfer(rich_user, 5 * (10 ** 18));
+
         // set AccessLevel and try again
         vm.stopPrank();
         vm.startPrank(accessTier);
@@ -540,6 +546,11 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.startPrank(rich_user);
         applicationCoin.transfer(user3, 5 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 10 * (10 ** 18));
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        vm.expectRevert(0x3fac082d); /// this fails because rich_user is still accessLevel0 
+        applicationCoin.transfer(rich_user, 5 * (10 ** 18));
     }
 
     function testAccessLevelWithdrawalRule() public {
