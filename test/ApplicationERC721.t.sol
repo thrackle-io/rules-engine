@@ -522,6 +522,14 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         appManager.addAccessLevel(user2, 1);
         vm.stopPrank();
         vm.startPrank(user1);
+        vm.expectRevert(0x3fac082d); /// still fails since user 1 is accessLevel0 
+        applicationNFT.transferFrom(user1, user2, 0);
+
+         vm.stopPrank();
+        vm.startPrank(AccessTier);
+        appManager.addAccessLevel(user1, 1);
+        vm.stopPrank();
+        vm.startPrank(user1);
         applicationNFT.transferFrom(user1, user2, 0);
         assertEq(applicationNFT.balanceOf(user2), 1);
     }
