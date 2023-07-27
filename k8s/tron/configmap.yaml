@@ -52,4 +52,3 @@ data:
 kind: ConfigMap
 metadata:
   name: tron
-  namespace: default

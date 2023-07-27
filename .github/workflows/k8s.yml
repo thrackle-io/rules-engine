@@ -1,9 +1,9 @@
-name: K8s Build and Deploy
+name: K8s-dev Build and Deploy
 
 on:
   push:
     branches:
-      - internal 
+      - dev 
 
 env:
   AWS_REGION: us-east-1
@@ -44,8 +44,8 @@ jobs:
 
       - name: Set Image Tags
         run: |
-          echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-${GITHUB_SHA::7}' >> $GITHUB_ENV
-          echo 'TRON_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:tron-${GITHUB_SHA::7}' >> $GITHUB_ENV
+          echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-dev-${GITHUB_SHA::7}' >> $GITHUB_ENV
+          echo 'TRON_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:tron-dev-${GITHUB_SHA::7}' >> $GITHUB_ENV
 
       - name: Build and Push Docker Images
         run: |
@@ -61,5 +61,5 @@ jobs:
 
       - name: Apply Kubernetes Deployments
         run: |
-          kubectl apply -f ${{ env.ANVIL_DEPLOYMENT_FILE }}
-          kubectl apply -f ${{ env.TRON_DEPLOYMENT_FILE }}
+          kubectl apply -f ${{ env.ANVIL_DEPLOYMENT_FILE }} -n dev
+          kubectl apply -f ${{ env.TRON_DEPLOYMENT_FILE }} -n dev

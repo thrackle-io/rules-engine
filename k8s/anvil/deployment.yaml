@@ -4,7 +4,6 @@ metadata:
   labels:
     app: anvil
   name: anvil
-  namespace: default
 spec:
   replicas: 1
   revisionHistoryLimit: 10
@@ -35,4 +34,3 @@ spec:
         ports:
         - containerPort: 8545
           protocol: TCP
-          
