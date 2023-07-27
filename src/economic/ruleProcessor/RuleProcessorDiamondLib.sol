@@ -105,8 +105,8 @@ library RuleProcessorDiamondLib {
             unchecked {
                 ++facetIndex;
             }
+            emit DiamondCut(_diamondCut, init, data);
         }
-        emit DiamondCut(_diamondCut, init, data);
         initializeDiamondCut(init, data);
     }
 
