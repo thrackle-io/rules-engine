@@ -1017,9 +1017,10 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// migrate data contracts to new handler
         console.log(applicationCoinHandler.owner());
         console.log(address(applicationCoin));
-        applicationCoinHandler.migrateDataContracts(address(applicationCoinHandlerNew));
         /// connect the old data contract to the new handler
-        applicationCoinHandlerNew.connectDataContracts(address(applicationCoinHandler));
+        applicationCoinHandler.proposeDataContractMigration(address(applicationCoinHandlerNew));
+        applicationCoinHandlerNew.confirmDataContractMigration(address(applicationCoinHandler));
+        // applicationCoinHandlerNew.connectDataContracts(address(applicationCoinHandler));
         /// test that the data is accessible only from the new handler
         fee = applicationCoinHandlerNew.getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
@@ -1030,18 +1031,106 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(user1);
         vm.expectRevert(0xba80c9e5);
-        applicationCoinHandler.migrateDataContracts(address(applicationCoinHandler));
+        applicationCoinHandlerNew.confirmDataContractMigration(address(applicationCoinHandler));
     }
 
-    function testHandlerUpgrading() public {
+    function testHandlerUpgradingWithFeeMigration() public {
         ///deploy new modified appliction asset handler contract
         ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, true);
         ///connect to apptoken
         applicationCoin.connectHandlerToToken(address(assetHandler));
-        ///connect data contract
-        applicationCoinHandler.migrateDataContracts(address(applicationCoinHandler));
+        bytes32 tag1 = "cheap";
+        uint256 minBalance = 10 * 10 ** 18;
+        uint256 maxBalance = 1000 * 10 ** 18;
+        int24 feePercentage = 300;
+        address feeCollectorAccount = appAdministrator;
+        // create one fee in old handler
+        applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        Fees.Fee memory fee = applicationCoinHandler.getFee(tag1);
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, applicationCoinHandler.getFeeTotal());
 
-        assetHandler.connectDataContracts(address(applicationCoinHandler));
+        applicationCoinHandler.proposeDataContractMigration(address(assetHandler));
+        assetHandler.confirmDataContractMigration(address(applicationCoinHandler));
+
+        // verify fees are still there
+        fee = assetHandler.getFee(tag1);
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, assetHandler.getFeeTotal());
+
+        ///Create and activate rule in new Handler
+        bytes32[] memory accs = new bytes32[](3);
+        accs[0] = bytes32("Oscar");
+        accs[1] = bytes32("Tayler");
+        accs[2] = bytes32("Shane");
+        uint256[] memory holdAmounts = new uint256[](3);
+        holdAmounts[0] = uint256(1000 * (10 ** 18));
+        holdAmounts[1] = uint256(2000 * (10 ** 18));
+        holdAmounts[2] = uint256(3000 * (10 ** 18));
+        uint256[] memory holdPeriods = new uint256[](3);
+        holdPeriods[0] = uint32(720); // one month
+        holdPeriods[1] = uint32(4380); // six months
+        holdPeriods[2] = uint32(17520); // two years
+        uint256[] memory holdTimestamps = new uint256[](3);
+        holdTimestamps[0] = Blocktime;
+        holdTimestamps[1] = Blocktime;
+        holdTimestamps[2] = Blocktime;
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(appManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        assertEq(_index, 0);
+        assetHandler.setMinBalByDateRuleId(_index);
+
+        /// load non admin users with application coin
+        applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(rich_user), 10000 * (10 ** 18));
+        applicationCoin.transfer(user2, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
+        applicationCoin.transfer(user3, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 10000 * (10 ** 18));
+        assetHandler.setMinBalByDateRuleId(_index);
+        /// tag the user
+        appManager.addGeneralTag(rich_user, "Oscar"); ///add tag
+        assertTrue(appManager.hasTag(rich_user, "Oscar"));
+        appManager.addGeneralTag(user2, "Tayler"); ///add tag
+        assertTrue(appManager.hasTag(user2, "Tayler"));
+        appManager.addGeneralTag(user3, "Shane"); ///add tag
+        assertTrue(appManager.hasTag(user3, "Shane"));
+        /// switch to the user
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        /// attempt a transfer that violates the rule
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 9001 * (10 ** 18));
+        /// make sure a transfer that is acceptable will still pass within the freeze window.
+        applicationCoin.transfer(user1, 9000 * (10 ** 18));
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 1 * (10 ** 18));
+        /// add enough time so that it should pass
+        vm.warp(Blocktime + (720 * 1 hours));
+        applicationCoin.transfer(user1, 1 * (10 ** 18));
+
+        /// try tier 2
+        /// switch to the user
+        vm.stopPrank();
+        vm.startPrank(user2);
+        /// attempt a transfer that violates the rule
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 8001 * (10 ** 18));
+
+        console.log(assetHandler.newTestFunction());
+    }
+
+    function testHandlerUpgradingWithoutFeeMigration() public {
+        ///deploy new modified appliction asset handler contract
+        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, true);
+        ///connect to apptoken
+        applicationCoin.connectHandlerToToken(address(assetHandler));
+
+        applicationCoinHandler.proposeDataContractMigration(address(assetHandler));
+        assetHandler.confirmDataContractMigration(address(applicationCoinHandler));
 
         ///Create and activate rule in new Handler
         bytes32[] memory accs = new bytes32[](3);

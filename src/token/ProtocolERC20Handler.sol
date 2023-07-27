@@ -669,20 +669,28 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     }
 
     /**
-     * @dev This function is used to migrate the data contracts to a new CoinHandler. Use with care because it changes ownership. They will no
-     * longer be accessible from the original CoinHandler
-     * @param _newOwner address of the new CoinHandler
+     * @dev This function is used to propose the new owner for data contracts.
+     * @param _newOwner address of the new AppManager
      */
-    function migrateDataContracts(address _newOwner) external appAdministratorOnly(appManagerAddress) {
-        fees.transferOwnership(_newOwner);
+    function proposeDataContractMigration(address _newOwner) external appAdministratorOnly(appManagerAddress) {
+        fees.proposeOwner(_newOwner);
     }
 
     /**
-     * @dev This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.
-     * @param _oldHandlerAddress address of the old CoinHandler
+     * @dev This function is used to confirm this contract as the new owner for data contracts.
      */
-    function connectDataContracts(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress) {
+    function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress) {
         ProtocolERC20Handler oldHandler = ProtocolERC20Handler(_oldHandlerAddress);
         fees = Fees(oldHandler.getFeesDataAddress());
+        fees.confirmOwner();
     }
+
+    // /**
+    //  * @dev This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.
+    //  * @param _oldHandlerAddress address of the old CoinHandler
+    //  */
+    // function connectDataContracts(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress) {
+    //     ProtocolERC20Handler oldHandler = ProtocolERC20Handler(_oldHandlerAddress);
+    //     fees = Fees(oldHandler.getFeesDataAddress());
+    // }
 }

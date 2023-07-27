@@ -447,10 +447,10 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
 
         /// create new handler
         ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, false);
-        /// migrate data contracts to new handler
-        applicationCoinHandler.migrateDataContracts(address(applicationCoinHandlerNew));
         /// connect the old data contract to the new handler
-        applicationCoinHandlerNew.connectDataContracts(address(applicationCoinHandler));
+        applicationCoinHandler.proposeDataContractMigration(address(applicationCoinHandlerNew));
+        applicationCoinHandlerNew.confirmDataContractMigration(address(applicationCoinHandler));
+
         /// test that the data is accessible only from the new handler
         fee = applicationCoinHandlerNew.getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
@@ -461,10 +461,10 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         vm.stopPrank();
         vm.startPrank(user1);
         vm.expectRevert(0xba80c9e5);
-        applicationCoinHandlerNew.migrateDataContracts(address(applicationCoinHandler));
+        applicationCoinHandlerNew.proposeDataContractMigration(address(applicationCoinHandler));
 
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationCoinHandlerNew.migrateDataContracts(address(applicationCoinHandler));
+        applicationCoinHandlerNew.proposeDataContractMigration(address(applicationCoinHandler));
     }
 }
