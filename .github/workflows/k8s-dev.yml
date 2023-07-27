@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY:
+  ECR_REPOSITORY: ${{ secrets.K8S_AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/universus-tf
   ANVIL_DEPLOYMENT_FILE: k8s/anvil/deployment.yaml
   TRON_DEPLOYMENT_FILE: k8s/tron/deployment.yaml
 
@@ -61,5 +61,5 @@ jobs:
 
       - name: Apply Kubernetes Deployments
         run: |
-          kubectl apply -f ${{ env.ANVIL_DEPLOYMENT_FILE }} -n dev
-          kubectl apply -f ${{ env.TRON_DEPLOYMENT_FILE }} -n dev
+          kubectl apply -f k8s/anvil -n dev
+          kubectl apply -f k8s/tron -n dev
