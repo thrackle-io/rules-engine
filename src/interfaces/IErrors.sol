@@ -150,7 +150,7 @@ interface IAssetHandlerErrors {
     error ZeroValueNotPermited();
 }
 
-interface IAppManagerUserErrors {
+interface IOwnershipErrors {
     error ConfirmerDoesNotMatchProposedAddress();
     error NoProposalHasBeenMade();
 }

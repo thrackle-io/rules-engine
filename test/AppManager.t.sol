@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "../src/application/AppManager.sol";
-import "../src/example/application/ApplicationHandler.sol";
+import "src/application/AppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
+import "src/data/GeneralTags.sol";
+import "src/data/PauseRules.sol";
+import "src/data/AccessLevels.sol";
+import "src/data/RiskScores.sol";
+import "src/data/Accounts.sol";
+import "src/data/IDataModule.sol";
 
 contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     AppManager public appManager;
@@ -466,19 +472,58 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.warp(TEST_DATE);
     }
 
-    ///---------------AccessLevel PROVIDER---------------
-    // Test setting access levelprovider contract address
-    function testAccessLevelProviderSet() public {
+    ///--------------- PROVIDER UPGRADES ---------------
+
+    // Test setting General Tag provider contract address
+    function testSetNewGeneralTagProvider() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        appManager.setAccessLevelProvider(address(88));
-        assertEq(address(88), appManager.getAccessLevelProvider());
+        GeneralTags dataMod = new GeneralTags(address(appManager));
+        appManager.proposeGeneralTagsProvider(address(dataMod));
+        dataMod.confirmDataProvider(IDataModule.ProviderType.GENERAL_TAG);
+        assertEq(address(dataMod), appManager.getGeneralTagProvider());
+    }
+
+    // Test setting access level provider contract address
+    function testSetNewAccessLevelProvider() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        AccessLevels dataMod = new AccessLevels(address(appManager));
+        appManager.proposeAccessLevelsProvider(address(dataMod));
+        dataMod.confirmDataProvider(IDataModule.ProviderType.ACCESS_LEVEL);
+        assertEq(address(dataMod), appManager.getAccessLevelProvider());
+    }
+
+    // Test setting account  provider contract address
+    function testSetNewAccountProvider() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        Accounts dataMod = new Accounts(address(appManager));
+        appManager.proposeAccountsProvider(address(dataMod));
+        dataMod.confirmDataProvider(IDataModule.ProviderType.ACCOUNT);
+        assertEq(address(dataMod), appManager.getAccountProvider());
+    }
+
+    // Test setting risk provider contract address
+    function testSetNewRiskScoreProvider() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        RiskScores dataMod = new RiskScores(address(appManager));
+        appManager.proposeRiskScoresProvider(address(dataMod));
+        dataMod.confirmDataProvider(IDataModule.ProviderType.RISK_SCORE);
+        assertEq(address(dataMod), appManager.getRiskScoresProvider());
+    }
+
+    // Test setting pause provider contract address
+    function testSetNewPauseRulesProvider() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        PauseRules dataMod = new PauseRules(address(appManager));
+        appManager.proposePauseRulesProvider(address(dataMod));
+        dataMod.confirmDataProvider(IDataModule.ProviderType.PAUSE_RULE);
+        assertEq(address(dataMod), appManager.getPauseRulesProvider());
     }
 
     ///---------------UPGRADEABILITY---------------
     /**
      * @dev This function ensures that a app manager can be upgraded without losing its data
      */
-    function testUpgradeAppManager() public {
+    function testUpgradeAppManagerAppManager() public {
         /// create user addresses
         address upgradeUser1 = address(100);
         address upgradeUser2 = address(101);
@@ -522,12 +567,11 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// migrate data contracts to new app manager
         /// set a app administrator in the new app manager
         appManagerNew.addAppAdministrator(appAdministrator);
-        switchToAppAdministrator(); // create a access tier and make it the sender.
-        appManager.migrateDataContracts(address(appManagerNew));
+        switchToAppAdministrator(); // create a app admin and make it the sender.
+        appManager.proposeDataContractMigration(address(appManagerNew));
+        appManagerNew.confirmDataContractMigration(address(appManager));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        /// connect the old data contract to the new app manager
-        appManagerNew.connectDataContracts(address(appManager));
         /// test that the data is accessible only from the new app manager
         assertEq(appManagerNew.getAccessLevel(upgradeUser1), 4);
         assertEq(appManagerNew.getAccessLevel(upgradeUser2), 3);

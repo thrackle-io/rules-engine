@@ -652,14 +652,6 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         assertFalse(applicationAppManager.hasTag(user, "TAG1"));
     }
 
-    ///---------------AccessLevel PROVIDER---------------
-    // Test setting access levelprovider contract address
-    function testAccessLevelProviderSet() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.setAccessLevelProvider(address(88));
-        assertEq(address(88), applicationAppManager.getAccessLevelProvider());
-    }
-
     /// Test the register token.
     function testRegisterToken() public {
         applicationAppManager.registerToken("Frankenstein", address(77));

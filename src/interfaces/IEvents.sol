@@ -10,11 +10,13 @@ pragma solidity 0.8.17;
 
 interface IAppLevelEvents {
     ///AppManager
-    event HandlerConnected(address indexed handlerAddress, address indexed appManager); 
+    event HandlerConnected(address indexed handlerAddress, address indexed appManager);
     event RoleCheck(string contractName, string functionName, address checkedAddress, bytes32 checkedRole);
     event AppManagerDeployed(address indexed deployedAddress);
     event AppManagerDeployedForUpgrade(address indexed deployedAddress);
     event AppManagerUpgrade(address indexed deployedAddress, address replacedAddress);
+    event AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
+    event DataContractsMigrated(address indexed ownerAddress);
     event RemoveFromRegistry(string contractName, address contractAddress);
     event RiskAdminAdded(address newAdmin);
     event RiskAdminRemoved(address removedAdmin);

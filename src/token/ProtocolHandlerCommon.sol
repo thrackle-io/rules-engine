@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import {IAssetHandlerErrors, IAppManagerUserErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
+import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
 import "src/economic/ruleStorage/RuleCodeData.sol";
 import "src/economic/IRuleProcessor.sol";
@@ -20,7 +20,7 @@ import "src/application/IAppManagerUser.sol";
  * @notice This contract contains common variables and functions for all Protocol Asset Handlers
  */
 
-contract ProtocolHandlerCommon is IAppManagerUser, IAppManagerUserErrors, IZeroAddressError, ITokenHandlerEvents, IAssetHandlerErrors, AppAdministratorOrOwnerOnly {
+contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZeroAddressError, ITokenHandlerEvents, IAssetHandlerErrors, AppAdministratorOrOwnerOnly {
     address private newAppManagerAddress;
     address public appManagerAddress;
     IRuleProcessor ruleProcessor;
