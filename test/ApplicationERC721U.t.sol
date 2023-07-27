@@ -564,6 +564,15 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         appManager.addAccessLevel(user2, 1);
         vm.stopPrank();
         vm.startPrank(user1);
+        vm.expectRevert(0x3fac082d); /// user 1 accessLevel is still 0 so tx reverts 
+        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, user2, 0);
+
+
+        vm.stopPrank();
+        vm.startPrank(AccessTier);
+        appManager.addAccessLevel(user1, 1);
+        vm.stopPrank();
+        vm.startPrank(user1);
         ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, user2, 0);
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user2), 1);
     }
