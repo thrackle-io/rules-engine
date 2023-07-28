@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "src/economic/AppAdministratorOnly.sol";
+import "src/economic/AppAdministratorOnlyU.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
 import {IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 
@@ -11,7 +11,7 @@ import {IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
  * @notice This contract contains common variables and functions for all Protocol Tokens
  */
 
-contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvents, IZeroAddressError, IOwnershipErrors {
+contract ProtocolTokenCommonU is AppAdministratorOnlyU, IApplicationEvents, IZeroAddressError, IOwnershipErrors {
     address newAppManagerAddress;
     address appManagerAddress;
     IAppManager appManager;

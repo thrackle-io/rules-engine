@@ -721,17 +721,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon {
     }
 
     /**
-     * @dev This function is used to migrate the data contracts to a new CoinHandler. Use with care because it changes ownership. They will no
-     * longer be accessible from the original CoinHandler
-     * @param _newOwner address of the new CoinHandler
-     */
-    function migrateDataContracts(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress) {
-        fees.transferOwnership(_newOwner);
-        /// Also transfer ownership of this contract to the new asset
-        transferPermissionOwnership(_newOwner, appManagerAddress);
-    }
-
-    /**
      * @dev This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.
      * @param _oldHandlerAddress address of the old CoinHandler
      */
