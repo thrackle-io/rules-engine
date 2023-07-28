@@ -126,13 +126,10 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
     function _checkAccessLevelRules(address _from, address _to, uint128 _usdBalanceValuation, uint128 _usdAmountTransferring) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        /// Check if recipient is AMM (AMM is not exempt but does not have an accessLevel)
-        if (AccessLevel0RuleActive && appManager.isRegisteredAMM(_to)) ruleProcessor.checkAccessLevel0Passes(fromScore);
-        /// if reciepent is not an AMM check both to and from access level) 
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to)) {
-            ruleProcessor.checkAccessLevel0Passes(score);
-            ruleProcessor.checkAccessLevel0Passes(fromScore);
-        }
+        /// Check if recipient is not AMM and then check sender access level 
+        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccessLevel0Passes(fromScore);
+        /// Check if sender is not an AMM and then check the sender access level 
+        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to)) ruleProcessor.checkAccessLevel0Passes(score);
         if (accountBalanceByAccessLevelRuleActive) ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
         if (withdrawalLimitByAccessLevelRuleActive) {
             usdValueTotalWithrawals[_from] = ruleProcessor.checkwithdrawalLimitsByAccessLevel(withdrawalLimitByAccessLevelRuleId, fromScore, usdValueTotalWithrawals[_from], _usdAmountTransferring);
