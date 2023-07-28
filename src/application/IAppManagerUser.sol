@@ -9,7 +9,7 @@ pragma solidity 0.8.17;
  */
 interface IAppManagerUser {
     /**
-     * @dev this function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address
+     * @dev This function confirms a new appManagerAddress that was put in storage. It can only be confirmed by the proposed address
      */
     function confirmAppManagerAddress() external;
 }
