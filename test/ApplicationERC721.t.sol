@@ -382,7 +382,8 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         txnLimits[4] = 11;
         txnLimits[5] = 10;
         uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(appManager), riskScores, txnLimits);
-
+        /// set the nftHandler nftValuationLimit variable 
+        applicationNFTHandler.setNFTValuationLimit(100); 
         ///Mint NFT's (user1,2,3)
         applicationNFT.safeMint(user1); // tokenId = 0
         applicationNFT.safeMint(user1); // tokenId = 1
@@ -786,6 +787,23 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFT.safeMint(user1);
     }
 
+    function testNFTValuation() public {
+        /// mint NFTs and set price to $1USD for each token 
+        for (uint i = 0; i < 10; i++) {
+            applicationNFT.safeMint(user1);
+            nftPricer.setSingleNFTPrice(address(applicationNFT), i, 1 * (10 ** 18));
+        }
+        uint256 testPrice = nftPricer.getNFTPrice(address(applicationNFT), 1);
+        assertEq(testPrice, 1* (10 **18)); 
+        /// activate rule that calls valuation 
+
+        /// calc expected valuation based on tokenId's 
+
+        /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler 
+
+        /// calc expected valuation for user based on tokens * collection price 
+    }
+
     function testUpgradingHandlersERC721() public {
         ///deploy new modified appliction asset handler contract
         ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), true);
@@ -795,6 +813,8 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         assetHandler.setERC721Address(address(applicationNFT));
         assetHandler.setNFTPricingAddress(address(nftPricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
+        /// set the nftHandler nftValuationLimit variable 
+        assetHandler.setNFTValuationLimit(100);
 
         ///Set transaction limit rule params
         uint8[] memory riskScores = new uint8[](5);

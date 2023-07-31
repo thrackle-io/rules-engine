@@ -66,6 +66,8 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     uint64 private lastSupplyUpdateTime;
     int256 private volumeTotalForPeriod; 
     uint256 private totalSupplyForPeriod; 
+    /// NFT Collection Valuation Limit
+    uint256 private nftValuationLimit; 
     /// Data contracts
     Fees fees;
     bool feeActive;
@@ -385,7 +387,8 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
 
             if (tokenAmount > 0) {
                 try IERC165(tokenList[i]).supportsInterface(0x80ac58cd) returns (bool isERC721) {
-                    if (isERC721) totalValuation += _getNFTValuePerCollection(tokenList[i], _account, tokenAmount);
+                    if (isERC721 && tokenAmount >= nftValuationLimit) totalValuation += _getNFTCollectionValue(tokenList[i], tokenAmount); 
+                    if (isERC721 && tokenAmount < nftValuationLimit) totalValuation += _getNFTValuePerCollection(tokenList[i], _account, tokenAmount);
                     else {
                         uint8 decimals = ERC20(tokenList[i]).decimals();
                         totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
@@ -436,6 +439,20 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         }
     }
 
+    /**
+     * @dev Get the total value for all tokens held by wallet for specific collection. This is done by interacting with the pricing module
+     * @notice This function gets the total token value in dollars of all tokens owned in each collection by address.
+     * @param _tokenAddress the address of the token
+     * @param _tokenAmount amount of NFTs from _tokenAddress contract
+     * @return totalValueInThisContract total valuation of tokens by collection in whole USD 
+     */
+    function _getNFTCollectionValue(address _tokenAddress, uint256 _tokenAmount) private view returns (uint256 totalValueInThisContract) {
+        if (nftPricingAddress != address(0)) {
+            totalValueInThisContract += (_tokenAmount * nftPricer.getNFTCollectionPrice(_tokenAddress));
+        } else {
+            revert PricingModuleNotConfigured(erc20PricingAddress, nftPricingAddress);
+        }
+    }
     /**
      * @dev Set the minMaxBalanceRuleId. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
@@ -799,6 +816,24 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         return minimumHoldTimeHours;
     }
 
+    /**
+     * @dev Set the NFT Valuation limit that will check collection price vs looping through each tokenId in collections 
+     * @param _newNFTValuationLimit set the number of NFTs in a wallet that will check for collection price vs individual token prices
+     */
+    function setNFTValuationLimit(uint256 _newNFTValuationLimit) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        nftValuationLimit = _newNFTValuationLimit; 
+        ///TODO emit event / create event 
+    }
+
+    /**
+     * @dev Get the nftValuationLimit
+     * @return nftValautionLimit number of NFTs in a wallet that will check for collection price vs individual token prices 
+     */
+    function getNFTValuationLimit() external view returns(uint256) {
+        return nftValuationLimit; 
+    }
+
+    
     /// -------------DATA CONTRACT DEPLOYMENT---------------
     /**
      * @dev Deploy all the child data contracts. Only called internally from the constructor.

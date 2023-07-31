@@ -415,6 +415,9 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.safeTransferFrom(defaultAdmin, _user3, 19);
         assertEq(applicationNFT.balanceOf(_user3), 2);
 
+        /// set the nftHandler nftValuationLimit variable 
+        applicationNFTHandler.setNFTValuationLimit(100); 
+
         uint48[] memory _maxSize = new uint48[](6);
         uint8[] memory _riskLevel = new uint8[](5);
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
@@ -504,7 +507,8 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(appManager), balanceAmounts);
         /// connect the rule to this handler
         applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);
-
+        /// set the nftHandler nftValuationLimit variable 
+        applicationNFTHandler.setNFTValuationLimit(100); 
         ///perform transfer that checks rule when account does not have AccessLevel fails
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -680,6 +684,8 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
     function testMaxTxSizePerPeriodByRiskRuleNFT(uint8 _risk, uint8 _period, uint8 _hourOfDay) public {
         vm.warp(100_000_000);
+        /// set the nftHandler nftValuationLimit variable 
+        applicationNFTHandler.setNFTValuationLimit(100); 
         /// we create the rule
         uint48[] memory _maxSize = new uint48[](4);
         uint8[] memory _riskLevel = new uint8[](3);
@@ -845,6 +851,9 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.safeMint(_user1);
         nftPricer.setSingleNFTPrice(address(applicationNFT), 2, priceC);
 
+        /// set the nftHandler nftValuationLimit variable 
+        applicationNFTHandler.setNFTValuationLimit(100); 
+
         vm.stopPrank();
         vm.startPrank(riskAdmin);
         // we apply random risk score to user2
@@ -916,6 +925,9 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         withdrawalLimits[4] = 250;
         uint32 index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelWithdrawalRule(address(appManager), withdrawalLimits);
         applicationHandler.setWithdrawalLimitByAccessLevelRuleId(index);
+
+        /// set the nftHandler nftValuationLimit variable 
+        applicationNFTHandler.setNFTValuationLimit(100); 
         /// assign accessLevels to users
         vm.stopPrank();
         vm.startPrank(accessTier);
@@ -1045,6 +1057,9 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         assertTrue(appManager.hasTag(_user1, "Oscar"));
         appManager.addGeneralTag(_user2, "Oscar"); ///add tag
         assertTrue(appManager.hasTag(_user2, "Oscar"));
+
+        /// set the nftHandler nftValuationLimit variable 
+        applicationNFTHandler.setNFTValuationLimit(100); 
 
         nftPricer.setNFTCollectionPrice(address(applicationNFT), 1);
         applicationNFT.safeMint(_user1);
