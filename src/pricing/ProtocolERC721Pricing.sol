@@ -53,7 +53,7 @@ contract ProtocolERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pr
 
     /**
      * @dev gets the price of an NFT. It will return the NFT's specific price, or the
-     * price of the collection if no specific price hsa been given
+     * price of the collection if no specific price has been given
      * @param nftContract is the address of the NFT contract
      * @param id of the NFT
      * @return price of the Token in weis of dollars. 10^18 => $ 1.00 USD
@@ -66,5 +66,15 @@ contract ProtocolERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pr
         } else {
             return singlePrice;
         }
+    }
+
+    /**
+     * @dev gets the price of an NFT Collection. It will return the NFT Collection price to be used for each token Id (i.e. Floor Price).
+     * @param nftContract is the address of the NFT contract
+     * @return price for the collection in weis of dollars. 10^18 => $ 1.00 USD
+     * 999_999_999_999_999_999 = 0xDE0B6B3A763FFFF, 1_000_000_000_000_000_000 = DE0B6B3A7640000
+     */
+    function getNFTCollectionPrice(address nftContract) external view returns (uint256 price) {
+        return collectionPrice[nftContract];
     }
 }

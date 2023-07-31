@@ -18,4 +18,6 @@ interface IProtocolERC721Pricing is NFTPricingErrors {
      * @return price of the NFT in cents of dollars. 1000 => $ 10.00 USD
      */
     function getNFTPrice(address nftContract, uint256 id) external view returns (uint256 price);
+
+    function getNFTCollectionPrice(address nftContract) external view returns (uint256 price); 
 }

@@ -444,6 +444,8 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         applicationNFTHandler.setTransactionLimitByRiskRuleId(index);
+ 
+        
         ///Set Risk Scores for users
         vm.stopPrank();
         vm.startPrank(riskAdmin);
@@ -736,6 +738,7 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         assetHandler.setERC721Address(address(applicationNFTProxy));
         assetHandler.setNFTPricingAddress(address(nftPricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
+
 
         ///Set transaction limit rule params
         uint8[] memory riskScores = new uint8[](5);

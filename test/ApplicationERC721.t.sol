@@ -21,7 +21,6 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
     RuleProcessorDiamond ruleProcessor;
     RuleStorageDiamond ruleStorageDiamond;
     ApplicationERC721Handler applicationNFTHandler;
-    ApplicationERC721Handler applicationNFTHandler2;
     ApplicationAppManager appManager;
     ApplicationHandler public applicationHandler;
     OracleRestricted oracleRestricted;
@@ -405,7 +404,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         txnLimits[4] = 11;
         txnLimits[5] = 10;
         uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(appManager), riskScores, txnLimits);
-
+ 
         ///Mint NFT's (user1,2,3)
         applicationNFT.safeMint(user1); // tokenId = 0
         applicationNFT.safeMint(user1); // tokenId = 1
@@ -809,6 +808,123 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFT.safeMint(user1);
     }
 
+    function testNFTValuation() public {
+        /// mint NFTs and set price to $1USD for each token 
+        for (uint i = 0; i < 10; i++) {
+            applicationNFT.safeMint(user1);
+            nftPricer.setSingleNFTPrice(address(applicationNFT), i, 1 * (10 ** 18));
+        }
+        uint256 testPrice = nftPricer.getNFTPrice(address(applicationNFT), 1);
+        assertEq(testPrice, 1* (10 **18)); 
+        nftPricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18));
+        /// set the nftHandler nftValuationLimit variable 
+        applicationNFTHandler.setNFTValuationLimit(20);
+        /// activate rule that calls valuation 
+        uint48[] memory balanceAmounts = new uint48[](5);
+        balanceAmounts[0] = 0;
+        balanceAmounts[1] = 1;
+        balanceAmounts[2] = 10;
+        balanceAmounts[3] = 50;
+        balanceAmounts[4] = 100; 
+
+        uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(appManager), balanceAmounts);
+        /// connect the rule to this handler
+        applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);
+        /// calc expected valuation based on tokenId's 
+        /**
+         total valuation for user1 should be $10 USD
+         10 tokens * 1 USD for each token 
+         */
+
+        vm.stopPrank();
+        vm.startPrank(accessTier);
+        appManager.addAccessLevel(user1, 2);
+        appManager.addAccessLevel(user2, 1);
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.transferFrom(user1, user2, 1);
+
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationNFT.transferFrom(user2, user1, 1);
+
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler 
+        ApplicationERC721 applicationNFT2 = new ApplicationERC721("ToughTurtles", "THTR", address(appManager), "https://SampleApp.io");
+        ApplicationERC721Handler applicationNFTHandler2 = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFT2.connectHandlerToToken(address(applicationNFTHandler));
+        applicationNFTHandler2.setERC721Address(address(applicationNFT2));
+        /// register the token
+        appManager.registerToken("THTR", address(applicationNFT2));
+        ///Pricing Contracts
+        applicationNFTHandler2.setNFTPricingAddress(address(nftPricer));
+        applicationNFTHandler2.setERC20PricingAddress(address(erc20Pricer));
+        for (uint i = 0; i < 40; i++) {
+            applicationNFT2.safeMint(defaultAdmin);
+            applicationNFT2.transferFrom(defaultAdmin, user1, i);
+            nftPricer.setSingleNFTPrice(address(applicationNFT2), i, 1 * (10 ** 18));
+        }
+        uint256 testPrice2 = nftPricer.getNFTPrice(address(applicationNFT2), 35);
+        assertEq(testPrice2, 1* (10 **18)); 
+        /// set the nftHandler nftValuationLimit variable 
+        applicationNFTHandler2.setNFTValuationLimit(20);
+
+        /// set specific tokens in NFT 2 to higher prices. Expect this value to be ignored by rule check as it is checking collection price. 
+        nftPricer.setSingleNFTPrice(address(applicationNFT2), 36, 100 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT2), 37, 50 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT2), 40, 25 * (10 ** 18));
+        nftPricer.setNFTCollectionPrice(address(applicationNFT2), 1 * (10 ** 18));
+        /// calc expected valuation for user based on tokens * collection price 
+        /** 
+        expected calculated total should be $50 USD since we take total number of tokens owned * collection price 
+        10 PuddgyPenguins 
+        40 ToughTurtles 
+        50 total * collection prices of $1 usd each 
+        */
+
+        /// retest rule to ensure proper valuation totals 
+        /// user 2 has access level 1 and can hold balance of 1 
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.transferFrom(user1, user2, 1);
+        /// user 1 has access level of 2 and can hold balance of 10 (currently above this after admin transfers)
+        vm.stopPrank();
+        vm.startPrank(user2);
+        vm.expectRevert(0xdd76c810);
+        applicationNFT.transferFrom(user2, user1, 1);
+        /// increase user 1 access level to allow for balance of $50 USD  
+        vm.stopPrank();
+        vm.startPrank(accessTier);
+        appManager.addAccessLevel(user1, 3);
+        /**
+        This passes because: 
+        Handler Valuation limits are set at 20 
+        Valuation will check collection price (Floor or ceiling) * tokens held by address 
+        Actual valuation of user 1 is:
+        9 PudgeyPenguins ($9USD) + 40 ToughTurtles ((37 * $1USD) + (1 * $100USD) + (1 * $50USD) + (1 * $25USD) = $221USD)
+         */
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationNFT.transferFrom(user2, user1, 1);
+
+        /// adjust nft valuation limit to ensure we revert back to individual pricing 
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        applicationNFTHandler.setNFTValuationLimit(50);
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.transferFrom(user1, user2, 1);
+        /// fails because valuation now prices each individual token so user 1 has $221USD account value
+        vm.stopPrank();
+        vm.startPrank(user2);
+        vm.expectRevert(0xdd76c810);
+        applicationNFT.transferFrom(user2, user1, 1);
+        
+    }
+
     function testUpgradingHandlersERC721() public {
         ///deploy new modified appliction asset handler contract
         ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), true);
@@ -818,6 +934,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         assetHandler.setERC721Address(address(applicationNFT));
         assetHandler.setNFTPricingAddress(address(nftPricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
+
 
         ///Set transaction limit rule params
         uint8[] memory riskScores = new uint8[](5);

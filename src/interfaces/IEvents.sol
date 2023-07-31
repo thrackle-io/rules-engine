@@ -96,6 +96,8 @@ interface ITokenHandlerEvents {
     event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
     /// Rule activated
     event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
+    /// NFT Valuation Limit Updated 
+    event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit, address indexed handlerAddress);
 }
 
 /**
