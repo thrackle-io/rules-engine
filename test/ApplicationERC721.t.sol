@@ -15,6 +15,7 @@ import "../src/example/OracleAllowed.sol";
 import "../src/example/pricing/ApplicationERC20Pricing.sol";
 import "../src/example/pricing/ApplicationERC721Pricing.sol";
 import {ApplicationERC721HandlerMod} from "./helpers/ApplicationERC721HandlerMod.sol";
+import "test/helpers/ApplicationERC721WithBatchMintBurn.sol";
 
 contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationERC721 applicationNFT;
@@ -926,6 +927,24 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         vm.startPrank(user2);
         vm.expectRevert(0xdd76c810);
         applicationNFT.transferFrom(user2, user1, 1);
+    }
+
+    /// test batch mint and burn
+    function testBatchMintAndBurn() public {
+        /// create the batch capable NFT
+        ApplicationERC721WithBatchMintBurn nftBurner = new ApplicationERC721WithBatchMintBurn("BeanBabyBurner", "THRK", address(appManager), "https://SampleApp.io");
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        nftBurner.connectHandlerToToken(address(applicationNFTHandler));
+        applicationNFTHandler.setERC721Address(address(nftBurner));
+        /// cannot batch burn
+        /// non admins cannot batch mint
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert(0x46b2bfeb);
+        nftBurner.mint(10);
+        assertEq(nftBurner.balanceOf(user1), 0);
+        vm.expectRevert(0x46b2bfeb);
+        nftBurner.burn(10);
     }
 
     function testUpgradingHandlersERC721() public {

@@ -149,6 +149,7 @@ interface IAssetHandlerErrors {
     error CannotTurnOffAccessLevel0WithAccessLevelBalanceActive();
     error PeriodExceeds5Years();
     error ZeroValueNotPermited();
+    error BatchMintBurnNotSupported();
 }
 
 interface IOwnershipErrors {
