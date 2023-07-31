@@ -23,7 +23,7 @@ import "../pricing/IProtocolERC20Pricing.sol";
 import "./data/Fees.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
-import { IAssetHandlerErrors } from "../interfaces/IErrors.sol";
+import {IAssetHandlerErrors} from "../interfaces/IErrors.sol";
 
 contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministratorOrOwnerOnly, IAssetHandlerErrors {
     /**
@@ -64,8 +64,8 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
     uint256 private transferVolume;
     uint64 private lastTransferTs;
     uint64 private lastSupplyUpdateTime;
-    int256 private volumeTotalForPeriod; 
-    uint256 private totalSupplyForPeriod; 
+    int256 private volumeTotalForPeriod;
+    uint256 private totalSupplyForPeriod;
     /// Data contracts
     Fees fees;
     bool feeActive;
@@ -106,20 +106,21 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
 
     /**
      * @dev This function is the one called from the contract that implements this handler. It's the entry point to protocol.
-     * @param balanceFrom token balance of sender address
-     * @param balanceTo token balance of recipient address
+     * @param _balanceFrom token balance of sender address
+     * @param _balanceTo token balance of recipient address
      * @param _from sender address
      * @param _to recipient address
-     * @param amount number of tokens transferred
+     * @param _amount number of tokens transferred
      * @param _tokenId the token's specific ID
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
-     * @return Success equals true if all checks pass
+     * @return _success equals true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, uint256 _tokenId, ActionTypes _action) external returns (bool) {
+    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromAdmin && !isToAdmin) {
+            if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
             uint128 balanceValuation;
             uint128 transferValuation;
             if (appManager.requireValuations()) {
@@ -127,11 +128,11 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
                 transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
             }
             appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
-            _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount, _tokenId);
-            _checkNonTaggedRules(balanceFrom, balanceTo, _from, _to, amount, _tokenId);
+            _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
+            _checkNonTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
         } else {
-            if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
+            if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
         }
         /// set the ownership start time for the token if the Minimum Hold time rule is active
         if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
@@ -165,8 +166,15 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
         if (totalSupplyVolatilityRuleActive && (_from == address(0x00) || _to == address(0x00))) {
-            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(totalSupplyVolatilityRuleId, volumeTotalForPeriod, totalSupplyForPeriod, IToken(msg.sender).totalSupply(), _to == address(0x00)? int(_amount) * -1:int(_amount), lastSupplyUpdateTime);
-            lastSupplyUpdateTime = uint64(block.timestamp); 
+            (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(
+                totalSupplyVolatilityRuleId,
+                volumeTotalForPeriod,
+                totalSupplyForPeriod,
+                IToken(msg.sender).totalSupply(),
+                _to == address(0x00) ? int(_amount) * -1 : int(_amount),
+                lastSupplyUpdateTime
+            );
+            lastSupplyUpdateTime = uint64(block.timestamp);
         }
     }
 
@@ -725,7 +733,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         }
     }
 
-        /**
+    /**
      * @dev Retrieve the total supply volatility rule id
      * @return totalSupplyVolatilityRuleId rule id
      */

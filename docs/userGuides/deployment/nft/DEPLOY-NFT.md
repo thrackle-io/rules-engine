@@ -3,6 +3,8 @@
 
 ---
 
+NOTE: NFT Batch minting and burning is not supported in this release.
+
 1. Ensure the [environment variables][environment-url] are set correctly.
 2. Copy the template from src/example/ApplicationERC721.sol to your desired location
 3. Change the name of the contract to suit your naming standards
