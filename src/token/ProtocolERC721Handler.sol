@@ -99,6 +99,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+        setNFTValuationLimit(100);
         if (!_upgradeMode) {
             emit HandlerDeployed(address(this), _appManagerAddress);
         } else {
@@ -388,7 +389,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
             if (tokenAmount > 0) {
                 try IERC165(tokenList[i]).supportsInterface(0x80ac58cd) returns (bool isERC721) {
                     if (isERC721 && tokenAmount >= nftValuationLimit) totalValuation += _getNFTCollectionValue(tokenList[i], tokenAmount); 
-                    if (isERC721 && tokenAmount < nftValuationLimit) totalValuation += _getNFTValuePerCollection(tokenList[i], _account, tokenAmount);
+                    else if (isERC721 && tokenAmount < nftValuationLimit) totalValuation += _getNFTValuePerCollection(tokenList[i], _account, tokenAmount);
                     else {
                         uint8 decimals = ERC20(tokenList[i]).decimals();
                         totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
@@ -448,7 +449,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      */
     function _getNFTCollectionValue(address _tokenAddress, uint256 _tokenAmount) private view returns (uint256 totalValueInThisContract) {
         if (nftPricingAddress != address(0)) {
-            totalValueInThisContract += (_tokenAmount * nftPricer.getNFTCollectionPrice(_tokenAddress));
+            totalValueInThisContract = _tokenAmount * uint256(nftPricer.getNFTCollectionPrice(_tokenAddress));
         } else {
             revert PricingModuleNotConfigured(erc20PricingAddress, nftPricingAddress);
         }
@@ -820,9 +821,9 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
      * @dev Set the NFT Valuation limit that will check collection price vs looping through each tokenId in collections 
      * @param _newNFTValuationLimit set the number of NFTs in a wallet that will check for collection price vs individual token prices
      */
-    function setNFTValuationLimit(uint256 _newNFTValuationLimit) external appAdministratorOrOwnerOnly(appManagerAddress) {
+    function setNFTValuationLimit(uint256 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(appManagerAddress) {
         nftValuationLimit = _newNFTValuationLimit; 
-        ///TODO emit event / create event 
+        emit NFTValuationLimitUpdated(_newNFTValuationLimit, address(this));  
     }
 
     /**
