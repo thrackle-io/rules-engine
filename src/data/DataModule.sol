@@ -12,12 +12,17 @@ import {IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
  * @dev Allows for proper permissioning for both internal and external data sources.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAddressError {
+abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAddressError {
     ///Data Module
     address public dataModuleAppManagerAddress;
     address newOwner; // This is used for data contract migration
     address newDataProviderOwner; // this is used for single new data provider
-
+    /**
+     * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
+     */
+    constructor(address _dataModuleAppManagerAddress) {
+        dataModuleAppManagerAddress = _dataModuleAppManagerAddress;
+    }
     /**
      * @dev Modifier ensures function caller is a Application Administrators or the parent contract
      */
