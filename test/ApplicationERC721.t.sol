@@ -381,8 +381,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         txnLimits[4] = 11;
         txnLimits[5] = 10;
         uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(appManager), riskScores, txnLimits);
-        /// set the nftHandler nftValuationLimit variable 
-        applicationNFTHandler.setNFTValuationLimit(100); 
+ 
         ///Mint NFT's (user1,2,3)
         applicationNFT.safeMint(user1); // tokenId = 0
         applicationNFT.safeMint(user1); // tokenId = 1
@@ -886,6 +885,20 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         vm.stopPrank();
         vm.startPrank(user2);
         applicationNFT.transferFrom(user2, user1, 1);
+
+        /// adjust nft valuation limit to ensure we revert back to individual pricing 
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        applicationNFTHandler.setNFTValuationLimit(50);
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.transferFrom(user1, user2, 1);
+        /// fails because valuation now prices each individual token so user 1 has $221USD account value
+        vm.stopPrank();
+        vm.startPrank(user2);
+        vm.expectRevert(0xdd76c810);
+        applicationNFT.transferFrom(user2, user1, 1);
         
     }
 
@@ -898,8 +911,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         assetHandler.setERC721Address(address(applicationNFT));
         assetHandler.setNFTPricingAddress(address(nftPricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
-        /// set the nftHandler nftValuationLimit variable 
-        assetHandler.setNFTValuationLimit(100);
+
 
         ///Set transaction limit rule params
         uint8[] memory riskScores = new uint8[](5);

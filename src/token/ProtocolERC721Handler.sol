@@ -99,6 +99,7 @@ contract ProtocolERC721Handler is Ownable, ITokenHandlerEvents, AppAdministrator
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+        /// Default value of 100 may be changed at any time with setNFTValuationLimit called by an app admin. 
         setNFTValuationLimit(100);
         if (!_upgradeMode) {
             emit HandlerDeployed(address(this), _appManagerAddress);

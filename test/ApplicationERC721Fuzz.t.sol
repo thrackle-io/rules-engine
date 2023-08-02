@@ -415,9 +415,6 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.safeTransferFrom(defaultAdmin, _user3, 19);
         assertEq(applicationNFT.balanceOf(_user3), 2);
 
-        /// set the nftHandler nftValuationLimit variable 
-        applicationNFTHandler.setNFTValuationLimit(100); 
-
         uint48[] memory _maxSize = new uint48[](6);
         uint8[] memory _riskLevel = new uint8[](5);
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
@@ -507,8 +504,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(appManager), balanceAmounts);
         /// connect the rule to this handler
         applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);
-        /// set the nftHandler nftValuationLimit variable 
-        applicationNFTHandler.setNFTValuationLimit(100); 
+ 
         ///perform transfer that checks rule when account does not have AccessLevel fails
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -670,6 +666,75 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
     }
 
+    function testNFTValuationVariableLimitFuzz(uint8 _addressIndex, uint256 _valuationLimit) public {
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
+        address _user1 = addressList[0];
+        address _user2 = addressList[1];
+        address _user3 = addressList[2];
+        address _user4 = addressList[3];
+
+        /// mint and load user 1 with 50 NFTs 
+        for (uint i; i < 50; ) {
+            applicationNFT.safeMint(defaultAdmin);
+            nftPricer.setSingleNFTPrice(address(applicationNFT), i, 1 * (10 ** 18)); //setting at $1
+            assertEq(nftPricer.getNFTPrice(address(applicationNFT), i), 1 * (10 ** 18));
+            applicationNFT.transferFrom(defaultAdmin, _user1, i);
+            unchecked {
+                ++i;
+            }
+        }
+        // add account balance rule to check valuations 
+        uint48[] memory balanceAmounts = new uint48[](5);
+        balanceAmounts[0] = 0;
+        balanceAmounts[1] = 10;
+        balanceAmounts[2] = 50;
+        balanceAmounts[3] = 100;
+        balanceAmounts[4] = 300;
+        uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(appManager), balanceAmounts);
+        /// connect the rule to this handler
+        applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);
+        /// set the nftHandler nftValuationLimit variable 
+        applicationNFTHandler.setNFTValuationLimit(_valuationLimit); 
+        /// set 2 tokens above the $1 USD amount of other tokens (tokens 0-9 will always be minted)
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 2, 50 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 3, 25 * (10 ** 18));
+        nftPricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18));
+        /// set access levels for user 1 and user 2 
+        vm.stopPrank();
+        vm.startPrank(accessTier);
+        appManager.addAccessLevel(_user1, 2);
+        appManager.addAccessLevel(_user2, 2);
+        appManager.addAccessLevel(_user3, 1);
+        appManager.addAccessLevel(_user4, 4);
+        /// transfer tokens to user 2 
+        vm.stopPrank();
+        vm.startPrank(_user1);
+        applicationNFT.transferFrom(_user1, _user2, 9);
+        /// transfer back to user 1  
+        /**
+        Tx fails if the balance of user1 is over the access level of $50USD 
+        or 
+        if the balance of user 1 is less than the nftValuation limit (will calc the token prices increase above)
+        */
+        vm.stopPrank();
+        vm.startPrank(_user2);
+        if (!appManager.isAppAdministrator(_user1) && !appManager.isAppAdministrator(_user2)){
+            if (_valuationLimit > 49) {
+                vm.expectRevert(0xdd76c810);
+                applicationNFT.transferFrom(_user2, _user1, 9);
+            } 
+        }
+
+        // vm.stopPrank();
+        // vm.startPrank(_user1);
+        // /// check token valuation works with increased value tokens 
+        // vm.expectRevert(0xdd76c810);
+        // applicationNFT.transferFrom(_user1, _user3, 2);
+
+        // applicationNFT.transferFrom(_user1, _user4, 2);
+
+    }
+
     function testPassesMinBalByDateNFTFuzz(uint8 _addressIndex, bytes32 tag1, bytes32 tag2, bytes32 tag3) public {
         /// Set up test variables
         vm.assume(tag1 != "" && tag2 != "" && tag3 != "");
@@ -756,8 +821,6 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
     function testMaxTxSizePerPeriodByRiskRuleNFT(uint8 _risk, uint8 _period, uint8 _hourOfDay) public {
         vm.warp(100_000_000);
-        /// set the nftHandler nftValuationLimit variable 
-        applicationNFTHandler.setNFTValuationLimit(100); 
         /// we create the rule
         uint48[] memory _maxSize = new uint48[](4);
         uint8[] memory _riskLevel = new uint8[](3);
@@ -923,9 +986,6 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.safeMint(_user1);
         nftPricer.setSingleNFTPrice(address(applicationNFT), 2, priceC);
 
-        /// set the nftHandler nftValuationLimit variable 
-        applicationNFTHandler.setNFTValuationLimit(100); 
-
         vm.stopPrank();
         vm.startPrank(riskAdmin);
         // we apply random risk score to user2
@@ -997,9 +1057,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         withdrawalLimits[4] = 250;
         uint32 index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelWithdrawalRule(address(appManager), withdrawalLimits);
         applicationHandler.setWithdrawalLimitByAccessLevelRuleId(index);
-
-        /// set the nftHandler nftValuationLimit variable 
-        applicationNFTHandler.setNFTValuationLimit(100); 
+ 
         /// assign accessLevels to users
         vm.stopPrank();
         vm.startPrank(accessTier);
@@ -1130,8 +1188,6 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         appManager.addGeneralTag(_user2, "Oscar"); ///add tag
         assertTrue(appManager.hasTag(_user2, "Oscar"));
 
-        /// set the nftHandler nftValuationLimit variable 
-        applicationNFTHandler.setNFTValuationLimit(100); 
 
         nftPricer.setNFTCollectionPrice(address(applicationNFT), 1);
         applicationNFT.safeMint(_user1);
