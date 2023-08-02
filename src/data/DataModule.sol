@@ -5,18 +5,27 @@ import "./IDataModule.sol";
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {IAppManager} from "src/application/IAppManager.sol";
 import {IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
+import {IAppManager} from "../application/IAppManager.sol";
+
 
 /**
  * @title Data Module
- * @notice This contract serves as a template for all data modules.
+ * @notice This contract serves as a template for all data modules and is abstract as it is not intended to be deployed on its own.
  * @dev Allows for proper permissioning for both internal and external data sources.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAddressError {
+abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAddressError {
     ///Data Module
     address public dataModuleAppManagerAddress;
     address newOwner; // This is used for data contract migration
     address newDataProviderOwner; // this is used for single new data provider
+    /**
+     * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
+     * @param _dataModuleAppManagerAddress address of the owning app manager
+     */
+    constructor(address _dataModuleAppManagerAddress) {
+        dataModuleAppManagerAddress = _dataModuleAppManagerAddress;
+    }
 
     /**
      * @dev Modifier ensures function caller is a Application Administrators or the parent contract
