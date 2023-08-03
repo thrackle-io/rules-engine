@@ -27,8 +27,8 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
 
         if (data.getTotalMinimumTransferRules() != 0) {
-            try data.getMinimumTransferRule(_ruleId) returns (uint min) {
-                if (min > amountToTransfer) revert BelowMinTransfer();
+            try data.getMinimumTransferRule(_ruleId) returns (NonTaggedRules.TokenMinimumTransferRule memory rule) {
+                if (rule.minTransferAmount > amountToTransfer) revert BelowMinTransfer();
             } catch {
                 revert RuleDoesNotExist();
             }

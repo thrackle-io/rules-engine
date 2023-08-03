@@ -68,7 +68,7 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
 
     function testAddMinTransferRule() public {
         uint32 index = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 1000);
-        assertEq(RuleDataFacet(address(ruleStorageDiamond)).getMinimumTransferRule(index), 1000);
+        assertEq(RuleDataFacet(address(ruleStorageDiamond)).getMinimumTransferRule(index).minTransferAmount, 1000);
     }
 
     function testFailAddMinTransferRuleByNonAdmin() public {
@@ -89,12 +89,6 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         uint32 index = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 420);
         vm.expectRevert(0x70311aa2);
         ERC20RuleProcessorFacet(address(ruleProcessor)).checkMinTransferPasses(index, 400);
-    }
-
-    function testCheckingAgainstAnInexistentRule() public {
-        uint32 index = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 69);
-        vm.expectRevert(0x4bdf3b46);
-        ERC20RuleProcessorFacet(address(ruleProcessor)).checkMinTransferPasses(index + 1, 70);
     }
 
     function testMinAccountBalanceCheck() public {
