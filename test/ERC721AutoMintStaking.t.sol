@@ -38,7 +38,7 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
     address user2 = address(0xBBB);
     address user3 = address(0xCCC);
     address rich_user = address(0xDDD);
-    uint256 Blocktime = 1675723152;
+    uint64 Blocktime = 1675723152;
     uint128[7] ruleAArray = [1, 60, 3600, 86400, 604800, 2592000, 31536000];
     uint128[7] ruleBArray = [2, 120, 7200, 43200, 1209600, 5184000, 63072000];
     uint256[7] timeUnits = [1, 1 minutes, 1 hours, 1 days, 1 weeks, 30 days, 365 days];

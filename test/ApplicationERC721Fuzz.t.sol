@@ -37,7 +37,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
     address[] badBoys;
     address[] goodBoys;
     address[] ADDRESSES = [address(0xFF1), address(0xFF2), address(0xFF3), address(0xFF4), address(0xFF5), address(0xFF6), address(0xFF7), address(0xFF8)];
-    uint256 Blocktime = 1769924800;
+    uint64 Blocktime = 1769924800;
     event Log(string eventString, bytes32[] tag);
 
     function setUp() public {
@@ -328,11 +328,11 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         uint8[] memory tradesAllowed = new uint8[](2);
         tradesAllowed[0] = 1;
         tradesAllowed[1] = 5;
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(appManager), nftTags, tradesAllowed);
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(appManager), nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
         NonTaggedRules.NFTTradeCounterRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
-        assertTrue(rule.active);
+        assertEq(rule.startTs, Blocktime);
         // tag the NFT collection
         appManager.addGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
         // apply the rule to the ApplicationERC721Handler
@@ -626,11 +626,11 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         holdAmounts[0] = 1;
         holdAmounts[1] = 2;
         holdAmounts[2] = 3;
-        uint256[] memory holdPeriods = new uint256[](3);
-        holdPeriods[0] = uint32(720); // one month
-        holdPeriods[1] = uint32(4380); // six months
-        holdPeriods[2] = uint32(17520); // two years
-        uint256[] memory holdTimestamps = new uint256[](3);
+        uint16[] memory holdPeriods = new uint16[](3);
+        holdPeriods[0] = uint16(720); // one month
+        holdPeriods[1] = uint16(4380); // six months
+        holdPeriods[2] = uint16(17520); // two years
+        uint64[] memory holdTimestamps = new uint64[](3);
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
@@ -976,25 +976,25 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
     }
 
     function testTotalSupplyVolatilityERC721Fuzz(uint8 _addressIndex, uint16 volLimit) public {
-        /// test params 
+        /// test params
         vm.assume(volLimit < 9999 && volLimit > 0);
         if (volLimit < 100) volLimit = 100;
-        vm.warp(Blocktime); 
-        uint8 rulePeriod = 24; /// 24 hours 
-        uint8 startingTime = 12; /// start at noon 
+        vm.warp(Blocktime);
+        uint8 rulePeriod = 24; /// 24 hours
+        uint64 startingTime = Blocktime; /// default timestamp
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         address rich_user = addressList[0];
-        /// mint initial supply 
+        /// mint initial supply
         for (uint i = 0; i < 10; i++) {
             applicationNFT.safeMint(defaultAdmin);
         }
         applicationNFT.safeTransferFrom(defaultAdmin, rich_user, 9);
-        /// create and activate rule 
+        /// create and activate rule
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), volLimit, rulePeriod, startingTime, tokenSupply);
         applicationNFTHandler.setTotalSupplyVolatilityRuleId(_index);
 
-        /// determine the maximum burn/mint amount for inital test 
+        /// determine the maximum burn/mint amount for inital test
         uint256 maxVol = uint256(volLimit) / 1000;
         console.logUint(maxVol);
         vm.stopPrank();
@@ -1009,15 +1009,15 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         if (maxVol == 0) {
             vm.expectRevert();
             applicationNFT.safeMint(rich_user);
-        } 
+        }
         if (maxVol == 0) {
             vm.expectRevert();
             applicationNFT.safeMint(rich_user);
-        } 
-        /// at vol limit 
+        }
+        /// at vol limit
         if ((10000 / applicationNFT.totalSupply()) > volLimit) {
             vm.expectRevert();
-            applicationNFT.burn(9); 
+            applicationNFT.burn(9);
         } else {
             applicationNFT.burn(9);
             applicationNFT.safeMint(rich_user); // token 10
@@ -1025,8 +1025,6 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
             applicationNFT.safeMint(rich_user);
             applicationNFT.burn(11);
         }
-        
-
     }
 
     function testTheWholeProtocolThroughNFT(uint32 priceA, uint32 priceB, uint16 priceC, uint8 riskScore, bytes32 tag1) public {
@@ -1108,9 +1106,9 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
             accs[0] = tag1;
             uint256[] memory holdAmounts = new uint256[](1);
             holdAmounts[0] = 2;
-            uint256[] memory holdPeriods = new uint256[](1);
-            holdPeriods[0] = uint32(720); // one month
-            uint256[] memory holdTimestamps = new uint256[](1);
+            uint16[] memory holdPeriods = new uint16[](1);
+            holdPeriods[0] = uint16(720); // one month
+            uint64[] memory holdTimestamps = new uint64[](1);
             holdTimestamps[0] = Blocktime;
             appManager.addGeneralTag(_user1, tag1); ///add tag
             uint32 balanceByDateId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(appManager), accs, holdAmounts, holdPeriods, holdTimestamps);
@@ -1122,7 +1120,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
             nftTags[0] = bytes32("BoredGrape");
             uint8[] memory tradesAllowed = new uint8[](1);
             tradesAllowed[0] = 3;
-            uint32 tradeRuleId = RuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(appManager), nftTags, tradesAllowed);
+            uint32 tradeRuleId = RuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(appManager), nftTags, tradesAllowed, Blocktime);
             appManager.addGeneralTag(address(applicationNFT), "BoredGrape"); ///add tag
             applicationNFTHandler.setTradeCounterRuleId(tradeRuleId);
         }
@@ -1373,12 +1371,12 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address rich_user = addressList[0];
         address _user1 = addressList[1];
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), _maxPercent, _period, 0, 0);
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), _maxPercent, _period, Blocktime, 0);
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, _maxPercent);
         assertEq(rule.period, _period);
-        assertEq(rule.startingTime, 0);
+        assertEq(rule.startTime, Blocktime);
         /// load non admin users with nft's
         // mint 10 nft's to non admin user
         for (uint i = 0; i < 10; i++) {

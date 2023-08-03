@@ -5,9 +5,10 @@ import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
-import { IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors} from "../../interfaces/IErrors.sol";
+import {IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors} from "../../interfaces/IErrors.sol";
 import "./RuleCodeData.sol";
 import "../AppAdministratorOnly.sol";
+import "./RuleStorageCommonLib.sol";
 
 /**
  * @title Tagged Rule Data Facet
@@ -17,13 +18,13 @@ import "../AppAdministratorOnly.sol";
  */
 
 contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors {
+    using RuleStorageCommonLib for uint64;
+
     /**
      * Note that no update method is implemented. Since reutilization of
      * rules is encouraged, it is preferred to add an extra rule to the
      * set instead of modifying an existing one.
      */
-
-
 
     /********************** Purchase Getters/Setters ***********************/
     /**
@@ -33,15 +34,15 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @param _accountTypes Types of Accounts
      * @param _purchaseAmounts Allowed total purchase limits
      * @param _purchasePeriods Hours purhchases allowed
-     * @param _startTimes Hours of the day in utc for first period to start
+     * @param _startTimes timestamp period to start
      * @return position of new rule in array
      */
     function addPurchaseRule(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
         uint256[] calldata _purchaseAmounts,
-        uint32[] calldata _purchasePeriods,
-        uint32[] calldata _startTimes
+        uint16[] calldata _purchasePeriods,
+        uint64[] calldata _startTimes
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_accountTypes.length != _purchaseAmounts.length || _accountTypes.length != _purchasePeriods.length || _accountTypes.length != _startTimes.length) revert InputArraysMustHaveSameLength();
         return _addPurchaseRule(_accountTypes, _purchaseAmounts, _purchasePeriods, _startTimes);
@@ -52,18 +53,17 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @param _accountTypes Types of Accounts
      * @param _purchaseAmounts Allowed total purchase limits
      * @param _purchasePeriods Hours purhchases allowed
-     * @param _startTimes Hours of the day in utc for first period to start
+     * @param _startTimes timestamps for first period to start
      * @return position of new rule in array
      */
-    function _addPurchaseRule(bytes32[] calldata _accountTypes, uint256[] calldata _purchaseAmounts, uint32[] calldata _purchasePeriods, uint32[] calldata _startTimes) internal returns (uint32) {
+    function _addPurchaseRule(bytes32[] calldata _accountTypes, uint256[] calldata _purchaseAmounts, uint16[] calldata _purchasePeriods, uint64[] calldata _startTimes) internal returns (uint32) {
         RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
         uint32 index = data.purchaseRulesIndex;
         for (uint256 i; i < _accountTypes.length; ) {
             if (_accountTypes[i] == bytes32("")) revert BlankTag();
             if (_purchaseAmounts[i] == 0 || _purchasePeriods[i] == 0 || _startTimes[i] == 0) revert ZeroValueNotPermited();
-            if (_startTimes[i] > 23) revert StartTimeNotValid();
-            uint64 _startTime = uint64((block.timestamp - (block.timestamp % (3600 seconds * 12)) - 1 days) + (_startTimes[i] * 1 hours)); ///Low Rank Approximation
-            data.purchaseRulesPerUser[index][_accountTypes[i]] = TaggedRules.PurchaseRule(_purchaseAmounts[i], _purchasePeriods[i], _startTime);
+            _startTimes[i].validateTimestamp();
+            data.purchaseRulesPerUser[index][_accountTypes[i]] = TaggedRules.PurchaseRule(_purchaseAmounts[i], _purchasePeriods[i], _startTimes[i]);
 
             unchecked {
                 ++i;
@@ -103,14 +103,15 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @param _accountTypes Types of Accounts
      * @param _sellAmounts Allowed total sell limits
      * @param _sellPeriod Period for sales
+     * @param _startTimes rule starts
      * @return position of new rule in array
      */
     function addSellRule(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
         uint192[] calldata _sellAmounts,
-        uint32[] calldata _sellPeriod,
-        uint32[] calldata _startTimes
+        uint16[] calldata _sellPeriod,
+        uint64[] calldata _startTimes
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length) revert InputArraysMustHaveSameLength();
 
@@ -122,17 +123,17 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @param _accountTypes Types of Accounts
      * @param _sellAmounts Allowed total sell limits
      * @param _sellPeriod Period for sales
+     * @param _startTimes rule starts
      * @return position of new rule in array
      */
-    function _addSellRule(bytes32[] calldata _accountTypes, uint192[] calldata _sellAmounts, uint32[] calldata _sellPeriod, uint32[] calldata _startTimes) internal returns (uint32) {
+    function _addSellRule(bytes32[] calldata _accountTypes, uint192[] calldata _sellAmounts, uint16[] calldata _sellPeriod, uint64[] calldata _startTimes) internal returns (uint32) {
         RuleS.SellRuleS storage data = Storage.sellStorage();
         uint32 index = data.sellRulesIndex;
         for (uint256 i; i < _accountTypes.length; ) {
             if (_accountTypes[i] == bytes32("")) revert BlankTag();
             if (_sellAmounts[i] == 0 || _sellPeriod[i] == 0) revert ZeroValueNotPermited();
-            if (_startTimes[i] > 23) revert StartTimeNotValid();
-            uint64 _startTime = uint64((block.timestamp - (block.timestamp % (3600 seconds * 12)) - 1 days) + (_startTimes[i] * 1 hours)); ///Low Rank Approximation
-            data.sellRulesPerUser[index][_accountTypes[i]] = TaggedRules.SellRule(_sellAmounts[i], _sellPeriod[i], _startTime);
+            _startTimes[i].validateTimestamp();
+            data.sellRulesPerUser[index][_accountTypes[i]] = TaggedRules.SellRule(_sellAmounts[i], _sellPeriod[i], _startTimes[i]);
             unchecked {
                 ++i;
             }
@@ -424,8 +425,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         address _appManagerAddr,
         bytes32[] calldata _accountTags,
         uint256[] calldata _holdAmounts,
-        uint256[] calldata _holdPeriods,
-        uint256[] calldata _startTimestamps
+        uint16[] calldata _holdPeriods,
+        uint64[] calldata _startTimestamps
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_accountTags.length != _holdAmounts.length || _accountTags.length != _holdPeriods.length || _accountTags.length != _startTimestamps.length) revert InputArraysMustHaveSameLength();
         return _addMinBalByDateRule(_accountTags, _holdAmounts, _holdPeriods, _startTimestamps);
@@ -439,12 +440,12 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @param _startTimestamps Timestamp that the check should start
      * @return ruleId of new rule in array
      */
-    function _addMinBalByDateRule(bytes32[] calldata _accountTags, uint256[] calldata _holdAmounts, uint256[] calldata _holdPeriods, uint256[] memory _startTimestamps) internal returns (uint32) {
+    function _addMinBalByDateRule(bytes32[] calldata _accountTags, uint256[] calldata _holdAmounts, uint16[] calldata _holdPeriods, uint64[] memory _startTimestamps) internal returns (uint32) {
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         uint32 index = data.minBalByDateRulesIndex;
         /// if defaults sent for timestamp, start them with current block time
         for (uint256 i; i < _startTimestamps.length; ) {
-            if (_startTimestamps[i] == 0) _startTimestamps[i] = block.timestamp;
+            if (_startTimestamps[i] == 0) _startTimestamps[i] = uint64(block.timestamp);
             unchecked {
                 ++i;
             }

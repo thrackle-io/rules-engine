@@ -35,7 +35,7 @@ contract ERC20StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     address user2 = address(0xBBB);
     address user3 = address(0xCCC);
     address rich_user = address(0xDDD);
-    uint256 Blocktime = 1675723152;
+    uint64 Blocktime = 1675723152;
     uint128[7] ruleAArray = [1, 60, 3600, 86400, 604800, 2592000, 31536000];
     uint128[7] ruleBArray = [0, 1, 60, 1440, 10080, 43200, 525600];
     uint256[7] timeUnits = [1, 1 minutes, 1 hours, 1 days, 1 weeks, 30 days, 365 days];

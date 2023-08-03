@@ -39,7 +39,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
     address ac;
     address[] badBoys;
     address[] goodBoys;
-    uint256 Blocktime = 1769924800;
+    uint64 Blocktime = 1769924800;
 
     function setUp() public {
         vm.startPrank(defaultAdmin);
@@ -309,11 +309,10 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         uint8[] memory tradesAllowed = new uint8[](2);
         tradesAllowed[0] = 1;
         tradesAllowed[1] = 5;
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(appManager), nftTags, tradesAllowed);
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(appManager), nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
         NonTaggedRules.NFTTradeCounterRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
-        assertTrue(rule.active);
         // tag the NFT collection
         appManager.addGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
         // apply the rule to the ApplicationERC721Handler
@@ -529,11 +528,11 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         holdAmounts[0] = uint256(1);
         holdAmounts[1] = uint256(2);
         holdAmounts[2] = uint256(3);
-        uint256[] memory holdPeriods = new uint256[](3);
-        holdPeriods[0] = uint32(720); // one month
-        holdPeriods[1] = uint32(4380); // six months
-        holdPeriods[2] = uint32(17520); // two years
-        uint256[] memory holdTimestamps = new uint256[](3); /// StartTime of hold period
+        uint16[] memory holdPeriods = new uint16[](3);
+        holdPeriods[0] = uint16(720); // one month
+        holdPeriods[1] = uint16(4380); // six months
+        holdPeriods[2] = uint16(17520); // two years
+        uint64[] memory holdTimestamps = new uint64[](3); /// StartTime of hold period
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
@@ -645,12 +644,12 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
     /// test the transfer volume rule in erc721
     function testTransferVolumeRuleNFT() public {
         /// set the rule for 40% in 2 hours, starting at midnight
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 2000, 2, 0, 0);
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 2000, 2, Blocktime, 0);
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, 2000);
         assertEq(rule.period, 2);
-        assertEq(rule.startingTime, 0);
+        assertEq(rule.startTime, Blocktime);
         // mint 10 nft's to non admin user
         for (uint i = 0; i < 10; i++) {
             applicationNFT.safeMint(user1);
@@ -681,12 +680,12 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
     /// test the transfer volume rule in erc721
     function testNFTTransferVolumeRuleWithSupplySet() public {
         /// set the rule for 2% in 2 hours, starting at midnight
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 200, 2, 0, 100);
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 200, 2, Blocktime, 100);
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, 200);
         assertEq(rule.period, 2);
-        assertEq(rule.startingTime, 0);
+        assertEq(rule.startTime, Blocktime);
         // mint 10 nft's to non admin user
         for (uint i = 0; i < 10; i++) {
             applicationNFT.safeMint(user1);
@@ -697,11 +696,12 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         vm.startPrank(user1);
         // transfer under the threshold
         applicationNFT.safeTransferFrom(user1, user2, 0);
-        // transfer one that hits the percentage
+        //transfer one that hits the percentage
         vm.expectRevert(0x3627495d);
         applicationNFT.safeTransferFrom(user1, user2, 1);
         /// now move a little over 2 hours into the future to make sure the next block will work
         vm.warp(Blocktime + 121 minutes);
+        // assertFalse(isWithinPeriod2(Blocktime, 2, Blocktime));
         applicationNFT.safeTransferFrom(user1, user2, 1);
         /// now violate the rule in this block and ensure revert
         vm.expectRevert(0x3627495d);
@@ -749,40 +749,40 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFT.safeTransferFrom(user2, user1, 0);
     }
 
-    /// test supply volatility rule 
+    /// test supply volatility rule
     function testCollectionSupplyVolatilityRule() public {
         /// Mint tokens to specific supply
         for (uint i = 0; i < 10; i++) {
             applicationNFT.safeMint(defaultAdmin);
         }
-        /// create rule params 
-        // create rule params 
-        uint16 volatilityLimit = 2000; /// 10% 
-        uint8 rulePeriod = 24; /// 24 hours 
-        uint8 startingTime = 12; /// start at noon 
-        uint256 tokenSupply = 0; /// calls totalSupply() for the token 
+        /// create rule params
+        // create rule params
+        uint16 volatilityLimit = 2000; /// 10%
+        uint8 rulePeriod = 24; /// 24 hours
+        uint64 startingTime = Blocktime; /// default timestamp
+        uint256 tokenSupply = 0; /// calls totalSupply() for the token
 
-        /// set rule id and activate 
+        /// set rule id and activate
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        applicationNFTHandler.setTotalSupplyVolatilityRuleId(_index); 
-        /// set blocktime to within rule period 
+        applicationNFTHandler.setTotalSupplyVolatilityRuleId(_index);
+        /// set blocktime to within rule period
         vm.warp(Blocktime + 13 hours);
-        /// mint tokens under supply limit 
+        /// mint tokens under supply limit
         vm.stopPrank();
         vm.startPrank(user1);
-        applicationNFT.safeMint(user1); 
-        /// mint tokens to the cap 
+        applicationNFT.safeMint(user1);
+        /// mint tokens to the cap
         applicationNFT.safeMint(user1);
         /// fail transactions (mint and burn with passing transfers)
-        vm.expectRevert(); 
+        vm.expectRevert();
         applicationNFT.safeMint(user1);
 
-        applicationNFT.burn(10); 
-        /// move out of rule period 
+        applicationNFT.burn(10);
+        /// move out of rule period
         vm.warp(Blocktime + 36 hours);
         /// burn tokens (should pass)
-        applicationNFT.burn(11); 
-        /// mint 
+        applicationNFT.burn(11);
+        /// mint
         applicationNFT.safeMint(user1);
     }
 
@@ -904,7 +904,6 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         address testAddress = assetHandler.newTestFunction();
         console.log(assetHandler.newTestFunction(), testAddress);
     }
-
 
     /// ******************* OPTIONAL MINT FUNCTION TESTING ******************
     /// These functions should remain commented out unless implementing overriding safeMint function inside of ApplicationERC721

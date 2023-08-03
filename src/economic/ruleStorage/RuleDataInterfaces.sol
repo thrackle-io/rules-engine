@@ -17,7 +17,7 @@ interface INonTaggedRules {
     /// ******** Token Purchase Percentage Rules ********
     struct TokenPercentagePurchaseRule {
         uint16 tokenPercentage; /// from 0000 to 10000 => 0.00% to 100.00%.
-        uint32 purchasePeriod;
+        uint16 purchasePeriod;
         uint256 totalSupply; /// set 0 to use erc20 totalSupply
         uint64 startTime; /// start of time period for the rule
     }
@@ -25,7 +25,7 @@ interface INonTaggedRules {
     /// ******** Token Percentage Sell Rules ********
     struct TokenPercentageSellRule {
         uint16 tokenPercentage; /// from 0000 to 10000 => 0.00% to 100.00%.
-        uint32 sellPeriod;
+        uint16 sellPeriod;
         uint256 totalSupply; /// set 0 to use erc20 totalSupply
         uint64 startTime; ///start of time period for the rule
     }
@@ -39,28 +39,22 @@ interface INonTaggedRules {
     /// ******** Token Volatility ********
     struct TokenVolatilityRule {
         uint16 maxVolatility; /// from 0000 to 10000 => 0.00% to 100.00%.
-        uint8 period; // hours
-        uint64 startingTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
+        uint16 period; // hours
+        uint16 hoursFrozen; // hours in the freeze period
         uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
     }
 
-    /// ******** Token Trading Volume ********
-    struct TokenTradingVolumeRule {
-        uint256 maxVolume;
-        uint8 hoursPerPeriod;
-        uint8 hoursFrozen;
-    }
     /// ******** Token Transfer Volume ********
     struct TokenTransferVolumeRule {
         uint16 maxVolume; // this is a percentage with 2 decimals of precision(2500 = 25%)
-        uint8 period; // hours
-        uint64 startingTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
+        uint16 period; // hours
+        uint64 startTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
         uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
     }
     /// ******** Supply Volatility ********
     struct SupplyVolatilityRule {
         uint16 maxChange; /// from 0000 to 10000 => 0.00% to 100.00%.
-        uint8 period; // hours
+        uint16 period; // hours
         uint64 startingTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
         uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
     }
@@ -72,7 +66,7 @@ interface INonTaggedRules {
     /// ******** NFT ********
     struct NFTTradeCounterRule {
         uint8 tradesAllowedPerDay;
-        bool active; // this is here for an easy check to determine that the rule exists and is on. It's to account for tradesAllowedPerDay = 0
+        uint64 startTs; // starting timestamp for the rule
     }
 }
 
@@ -80,14 +74,14 @@ interface ITaggedRules {
     /// ******** Account Purchase Rules ********
     struct PurchaseRule {
         uint256 purchaseAmount; /// token units
-        uint32 purchasePeriod; /// hours
+        uint16 purchasePeriod; /// hours
         uint64 startTime; ///Time the rule is created
     }
 
     /// ******** Account Sell Rules ********
     struct SellRule {
         uint256 sellAmount; /// token units
-        uint32 sellPeriod; /// hours
+        uint16 sellPeriod; /// hours
         uint64 startTime; /// Time the rule is created
     }
     /// ******** Account Withdrawal Rules ********
@@ -115,7 +109,7 @@ interface ITaggedRules {
     /// ******** Minimum Balance By Date Rules ********
     struct MinBalByDateRule {
         uint256 holdAmount; /// token units
-        uint256 holdPeriod; /// hours
+        uint16 holdPeriod; /// hours
         uint256 startTimeStamp; /// start
     }
 }
@@ -145,7 +139,7 @@ interface IApplicationRules {
     struct TxSizePerPeriodToRiskRule {
         uint48[] maxSize; /// whole USD (no cents) -> 1 = 1 USD (Max allowed: 281 trillion USD)
         uint8[] riskLevel;
-        uint8 period; // hours
+        uint16 period; // hours
         uint64 startingTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024
     }
 

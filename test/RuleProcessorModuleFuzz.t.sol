@@ -43,7 +43,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
     address ac;
     address[] badBoys;
     address[] goodBoys;
-    uint256 Blocktime = 1675723152;
+    uint64 Blocktime = 1675723152;
     uint256 totalSupply = 100_000_000_000;
     address[] ADDRESSES = [defaultAdmin, appAdministrator, address(0xAAA), address(0xBBB), address(0xCCC), address(0xBEEF), address(0xC0FFEE), address(0xF00D)];
 
@@ -74,21 +74,14 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         //     NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, i+1);
         //     unchecked{ ++i;}
         // }
-        vm.warp(Blocktime); 
+        vm.warp(Blocktime);
     }
 
     /***************** Test Setters and Getters *****************/
 
     /*********************** Purchase *******************/
     /// Simple setting and getting
-    function testSettingPurchaseFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint32 pPeriodA, uint32 pPeriodB, uint32 fPeriodA, uint32 fPeriodB) public {
-        if (fPeriodA > 23) {
-            fPeriodA = 23;
-        }
-
-        if (fPeriodB > 23) {
-            fPeriodB = 23;
-        }
+    function testSettingPurchaseFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint16 pPeriodA, uint16 pPeriodB) public {
         vm.warp(Blocktime);
         vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
@@ -100,15 +93,15 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         uint256[] memory pAmounts = new uint256[](2);
         pAmounts[0] = amountA;
         pAmounts[1] = amountB;
-        uint32[] memory pPeriods = new uint32[](2);
+        uint16[] memory pPeriods = new uint16[](2);
         pPeriods[0] = pPeriodA;
         pPeriods[1] = pPeriodB;
-        uint32[] memory fPeriods = new uint32[](2);
-        fPeriods[0] = fPeriodA;
-        fPeriods[1] = fPeriodB;
-        if ((sender != defaultAdmin && sender != appAdministrator) || amountA == 0 || amountB == 0 || pPeriodA == 0 || pPeriodB == 0 || fPeriodA == 0 || fPeriodB == 0) vm.expectRevert();
-        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, fPeriods);
-        if ((sender == defaultAdmin || sender == appAdministrator) && amountA > 0 && amountB > 0 && pPeriodA > 0 && pPeriodB > 0 && fPeriodA > 0 && fPeriodB > 0) {
+        uint64[] memory startTimes = new uint64[](2);
+        startTimes[0] = Blocktime;
+        startTimes[1] = Blocktime;
+        if ((sender != defaultAdmin && sender != appAdministrator) || amountA == 0 || amountB == 0 || pPeriodA == 0 || pPeriodB == 0) vm.expectRevert();
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, startTimes);
+        if ((sender == defaultAdmin || sender == appAdministrator) && amountA > 0 && amountB > 0 && pPeriodA > 0 && pPeriodB > 0) {
             assertEq(_index, 0);
             TaggedRules.PurchaseRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(_index, "tagA");
             assertEq(rule.purchaseAmount, amountA);
@@ -121,10 +114,10 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
             invalidAccs[2] = "c";
 
             vm.expectRevert();
-            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, invalidAccs, pAmounts, pPeriods, fPeriods);
+            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, invalidAccs, pAmounts, pPeriods, startTimes);
 
             /// testing adding a second rule
-            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, fPeriods);
+            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, startTimes);
             assertEq(_index, 1);
             rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(_index, "tagB");
             assertEq(rule.purchaseAmount, amountB);
@@ -138,14 +131,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
     // /************************ Sell *************************/
     /// Simple setting and getting
 
-    function testSettingSellFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint32 dFrozenA, uint32 dFrozenB, uint32 sTimeA, uint32 sTimeB, bytes32 accA, bytes32 accB) public {
-        if (sTimeA > 23) {
-            sTimeA = 23;
-        }
-
-        if (sTimeB > 23) {
-            sTimeB = 23;
-        }
+    function testSettingSellFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint16 dFrozenA, uint16 dFrozenB, uint32 sTimeA, uint32 sTimeB, bytes32 accA, bytes32 accB) public {
         vm.warp(Blocktime);
         vm.assume(accA != accB);
         vm.assume(accA != bytes32("") && accB != bytes32(""));
@@ -158,16 +144,28 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         uint192[] memory sAmounts = new uint192[](2);
         sAmounts[0] = amountA;
         sAmounts[1] = amountB;
-        uint32[] memory dFrozen = new uint32[](2);
+        uint16[] memory dFrozen = new uint16[](2);
         dFrozen[0] = dFrozenA;
         dFrozen[1] = dFrozenB;
-        uint32[] memory startTimes = new uint32[](2);
+        uint64[] memory startTimes = new uint64[](2);
         startTimes[0] = sTimeA;
         startTimes[1] = sTimeB;
-
-        if ((sender != defaultAdmin && sender != appAdministrator) || amountA == 0 || amountB == 0 || dFrozenA == 0 || dFrozenB == 0) vm.expectRevert();
-        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, dFrozen, startTimes);
-        if ((sender == defaultAdmin || sender == appAdministrator) && amountA > 0 && amountB > 0 && dFrozenA > 0 && dFrozenB > 0) {
+        uint32 _index;
+        if (
+            (sender != defaultAdmin && sender != appAdministrator) ||
+            amountA == 0 ||
+            amountB == 0 ||
+            dFrozenA == 0 ||
+            dFrozenB == 0 ||
+            sTimeA == 0 ||
+            sTimeB == 0 ||
+            sTimeA > (block.timestamp + (52 * 1 weeks)) ||
+            sTimeB > (block.timestamp + (52 * 1 weeks))
+        ) {
+            vm.expectRevert();
+            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, dFrozen, startTimes);
+        } else {
+            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, dFrozen, startTimes);
             assertEq(_index, 0);
             TaggedRules.SellRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getSellRuleByIndex(_index, accA);
             assertEq(rule.sellPeriod, dFrozenA);
@@ -289,10 +287,10 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
             NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getVolatilityRule(_index);
 
             /// testing adding a second rule
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 666, 100, 16, totalSupply);
+            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 666, 100, 12, totalSupply);
             assertEq(_index, 1);
             rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getVolatilityRule(_index);
-            assertEq(rule.startingTime, 16);
+            assertEq(rule.hoursFrozen, 12);
             assertEq(rule.maxVolatility, 666);
             assertEq(rule.period, 100);
 
@@ -310,20 +308,21 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         vm.startPrank(sender);
 
         /// test only admin can add rule, and values are withing acceptable range
-        if ((sender != defaultAdmin && sender != appAdministrator) || maxVolume < 100 || maxVolume > 9999 || hPeriod == 0 || startTime > 23) vm.expectRevert();
+        if ((sender != defaultAdmin && sender != appAdministrator) || maxVolume < 100 || maxVolume > 9999 || hPeriod == 0 || startTime == 0 || startTime > (block.timestamp + (52 * 1 weeks)))
+            vm.expectRevert();
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, maxVolume, hPeriod, startTime, 0);
         if ((sender == defaultAdmin || sender == appAdministrator) && maxVolume > 100 && maxVolume <= 9999 && hPeriod > 0 && startTime > 0 && startTime < 24) {
             assertEq(_index, 0);
             NonTaggedRules.TokenTransferVolumeRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
-            assertEq(rule.startingTime, startTime);
+            assertEq(rule.startTime, startTime);
 
             /// testing adding a second rule
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 2000, 1, 12, 0);
+            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 2000, 1, Blocktime, 0);
             assertEq(_index, 1);
             rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
             assertEq(rule.maxVolume, 2000);
             assertEq(rule.period, 1);
-            assertEq(rule.startingTime, 12);
+            assertEq(rule.startTime, Blocktime);
 
             /// testing total rules
             assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalTransferVolumeRules(), 2);
@@ -428,26 +427,26 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
     /*********************** Supply Volatility ************************/
     /// Simple setting and getting
 
-    function testSettingSupplyVolatility(uint8 addressIndex, uint16 maxChange, uint8 hPeriod, uint8 hFrozen) public {
+    function testSettingSupplyVolatilityFuzz(uint8 addressIndex, uint16 maxChange, uint8 hPeriod, uint64 _startTimestamp) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
         vm.assume(maxChange < 9999 && maxChange > 0);
         if (maxChange < 100) maxChange = 100;
-        if (hFrozen > 23) hFrozen = 23; 
+        if (_startTimestamp > (block.timestamp + (52 * 1 weeks))) _startTimestamp = uint64(block.timestamp + (52 * 1 weeks));
         if (hPeriod > 23) hPeriod = 23;
-        if ((sender != defaultAdmin && sender != appAdministrator) || maxChange == 0 || hPeriod == 0 || hFrozen == 0) vm.expectRevert();
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, maxChange, hPeriod, hFrozen, totalSupply);
-        if (!((sender != defaultAdmin && sender != appAdministrator) || maxChange == 0 || hPeriod == 0 || hFrozen == 0)) {
+        if ((sender != defaultAdmin && sender != appAdministrator) || maxChange == 0 || hPeriod == 0 || _startTimestamp == 0) vm.expectRevert();
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, maxChange, hPeriod, _startTimestamp, totalSupply);
+        if (!((sender != defaultAdmin && sender != appAdministrator) || maxChange == 0 || hPeriod == 0 || _startTimestamp == 0)) {
             assertEq(_index, 0);
             NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getSupplyVolatilityRule(_index);
-            assertEq(rule.startingTime, hFrozen);
+            assertEq(rule.startingTime, _startTimestamp);
 
             /// testing adding a second rule
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 5000, 23, 12, totalSupply);
+            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 5000, 23, Blocktime, totalSupply);
             assertEq(_index, 1);
             rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getSupplyVolatilityRule(_index);
-            assertEq(rule.startingTime, 12);
+            assertEq(rule.startingTime, Blocktime);
 
             /// testing total rules
             assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalSupplyVolatilityRules(), 2);

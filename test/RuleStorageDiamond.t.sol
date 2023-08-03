@@ -26,7 +26,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     address ac;
     uint256 totalSupply = 100_000_000_000;
     uint32 startTime = 12;
-    uint256 Blocktime = 1675723152;
+    uint64 Blocktime = 1675723152;
 
     function setUp() public {
         vm.startPrank(defaultAdmin);
@@ -37,7 +37,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         ac = address(appManager);
-        vm.warp(Blocktime); 
+        vm.warp(Blocktime);
     }
 
     /// Test to make sure that the Diamond will upgrade
@@ -74,14 +74,14 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         pAmounts[0] = uint256(1000);
         pAmounts[1] = uint256(2000);
         pAmounts[2] = uint256(3000);
-        uint32[] memory pPeriods = new uint32[](3);
-        pPeriods[0] = uint32(100);
-        pPeriods[1] = uint32(101);
-        pPeriods[2] = uint32(102);
-        uint32[] memory sTimes = new uint32[](3);
-        sTimes[0] = uint32(8);
-        sTimes[1] = uint32(12);
-        sTimes[2] = uint32(16);
+        uint16[] memory pPeriods = new uint16[](3);
+        pPeriods[0] = uint16(100);
+        pPeriods[1] = uint16(101);
+        pPeriods[2] = uint16(102);
+        uint64[] memory sTimes = new uint64[](3);
+        sTimes[0] = uint64(8);
+        sTimes[1] = uint64(12);
+        sTimes[2] = uint64(16);
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
         assertEq(_index, 0);
         TaggedRules.PurchaseRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(_index, "Oscar");
@@ -90,7 +90,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
         accs[1] = bytes32("Tayler");
         pAmounts[1] = uint192(20000000);
-        pPeriods[1] = uint32(2);
+        pPeriods[1] = uint16(2);
         sTimes[1] = uint8(23);
 
         _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
@@ -113,14 +113,14 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         pAmounts[0] = uint256(1000);
         pAmounts[1] = uint256(2000);
         pAmounts[2] = uint256(3000);
-        uint32[] memory pPeriods = new uint32[](3);
-        pPeriods[0] = uint32(100);
-        pPeriods[1] = uint32(101);
-        pPeriods[2] = uint32(102);
-        uint32[] memory sTimes = new uint32[](3);
-        sTimes[0] = uint32(10);
-        sTimes[1] = uint32(12);
-        sTimes[2] = uint32(16);
+        uint16[] memory pPeriods = new uint16[](3);
+        pPeriods[0] = uint16(100);
+        pPeriods[1] = uint16(101);
+        pPeriods[2] = uint16(102);
+        uint64[] memory sTimes = new uint64[](3);
+        sTimes[0] = uint64(10);
+        sTimes[1] = uint64(12);
+        sTimes[2] = uint64(16);
         vm.expectRevert(0xba80c9e5);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
         vm.stopPrank(); //stop interacting as the default admin
@@ -144,13 +144,13 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         pAmounts[0] = uint256(1000);
         pAmounts[1] = uint256(2000);
         pAmounts[2] = uint256(3000);
-        uint32[] memory pPeriods = new uint32[](3);
-        pPeriods[0] = uint32(100);
-        pPeriods[1] = uint32(101);
-        pPeriods[2] = uint32(102);
-        uint32[] memory sTimes = new uint32[](2);
-        sTimes[0] = uint32(24);
-        sTimes[1] = uint32(36);
+        uint16[] memory pPeriods = new uint16[](3);
+        pPeriods[0] = uint16(100);
+        pPeriods[1] = uint16(101);
+        pPeriods[2] = uint16(102);
+        uint64[] memory sTimes = new uint64[](2);
+        sTimes[0] = uint64(24);
+        sTimes[1] = uint64(36);
 
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
@@ -164,9 +164,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         accs[0] = bytes32("Oscar");
         uint256[] memory pAmounts = new uint256[](1);
         pAmounts[0] = uint192(1000);
-        uint32[] memory pPeriods = new uint32[](1);
-        pPeriods[0] = uint32(100);
-        uint32[] memory sTimes = new uint32[](1);
+        uint16[] memory pPeriods = new uint16[](1);
+        pPeriods[0] = uint16(100);
+        uint64[] memory sTimes = new uint64[](1);
         sTimes[0] = uint32(12);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
@@ -186,14 +186,14 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         sAmounts[0] = uint192(1000);
         sAmounts[1] = uint192(2000);
         sAmounts[2] = uint192(3000);
-        uint32[] memory sPeriod = new uint32[](3);
-        sPeriod[0] = uint32(24);
-        sPeriod[1] = uint32(36);
-        sPeriod[2] = uint32(48);
-        uint32[] memory sTimes = new uint32[](3);
-        sTimes[0] = uint32(8);
-        sTimes[1] = uint32(12);
-        sTimes[2] = uint32(16);
+        uint16[] memory sPeriod = new uint16[](3);
+        sPeriod[0] = uint16(24);
+        sPeriod[1] = uint16(36);
+        sPeriod[2] = uint16(48);
+        uint64[] memory sTimes = new uint64[](3);
+        sTimes[0] = Blocktime;
+        sTimes[1] = Blocktime;
+        sTimes[2] = Blocktime;
 
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
         assertEq(_index, 0);
@@ -207,9 +207,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         sAmounts[0] = uint192(100000000);
         sAmounts[1] = uint192(20000000);
         sAmounts[2] = uint192(3000000);
-        sPeriod[0] = uint32(11);
-        sPeriod[1] = uint32(22);
-        sPeriod[2] = uint32(33);
+        sPeriod[0] = uint16(11);
+        sPeriod[1] = uint16(22);
+        sPeriod[2] = uint16(33);
         _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
         assertEq(_index, 1);
         rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getSellRuleByIndex(_index, "Tayler");
@@ -228,14 +228,14 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         sAmounts[0] = uint192(1000);
         sAmounts[1] = uint192(2000);
         sAmounts[2] = uint192(3000);
-        uint32[] memory sPeriod = new uint32[](3);
-        sPeriod[0] = uint32(24);
-        sPeriod[1] = uint32(36);
-        sPeriod[2] = uint32(48);
-        uint32[] memory sTimes = new uint32[](3);
-        sTimes[0] = uint32(8);
-        sTimes[1] = uint32(12);
-        sTimes[2] = uint32(16);
+        uint16[] memory sPeriod = new uint16[](3);
+        sPeriod[0] = uint16(24);
+        sPeriod[1] = uint16(36);
+        sPeriod[2] = uint16(48);
+        uint64[] memory sTimes = new uint64[](3);
+        sTimes[0] = Blocktime;
+        sTimes[1] = Blocktime;
+        sTimes[2] = Blocktime;
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
@@ -260,14 +260,14 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         sAmounts[0] = uint192(1000);
         sAmounts[1] = uint192(2000);
         sAmounts[2] = uint192(3000);
-        uint32[] memory sPeriod = new uint32[](3);
-        sPeriod[0] = uint32(24);
-        sPeriod[1] = uint32(36);
-        sPeriod[2] = uint32(48);
-        uint32[] memory sTimes = new uint32[](3);
-        sTimes[0] = uint32(8);
-        sTimes[1] = uint32(12);
-        sTimes[2] = uint32(16);
+        uint16[] memory sPeriod = new uint16[](3);
+        sPeriod[0] = uint16(24);
+        sPeriod[1] = uint16(36);
+        sPeriod[2] = uint16(48);
+        uint64[] memory sTimes = new uint64[](3);
+        sTimes[0] = Blocktime;
+        sTimes[1] = Blocktime;
+        sTimes[2] = Blocktime;
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
     }
@@ -282,10 +282,10 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         sAmounts[0] = uint192(1000);
         uint32[] memory pPeriods = new uint32[](1);
         pPeriods[0] = uint32(100);
-        uint32[] memory sPeriod = new uint32[](1);
-        sPeriod[0] = uint32(24);
-        uint32[] memory sTimes = new uint32[](1);
-        sTimes[0] = uint32(12);
+        uint16[] memory sPeriod = new uint16[](1);
+        sPeriod[0] = uint16(24);
+        uint64[] memory sTimes = new uint64[](1);
+        sTimes[0] = uint64(Blocktime);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
         }
@@ -306,7 +306,6 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         assertEq(rule.tokenPercentage, 666);
         assertEq(rule.purchasePeriod, 24);
     }
-
 
     /// testing only appAdministrators can add Purchase Rule
     function testSettingPurchasePctRuleWithoutAppAdministratorAccount() public {
@@ -428,15 +427,15 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** Token Volatility ************************/
     /// Simple setting and getting
     function testSettingTokenVolatility() public {
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24, totalSupply);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 12, totalSupply);
         assertEq(_index, 0);
         NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getVolatilityRule(_index);
-        assertEq(rule.startingTime, 24);
+        assertEq(rule.hoursFrozen, 12);
 
         _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 666, 100, 16, totalSupply);
         assertEq(_index, 1);
         rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getVolatilityRule(_index);
-        assertEq(rule.startingTime, 16);
+        assertEq(rule.hoursFrozen, 16);
         assertEq(rule.maxVolatility, 666);
         assertEq(rule.period, 100);
     }
@@ -473,17 +472,17 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** Token Transfer Volume ************************/
     /// Simple setting and getting
     function testSettingTransferVolume() public {
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 1000, 2, 23, 0);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 1000, 2, Blocktime, 0);
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
-        assertEq(rule.startingTime, 23);
+        assertEq(rule.startTime, Blocktime);
 
         _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 2000, 1, 12, 1_000_000_000_000_000 * 10 ** 18);
         assertEq(_index, 1);
         rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, 2000);
         assertEq(rule.period, 1);
-        assertEq(rule.startingTime, 12);
+        assertEq(rule.startTime, 12);
         assertEq(rule.totalSupply, 1_000_000_000_000_000 * 10 ** 18);
     }
 
@@ -511,7 +510,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     function testTotalRulesOnTransferVolume() public {
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
-            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 5000 + i, 60 + i, i % 5, 0);
+            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 5000 + i, 60 + i, Blocktime, 0);
         }
         assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalTransferVolumeRules(), _indexes.length);
     }
@@ -675,15 +674,15 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** Supply Volatility ************************/
     /// Simple setting and getting
     function testSettingSupplyVolatility() public {
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, 12, totalSupply);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, Blocktime, totalSupply);
         assertEq(_index, 0);
         NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getSupplyVolatilityRule(_index);
-        assertEq(rule.startingTime, 12);
+        assertEq(rule.startingTime, Blocktime);
 
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 5000, 24, 12, totalSupply);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 5000, 24, Blocktime, totalSupply);
         assertEq(_index, 1);
         rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getSupplyVolatilityRule(_index);
-        assertEq(rule.startingTime, 12);
+        assertEq(rule.startingTime, Blocktime);
     }
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
@@ -691,18 +690,18 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, 12, totalSupply);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, Blocktime, totalSupply);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, 12, totalSupply);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, Blocktime, totalSupply);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(appAdministrator)); //interact as a different user
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, 12, totalSupply);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, Blocktime, totalSupply);
         assertEq(_index, 0);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(defaultAdmin)); //interact as a different user
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, 12, totalSupply);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, Blocktime, totalSupply);
         assertEq(_index, 1);
     }
 
@@ -767,7 +766,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         uint8[] memory tradesAllowed = new uint8[](2);
         tradesAllowed[0] = 1;
         tradesAllowed[1] = 5;
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
         NonTaggedRules.NFTTradeCounterRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
@@ -786,18 +785,18 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xba80c9e5);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed);
+        NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(appAdministrator)); //interact as a different user
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed);
+        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(address(defaultAdmin)); //interact as a different user
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed);
+        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 1);
     }
 
@@ -811,7 +810,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         tradesAllowed[1] = 5;
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
-            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed);
+            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         }
         assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalNFTTransferCounterRules(), _indexes.length);
     }
@@ -970,11 +969,11 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         holdAmounts[0] = uint256(1000);
         holdAmounts[1] = uint256(2000);
         holdAmounts[2] = uint256(3000);
-        uint256[] memory holdPeriods = new uint256[](3);
-        holdPeriods[0] = uint32(100);
-        holdPeriods[1] = uint32(101);
-        holdPeriods[2] = uint32(102);
-        uint256[] memory holdTimestamps = new uint256[](3);
+        uint16[] memory holdPeriods = new uint16[](3);
+        holdPeriods[0] = uint16(100);
+        holdPeriods[1] = uint16(101);
+        holdPeriods[2] = uint16(102);
+        uint64[] memory holdTimestamps = new uint64[](3);
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
@@ -986,7 +985,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
         accs[1] = bytes32("Tayler");
         holdAmounts[1] = uint192(20000000);
-        holdPeriods[1] = uint32(2);
+        holdPeriods[1] = uint16(2);
 
         _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(ac, accs, holdAmounts, holdPeriods, holdTimestamps);
         assertEq(_index, 1);
@@ -1007,11 +1006,11 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         holdAmounts[0] = uint256(1000);
         holdAmounts[1] = uint256(2000);
         holdAmounts[2] = uint256(3000);
-        uint256[] memory holdPeriods = new uint256[](3);
-        holdPeriods[0] = uint32(100);
-        holdPeriods[1] = uint32(101);
-        holdPeriods[2] = uint32(102);
-        uint256[] memory holdTimestamps = new uint256[](3);
+        uint16[] memory holdPeriods = new uint16[](3);
+        holdPeriods[0] = uint16(100);
+        holdPeriods[1] = uint16(101);
+        holdPeriods[2] = uint16(102);
+        uint64[] memory holdTimestamps = new uint64[](3);
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
@@ -1030,10 +1029,10 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         holdAmounts[0] = uint256(1000);
         holdAmounts[1] = uint256(2000);
         holdAmounts[2] = uint256(3000);
-        uint256[] memory holdPeriods = new uint256[](2);
-        holdPeriods[0] = uint32(100);
-        holdPeriods[1] = uint32(101);
-        uint256[] memory holdTimestamps = new uint256[](3);
+        uint16[] memory holdPeriods = new uint16[](2);
+        holdPeriods[0] = uint16(100);
+        holdPeriods[1] = uint16(101);
+        uint64[] memory holdTimestamps = new uint64[](3);
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;

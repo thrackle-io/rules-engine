@@ -36,11 +36,12 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
     address rich_user = address(44);
     address[] badBoys;
     address[] goodBoys;
-    uint256 Blocktime = 1675723152;
+    uint64 Blocktime = 1675723152;
     address[] ADDRESSES = [address(0xFF1), address(0xFF2), address(0xFF3), address(0xFF4), address(0xFF5), address(0xFF6), address(0xFF7), address(0xFF8)];
     event Log(string eventString, uint256 number);
 
     function setUp() public {
+        vm.warp(Blocktime);
         vm.startPrank(defaultAdmin);
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
@@ -60,7 +61,7 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         applicationCoin = new ApplicationERC20("application", "FRANK", address(appManager));
         applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
-        
+
         /// register the token
         appManager.registerToken("FRANK", address(applicationCoin));
         /// set the token price
@@ -643,11 +644,11 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         holdAmounts[0] = _amountSeed * (10 ** 18);
         holdAmounts[1] = (_amountSeed + 1000) * (10 ** 18);
         holdAmounts[2] = (_amountSeed + 2000) * (10 ** 18);
-        uint256[] memory holdPeriods = new uint256[](3);
-        holdPeriods[0] = uint32(720); // one month
-        holdPeriods[1] = uint32(4380); // six months
-        holdPeriods[2] = uint32(17520); // two years
-        uint256[] memory holdTimestamps = new uint256[](3);
+        uint16[] memory holdPeriods = new uint16[](3);
+        holdPeriods[0] = uint16(720); // one month
+        holdPeriods[1] = uint16(4380); // six months
+        holdPeriods[2] = uint16(17520); // two years
+        uint64[] memory holdTimestamps = new uint64[](3);
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
@@ -874,12 +875,12 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         if (_maxPercent > 9999) _maxPercent = 9999;
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         rich_user = addressList[0];
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), _maxPercent, _period, 0, 0);
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), _maxPercent, _period, Blocktime, 0);
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, _maxPercent);
         assertEq(rule.period, _period);
-        assertEq(rule.startingTime, 0);
+        assertEq(rule.startTime, Blocktime);
         /// load non admin users with game coin
         applicationCoin.mint(rich_user, 100_000);
         assertEq(applicationCoin.balanceOf(rich_user), 100_000);
@@ -907,41 +908,41 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
     }
 
     function testTotalSupplyVolatilityFuzz(uint8 _addressIndex, uint256 amount, uint16 volLimit) public {
-        /// test params 
+        /// test params
         vm.assume(volLimit < 9999 && volLimit > 0);
         if (volLimit < 100) volLimit = 100;
-        vm.assume(amount < 9999 * (10**18)); 
-        vm.warp(Blocktime); 
-        uint8 rulePeriod = 24; /// 24 hours 
-        uint8 startingTime = 12; /// start at noon 
+        vm.assume(amount < 9999 * (10 ** 18));
+        vm.warp(Blocktime);
+        uint8 rulePeriod = 24; /// 24 hours
+        uint64 startingTime = Blocktime; /// default timestamp
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         user1 = addressList[0];
-        /// mint initial supply 
-        uint256 initialSupply = 100_000 * (10**18);
+        /// mint initial supply
+        uint256 initialSupply = 100_000 * (10 ** 18);
         uint256 volume = uint256(volLimit) * 10;
-        applicationCoin.mint(defaultAdmin, initialSupply); 
-        /// create and activate rule 
+        applicationCoin.mint(defaultAdmin, initialSupply);
+        /// create and activate rule
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), volLimit, rulePeriod, startingTime, tokenSupply);
         applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index);
-        /// test mint 
+        /// test mint
         vm.stopPrank();
-        vm.startPrank(user1); 
+        vm.startPrank(user1);
         if (user1 != defaultAdmin) {
             if (amount > initialSupply - volume) {
-                vm.expectRevert(0x81af27fa); 
+                vm.expectRevert(0x81af27fa);
                 applicationCoin.mint(user1, amount);
             }
         }
-        // /// test burn 
+        // /// test burn
         if (user1 != defaultAdmin) {
             if (amount > uint(applicationCoin.totalSupply()) - volume) {
-                vm.expectRevert(0x81af27fa); 
+                vm.expectRevert(0x81af27fa);
                 applicationCoin.burn(amount);
             }
         }
 
-        /// reset the total supply 
+        /// reset the total supply
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         applicationCoin.burn(applicationCoin.totalSupply());
@@ -950,21 +951,21 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
 
         vm.stopPrank();
         vm.startPrank(user1);
-        uint256 transferAmount = uint256(volLimit) * (10 * (10**18)); 
-        applicationCoin.mint(user1, (transferAmount - (1 * (10**18))));
+        uint256 transferAmount = uint256(volLimit) * (10 * (10 ** 18));
+        applicationCoin.mint(user1, (transferAmount - (1 * (10 ** 18))));
         vm.expectRevert();
         applicationCoin.mint(user1, transferAmount);
 
-        applicationCoin.transfer(defaultAdmin, applicationCoin.balanceOf(user1)); 
+        applicationCoin.transfer(defaultAdmin, applicationCoin.balanceOf(user1));
 
-        /// test minimum volatility limits 
+        /// test minimum volatility limits
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         applicationCoin.burn(applicationCoin.balanceOf(defaultAdmin));
         applicationCoin.mint(defaultAdmin, initialSupply);
-        console.logUint(applicationCoin.totalSupply()); 
+        console.logUint(applicationCoin.totalSupply());
         vm.warp(Blocktime + 96 hours);
-        uint16 volatilityLimit = 1; /// 0.01% 
+        uint16 volatilityLimit = 1; /// 0.01%
         uint32 _ruleIndex = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
         applicationCoinHandler.setTotalSupplyVolatilityRuleId(_ruleIndex);
         vm.stopPrank();
@@ -973,15 +974,15 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         applicationCoin.mint(user1, 4 * (10 ** 18));
         applicationCoin.mint(user1, 1 * (10 ** 18));
         vm.expectRevert();
-        applicationCoin.mint(user1, 1_000_000_000_000_000); /// 0.0001 tokens 
+        applicationCoin.mint(user1, 1_000_000_000_000_000); /// 0.0001 tokens
 
-        /// test above 100% volatility limits 
+        /// test above 100% volatility limits
         applicationCoin.transfer(defaultAdmin, applicationCoin.balanceOf(user1));
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         applicationCoin.burn(applicationCoin.balanceOf(defaultAdmin));
         applicationCoin.mint(defaultAdmin, initialSupply);
-        console.logUint(applicationCoin.totalSupply()); 
+        console.logUint(applicationCoin.totalSupply());
         vm.warp(Blocktime + 120 hours);
         uint16 newVolatilityLimit = 50000; /// 500%
         uint32 _newRuleIndex = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), newVolatilityLimit, rulePeriod, startingTime, tokenSupply);
@@ -995,7 +996,5 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         applicationCoin.burn(50000 * (10 ** 18));
         applicationCoin.mint(user1, 50000 * (10 ** 18));
         applicationCoin.burn(50000 * (10 ** 18));
-
-
     }
 }

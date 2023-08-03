@@ -51,7 +51,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     address[] badBoys;
     address[] goodBoys;
     address ac;
-    uint256 Blocktime = 1675723152;
+    uint64 Blocktime = 1675723152;
 
     function setUp() public {
         vm.startPrank(defaultAdmin);
@@ -78,7 +78,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
 
         applicationCoin.mint(defaultAdmin, 10_000_000_000_000_000_000_000 * (10 ** 18));
-        
+
         /// register the token
         appManager.registerToken("FRANK", address(applicationCoin));
         /// set the token price
@@ -626,11 +626,11 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         holdAmounts[0] = uint256(1000 * (10 ** 18));
         holdAmounts[1] = uint256(2000 * (10 ** 18));
         holdAmounts[2] = uint256(3000 * (10 ** 18));
-        uint256[] memory holdPeriods = new uint256[](3);
-        holdPeriods[0] = uint32(720); // one month
-        holdPeriods[1] = uint32(4380); // six months
-        holdPeriods[2] = uint32(17520); // two years
-        uint256[] memory holdTimestamps = new uint256[](3);
+        uint16[] memory holdPeriods = new uint16[](3);
+        holdPeriods[0] = uint16(720); // one month
+        holdPeriods[1] = uint16(4380); // six months
+        holdPeriods[2] = uint16(17520); // two years
+        uint64[] memory holdTimestamps = new uint64[](3);
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
@@ -855,12 +855,12 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     /// test the token transfer volume rule in erc20
     function testTokenTransferVolumeRuleCoin() public {
         /// set the rule for 40% in 2 hours, starting at midnight
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 4000, 2, 0, 0);
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 4000, 2, Blocktime, 0);
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, 4000);
         assertEq(rule.period, 2);
-        assertEq(rule.startingTime, 0);
+        assertEq(rule.startTime, Blocktime);
         /// burn all default supply down and mint a manageable number
         applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
         applicationCoin.mint(defaultAdmin, 100_000 * (10 ** 18));
@@ -902,12 +902,12 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     /// test the token transfer volume rule in erc20 when they give a total supply instead of relying on ERC20
     function testTokenTransferVolumeRuleCoinWithSupplySet() public {
         /// set the rule for 40% in 2 hours, starting at midnight
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 4000, 2, 0, 100_000 * (10 ** 18));
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 4000, 2, Blocktime, 100_000 * (10 ** 18));
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, 4000);
         assertEq(rule.period, 2);
-        assertEq(rule.startingTime, 0);
+        assertEq(rule.startTime, Blocktime);
         /// load non admin users with game coin
         applicationCoin.transfer(rich_user, 100_000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(rich_user), 100_000 * (10 ** 18));
@@ -943,28 +943,28 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(user1), 79_999 * (10 ** 18));
     }
 
-    /// test supply volatility rule 
+    /// test supply volatility rule
     function testSupplyVolatilityRule() public {
         /// burn tokens to specific supply
         applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
         applicationCoin.mint(defaultAdmin, 100_000 * (10 ** 18));
-        applicationCoin.transfer(user1, 5000 * (10**18));
+        applicationCoin.transfer(user1, 5000 * (10 ** 18));
 
-        /// create rule params 
-        uint16 volatilityLimit = 1000; /// 10% 
-        uint8 rulePeriod = 24; /// 24 hours 
-        uint8 startingTime = 12; /// start at noon 
-        uint256 tokenSupply = 0; /// calls totalSupply() for the token 
+        /// create rule params
+        uint16 volatilityLimit = 1000; /// 10%
+        uint8 rulePeriod = 24; /// 24 hours
+        uint64 startingTime = Blocktime; /// default timestamp
+        uint256 tokenSupply = 0; /// calls totalSupply() for the token
 
-        /// set rule id and activate 
+        /// set rule id and activate
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index); 
-        /// move within period 
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index);
+        /// move within period
         vm.warp(Blocktime + 13 hours);
-        console.log(applicationCoin.totalSupply()); 
+        console.log(applicationCoin.totalSupply());
         vm.stopPrank();
         vm.startPrank(user1);
-        /// mint tokens to the cap 
+        /// mint tokens to the cap
         applicationCoin.mint(user1, 1);
         applicationCoin.mint(user1, 1000 * (10 ** 18));
         applicationCoin.mint(user1, 8000 * (10 ** 18));
@@ -972,31 +972,28 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.expectRevert(0x81af27fa);
         applicationCoin.mint(user1, 6500 * (10 ** 18));
 
-        /// move out of rule period 
+        /// move out of rule period
         vm.warp(Blocktime + 40 hours);
         applicationCoin.mint(user1, 2550 * (10 ** 18));
 
-        /// burn tokens 
-        /// move into fresh period 
+        /// burn tokens
+        /// move into fresh period
         vm.warp(Blocktime + 95 hours);
         applicationCoin.burn(1000 * (10 ** 18));
         applicationCoin.burn(1000 * (10 ** 18));
         applicationCoin.burn(8000 * (10 ** 18));
 
         vm.expectRevert(0x81af27fa);
-        applicationCoin.burn(2550 * (10 ** 18)); 
+        applicationCoin.burn(2550 * (10 ** 18));
 
-        applicationCoin.mint(user1, 2550 * (10 ** 18));
-        applicationCoin.burn(2550 * (10 ** 18)); 
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
-
-
-
+        applicationCoin.mint(user1, 2550 * (10 ** 18));
+        applicationCoin.burn(2550 * (10 ** 18));
     }
 
     function testDataContractMigration() public {
@@ -1055,11 +1052,11 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         holdAmounts[0] = uint256(1000 * (10 ** 18));
         holdAmounts[1] = uint256(2000 * (10 ** 18));
         holdAmounts[2] = uint256(3000 * (10 ** 18));
-        uint256[] memory holdPeriods = new uint256[](3);
-        holdPeriods[0] = uint32(720); // one month
-        holdPeriods[1] = uint32(4380); // six months
-        holdPeriods[2] = uint32(17520); // two years
-        uint256[] memory holdTimestamps = new uint256[](3);
+        uint16[] memory holdPeriods = new uint16[](3);
+        holdPeriods[0] = uint16(720); // one month
+        holdPeriods[1] = uint16(4380); // six months
+        holdPeriods[2] = uint16(17520); // two years
+        uint64[] memory holdTimestamps = new uint64[](3);
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;

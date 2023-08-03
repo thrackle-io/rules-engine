@@ -40,7 +40,7 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
     address ac;
     address[] badBoys;
     address[] goodBoys;
-    uint256 Blocktime = 1675723152;
+    uint64 Blocktime = 1675723152;
     RuleProcessorDiamond ruleProcessor;
     ApplicationHandler public applicationHandler;
     RuleStorageDiamond ruleStorageDiamond;

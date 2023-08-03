@@ -9,6 +9,7 @@ import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
 import {IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors} from "../../interfaces/IErrors.sol";
 import "./RuleCodeData.sol";
+import "./RuleStorageCommonLib.sol";
 
 /**
  * @title RuleDataFacet
@@ -17,6 +18,7 @@ import "./RuleCodeData.sol";
  * @notice This contract sets and gets the Rules for the protocol
  */
 contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors {
+    using RuleStorageCommonLib for uint64;
 
     /**
      * Note that no update method is implemented for rules. Since reutilization of
@@ -32,21 +34,21 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _tokenPercentage Percentage of Tokens allowed to purchase
      * @param _purchasePeriod Time period that transactions are accumulated
      * @param _totalSupply total supply of tokens (0 if using total supply from the token contract)
-     * @param _startingHour start time for the period
+     * @param _startTimestamp start timestamp for the rule
      * @return ruleId position of new rule in array
      */
     function addPercentagePurchaseRule(
         address _appManagerAddr,
         uint16 _tokenPercentage,
-        uint32 _purchasePeriod,
+        uint16 _purchasePeriod,
         uint256 _totalSupply,
-        uint32 _startingHour
+        uint64 _startTimestamp
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_tokenPercentage > 9999) revert ValueOutOfRange(_tokenPercentage);
         if (_purchasePeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
-        if (_startingHour > 23) revert InvalidHourOfTheDay();
+        _startTimestamp.validateTimestamp();
         RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
-        NonTaggedRules.TokenPercentagePurchaseRule memory rule = NonTaggedRules.TokenPercentagePurchaseRule(_tokenPercentage, _purchasePeriod, _totalSupply, _startingHour);
+        NonTaggedRules.TokenPercentagePurchaseRule memory rule = NonTaggedRules.TokenPercentagePurchaseRule(_tokenPercentage, _purchasePeriod, _totalSupply, _startTimestamp);
         uint32 ruleId = data.percentagePurchaseRuleIndex;
         data.percentagePurchaseRules[ruleId] = rule;
         bytes32[] memory empty;
@@ -82,22 +84,22 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _tokenPercentage Percent of Tokens allowed to sell
      * @param _sellPeriod Time period that transactions are frozen
      * @param _totalSupply total supply of tokens (0 if using total supply from the token contract)
-     * @param _startingHour start time for the period
+     * @param _startTimestamp start time for the period
      * @return ruleId position of new rule in array
      */
     function addPercentageSellRule(
         address _appManagerAddr,
         uint16 _tokenPercentage,
-        uint32 _sellPeriod,
+        uint16 _sellPeriod,
         uint256 _totalSupply,
-        uint32 _startingHour
+        uint64 _startTimestamp
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_tokenPercentage > 9999) revert ValueOutOfRange(_tokenPercentage);
         if (_sellPeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
-        if (_startingHour > 23) revert InvalidHourOfTheDay();
+        _startTimestamp.validateTimestamp();
         RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
         uint32 ruleId = data.percentageSellRuleIndex;
-        NonTaggedRules.TokenPercentageSellRule memory rule = NonTaggedRules.TokenPercentageSellRule(_tokenPercentage, _sellPeriod, _totalSupply, _startingHour);
+        NonTaggedRules.TokenPercentageSellRule memory rule = NonTaggedRules.TokenPercentageSellRule(_tokenPercentage, _sellPeriod, _totalSupply, _startTimestamp);
         data.percentageSellRules[ruleId] = rule;
         bytes32[] memory empty;
         emit ProtocolRuleCreated(SELL_PERCENTAGE, ruleId, empty);
@@ -174,7 +176,13 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _hoursFrozen Time period that transactions are frozen
      * @return ruleId position of new rule in array
      */
-    function addVolatilityRule(address _appManagerAddr, uint16 _maxVolatility, uint8 _blocksPerPeriod, uint8 _hoursFrozen, uint256 _totalSupply) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addVolatilityRule(
+        address _appManagerAddr,
+        uint16 _maxVolatility,
+        uint16 _blocksPerPeriod,
+        uint16 _hoursFrozen,
+        uint256 _totalSupply
+    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_maxVolatility == 0 || _blocksPerPeriod == 0 || _hoursFrozen == 0) revert ZeroValueNotPermited();
         RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
         NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRules.TokenVolatilityRule(_maxVolatility, _blocksPerPeriod, _hoursFrozen, _totalSupply);
@@ -212,23 +220,23 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _appManagerAddr Address of App Manager
      * @param _maxVolumePercentage Maximum allowed volume percentage (this is 4 digits to allow 2 decimal places)
      * @param _hoursPerPeriod Allowed hours per period
-     * @param _startTime Time to start the block
+     * @param _startTimestamp Timestamp to start the rule
      * @param _totalSupply Circulating supply value to use in calculations. If not specified, defaults to ERC20 totalSupply
      * @return ruleId position of new rule in array
      */
     function addTransferVolumeRule(
         address _appManagerAddr,
         uint16 _maxVolumePercentage,
-        uint8 _hoursPerPeriod,
-        uint64 _startTime,
+        uint16 _hoursPerPeriod,
+        uint64 _startTimestamp,
         uint256 _totalSupply
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_maxVolumePercentage == 0 || _hoursPerPeriod == 0) revert ZeroValueNotPermited();
-        if (_startTime > 23) revert InvalidHourOfTheDay();
+        _startTimestamp.validateTimestamp();
         if (_maxVolumePercentage > 9999) revert ValueOutOfRange(_maxVolumePercentage);
         if (_maxVolumePercentage < 100) revert ValueOutOfRange(_maxVolumePercentage);
         RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
-        data.transferVolumeRules.push(NonTaggedRules.TokenTransferVolumeRule(_maxVolumePercentage, _hoursPerPeriod, _startTime, _totalSupply));
+        data.transferVolumeRules.push(NonTaggedRules.TokenTransferVolumeRule(_maxVolumePercentage, _hoursPerPeriod, _startTimestamp, _totalSupply));
         uint32 ruleId = uint32(data.transferVolumeRules.length) - 1;
         bytes32[] memory empty;
         emit ProtocolRuleCreated(TRANSFER_VOLUME, ruleId, empty);
@@ -299,14 +307,20 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _maxVolumePercentage Maximum amount of change allowed. This is not capped and will allow for values greater than 100%.
      * Since there is no cap for _maxVolumePercentage this could allow burning of full totalSupply() if over 100% (10000).
      * @param _period Allowed hours per period
-     * @param _startTime Hours that transactions are frozen
+     * @param _startTimestamp Hours that transactions are frozen
      * @return ruleId position of new rule in array
      */
-    function addSupplyVolatilityRule(address _appManagerAddr, uint16 _maxVolumePercentage, uint8 _period, uint8 _startTime, uint256 _totalSupply) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_maxVolumePercentage == 0 || _period == 0 || _startTime == 0) revert ZeroValueNotPermited();
-        if (_startTime > 23) revert InvalidHourOfTheDay();
+    function addSupplyVolatilityRule(
+        address _appManagerAddr,
+        uint16 _maxVolumePercentage,
+        uint16 _period,
+        uint64 _startTimestamp,
+        uint256 _totalSupply
+    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_maxVolumePercentage == 0 || _period == 0) revert ZeroValueNotPermited();
+        _startTimestamp.validateTimestamp();
         RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
-        NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRules.SupplyVolatilityRule(_maxVolumePercentage, _period, _startTime, _totalSupply);
+        NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRules.SupplyVolatilityRule(_maxVolumePercentage, _period, _startTimestamp, _totalSupply);
         uint32 ruleId = data.supplyVolatilityRuleIndex;
         data.supplyVolatilityRules[ruleId] = rule;
         bytes32[] memory empty;
@@ -380,26 +394,35 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _appManagerAddr App Manager Address
      * @param _nftTypes Types of NFTs
      * @param _tradesAllowed Maximum trades allowed within 24 hours
+     * @param _startTs starting timestamp for the rule
      * @return _nftTransferCounterRules which returns location of rule in array
      */
-    function addNFTTransferCounterRule(address _appManagerAddr, bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addNFTTransferCounterRule(
+        address _appManagerAddr,
+        bytes32[] calldata _nftTypes,
+        uint8[] calldata _tradesAllowed,
+        uint64 _startTs
+    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_nftTypes.length == 0 || _startTs == 0) revert ZeroValueNotPermited();
         if (_nftTypes.length != _tradesAllowed.length) revert InputArraysMustHaveSameLength();
+        _startTs.validateTimestamp();
 
-        return _addNFTTransferCounterRule(_nftTypes, _tradesAllowed);
+        return _addNFTTransferCounterRule(_nftTypes, _tradesAllowed, _startTs);
     }
 
     /**
      * @dev internal Function to avoid stack too deep error
      * @param _nftTypes Types of NFTs
      * @param _tradesAllowed Maximum trades allowed within 24 hours
+     * @param _startTs starting timestamp for the rule
      * @return position of new rule in array
      */
-    function _addNFTTransferCounterRule(bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed) internal returns (uint32) {
+    function _addNFTTransferCounterRule(bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed, uint64 _startTs) internal returns (uint32) {
         RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
         uint32 index = data.NFTTransferCounterRuleIndex;
         for (uint256 i; i < _nftTypes.length; ) {
             if (_nftTypes[i] == bytes32("")) revert BlankTag();
-            NonTaggedRules.NFTTradeCounterRule memory rule = NonTaggedRules.NFTTradeCounterRule(_tradesAllowed[i], true);
+            NonTaggedRules.NFTTradeCounterRule memory rule = NonTaggedRules.NFTTradeCounterRule(_tradesAllowed[i], _startTs);
             data.NFTTransferCounterRule[index][_nftTypes[i]] = rule;
             unchecked {
                 ++i;
