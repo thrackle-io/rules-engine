@@ -8,35 +8,35 @@ pragma solidity 0.8.17;
  * @notice All errors are declared in this file, and then inherited in contracts.
  */
 
-interface IERC721Errors{
+interface IERC721Errors {
     error MaxNFTTransferReached();
     error MinimumHoldTimePeriodNotReached();
 }
 
-interface IRuleProcessorErrors{
+interface IRuleProcessorErrors {
     error RuleDoesNotExist();
 }
 
-interface IAccessLevelErrors{
+interface IAccessLevelErrors {
     error BalanceExceedsAccessLevelAllowedLimit();
     error WithdrawalExceedsAccessLevelAllowedLimit();
     error NotAllowedForAccessLevel();
     error AccessLevelIsNotValid(uint8 accessLevel);
 }
 
-interface IPauseRuleErrors{
+interface IPauseRuleErrors {
     error ApplicationPaused(uint started, uint ends);
     error InvalidDateWindow(uint256 startDate, uint256 endDate);
     error MaxPauseRulesReached();
 }
 
-interface IRiskErrors{
+interface IRiskErrors {
     error MaxTxSizePerPeriodReached(uint8 riskScore, uint256 maxTxSize, uint8 hoursOfPeriod);
     error TransactionExceedsRiskScoreLimit();
     error BalanceExceedsRiskScoreLimit();
 }
 
-interface IERC20Errors{
+interface IERC20Errors {
     error BelowMinTransfer();
     error AddressIsRestricted();
     error AddressNotOnAllowedList();
@@ -44,22 +44,21 @@ interface IERC20Errors{
     error PurchasePercentageReached();
     error SellPercentageReached();
     error TransferExceedsMaxVolumeAllowed();
-    error TotalSupplyVolatilityLimitReached(); 
+    error TotalSupplyVolatilityLimitReached();
 }
 
-
-interface IMaxTagLimitError{
+interface IMaxTagLimitError {
     error MaxTagLimitReached();
 }
 
-interface ITagRuleErrors{
+interface ITagRuleErrors {
     error MaxBalanceExceeded();
     error BalanceBelowMin();
     error TxnInFreezeWindow();
     error TemporarySellRestriction();
 }
 
-interface IInputErrors{
+interface IInputErrors {
     error IndexOutOfRange();
     error WrongArrayOrder();
     error InputArraysSizesNotValid();
@@ -67,15 +66,16 @@ interface IInputErrors{
     error ValueOutOfRange(uint256 percentage);
     error ZeroValueNotPermited();
     error InvertedLimits();
+    error InvalidOracleType(uint8 _type);
 }
 
-interface IAppRuleInputErrors{
+interface IAppRuleInputErrors {
     error InvalidHourOfTheDay();
     error BalanceAmountsShouldHave5Levels(uint8 inputLevels);
     error WithdrawalAmountsShouldHave5Levels(uint8 inputLevels);
 }
 
-interface IRiskInputErrors{
+interface IRiskInputErrors {
     error RiskLevelCannotExceed99();
     error riskScoreOutOfRange(uint8 riskScore);
 }
@@ -85,18 +85,18 @@ interface ITagInputErrors {
     error TagAlreadyExists();
 }
 
-interface ITagRuleInputErrors{
+interface ITagRuleInputErrors {
     error DateInThePast(uint256 date);
     error StartTimeNotValid();
 }
 
-interface IAppAdministratorOnlyErrors{
+interface IAppAdministratorOnlyErrors {
     error AppManagerNotConnected();
     error NotAppAdministrator();
     error NotAppAdministratorOrOwner();
 }
 
-interface IAppManagerErrors{
+interface IAppManagerErrors {
     error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
     error NotAccessTierAdministrator(address _address);
     error NotRiskAdmin(address _address);
@@ -104,23 +104,22 @@ interface IAppManagerErrors{
     error NoAddressToRemove();
 }
 
-interface AMMCalculatorErrors{
+interface AMMCalculatorErrors {
     error AmountsAreZero();
     error InsufficientPoolDepth(uint256 pool, int256 attemptedWithdrawal);
 }
 
-interface AMMErrors{
+interface AMMErrors {
     error TokenInvalid(address);
     error AmountExceedsBalance(uint256);
     error TransferFailed();
 }
 
-interface NFTPricingErrors{
+interface NFTPricingErrors {
     error NotAnNFTContract(address nftContract);
 }
 
-
-interface IStakingErrors{
+interface IStakingErrors {
     error DepositFailed();
     error NotStakingEnough(uint256 minStake);
     error NotStakingForAnyTime();
@@ -130,26 +129,24 @@ interface IStakingErrors{
     error InvalidTimeUnit();
 }
 
-interface IERC721StakingErrors{
+interface IERC721StakingErrors {
     error TokenNotValidToStake();
     error TokenNotAvailableToWithdraw();
 }
 
-interface IProtocolERC20Errors{
+interface IProtocolERC20Errors {
     error ExceedingMaxSupply();
     error CallerNotAuthorizedToMint();
 }
 
-interface IZeroAddressError{
+interface IZeroAddressError {
     error ZeroAddress();
 }
 
-interface IAssetHandlerErrors{
+interface IAssetHandlerErrors {
     error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
     error actionCheckFailed();
     error CannotTurnOffAccessLevel0WithAccessLevelBalanceActive();
     error PeriodExceeds5Years();
     error ZeroValueNotPermited();
 }
-
-

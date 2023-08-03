@@ -74,7 +74,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         //     NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, i+1);
         //     unchecked{ ++i;}
         // }
-        vm.warp(Blocktime); 
+        vm.warp(Blocktime);
     }
 
     /***************** Test Setters and Getters *****************/
@@ -434,7 +434,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         vm.startPrank(sender);
         vm.assume(maxChange < 9999 && maxChange > 0);
         if (maxChange < 100) maxChange = 100;
-        if (hFrozen > 23) hFrozen = 23; 
+        if (hFrozen > 23) hFrozen = 23;
         if (hPeriod > 23) hPeriod = 23;
         if ((sender != defaultAdmin && sender != appAdministrator) || maxChange == 0 || hPeriod == 0 || hFrozen == 0) vm.expectRevert();
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, maxChange, hPeriod, hFrozen, totalSupply);
@@ -461,10 +461,12 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
-
-        if ((sender != defaultAdmin && sender != appAdministrator) || _oracleAddress == address(0)) vm.expectRevert();
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addOracleRule(ac, _type, _oracleAddress);
-        if (!((sender != defaultAdmin && sender != appAdministrator) || _oracleAddress == address(0))) {
+        uint32 _index;
+        if ((sender != defaultAdmin && sender != appAdministrator) || _oracleAddress == address(0) || _type > 1) {
+            vm.expectRevert();
+            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addOracleRule(ac, _type, _oracleAddress);
+        } else {
+            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addOracleRule(ac, _type, _oracleAddress);
             assertEq(_index, 0);
             NonTaggedRules.OracleRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getOracleRule(_index);
             assertEq(rule.oracleType, _type);

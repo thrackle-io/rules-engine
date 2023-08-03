@@ -276,22 +276,9 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         // Finally, check the invalid type
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
+        bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, 2));
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
-        /// connect the rule to this handler
-        applicationNFTHandler.setOracleRuleId(_index);
-        vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0x2a15491e);
-        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, address(88), 3);
-        // upgrade the NFT and make sure it still works
-        vm.stopPrank();
-        vm.startPrank(proxyOwner);
-        applicationNFT2 = new ApplicationERC721U();
-        applicationNFTProxy.upgradeTo(address(applicationNFT2));
-        vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0x2a15491e);
-        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, address(88), 3);
     }
 
     function testPauseRulesViaAppManagerERC721U() public {

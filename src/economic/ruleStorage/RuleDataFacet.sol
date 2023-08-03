@@ -17,7 +17,6 @@ import "./RuleCodeData.sol";
  * @notice This contract sets and gets the Rules for the protocol
  */
 contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors {
-
     /**
      * Note that no update method is implemented for rules. Since reutilization of
      * rules is encouraged, it is preferred to add an extra rule to the
@@ -174,7 +173,13 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _hoursFrozen Time period that transactions are frozen
      * @return ruleId position of new rule in array
      */
-    function addVolatilityRule(address _appManagerAddr, uint16 _maxVolatility, uint8 _blocksPerPeriod, uint8 _hoursFrozen, uint256 _totalSupply) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addVolatilityRule(
+        address _appManagerAddr,
+        uint16 _maxVolatility,
+        uint8 _blocksPerPeriod,
+        uint8 _hoursFrozen,
+        uint256 _totalSupply
+    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_maxVolatility == 0 || _blocksPerPeriod == 0 || _hoursFrozen == 0) revert ZeroValueNotPermited();
         RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
         NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRules.TokenVolatilityRule(_maxVolatility, _blocksPerPeriod, _hoursFrozen, _totalSupply);
@@ -302,7 +307,13 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _startTime Hours that transactions are frozen
      * @return ruleId position of new rule in array
      */
-    function addSupplyVolatilityRule(address _appManagerAddr, uint16 _maxVolumePercentage, uint8 _period, uint8 _startTime, uint256 _totalSupply) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addSupplyVolatilityRule(
+        address _appManagerAddr,
+        uint16 _maxVolumePercentage,
+        uint8 _period,
+        uint8 _startTime,
+        uint256 _totalSupply
+    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_maxVolumePercentage == 0 || _period == 0 || _startTime == 0) revert ZeroValueNotPermited();
         if (_startTime > 23) revert InvalidHourOfTheDay();
         RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
@@ -345,6 +356,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function addOracleRule(address _appManagerAddr, uint8 _type, address _oracleAddress) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_oracleAddress == address(0)) revert ZeroAddress();
+        if (_type > 1) revert InvalidOracleType(_type);
         RuleS.OracleRuleS storage data = Storage.oracleStorage();
         NonTaggedRules.OracleRule memory rule = NonTaggedRules.OracleRule(_type, _oracleAddress);
         uint32 ruleId = data.oracleRuleIndex;

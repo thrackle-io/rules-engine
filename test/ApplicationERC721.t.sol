@@ -259,13 +259,9 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         // Finally, check the invalid type
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
+        bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, 2));
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
-        /// connect the rule to this handler
-        applicationNFTHandler.setOracleRuleId(_index);
-        vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0x2a15491e);
-        applicationNFT.transferFrom(user1, address(88), 3);
     }
 
     function testPauseRulesViaAppManager() public {
@@ -749,40 +745,40 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFT.safeTransferFrom(user2, user1, 0);
     }
 
-    /// test supply volatility rule 
+    /// test supply volatility rule
     function testCollectionSupplyVolatilityRule() public {
         /// Mint tokens to specific supply
         for (uint i = 0; i < 10; i++) {
             applicationNFT.safeMint(defaultAdmin);
         }
-        /// create rule params 
-        // create rule params 
-        uint16 volatilityLimit = 2000; /// 10% 
-        uint8 rulePeriod = 24; /// 24 hours 
-        uint8 startingTime = 12; /// start at noon 
-        uint256 tokenSupply = 0; /// calls totalSupply() for the token 
+        /// create rule params
+        // create rule params
+        uint16 volatilityLimit = 2000; /// 10%
+        uint8 rulePeriod = 24; /// 24 hours
+        uint8 startingTime = 12; /// start at noon
+        uint256 tokenSupply = 0; /// calls totalSupply() for the token
 
-        /// set rule id and activate 
+        /// set rule id and activate
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        applicationNFTHandler.setTotalSupplyVolatilityRuleId(_index); 
-        /// set blocktime to within rule period 
+        applicationNFTHandler.setTotalSupplyVolatilityRuleId(_index);
+        /// set blocktime to within rule period
         vm.warp(Blocktime + 13 hours);
-        /// mint tokens under supply limit 
+        /// mint tokens under supply limit
         vm.stopPrank();
         vm.startPrank(user1);
-        applicationNFT.safeMint(user1); 
-        /// mint tokens to the cap 
+        applicationNFT.safeMint(user1);
+        /// mint tokens to the cap
         applicationNFT.safeMint(user1);
         /// fail transactions (mint and burn with passing transfers)
-        vm.expectRevert(); 
+        vm.expectRevert();
         applicationNFT.safeMint(user1);
 
-        applicationNFT.burn(10); 
-        /// move out of rule period 
+        applicationNFT.burn(10);
+        /// move out of rule period
         vm.warp(Blocktime + 36 hours);
         /// burn tokens (should pass)
-        applicationNFT.burn(11); 
-        /// mint 
+        applicationNFT.burn(11);
+        /// mint
         applicationNFT.safeMint(user1);
     }
 
@@ -904,7 +900,6 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         address testAddress = assetHandler.newTestFunction();
         console.log(assetHandler.newTestFunction(), testAddress);
     }
-
 
     /// ******************* OPTIONAL MINT FUNCTION TESTING ******************
     /// These functions should remain commented out unless implementing overriding safeMint function inside of ApplicationERC721

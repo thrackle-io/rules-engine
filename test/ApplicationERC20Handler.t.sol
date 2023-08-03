@@ -333,9 +333,9 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
 
         // Finally, check the invalid type
+        bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, 2));
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 2, address(oracleAllowed));
-        /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
     }
 
     /// now disable since it won't work unless an ERC20 is using it
@@ -408,21 +408,14 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         vm.expectRevert(0x7304e213);
         applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
 
-        // Finally, check the invalid type
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 2, address(oracleAllowed));
-        /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
-        vm.expectRevert(0x2a15491e);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
-
         /// let's turn the rule off
         applicationCoinHandler.activateOracleRule(false);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
+        applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
 
         /// let's turn it back on
         applicationCoinHandler.activateOracleRule(true);
-        vm.expectRevert(0x2a15491e);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
+        vm.expectRevert(0x7304e213);
+        applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
     }
 
     ///---------------UPGRADEABILITY---------------
