@@ -34,19 +34,16 @@ contract ERC721RuleProcessorFacet is IERC721Errors, IRuleProcessorErrors, IMaxTa
                 cumulativeTotal = 0;
                 if (totalRules > ruleId) {
                     NonTaggedRules.NFTTradeCounterRule memory rule = data.getNFTTransferCounterRule(ruleId, nftTags[i]);
-                    // check to see if the rule is active
-                    if (rule.startTs.isRuleActive()) {
-                        uint32 period = 24; // set purchase period to one day(24 hours)
-                        uint256 tradesAllowedPerDay = rule.tradesAllowedPerDay;
-                        // if within time period, add to cumulative
-                        if (rule.startTs.isWithinPeriod(period, lastTransferTime)) {
-                            cumulativeTotal = transfersWithinPeriod + 1;
-                        } else {
-                            cumulativeTotal = 1;
-                        }
-                        if (cumulativeTotal > tradesAllowedPerDay) {
-                            revert MaxNFTTransferReached();
-                        }
+                    uint32 period = 24; // set purchase period to one day(24 hours)
+                    uint256 tradesAllowedPerDay = rule.tradesAllowedPerDay;
+                    // if within time period, add to cumulative
+                    if (rule.startTs.isWithinPeriod(period, lastTransferTime)) {
+                        cumulativeTotal = transfersWithinPeriod + 1;
+                    } else {
+                        cumulativeTotal = 1;
+                    }
+                    if (cumulativeTotal > tradesAllowedPerDay) {
+                        revert MaxNFTTransferReached();
                     }
                     unchecked {
                         ++i;

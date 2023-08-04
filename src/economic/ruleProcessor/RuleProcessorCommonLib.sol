@@ -41,16 +41,8 @@ library RuleProcessorCommonLib {
         if (_lastTransferTs == 0) {
             return false;
         }
-        /// 1) Get the number of periods since the rule was enabled
-        /// 2) Multiply the startTimestamp by the amount of hours in all the blocks since the rule was enabled. This gives the current periods startTimestamp
-        uint256 secondsSinceStart = (block.timestamp - _startTimestamp);
-        uint256 currentPeriodStart;
-        // if the amount of time since rule activation is less than the period, it's in the first block so use the rule start timestamp
-        if (secondsSinceStart < (_period * 1 hours)) {
-            currentPeriodStart = _startTimestamp;
-        } else {
-            currentPeriodStart = _startTimestamp + (_period * ((secondsSinceStart / (_period * 1 hours)) * 1 hours));
-        }
+        // current timestamp subtracted by the remainder of seconds since the rule was active divided by period in hours
+        uint256 currentPeriodStart = block.timestamp - ((block.timestamp - _startTimestamp) % (_period * 1 hours));
         if (_lastTransferTs >= currentPeriodStart) {
             return true;
         } else {

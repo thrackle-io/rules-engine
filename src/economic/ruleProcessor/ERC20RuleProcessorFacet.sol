@@ -87,18 +87,15 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
         uint totalRules = data.getTotalPctPurchaseRule();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
         NonTaggedRules.TokenPercentagePurchaseRule memory percentagePurchaseRule = data.getPctPurchaseRule(ruleId);
-        uint256 totalPurchasedWithinPeriod;
+        uint256 totalPurchasedWithinPeriod = 0;
         if (percentagePurchaseRule.startTime.isRuleActive()) {
             totalPurchasedWithinPeriod = amountToTransfer; /// resets value for purchases outside of purchase period
-            uint256 totalSupply = percentagePurchaseRule.totalSupply;
             /// check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
-            if (percentagePurchaseRule.totalSupply == 0) totalSupply = currentTotalSupply;
+            uint256 totalSupply = percentagePurchaseRule.totalSupply == 0 ? currentTotalSupply : percentagePurchaseRule.totalSupply;
             // check if within current purchase period
             if (percentagePurchaseRule.startTime.isWithinPeriod(percentagePurchaseRule.purchasePeriod, lastPurchaseTime)) {
                 /// update soldWithinPeriod to include the amountToTransfer when inside purchase period
                 totalPurchasedWithinPeriod = amountToTransfer + purchasedWithinPeriod;
-            } else {
-                totalPurchasedWithinPeriod = amountToTransfer;
             }
             /// perform rule check if amountToTransfer + soldWithinPeriod is over allowed amount of total supply
             uint16 percentOfTotalSupply = uint16((totalPurchasedWithinPeriod * 10000) / totalSupply);
@@ -129,8 +126,6 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
             if (percentageSellRule.startTime.isWithinPeriod(percentageSellRule.sellPeriod, lastSellTime)) {
                 /// update soldWithinPeriod to include the amountToTransfer when inside purchase period
                 totalSoldWithinPeriod = amountToTransfer + soldWithinPeriod;
-            } else {
-                totalSoldWithinPeriod = amountToTransfer;
             }
             /// perform rule check if amountToTransfer + soldWithinPeriod is over allowed amount of total supply
             uint16 percentOfTotalSupply = uint16((totalSoldWithinPeriod * 10000) / totalSupply);
@@ -147,7 +142,7 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
      * @param _amount Number of tokens to be transferred from this account
      * @param _supply Number of tokens in supply
      * @param _lastTransferTs the time of the last transfer
-     * @return volumeTotal new accumulated volume
+     * @return _volume new accumulated volume
      */
     function checkTokenTransferVolumePasses(uint32 _ruleId, uint256 _volume, uint256 _supply, uint256 _amount, uint64 _lastTransferTs) external view returns (uint256) {
         /// we create the 'data' variable which is simply a connection to the rule diamond
@@ -180,6 +175,16 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
         return _volume;
     }
 
+    /**
+     * @dev Rule checks if the token total supply volatility rule will be violated.
+     * @param _ruleId Rule identifier for rule arguments
+     * @param _volumeTotalForPeriod token's trading volume for the period
+     * @param _tokenTotalSupply the total supply from token tallies
+     * @param _amount amount in the current transfer
+     * @param _lastSupplyUpdateTime the last timestamp the supply was updated
+     * @return _volumeTotalForPeriod properly adjusted total for the current period
+     * @return _tokenTotalSupply properly adjusted token total supply. This is necessary because if the token's total supply is used it skews results within the period
+     */
     function checkTotalSupplyVolatilityPasses(
         uint32 _ruleId,
         int256 _volumeTotalForPeriod,
