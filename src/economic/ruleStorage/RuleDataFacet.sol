@@ -7,7 +7,7 @@ import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
-import {IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors} from "../../interfaces/IErrors.sol";
+import {IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors, IRuleStorageErrors} from "../../interfaces/IErrors.sol";
 import "./RuleCodeData.sol";
 import "./RuleStorageCommonLib.sol";
 
@@ -65,6 +65,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function getPctPurchaseRule(uint32 _index) external view returns (NonTaggedRules.TokenPercentagePurchaseRule memory) {
         RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
+        // check one of the required non zero values to check for existence, if not, revert
+        if (data.percentagePurchaseRules[_index].startTime == 0) revert RuleDoesNotExist();
         return data.percentagePurchaseRules[_index];
     }
 
@@ -116,6 +118,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function getPctSellRule(uint32 _index) external view returns (NonTaggedRules.TokenPercentageSellRule memory) {
         RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
+        // check one of the required non zero values to check for existence, if not, revert
+        if (data.percentageSellRules[_index].startTime == 0) revert RuleDoesNotExist();
         return data.percentageSellRules[_index];
     }
 
@@ -157,6 +161,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function getPurchaseFeeByVolumeRule(uint32 _index) external view returns (NonTaggedRules.TokenPurchaseFeeByVolume memory) {
         RuleS.PurchaseFeeByVolRuleS storage data = Storage.purchaseFeeByVolumeStorage();
+        // check one of the required non zero values to check for existence, if not, revert
+        if (data.purchaseFeeByVolumeRules[_index].volume == 0) revert RuleDoesNotExist();
         return data.purchaseFeeByVolumeRules[_index];
     }
 
@@ -206,6 +212,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function getVolatilityRule(uint32 _index) external view returns (NonTaggedRules.TokenVolatilityRule memory) {
         RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
+        // check one of the required non zero values to check for existence, if not, revert
+        if (data.volatilityRules[_index].maxVolatility == 0) revert RuleDoesNotExist();
         return data.volatilityRules[_index];
     }
 
@@ -256,6 +264,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function getTransferVolumeRule(uint32 _index) external view returns (NonTaggedRules.TokenTransferVolumeRule memory) {
         RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
+        // check one of the required non zero values to check for existence, if not, revert
+        if (data.transferVolumeRules[_index].maxVolume == 0) revert RuleDoesNotExist();
         return data.transferVolumeRules[_index];
     }
 
@@ -343,6 +353,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function getSupplyVolatilityRule(uint32 _index) external view returns (NonTaggedRules.SupplyVolatilityRule memory) {
         RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
+        // check one of the required non zero values to check for existence, if not, revert
+        if (data.supplyVolatilityRules[_index].period == 0) revert RuleDoesNotExist();
         return data.supplyVolatilityRules[_index];
     }
 
@@ -384,6 +396,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function getOracleRule(uint32 _index) external view returns (NonTaggedRules.OracleRule memory) {
         RuleS.OracleRuleS storage data = Storage.oracleStorage();
+        // check one of the required non zero values to check for existence, if not, revert
+        if (data.oracleRules[_index].oracleAddress == address(0)) revert RuleDoesNotExist();
         return data.oracleRules[_index];
     }
 
@@ -451,7 +465,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function getNFTTransferCounterRule(uint32 _index, bytes32 _nftType) external view returns (NonTaggedRules.NFTTradeCounterRule memory) {
         RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
-        if (_index >= data.NFTTransferCounterRuleIndex) revert IndexOutOfRange();
+        // check one of the required non zero values to check for existence, if not, revert
+        if (!data.NFTTransferCounterRule[_index][_nftType].active) revert RuleDoesNotExist();
         return data.NFTTransferCounterRule[_index][_nftType];
     }
 

@@ -17,6 +17,10 @@ interface IRuleProcessorErrors {
     error RuleDoesNotExist();
 }
 
+interface IRuleStorageErrors {
+    error RuleDoesNotExist();
+}
+
 interface IAccessLevelErrors {
     error BalanceExceedsAccessLevelAllowedLimit();
     error WithdrawalExceedsAccessLevelAllowedLimit();
