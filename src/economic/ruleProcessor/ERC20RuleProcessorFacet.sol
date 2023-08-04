@@ -87,9 +87,8 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
         uint totalRules = data.getTotalPctPurchaseRule();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
         NonTaggedRules.TokenPercentagePurchaseRule memory percentagePurchaseRule = data.getPctPurchaseRule(ruleId);
-        uint256 totalPurchasedWithinPeriod = 0;
+        uint256 totalPurchasedWithinPeriod = amountToTransfer; /// resets value for purchases outside of purchase period
         if (percentagePurchaseRule.startTime.isRuleActive()) {
-            totalPurchasedWithinPeriod = amountToTransfer; /// resets value for purchases outside of purchase period
             /// check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
             uint256 totalSupply = percentagePurchaseRule.totalSupply == 0 ? currentTotalSupply : percentagePurchaseRule.totalSupply;
             // check if within current purchase period
@@ -119,9 +118,8 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
         NonTaggedRules.TokenPercentageSellRule memory percentageSellRule = data.getPctSellRule(ruleId);
         uint256 totalSoldWithinPeriod = amountToTransfer; /// resets value for purchases outside of purchase period
         if (percentageSellRule.startTime.isRuleActive()) {
-            uint256 totalSupply = percentageSellRule.totalSupply;
             /// check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
-            if (percentageSellRule.totalSupply == 0) totalSupply = currentTotalSupply;
+            uint256 totalSupply = percentageSellRule.totalSupply == 0 ? currentTotalSupply : percentageSellRule.totalSupply;
             // check if within current purchase period
             if (percentageSellRule.startTime.isWithinPeriod(percentageSellRule.sellPeriod, lastSellTime)) {
                 /// update soldWithinPeriod to include the amountToTransfer when inside purchase period
@@ -180,6 +178,7 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
      * @param _ruleId Rule identifier for rule arguments
      * @param _volumeTotalForPeriod token's trading volume for the period
      * @param _tokenTotalSupply the total supply from token tallies
+     * @param _supply token total supply value
      * @param _amount amount in the current transfer
      * @param _lastSupplyUpdateTime the last timestamp the supply was updated
      * @return _volumeTotalForPeriod properly adjusted total for the current period
@@ -211,6 +210,7 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
                 if (rule.startingTime.isWithinPeriod(rule.period, _lastSupplyUpdateTime)) {
                     /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
                     _volumeTotalForPeriod += _amount;
+                    /// the _tokenTotalSupply is not modified during the rule period. It needs to stay the same value as what it was at the beginning of the period to keep consistent results since mints/burns change totalSupply in the token
                 } else {
                     _volumeTotalForPeriod = _amount;
                     /// update total supply of token when outside of rule period
