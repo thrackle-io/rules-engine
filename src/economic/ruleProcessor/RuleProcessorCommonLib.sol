@@ -41,7 +41,7 @@ library RuleProcessorCommonLib {
         if (_lastTransferTs == 0) {
             return false;
         }
-        // current timestamp subtracted by the remainder of seconds since the rule was active divided by period in hours
+        // current timestamp subtracted by the remainder of seconds since the rule was active divided by period in seconds
         uint256 currentPeriodStart = block.timestamp - ((block.timestamp - _startTimestamp) % (_period * 1 hours));
         if (_lastTransferTs >= currentPeriodStart) {
             return true;
