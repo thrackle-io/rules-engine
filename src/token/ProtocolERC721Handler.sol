@@ -243,6 +243,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _ruleId Rule Id to set
      */
     function setMinMaxBalanceRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        ruleProcessor.validateMinMaxAccountBalance(_ruleId);
         minMaxBalanceRuleId = _ruleId;
         minMaxBalanceRuleActive = true;
         emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, address(this), _ruleId);
@@ -283,6 +284,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _ruleId Rule Id to set
      */
     function setOracleRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        ruleProcessor.validateOracle(_ruleId);
         oracleRuleId = _ruleId;
         oracleRuleActive = true;
         emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
@@ -323,6 +325,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _ruleId Rule Id to set
      */
     function setTradeCounterRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        ruleProcessor.validateNFTTransferCounter(_ruleId);
         tradeCounterRuleId = _ruleId;
         tradeCounterRuleActive = true;
         emit ApplicationHandlerApplied(NFT_TRANSFER, address(this), _ruleId);
@@ -380,6 +383,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _ruleId Rule Id to set
      */
     function setTransactionLimitByRiskRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        ruleProcessor.validateTransactionLimitByRiskScore(_ruleId);
         transactionLimitByRiskRuleId = _ruleId;
         transactionLimitByRiskRuleActive = true;
         emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, address(this), _ruleId);
@@ -420,6 +424,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _ruleId Rule Id to set
      */
     function setMinBalByDateRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        ruleProcessor.validateMinBalByDate(_ruleId);
         minBalByDateRuleId = _ruleId;
         minBalByDateRuleActive = true;
         emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, address(this), _ruleId);
@@ -452,6 +457,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _ruleId Rule Id to set
      */
     function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        ruleProcessor.validateAdminWithdrawal(_ruleId);
         /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
         if (adminWithdrawalActive) {
             if (isAdminWithdrawalActiveAndApplicable()) revert AdminWithdrawalRuleisActive();
@@ -523,6 +529,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _ruleId Rule Id to set
      */
     function setTokenTransferVolumeRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        ruleProcessor.validateTokenTransferVolume(_ruleId);
         tokenTransferVolumeRuleId = _ruleId;
         tokenTransferVolumeRuleActive = true;
         emit ApplicationHandlerApplied(TRANSFER_VOLUME, address(this), _ruleId);
@@ -555,6 +562,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _ruleId Rule Id to set
      */
     function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        ruleProcessor.validateSupplyVolatility(_ruleId);
         totalSupplyVolatilityRuleId = _ruleId;
         totalSupplyVolatilityRuleActive = true;
         emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, address(this), _ruleId);

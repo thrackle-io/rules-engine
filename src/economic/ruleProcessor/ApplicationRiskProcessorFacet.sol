@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {IApplicationRules as ApplicationRuleStorage} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
-import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
+import {IRuleProcessorErrors, IRiskErrors} from "src/interfaces/IErrors.sol";
 
 /**
  * @title Risk Score Processor Facet Contract
@@ -14,8 +14,6 @@ import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
  * in terms of USD with 18 decimals of precision.
  */
 contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
-    
-
     /**
      * @dev Account balance by Risk Score
      * @param _ruleId Rule Identifier for rule arguments

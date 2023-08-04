@@ -601,12 +601,12 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(appManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
 
         applicationCoinHandler.setAdminWithdrawalRuleId(_index);
-
+        _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(appManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
         applicationCoinHandler.activateAdminWithdrawalRule(false);
         vm.expectRevert();
-        applicationCoinHandler.setAdminWithdrawalRuleId(1);
+        applicationCoinHandler.setAdminWithdrawalRuleId(_index);
 
         vm.warp(block.timestamp + secondsForward);
         if (secondsForward < 365 days && type(uint256).max - amount < 1_000_000 * (10 ** 18)) vm.expectRevert();
@@ -615,7 +615,7 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
         /// if last rule is expired, we should be able to turn off and update the rule
         if (secondsForward >= 365 days) {
             applicationCoinHandler.activateAdminWithdrawalRule(false);
-            applicationCoinHandler.setAdminWithdrawalRuleId(1);
+            applicationCoinHandler.setAdminWithdrawalRuleId(_index);
         }
     }
 

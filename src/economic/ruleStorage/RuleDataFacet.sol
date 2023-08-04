@@ -19,6 +19,7 @@ import "./RuleStorageCommonLib.sol";
  */
 contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors {
     using RuleStorageCommonLib for uint64;
+    using RuleStorageCommonLib for uint32;
 
     /**
      * Note that no update method is implemented for rules. Since reutilization of
@@ -64,6 +65,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return percentagePurchaseRules rule at index position
      */
     function getPctPurchaseRule(uint32 _index) external view returns (NonTaggedRules.TokenPercentagePurchaseRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalPctPurchaseRule());
         RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
         return data.percentagePurchaseRules[_index];
     }
@@ -72,7 +75,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @dev Function to get total Token Purchase Percentage
      * @return Total length of array
      */
-    function getTotalPctPurchaseRule() external view returns (uint32) {
+    function getTotalPctPurchaseRule() public view returns (uint32) {
         RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
         return data.percentagePurchaseRuleIndex;
     }
@@ -115,6 +118,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return percentageSellRules rule at index position
      */
     function getPctSellRule(uint32 _index) external view returns (NonTaggedRules.TokenPercentageSellRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalPctSellRule());
         RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
         return data.percentageSellRules[_index];
     }
@@ -123,7 +128,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @dev Function to get total Token Percentage Sell
      * @return Total length of array
      */
-    function getTotalPctSellRule() external view returns (uint32) {
+    function getTotalPctSellRule() public view returns (uint32) {
         RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
         return data.percentageSellRuleIndex;
     }
@@ -156,6 +161,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return TokenPurchaseFeeByVolume rule at index position
      */
     function getPurchaseFeeByVolumeRule(uint32 _index) external view returns (NonTaggedRules.TokenPurchaseFeeByVolume memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalTokenPurchaseFeeByVolumeRules());
         RuleS.PurchaseFeeByVolRuleS storage data = Storage.purchaseFeeByVolumeStorage();
         return data.purchaseFeeByVolumeRules[_index];
     }
@@ -164,7 +171,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @dev Function to get total Token Purchase Percentage
      * @return Total length of array
      */
-    function getTotalTokenPurchaseFeeByVolumeRules() external view returns (uint32) {
+    function getTotalTokenPurchaseFeeByVolumeRules() public view returns (uint32) {
         RuleS.PurchaseFeeByVolRuleS storage data = Storage.purchaseFeeByVolumeStorage();
         return data.purchaseFeeByVolumeRuleIndex;
     }
@@ -205,6 +212,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return volatilityRules rule at index position
      */
     function getVolatilityRule(uint32 _index) external view returns (NonTaggedRules.TokenVolatilityRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalVolatilityRules());
         RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
         return data.volatilityRules[_index];
     }
@@ -213,7 +222,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @dev Function to get total Volatility rules
      * @return Total length of array
      */
-    function getTotalVolatilityRules() external view returns (uint32) {
+    function getTotalVolatilityRules() public view returns (uint32) {
         RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
         return data.volatilityRuleIndex;
     }
@@ -255,6 +264,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return TokenTransferVolumeRule rule at index position
      */
     function getTransferVolumeRule(uint32 _index) external view returns (NonTaggedRules.TokenTransferVolumeRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalTransferVolumeRules());
         RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
         return data.transferVolumeRules[_index];
     }
@@ -263,7 +274,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @dev Function to get total Token Transfer Volume rules
      * @return Total length of array
      */
-    function getTotalTransferVolumeRules() external view returns (uint32) {
+    function getTotalTransferVolumeRules() public view returns (uint32) {
         RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
         return uint32(data.transferVolumeRules.length);
     }
@@ -293,6 +304,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return Rule at index
      */
     function getMinimumTransferRule(uint32 _index) external view returns (uint256) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalMinimumTransferRules());
         RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
         return data.minimumTransferRules[_index];
     }
@@ -301,7 +314,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @dev Function to get total Minimum Transfer rules
      * @return Total length of array
      */
-    function getTotalMinimumTransferRules() external view returns (uint32) {
+    function getTotalMinimumTransferRules() public view returns (uint32) {
         RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
         return uint32(data.minimumTransferRules.length);
     }
@@ -342,6 +355,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return SupplyVolatilityRule rule at indexed postion
      */
     function getSupplyVolatilityRule(uint32 _index) external view returns (NonTaggedRules.SupplyVolatilityRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalSupplyVolatilityRules());
         RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
         return data.supplyVolatilityRules[_index];
     }
@@ -350,7 +365,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @dev Function to get total Supply Volitility rules
      * @return supplyVolatilityRules total length of array
      */
-    function getTotalSupplyVolatilityRules() external view returns (uint32) {
+    function getTotalSupplyVolatilityRules() public view returns (uint32) {
         RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
         return data.supplyVolatilityRuleIndex;
     }
@@ -383,6 +398,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @return OracleRule at index
      */
     function getOracleRule(uint32 _index) external view returns (NonTaggedRules.OracleRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalOracleRules());
         RuleS.OracleRuleS storage data = Storage.oracleStorage();
         return data.oracleRules[_index];
     }
@@ -391,7 +408,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @dev Function get total Oracle rules
      * @return total oracleRules array length
      */
-    function getTotalOracleRules() external view returns (uint32) {
+    function getTotalOracleRules() public view returns (uint32) {
         RuleS.OracleRuleS storage data = Storage.oracleStorage();
         return data.oracleRuleIndex;
     }
@@ -451,7 +468,8 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function getNFTTransferCounterRule(uint32 _index, bytes32 _nftType) external view returns (NonTaggedRules.NFTTradeCounterRule memory) {
         RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
-        if (_index >= data.NFTTransferCounterRuleIndex) revert IndexOutOfRange();
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalNFTTransferCounterRules());
         return data.NFTTransferCounterRule[_index][_nftType];
     }
 
@@ -459,7 +477,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @dev Function gets total NFT Trade Counter rules
      * @return Total length of array
      */
-    function getTotalNFTTransferCounterRules() external view returns (uint32) {
+    function getTotalNFTTransferCounterRules() public view returns (uint32) {
         RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
         return data.NFTTransferCounterRuleIndex;
     }

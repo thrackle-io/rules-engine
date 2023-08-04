@@ -144,6 +144,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @param _ruleId Rule Id to set
      */
     function setAccountBalanceByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccBalanceByRisk(_ruleId);
         accountBalanceByRiskRuleId = _ruleId;
         accountBalanceByRiskRuleActive = true;
         emit ApplicationRuleApplied(BALANCE_BY_RISK, _ruleId);
@@ -230,6 +231,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @param _ruleId Rule Id to set
      */
     function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateWithdrawalLimitsByAccessLevel(_ruleId);
         withdrawalLimitByAccessLevelRuleId = _ruleId;
         withdrawalLimitByAccessLevelRuleActive = true;
         emit ApplicationRuleApplied(ACCESS_LEVEL_WITHDRAWAL, _ruleId);
@@ -273,6 +275,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @param _ruleId Rule Id to set
      */
     function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateMaxTxSizePerPeriodByRisk(_ruleId);
         maxTxSizePerPeriodByRiskRuleId = _ruleId;
         maxTxSizePerPeriodByRiskActive = true;
         emit ApplicationRuleApplied(MAX_TX_PER_PERIOD, _ruleId);

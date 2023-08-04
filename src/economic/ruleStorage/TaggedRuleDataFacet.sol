@@ -18,6 +18,7 @@ import "./RuleStorageCommonLib.sol";
  */
 contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError {
     using RuleStorageCommonLib for uint64;
+    using RuleStorageCommonLib for uint32;
 
     /**
      * Note that no update method is implemented. Since reutilization of
@@ -81,6 +82,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return PurchaseRule rule at index position
      */
     function getPurchaseRule(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.PurchaseRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalPurchaseRule());
         RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
         if (_index >= data.purchaseRulesIndex) revert IndexOutOfRange();
         return data.purchaseRulesPerUser[_index][_accountType];
@@ -90,7 +93,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total purchase rules
      * @return Total length of array
      */
-    function getTotalPurchaseRule() external view returns (uint32) {
+    function getTotalPurchaseRule() public view returns (uint32) {
         RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
         return data.purchaseRulesIndex;
     }
@@ -151,6 +154,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return SellRule at position in array
      */
     function getSellRuleByIndex(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.SellRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalSellRule());
         RuleS.SellRuleS storage data = Storage.sellStorage();
         if (_index >= data.sellRulesIndex) revert IndexOutOfRange();
         return data.sellRulesPerUser[_index][_accountType];
@@ -160,7 +165,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total Sell rules
      * @return Total length of array
      */
-    function getTotalSellRule() external view returns (uint32) {
+    function getTotalSellRule() public view returns (uint32) {
         RuleS.SellRuleS storage data = Storage.sellStorage();
         return data.sellRulesIndex;
     }
@@ -219,6 +224,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return BalanceLimitRule at index location in array
      */
     function getBalanceLimitRule(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.BalanceLimitRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalBalanceLimitRules());
         RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
         if (_index >= data.balanceLimitRuleIndex) revert IndexOutOfRange();
         return data.balanceLimitsPerAccountType[_index][_accountType];
@@ -228,7 +235,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function gets total Balance Limit rules
      * @return Total length of array
      */
-    function getTotalBalanceLimitRules() external view returns (uint32) {
+    function getTotalBalanceLimitRules() public view returns (uint32) {
         RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
         return data.balanceLimitRuleIndex;
     }
@@ -286,6 +293,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return WithdrawalRule rule at indexed postion
      */
     function getWithdrawalRule(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.WithdrawalRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalWithdrawalRule());
         RuleS.WithdrawalRuleS storage data = Storage.withdrawalStorage();
         if (_index >= data.withdrawalRulesIndex) revert IndexOutOfRange();
         return data.withdrawalRulesPerToken[_index][_accountType];
@@ -295,7 +304,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total withdrawal rules
      * @return withdrawalRulesIndex total length of array
      */
-    function getTotalWithdrawalRule() external view returns (uint32) {
+    function getTotalWithdrawalRule() public view returns (uint32) {
         RuleS.WithdrawalRuleS storage data = Storage.withdrawalStorage();
         return data.withdrawalRulesIndex;
     }
@@ -328,6 +337,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return adminWithdrawalRulesPerToken rule at indexed postion
      */
     function getAdminWithdrawalRule(uint32 _index) external view returns (TaggedRules.AdminWithdrawalRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalAdminWithdrawalRules());
         RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
         if (_index >= data.adminWithdrawalRulesIndex) revert IndexOutOfRange();
         return data.adminWithdrawalRulesPerToken[_index];
@@ -337,7 +348,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total Admin withdrawal rules
      * @return adminWithdrawalRulesPerToken total length of array
      */
-    function getTotalAdminWithdrawalRules() external view returns (uint32) {
+    function getTotalAdminWithdrawalRules() public view returns (uint32) {
         RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
         return data.adminWithdrawalRulesIndex;
     }
@@ -400,6 +411,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return balanceAmount balance allowed for access levellevel
      */
     function getTransactionLimitByRiskRule(uint32 _index) external view returns (TaggedRules.TransactionSizeToRiskRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalTransactionLimitByRiskRules());
         RuleS.TxSizeToRiskRuleS storage data = Storage.txSizeToRiskStorage();
         if (_index >= data.txSizeToRiskRuleIndex) revert IndexOutOfRange();
         return data.txSizeToRiskRule[_index];
@@ -409,7 +422,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total Transaction Limit by Risk Score rules
      * @return Total length of array
      */
-    function getTotalTransactionLimitByRiskRules() external view returns (uint32) {
+    function getTotalTransactionLimitByRiskRules() public view returns (uint32) {
         RuleS.TxSizeToRiskRuleS storage data = Storage.txSizeToRiskStorage();
         return data.txSizeToRiskRuleIndex;
     }
@@ -475,6 +488,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return PurchaseRule rule at index position
      */
     function getMinBalByDateRule(uint32 _index, bytes32 _accountTag) external view returns (TaggedRules.MinBalByDateRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalMinBalByDateRule());
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         if (_index >= data.minBalByDateRulesIndex) revert IndexOutOfRange();
         return data.minBalByDateRulesPerUser[_index][_accountTag];
@@ -484,7 +499,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total minimum balance by date rules
      * @return Total length of array
      */
-    function getTotalMinBalByDateRule() external view returns (uint32) {
+    function getTotalMinBalByDateRule() public view returns (uint32) {
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         return data.minBalByDateRulesIndex;
     }

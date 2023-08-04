@@ -645,12 +645,13 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         /// Set the rule in the handler
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(appManager), 5, block.timestamp + 365 days);
 
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
         applicationNFTHandler.activateAdminWithdrawalRule(false);
         vm.expectRevert();
-        applicationNFTHandler.setAdminWithdrawalRuleId(1);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
 
         /// These transfers should pass
         applicationNFT.safeTransferFrom(defaultAdmin, user1, 0);
@@ -665,7 +666,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         /// Transfers and updating rules should now pass
         applicationNFT.safeTransferFrom(defaultAdmin, user1, 2);
         applicationNFTHandler.activateAdminWithdrawalRule(false);
-        applicationNFTHandler.setAdminWithdrawalRuleId(1);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
     }
 
     /// test the transfer volume rule in erc721

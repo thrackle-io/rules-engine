@@ -244,4 +244,126 @@ interface IRuleProcessor {
      * @param _ownershipTs beginning of hold period
      */
     function checkNFTHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view;
+
+    /* ---------------------------- Rule Validation Functions --------------------------------- */
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateAMMFee(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateTransactionLimitByRiskScore(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateMinMaxAccountBalanceERC721(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateNFTTransferCounter(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateMinMaxAccountBalance(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validatePurchaseLimit(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateSellLimit(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateAdminWithdrawal(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateMinBalByDate(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateMinTransfer(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateOracle(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validatePurchasePercentage(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateSellPercentage(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateTokenTransferVolume(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateSupplyVolatility(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateAccBalanceByRisk(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateMaxTxSizePerPeriodByRisk(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     * @param _dataServer address of the appManager contract
+     */
+    function validatePause(uint32 _ruleId, address _dataServer) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateAccBalanceByAccessLevel(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
+    function validateWithdrawalLimitsByAccessLevel(uint32 _ruleId) external view;
 }
