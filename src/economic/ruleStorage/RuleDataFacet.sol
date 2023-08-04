@@ -225,15 +225,14 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function addTransferVolumeRule(
         address _appManagerAddr,
-        uint16 _maxVolumePercentage,
+        uint24 _maxVolumePercentage,
         uint8 _hoursPerPeriod,
         uint64 _startTime,
         uint256 _totalSupply
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_maxVolumePercentage == 0 || _hoursPerPeriod == 0) revert ZeroValueNotPermited();
         if (_startTime > 23) revert InvalidHourOfTheDay();
-        if (_maxVolumePercentage > 9999) revert ValueOutOfRange(_maxVolumePercentage);
-        if (_maxVolumePercentage < 100) revert ValueOutOfRange(_maxVolumePercentage);
+        if (_maxVolumePercentage > 100000) revert ValueOutOfRange(_maxVolumePercentage);
         RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
         NonTaggedRules.TokenTransferVolumeRule memory rule = NonTaggedRules.TokenTransferVolumeRule(_maxVolumePercentage, _hoursPerPeriod, _startTime, _totalSupply);
         uint32 ruleId = data.transferVolRuleIndex;

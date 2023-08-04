@@ -310,9 +310,9 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         vm.startPrank(sender);
 
         /// test only admin can add rule, and values are withing acceptable range
-        if ((sender != defaultAdmin && sender != appAdministrator) || maxVolume < 100 || maxVolume > 9999 || hPeriod == 0 || startTime > 23) vm.expectRevert();
+        if ((sender != defaultAdmin && sender != appAdministrator) || maxVolume == 0 || maxVolume > 100000 || hPeriod == 0 || startTime > 23) vm.expectRevert();
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, maxVolume, hPeriod, startTime, 0);
-        if ((sender == defaultAdmin || sender == appAdministrator) && maxVolume > 100 && maxVolume <= 9999 && hPeriod > 0 && startTime > 0 && startTime < 24) {
+        if ((sender == defaultAdmin || sender == appAdministrator) && maxVolume > 0 && maxVolume <= 100000 && hPeriod > 0 && startTime > 0 && startTime < 24) {
             assertEq(_index, 0);
             NonTaggedRules.TokenTransferVolumeRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
             assertEq(rule.startingTime, startTime);

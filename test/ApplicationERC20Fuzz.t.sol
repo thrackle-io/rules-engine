@@ -857,21 +857,21 @@ contract ApplicationERC20FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUt
     }
 
     /// test the token transfer volume rule in erc20
-    function testTokenTransferVolumeRuleFuzzCoin(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public {
+    function testTokenTransferVolumeRuleFuzzCoin(uint8 _addressIndex, uint8 _period, uint24 _maxPercent) public {
         if (_period == 0) _period = 1;
-        if (_maxPercent < 100) _maxPercent = 100;
-        if (_maxPercent > 9999) _maxPercent = 9999;
+        if (_maxPercent < 1) _maxPercent = 1;
+        if (_maxPercent > 99999) _maxPercent = 99999;
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         rich_user = addressList[0];
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), _maxPercent, _period, 0, 0);
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), _maxPercent, _period, 0, 100_000);
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, _maxPercent);
         assertEq(rule.period, _period);
         assertEq(rule.startingTime, 0);
         /// load non admin users with game coin
-        applicationCoin.mint(rich_user, 100_000);
-        assertEq(applicationCoin.balanceOf(rich_user), 100_000);
+        applicationCoin.mint(rich_user, 1000000);
+        assertEq(applicationCoin.balanceOf(rich_user), 1000000);
         /// apply the rule
         applicationCoinHandler.setTokenTransferVolumeRuleId(_index);
         vm.stopPrank();
