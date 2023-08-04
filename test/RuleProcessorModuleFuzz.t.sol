@@ -255,9 +255,9 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         vm.startPrank(sender);
 
         /// test only admin can add rule, and values are withing acceptable range
-        if ((sender != defaultAdmin && sender != appAdministrator) || volume == 0 || rate == 0) vm.expectRevert();
+        if ((sender != defaultAdmin && sender != appAdministrator) || volume == 0 || rate == 0 || rate > 10000) vm.expectRevert();
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPurchaseFeeByVolumeRule(ac, volume, rate);
-        if ((sender == defaultAdmin || sender == appAdministrator) && volume > 0 && rate > 0) {
+        if ((sender == defaultAdmin || sender == appAdministrator) && volume > 0 && rate > 0 && rate <= 10000) {
             assertEq(_index, 0);
             NonTaggedRules.TokenPurchaseFeeByVolume memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPurchaseFeeByVolumeRule(_index);
             assertEq(rule.rateIncreased, rate);
@@ -282,9 +282,9 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         vm.startPrank(sender);
 
         /// test only admin can add rule, and values are withing acceptable range
-        if ((sender != defaultAdmin && sender != appAdministrator) || maxVolatility == 0 || blocks == 0 || hFrozen == 0) vm.expectRevert();
+        if ((sender != defaultAdmin && sender != appAdministrator) || maxVolatility == 0 || maxVolatility > 10000 || blocks == 0 || hFrozen == 0) vm.expectRevert();
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, maxVolatility, blocks, hFrozen, totalSupply);
-        if ((sender == defaultAdmin || sender == appAdministrator) && maxVolatility > 0 && blocks > 0 && hFrozen > 0) {
+        if ((sender == defaultAdmin || sender == appAdministrator) && maxVolatility > 0 && maxVolatility <= 10000 && blocks > 0 && hFrozen > 0) {
             assertEq(_index, 0);
             NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getVolatilityRule(_index);
 
@@ -343,14 +343,14 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, min);
         if ((sender == defaultAdmin || sender == appAdministrator) && min > 0) {
             assertEq(_index, 0);
-            uint256 rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getMinimumTransferRule(_index);
-            assertEq(rule, min);
+            NonTaggedRules.TokenMinimumTransferRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getMinimumTransferRule(_index);
+            assertEq(rule.minTransferAmount, min);
 
             /// testing adding a second rule
             _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 300000000000000);
             assertEq(_index, 1);
             rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getMinimumTransferRule(_index);
-            assertEq(rule, 300000000000000);
+            assertEq(rule.minTransferAmount, 300000000000000);
 
             /// testing getting total rules
             assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalMinimumTransferRules(), 2);

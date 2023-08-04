@@ -44,12 +44,6 @@ interface INonTaggedRules {
         uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
     }
 
-    /// ******** Token Trading Volume ********
-    struct TokenTradingVolumeRule {
-        uint256 maxVolume;
-        uint8 hoursPerPeriod;
-        uint8 hoursFrozen;
-    }
     /// ******** Token Transfer Volume ********
     struct TokenTransferVolumeRule {
         uint16 maxVolume; // this is a percentage with 2 decimals of precision(2500 = 25%)

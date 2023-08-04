@@ -37,7 +37,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         ac = address(appManager);
-        vm.warp(Blocktime); 
+        vm.warp(Blocktime);
     }
 
     /// Test to make sure that the Diamond will upgrade
@@ -307,7 +307,6 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         assertEq(rule.purchasePeriod, 24);
     }
 
-
     /// testing only appAdministrators can add Purchase Rule
     function testSettingPurchasePctRuleWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the default admin
@@ -521,13 +520,13 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     function testSettingMinTransfer() public {
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 500000000000000);
         assertEq(_index, 0);
-        uint256 rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getMinimumTransferRule(_index);
-        assertEq(rule, 500000000000000);
+        NonTaggedRules.TokenMinimumTransferRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getMinimumTransferRule(_index);
+        assertEq(rule.minTransferAmount, 500000000000000);
 
         _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 300000000000000);
         assertEq(_index, 1);
         rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getMinimumTransferRule(_index);
-        assertEq(rule, 300000000000000);
+        assertEq(rule.minTransferAmount, 300000000000000);
     }
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule

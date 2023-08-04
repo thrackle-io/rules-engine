@@ -14,7 +14,7 @@ import "./IOracle.sol";
  * @dev Facet in charge of the logic to check token rules compliance
  * @notice Implements Token Fee Rules on Accounts.
  */
-contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors{
+contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
     /**
      * @dev Check if transaction passes minTransfer rule.
      * @param _ruleId Rule Identifier for rule arguments
@@ -24,8 +24,8 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors{
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
 
         if (data.getTotalMinimumTransferRules() != 0) {
-            try data.getMinimumTransferRule(_ruleId) returns (uint min) {
-                if (min > amountToTransfer) revert BelowMinTransfer();
+            try data.getMinimumTransferRule(_ruleId) returns (NonTaggedRules.TokenMinimumTransferRule memory rule) {
+                if (rule.minTransferAmount > amountToTransfer) revert BelowMinTransfer();
             } catch {
                 revert RuleDoesNotExist();
             }
@@ -155,8 +155,8 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors{
             if (rule.totalSupply != 0) {
                 _supply = rule.totalSupply;
             }
-            // we check the numbers against the rule  
-            if ((_volume * 100000000) / _supply >= uint(rule.maxVolume) * 10000 ) {
+            // we check the numbers against the rule
+            if ((_volume * 100000000) / _supply >= uint(rule.maxVolume) * 10000) {
                 revert TransferExceedsMaxVolumeAllowed();
             }
         } catch {
@@ -166,38 +166,38 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors{
     }
 
     function checkTotalSupplyVolatilityPasses(
-        uint32 _ruleId, 
+        uint32 _ruleId,
         int256 _volumeTotalForPeriod,
         uint256 _tokenTotalSupply,
-        uint256 _supply, 
-        int256 _amount, 
+        uint256 _supply,
+        int256 _amount,
         uint64 _lastSupplyUpdateTime
-        ) external view returns (int256, uint256) {
-        int256 volatility; 
+    ) external view returns (int256, uint256) {
+        int256 volatility;
         /// we create the 'data' variable which is simply a connection to the rule diamond
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
         /// validation block
         if ((data.getTotalSupplyVolatilityRules() == 0)) revert RuleDoesNotExist();
         /// we procede to retrieve the rule
         try data.getSupplyVolatilityRule(_ruleId) returns (NonTaggedRules.SupplyVolatilityRule memory rule) {
-            /// check if totalSupply is specified in rule params 
+            /// check if totalSupply is specified in rule params
             if (rule.totalSupply != 0) {
                 _supply = rule.totalSupply;
             }
-            /// check if current transaction is inside rule period 
+            /// check if current transaction is inside rule period
             if (((block.timestamp - rule.startingTime) % (uint256(rule.period) * 1 hours)) >= (block.timestamp - _lastSupplyUpdateTime)) {
-            /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler) 
+                /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
                 _volumeTotalForPeriod += _amount;
             } else {
-                _volumeTotalForPeriod = _amount; 
-                /// update total supply of token when outside of rule period 
-                _tokenTotalSupply = _supply; 
+                _volumeTotalForPeriod = _amount;
+                /// update total supply of token when outside of rule period
+                _tokenTotalSupply = _supply;
             }
             volatility = (_volumeTotalForPeriod * 100000000) / int(_tokenTotalSupply);
             if (volatility < 0) volatility = volatility * -1;
             if (uint256(volatility) > uint(rule.maxChange) * 10000) {
                 revert TotalSupplyVolatilityLimitReached();
-            } 
+            }
         } catch {
             revert RuleDoesNotExist();
         }

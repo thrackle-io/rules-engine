@@ -63,7 +63,7 @@ interface IInputErrors {
     error WrongArrayOrder();
     error InputArraysSizesNotValid();
     error InputArraysMustHaveSameLength();
-    error ValueOutOfRange(uint256 percentage);
+    error ValueOutOfRange(uint256 _value);
     error ZeroValueNotPermited();
     error InvertedLimits();
     error InvalidOracleType(uint8 _type);

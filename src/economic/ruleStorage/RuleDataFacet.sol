@@ -134,6 +134,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function addPurchaseFeeByVolumeRule(address _appManagerAddr, uint256 _volume, uint16 _rateIncreased) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_volume == 0 || _rateIncreased == 0) revert ZeroValueNotPermited();
+        if (_rateIncreased > 10000) revert ValueOutOfRange(_rateIncreased);
         RuleS.PurchaseFeeByVolRuleS storage data = Storage.purchaseFeeByVolumeStorage();
         NonTaggedRules.TokenPurchaseFeeByVolume memory rule = NonTaggedRules.TokenPurchaseFeeByVolume(_volume, _rateIncreased);
         uint32 ruleId = data.purchaseFeeByVolumeRuleIndex;
@@ -169,20 +170,21 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @dev Function to add a Token Volatility rule
      * @param _appManagerAddr Address of App Manager
      * @param _maxVolatility Maximum allowed volume
-     * @param _blocksPerPeriod Allowed blocks per period
-     * @param _hoursFrozen Time period that transactions are frozen
+     * @param _period period in hours for the rule
+     * @param _startingTime Time that the rule becomes active
      * @return ruleId position of new rule in array
      */
     function addVolatilityRule(
         address _appManagerAddr,
         uint16 _maxVolatility,
-        uint8 _blocksPerPeriod,
-        uint8 _hoursFrozen,
+        uint8 _period,
+        uint8 _startingTime,
         uint256 _totalSupply
     ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_maxVolatility == 0 || _blocksPerPeriod == 0 || _hoursFrozen == 0) revert ZeroValueNotPermited();
+        if (_maxVolatility == 0 || _period == 0 || _startingTime == 0) revert ZeroValueNotPermited();
+        if (_maxVolatility > 10000) revert ValueOutOfRange(_maxVolatility);
         RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
-        NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRules.TokenVolatilityRule(_maxVolatility, _blocksPerPeriod, _hoursFrozen, _totalSupply);
+        NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRules.TokenVolatilityRule(_maxVolatility, _period, _startingTime, _totalSupply);
         uint32 ruleId = data.volatilityRuleIndex;
         data.volatilityRules[ruleId] = rule;
         bytes32[] memory empty;
@@ -233,10 +235,12 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
         if (_maxVolumePercentage > 9999) revert ValueOutOfRange(_maxVolumePercentage);
         if (_maxVolumePercentage < 100) revert ValueOutOfRange(_maxVolumePercentage);
         RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
-        data.transferVolumeRules.push(NonTaggedRules.TokenTransferVolumeRule(_maxVolumePercentage, _hoursPerPeriod, _startTime, _totalSupply));
-        uint32 ruleId = uint32(data.transferVolumeRules.length) - 1;
+        NonTaggedRules.TokenTransferVolumeRule memory rule = NonTaggedRules.TokenTransferVolumeRule(_maxVolumePercentage, _hoursPerPeriod, _startTime, _totalSupply);
+        uint32 ruleId = data.transferVolRuleIndex;
+        data.transferVolumeRules[ruleId] = rule;
         bytes32[] memory empty;
         emit ProtocolRuleCreated(TRANSFER_VOLUME, ruleId, empty);
+        ++data.transferVolRuleIndex;
         return ruleId;
     }
 
@@ -256,7 +260,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function getTotalTransferVolumeRules() external view returns (uint32) {
         RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
-        return uint32(data.transferVolumeRules.length);
+        return data.transferVolRuleIndex;
     }
 
     /************ Minimum Transfer Rule Getters/Setters ***********/
@@ -270,10 +274,12 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
     function addMinimumTransferRule(address _appManagerAddr, uint256 _minimumTransfer) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_minimumTransfer == 0) revert ZeroValueNotPermited();
         RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
-        data.minimumTransferRules.push(_minimumTransfer);
-        uint32 ruleId = uint32(data.minimumTransferRules.length) - 1;
+        NonTaggedRules.TokenMinimumTransferRule memory rule = NonTaggedRules.TokenMinimumTransferRule(_minimumTransfer);
+        uint32 ruleId = data.minimumTransferRuleIndex;
+        data.minimumTransferRules[ruleId] = rule;
         bytes32[] memory empty;
         emit ProtocolRuleCreated(MIN_TRANSFER, ruleId, empty);
+        ++data.minimumTransferRuleIndex;
         return ruleId;
     }
 
@@ -282,7 +288,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _index position of rule in array
      * @return Rule at index
      */
-    function getMinimumTransferRule(uint32 _index) external view returns (uint256) {
+    function getMinimumTransferRule(uint32 _index) external view returns (NonTaggedRules.TokenMinimumTransferRule memory) {
         RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
         return data.minimumTransferRules[_index];
     }
@@ -293,7 +299,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      */
     function getTotalMinimumTransferRules() external view returns (uint32) {
         RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
-        return uint32(data.minimumTransferRules.length);
+        return data.minimumTransferRuleIndex;
     }
 
     /************ Supply Volatility Getters/Setters ***********/
