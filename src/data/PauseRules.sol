@@ -34,7 +34,7 @@ contract PauseRules is IPauseRules, DataModule {
         }
         PauseRule memory pauseRule = PauseRule(block.timestamp, _pauseStart, _pauseStop);
         pauseRules.push(pauseRule);
-        emit PauseRuleAdded(_pauseStart, _pauseStop);
+        emit PauseRuleEvent(_pauseStart, _pauseStop, true);
     }
 
     /**
@@ -60,7 +60,7 @@ contract PauseRules is IPauseRules, DataModule {
                 PauseRule memory rule = pauseRules[i];
                 if (rule.pauseStart == _pauseStart && rule.pauseStop == _pauseStop) {
                     _removePauseRule(i);
-                    emit PauseRuleRemoved(_pauseStart, _pauseStop);
+                    emit PauseRuleEvent(_pauseStart, _pauseStop, false);
                 } else {
                     exit = true;
                 }
@@ -78,7 +78,7 @@ contract PauseRules is IPauseRules, DataModule {
         uint256 i;
         while (i < pauseRules.length) {
             while (pauseRules.length > 0 && i < pauseRules.length && pauseRules[i].pauseStop <= block.timestamp) {
-                emit PauseRuleRemoved(pauseRules[i].pauseStart, pauseRules[i].pauseStop);
+                emit PauseRuleEvent(pauseRules[i].pauseStart, pauseRules[i].pauseStop, false);
                 _removePauseRule(uint8(i));
             }
             unchecked {

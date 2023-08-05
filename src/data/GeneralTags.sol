@@ -33,7 +33,7 @@ contract GeneralTags is DataModule, IGeneralTags {
         else {
             if( tagRecords[_address].length >= 10) revert MaxTagLimitReached();
             tagRecords[_address].push(_tag);
-            emit GeneralTagAdded(_address, _tag, block.timestamp);
+            emit GeneralTag(_address, _tag, true);
         }
     }
 
@@ -51,7 +51,7 @@ contract GeneralTags is DataModule, IGeneralTags {
             else{
                 if( tagRecords[_accounts[i]].length >= 10) revert MaxTagLimitReached();
                 tagRecords[_accounts[i]].push(_tag);
-                emit GeneralTagAdded(_accounts[i], _tag, block.timestamp);
+                emit GeneralTag(_accounts[i], _tag, true);
             }
             unchecked {
                 ++i;
@@ -85,7 +85,7 @@ contract GeneralTags is DataModule, IGeneralTags {
                 ++i;
             }
         }
-        emit GeneralTagRemoved(_address, _tag, block.timestamp);
+        emit GeneralTag(_address, _tag, false);
     }
 
     /**

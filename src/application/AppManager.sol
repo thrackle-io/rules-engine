@@ -113,7 +113,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addAppAdministrator(address account) external onlyAppAdministrator {
         grantRole(APP_ADMIN_ROLE, account);
-        emit AddAppAdministrator(account);
+        emit AppAdministrator(account, true);
     }
 
     /**
@@ -123,7 +123,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleAppAdministrator(address[] memory _accounts) external onlyAppAdministrator {
         for (uint256 i; i < _accounts.length; ) {
             grantRole(APP_ADMIN_ROLE, _accounts[i]);
-            emit AddAppAdministrator(_accounts[i]);
+            emit AppAdministrator(_accounts[i], true);
             unchecked {
                 ++i;
             }
@@ -135,7 +135,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function renounceAppAdministrator() external {
         renounceRole(APP_ADMIN_ROLE, msg.sender);
-        emit RemoveAppAdministrator(address(msg.sender));
+        emit AppAdministrator(address(msg.sender), false);
     }
 
     /// -------------ACCESS TIER---------------
@@ -162,7 +162,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addAccessTier(address account) external onlyAppAdministrator {
         grantRole(ACCESS_TIER_ADMIN_ROLE, account);
-        emit AccessTierAdded(account);
+        emit AccessTierAdmin(account, true);
     }
 
     /**
@@ -172,7 +172,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleAccessTier(address[] memory account) external onlyAppAdministrator {
         for (uint256 i; i < account.length; ) {
             grantRole(ACCESS_TIER_ADMIN_ROLE, account[i]);
-            emit AccessTierAdded(account[i]);
+            emit AccessTierAdmin(account[i], true);
             unchecked {
                 ++i;
             }
@@ -184,7 +184,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function renounceAccessTier() external {
         renounceRole(ACCESS_TIER_ADMIN_ROLE, msg.sender);
-        emit AccessTierRemoved(address(msg.sender));
+        emit AccessTierAdmin(address(msg.sender), false);
     }
 
     /// -------------RISK ADMIN---------------
@@ -211,7 +211,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addRiskAdmin(address account) external onlyAppAdministrator {
         grantRole(RISK_ADMIN_ROLE, account);
-        emit RiskAdminAdded(account);
+        emit RiskAdmin(account, true);
     }
 
     /**
@@ -221,7 +221,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleRiskAdmin(address[] memory account) external onlyAppAdministrator {
         for (uint256 i; i < account.length; ) {
             grantRole(RISK_ADMIN_ROLE, account[i]);
-            emit RiskAdminAdded(account[i]);
+            emit RiskAdmin(account[i], true);
             unchecked {
                 ++i;
             }
@@ -233,7 +233,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function renounceRiskAdmin() external {
         renounceRole(RISK_ADMIN_ROLE, msg.sender);
-        emit RiskAdminRemoved(address(msg.sender));
+        emit RiskAdmin(address(msg.sender), false);
     }
 
     /// -------------USER---------------

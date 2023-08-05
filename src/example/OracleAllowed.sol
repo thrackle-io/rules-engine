@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import {IOracleEvents} from "src/interfaces/IEvents.sol";
 
 /**
  * @title Example On-chain Allow-List Oracle
@@ -8,15 +9,8 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
  * @notice This is an example on-chain oracle that maintains an allow list.
  * @dev This is intended to be a model only. It stores the allow list internally and returns bool true if address is in list.
  */
-contract OracleAllowed is Ownable {
+contract OracleAllowed is Ownable, IOracleEvents {
     mapping(address => bool) private allowedAddresses;
-
-    event AllowedAddress(address indexed addr);
-    event AllowedAddressesAdded(address[] addrs);
-    event AllowedAddressAdded(address addrs);
-    event AllowedAddressesRemoved(address[] addrs);
-    event NotAllowedAddress(address indexed addr);
-    event AllowListOracleDeployed();
 
     /**
      * @dev Constructor that only serves the purpose of notifying the indexer of its creation via event
@@ -41,7 +35,7 @@ contract OracleAllowed is Ownable {
         for (uint256 i = 0; i < newAllows.length; i++) {
             allowedAddresses[newAllows[i]] = true;
         }
-        emit AllowedAddressesAdded(newAllows);
+        emit OracleListChanged(true, newAllows);
     }
 
     /**
@@ -50,7 +44,9 @@ contract OracleAllowed is Ownable {
      */
     function addAddressToAllowList(address newAllow) public onlyOwner {
         allowedAddresses[newAllow] = true;
-        emit AllowedAddressAdded(newAllow);
+        address[] memory addresses;
+        addresses[0] =  newAllow;
+        emit OracleListChanged(true,addresses);
     }
 
     /**
@@ -61,7 +57,7 @@ contract OracleAllowed is Ownable {
         for (uint256 i = 0; i < removeAllows.length; i++) {
             allowedAddresses[removeAllows[i]] = false;
         }
-        emit AllowedAddressesRemoved(removeAllows);
+        emit OracleListChanged(false, removeAllows);
     }
 
     /**

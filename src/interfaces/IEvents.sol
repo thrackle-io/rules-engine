@@ -16,25 +16,20 @@ interface IAppLevelEvents {
     event AppManagerDeployedForUpgrade(address indexed deployedAddress);
     event AppManagerUpgrade(address indexed deployedAddress, address replacedAddress);
     event RemoveFromRegistry(string contractName, address contractAddress);
-    event RiskAdminAdded(address newAdmin);
-    event RiskAdminRemoved(address removedAdmin);
-    event AccessTierAdded(address newAdmin);
-    event AccessTierRemoved(address removedAdmin);
-    event AddAppAdministrator(address newAppAdministrator);
-    event RemoveAppAdministrator(address removedAppAdministrator);
+    event RiskAdmin(address indexed admin, bool indexed add);
+    event AccessTierAdmin(address indexed admin, bool indexed add);
+    event AppAdministrator(address indexed admin, bool indexed add); 
     ///Accounts
     event AccountAdded(address indexed account, uint256 date);
     event AccountRemoved(address indexed account, uint256 date);
     ///GeneralTags
-    event GeneralTagAdded(address indexed _address, bytes32 indexed _tag, uint256 date);
-    event GeneralTagRemoved(address indexed _address, bytes32 indexed _tag, uint256 date);
+    event GeneralTag(address indexed _address, bytes32 indexed _tag, bool indexed add); 
     event TagAlreadyApplied(address indexed _address);
     ///AccessLevels
     event AccessLevelAdded(address indexed _address, uint8 indexed _level, uint256 date);
     event AccessLevelRemoved(address indexed _address, uint256 date);
     ///PauseRules
-    event PauseRuleAdded(uint256 indexed pauseStart, uint256 indexed pauseStop);
-    event PauseRuleRemoved(uint256 indexed pauseStart, uint256 indexed pauseStop);
+    event PauseRuleEvent(uint256 indexed pauseStart, uint256 indexed pauseStop, bool indexed add);
     ///RiskScores
     event RiskScoreAdded(address indexed _address, uint8 _score, uint256 date);
     event RiskScoreRemoved(address indexed _address, uint256 date);
@@ -98,6 +93,17 @@ interface ITokenHandlerEvents {
     event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
 }
 
+interface IOracleEvents{
+    event AllowedAddress(address indexed addr);
+    event NotAllowedAddress(address indexed addr);
+    event AllowListOracleDeployed();
+     event SanctionedAddress(address indexed addr);
+    event NonSanctionedAddress(address indexed addr);
+    event SanctionedListOracleDeployed();
+    event OracleListChanged(bool indexed add, address[] addresses); // new event
+}
+
+
 /**
  * @title Application Events
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -124,18 +130,6 @@ interface IApplicationEvents {
     event RewardsClaimedERC721(address indexed staker, uint256 indexed tokenId, uint256 rewards, uint256 indexed stakingSince, uint256 date);
     event StakeWithdrawalERC721(address indexed staker, uint256 indexed tokenId, uint256 date);
     event NewStakingAddress(address indexed newStakingAddress);
-    ///OracleAllowed
-    event AllowedAddress(address indexed addr);
-    event AllowedAddressesAdded(address[] addrs);
-    event AllowedAddressAdded(address addrs);
-    event AllowedAddressesRemoved(address[] addrs);
-    event NotAllowedAddress(address indexed addr);
-    ///OracleRestricted
-    event SanctionedAddress(address indexed addr);
-    event NonSanctionedAddress(address indexed addr);
-    event SanctionedAddressesAdded(address[] addrs);
-    event SanctionedAddressAdded(address addrs);
-    event SanctionedAddressesRemoved(address[] addrs);
     ///AMM
     event AMMDeployed(address indexed ammAddress);
     event Swap(address indexed tokenIn, uint256 amountIn, uint256 amountOut);
