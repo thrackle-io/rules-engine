@@ -2,19 +2,21 @@
 pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/access/AccessControlEnumerable.sol";
-import "../data/Accounts.sol";
-import "../data/IAccounts.sol";
-import "../data/IAccessLevels.sol";
-import "../data/AccessLevels.sol";
-import "../data/IRiskScores.sol";
-import "../data/RiskScores.sol";
-import "../data/IGeneralTags.sol";
-import "../data/GeneralTags.sol";
-import "../data/IPauseRules.sol";
-import "../data/PauseRules.sol";
-import "./ProtocolApplicationHandler.sol";
+import "src/data/Accounts.sol";
+import "src/data/IAccounts.sol";
+import "src/data/IAccessLevels.sol";
+import "src/data/AccessLevels.sol";
+import "src/data/IRiskScores.sol";
+import "src/data/RiskScores.sol";
+import "src/data/IGeneralTags.sol";
+import "src/data/GeneralTags.sol";
+import "src/data/IPauseRules.sol";
+import "src/data/PauseRules.sol";
+import "src/application/ProtocolApplicationHandler.sol";
 import "src/economic/ruleProcessor/ActionEnum.sol";
-import {IAppLevelEvents} from "../interfaces/IEvents.sol";
+import {IAppLevelEvents} from "src/interfaces/IEvents.sol";
+import "src/application/IAppManagerUser.sol";
+import "src/data/IDataModule.sol";
 
 /**
  * @title App Manager Contract
@@ -34,6 +36,13 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     IRiskScores riskScores;
     IGeneralTags generalTags;
     IPauseRules pauseRules;
+
+    // Data provider proposed addresses
+    address newAccessLevelsProviderAddress;
+    address newAccountsProviderAddress;
+    address newGeneralTagsProviderAddress;
+    address newPauseRulesProviderAddress;
+    address newRiskScoresProviderAddress;
 
     /// Application Handler Contract
     ProtocolApplicationHandler public applicationHandler;
@@ -110,7 +119,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param account address to be added
      */
     function addAppAdministrator(address account) external onlyAppAdministrator {
-        if (account == address(0)) revert ZeroAddress(); 
+        if (account == address(0)) revert ZeroAddress();
         grantRole(APP_ADMIN_ROLE, account);
         emit AddAppAdministrator(account);
     }
@@ -464,31 +473,29 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev  Set the address of the Risk Provider contract. Restricted to Application Administrators
-     * @param _provider Address of the provider
+     * @dev  First part of the 2 step process to set a new risk score provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
+     * @param _newProvider Address of the new provider
      */
-    function setRiskProvider(address _provider) external onlyAppAdministrator {
-        if (_provider == address(0)) revert ZeroAddress();
-        riskScores = IRiskScores(_provider);
-        emit RiskProviderSet(_provider);
+    function proposeRiskScoresProvider(address _newProvider) external onlyAppAdministrator {
+        if (_newProvider == address(0)) revert ZeroAddress();
+        newRiskScoresProviderAddress = _newProvider;
     }
 
     /**
      * @dev Get the address of the risk score provider
      * @return provider Address of the provider
      */
-    function getRiskProvider() external view returns (address) {
+    function getRiskScoresProvider() external view returns (address) {
         return address(riskScores);
     }
 
     /**
-     * @dev  Set the address of the General Tag Provider contract. Restricted to Application Administrators
-     * @param _provider Address of the provider
+     * @dev  First part of the 2 step process to set a new general tag provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
+     * @param _newProvider Address of the new provider
      */
-    function setGeneralTagProvider(address _provider) external onlyAppAdministrator {
-        if (_provider == address(0)) revert ZeroAddress();
-        generalTags = IGeneralTags(_provider);
-        emit GeneralTagProviderSet(_provider);
+    function proposeGeneralTagsProvider(address _newProvider) external onlyAppAdministrator {
+        if (_newProvider == address(0)) revert ZeroAddress();
+        newGeneralTagsProviderAddress = _newProvider;
     }
 
     /**
@@ -500,13 +507,12 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev  Set the address of the Account Provider contract. Restricted to Application Administrators
-     * @param _provider Address of the provider
+     * @dev  First part of the 2 step process to set a new account provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
+     * @param _newProvider Address of the new provider
      */
-    function setAccountProvider(address _provider) external onlyAppAdministrator {
-        if (_provider == address(0)) revert ZeroAddress();
-        accounts = IAccounts(_provider);
-        emit AccountProviderSet(_provider);
+    function proposeAccountsProvider(address _newProvider) external onlyAppAdministrator {
+        if (_newProvider == address(0)) revert ZeroAddress();
+        newAccountsProviderAddress = _newProvider;
     }
 
     /**
@@ -518,13 +524,12 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev  Set the address of the Pause Rule Provider contract. Restricted to Application Administrators
-     * @param _provider Address of the provider
+     * @dev  First part of the 2 step process to set a new pause rule provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
+     * @param _newProvider Address of the new provider
      */
-    function setPauseRuleProvider(address _provider) external onlyAppAdministrator {
-        if (_provider == address(0)) revert ZeroAddress();
-        pauseRules = IPauseRules(_provider);
-        emit PauseRuleProviderSet(_provider);
+    function proposePauseRulesProvider(address _newProvider) external onlyAppAdministrator {
+        if (_newProvider == address(0)) revert ZeroAddress();
+        newPauseRulesProviderAddress = _newProvider;
     }
 
     /**
@@ -536,13 +541,12 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev  Set the address of the Access Level Provider contract. Restricted to Application Administrators
-     * @param _provider Address of the Access Level provider
+     * @dev  First part of the 2 step process to set a new access level provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
+     * @param _newProvider Address of the new provider
      */
-    function setAccessLevelProvider(address _provider) external onlyAppAdministrator {
-        if (_provider == address(0)) revert ZeroAddress();
-        accessLevels = IAccessLevels(_provider);
-        emit AccessLevelProviderSet(_provider);
+    function proposeAccessLevelsProvider(address _newProvider) external onlyAppAdministrator {
+        if (_newProvider == address(0)) revert ZeroAddress();
+        newAccessLevelsProviderAddress = _newProvider;
     }
 
     /**
@@ -588,7 +592,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         if (_tokenAddress == address(0)) revert ZeroAddress();
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
-        for (uint256 i = 0; i < tokenList.length;) {
+        for (uint256 i = 0; i < tokenList.length; ) {
             if (tokenList[i] == _tokenAddress) revert AddressAlreadyRegistered();
             unchecked {
                 ++i;
@@ -630,7 +634,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev This function removes an address from a dynamic address array by putting the last element in the one to remove and then removing last element.
-     * @notice This function should only be called with arrays that are free of duplicates. 
+     * @notice This function should only be called with arrays that are free of duplicates.
      * @param _addressArray The array to have an address removed
      * @param _address The address to remove
      */
@@ -644,7 +648,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
             }
         }
         if (_addressArray.length > 1) {
-            for (uint256 i = 0; i < _addressArray.length;) {
+            for (uint256 i = 0; i < _addressArray.length; ) {
                 if (_addressArray[i] == _address) {
                     _addressArray[i] = _addressArray[_addressArray.length - 1];
                     _addressArray.pop();
@@ -663,7 +667,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function registerAMM(address _AMMAddress) external onlyAppAdministrator {
         if (_AMMAddress == address(0)) revert ZeroAddress();
-        if (isRegisteredAMM(_AMMAddress)) revert AddressAlreadyRegistered(); 
+        if (isRegisteredAMM(_AMMAddress)) revert AddressAlreadyRegistered();
         ammList.push(_AMMAddress);
         emit AMMRegistered(_AMMAddress);
     }
@@ -839,48 +843,92 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         appName = _appName;
     }
 
+    /**
+     * @dev Part of the two step process to set a new AppManager within a Protocol Entity
+     * @param _assetAddress address of a protocol entity that uses AppManager
+     */
+    function confirmAppManager(address _assetAddress) external onlyAppAdministrator {
+        IAppManagerUser(_assetAddress).confirmAppManagerAddress();
+    }
+
     /// -------------DATA CONTRACT DEPLOYMENT---------------
     /**
      * @dev Deploy all the child data contracts. Only called internally from the constructor.
      */
     function deployDataContracts() private {
-        accounts = new Accounts();
-        accessLevels = new AccessLevels();
-        riskScores = new RiskScores();
-        generalTags = new GeneralTags();
-        pauseRules = new PauseRules();
+        accounts = new Accounts(address(this));
+        accessLevels = new AccessLevels(address(this));
+        riskScores = new RiskScores(address(this));
+        generalTags = new GeneralTags(address(this));
+        pauseRules = new PauseRules(address(this));
     }
 
     /**
-     * @dev This function is used to migrate the data contracts to a new AppManager. Use with care because it changes ownership. They will no
-     * longer be accessible from the original AppManager
+     * @dev This function is used to propose the new owner for data contracts.
      * @param _newOwner address of the new AppManager
      */
-    function migrateDataContracts(address _newOwner) external onlyAppAdministrator {
-        accounts.setAppManagerAddress(_newOwner);
-        accounts.transferDataOwnership(_newOwner);
-        accessLevels.setAppManagerAddress(_newOwner);
-        accessLevels.transferDataOwnership(_newOwner);
-        riskScores.setAppManagerAddress(_newOwner);
-        riskScores.transferDataOwnership(_newOwner);
-        generalTags.setAppManagerAddress(_newOwner);
-        generalTags.transferDataOwnership(_newOwner);
-        pauseRules.setAppManagerAddress(_newOwner);
-        pauseRules.transferDataOwnership(_newOwner);
-        emit AppManagerUpgrade(_newOwner, address(this));
+    function proposeDataContractMigration(address _newOwner) external onlyAppAdministrator {
+        accounts.proposeOwner(_newOwner);
+        accessLevels.proposeOwner(_newOwner);
+        riskScores.proposeOwner(_newOwner);
+        generalTags.proposeOwner(_newOwner);
+        pauseRules.proposeOwner(_newOwner);
+        emit AppManagerDataUpgradeProposed(_newOwner, address(this));
     }
 
     /**
-     * @dev This function is used to connect data contracts from an old AppManager to the current AppManager.
-     * @param _oldAppManagerAddress address of the old AppManager
+     * @dev This function is used to confirm this contract as the new owner for data contracts.
      */
-    function connectDataContracts(address _oldAppManagerAddress) external onlyAppAdministrator {
-        if (_oldAppManagerAddress == address(0)) revert ZeroAddress();
+    function confirmDataContractMigration(address _oldAppManagerAddress) external onlyAppAdministrator {
         AppManager oldAppManager = AppManager(_oldAppManagerAddress);
         accounts = Accounts(oldAppManager.getAccountDataAddress());
+        accounts.confirmOwner();
         accessLevels = IAccessLevels(oldAppManager.getAccessLevelDataAddress());
+        accessLevels.confirmOwner();
         riskScores = RiskScores(oldAppManager.getRiskDataAddress());
+        riskScores.confirmOwner();
         generalTags = GeneralTags(oldAppManager.getGeneralTagsDataAddress());
+        generalTags.confirmOwner();
         pauseRules = PauseRules(oldAppManager.getPauseRulesDataAddress());
+        pauseRules.confirmOwner();
+        emit DataContractsMigrated(address(this));
+    }
+
+    /**
+     * @dev Part of the two step process to set a new Data Provider within a Protocol AppManager. Final confirmation called by new provider
+     * @param _providerType the type of data provider
+     */
+    function confirmNewDataProvider(IDataModule.ProviderType _providerType) external {
+        if (_providerType == IDataModule.ProviderType.GENERAL_TAG) {
+            if (newGeneralTagsProviderAddress == address(0)) revert NoProposalHasBeenMade();
+            if (msg.sender != newGeneralTagsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            generalTags = IGeneralTags(newGeneralTagsProviderAddress);
+            emit GeneralTagProviderSet(newGeneralTagsProviderAddress);
+            delete newGeneralTagsProviderAddress;
+        } else if (_providerType == IDataModule.ProviderType.RISK_SCORE) {
+            if (newRiskScoresProviderAddress == address(0)) revert NoProposalHasBeenMade();
+            if (msg.sender != newRiskScoresProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            riskScores = IRiskScores(newRiskScoresProviderAddress);
+            emit RiskProviderSet(newRiskScoresProviderAddress);
+            delete newRiskScoresProviderAddress;
+        } else if (_providerType == IDataModule.ProviderType.ACCESS_LEVEL) {
+            if (newAccessLevelsProviderAddress == address(0)) revert NoProposalHasBeenMade();
+            if (msg.sender != newAccessLevelsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            accessLevels = IAccessLevels(newAccessLevelsProviderAddress);
+            emit AccessLevelProviderSet(newAccessLevelsProviderAddress);
+            delete newAccessLevelsProviderAddress;
+        } else if (_providerType == IDataModule.ProviderType.ACCOUNT) {
+            if (newAccountsProviderAddress == address(0)) revert NoProposalHasBeenMade();
+            if (msg.sender != newAccountsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            accounts = IAccounts(newAccountsProviderAddress);
+            emit AccountProviderSet(newAccountsProviderAddress);
+            delete newAccountsProviderAddress;
+        } else if (_providerType == IDataModule.ProviderType.PAUSE_RULE) {
+            if (newPauseRulesProviderAddress == address(0)) revert NoProposalHasBeenMade();
+            if (msg.sender != newPauseRulesProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            pauseRules = IPauseRules(newPauseRulesProviderAddress);
+            emit PauseRuleProviderSet(newPauseRulesProviderAddress);
+            delete newPauseRulesProviderAddress;
+        }
     }
 }

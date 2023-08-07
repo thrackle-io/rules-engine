@@ -15,7 +15,8 @@ interface IAppLevelEvents {
     event AppManagerDeployed(address indexed deployedAddress);
     event AppManagerDeployedForUpgrade(address indexed deployedAddress);
     event AppManagerUpgrade(address indexed deployedAddress, address replacedAddress);
-    event AppManagerAddressSet(address indexed _address);
+    event AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
+    event DataContractsMigrated(address indexed ownerAddress);
     event RemoveFromRegistry(string contractName, address contractAddress);
     event RiskAdminAdded(address newAdmin);
     event RiskAdminRemoved(address removedAdmin);

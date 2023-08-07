@@ -2,13 +2,19 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "../src/example/ApplicationAppManager.sol";
-import "../src/example/application/ApplicationHandler.sol";
+import "src/example/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
-import "../src/data/PauseRule.sol";
+import "src/data/PauseRule.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
+import "src/data/GeneralTags.sol";
+import "src/data/PauseRules.sol";
+import "src/data/AccessLevels.sol";
+import "src/data/RiskScores.sol";
+import "src/data/Accounts.sol";
+import "src/data/IDataModule.sol";
 
 contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationAppManager public applicationAppManager;
@@ -284,40 +290,28 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
     ///---------------Zero Address checks--------------------
     function testZeroAddressCheckAppManager() public {
-        vm.expectRevert(); 
-        applicationAppManager.connectDataContracts(address(0));
-        vm.expectRevert(); 
+        vm.expectRevert();
         applicationAppManager.setNewApplicationHandlerAddress(address(0));
-        vm.expectRevert(); 
+        vm.expectRevert();
         applicationAppManager.registerStaking(address(0));
-        vm.expectRevert(); 
+        vm.expectRevert();
         applicationAppManager.registerTreasury(address(0));
-        vm.expectRevert(); 
+        vm.expectRevert();
         applicationAppManager.registerAMM(address(0));
-        vm.expectRevert(); 
+        vm.expectRevert();
         applicationAppManager.registerToken("FRANKS", address(0));
-        vm.expectRevert(); 
-        applicationAppManager.setAccessLevelProvider(address(0x0));
-        vm.expectRevert(); 
-        applicationAppManager.setPauseRuleProvider(address(0));
-        vm.expectRevert(); 
-        applicationAppManager.setAccountProvider(address(0));
-        vm.expectRevert(); 
-        applicationAppManager.setGeneralTagProvider(address(0));
-        vm.expectRevert(); 
-        applicationAppManager.setRiskProvider(address(0));
 
-        vm.expectRevert(); 
+        vm.expectRevert();
         applicationAppManager.addAppAdministrator(address(0));
-        vm.expectRevert(); 
+        vm.expectRevert();
         applicationAppManager.addAccessTier(address(0));
-        vm.expectRevert(); 
+        vm.expectRevert();
         applicationAppManager.addRiskAdmin(address(0));
 
-        vm.expectRevert(); 
+        vm.expectRevert();
         new ApplicationHandler(address(0), address(applicationAppManager));
 
-        vm.expectRevert(); 
+        vm.expectRevert();
         new ApplicationHandler(address(ruleProcessor), address(0x0));
     }
 
@@ -690,14 +684,6 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         assertFalse(applicationAppManager.hasTag(user, "TAG1"));
     }
 
-    ///---------------AccessLevel PROVIDER---------------
-    // Test setting access levelprovider contract address
-    function testAccessLevelProviderSet() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.setAccessLevelProvider(address(88));
-        assertEq(address(88), applicationAppManager.getAccessLevelProvider());
-    }
-
     /// Test the register token.
     function testRegisterToken() public {
         applicationAppManager.registerToken("Frankenstein", address(77));
@@ -711,22 +697,22 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationAppManager.deregisterToken("Frankenstein");
         assertEq(address(0), applicationAppManager.getTokenAddress("Frankenstein"));
 
-        /// test _removeAddress with multiple tokens 
+        /// test _removeAddress with multiple tokens
         address testToken1 = address(0x111);
         address testToken2 = address(0x222);
         address testToken3 = address(0x333);
         address testToken4 = address(0x444);
-        /// register multiple tokens 
+        /// register multiple tokens
         applicationAppManager.registerToken("TestCoin1", testToken1);
         applicationAppManager.registerToken("TestCoin2", testToken2);
         applicationAppManager.registerToken("TestCoin3", testToken3);
 
-        /// remove token 2 
+        /// remove token 2
         applicationAppManager.deregisterToken("TestCoin2");
-        /// call the token list and check the length 
+        /// call the token list and check the length
         address[] memory list = applicationAppManager.getTokenList();
         assertEq(list.length, 2);
-        /// try to register same token twice 
+        /// try to register same token twice
         applicationAppManager.registerToken("TestCoin4", testToken4);
         vm.expectRevert();
         applicationAppManager.registerToken("TestCoin4", testToken4);
@@ -737,7 +723,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationAppManager.registerAMM(address(77));
         assertTrue(applicationAppManager.isRegisteredAMM(address(77)));
         /// this is expected to fail because you cannot register same address more than once
-        vm.expectRevert(); 
+        vm.expectRevert();
         applicationAppManager.registerAMM(address(77));
     }
 
@@ -750,9 +736,9 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     }
 
     function testRegisterAddresses() public {
-        /// check registration of staking and treasury 
+        /// check registration of staking and treasury
         applicationAppManager.registerTreasury(address(0x111));
-        assertTrue(applicationAppManager.isTreasury(address(0x111)));  
+        assertTrue(applicationAppManager.isTreasury(address(0x111)));
         vm.expectRevert();
         applicationAppManager.registerTreasury(address(0x111));
 
@@ -767,7 +753,6 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         applicationAppManager.registerStaking(address(0x111));
         applicationAppManager.registerStaking(address(0x333));
-
     }
 
     ///---------------UTILITY--------------------
@@ -895,6 +880,119 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         vm.expectRevert();
         //applicationCoin.transfer(_user4, riskBalance1 * (10 ** 18) + 1);
         applicationAppManager.checkApplicationRules(ActionTypes.TRADE, _user1, _user4, 0, riskBalance1 * (10 ** 18) + 1);
+    }
+
+    ///---------------UPGRADEABILITY---------------
+    /**
+     * @dev This function ensures that a app manager can be upgraded without losing its data
+     */
+    function testUpgradeAppManagerAppManager() public {
+        /// create user addresses
+        address upgradeUser1 = address(100);
+        address upgradeUser2 = address(101);
+        /// put data in the old app manager
+        /// AccessLevel
+        switchToAccessTier(); // create a access tier and make it the sender.
+        applicationAppManager.addAccessLevel(upgradeUser1, 4);
+        assertEq(applicationAppManager.getAccessLevel(upgradeUser1), 4);
+        applicationAppManager.addAccessLevel(upgradeUser2, 3);
+        assertEq(applicationAppManager.getAccessLevel(upgradeUser2), 3);
+        /// Risk Data
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        switchToRiskAdmin(); // create a access tier and make it the sender.
+        applicationAppManager.addRiskScore(upgradeUser1, 75);
+        assertEq(75, applicationAppManager.getRiskScore(upgradeUser1));
+        applicationAppManager.addRiskScore(upgradeUser2, 65);
+        assertEq(65, applicationAppManager.getRiskScore(upgradeUser2));
+        /// Account Data
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        applicationAppManager.addUser(upgradeUser1); //add user
+        assertEq(applicationAppManager.isUser(upgradeUser1), true);
+        applicationAppManager.addUser(upgradeUser2); //add user
+        assertEq(applicationAppManager.isUser(upgradeUser2), true);
+        /// General Tags Data
+        applicationAppManager.addGeneralTag(upgradeUser1, "TAG1"); //add tag
+        assertTrue(applicationAppManager.hasTag(upgradeUser1, "TAG1"));
+        applicationAppManager.addGeneralTag(upgradeUser2, "TAG2"); //add tag
+        assertTrue(applicationAppManager.hasTag(upgradeUser2, "TAG2"));
+        /// Pause Rule Data
+        applicationAppManager.addPauseRule(1769924800, 1769984800);
+        PauseRule[] memory test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 1);
+
+        /// create new app manager
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        AppManager appManagerNew = new AppManager(defaultAdmin, "Castlevania", false);
+        /// migrate data contracts to new app manager
+        /// set a app administrator in the new app manager
+        appManagerNew.addAppAdministrator(appAdministrator);
+        switchToAppAdministrator(); // create a app admin and make it the sender.
+        applicationAppManager.proposeDataContractMigration(address(appManagerNew));
+        appManagerNew.confirmDataContractMigration(address(applicationAppManager));
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        /// test that the data is accessible only from the new app manager
+        assertEq(appManagerNew.getAccessLevel(upgradeUser1), 4);
+        assertEq(appManagerNew.getAccessLevel(upgradeUser2), 3);
+        assertEq(75, appManagerNew.getRiskScore(upgradeUser1));
+        assertEq(65, appManagerNew.getRiskScore(upgradeUser2));
+        assertTrue(appManagerNew.hasTag(upgradeUser1, "TAG1"));
+        assertTrue(appManagerNew.hasTag(upgradeUser2, "TAG2"));
+        test = appManagerNew.getPauseRules();
+        assertTrue(test.length == 1);
+        assertEq(appManagerNew.isUser(upgradeUser1), true);
+        assertEq(appManagerNew.isUser(upgradeUser2), true);
+    }
+
+    ///--------------- PROVIDER UPGRADES ---------------
+
+    // Test setting General Tag provider contract address
+    function testSetNewGeneralTagProvider() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        GeneralTags dataMod = new GeneralTags(address(applicationAppManager));
+        applicationAppManager.proposeGeneralTagsProvider(address(dataMod));
+        dataMod.confirmDataProvider(IDataModule.ProviderType.GENERAL_TAG);
+        assertEq(address(dataMod), applicationAppManager.getGeneralTagProvider());
+    }
+
+    // Test setting access level provider contract address
+    function testSetNewAccessLevelProvider() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        AccessLevels dataMod = new AccessLevels(address(applicationAppManager));
+        applicationAppManager.proposeAccessLevelsProvider(address(dataMod));
+        dataMod.confirmDataProvider(IDataModule.ProviderType.ACCESS_LEVEL);
+        assertEq(address(dataMod), applicationAppManager.getAccessLevelProvider());
+    }
+
+    // Test setting account  provider contract address
+    function testSetNewAccountProvider() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        Accounts dataMod = new Accounts(address(applicationAppManager));
+        applicationAppManager.proposeAccountsProvider(address(dataMod));
+        dataMod.confirmDataProvider(IDataModule.ProviderType.ACCOUNT);
+        assertEq(address(dataMod), applicationAppManager.getAccountProvider());
+    }
+
+    // Test setting risk provider contract address
+    function testSetNewRiskScoreProvider() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        RiskScores dataMod = new RiskScores(address(applicationAppManager));
+        applicationAppManager.proposeRiskScoresProvider(address(dataMod));
+        dataMod.confirmDataProvider(IDataModule.ProviderType.RISK_SCORE);
+        assertEq(address(dataMod), applicationAppManager.getRiskScoresProvider());
+    }
+
+    // Test setting pause provider contract address
+    function testSetNewPauseRulesProvider() public {
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        PauseRules dataMod = new PauseRules(address(applicationAppManager));
+        applicationAppManager.proposePauseRulesProvider(address(dataMod));
+        dataMod.confirmDataProvider(IDataModule.ProviderType.PAUSE_RULE);
+        assertEq(address(dataMod), applicationAppManager.getPauseRulesProvider());
     }
 
     /**

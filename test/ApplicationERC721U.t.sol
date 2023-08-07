@@ -738,6 +738,40 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         applicationNFTHandler.setAdminWithdrawalRuleId(1);
     }
 
+    function testUpgradeAppManager721u() public {
+        address newAdmin = address(75);
+        /// create a new app manager
+        ApplicationAppManager appManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
+        /// propose a new AppManager
+        ApplicationERC721U(address(applicationNFTProxy)).proposeAppManagerAddress(address(appManager2));
+        /// confirm the app manager
+        vm.stopPrank();
+        vm.startPrank(newAdmin);
+        appManager2.confirmAppManager(address(applicationNFTProxy));
+        /// test to ensure it still works
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(defaultAdmin, appAdministrator, 0);
+        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(defaultAdmin), 0);
+        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(appAdministrator), 1);
+
+        /// Test fail scenarios
+        vm.stopPrank();
+        vm.startPrank(newAdmin);
+        // zero address
+        vm.expectRevert(0xd92e233d);
+        ApplicationERC721U(address(applicationNFTProxy)).proposeAppManagerAddress(address(0));
+        // no proposed address
+        vm.expectRevert(0x821e0eeb);
+        appManager2.confirmAppManager(address(applicationNFT));
+        // non proposer tries to confirm
+        ApplicationERC721U(address(applicationNFTProxy)).proposeAppManagerAddress(address(appManager2));
+        ApplicationAppManager appManager3 = new ApplicationAppManager(newAdmin, "Castlevania3", false);
+        vm.expectRevert(0x41284967);
+        appManager3.confirmAppManager(address(applicationNFTProxy));
+    }
+
     function testUpgradingHandlersUpgradeable() public {
         ///deploy new modified appliction asset handler contract
         ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), true);

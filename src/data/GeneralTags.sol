@@ -14,9 +14,11 @@ contract GeneralTags is DataModule, IGeneralTags {
 
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
+     * @param _dataModuleAppManagerAddress address of the owning app manager
      */
-    constructor() {
-        dataModuleAppManagerAddress = owner();
+    constructor(address _dataModuleAppManagerAddress) {
+        dataModuleAppManagerAddress = _dataModuleAppManagerAddress;
+        _transferOwnership(dataModuleAppManagerAddress);
     }
 
     /**
@@ -26,7 +28,7 @@ contract GeneralTags is DataModule, IGeneralTags {
      * @notice there is a hard limit of 10 tags per address. This limit is also enforced by the
      * protocol, so keeping this limit here prevents transfers to unexpectedly revert.
      */
-    function addTag(address _address, bytes32 _tag) public onlyOwner {
+    function addTag(address _address, bytes32 _tag) public virtual onlyOwner {
         if (_tag == "") revert BlankTag();
         if (hasTag(_address, _tag)) emit TagAlreadyApplied(_address);
         else {
@@ -43,7 +45,7 @@ contract GeneralTags is DataModule, IGeneralTags {
      * @notice there is a hard limit of 10 tags per address. This limit is also enforced by the
      * protocol, so keeping this limit here prevents transfers to unexpectedly revert.
      */
-    function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyOwner {
+    function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external virtual onlyOwner {
         if (_tag == "") revert BlankTag();
         for (uint256 i; i < _accounts.length; ) {
             if (hasTag(_accounts[i], _tag)) emit TagAlreadyApplied(_accounts[i]);
@@ -63,7 +65,7 @@ contract GeneralTags is DataModule, IGeneralTags {
      * @param _address of the account to remove tag
      * @param i index of the tag to remove
      */
-    function _removeTag(address _address, uint256 i) internal {
+    function _removeTag(address _address, uint256 i) internal virtual {
         uint256 tagCount = tagRecords[_address].length;
         tagRecords[_address][i] = tagRecords[_address][tagCount - 1];
         tagRecords[_address].pop();
@@ -74,7 +76,7 @@ contract GeneralTags is DataModule, IGeneralTags {
      * @param _address user address
      * @param _tag metadata tag to be removed
      */
-    function removeTag(address _address, bytes32 _tag) external onlyOwner {
+    function removeTag(address _address, bytes32 _tag) external virtual onlyOwner {
         uint256 i;
         bool removed;
         while (i < tagRecords[_address].length) {
@@ -96,7 +98,7 @@ contract GeneralTags is DataModule, IGeneralTags {
      * @param _tag metadata tag
      * @return hasTag true if it has the tag, false if it doesn't
      */
-    function hasTag(address _address, bytes32 _tag) public view returns (bool) {
+    function hasTag(address _address, bytes32 _tag) public view virtual returns (bool) {
         for (uint256 i = 0; i < tagRecords[_address].length; ) {
             if (keccak256(abi.encodePacked(tagRecords[_address][i])) == keccak256(abi.encodePacked(_tag))) {
                 return true;
@@ -109,7 +111,7 @@ contract GeneralTags is DataModule, IGeneralTags {
     }
 
     // Get all the tags for the address
-    function getAllTags(address _address) public view returns (bytes32[] memory) {
+    function getAllTags(address _address) public view virtual returns (bytes32[] memory) {
         return tagRecords[_address];
     }
 }

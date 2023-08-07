@@ -10,10 +10,8 @@ import "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.s
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/utils/CountersUpgradeable.sol";
-import "src/economic/AppAdministratorOnlyU.sol";
 import "src/token/IProtocolERC721Handler.sol";
-import {IApplicationEvents} from "../interfaces/IEvents.sol";
-import {IZeroAddressError} from "../interfaces/IErrors.sol";
+import "src/token/ProtocolTokenCommonU.sol";
 
 /**
  * @title ERC721 Upgradeable Protocol Contract
@@ -28,13 +26,10 @@ contract ProtocolERC721U is
     ERC721BurnableUpgradeable,
     OwnableUpgradeable,
     UUPSUpgradeable,
-    AppAdministratorOnlyU,
-    IApplicationEvents,
-    PausableUpgradeable,
-    IZeroAddressError
+    ProtocolTokenCommonU,
+    PausableUpgradeable
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
-    address public appManagerAddress;
     address public handlerAddress;
     IProtocolERC721Handler handler;
     CountersUpgradeable.Counter private _tokenIdCounter;
@@ -148,16 +143,6 @@ contract ProtocolERC721U is
     function withdraw() public payable virtual appAdministratorOnly(appManagerAddress) {
         (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(success);
-    }
-
-    /**
-     * @dev Function to set the appManagerAddress and connect to the new appManager
-     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
-     */
-    function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
-        if (_appManagerAddress == address(0)) revert ZeroAddress();
-        appManagerAddress = _appManagerAddress;
-        emit AppManagerAddressSet(_appManagerAddress);
     }
 
     /**

@@ -15,9 +15,11 @@ contract AccessLevels is IAccessLevels, DataModule {
 
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
+     * @param _dataModuleAppManagerAddress address of the owning app manager
      */
-    constructor() {
-        dataModuleAppManagerAddress = owner();
+    constructor(address _dataModuleAppManagerAddress) {
+        dataModuleAppManagerAddress = _dataModuleAppManagerAddress;
+        _transferOwnership(dataModuleAppManagerAddress);
     }
 
     /**
@@ -25,7 +27,7 @@ contract AccessLevels is IAccessLevels, DataModule {
      * @param _address address of the account
      * @param _level access levellevel(0-4)
      */
-    function addLevel(address _address, uint8 _level) public onlyOwner {
+    function addLevel(address _address, uint8 _level) public virtual onlyOwner {
         if (_level > 4) revert AccessLevelIsNotValid(_level);
         levels[_address] = _level;
         emit AccessLevelAdded(_address, _level, block.timestamp);
@@ -36,7 +38,7 @@ contract AccessLevels is IAccessLevels, DataModule {
      * @param _accounts address upon which to apply the Access Level
      * @param _level Access Level to add
      */
-    function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external onlyOwner {
+    function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external virtual onlyOwner {
         if (_level > 4) revert AccessLevelIsNotValid(_level);
         for (uint256 i; i < _accounts.length; ) {
             levels[_accounts[i]] = _level;
@@ -51,7 +53,7 @@ contract AccessLevels is IAccessLevels, DataModule {
      * @dev Remove the Access Level for the account. Restricted to the owner
      * @param _account address of the account
      */
-    function removelevel(address _account) external onlyOwner {
+    function removelevel(address _account) external virtual onlyOwner {
         delete levels[_account];
         emit AccessLevelRemoved(_account, block.timestamp);
     }
@@ -61,7 +63,7 @@ contract AccessLevels is IAccessLevels, DataModule {
      * @param _account address of the account
      * @return level Access Level(0-4)
      */
-    function getAccessLevel(address _account) external view returns (uint8) {
+    function getAccessLevel(address _account) external view virtual returns (uint8) {
         return (levels[_account]);
     }
 }

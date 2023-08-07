@@ -11,14 +11,15 @@ import "./IRiskScores.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract RiskScores is IRiskScores, DataModule {
-
     mapping(address => uint8) public scores;
 
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
+     * @param _dataModuleAppManagerAddress address of the owning app manager
      */
-    constructor() {
-        dataModuleAppManagerAddress = owner();
+    constructor(address _dataModuleAppManagerAddress) {
+        dataModuleAppManagerAddress = _dataModuleAppManagerAddress;
+        _transferOwnership(dataModuleAppManagerAddress);
     }
 
     /**
@@ -26,7 +27,7 @@ contract RiskScores is IRiskScores, DataModule {
      * @param _address address of the account
      * @param _score risk score (0-100)
      */
-    function addScore(address _address, uint8 _score) public onlyOwner {
+    function addScore(address _address, uint8 _score) public virtual onlyOwner {
         if (_score > 100) revert riskScoreOutOfRange(_score);
         scores[_address] = _score;
         emit RiskScoreAdded(_address, _score, block.timestamp);
@@ -37,7 +38,7 @@ contract RiskScores is IRiskScores, DataModule {
      * @param _accounts address array upon which to apply the Risk Score
      * @param _score Risk Score(0-100)
      */
-    function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyOwner {
+    function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external virtual onlyOwner {
         if (_score > 100) revert riskScoreOutOfRange(_score);
         for (uint256 i; i < _accounts.length; ) {
             scores[_accounts[i]] = _score;
@@ -52,7 +53,7 @@ contract RiskScores is IRiskScores, DataModule {
      * @dev Remove the risk score for the account. Restricted to the owner
      * @param _account address of the account
      */
-    function removeScore(address _account) external onlyOwner {
+    function removeScore(address _account) external virtual onlyOwner {
         delete scores[_account];
         emit RiskScoreRemoved(_account, block.timestamp);
     }
@@ -61,7 +62,7 @@ contract RiskScores is IRiskScores, DataModule {
      * @dev Get the risk score for the account. Restricted to the owner
      * @param _account address of the account
      */
-    function getRiskScore(address _account) external view onlyOwner returns (uint8) {
+    function getRiskScore(address _account) external view virtual onlyOwner returns (uint8) {
         return scores[_account];
     }
 }

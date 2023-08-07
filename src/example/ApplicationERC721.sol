@@ -14,7 +14,7 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
  * Only one safeMint function can be used at a time. Comment out all other safeMint functions and variables used for that function.
  */
 
-contract ApplicationERC721 is ProtocolERC721, Ownable {
+contract ApplicationERC721 is ProtocolERC721 {
     /// Optional Function Variables and Errors. Uncomment these if using option functions:
     // using Counters for Counters.Counter;
     // Counters.Counter private _tokenIdCounter;

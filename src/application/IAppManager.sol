@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-
 import "src/economic/ruleProcessor/ActionEnum.sol";
-import "../data/IPauseRules.sol";
-import { IAppManagerErrors, IAppAdministratorOnlyErrors, IInputErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
+import "src/data/IDataModule.sol";
+import "src/data/IPauseRules.sol";
+import {IAppManagerErrors, IAppAdministratorOnlyErrors, IInputErrors, IZeroAddressError, IOwnershipErrors} from "src/interfaces/IErrors.sol";
 
 /**
  * @title App Manager Inquiry Interface
@@ -12,7 +12,7 @@ import { IAppManagerErrors, IAppAdministratorOnlyErrors, IInputErrors, IZeroAddr
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice Interface for app manager server functions.
  */
-interface IAppManager is IAppManagerErrors, IAppAdministratorOnlyErrors, IInputErrors, IZeroAddressError {
+interface IAppManager is IAppManagerErrors, IAppAdministratorOnlyErrors, IInputErrors, IZeroAddressError, IOwnershipErrors {
     /**
      * @dev This function is where the default admin role is actually checked
      * @param account address to be checked
@@ -173,4 +173,10 @@ interface IAppManager is IAppManagerErrors, IAppAdministratorOnlyErrors, IInputE
      * @return true if one or more rules are active
      */
     function requireValuations() external returns (bool);
+
+    /**
+     * @dev Part of the two step process to set a new Data Provider within a Protocol AppManager. Final confirmation called by new provider
+     * @param _providerType the type of data provider
+     */
+    function confirmNewDataProvider(IDataModule.ProviderType _providerType) external;
 }
