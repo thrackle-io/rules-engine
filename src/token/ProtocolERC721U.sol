@@ -173,6 +173,6 @@ contract ProtocolERC721U is
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolERC721Handler(handlerAddress);
-        emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
+        emit HandlerConnected(_deployedHandlerAddress, address(this));
     }
 }

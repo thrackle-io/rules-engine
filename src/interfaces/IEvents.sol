@@ -113,7 +113,6 @@ interface IOracleEvents{
 
 interface IApplicationEvents {
     /// Application Handler
-    event HandlerConnectedForUpgrade(address indexed applicationHandler, address indexed assetAddress); // should we get rid of this one...
     event HandlerConnected(address indexed handlerAddress, address indexed assetAddress); // ...in favor of this one since regular deploy and upgrade now looks the same?
     ///ProtocolERC20
     event NewTokenDeployed(address indexed applicationCoin, address indexed appManagerAddress);

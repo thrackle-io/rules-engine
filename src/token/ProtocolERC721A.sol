@@ -1168,7 +1168,7 @@ contract ProtocolERC721A is IERC721A, Pausable, AppAdministratorOnly, IApplicati
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolERC721Handler(_deployedHandlerAddress);
-        emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
+        emit HandlerConnected(_deployedHandlerAddress, address(this));
     }
 
     /**
