@@ -3,14 +3,14 @@ pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-contracts/contracts/security/Pausable.sol";
-import "../economic/AppAdministratorOnly.sol";
-import "../application/IAppManager.sol";
-import "../../src/token/ProtocolERC20Handler.sol";
 import "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
 import {IZeroAddressError, IProtocolERC20Errors} from "../interfaces/IErrors.sol";
+import "./ProtocolTokenCommon.sol";
+import "src/token/ProtocolERC20Handler.sol";
+import "src/economic/AppAdministratorOnly.sol";
 
 /**
  * @title ERC20 Base Contract
@@ -18,11 +18,9 @@ import {IZeroAddressError, IProtocolERC20Errors} from "../interfaces/IErrors.sol
  * @notice This is the base contract for all protocol ERC20s
  * @dev The only thing to recognize is that flash minting is added but not allowed...yet
  */
-contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, AppAdministratorOnly, IApplicationEvents, IZeroAddressError, IProtocolERC20Errors {
-    address public appManagerAddress;
+contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, ProtocolTokenCommon, IProtocolERC20Errors {
     // address of the Handler
     ProtocolERC20Handler handler;
-    IAppManager appManager;
 
     /// Max supply should only be set once. Zero means infinite supply.
     uint256 MAX_SUPPLY;

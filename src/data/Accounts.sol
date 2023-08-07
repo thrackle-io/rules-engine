@@ -10,21 +10,22 @@ import "./IAccounts.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract Accounts is DataModule, IAccounts {
-
     mapping(address => bool) public accounts;
 
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
+     * @param _dataModuleAppManagerAddress address of the owning app manager
      */
-    constructor() {
-        dataModuleAppManagerAddress = owner();
+    constructor(address _dataModuleAppManagerAddress) {
+        dataModuleAppManagerAddress = _dataModuleAppManagerAddress;
+        _transferOwnership(dataModuleAppManagerAddress);
     }
 
     /**
      * @dev Add the account. Restricted to owner.
      * @param _account user address
      */
-    function addAccount(address _account) external onlyOwner {
+    function addAccount(address _account) external virtual onlyOwner {
         if (_account == address(0)) revert ZeroAddress();
         accounts[_account] = true;
         emit AccountAdded(_account, block.timestamp);
@@ -34,7 +35,7 @@ contract Accounts is DataModule, IAccounts {
      * @dev Remove the account. Restricted to owner.
      * @param _account user address
      */
-    function removeAccount(address _account) external onlyOwner {
+    function removeAccount(address _account) external virtual onlyOwner {
         accounts[_account] = false;
         emit AccountRemoved(_account, block.timestamp);
     }
@@ -44,7 +45,7 @@ contract Accounts is DataModule, IAccounts {
      * @param _address user address
      * @return exists true if exists, false if not exists
      */
-    function isUserAccount(address _address) external view returns (bool) {
+    function isUserAccount(address _address) external view virtual returns (bool) {
         return accounts[_address];
     }
 }

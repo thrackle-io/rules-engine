@@ -542,26 +542,6 @@ contract ApplicationAppManagerFuzzTest is DiamondTestUtil, RuleProcessorDiamondT
         }
     }
 
-    ///---------------AccessLevel PROVIDER---------------
-    // Test setting access levelprovider contract address
-    function testAccessLevelProviderSet(uint8 addressIndexA, uint8 addressIndexB, address provider) public {
-        vm.stopPrank();
-        vm.assume(provider != address(0));
-        address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
-        address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
-        vm.startPrank(sender);
-        if (sender != defaultAdmin) vm.expectRevert();
-        appManager.setAccessLevelProvider(provider);
-        if (sender == defaultAdmin) {
-            assertEq(provider, appManager.getAccessLevelProvider());
-            vm.stopPrank();
-            vm.startPrank(admin);
-            if (admin != defaultAdmin) vm.expectRevert();
-            appManager.setAccessLevelProvider(address(0xBABE));
-            if (admin == defaultAdmin) assertEq(address(0xBABE), appManager.getAccessLevelProvider());
-        }
-    }
-
     /**
      * ################# TEST DIFFERENT SCENARIOS #####################
      */

@@ -150,3 +150,8 @@ interface IAssetHandlerErrors {
     error PeriodExceeds5Years();
     error ZeroValueNotPermited();
 }
+
+interface IOwnershipErrors {
+    error ConfirmerDoesNotMatchProposedAddress();
+    error NoProposalHasBeenMade();
+}
