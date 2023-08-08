@@ -43,7 +43,7 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors{
         if (_maxBalance == 0) _maxBalance = type(uint256).max;
         // add the fee to the mapping. If it already exists, it will replace the old one.
         feesByTag[_tag] = Fee(_minBalance, _maxBalance, _feePercentage, _targetAccount, true);
-        emit FeeTypeAdded(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount, block.timestamp);
+        emit FeeType(_tag, true, _minBalance, _maxBalance, _feePercentage, _targetAccount, block.timestamp);
     }
 
     /**
@@ -57,7 +57,7 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors{
             feeTotal -= 1;
         }
         delete (feesByTag[_tag]);
-        emit FeeTypeRemoved(_tag, block.timestamp);
+        emit FeeType(_tag, false, 0, 0, 0, address(0), 0);
     }
 
     /**
