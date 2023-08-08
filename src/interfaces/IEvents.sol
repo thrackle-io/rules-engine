@@ -140,5 +140,5 @@ interface IApplicationEvents {
     event SingleTokenPrice(address indexed collection, uint256 indexed tokenID, uint256 indexed price);
     event CollectionPrice(address indexed collection, uint256 indexed price);
     ///Fees
-    event FeeType(bytes32 indexed tag, bool indexed add, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount, uint256 date);
+    event FeeType(bytes32 indexed tag, bool indexed add, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount);
 }
