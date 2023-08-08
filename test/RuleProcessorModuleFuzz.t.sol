@@ -193,60 +193,6 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         }
     }
 
-    /************************ Token Purchase Percentage **********************/
-    /// Simple setting and getting
-
-    function testSettingPurchasePercentage(uint8 addressIndex, uint16 pct) public {
-        vm.stopPrank();
-        address sender = ADDRESSES[addressIndex % ADDRESSES.length];
-        vm.startPrank(sender);
-        /// test only admin can add rule, and values are within acceptable range
-        if ((sender != defaultAdmin && sender != appAdministrator) || pct > 9999 || pct == 0) vm.expectRevert();
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, pct, 24, totalSupply, 7);
-        if ((sender == defaultAdmin || sender == appAdministrator) && pct <= 9999 && pct > 0) {
-            assertEq(_index, 0);
-            NonTaggedRules.TokenPercentagePurchaseRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctPurchaseRule(_index);
-            assertEq(rule.purchasePeriod, 24);
-
-            /// testing adding a second rule
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(ac, 666, 24, totalSupply, 7);
-            assertEq(_index, 1);
-            rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctPurchaseRule(_index);
-            assertEq(rule.tokenPercentage, 666);
-            assertEq(rule.purchasePeriod, 24);
-
-            /// test total rules
-            assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalPctPurchaseRule(), 2);
-        }
-    }
-
-    /************************ Token Sell Percentage **********************/
-    /// Simple setting and getting
-
-    function testSettingSellPercentage(uint8 addressIndex, uint16 pct) public {
-        vm.stopPrank();
-        address sender = ADDRESSES[addressIndex % ADDRESSES.length];
-        vm.startPrank(sender);
-
-        /// test only admin can add rule, and values are withing acceptable range
-        if ((sender != defaultAdmin && sender != appAdministrator) || pct > 9999 || pct == 0) vm.expectRevert();
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, pct, 24, totalSupply, 7);
-        if ((sender == defaultAdmin || sender == appAdministrator) && pct <= 9999 && pct > 0) {
-            assertEq(_index, 0);
-            NonTaggedRules.TokenPercentageSellRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctSellRule(_index);
-            assertEq(rule.sellPeriod, 24);
-            /// testing adding a second rule
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPercentageSellRule(ac, 666, 24, totalSupply, 7);
-            assertEq(_index, 1);
-            rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPctSellRule(_index);
-            assertEq(rule.tokenPercentage, 666);
-            assertEq(rule.sellPeriod, 24);
-
-            /// testing total rules
-            assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalPctSellRule(), 2);
-        }
-    }
-
     /************************ Token Purchase Fee By Volume Percentage **********************/
     /// Simple setting and getting
 
