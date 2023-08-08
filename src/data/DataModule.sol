@@ -6,7 +6,7 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {IAppManager} from "src/application/IAppManager.sol";
 import {IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 import {IAppManager} from "../application/IAppManager.sol";
-import {IZeroAddressError} from "../../src/interfaces/IErrors.sol";
+
 
 /**
  * @title Data Module
@@ -25,7 +25,7 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
     constructor(address _dataModuleAppManagerAddress) {
         dataModuleAppManagerAddress = _dataModuleAppManagerAddress;
     }
-    
+
     /**
      * @dev Modifier ensures function caller is a Application Administrators or the parent contract
      */
