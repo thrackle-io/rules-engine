@@ -159,7 +159,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @dev this function returns the handler address
      * @return handlerAddress
      */
-    function getHandlerAddress() external view returns (address) {
+    function getHandlerAddress() external view override returns (address) {
         return handlerAddress;
     }
 }

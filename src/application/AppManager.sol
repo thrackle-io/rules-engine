@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/access/AccessControlEnumerable.sol";
+import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
 import "src/data/Accounts.sol";
 import "src/data/IAccounts.sol";
 import "src/data/IAccessLevels.sol";
@@ -17,6 +18,8 @@ import "src/economic/ruleProcessor/ActionEnum.sol";
 import {IAppLevelEvents} from "src/interfaces/IEvents.sol";
 import "src/application/IAppManagerUser.sol";
 import "src/data/IDataModule.sol";
+import "src/token/IAdminWithdrawalRuleCapable.sol";
+import "src/token/ProtocolTokenCommon.sol";
 
 /**
  * @title App Manager Contract
@@ -25,6 +28,7 @@ import "src/data/IDataModule.sol";
  * @notice This contract is the permissions contract
  */
 contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
+    using ERC165Checker for address;
     bytes32 constant USER_ROLE = keccak256("USER");
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     bytes32 constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
@@ -142,8 +146,27 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the app administrator role.
      */
     function renounceAppAdministrator() external {
+        /// If the AdminWithdrawal rule is active, App Admins are not allowed to renounce their role to prevent manipulation of the rule
+        checkForAdminWithdrawal();
         renounceRole(APP_ADMIN_ROLE, msg.sender);
         emit RemoveAppAdministrator(address(msg.sender));
+    }
+
+    /**
+     * @dev Loop through all the registered tokens, if they are capable of admin withdrawal, see if it's active. If so, revert
+     */
+    function checkForAdminWithdrawal() internal {
+        for (uint256 i; i < tokenList.length; ) {
+            // check to see if supports the rule first
+            if (ProtocolTokenCommon(tokenList[i]).getHandlerAddress().supportsInterface(type(IAdminWithdrawalRuleCapable).interfaceId)) {
+                if (IAdminWithdrawalRuleCapable(ProtocolTokenCommon(tokenList[i]).getHandlerAddress()).isAdminWithdrawalActiveAndApplicable()) {
+                    revert AdminWithdrawalRuleisActive();
+                }
+            }
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /// -------------ACCESS TIER---------------
