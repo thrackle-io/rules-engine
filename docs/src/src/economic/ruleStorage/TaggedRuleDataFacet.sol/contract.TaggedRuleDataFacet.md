@@ -30,7 +30,7 @@ function addPurchaseRule(
     address _appManagerAddr,
     bytes32[] calldata _accountTypes,
     uint256[] calldata _purchaseAmounts,
-    uint32[] calldata _purchasePeriods,
+    uint16[] calldata _purchasePeriods,
     uint32[] calldata _startTimes
 ) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
@@ -41,7 +41,7 @@ function addPurchaseRule(
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_purchaseAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_purchasePeriods`|`uint32[]`|Hours purhchases allowed|
+|`_purchasePeriods`|`uint16[]`|Hours purhchases allowed|
 |`_startTimes`|`uint32[]`|Hours of the day in utc for first period to start|
 
 **Returns**
@@ -60,7 +60,7 @@ function addPurchaseRule(
 function _addPurchaseRule(
     bytes32[] calldata _accountTypes,
     uint256[] calldata _purchaseAmounts,
-    uint32[] calldata _purchasePeriods,
+    uint16[] calldata _purchasePeriods,
     uint32[] calldata _startTimes
 ) internal returns (uint32);
 ```
@@ -70,7 +70,7 @@ function _addPurchaseRule(
 |----|----|-----------|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_purchaseAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_purchasePeriods`|`uint32[]`|Hours purhchases allowed|
+|`_purchasePeriods`|`uint16[]`|Hours purhchases allowed|
 |`_startTimes`|`uint32[]`|Hours of the day in utc for first period to start|
 
 **Returns**
@@ -131,7 +131,7 @@ function addSellRule(
     address _appManagerAddr,
     bytes32[] calldata _accountTypes,
     uint192[] calldata _sellAmounts,
-    uint32[] calldata _sellPeriod,
+    uint16[] calldata _sellPeriod,
     uint32[] calldata _startTimes
 ) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
@@ -142,7 +142,7 @@ function addSellRule(
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_sellAmounts`|`uint192[]`|Allowed total sell limits|
-|`_sellPeriod`|`uint32[]`|Period for sales|
+|`_sellPeriod`|`uint16[]`|Period for sales|
 |`_startTimes`|`uint32[]`||
 
 **Returns**
@@ -161,7 +161,7 @@ function addSellRule(
 function _addSellRule(
     bytes32[] calldata _accountTypes,
     uint192[] calldata _sellAmounts,
-    uint32[] calldata _sellPeriod,
+    uint16[] calldata _sellPeriod,
     uint32[] calldata _startTimes
 ) internal returns (uint32);
 ```
@@ -171,7 +171,7 @@ function _addSellRule(
 |----|----|-----------|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_sellAmounts`|`uint192[]`|Allowed total sell limits|
-|`_sellPeriod`|`uint32[]`|Period for sales|
+|`_sellPeriod`|`uint16[]`|Period for sales|
 |`_startTimes`|`uint32[]`||
 
 **Returns**
@@ -593,8 +593,8 @@ function addMinBalByDateRule(
     address _appManagerAddr,
     bytes32[] calldata _accountTags,
     uint256[] calldata _holdAmounts,
-    uint256[] calldata _holdPeriods,
-    uint256[] calldata _startTimestamps
+    uint16[] calldata _holdPeriods,
+    uint64[] calldata _startTimestamps
 ) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -604,8 +604,8 @@ function addMinBalByDateRule(
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_accountTags`|`bytes32[]`|Types of Accounts|
 |`_holdAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_holdPeriods`|`uint256[]`|Hours purchases allowed|
-|`_startTimestamps`|`uint256[]`|Timestamp that the check should start|
+|`_holdPeriods`|`uint16[]`|Hours purchases allowed|
+|`_startTimestamps`|`uint64[]`|Timestamp that the check should start|
 
 **Returns**
 
@@ -623,8 +623,8 @@ function addMinBalByDateRule(
 function _addMinBalByDateRule(
     bytes32[] calldata _accountTags,
     uint256[] calldata _holdAmounts,
-    uint256[] calldata _holdPeriods,
-    uint256[] memory _startTimestamps
+    uint16[] calldata _holdPeriods,
+    uint64[] memory _startTimestamps
 ) internal returns (uint32);
 ```
 **Parameters**
@@ -633,8 +633,8 @@ function _addMinBalByDateRule(
 |----|----|-----------|
 |`_accountTags`|`bytes32[]`|Types of Accounts|
 |`_holdAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_holdPeriods`|`uint256[]`|Hours purhchases allowed|
-|`_startTimestamps`|`uint256[]`|Timestamp that the check should start|
+|`_holdPeriods`|`uint16[]`|Hours purhchases allowed|
+|`_startTimestamps`|`uint64[]`|Timestamp that the check should start|
 
 **Returns**
 

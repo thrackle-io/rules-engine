@@ -303,7 +303,7 @@ address public nftPricingAddress;
 
 
 ```solidity
-constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode);
+constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress, bool _upgradeMode);
 ```
 **Parameters**
 
@@ -311,6 +311,7 @@ constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool
 |----|----|-----------|
 |`_ruleProcessorProxyAddress`|`address`|of token rule router proxy|
 |`_appManagerAddress`|`address`|Address of App Manager|
+|`_assetAddress`|`address`|address of the controlling asset.|
 |`_upgradeMode`|`bool`|specifies whether this is a fresh CoinHandler or an upgrade replacement.|
 
 

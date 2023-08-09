@@ -10,7 +10,7 @@
 ```solidity
 struct PurchaseRule {
     uint256 purchaseAmount;
-    uint32 purchasePeriod;
+    uint16 purchasePeriod;
     uint64 startTime;
 }
 ```
@@ -22,7 +22,7 @@ struct PurchaseRule {
 ```solidity
 struct SellRule {
     uint256 sellAmount;
-    uint32 sellPeriod;
+    uint16 sellPeriod;
     uint64 startTime;
 }
 ```
@@ -78,7 +78,7 @@ struct TransactionSizeToRiskRule {
 ```solidity
 struct MinBalByDateRule {
     uint256 holdAmount;
-    uint256 holdPeriod;
+    uint16 holdPeriod;
     uint256 startTimeStamp;
 }
 ```
