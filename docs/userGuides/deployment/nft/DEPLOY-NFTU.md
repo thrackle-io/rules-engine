@@ -78,18 +78,7 @@
             ````
             cast send $APPLICATION_ERC721_ADDRESS_1 "initialize()" --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
             ````    
-11. Retrieve the NFT Handler address by running the following command:
-     ````
-     cast call $APPLICATION_ERC721_1 "getHandlerAddress()(address)"  --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
-     ````
-    1. Locate the address from the output, example:
-    ````
-    0x0C25Bc46542acb274F055D7368F9Bec7fB23aE74
-    ````
-    2. Set the environment variable
-    ````
-    export APPLICATION_ERC721_1_HANDLER=address from output
-    ````
+11. Deploy the [NFT handler contract][ERC721Handler-url]
 12. Register NFT with the App Manager: Call the registerToken function on the App Manager created in previous steps. It accepts parameters of an identifying name and the NFT address, e.g. ("FRANKPIC", 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266) 
     ````
     cast send $APPLICATION_APP_MANAGER "registerToken(string,address)" "FRANKPIC" $APPLICATION_ERC721_ADDRESS_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
@@ -99,6 +88,7 @@
 
 <!-- These are the body links -->
 [ERC721-url]: https://docs.openzeppelin.com/contracts/2.x/api/token/erc721
+[ERC721Handler-url]: ./DEPLOY-NFTHANDLER.md
 [environment-url]: ../SET-ENVIRONMENT.md
 
 

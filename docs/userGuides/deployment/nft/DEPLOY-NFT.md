@@ -34,17 +34,7 @@ NOTE: NFT Batch minting and burning is not supported in this release.
           ````
           export APPLICATION_ERC721_1=address from output
           ````
-6. Deploy an NFT handler contract sending in the following parameters:
-    1. _RuleProcessorAddress_ - The address noted from previous steps and set as an environment variable($RULE_PROCESSOR_DIAMOND).
-    2. _AppManagerAddress_ - The address noted from previous steps and set as an environment variable($APPLICATION_APP_MANAGER).
-    3. _AssetAddress_ - The address noted from previous steps and set as an environment variable($APPLICATION_ERC721_1).
-    4. _upgradeMode_ 
-       1. The bool representing if this is an upgraded handler contract
-    5. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
-    ````
-    forge create src/example/ApplicationERC721Handler.sol:ApplicationERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC721_1 false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
-
-    ````   
+6. Deploy an [NFT handler contract][ERC721Handler-url]
 7. Use the output from the deployment to set an environment variable for NFT Handler's address.
     1. Locate the address from the output, example:
     ````
@@ -68,6 +58,7 @@ NOTE: NFT Batch minting and burning is not supported in this release.
 
 <!-- These are the body links -->
 [ERC721-url]: https://docs.openzeppelin.com/contracts/2.x/api/token/erc721
+[ERC721Handler-url]: ./DEPLOY-NFTHANDLER.md
 [environment-url]: ./SETENVIRONMENT.md
 
 

@@ -90,7 +90,7 @@ struct TokenTransferVolumeRule {
 ```solidity
 struct SupplyVolatilityRule {
     uint16 maxChange;
-    uint116 period;
+    uint16 period;
     uint64 startingTime;
     uint256 totalSupply;
 }
