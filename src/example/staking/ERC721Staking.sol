@@ -72,6 +72,7 @@ contract ERC721Staking is IERC721Staking, IERC721Receiver, Context, AppAdministr
             for (uint256 j; j < _rewardsPerAddress[i].length; ++j) {
                 rewardsPerTimeUnitPerTokenAddressStaked[_stakingTokenAddresses[i]][j] = _rewardsPerAddress[i][j];
             }
+            emit rewardsPerTimeUnit(_stakingTokenAddresses[i],  _rewardsPerAddress[i]);
         }
         emit ERC721StakingFixedDeployed(_appManagerAddress, _stakingTokenAddresses, _rewardTokenAddress, false);
     }
@@ -206,6 +207,7 @@ contract ERC721Staking is IERC721Staking, IERC721Receiver, Context, AppAdministr
      */
     function updateRewardsPerTokenStakedAddressPerTimeUnit(address _stakedToken, uint128[7] calldata _rewardsPerTimeUnitPerTokenStaked) external appAdministratorOnly(address(appManager)) {
         rewardsPerTimeUnitPerTokenAddressStaked[_stakedToken] = _rewardsPerTimeUnitPerTokenStaked;
+        emit rewardsPerTimeUnit(_stakedToken, _rewardsPerTimeUnitPerMillStaked);
     }
 
     /**
