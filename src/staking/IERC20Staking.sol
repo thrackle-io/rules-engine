@@ -9,15 +9,14 @@ pragma solidity ^0.8.17;
  */
 
 import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import { IStakingErrors } from "../interfaces/IErrors.sol";
+import { IStakingErrors } from "src/interfaces/IErrors.sol";
+import { IERC20StakingEvents} from "src/interfaces/IEvents.sol";
 
 //// add context contract
-abstract contract IERC20Staking is IStakingErrors{
+abstract contract IERC20Staking is IStakingErrors, IERC20StakingEvents{
     
 
-    event NewStake(address indexed staker, uint256 indexed staked, uint256 stakingPeriodInSeconds, uint256 indexed stakingSince);
-    event RewardsClaimed(address indexed staker, uint256 indexed staked, uint256 rewards, uint256 indexed stakingSince, uint256 date);
-    event StakeWithdrawal(address indexed staker, uint256 indexed amount, uint256 date);
+   
 
     /// constant array for time units MOVE TO ABSTRACT CONTRACT
     uint32[] TIME_UNITS_TO_SECS = [1, 1 minutes, 1 hours, 1 days, 1 weeks, 30 days, 365 days];

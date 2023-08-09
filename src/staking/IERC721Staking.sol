@@ -12,14 +12,12 @@ import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 
 import { IStakingErrors, IERC721StakingErrors } from "../interfaces/IErrors.sol";
+import { IERC721StakingEvents } from "src/interfaces/IEvents.sol";
 
-abstract contract IERC721Staking is IStakingErrors, IERC721StakingErrors{
+abstract contract IERC721Staking is IERC721StakingEvents, IStakingErrors, IERC721StakingErrors{
     
 
-    event NewStake(address indexed staker, uint256 indexed tokenId, uint256 stakingPeriodInSeconds, uint256 indexed stakingSince);
-    event RewardsClaimed(address indexed staker, uint256 indexed tokenId, uint256 rewards, uint256 indexed stakingSince, uint256 date);
-    event StakeWithdrawal(address indexed staker, uint256 indexed tokenId, uint256 date);
-    event NewStakingAddress(address indexed newStakingAddress);
+ 
 
     /// constant array for time units
     uint32[] TIME_UNITS_TO_SECS = [1, 1 minutes, 1 hours, 1 days, 1 weeks, 30 days, 365 days];

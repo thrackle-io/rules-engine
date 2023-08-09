@@ -142,3 +142,19 @@ interface IApplicationEvents {
     ///Fees
     event FeeType(bytes32 indexed tag, bool indexed add, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount);
 }
+
+interface IERC20StakingEvents {
+
+    event NewStake(address indexed staker, uint256 indexed staked, uint256 stakingPeriodInSeconds, uint256 indexed stakingSince);
+    event RewardsClaimed(address indexed staker, uint256 indexed staked, uint256 rewards, uint256 indexed stakingSince, uint256 date);
+    event StakeWithdrawal(address indexed staker, uint256 indexed amount, uint256 date);
+    event ERC20StakingFixedDeployed(address indexed appManagerAddress, address indexed stakingToken,address indexed rewardToken,bool autoMinting);
+    }
+
+interface IERC721StakingEvents {
+    event NewStake(address indexed staker, uint256 indexed tokenId, uint256 stakingPeriodInSeconds, uint256 indexed stakingSince);
+    event RewardsClaimed(address indexed staker, uint256 indexed tokenId, uint256 rewards, uint256 indexed stakingSince, uint256 date);
+    event StakeWithdrawal(address indexed staker, uint256 indexed tokenId, uint256 date);
+    event NewStakingAddress(address indexed newStakingAddress);
+    event ERC721StakingFixedDeployed(address indexed appManagerAddress,address[] indexed stakingTokens,address indexed rewardToken, bool autoMinting);
+}

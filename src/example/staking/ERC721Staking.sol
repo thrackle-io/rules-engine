@@ -73,6 +73,7 @@ contract ERC721Staking is IERC721Staking, IERC721Receiver, Context, AppAdministr
                 rewardsPerTimeUnitPerTokenAddressStaked[_stakingTokenAddresses[i]][j] = _rewardsPerAddress[i][j];
             }
         }
+        emit ERC721StakingFixedDeployed(_appManagerAddress, _stakingTokenAddresses, _rewardTokenAddress, false);
     }
 
     /**

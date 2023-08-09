@@ -55,6 +55,7 @@ contract ERC20Staking is IERC20Staking, Context, AppAdministratorOnly {
         rewardToken = IERC20(_rewardTokenAddress);
         stakedToken = IERC20(_stakingTokenAddress);
         appManager = IAppManager(_appManagerAddress);
+        emit ERC20StakingFixedDeployed(_appManagerAddress, _stakingTokenAddress, _rewardTokenAddress, false);
     }
 
     /**
