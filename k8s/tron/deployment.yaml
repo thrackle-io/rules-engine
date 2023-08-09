@@ -4,6 +4,7 @@ metadata:
   labels:
     app: tron
   name: tron
+  namespace: {{NAMESPACE}}
 spec:
   replicas: 0
   selector:

@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tron
+  namespace: oauth2
+spec:
+  template:
+    metadata:
+      name: tron
+    spec:
+      containers:
+      - name: test
+        image: 560711875040.dkr.ecr.us-east-1.amazonaws.com/universus-tf:tron-5939337
+        env:
+        - name: FOUNDRY_PROFILE
+          value: docker
+        envFrom:
+        - configMapRef:
+            name: tron
+      restartPolicy: Never
