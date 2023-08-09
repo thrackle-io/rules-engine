@@ -142,7 +142,7 @@ contract ERC721AutoMintStaking is IERC721Staking, IERC721Receiver, Context, AppA
                     IERC721(collection).safeTransferFrom(address(this), _msgSender(), tokenId);
                     /// we remove this stake
                     _removeStake(i);
-                    emit RewardsClaimedERC721(_msgSender(), _stake.tokenId, rewards, _stake.stakingSince, block.timestamp);
+                    emit RewardsClaimedERC721(_msgSender(), _stake.tokenId, rewards, _stake.stakingSince);
                 } else {
                     /// if current position didn't cointain a stake ready for claim, then we pass to the next position.
                     exit = true;

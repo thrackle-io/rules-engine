@@ -126,7 +126,7 @@ contract ERC20Staking is IERC20Staking, Context, AppAdministratorOnly {
                     availableToWithdraw += _stake.staked;
                     /// we remove this stake
                     _removeStake(i);
-                    emit RewardsClaimedERC20(_msgSender(), _stake.staked, rewards, _stake.stakingSince, block.timestamp);
+                    emit RewardsClaimedERC20(_msgSender(), _stake.staked, rewards, _stake.stakingSince);
                 } else {
                     /// if current position didn't cointain a stake ready for claim, then we pass to the next position.
                     exit = true;
