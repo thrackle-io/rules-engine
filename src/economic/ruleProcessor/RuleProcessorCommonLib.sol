@@ -10,15 +10,6 @@ library RuleProcessorCommonLib {
     error InvalidTimestamp(uint64 _timestamp);
 
     /**
-     * @dev calculate the start time based upon the starting hour sent in. Essentially, get the start timestamp for the last time the clock was at the hour indicated.
-     * @param _startingHour the starting hour from the rule
-     * @return startingTimestamp the period starting timestamp
-     */
-    function calculateStartDate(uint8 _startingHour) internal view returns (uint64) {
-        return uint64(block.timestamp - (block.timestamp % (1 days)) - 1 days + uint256(_startingHour) * (1 hours));
-    }
-
-    /**
      * @dev Determine is the rule is active. This is only for use in rules that are stored with activation timestamps.
      */
     function isRuleActive(uint64 _startTs) internal view returns (bool) {

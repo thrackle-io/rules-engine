@@ -27,7 +27,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateAMMFee(uint32 _ruleId) external view {
         FeeRuleDataFacet data = FeeRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalAMMFeeRules());
     }
 
@@ -37,7 +37,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateTransactionLimitByRiskScore(uint32 _ruleId) external view {
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalTransactionLimitByRiskRules());
     }
 
@@ -47,7 +47,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateMinMaxAccountBalanceERC721(uint32 _ruleId) external view {
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalBalanceLimitRules());
     }
 
@@ -57,7 +57,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateNFTTransferCounter(uint32 _ruleId) external view {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalNFTTransferCounterRules());
     }
 
@@ -67,7 +67,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateMinMaxAccountBalance(uint32 _ruleId) external view {
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalBalanceLimitRules());
     }
 
@@ -77,7 +77,7 @@ contract RuleApplicationValidationFacet {
      */
     function validatePurchaseLimit(uint32 _ruleId) external view {
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalPurchaseRule());
     }
 
@@ -87,7 +87,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateSellLimit(uint32 _ruleId) external view {
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalSellRule());
     }
 
@@ -97,7 +97,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateAdminWithdrawal(uint32 _ruleId) external view {
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalAdminWithdrawalRules());
     }
 
@@ -107,7 +107,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateMinBalByDate(uint32 _ruleId) external view {
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalMinBalByDateRule());
     }
 
@@ -119,7 +119,7 @@ contract RuleApplicationValidationFacet {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
         console.log("validateMinBalByDate _ruleId", _ruleId);
         console.log("getTotalMinimumTransferRules", data.getTotalMinimumTransferRules());
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalMinimumTransferRules());
     }
 
@@ -129,7 +129,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateOracle(uint32 _ruleId) external view {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalOracleRules());
     }
 
@@ -139,7 +139,7 @@ contract RuleApplicationValidationFacet {
      */
     function validatePurchasePercentage(uint32 _ruleId) external view {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalPctPurchaseRule());
     }
 
@@ -149,7 +149,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateSellPercentage(uint32 _ruleId) external view {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalPctSellRule());
     }
 
@@ -159,7 +159,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateTokenTransferVolume(uint32 _ruleId) external view {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalTransferVolumeRules());
     }
 
@@ -169,7 +169,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateSupplyVolatility(uint32 _ruleId) external view {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalSupplyVolatilityRules());
     }
 
@@ -179,7 +179,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateAccBalanceByRisk(uint32 _ruleId) external view {
         AppRuleDataFacet data = AppRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalAccountBalanceByRiskScoreRules());
     }
 
@@ -189,7 +189,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateMaxTxSizePerPeriodByRisk(uint32 _ruleId) external view {
         AppRuleDataFacet data = AppRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalMaxTxSizePerPeriodRules());
     }
 
@@ -200,7 +200,7 @@ contract RuleApplicationValidationFacet {
      */
     function validatePause(uint32 _ruleId, address _dataServer) external view {
         PauseRule[] memory pauseRules = IAppManager(_dataServer).getPauseRules();
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(uint32(pauseRules.length));
     }
 
@@ -210,7 +210,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateAccBalanceByAccessLevel(uint32 _ruleId) external view {
         AppRuleDataFacet data = AppRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalAccessLevelBalanceRules());
     }
 
@@ -220,7 +220,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateWithdrawalLimitsByAccessLevel(uint32 _ruleId) external view {
         AppRuleDataFacet data = AppRuleDataFacet(Diamond.ruleDataStorage().rules);
-        // check one of the required non zero values to check for existence, if not, revert
+        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalAccessLevelWithdrawalRules());
     }
 }

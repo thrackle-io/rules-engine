@@ -26,7 +26,7 @@ library RuleStorageCommonLib {
      * @return _exists true if it exists, false if not
      */
     function checkRuleExistence(uint32 _ruleIndex, uint32 _ruleTotal) internal pure returns (bool) {
-        if ((_ruleTotal > 0 && _ruleTotal <= _ruleIndex) || _ruleTotal == 0) {
+        if (_ruleTotal <= _ruleIndex) {
             revert RuleDoesNotExist();
         } else {
             return true;
