@@ -192,6 +192,6 @@ contract ERC20Staking is IERC20Staking, Context, AppAdministratorOnly {
      */
     function updateRewardsPerMillStakedPerTimeUnit(uint128[7] calldata _rewardsPerTimeUnitPerMillStaked) external appAdministratorOnly(address(appManager)) {
         rewardsPerTimeUnitPerMillStaked = _rewardsPerTimeUnitPerMillStaked;
-        emit rewardsPerTimeUnit(stakedToken, _rewardsPerTimeUnitPerMillStaked);
+        emit rewardsPerTimeUnit(address(stakedToken), _rewardsPerTimeUnitPerMillStaked);
     }
 }

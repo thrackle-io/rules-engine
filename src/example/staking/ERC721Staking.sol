@@ -207,7 +207,7 @@ contract ERC721Staking is IERC721Staking, IERC721Receiver, Context, AppAdministr
      */
     function updateRewardsPerTokenStakedAddressPerTimeUnit(address _stakedToken, uint128[7] calldata _rewardsPerTimeUnitPerTokenStaked) external appAdministratorOnly(address(appManager)) {
         rewardsPerTimeUnitPerTokenAddressStaked[_stakedToken] = _rewardsPerTimeUnitPerTokenStaked;
-        emit rewardsPerTimeUnit(_stakedToken, _rewardsPerTimeUnitPerMillStaked);
+        emit rewardsPerTimeUnit(_stakedToken, _rewardsPerTimeUnitPerTokenStaked);
     }
 
     /**

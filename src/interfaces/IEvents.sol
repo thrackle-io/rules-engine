@@ -144,7 +144,7 @@ interface IApplicationEvents {
 }
 
 interface IStakingCommonEvents {
-    event rewardsPerTimeUnit(address indexed tokenAddress, uint128[7] indexed rewardsPerTimeUnit )
+    event rewardsPerTimeUnit(address indexed tokenAddress, uint128[7] indexed rewardsPerTimeUnit );
 }
 interface IERC20StakingEvents is IStakingCommonEvents {
 
