@@ -21,7 +21,7 @@
     4. _upgradeMode_ - The bool representing if this is an upgraded handler contract
 6. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
     ````
-    forge create src/example/deploy/FrankensteinERC721Handler.sol:FrankensteinERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+    forge create src/example/deploy/FrankensteinERC721Handler.sol:FrankensteinERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC721_1_HANDLER false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
     ````
 7. Use the output from the deployment to set an environment variable for NFT Handler's address.
