@@ -7,8 +7,9 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
 
 import "./data/Fees.sol";
-import {IZeroAddressError, IAssetHandlerErrors} from "../interfaces/IErrors.sol";
+import {IZeroAddressError, IAssetHandlerErrors} from "src/interfaces/IErrors.sol";
 import "./ProtocolHandlerCommon.sol";
+import "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract
@@ -16,7 +17,7 @@ import "./ProtocolHandlerCommon.sol";
  * @dev This contract performs all rule checks related to the the ERC20 that implements it.
  * @notice Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
  */
-contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministratorOnly {
+contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
     using ERC165Checker for address;
     /**
      * Functions added so far:
@@ -76,12 +77,22 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         transferOwnership(_assetAddress);
+        // register the supported interface, IAdminWithdrawalRuleCapable, ERC165
+        // _registerInterface(type(IAdminWithdrawalRuleCapable).interfaceId);
+        // _registerInterface(type(IAdminWithdrawalRuleCapable).interfaceId);
         if (!_upgradeMode) {
             deployDataContract();
             emit HandlerDeployed(address(this), _appManagerAddress);
         } else {
             emit HandlerDeployedForUpgrade(address(this), _appManagerAddress);
         }
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool) {
+        return interfaceId == type(IAdminWithdrawalRuleCapable).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
@@ -496,12 +507,26 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
         if (adminWithdrawalActive) {
-            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
+            if (isAdminWithdrawalActiveAndApplicable()) revert AdminWithdrawalRuleisActive();
         }
         /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
         adminWithdrawalRuleId = _ruleId;
         adminWithdrawalActive = true;
         emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, address(this), _ruleId);
+    }
+
+    /**
+     * @dev This function is used by the app manager to determine if the AdminWithdrawal rule is active
+     * @return Success equals true if all checks pass
+     */
+    function isAdminWithdrawalActiveAndApplicable() public view override returns (bool) {
+        bool active;
+        if (adminWithdrawalActive) {
+            try ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1) {} catch {
+                active = true;
+            }
+        }
+        return active;
     }
 
     /**
@@ -511,7 +536,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function activateAdminWithdrawalRule(bool _on) external appAdministratorOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired
         if (!_on) {
-            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
+            if (isAdminWithdrawalActiveAndApplicable()) revert AdminWithdrawalRuleisActive();
         }
         adminWithdrawalActive = _on;
         if (_on) {

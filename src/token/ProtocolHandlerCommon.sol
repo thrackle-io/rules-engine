@@ -13,6 +13,7 @@ import "src/pricing/IProtocolERC20Pricing.sol";
 import "src/economic/AppAdministratorOrOwnerOnly.sol";
 import "src/economic/AppAdministratorOnly.sol";
 import "src/application/IAppManagerUser.sol";
+import "src/token/IAdminWithdrawalRuleCapable.sol";
 
 /**
  * @title Protocol Handler Common

@@ -210,7 +210,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * @dev this function returns the handler address
      * @return handlerAddress
      */
-    function getHandlerAddress() external view returns (address) {
+    function getHandlerAddress() external view override returns (address) {
         return address(handler);
     }
 }

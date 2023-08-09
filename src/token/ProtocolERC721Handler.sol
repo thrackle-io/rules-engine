@@ -11,11 +11,11 @@ pragma solidity 0.8.17;
  * @notice This contract is the interaction point for the application ecosystem to the protocol
  */
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "openzeppelin-contracts/contracts/utils/introspection/IERC165.sol";
+import "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import "./ProtocolHandlerCommon.sol";
 
-contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon {
+contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawalRuleCapable, ERC165 {
     /**
      * Functions added so far:
      * minAccountBalance
@@ -88,6 +88,13 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon {
         } else {
             emit HandlerDeployedForUpgrade(address(this), _appManagerAddress);
         }
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool) {
+        return interfaceId == type(IAdminWithdrawalRuleCapable).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
@@ -447,12 +454,26 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon {
     function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOrOwnerOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
         if (adminWithdrawalActive) {
-            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
+            if (isAdminWithdrawalActiveAndApplicable()) revert AdminWithdrawalRuleisActive();
         }
         /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
         adminWithdrawalRuleId = _ruleId;
         adminWithdrawalActive = true;
         emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, address(this), _ruleId);
+    }
+
+    /**
+     * @dev This function is used by the app manager to determine if the AdminWithdrawal rule is active
+     * @return Success equals true if all checks pass
+     */
+    function isAdminWithdrawalActiveAndApplicable() public view override returns (bool) {
+        bool active;
+        if (adminWithdrawalActive) {
+            try ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1) {} catch {
+                active = true;
+            }
+        }
+        return active;
     }
 
     /**
@@ -462,7 +483,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon {
     function activateAdminWithdrawalRule(bool _on) external appAdministratorOrOwnerOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired
         if (!_on) {
-            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1);
+            if (isAdminWithdrawalActiveAndApplicable()) revert AdminWithdrawalRuleisActive();
         }
         adminWithdrawalActive = _on;
         if (_on) {

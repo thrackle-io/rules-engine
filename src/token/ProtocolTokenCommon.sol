@@ -11,7 +11,7 @@ import {IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
  * @notice This contract contains common variables and functions for all Protocol Tokens
  */
 
-contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvents, IZeroAddressError, IOwnershipErrors {
+abstract contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvents, IZeroAddressError, IOwnershipErrors {
     address newAppManagerAddress;
     address appManagerAddress;
     IAppManager appManager;
@@ -43,4 +43,10 @@ contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvents, IZeroA
     function getAppManagerAddress() external view returns (address) {
         return appManagerAddress;
     }
+
+    /**
+     * @dev this function returns the handler address
+     * @return handlerAddress
+     */
+    function getHandlerAddress() external view virtual returns (address);
 }

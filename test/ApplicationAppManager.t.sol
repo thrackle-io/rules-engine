@@ -15,6 +15,11 @@ import "src/data/AccessLevels.sol";
 import "src/data/RiskScores.sol";
 import "src/data/Accounts.sol";
 import "src/data/IDataModule.sol";
+import "src/example/ApplicationERC20.sol";
+import "src/example/ApplicationERC20Handler.sol";
+import "src/example/ApplicationERC721.sol";
+import "src/example/ApplicationERC721Handler.sol";
+import "src/token/IAdminWithdrawalRuleCapable.sol";
 
 contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationAppManager public applicationAppManager;
@@ -143,6 +148,82 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     /// Test renounce Application Administrators role
     function testRenounceAppAdministrator() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
+        applicationAppManager.renounceAppAdministrator();
+    }
+
+    /// Test renounce Application Administrators role when Admin Withdrawal rule is active
+    function testRenounceAppAdministratorAdminWithdrawalERC20() public {
+        vm.warp(TEST_DATE);
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+
+        // Deploy a fully configured ERC20
+        ApplicationERC20 applicationCoin = new ApplicationERC20("application", "FRANK", address(applicationAppManager));
+        ApplicationERC20Handler applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
+        applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+
+        // Deploy a fully configured ERC721
+        ApplicationERC721 applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(applicationAppManager), "https://SampleApp.io");
+        ApplicationERC721Handler applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), false);
+        applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
+        applicationAppManager.registerToken("THRK", address(applicationNFT));
+
+        // add admin withdrawal rule that covers current time period
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
+
+        // apply admin withdrawal rule to an ERC20
+        applicationCoinHandler.setAdminWithdrawalRuleId(_index);
+        // try to renounce AppAdmin
+        vm.expectRevert(0x23a87520);
+        applicationAppManager.renounceAppAdministrator();
+        // try to deactivate the rule
+        vm.expectRevert(0x23a87520);
+        applicationCoinHandler.activateAdminWithdrawalRule(false);
+        // try to set the rule to a different one.
+        _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 5_000_000 * (10 ** 18), block.timestamp + 365 days);
+        vm.expectRevert(0x23a87520);
+        applicationCoinHandler.setAdminWithdrawalRuleId(_index);
+        // move a year into the future so that the rule is expired
+        vm.warp(block.timestamp + (366 days));
+        // try to renounce AppAdmin(this one should work)
+        applicationAppManager.renounceAppAdministrator();
+    }
+
+    /// Test renounce Application Administrators role when Admin Withdrawal rule is active
+    function testRenounceAppAdministratorAdminWithdrawalERC721() public {
+        vm.warp(TEST_DATE);
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+
+        // Deploy a fully configured ERC20
+        ApplicationERC20 applicationCoin = new ApplicationERC20("application", "FRANK", address(applicationAppManager));
+        ApplicationERC20Handler applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
+        applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+
+        // Deploy a fully configured ERC721
+        ApplicationERC721 applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(applicationAppManager), "https://SampleApp.io");
+        ApplicationERC721Handler applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), false);
+        applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
+        applicationAppManager.registerToken("THRK", address(applicationNFT));
+
+        // add admin withdrawal rule that covers current time period
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
+
+        // apply admin withdrawal rule to an ERC721
+        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        // try to renounce AppAdmin
+        vm.expectRevert(0x23a87520);
+        applicationAppManager.renounceAppAdministrator();
+        // try to deactivate the rule
+        vm.expectRevert(0x23a87520);
+        applicationNFTHandler.activateAdminWithdrawalRule(false);
+        // try to set the rule to a different one.
+        _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 5_000_000 * (10 ** 18), block.timestamp + 365 days);
+        vm.expectRevert(0x23a87520);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        // move a year into the future so that the rule is expired
+        vm.warp(block.timestamp + (366 days));
+        // try to renounce AppAdmin(this one should work)
         applicationAppManager.renounceAppAdministrator();
     }
 

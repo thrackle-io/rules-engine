@@ -102,6 +102,7 @@ interface IAppManagerErrors {
     error NotAUser(address _address);
     error NoAddressToRemove();
     error AddressAlreadyRegistered();
+    error AdminWithdrawalRuleisActive();
 }
 
 interface AMMCalculatorErrors {
