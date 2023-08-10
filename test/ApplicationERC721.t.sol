@@ -218,6 +218,9 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         // transfer to user1 to exceed limit
         vm.expectRevert(0x24691f6b);
         applicationNFT.transferFrom(user2, user1, 3);
+
+        /// test that burn works with rule 
+        applicationNFT.burn(3); 
     }
 
     /**

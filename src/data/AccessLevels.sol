@@ -29,6 +29,7 @@ contract AccessLevels is IAccessLevels, DataModule {
      */
     function addLevel(address _address, uint8 _level) public virtual onlyOwner {
         if (_level > 4) revert AccessLevelIsNotValid(_level);
+        if (_address == address(0)) revert ZeroAddress();
         levels[_address] = _level;
         emit AccessLevelAdded(_address, _level, block.timestamp);
     }
