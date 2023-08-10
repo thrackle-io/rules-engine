@@ -187,11 +187,13 @@ contract ApplicationERC20Test is TestCommon {
         applicationCoin.transfer(address(69), 10);
         assertEq(applicationCoin.balanceOf(address(69)), 0);
         // check the allowed list type
+
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        uint32 _indexAllowed = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
+        applicationCoinHandler.setOracleRuleId(_indexAllowed);
         switchToAppAdministrator();
+
         // add an allowed address
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
@@ -204,10 +206,33 @@ contract ApplicationERC20Test is TestCommon {
         applicationCoin.transfer(address(88), 10);
 
         // Finally, check the invalid type
+
         switchToRuleAdmin();
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 2, address(oracleAllowed));
+
+        /// test burning while oracle rule is active (allow list active)
+        applicationCoinHandler.setOracleRuleId(_indexAllowed);
+        /// first mint to user
+        switchToAppAdministrator();
+        applicationCoin.transfer(user5, 10000);
+        /// burn some tokens as user
+        /// burns do not check for the recipient address as it is address(0)
+        vm.stopPrank();
+        vm.startPrank(user5);
+        applicationCoin.burn(5000);
+        /// add address(0) to deny list and switch oracle rule to deny list
+        switchToRuleAdmin();
+        applicationCoinHandler.setOracleRuleId(_index);
+        switchToAppAdministrator();
+        badBoys.push(address(0));
+        oracleRestricted.addToSanctionsList(badBoys);
+        /// attempt to burn (should fail)
+        vm.stopPrank();
+        vm.startPrank(user5);
+        vm.expectRevert(0x6bdfffc0);
+        applicationCoin.burn(5000);
     }
 
     /**
@@ -283,6 +308,21 @@ contract ApplicationERC20Test is TestCommon {
         /// perform transfer that checks user with AccessLevel and existing balances(should pass)
         applicationCoin.transfer(user4, 1 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user4), 1 * (10 ** 18));
+
+        /// test burning is allowed while rule is active
+        applicationCoin.burn(1 * (10 ** 18));
+        /// burn remaining balance to ensure rule limit is not checked on burns
+        applicationCoin.burn(89998000000000000000000);
+        /// test burn with account that has access level assign
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.burn(1 * (10 ** 18));
+        /// test the user account balance is decreased from burn and can receive tokens
+        vm.stopPrank();
+        vm.startPrank(whale);
+        applicationCoin.transfer(user4, 1 * (10 ** 18));
+        /// now whale account burns
+        applicationCoin.burn(1 * (10 ** 18));
     }
 
     function testPauseRulesViaAppManager() public {
@@ -367,11 +407,14 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(user1), 10000000 * (10 ** 18));
         applicationCoin.transfer(user2, 10000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
+        applicationCoin.transfer(user5, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user5), 10000 * (10 ** 18));
 
         ///Assign Risk scores to user1 and user 2
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
         applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user5, riskScores[3]);
 
         ///Switch to app admin and set up ERC20Pricer and activate TransactionLimitByRiskScore Rule
         switchToAppAdministrator();
@@ -411,6 +454,14 @@ contract ApplicationERC20Test is TestCommon {
 
         vm.expectRevert(0x9fe6aeac);
         applicationCoin.transfer(user3, 1001 * (10 ** 18));
+
+        /// test burning tokens while rule is active
+        vm.stopPrank();
+        vm.startPrank(user5);
+        applicationCoin.burn(999 * (10 ** 18));
+        vm.expectRevert(0x9fe6aeac);
+        applicationCoin.burn(1001 * (10 ** 18));
+        applicationCoin.burn(1000 * (10 ** 18));
     }
 
     function testBalanceLimitByRiskScoreERC20() public {
@@ -478,7 +529,7 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(rich_user), 1000000 * (10 ** 18));
         vm.stopPrank();
         vm.startPrank(rich_user);
-        /// check transfer without access levelscore but with the rule turned off
+        /// check transfer without access level but with the rule turned off
         applicationCoin.transfer(user3, 5 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 5 * (10 ** 18));
         /// now turn the rule on so the transfer will fail
@@ -519,6 +570,17 @@ contract ApplicationERC20Test is TestCommon {
         vm.stopPrank();
         vm.startPrank(user3);
         applicationCoin.transfer(rich_user, 5 * (10 ** 18));
+
+        /// test that burn works when user has accessLevel above 0
+        applicationCoin.burn(5 * (10 ** 18));
+        /// test burn fails when rule active and user has access level 0
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(rich_user, 0);
+
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        vm.expectRevert(0x3fac082d);
+        applicationCoin.burn(1 * (10 ** 18));
     }
 
     function testAccessLevelWithdrawalRule() public {

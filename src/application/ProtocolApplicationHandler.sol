@@ -94,9 +94,10 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         if (accountBalanceByRiskRuleActive) {
-            ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
+            ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, _to, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
         }
         if (maxTxSizePerPeriodByRiskActive) {
+            /// if rule is active check if the recipient is address(0) for burning tokens
             /// check if sender violates the rule
             usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
                 maxTxSizePerPeriodByRiskRuleId,
@@ -105,17 +106,19 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
                 lastTxDateRiskRule[_from],
                 riskScoreFrom
             );
-            lastTxDateRiskRule[_from] = uint64(block.timestamp);
-            /// check if recipient violates the rule
-            usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
-                maxTxSizePerPeriodByRiskRuleId,
-                usdValueTransactedInRiskPeriod[_to],
-                _usdAmountTransferring,
-                lastTxDateRiskRule[_to],
-                riskScoreTo
-            );
-            // set the last timestamp of check
-            lastTxDateRiskRule[_to] = uint64(block.timestamp);
+            if (_to != address(0)) {
+                lastTxDateRiskRule[_from] = uint64(block.timestamp);
+                /// check if recipient violates the rule
+                usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
+                    maxTxSizePerPeriodByRiskRuleId,
+                    usdValueTransactedInRiskPeriod[_to],
+                    _usdAmountTransferring,
+                    lastTxDateRiskRule[_to],
+                    riskScoreTo
+                );
+                // set the last timestamp of check
+                lastTxDateRiskRule[_to] = uint64(block.timestamp);
+            } 
         }
     }
 
@@ -128,11 +131,12 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function _checkAccessLevelRules(address _from, address _to, uint128 _usdBalanceValuation, uint128 _usdAmountTransferring) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        /// Check if recipient is not AMM and then check sender access level
+        /// Check if sender is not AMM and then check sender access level
         if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccessLevel0Passes(fromScore);
-        /// Check if sender is not an AMM and then check the sender access level
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to)) ruleProcessor.checkAccessLevel0Passes(score);
-        if (accountBalanceByAccessLevelRuleActive) ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
+        /// Check if receiver is not an AMM or address(0) and then check the recipient access level. Exempting address(0) allows for burning. 
+        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccessLevel0Passes(score);
+        /// Check that the recipient is not address(0). If it is we do not check this rule as it is a burn. 
+        if (accountBalanceByAccessLevelRuleActive && _to != address(0)) ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
         if (withdrawalLimitByAccessLevelRuleActive) {
             usdValueTotalWithrawals[_from] = ruleProcessor.checkwithdrawalLimitsByAccessLevel(withdrawalLimitByAccessLevelRuleId, fromScore, usdValueTotalWithrawals[_from], _usdAmountTransferring);
         }

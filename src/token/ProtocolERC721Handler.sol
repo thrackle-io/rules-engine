@@ -220,11 +220,15 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         _amount;
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
-
+        /// if rule is active check if the recipient is address(0) for burning tokens
         if (transactionLimitByRiskRuleActive) {
+            /// if recipient is not address(0) check sender and recipient risk scores to ensure transaction limit is within rule limits
             ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _thisNFTValuation);
-            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _thisNFTValuation);
+            if (_to != address(0)){
+                ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _thisNFTValuation);
+            }
         }
+
     }
 
     /**

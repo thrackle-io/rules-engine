@@ -82,25 +82,30 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
     function getAccTotalValuation(address _account, uint256 _nftValuationLimit) public view returns (uint256 totalValuation) {
         address[] memory tokenList = appManager.getTokenList();
         uint256 tokenAmount;
-        /// Loop through all Nfts and ERC20s and add values to balance
-        for (uint256 i; i < tokenList.length; ) {
-            /// First check to see if user owns the asset
-            tokenAmount = (IToken(tokenList[i]).balanceOf(_account));
-            if (tokenAmount > 0) {
-                try IERC165(tokenList[i]).supportsInterface(0x80ac58cd) returns (bool isERC721) {
-                    if (isERC721 && tokenAmount >= _nftValuationLimit) totalValuation += _getNFTCollectionValue(tokenList[i], tokenAmount);
-                    else if (isERC721 && tokenAmount < _nftValuationLimit) totalValuation += _getNFTValuePerCollection(tokenList[i], _account, tokenAmount);
-                    else {
+        /// check if _account is zero address. If zero address we return a valuation of zero to allow for burning tokens when rules that need valuations are active. 
+        if (_account == address(0)){
+            return totalValuation; 
+        } else {
+            /// Loop through all Nfts and ERC20s and add values to balance for account valuation 
+            for (uint256 i; i < tokenList.length; ) {
+                /// First check to see if user owns the asset
+                tokenAmount = (IToken(tokenList[i]).balanceOf(_account));
+                if (tokenAmount > 0) {
+                    try IERC165(tokenList[i]).supportsInterface(0x80ac58cd) returns (bool isERC721) {
+                        if (isERC721 && tokenAmount >= _nftValuationLimit) totalValuation += _getNFTCollectionValue(tokenList[i], tokenAmount);
+                        else if (isERC721 && tokenAmount < _nftValuationLimit) totalValuation += _getNFTValuePerCollection(tokenList[i], _account, tokenAmount);
+                        else {
+                            uint8 decimals = ERC20(tokenList[i]).decimals();
+                            totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
+                        }
+                    } catch {
                         uint8 decimals = ERC20(tokenList[i]).decimals();
                         totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
                     }
-                } catch {
-                    uint8 decimals = ERC20(tokenList[i]).decimals();
-                    totalValuation += (_getERC20Price(tokenList[i]) * (tokenAmount)) / (10 ** decimals);
                 }
-            }
-            unchecked {
-                ++i;
+                unchecked {
+                    ++i;
+                }
             }
         }
     }

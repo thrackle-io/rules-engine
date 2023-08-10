@@ -381,6 +381,13 @@ contract ApplicationAppManagerTest is TestCommon {
 
         vm.expectRevert();
         new ApplicationHandler(address(ruleProcessor), address(0x0));
+
+        vm.expectRevert();
+        applicationAppManager.addAccessLevel(address(0), 1);
+        vm.expectRevert();
+        applicationAppManager.addGeneralTag(address(0), "TESTZERO");
+        vm.expectRevert();
+        applicationAppManager.addRiskScore(address(0), 4);
     }
 
     ///---------------AccessLevel LEVEL MAINTENANCE--------------------

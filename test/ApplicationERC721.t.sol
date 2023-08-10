@@ -170,6 +170,11 @@ contract ApplicationERC721Test is TestCommon {
         // transfer to user1 to exceed limit
         vm.expectRevert(0x24691f6b);
         applicationNFT.transferFrom(user2, user1, 3);
+
+        /// test that burn works with rule
+        applicationNFT.burn(3);
+        vm.expectRevert(0xf1737570);
+        applicationNFT.burn(11);
     }
 
     /**
@@ -233,6 +238,26 @@ contract ApplicationERC721Test is TestCommon {
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 2, address(oracleAllowed));
+
+        /// set oracle back to allow and attempt to burn token
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        applicationNFTHandler.setOracleRuleId(_index);
+        /// swap to user and burn
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.burn(4);
+        /// set oracle to deny and add address(0) to list to deny burns
+        switchToRuleAdmin();
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        applicationNFTHandler.setOracleRuleId(_index);
+        switchToAppAdministrator();
+        badBoys.push(address(0));
+        oracleRestricted.addToSanctionsList(badBoys);
+        /// user attempts burn
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert(0x6bdfffc0);
+        applicationNFT.burn(3);
     }
 
     function testPauseRulesViaAppManager() public {
@@ -432,6 +457,24 @@ contract ApplicationERC721Test is TestCommon {
         vm.stopPrank();
         vm.startPrank(user2);
         applicationNFT.safeTransferFrom(user2, user3, 4);
+
+        /// set price of token 5 below limit of user 2
+        switchToAppAdministrator();
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, 14 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 17 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 25 * (10 ** 18));
+        /// test burning with this rule active
+        /// transaction valuation must remain within risk limit for sender
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationNFT.burn(5);
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        vm.expectRevert(0x9fe6aeac);
+        applicationNFT.burn(4);
+        vm.expectRevert(0x9fe6aeac);
+        applicationNFT.burn(6);
     }
 
     /**
@@ -880,6 +923,14 @@ contract ApplicationERC721Test is TestCommon {
         vm.startPrank(user2);
         vm.expectRevert(0xdd76c810);
         applicationNFT.transferFrom(user2, user1, 1);
+
+        /// test burn with rule active user 2
+        applicationNFT.burn(1);
+        /// test burns with user 1
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.burn(3);
+        applicationNFT2.burn(36);
     }
 
     /// test batch mint and burn

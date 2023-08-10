@@ -881,6 +881,16 @@ contract ApplicationERC721FuzzTest is TestCommon {
         /// we jump to the next period and make sure it still works.
         vm.warp(block.timestamp + (uint256(period) * 1 hours));
         applicationNFT.safeTransferFrom(user2, user1, 11);
+
+        /// test burn while rule is active
+        vm.stopPrank();
+        vm.startPrank(user1);
+        if (risk >= _riskLevel[2]) {
+            vm.expectRevert();
+            applicationNFT.burn(11);
+            vm.warp(block.timestamp + (uint256(period) * 2 hours));
+            applicationNFT.burn(11);
+        }
     }
 
     function testNFTBalanceLimitByRiskScore(uint32 priceA, uint32 priceB, uint16 priceC, uint8 _riskScore) public {
@@ -903,6 +913,7 @@ contract ApplicationERC721FuzzTest is TestCommon {
         balanceLimits[4] = 500;
         balanceLimits[5] = 0;
 
+        switchToAppAdministrator();
         applicationNFT.safeMint(_user1);
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 0, priceA);
         applicationNFT.safeMint(_user1);
@@ -940,6 +951,17 @@ contract ApplicationERC721FuzzTest is TestCommon {
                 applicationNFT.safeTransferFrom(_user1, _user2, 2);
             }
         }
+
+        /// test if user can burn NFT with risk score assigned
+        /// admin sets NFT price above highest risk limit to ensure burn is unaffected
+        switchToAppAdministrator();
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 0); // Reseting the default price to $0 to ensure mint is successful
+        applicationNFT.safeMint(_user2);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, 1_000_000_000_000);
+        /// user 2 burns token
+        vm.stopPrank();
+        vm.startPrank(_user2);
+        applicationNFT.burn(3);
     }
 
     function testWithdrawalLimitByAccessLevelFuzz(uint8 _addressIndex, uint8 accessLevel) public {

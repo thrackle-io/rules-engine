@@ -152,11 +152,12 @@ interface IRuleProcessor {
     /**
      * @dev This function checks if the requested action is valid according to the AccountBalanceByRiskScore rule
      * @param _ruleId Rule Identifier
+     * @param _toAddress Address of the recipient 
      * @param _riskScoreTo the Risk Score of the recepient account
      * @param _totalValuationTo recepient account's beginning balance in USD with 18 decimals of precision
      * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
      */
-    function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScoreTo, uint128 _totalValuationTo, uint128 _amountToTransfer) external view;
+    function checkAccBalanceByRisk(uint32 _ruleId, address _toAddress, uint8 _riskScoreTo, uint128 _totalValuationTo, uint128 _amountToTransfer) external view;
 
     /**
      * @dev This function checks if the requested action is valid according to the AccountBalanceByAccessLevel rule

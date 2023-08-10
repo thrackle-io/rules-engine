@@ -29,6 +29,7 @@ contract RiskScores is IRiskScores, DataModule {
      */
     function addScore(address _address, uint8 _score) public virtual onlyOwner {
         if (_score > 100) revert riskScoreOutOfRange(_score);
+        if (_address == address(0)) revert ZeroAddress();
         scores[_address] = _score;
         emit RiskScoreAdded(_address, _score, block.timestamp);
     }

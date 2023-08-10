@@ -15,7 +15,7 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
  */
 
 contract ApplicationERC721 is ProtocolERC721 {
-    /// Optional Function Variables and Errors. Uncomment these if using option functions:
+    /// Optional Function Variables and Errors. Uncomment these if using optional mint functions below:
     // using Counters for Counters.Counter;
     // Counters.Counter private _tokenIdCounter;
 
@@ -29,6 +29,7 @@ contract ApplicationERC721 is ProtocolERC721 {
     // error TreasuryAddressNotSet();
 
     /// Contract Owner Minting
+    // address private owner; 
     // error OnlyOwnerCanMint();
 
     /**
@@ -38,7 +39,10 @@ contract ApplicationERC721 is ProtocolERC721 {
      * @param _appManagerAddress Address of App Manager
      * @param _baseUri URI for the base token
      */
-    constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {}
+    constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {
+        /// This is used for owner only minting. Uncomment this with the below safeMint() for owner only minting.
+        //owner = msg.sender; 
+    }
 
     /// *********************************** OPTIONAL FUNCTIONS ***********************************
 
@@ -104,8 +108,9 @@ contract ApplicationERC721 is ProtocolERC721 {
 
     /// Contract Owner Minting Only
     /**
-     * @dev Function mints new a new token to caller with tokenId incremented by 1 from previous minted token at mintPrice.
-     * @notice Uncomment this function and comment out safeMint() above. This allows for user minting at fixed price.
+     * @dev Function mints new a new token to owner of this contract with tokenId incremented by 1 from previous minted.
+     * @notice Uncomment this function and comment out safeMint() above. This allows for owner only minting of tokens.
+     * The owner address must be initailized at construction and uncommented out in the constructor above. 
      * @param to Address of recipient
      */
     // function safeMint(address to) public payable override whenNotPaused {

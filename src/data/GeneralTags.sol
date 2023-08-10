@@ -30,6 +30,7 @@ contract GeneralTags is DataModule, IGeneralTags {
      */
     function addTag(address _address, bytes32 _tag) public virtual onlyOwner {
         if (_tag == "") revert BlankTag();
+        if (_address == address(0)) revert ZeroAddress();
         if (hasTag(_address, _tag)) emit TagAlreadyApplied(_address);
         else {
             if (tagRecords[_address].length >= 10) revert MaxTagLimitReached();
