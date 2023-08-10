@@ -4,6 +4,7 @@ metadata:
   labels:
     app: anvil
   name: anvil
+  namespace: {{NAMESPACE}}
 spec:
   ports:
   - port: 8545
