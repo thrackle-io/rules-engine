@@ -295,13 +295,9 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         // Finally, check the invalid type
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
+        bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, 2));
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
-        /// connect the rule to this handler
-        applicationNFTHandler.setOracleRuleId(_index);
-        vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0x2a15491e);
-        applicationNFT.transferFrom(user1, richGuy, 3);
     }
 
     /**

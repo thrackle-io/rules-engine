@@ -46,7 +46,7 @@ interface INonTaggedRules {
 
     /// ******** Token Transfer Volume ********
     struct TokenTransferVolumeRule {
-        uint16 maxVolume; // this is a percentage with 2 decimals of precision(2500 = 25%)
+        uint24 maxVolume; // this is a percentage with 2 decimals of precision(2500 = 25%)
         uint16 period; // hours
         uint64 startTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
         uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.

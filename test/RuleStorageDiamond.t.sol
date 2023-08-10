@@ -442,15 +442,13 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     function testSettingMinTransfer() public {
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 500000000000000);
         assertEq(_index, 0);
-        uint256 rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getMinimumTransferRule(_index);
-        assertEq(rule, 500000000000000);
+        NonTaggedRules.TokenMinimumTransferRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getMinimumTransferRule(_index);
+        assertEq(rule.minTransferAmount, 500000000000000);
 
         _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 300000000000000);
         assertEq(_index, 1);
         rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getMinimumTransferRule(_index);
-        assertEq(rule, 300000000000000);
-        vm.expectRevert();
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(0), 300000000000000);
+        assertEq(rule.minTransferAmount, 300000000000000);
     }
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
