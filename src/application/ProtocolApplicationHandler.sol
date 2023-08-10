@@ -143,9 +143,10 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
         uint8 fromScore = appManager.getAccessLevel(_from);
         /// Check if recipient is not AMM and then check sender access level
         if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccessLevel0Passes(fromScore);
-        /// Check if sender is not an AMM and then check the sender access level
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to)) ruleProcessor.checkAccessLevel0Passes(score);
-        if (accountBalanceByAccessLevelRuleActive) ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
+        /// Check if sender is not an AMM or address(0) and then check the sender access level
+        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccessLevel0Passes(score);
+        /// Check that the recipient is not address(0). If it is we do not check this rule as it is a burn. 
+        if (accountBalanceByAccessLevelRuleActive && _to != address(0)) ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
         if (withdrawalLimitByAccessLevelRuleActive) {
             usdValueTotalWithrawals[_from] = ruleProcessor.checkwithdrawalLimitsByAccessLevel(withdrawalLimitByAccessLevelRuleId, fromScore, usdValueTotalWithrawals[_from], _usdAmountTransferring);
         }
