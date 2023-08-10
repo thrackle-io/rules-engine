@@ -69,7 +69,7 @@ contract ERC721AutoMintStaking is IERC721Staking, IERC721Receiver, Context, AppA
             }
             emit RewardsPerTimeUnit(_stakingTokenAddresses[i],  _rewardsPerAddress[i]);
         }
-        emit ERC721StakingFixedDeployed(_appManagerAddress, _stakingTokenAddresses, _rewardTokenAddress, true);
+        emit ERC721StakingFixedDeployed(_appManagerAddress, true, _rewardTokenAddress, _stakingTokenAddresses);
     }
 
     /**
