@@ -141,8 +141,8 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
     function _checkAccessLevelRules(address _from, address _to, uint128 _usdBalanceValuation, uint128 _usdAmountTransferring) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        /// Check if recipient is not AMM and then check sender access level
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccessLevel0Passes(fromScore);
+        /// Check if recipient is not AMM or address(0) and then check sender access level
+        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_from) && _to != address(0)) ruleProcessor.checkAccessLevel0Passes(fromScore);
         /// Check if sender is not an AMM or address(0) and then check the sender access level
         if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccessLevel0Passes(score);
         /// Check that the recipient is not address(0). If it is we do not check this rule as it is a burn. 

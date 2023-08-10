@@ -352,6 +352,11 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// perform transfer that checks user with AccessLevel and existing balances(should pass)
         applicationCoin.transfer(user4, 1 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user4), 1 * (10 ** 18));
+
+        /// test burning is allowed while rule is active 
+        applicationCoin.burn(1 * (10 ** 18)); 
+        /// burn remaining balance to ensure rule limit is not checked on burns 
+        applicationCoin.burn(89998000000000000000000);
     }
 
     function testPauseRulesViaAppManager() public {
@@ -563,7 +568,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(rich_user), 1000000 * (10 ** 18));
         vm.stopPrank();
         vm.startPrank(rich_user);
-        /// check transfer without access levelscore but with the rule turned off
+        /// check transfer without access level but with the rule turned off
         applicationCoin.transfer(user3, 5 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 5 * (10 ** 18));
         /// now turn the rule on so the transfer will fail
@@ -607,6 +612,17 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(user3);
         applicationCoin.transfer(rich_user, 5 * (10 ** 18));
+
+        /// test that burn works when user has accessLevel above 0 
+        applicationCoin.burn(5 * (10**18)); 
+        /// test burn when rule active and user has access level 0 
+        vm.stopPrank();
+        vm.startPrank(accessTier);
+        appManager.addAccessLevel(rich_user, 0);
+
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        applicationCoin.burn(1 * (10**18)); 
     }
 
     function testAccessLevelWithdrawalRule() public {
