@@ -492,6 +492,16 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         vm.stopPrank();
         vm.startPrank(user2);
         applicationNFT.safeTransferFrom(user2, user3, 4);
+
+        /// set price of token 5 below limit of user 2 
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 5, 14 * (10 ** 18));
+        /// test burning with this rule active 
+        /// transaction valuation must remain within risk limit for sender 
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationNFT.burn(5); 
     }
 
     /**

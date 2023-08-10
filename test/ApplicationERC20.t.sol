@@ -413,12 +413,15 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(user1), 10000000 * (10 ** 18));
         applicationCoin.transfer(user2, 10000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
+        applicationCoin.transfer(user5, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user5), 10000 * (10 ** 18));
 
         ///Assign Risk scores to user1 and user 2
         vm.stopPrank();
         vm.startPrank(riskAdmin);
         appManager.addRiskScore(user1, riskScores[0]);
         appManager.addRiskScore(user2, riskScores[1]);
+        appManager.addRiskScore(user5, riskScores[3]);
 
         ///Switch to Default admin and set up ERC20Pricer and activate TransactionLimitByRiskScore Rule
         vm.stopPrank();
@@ -461,6 +464,14 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
         vm.expectRevert(0x9fe6aeac);
         applicationCoin.transfer(user3, 1001 * (10 ** 18));
+
+        /// test burning tokens while rule is active 
+        vm.stopPrank();
+        vm.startPrank(user5);
+        applicationCoin.burn(999 * (10 ** 18)); 
+        vm.expectRevert(0x9fe6aeac);
+        applicationCoin.burn(1001 * (10 ** 18));
+        applicationCoin.burn(1000 * (10 ** 18));  
     }
 
     function testBalanceLimitByRiskScoreERC20() public {
