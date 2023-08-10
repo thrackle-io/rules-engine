@@ -97,25 +97,38 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
             ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, _to, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
         }
         if (maxTxSizePerPeriodByRiskActive) {
-            /// check if sender violates the rule
-            usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
-                maxTxSizePerPeriodByRiskRuleId,
-                usdValueTransactedInRiskPeriod[_from],
-                _usdAmountTransferring,
-                lastTxDateRiskRule[_from],
-                riskScoreFrom
-            );
-            lastTxDateRiskRule[_from] = uint64(block.timestamp);
-            /// check if recipient violates the rule
-            usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
-                maxTxSizePerPeriodByRiskRuleId,
-                usdValueTransactedInRiskPeriod[_to],
-                _usdAmountTransferring,
-                lastTxDateRiskRule[_to],
-                riskScoreTo
-            );
-            // set the last timestamp of check
-            lastTxDateRiskRule[_to] = uint64(block.timestamp);
+            /// if rule is active check if the recipient is address(0) for burning tokens
+            if (_to != address(0)){
+                /// check if sender violates the rule
+                usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
+                    maxTxSizePerPeriodByRiskRuleId,
+                    usdValueTransactedInRiskPeriod[_from],
+                    _usdAmountTransferring,
+                    lastTxDateRiskRule[_from],
+                    riskScoreFrom
+                );
+                lastTxDateRiskRule[_from] = uint64(block.timestamp);
+                /// check if recipient violates the rule
+                usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
+                    maxTxSizePerPeriodByRiskRuleId,
+                    usdValueTransactedInRiskPeriod[_to],
+                    _usdAmountTransferring,
+                    lastTxDateRiskRule[_to],
+                    riskScoreTo
+                );
+                // set the last timestamp of check
+                lastTxDateRiskRule[_to] = uint64(block.timestamp);
+            } else if (_to == address(0)) {
+                /// if recipient is address(0) this is a a burn and check the sender risk score only 
+                usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
+                    maxTxSizePerPeriodByRiskRuleId,
+                    usdValueTransactedInRiskPeriod[_from],
+                    _usdAmountTransferring,
+                    lastTxDateRiskRule[_from],
+                    riskScoreFrom
+                );
+                lastTxDateRiskRule[_from] = uint64(block.timestamp);
+            }
         }
     }
 

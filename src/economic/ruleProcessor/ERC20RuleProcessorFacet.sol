@@ -47,13 +47,14 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
             try data.getOracleRule(_ruleId) returns (NonTaggedRules.OracleRule memory oracleRule) {
                 uint256 oType = oracleRule.oracleType;
                 address oracleAddress = oracleRule.oracleAddress;
-                /// White List type
+                /// Allow List type
                 if (oType == uint(ORACLE_TYPE.ALLOWED_LIST)) {
-                    if (!IOracle(oracleAddress).isAllowed(_address)) {
-                        revert AddressNotOnAllowedList();
+                    if (_address != address(0)) {
+                        if (!IOracle(oracleAddress).isAllowed(_address)) {
+                            revert AddressNotOnAllowedList();
+                        }
                     }
-
-                    /// Black List type
+                    /// Deny List type
                 } else if (oType == uint(ORACLE_TYPE.RESTRICTED_LIST)) {
                     if (IOracle(oracleAddress).isRestricted(_address)) {
                         revert AddressIsRestricted();

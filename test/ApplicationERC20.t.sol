@@ -228,9 +228,9 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         // check the allowed list type
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 1, address(oracleAllowed));
+        uint32 _indexAllowed = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
+        applicationCoinHandler.setOracleRuleId(_indexAllowed);
         // add an allowed address
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
@@ -245,13 +245,37 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         // Finally, check the invalid type
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
+        uint32 _indexInvalid = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
+        applicationCoinHandler.setOracleRuleId(_indexInvalid);
         vm.stopPrank();
         vm.startPrank(user1);
         vm.expectRevert(0x2a15491e);
         applicationCoin.transfer(user2, 10);
+
+        /// test burning while oracle rule is active (allow list active)
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        applicationCoinHandler.setOracleRuleId(_indexAllowed);
+        /// first mint to user 
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        applicationCoin.transfer(user5, 10000); 
+        /// burn some tokens as user 
+        vm.stopPrank();
+        vm.startPrank(user5);
+        applicationCoin.burn(5000); 
+        /// add address(0) to deny list and switch oracle rule to deny list 
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        applicationCoinHandler.setOracleRuleId(_index);
+        badBoys.push(address(0));
+        oracleRestricted.addToSanctionsList(badBoys);
+        /// attempt to burn (should fail)
+        vm.stopPrank();
+        vm.startPrank(user5);
+        vm.expectRevert(0x6bdfffc0);
+        applicationCoin.burn(5000); 
     }
 
     /**
