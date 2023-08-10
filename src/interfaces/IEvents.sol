@@ -151,7 +151,7 @@ interface IERC20StakingEvents is IStakingCommonEvents {
     event NewStake(address indexed staker, uint256 indexed staked, uint256 stakingPeriodInSeconds, uint256 indexed stakingSince);
     event RewardsClaimedERC20(address indexed staker, uint256 indexed staked, uint256 rewards, uint256 indexed stakingSince);
     event StakeWithdrawal(address indexed staker, uint256 indexed amount, uint256 date);
-    event ERC20StakingFixedDeployed(address indexed appManagerAddress, address indexed stakingToken,address indexed rewardToken, bool autoMinting);
+    event ERC20StakingFixedDeployed(address indexed appManagerAddress, bool indexed autoMinting, address indexed rewardToken, address stakingToken);
     }
 
 interface IERC721StakingEvents is IStakingCommonEvents {
@@ -159,5 +159,5 @@ interface IERC721StakingEvents is IStakingCommonEvents {
     event RewardsClaimedERC721(address indexed staker, uint256 indexed tokenId, uint256 rewards, uint256 indexed stakingSince);
     event StakeWithdrawal(address indexed staker, uint256 indexed tokenId, uint256 date);
     event NewStakingAddress(address indexed newStakingAddress);
-    event ERC721StakingFixedDeployed(address indexed appManagerAddress,address[] indexed stakingTokens,address indexed rewardToken, bool autoMinting);
+    event ERC721StakingFixedDeployed(address indexed appManagerAddress, bool indexed autoMinting, address indexed rewardToken, address[] stakingTokens);
 }
