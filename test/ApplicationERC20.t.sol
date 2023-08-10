@@ -245,13 +245,9 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         // Finally, check the invalid type
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
-        uint32 _indexInvalid = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
-        /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_indexInvalid);
-        vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0x2a15491e);
-        applicationCoin.transfer(user2, 10);
+        bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, 2));
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
 
         /// test burning while oracle rule is active (allow list active)
         vm.stopPrank();
