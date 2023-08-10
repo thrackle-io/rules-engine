@@ -1015,6 +1015,19 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
                 applicationNFT.safeTransferFrom(_user1, _user2, 2);
             }
         }
+
+        /// test if user can burn NFT with risk score assigned 
+        /// admin sets NFT price above highest risk limit to ensure burn is unaffected 
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        applicationNFT.safeMint(_user2);
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 3, 1_000_000_000_000);
+        /// user 2 burns token 
+        vm.stopPrank();
+        vm.startPrank(_user2);
+
+        applicationNFT.burn(3); 
+
     }
 
     function testWithdrawalLimitByAccessLevelFuzz(uint8 _addressIndex, uint8 accessLevel) public {
