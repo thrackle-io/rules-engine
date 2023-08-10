@@ -81,9 +81,9 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
     function getAccTotalValuation(address _account, uint256 _nftValuationLimit) public view returns (uint256 totalValuation) {
         address[] memory tokenList = appManager.getTokenList();
         uint256 tokenAmount;
-        /// check if _account is zero address. If zero address we pass a valuation of zero to allow for burning tokens when rules that need valuations are active. 
+        /// check if _account is zero address. If zero address we return a valuation of zero to allow for burning tokens when rules that need valuations are active. 
         if (_account == address(0)){
-            totalValuation = 0; 
+            return totalValuation; 
         } else {
             /// Loop through all Nfts and ERC20s and add values to balance for account valuation 
             for (uint256 i; i < tokenList.length; ) {
