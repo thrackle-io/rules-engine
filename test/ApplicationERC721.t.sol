@@ -284,6 +284,28 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
+
+        /// set oracle back to allow and attempt to burn token 
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 1, address(oracleAllowed));
+        applicationNFTHandler.setOracleRuleId(_index);
+        /// swap to user and burn 
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.burn(4); 
+        /// set oracle to deny and add address(0) to list to deny burns 
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 0, address(oracleRestricted));
+        applicationNFTHandler.setOracleRuleId(_index);
+        badBoys.push(address(0));
+        oracleRestricted.addToSanctionsList(badBoys);
+        /// user attempts burn 
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert(0x6bdfffc0);
+        applicationNFT.burn(3);
     }
 
     function testPauseRulesViaAppManager() public {
@@ -937,6 +959,14 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         vm.startPrank(user2);
         vm.expectRevert(0xdd76c810);
         applicationNFT.transferFrom(user2, user1, 1);
+
+        /// test burn with rule active user 2 
+        applicationNFT.burn(1); 
+        /// test burns with user 1 
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.burn(3);
+        applicationNFT2.burn(36);
     }
 
     /// test batch mint and burn

@@ -42,7 +42,6 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
      */
     function checkOraclePasses(uint32 _ruleId, address _address) external view {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-
         if (data.getTotalOracleRules() != 0) {
             try data.getOracleRule(_ruleId) returns (NonTaggedRules.OracleRule memory oracleRule) {
                 uint256 oType = oracleRule.oracleType;

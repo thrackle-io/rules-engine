@@ -950,6 +950,17 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         /// we jump to the next period and make sure it still works.
         vm.warp(block.timestamp + (uint256(period) * 1 hours));
         applicationNFT.safeTransferFrom(user2, user1, 11);
+
+        /// test burn while rule is active 
+        vm.stopPrank();
+        vm.startPrank(user1);
+        if (risk >= _riskLevel[2]) {
+            vm.expectRevert();
+            applicationNFT.burn(11); 
+            vm.warp(block.timestamp + (uint256(period) * 2 hours));
+            applicationNFT.burn(11); 
+        }
+
     }
 
     function testNFTBalanceLimitByRiskScore(uint32 priceA, uint32 priceB, uint16 priceC, uint8 _riskScore) public {
@@ -1021,7 +1032,6 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         /// user 2 burns token 
         vm.stopPrank();
         vm.startPrank(_user2);
-
         applicationNFT.burn(3); 
 
     }

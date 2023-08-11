@@ -43,7 +43,7 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
         ApplicationRuleStorage.AccountBalanceToRiskRule memory rule = data.getAccountBalanceByRiskScore(_ruleId);
         uint total = _totalValuationTo + _amountToTransfer;
         /// perform the rule check
-        /// If address being checked is zero address the rule passes (This allows for burning)
+        /// If recipient address being checked is zero address the rule passes (This allows for burning)
         if (_toAddress != address(0)) {
             for (uint256 i; i < rule.riskLevel.length; ) {
                 ///If risk score is within the rule riskLevel array, find the maxBalance for that risk Score
@@ -99,7 +99,6 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
         /// validation block
         uint256 totalRules = data.getTotalMaxTxSizePerPeriodRules();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
-
         /// we retrieve the rule
         ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory rule = data.getMaxTxSizePerPeriodRule(ruleId);
         /// reseting the "tradesWithinPeriod", unless...

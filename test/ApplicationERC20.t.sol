@@ -258,6 +258,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.startPrank(defaultAdmin);
         applicationCoin.transfer(user5, 10000); 
         /// burn some tokens as user 
+        /// burns do not check for the recipient address as it is address(0)
         vm.stopPrank();
         vm.startPrank(user5);
         applicationCoin.burn(5000); 
@@ -330,7 +331,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(draculaCoin.balanceOf(user1), 100000 * (10 ** 18));
         erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * (10 ** 18));
-        // set the access levellevel for the user4
+        // set the access level for the user4
         vm.stopPrank();
         vm.startPrank(accessTier);
         appManager.addAccessLevel(user4, 3);
@@ -353,6 +354,16 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.burn(1 * (10 ** 18)); 
         /// burn remaining balance to ensure rule limit is not checked on burns 
         applicationCoin.burn(89998000000000000000000);
+        /// test burn with account that has access level assign 
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.burn(1 * (10 ** 18));
+        /// test the user account balance is decreased from burn and can receive tokens
+        vm.stopPrank();
+        vm.startPrank(whale);
+        applicationCoin.transfer(user4, 1 * (10 ** 18));
+        /// now whale account burns 
+        applicationCoin.burn(1 * (10 ** 18));
     }
 
     function testPauseRulesViaAppManager() public {
