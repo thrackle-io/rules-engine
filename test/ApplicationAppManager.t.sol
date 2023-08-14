@@ -361,8 +361,6 @@ contract ApplicationAppManagerTest is TestCommon {
         vm.expectRevert();
         applicationAppManager.setNewApplicationHandlerAddress(address(0));
         vm.expectRevert();
-        applicationAppManager.registerStaking(address(0));
-        vm.expectRevert();
         applicationAppManager.registerTreasury(address(0));
         vm.expectRevert();
         applicationAppManager.registerAMM(address(0));
@@ -756,7 +754,7 @@ contract ApplicationAppManagerTest is TestCommon {
     }
 
     function testRegisterAddresses() public {
-        /// check registration of staking and treasury
+        /// check registration of treasury
         applicationAppManager.registerTreasury(address(0x111));
         assertTrue(applicationAppManager.isTreasury(address(0x111)));
         vm.expectRevert();
@@ -765,14 +763,6 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationAppManager.registerTreasury(address(0x222));
         applicationAppManager.registerTreasury(address(0x333));
         applicationAppManager.deRegisterTreasury(address(0x111));
-
-        applicationAppManager.registerStaking(address(0x222));
-        assertTrue(applicationAppManager.isRegisteredStaking(address(0x222)));
-        vm.expectRevert();
-        applicationAppManager.registerStaking(address(0x222));
-
-        applicationAppManager.registerStaking(address(0x111));
-        applicationAppManager.registerStaking(address(0x333));
     }
 
     ///-----------------------PAUSE ACTIONS-----------------------------///

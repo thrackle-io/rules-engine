@@ -62,8 +62,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     address[] ammList;
     /// Treasury List (for token level rule exemptions)
     address[] treasuryList;
-    /// Staking Contracts List (for token level rule exemptions)
-    address[] stakingList;
 
     /// Application name string
     string appName;
@@ -776,41 +774,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         _removeAddress(treasuryList, _treasuryAddress);
     }
 
-    /**
-     * @dev This function allows the devs to register their Staking contract addresses. Allow contracts to check if contract is registered staking contract within ecosystem.
-     * This check is used in minting rewards tokens for example.
-     * @param _stakingAddress Address for the AMM
-     */
-    function registerStaking(address _stakingAddress) external onlyAppAdministrator {
-        if (_stakingAddress == address(0)) revert ZeroAddress();
-        if (isRegisteredStaking(_stakingAddress)) revert AddressAlreadyRegistered();
-        stakingList.push(_stakingAddress);
-        emit StakingRegistered(_stakingAddress);
-    }
-
-    /**
-     * @dev This function allows the devs to register their Staking contract addresses.
-     * @param _stakingAddress Address for the Staking Contract
-     */
-    function isRegisteredStaking(address _stakingAddress) public view returns (bool) {
-        for (uint256 i = 0; i < stakingList.length; ) {
-            if (stakingList[i] == _stakingAddress) {
-                return true;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @dev This function allows the devs to deregister a Staking contract address.
-     * @param _stakingAddress The of the Staking contract to be de-registered
-     */
-    function deRegisterStaking(address _stakingAddress) external onlyAppAdministrator {
-        _removeAddress(stakingList, _stakingAddress);
-    }
 
     /**
      * @dev Getter for the access level contract address

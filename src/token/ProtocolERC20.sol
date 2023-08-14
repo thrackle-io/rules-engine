@@ -162,7 +162,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function mint(address to, uint256 amount) public virtual {
         ///check that the address calling mint is authorized(appAdminstrator, AMM or Staking Contract)
-        if (!appManager.isAppAdministrator(msg.sender) && !appManager.isRegisteredStaking(msg.sender) && !appManager.isRegisteredAMM(msg.sender)) {
+        if (!appManager.isAppAdministrator(msg.sender) && !appManager.isRegisteredAMM(msg.sender)) {
             revert CallerNotAuthorizedToMint();
         }
         if (MAX_SUPPLY > 0 && totalSupply() + amount > MAX_SUPPLY) {

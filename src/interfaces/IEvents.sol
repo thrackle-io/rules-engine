@@ -30,7 +30,6 @@ interface IAppLevelEvents {
     event TokenRegistered(string indexed _token, address indexed _address);
     event AMMRegistered(address indexed _address);
     event TreasuryRegistered(address indexed _address);
-    event StakingRegistered(address indexed _address);
     ///Accounts
     event AccountProviderSet(address indexed _address);
     event AccountAdded(address indexed account, uint256 date);
@@ -137,17 +136,6 @@ interface IApplicationEvents {
     event NewTokenDeployed(address indexed applicationCoin, address indexed appManagerAddress);
     ///ProtocolERC721 & ERC721A
     event NewNFTDeployed(address indexed applicationNFT, address indexed appManagerAddress);
-    ///ERC20Staking & ERC20AutoMintStaking
-    event ERC20StakingDeployed(address indexed stakingAddress);
-    event NewStake(address indexed staker, uint256 indexed staked, uint256 stakingPeriodInSeconds, uint256 indexed stakingSince);
-    event RewardsClaimed(address indexed staker, uint256 indexed staked, uint256 rewards, uint256 indexed stakingSince, uint256 date);
-    event StakeWithdrawal(address indexed staker, uint256 indexed amount, uint256 date);
-    ///ERC721Staking & ERC721 AutoMintStaking
-    event ERC721StakingDeployed(address indexed stakingAddress);
-    event NewStakeERC721(address indexed staker, uint256 indexed tokenId, uint256 stakingPeriodInSeconds, uint256 indexed stakingSince);
-    event RewardsClaimedERC721(address indexed staker, uint256 indexed tokenId, uint256 rewards, uint256 indexed stakingSince, uint256 date);
-    event StakeWithdrawalERC721(address indexed staker, uint256 indexed tokenId, uint256 date);
-    event NewStakingAddress(address indexed newStakingAddress);
     ///OracleAllowed
     event AllowedAddress(address indexed addr);
     event AllowedAddressesAdded(address[] addrs);
