@@ -12,10 +12,6 @@ import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
-import "src/example/staking/ERC20Staking.sol";
-import "src/example/staking/ERC20AutoMintStaking.sol";
-import "src/example/staking/ERC721Staking.sol";
-import "src/example/staking/ERC721AutoMintStaking.sol";
 
 /**
  * @title Application Deploy All Script
@@ -70,23 +66,7 @@ contract ApplicationDeployAllScript is Script {
         applicationCoinHandler2.setNFTPricingAddress(address(openOcean));
         applicationNFTHandler.setERC20PricingAddress(address(exchange));
         applicationNFTHandler.setNFTPricingAddress(address(openOcean));
-        /// Deploy ERC20 Staking and set reward rate
-        ERC20Staking stakingContract = new ERC20Staking(address(coin2), address(coin1), address(applicationAppManager));
-        stakingContract.updateMinStakeAllowed(1_000_000);
-        stakingContract.updateRewardsPerMillStakedPerTimeUnit(yieldPerTimeUnitArray);
-        /// Deploy ERC20 Auto Mint Staking and set reward rate
-        ERC20AutoMintStaking autoMintStaking = new ERC20AutoMintStaking(address(coin2), address(coin1), address(applicationAppManager));
-        autoMintStaking.updateMinStakeAllowed(1);
-        autoMintStaking.updateRewardsPerMillStakedPerTimeUnit(yieldPerTimeUnitArray);
-        applicationAppManager.registerStaking(address(autoMintStaking));
-        /// Deploy ERC721 Staking and set reward rate
-        uint128[7][] memory rewardsPerAddress = new uint128[7][](1);
-        rewardsPerAddress[0] = yieldPerTimeUnitArray;
-        applicationNFTAddresses = [address(nft1)];
-        new ERC721Staking(address(coin2), applicationNFTAddresses, rewardsPerAddress, address(applicationAppManager));
-        /// Deploy ERC721 Auto Mint Staking and set reward rate
-        ERC721AutoMintStaking nftAutoMintStaking = new ERC721AutoMintStaking(address(coin2), applicationNFTAddresses, rewardsPerAddress, address(applicationAppManager));
-        applicationAppManager.registerStaking(address(nftAutoMintStaking));
+
         /// register the coin treasury
         applicationAppManager.registerTreasury(vm.envAddress("FEE_TREASURY"));
         /// This is a new app manager used for upgrade testing
