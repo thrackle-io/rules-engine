@@ -622,13 +622,14 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
         /// test that burn works when user has accessLevel above 0 
         applicationCoin.burn(5 * (10**18)); 
-        /// test burn when rule active and user has access level 0 
+        /// test burn fails when rule active and user has access level 0 
         vm.stopPrank();
         vm.startPrank(accessTier);
         appManager.addAccessLevel(rich_user, 0);
 
         vm.stopPrank();
         vm.startPrank(rich_user);
+        vm.expectRevert(0x3fac082d);
         applicationCoin.burn(1 * (10**18)); 
     }
 

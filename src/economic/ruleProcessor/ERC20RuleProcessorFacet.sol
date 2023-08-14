@@ -48,13 +48,15 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
                 address oracleAddress = oracleRule.oracleAddress;
                 /// Allow List type
                 if (oType == uint(ORACLE_TYPE.ALLOWED_LIST)) {
+                    /// If Allow List Oracle rule active, address(0) is exempt to allow for burning
                     if (_address != address(0)) {
                         if (!IOracle(oracleAddress).isAllowed(_address)) {
                             revert AddressNotOnAllowedList();
                         }
                     }
-                    /// Deny List type
+                /// Deny List type
                 } else if (oType == uint(ORACLE_TYPE.RESTRICTED_LIST)) {
+                    /// If Deny List Oracle rule active all transactions to addresses registered to deny list (including address(0)) will be denied. 
                     if (IOracle(oracleAddress).isRestricted(_address)) {
                         revert AddressIsRestricted();
                     }

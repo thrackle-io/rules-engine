@@ -98,15 +98,15 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
         }
         if (maxTxSizePerPeriodByRiskActive) {
             /// if rule is active check if the recipient is address(0) for burning tokens
-            if (_to != address(0)){
-                /// check if sender violates the rule
-                usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
-                    maxTxSizePerPeriodByRiskRuleId,
-                    usdValueTransactedInRiskPeriod[_from],
-                    _usdAmountTransferring,
-                    lastTxDateRiskRule[_from],
-                    riskScoreFrom
-                );
+            /// check if sender violates the rule
+            usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
+                maxTxSizePerPeriodByRiskRuleId,
+                usdValueTransactedInRiskPeriod[_from],
+                _usdAmountTransferring,
+                lastTxDateRiskRule[_from],
+                riskScoreFrom
+            );
+            if (_to != address(0)) {
                 lastTxDateRiskRule[_from] = uint64(block.timestamp);
                 /// check if recipient violates the rule
                 usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
@@ -118,17 +118,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
                 );
                 // set the last timestamp of check
                 lastTxDateRiskRule[_to] = uint64(block.timestamp);
-            } else if (_to == address(0)) {
-                /// if recipient is address(0) this is a a burn and check the sender risk score only 
-                usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
-                    maxTxSizePerPeriodByRiskRuleId,
-                    usdValueTransactedInRiskPeriod[_from],
-                    _usdAmountTransferring,
-                    lastTxDateRiskRule[_from],
-                    riskScoreFrom
-                );
-                lastTxDateRiskRule[_from] = uint64(block.timestamp);
-            }
+            } 
         }
     }
 
@@ -141,9 +131,9 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
     function _checkAccessLevelRules(address _from, address _to, uint128 _usdBalanceValuation, uint128 _usdAmountTransferring) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        /// Check if recipient is not AMM or address(0) and then check sender access level
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_from) && _to != address(0)) ruleProcessor.checkAccessLevel0Passes(fromScore);
-        /// Check if sender is not an AMM or address(0) and then check the sender access level
+        /// Check if sender is not AMM and then check sender access level
+        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccessLevel0Passes(fromScore);
+        /// Check if receiver is not an AMM or address(0) and then check the recipient access level. Exempting address(0) allows for burning. 
         if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccessLevel0Passes(score);
         /// Check that the recipient is not address(0). If it is we do not check this rule as it is a burn. 
         if (accountBalanceByAccessLevelRuleActive && _to != address(0)) ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);

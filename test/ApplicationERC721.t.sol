@@ -221,6 +221,8 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         /// test that burn works with rule 
         applicationNFT.burn(3); 
+        vm.expectRevert(0xf1737570);
+        applicationNFT.burn(11);
     }
 
     /**
@@ -515,11 +517,21 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         vm.stopPrank();
         vm.startPrank(defaultAdmin);
         nftPricer.setSingleNFTPrice(address(applicationNFT), 5, 14 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 4, 17 * (10 ** 18));
+        nftPricer.setSingleNFTPrice(address(applicationNFT), 6, 25 * (10 ** 18));
         /// test burning with this rule active 
         /// transaction valuation must remain within risk limit for sender 
         vm.stopPrank();
         vm.startPrank(user2);
         applicationNFT.burn(5); 
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        vm.expectRevert(0x9fe6aeac);
+        applicationNFT.burn(4);
+        vm.expectRevert(0x9fe6aeac);
+        applicationNFT.burn(6);
+
     }
 
     /**
