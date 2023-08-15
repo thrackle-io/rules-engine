@@ -6,7 +6,7 @@ The super admin account is set during the [deployment][deployAppManager-url] of 
 ---
 1. Super Admin: Super admin is set at construction of the App Manager(the deploying address of the AppManager). This role has the highest level of permissions and can grant/revoke the app admin role. Functions with the modifier onlySuperAdmin() can only be called by this role. 
    
-2. App Admin: App admin is set at contruction and can be granted by the super admin at any time. This role can grant permissions to the access tier, risk and rule admin roles. This role also has control over setting addresses for provider contracts, registering/deregistering asset contracts and setting upgraded handler addresses. Functions with the modifier onlyAppAdministrator() can only be called by this role. 
+2. App Admin: App admin is set at contruction and can be granted by the super admin at any time. App Admins do not have the ability to create/revoke other App Admins. This role can grant permissions to the access tier, risk and rule admin roles. This role also has control over setting addresses for provider contracts, registering/deregistering asset contracts and setting upgraded handler addresses. Functions with the modifier onlyAppAdministrator() can only be called by this role. 
     ````
     cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
     ````

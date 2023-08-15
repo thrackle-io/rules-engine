@@ -175,7 +175,7 @@ contract AppManagerBaseTest is TestCommon {
     }
 
     /// Test renounce Access Tier role
-    function testRenounceaccessLevelAdmin() public {
+    function testRenounceAccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
         applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
         assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);
@@ -186,7 +186,7 @@ contract AppManagerBaseTest is TestCommon {
     }
 
     /// Test revoke Access Tier role
-    function testRevokeaccessLevelAdmin() public {
+    function testRevokeAccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
         applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
         assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);
@@ -197,7 +197,7 @@ contract AppManagerBaseTest is TestCommon {
     }
 
     /// Test attempt to revoke Access Tier role from non app administrator
-    function testFailRevokeaccessLevelAdmin() public {
+    function testFailRevokeAccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
         applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
         assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);
