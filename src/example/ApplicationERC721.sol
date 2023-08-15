@@ -2,7 +2,6 @@
 pragma solidity 0.8.17;
 
 import "../token/ProtocolERC721.sol";
-import "../economic/AppAdministratorOrOwnerOnly.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
@@ -11,22 +10,18 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @notice This is an example implementation that App Devs should use.
  * During deployment, _handlerAddress = ERC721Handler contract address
  *                    _appManagerAddress = AppManager contract address
- * @dev This contract contains 3 different safeMint implementations: priced minting, app-administrator-only minting, and app-administrator-or-owner-only minting.
- * The safeMint implementation enabled by default is the app-administrator-or-owner-only, but it is possible to choose any of the other 2 options, or even creating  
- * a different safeMint implementation. However, bare in mind that only one safeMint function can exist at a time in the contract unless polymorphism is used. To
- * select the desired safeMint function, simply comment out and/or delete any safeMint implementations and variable that are not going to be used, and make sure
- * that the one implementation you chose and its variables are enabled (not commented out).
+ * @dev This contract contains 3 different safeMint implementations: priced minting, free minting and app-administrator-only minting. The safeMint is by default
+ * restricted to app-administrators or contract-owner, but it is possible to override such configuration and choose any of the other 3 options in here, or even   
+ * creating a different safeMint implementation. However, bare in mind that only one safeMint function can exist at a time in the contract unless polymorphism is 
+ * used. If it is wished to override the default minting restriction from app-administrators or contract-owners, select the desired safeMint function by simply 
+ * uncommenting the desired implementations and its variables, or write your own implementation that overrides the default safeMint function.
  */
 
-contract ApplicationERC721 
-    is 
-    ProtocolERC721
-    ,AppAdministratorOrOwnerOnly
-    {
+contract ApplicationERC721 is ProtocolERC721 {
 
     /// Optional Function Variables and Errors. Uncomment these if using option functions:
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIdCounter;
+    // using Counters for Counters.Counter;
+    // Counters.Counter private _tokenIdCounter;
 
     /// Mint Fee
     // uint256 public mintPrice; /// Chain Native Token price used for priced minting.
@@ -108,15 +103,16 @@ contract ApplicationERC721
     //     _safeMint(to, tokenId);
     // }
 
-    /// Contract Owner or App Administrator Minting 
+    /// Free Mint (Not Recommended)
     /**
-     * @dev Function mints new a new token to caller with tokenId incremented by 1 from previous minted token at mintPrice.
-     * @notice Uncomment this function and comment out safeMint() above. This allows for app-administrator-or-owner-only minting.
+     * @dev Function mints new a new token to anybody. Don't enabled this function if you are not sure about what you're doing.
+     * @notice To use, uncomment this function and comment out safeMint() above. This allows everybody to mint for free.
      * @param to Address of recipient
      */
-      function safeMint(address to) public payable override whenNotPaused appAdministratorOrOwnerOnly(appManagerAddress) {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
-    }
+    // function safeMint(address to) public payable override whenNotPaused{
+    //     uint256 tokenId = _tokenIdCounter.current();
+    //     _tokenIdCounter.increment();
+    //     _safeMint(to, tokenId);
+    // }
+
 }

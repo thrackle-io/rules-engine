@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./ProtocolTokenCommon.sol";
 import "../economic/AppAdministratorOnly.sol";
+import "../economic/AppAdministratorOrOwnerOnly.sol";
 import "../token/IProtocolERC721Handler.sol";
 
 /**
@@ -17,7 +18,7 @@ import "../token/IProtocolERC721Handler.sol";
  * @notice This is the base contract for all protocol ERC721s
  */
 
-contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon {
+contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon ,AppAdministratorOrOwnerOnly {
     using Counters for Counters.Counter;
     address public handlerAddress;
     IProtocolERC721Handler handler;
@@ -93,7 +94,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * Function is payable for child contracts to override with priced mint function.
      * @param to Address of recipient
      */
-    function safeMint(address to) public payable virtual whenNotPaused {
+    function safeMint(address to) public payable virtual whenNotPaused appAdministratorOrOwnerOnly(appManagerAddress){
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
