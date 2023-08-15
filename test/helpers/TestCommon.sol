@@ -6,9 +6,11 @@ import "forge-std/Test.sol";
 import "src/example/ApplicationAppManager.sol";
 import "src/example/application/ApplicationHandler.sol";
 import "src/example/pricing/ApplicationERC20Pricing.sol";
-import "src/example/pricing/ApplicationERC721Pricing.sol";
 import "src/example/ApplicationERC20.sol";
 import "src/example/ApplicationERC20Handler.sol";
+import "src/example/ApplicationERC721.sol";
+import "src/example/ApplicationERC721Handler.sol";
+import "src/example/pricing/ApplicationERC721Pricing.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/economic/ruleProcessor/RuleProcessorDiamond.sol";
 import {RuleStorageDiamond, RuleStorageDiamondArgs} from "src/economic/ruleStorage/RuleStorageDiamond.sol";
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
@@ -42,7 +44,11 @@ abstract contract TestCommon is Test {
     ApplicationERC20 applicationCoin;
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationERC20Pricing erc20Pricer;
-    ApplicationERC721Pricing nftPricer;
+    ApplicationERC721 applicationNFT;
+    ApplicationERC721Handler applicationNFTHandler;
+    ApplicationERC721Pricing erc721Pricer;
+    // common block time
+    uint64 Blocktime = 1769924800;
 
     address[] ADDRESSES = [address(0xFF1), address(0xFF2), address(0xFF3), address(0xFF4), address(0xFF5), address(0xFF6), address(0xFF7), address(0xFF8)];
 
@@ -224,6 +230,38 @@ abstract contract TestCommon is Test {
     }
 
     /**
+     * @dev Deploy and set up an ERC721
+     * @param _name token name
+     * @param _symbol token symbol
+     * @param _appManager previously created appManager
+     * @return _token token
+     */
+    function _createERC721(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC721 _token) {
+        return new ApplicationERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721Handler
+     * @param _ruleProcessor rule processor
+     * @param _appManager previously created appManager
+     * @param _token ERC721
+     * @return _handler ERC721 handler
+     */
+    function _createERC721Handler(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, ApplicationERC721 _token) public returns (ApplicationERC721Handler _handler) {
+        _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
+        _token.connectHandlerToToken(address(_handler));
+        return _handler;
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721Handler
+     * @return _pricer ERC721 pricer
+     */
+    function _createERC721Pricing() public returns (ApplicationERC721Pricing _pricer) {
+        return new ApplicationERC721Pricing();
+    }
+
+    /**
      * @dev Deploy and set up the main protocol contracts. This includes:
      * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond
      */
@@ -253,7 +291,7 @@ abstract contract TestCommon is Test {
 
     /**
      * @dev Deploy and set up the main protocol contracts. This includes:
-     * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond, 4. AppManager with its handler connected, 5. ApplicationERC20 with its handler, minted tokens, and default price
+     * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond, 4. AppManager with its handler connected, 5. ApplicationERC20 with its handler, and default price
      */
     function setUpProtocolAndAppManagerAndTokens() public {
         switchToSuperAdminWithSave();
@@ -267,23 +305,34 @@ abstract contract TestCommon is Test {
         // create the app handler and connect it to the appManager
         applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
         applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
-        // creat the ERC20 and connect it to its handler
+
+        // create the ERC20 and connect it to its handler
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
         applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
-        applicationCoin.mint(appAdministrator, 10_000_000_000_000_000_000_000 * (10 ** 18));
+        /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
-        applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
+
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
 
+        /// create an ERC721
+        applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
+        applicationNFTHandler = _createERC721Handler(ruleProcessor, applicationAppManager, applicationNFT);
+        /// register the token
+        applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
+        /// set up the pricer for erc20
+        erc721Pricer = _createERC721Pricing();
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
+        /// connect the pricers to both handlers
+        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
+        applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
+        applicationCoinHandler.setNFTPricingAddress(address(erc721Pricer));
         /// reset the user to the original
         switchToOriginalUser();
     }
 
-    /**
-     * @dev Deploy and set up a protocol supported ERC20
-     */
     /**
      * @dev Deploy and set up a protocol supported ERC721
      */

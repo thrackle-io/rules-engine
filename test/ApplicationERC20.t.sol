@@ -36,24 +36,22 @@ contract ApplicationERC20Test is TestCommon {
     address rich_user = address(45);
     address[] badBoys;
     address[] goodBoys;
-    address ac;
-    uint64 Blocktime = 1675723152;
 
     function setUp() public {
         vm.startPrank(superAdmin);
         setUpProtocolAndAppManagerAndTokens();
-
+        switchToAppAdministrator();
         // create the oracles
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
+        applicationCoin.mint(appAdministrator, 10_000_000_000_000_000_000_000 * (10 ** 18));
         vm.warp(Blocktime);
-        switchToAppAdministrator();
     }
 
     /// Test balance
     function testBalance() public {
         console.logUint(applicationCoin.totalSupply());
-        assertEq(applicationCoin.balanceOf(superAdmin), 10000000000000000000000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(appAdministrator), 10000000000000000000000 * (10 ** 18));
     }
 
     /// Test Mint
@@ -65,9 +63,9 @@ contract ApplicationERC20Test is TestCommon {
 
     /// Test token transfer
     function testTransfer() public {
-        applicationCoin.transfer(appAdministrator, 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(appAdministrator), 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(superAdmin), 9999999999999999999990 * (10 ** 18));
+        applicationCoin.transfer(user, 10 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user), 10 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(appAdministrator), 9999999999999999999990 * (10 ** 18));
     }
 
     function testZeroAddressChecksERC20() public {
@@ -158,7 +156,7 @@ contract ApplicationERC20Test is TestCommon {
     /**
      * @dev Test the oracle rule, both allow and restrict types
      */
-    function testOracle() public {
+    function testOracleERC20() public {
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 100000);
         assertEq(applicationCoin.balanceOf(user1), 100000);
@@ -371,18 +369,16 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
 
         ///Assign Risk scores to user1 and user 2
-        vm.stopPrank();
-        vm.startPrank(riskAdmin);
+        switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
         applicationAppManager.addRiskScore(user2, riskScores[1]);
 
-        ///Switch to Default admin and set up ERC20Pricer and activate TransactionLimitByRiskScore Rule
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        ///Switch to app admin and set up ERC20Pricer and activate TransactionLimitByRiskScore Rule
+        switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
+        switchToRuleAdmin();
         applicationCoinHandler.setTransactionLimitByRiskRuleId(index);
-
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
         vm.startPrank(user2);
@@ -394,14 +390,12 @@ contract ApplicationERC20Test is TestCommon {
         vm.expectRevert(0x9fe6aeac);
         applicationCoin.transfer(user2, 1000001 * (10 ** 18));
 
-        vm.stopPrank();
-        vm.startPrank(riskAdmin);
+        switchToRiskAdmin();
         ///Test in between Risk Score Values
         applicationAppManager.addRiskScore(user3, 49);
         applicationAppManager.addRiskScore(user4, 81);
 
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToAppAdministrator();
         applicationCoin.transfer(user3, 1500 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 1500 * (10 ** 18));
         applicationCoin.transfer(user4, 1000000 * (10 ** 18));
@@ -445,17 +439,17 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(user5), 1000000 * (10 ** 18));
 
         ///Assign Risk scores to user1 and user 2
-        vm.stopPrank();
-        vm.startPrank(riskAdmin);
+        switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, 1); ///Max 1000
         applicationAppManager.addRiskScore(user2, 65); ///Max 250
         applicationAppManager.addRiskScore(user3, 49); ///Max 500
         applicationAppManager.addRiskScore(user4, 81); ///Max 100
 
         ///Switch to Super admin and set up ERC20Pricer and activate AccountBalanceByRiskScore Rule
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
+        switchToRuleAdmin();
         applicationHandler.setAccountBalanceByRiskRuleId(index);
 
         ///Transfer funds to all that will put them one from limit(should all pass)
@@ -490,7 +484,6 @@ contract ApplicationERC20Test is TestCommon {
         /// now turn the rule on so the transfer will fail
         switchToRuleAdmin();
         applicationHandler.activateAccessLevel0Rule(true);
-        switchToAppAdministrator();
         vm.stopPrank();
         vm.startPrank(rich_user);
         vm.expectRevert(0x3fac082d);
@@ -502,8 +495,7 @@ contract ApplicationERC20Test is TestCommon {
         applicationCoin.transfer(rich_user, 5 * (10 ** 18));
 
         // set AccessLevel and try again
-        vm.stopPrank();
-        vm.startPrank(accessTier);
+        switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user3, 1);
 
         vm.stopPrank();
@@ -516,8 +508,7 @@ contract ApplicationERC20Test is TestCommon {
         vm.expectRevert(0x3fac082d); /// this fails because rich_user is still accessLevel0
         applicationCoin.transfer(rich_user, 5 * (10 ** 18));
 
-        vm.stopPrank();
-        vm.startPrank(accessTier);
+        switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(rich_user, 1);
 
         vm.stopPrank();
@@ -540,13 +531,11 @@ contract ApplicationERC20Test is TestCommon {
         applicationCoin.transfer(user3, 50 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 50 * (10 ** 18));
         /// price the tokens
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
+        switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
         /// create and activate rule
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToRuleAdmin();
         uint48[] memory withdrawalLimits = new uint48[](5);
         withdrawalLimits[0] = 10;
         withdrawalLimits[1] = 100;
@@ -558,8 +547,7 @@ contract ApplicationERC20Test is TestCommon {
         /// test transfers pass under rule value
         //User 1 currently has 950 tokens valued at $950
         //User3 currently has 50 tokens valued at $50
-        vm.stopPrank();
-        vm.startPrank(accessTier);
+        switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user1, 1);
         applicationAppManager.addAccessLevel(user3, 0);
         applicationAppManager.addAccessLevel(user4, 0);
@@ -588,8 +576,7 @@ contract ApplicationERC20Test is TestCommon {
         vm.expectRevert(0x2bbc9aea);
         applicationCoin.transfer(user4, 50 * (10 ** 18));
         /// reduce price and test pass fail situations
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
+        switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 5 * (10 ** 17));
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 5 * (10 ** 17));
 
@@ -697,8 +684,7 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
 
         // make sure when fees are active, that non qualifying users are not affected
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToAppAdministrator();
         applicationCoin.transfer(user5, 100 * (10 ** 18));
         vm.stopPrank();
         vm.startPrank(user5);
@@ -770,8 +756,7 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(user2), 100 * (10 ** 18));
 
         // now test the fee assessment
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToAppAdministrator();
         applicationAppManager.addGeneralTag(user4, "cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
@@ -832,7 +817,6 @@ contract ApplicationERC20Test is TestCommon {
         // make sure deactivation works
         switchToRuleAdmin();
         applicationCoinHandler.setFeeActivation(false);
-        switchToAppAdministrator();
         vm.stopPrank();
         vm.startPrank(user4);
         applicationCoin.approve(address(transferFromUser), 100 * (10 ** 18));
@@ -858,7 +842,7 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(rule.startTime, Blocktime);
         /// burn all default supply down and mint a manageable number
         applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
-        applicationCoin.mint(superAdmin, 100_000 * (10 ** 18));
+        applicationCoin.mint(appAdministrator, 100_000 * (10 ** 18));
         /// load non admin users with game coin
         /// apply the rule
         switchToRuleAdmin();
@@ -947,7 +931,7 @@ contract ApplicationERC20Test is TestCommon {
     function testSupplyVolatilityRule() public {
         /// burn tokens to specific supply
         applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
-        applicationCoin.mint(superAdmin, 100_000 * (10 ** 18));
+        applicationCoin.mint(appAdministrator, 100_000 * (10 ** 18));
         applicationCoin.transfer(user1, 5000 * (10 ** 18));
 
         /// create rule params
@@ -957,8 +941,10 @@ contract ApplicationERC20Test is TestCommon {
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
 
         /// set rule id and activate
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, volatilityLimit, rulePeriod, startingTime, tokenSupply);
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(applicationAppManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
         applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index);
+        switchToAppAdministrator();
         /// move within period
         vm.warp(Blocktime + 13 hours);
         console.log(applicationCoin.totalSupply());
@@ -1015,7 +1001,7 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(1, applicationCoinHandler.getFeeTotal());
 
         /// create new handler
-        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, address(applicationCoin), true);
+        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), true);
         /// migrate data contracts to new handler
         console.log(applicationCoinHandler.owner());
         console.log(address(applicationCoin));
@@ -1038,7 +1024,7 @@ contract ApplicationERC20Test is TestCommon {
 
     function testHandlerUpgradingWithFeeMigration() public {
         ///deploy new modified appliction asset handler contract
-        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, address(applicationCoin), true);
+        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), true);
         ///connect to apptoken
         applicationCoin.connectHandlerToToken(address(assetHandler));
         bytes32 tag1 = "cheap";
@@ -1047,7 +1033,9 @@ contract ApplicationERC20Test is TestCommon {
         int24 feePercentage = 300;
         address feeCollectorAccount = appAdministrator;
         // create one fee in old handler
+        switchToRuleAdmin();
         applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        switchToAppAdministrator();
         Fees.Fee memory fee = applicationCoinHandler.getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
@@ -1081,9 +1069,11 @@ contract ApplicationERC20Test is TestCommon {
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
+        switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
         assertEq(_index, 0);
         assetHandler.setMinBalByDateRuleId(_index);
+        switchToAppAdministrator();
 
         /// load non admin users with application coin
         applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
@@ -1092,7 +1082,9 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
         applicationCoin.transfer(user3, 10000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 10000 * (10 ** 18));
+        switchToRuleAdmin();
         assetHandler.setMinBalByDateRuleId(_index);
+        switchToAppAdministrator();
         /// tag the user
         applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
@@ -1127,7 +1119,7 @@ contract ApplicationERC20Test is TestCommon {
 
     function testHandlerUpgradingWithoutFeeMigration() public {
         ///deploy new modified appliction asset handler contract
-        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, address(applicationCoin), true);
+        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), true);
         ///connect to apptoken
         applicationCoin.connectHandlerToToken(address(assetHandler));
 
@@ -1151,9 +1143,11 @@ contract ApplicationERC20Test is TestCommon {
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
+        switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
         assertEq(_index, 0);
         assetHandler.setMinBalByDateRuleId(_index);
+        switchToAppAdministrator();
 
         /// load non admin users with application coin
         applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
@@ -1162,7 +1156,9 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
         applicationCoin.transfer(user3, 10000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 10000 * (10 ** 18));
+        switchToRuleAdmin();
         assetHandler.setMinBalByDateRuleId(_index);
+        switchToAppAdministrator();
         /// tag the user
         applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
@@ -1206,11 +1202,10 @@ contract ApplicationERC20Test is TestCommon {
         vm.startPrank(newAdmin);
         appManager2.confirmAppManager(address(applicationCoin));
         /// test to ensure it still works
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
-        applicationCoin.transfer(appAdministrator, 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(appAdministrator), 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(superAdmin), 9999999999999999999990 * (10 ** 18));
+        switchToAppAdministrator();
+        applicationCoin.transfer(user, 10 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user), 10 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(appAdministrator), 9999999999999999999990 * (10 ** 18));
 
         /// Test fail scenarios
         vm.stopPrank();

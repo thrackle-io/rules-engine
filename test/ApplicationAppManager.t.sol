@@ -517,14 +517,14 @@ contract ApplicationAppManagerTest is TestCommon {
     ///---------------PAUSE RULES----------------
     // Test setting/listing/removing pause rules
     function testAddPauseRule() public {
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
     }
 
     function testRemovePauseRule() public {
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
@@ -536,7 +536,7 @@ contract ApplicationAppManagerTest is TestCommon {
     function testAutoCleaningRules() public {
         vm.warp(TEST_DATE);
 
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         applicationAppManager.addPauseRule(TEST_DATE + 100, TEST_DATE + 200);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         PauseRule[] memory noRule = applicationAppManager.getPauseRules();
@@ -557,7 +557,7 @@ contract ApplicationAppManagerTest is TestCommon {
     }
 
     function testRuleSizeLimit() public {
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         vm.warp(TEST_DATE);
         for (uint8 i; i < 15; ) {
             applicationAppManager.addPauseRule(TEST_DATE + (i + 1) * 10, TEST_DATE + (i + 2) * 10);
@@ -573,7 +573,7 @@ contract ApplicationAppManagerTest is TestCommon {
     }
 
     function testManualCleaning() public {
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         vm.warp(TEST_DATE);
         for (uint256 i; i < 15; ) {
             applicationAppManager.addPauseRule(TEST_DATE + (i + 1) * 10, TEST_DATE + (i + 2) * 10);
@@ -591,7 +591,7 @@ contract ApplicationAppManagerTest is TestCommon {
     }
 
     function testAnotherManualCleaning() public {
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         vm.warp(TEST_DATE);
         applicationAppManager.addPauseRule(TEST_DATE + 1000, TEST_DATE + 1010);
         applicationAppManager.addPauseRule(TEST_DATE + 1020, TEST_DATE + 1030);
@@ -775,7 +775,9 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
 
         // check if users can not use system when paused
+        switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769924800, 1769984800);
+        switchToAppAdministrator();
         vm.warp(1769924800); // set block.timestamp
         vm.expectRevert();
         applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
@@ -785,7 +787,9 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
 
         // check if users can use system when in pause block but the pause has been deleted
+        switchToRuleAdmin();
         applicationAppManager.removePauseRule(1769924800, 1769984800);
+        switchToAppAdministrator();
         PauseRule[] memory removeTest = applicationAppManager.getPauseRules();
         assertTrue(removeTest.length == 0);
         vm.warp(1769924800); // set block.timestamp
@@ -881,8 +885,6 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationAppManager.addRiskScore(upgradeUser2, 65);
         assertEq(65, applicationAppManager.getRiskScore(upgradeUser2));
         /// Account Data
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
         switchToAppAdministrator(); // create a app administrator and make it the sender.
         /// General Tags Data
         applicationAppManager.addGeneralTag(upgradeUser1, "TAG1"); //add tag
@@ -890,6 +892,7 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationAppManager.addGeneralTag(upgradeUser2, "TAG2"); //add tag
         assertTrue(applicationAppManager.hasTag(upgradeUser2, "TAG2"));
         /// Pause Rule Data
+        switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
