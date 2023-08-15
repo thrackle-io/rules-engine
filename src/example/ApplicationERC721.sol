@@ -111,7 +111,7 @@ contract ApplicationERC721
     /// Contract Owner or App Administrator Minting 
     /**
      * @dev Function mints new a new token to caller with tokenId incremented by 1 from previous minted token at mintPrice.
-     * @notice Uncomment this function and comment out safeMint() above. This allows for user minting at fixed price.
+     * @notice Uncomment this function and comment out safeMint() above. This allows for app-administrator-or-owner-only minting.
      * @param to Address of recipient
      */
       function safeMint(address to) public payable override whenNotPaused appAdministratorOrOwnerOnly(appManagerAddress) {
