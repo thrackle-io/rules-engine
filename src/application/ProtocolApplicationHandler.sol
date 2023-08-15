@@ -2,7 +2,6 @@
 pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "src/economic/ruleProcessor/RuleProcessorDiamondLib.sol";
 import "../application/AppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
