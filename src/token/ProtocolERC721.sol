@@ -8,8 +8,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./ProtocolTokenCommon.sol";
-import "src/economic/AppAdministratorOnly.sol";
-import "src/token/IProtocolERC721Handler.sol";
+import "../economic/AppAdministratorOnly.sol";
+import "../token/IProtocolERC721Handler.sol";
 
 /**
  * @title ERC721 Base Contract

@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/staking/ERC721AutoMintStaking.sol";
+import "../staking/ERC721AutoMintStaking.sol";
 
 /**
  * @title Create a ERC721 Auto Mint Staking Contract

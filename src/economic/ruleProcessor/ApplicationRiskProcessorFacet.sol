@@ -2,9 +2,9 @@
 pragma solidity 0.8.17;
 
 import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
-import {IApplicationRules as ApplicationRuleStorage} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
-import {IRuleProcessorErrors, IRiskErrors} from "src/interfaces/IErrors.sol";
+import {AppRuleDataFacet} from "../ruleStorage/AppRuleDataFacet.sol";
+import {IApplicationRules as ApplicationRuleStorage} from "../ruleStorage/RuleDataInterfaces.sol";
+import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
 
 /**
  * @title Risk Score Processor Facet Contract

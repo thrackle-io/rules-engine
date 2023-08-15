@@ -2,20 +2,20 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/ApplicationERC20Handler.sol";
-import {ApplicationERC721Handler} from "src/example/ApplicationERC721Handler.sol";
-import "src/example/ApplicationERC20.sol";
-import {ApplicationERC721} from "src/example/ApplicationERC721.sol";
-import {ApplicationAppManager} from "src/example/ApplicationAppManager.sol";
-import "src/example/application/ApplicationHandler.sol";
-import "src/example/OracleRestricted.sol";
-import "src/example/OracleAllowed.sol";
-import "src/example/pricing/ApplicationERC20Pricing.sol";
-import "src/example/pricing/ApplicationERC721Pricing.sol";
-import "src/example/staking/ERC20Staking.sol";
-import "src/example/staking/ERC20AutoMintStaking.sol";
-import "src/example/staking/ERC721Staking.sol";
-import "src/example/staking/ERC721AutoMintStaking.sol";
+import "../ApplicationERC20Handler.sol";
+import {ApplicationERC721Handler} from "../ApplicationERC721Handler.sol";
+import "../ApplicationERC20.sol";
+import {ApplicationERC721} from "../ApplicationERC721.sol";
+import {ApplicationAppManager} from "../ApplicationAppManager.sol";
+import "../application/ApplicationHandler.sol";
+import "../OracleRestricted.sol";
+import "../OracleAllowed.sol";
+import "../pricing/ApplicationERC20Pricing.sol";
+import "../pricing/ApplicationERC721Pricing.sol";
+import "../staking/ERC20Staking.sol";
+import "../staking/ERC20AutoMintStaking.sol";
+import "../staking/ERC721Staking.sol";
+import "../staking/ERC721AutoMintStaking.sol";
 
 /**
  * @title Application Deploy All Script

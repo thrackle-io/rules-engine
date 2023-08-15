@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "src/economic/AppAdministratorOnlyU.sol";
+import "../economic/AppAdministratorOnlyU.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
 import {IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 

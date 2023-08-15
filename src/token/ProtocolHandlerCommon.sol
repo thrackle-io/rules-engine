@@ -5,15 +5,15 @@ import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
-import "src/economic/ruleStorage/RuleCodeData.sol";
-import "src/economic/IRuleProcessor.sol";
-import "src/application/IAppManager.sol";
-import "src/pricing/IProtocolERC721Pricing.sol";
-import "src/pricing/IProtocolERC20Pricing.sol";
-import "src/economic/AppAdministratorOrOwnerOnly.sol";
-import "src/economic/AppAdministratorOnly.sol";
-import "src/application/IAppManagerUser.sol";
-import "src/token/IAdminWithdrawalRuleCapable.sol";
+import "../economic/ruleStorage/RuleCodeData.sol";
+import "../economic/IRuleProcessor.sol";
+import "../application/IAppManager.sol";
+import "../pricing/IProtocolERC721Pricing.sol";
+import "../pricing/IProtocolERC20Pricing.sol";
+import "../economic/AppAdministratorOrOwnerOnly.sol";
+import "../economic/AppAdministratorOnly.sol";
+import "../application/IAppManagerUser.sol";
+import "./IAdminWithdrawalRuleCapable.sol";
 
 /**
  * @title Protocol Handler Common

@@ -7,7 +7,7 @@ import "../economic/AppAdministratorOnly.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
 import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/IRuleProcessor.sol";
-import "src/economic/ruleProcessor/ActionEnum.sol";
+import "../economic/ruleProcessor/ActionEnum.sol";
 import {IZeroAddressError, IInputErrors} from "../interfaces/IErrors.sol";
 
 /**

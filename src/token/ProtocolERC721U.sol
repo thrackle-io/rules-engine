@@ -10,8 +10,8 @@ import "@openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
 import "@openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin-upgradeable/contracts/utils/CountersUpgradeable.sol";
-import "src/token/IProtocolERC721Handler.sol";
-import "src/token/ProtocolTokenCommonU.sol";
+import "./IProtocolERC721Handler.sol";
+import "./ProtocolTokenCommonU.sol";
 
 /**
  * @title ERC721 Upgradeable Protocol Contract

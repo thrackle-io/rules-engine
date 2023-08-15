@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 
 import "./data/Fees.sol";
-import {IZeroAddressError, IAssetHandlerErrors} from "src/interfaces/IErrors.sol";
+import {IZeroAddressError, IAssetHandlerErrors} from "../interfaces/IErrors.sol";
 import "./ProtocolHandlerCommon.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 

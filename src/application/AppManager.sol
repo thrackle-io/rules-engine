@@ -3,23 +3,23 @@ pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
-import "src/data/Accounts.sol";
-import "src/data/IAccounts.sol";
-import "src/data/IAccessLevels.sol";
-import "src/data/AccessLevels.sol";
-import "src/data/IRiskScores.sol";
-import "src/data/RiskScores.sol";
-import "src/data/IGeneralTags.sol";
-import "src/data/GeneralTags.sol";
-import "src/data/IPauseRules.sol";
-import "src/data/PauseRules.sol";
-import "src/application/ProtocolApplicationHandler.sol";
-import "src/economic/ruleProcessor/ActionEnum.sol";
-import {IAppLevelEvents} from "src/interfaces/IEvents.sol";
-import "src/application/IAppManagerUser.sol";
-import "src/data/IDataModule.sol";
-import "src/token/IAdminWithdrawalRuleCapable.sol";
-import "src/token/ProtocolTokenCommon.sol";
+import "../data/Accounts.sol";
+import "../data/IAccounts.sol";
+import "../data/IAccessLevels.sol";
+import "../data/AccessLevels.sol";
+import "../data/IRiskScores.sol";
+import "../data/RiskScores.sol";
+import "../data/IGeneralTags.sol";
+import "../data/GeneralTags.sol";
+import "../data/IPauseRules.sol";
+import "../data/PauseRules.sol";
+import "../application/ProtocolApplicationHandler.sol";
+import "../economic/ruleProcessor/ActionEnum.sol";
+import {IAppLevelEvents} from "../interfaces/IEvents.sol";
+import "../application/IAppManagerUser.sol";
+import "../data/IDataModule.sol";
+import "../token/IAdminWithdrawalRuleCapable.sol";
+import "../token/ProtocolTokenCommon.sol";
 
 /**
  * @title App Manager Contract

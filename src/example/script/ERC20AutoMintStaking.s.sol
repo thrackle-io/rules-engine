@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/staking/ERC20AutoMintStaking.sol";
+import "../staking/ERC20AutoMintStaking.sol";
 
 /**
  * @title Create a ERC20 Auto Mint Staking Contract

@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "./IDataModule.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {IAppManager} from "src/application/IAppManager.sol";
+import {IAppManager} from "../application/IAppManager.sol";
 import {IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 import {IAppManager} from "../application/IAppManager.sol";
 
