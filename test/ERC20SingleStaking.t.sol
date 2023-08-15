@@ -41,7 +41,7 @@ contract ERC20StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     uint256[7] timeUnits = [1, 1 minutes, 1 hours, 1 days, 1 weeks, 30 days, 365 days];
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         // Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy the token rule processor diamond
@@ -50,7 +50,7 @@ contract ERC20StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
 
         // Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
+        appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         // add the DEAD address as a app administrator

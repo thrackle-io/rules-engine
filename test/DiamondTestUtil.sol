@@ -20,8 +20,9 @@ contract DiamondTestUtil is GenerateSelectors {
     // process the facets.
     FacetCut[] private _facetCuts;
     RuleProcessorDiamond ruleProcessorDiamond;
-    address defaultAdmin = address(0xDEFAD);
+    address superAdmin = address(0xDaBEEF);
     address appAdministrator = address(0xAAA);
+    address ruleAdmin = address(0xACDC);
     address AccessTier = address(0xBBB);
     address riskAdmin = address(0xCCC);
     address user = address(0xDDD);

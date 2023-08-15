@@ -2,10 +2,6 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "src/example/ApplicationAppManager.sol";
-import "src/example/application/ApplicationHandler.sol";
-import "./DiamondTestUtil.sol";
-import "./RuleProcessorDiamondTestUtil.sol";
 import "src/data/PauseRule.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
@@ -20,90 +16,68 @@ import "src/example/ApplicationERC20Handler.sol";
 import "src/example/ApplicationERC721.sol";
 import "src/example/ApplicationERC721Handler.sol";
 import "src/token/IAdminWithdrawalRuleCapable.sol";
+import "test/helpers/TestCommon.sol";
 
-contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
-    ApplicationAppManager public applicationAppManager;
+contract ApplicationAppManagerTest is TestCommon {
     ApplicationAppManager public applicationAppManager2;
-    RuleProcessorDiamond ruleProcessor;
-    RuleStorageDiamond ruleStorageDiamond;
-    ApplicationHandler public applicationHandler;
+
     ApplicationHandler public applicationHandler2;
-    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+    bytes32 public constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
     bytes32 public constant USER_ROLE = keccak256("USER");
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     bytes32 public constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
     bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
     uint256 public constant TEST_DATE = 1666706998;
-    address[] ADDRESSES = [address(0xFF1), address(0xFF2), address(0xFF3), address(0xFF4), address(0xFF5), address(0xFF6), address(0xFF7), address(0xFF8)];
     uint8[] RISKSCORES = [10, 20, 30, 40, 50, 60, 70, 80];
     uint8[] ACCESSTIERS = [1, 1, 1, 2, 2, 2, 3, 4];
     string tokenName = "FEUD";
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
-        /// Deploy the Rule Storage Diamond.
-        ruleStorageDiamond = getRuleStorageDiamond();
-        /// Deploy the token rule processor diamond
-        ruleProcessor = getRuleProcessorDiamond();
-        /// Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
+        vm.startPrank(superAdmin);
+        /// Set up the protocol and an applicationAppManager
+        setUpProtocolAndAppManager();
         vm.stopPrank();
         vm.startPrank(address(88));
         applicationAppManager2 = new ApplicationAppManager(address(88), "Castlevania2", false);
         applicationHandler2 = new ApplicationHandler(address(ruleProcessor), address(applicationAppManager2));
         applicationAppManager2.setNewApplicationHandlerAddress(address(applicationHandler2));
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        applicationAppManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(applicationAppManager));
-        applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
+
+        switchToAppAdministrator();
         /// add Risk Admin
         applicationAppManager.addRiskAdmin(riskAdmin);
+        /// add rule Admin
+        applicationAppManager.addRuleAdministrator(ruleAdmin);
 
         vm.warp(TEST_DATE); // set block.timestamp
     }
 
-    // Test deployment of data contracts
-    function testDeployDataContracts5() public {
-        assertEq(applicationAppManager.isUser(user), false);
-    }
-
     ///---------------DEFAULT ADMIN--------------------
     /// Test the Default Admin roles
-    function testIsDefaultAdmin() public {
-        assertEq(applicationAppManager.isAdmin(defaultAdmin), true);
-        assertEq(applicationAppManager.isAdmin(appAdministrator), false);
+    function testIsSuperAdmin() public {
+        assertEq(applicationAppManager.isSuperAdmin(superAdmin), true);
+        assertEq(applicationAppManager.isSuperAdmin(appAdministrator), false);
     }
 
     /// Test the Application Administrators roles
     function testIsAppAdministrator() public {
-        assertEq(applicationAppManager.isAppAdministrator(defaultAdmin), true);
+        assertEq(applicationAppManager.isAppAdministrator(superAdmin), true);
     }
 
-    function testRenounceDefaultAdmin() public {
-        applicationAppManager.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
+    function testRenounceSuperAdmin() public {
+        switchToSuperAdmin();
+        applicationAppManager.renounceRole(SUPER_ADMIN_ROLE, superAdmin);
     }
 
     ///---------------APP ADMIN--------------------
-    // Test the Application Administrators roles(only DEFAULT_ADMIN can add app administrator)
+    // Test the Application Administrators roles(only SUPER_ADMIN can add app administrator)
     function testAddAppAdministrator() public {
-        applicationAppManager.addAppAdministrator(appAdministrator);
-        assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
-        assertEq(applicationAppManager.isAppAdministrator(user), false);
-    }
-
-    // Test the Application Administrators roles(only DEFAULT_ADMIN can add app administrator)
-    function testAddAppAdministrator2() public {
-        vm.stopPrank();
-        vm.startPrank(address(88));
-        applicationAppManager2.addAppAdministrator(user);
-        assertEq(applicationAppManager2.isAppAdministrator(user), true);
-        assertEq(applicationAppManager2.isAppAdministrator(address(99)), false);
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToSuperAdmin();
+        applicationAppManager.addAppAdministrator(user);
+        assertTrue(applicationAppManager.isAppAdministrator(user));
     }
 
     function testAddMultipleAppAdministrators() public {
+        switchToSuperAdmin();
         applicationAppManager.addMultipleAppAdministrator(ADDRESSES);
         assertEq(applicationAppManager.isAppAdministrator(address(0xFF1)), true);
         assertEq(applicationAppManager.isAppAdministrator(user), false);
@@ -121,6 +95,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
     /// Test revoke Application Administrators role
     function testRevokeAppAdministrator() public {
+        switchToSuperAdmin();
         applicationAppManager.addAppAdministrator(appAdministrator); //set a app administrator
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
         assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
@@ -169,13 +144,18 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationAppManager.registerToken("THRK", address(applicationNFT));
 
         // add admin withdrawal rule that covers current time period
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
 
         // apply admin withdrawal rule to an ERC20
         applicationCoinHandler.setAdminWithdrawalRuleId(_index);
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
         // try to renounce AppAdmin
         vm.expectRevert(0x23a87520);
         applicationAppManager.renounceAppAdministrator();
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         // try to deactivate the rule
         vm.expectRevert(0x23a87520);
         applicationCoinHandler.activateAdminWithdrawalRule(false);
@@ -185,6 +165,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationCoinHandler.setAdminWithdrawalRuleId(_index);
         // move a year into the future so that the rule is expired
         vm.warp(block.timestamp + (366 days));
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
         // try to renounce AppAdmin(this one should work)
         applicationAppManager.renounceAppAdministrator();
     }
@@ -207,14 +188,19 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationAppManager.registerToken("THRK", address(applicationNFT));
 
         // add admin withdrawal rule that covers current time period
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
 
         // apply admin withdrawal rule to an ERC721
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
         // try to renounce AppAdmin
         vm.expectRevert(0x23a87520);
         applicationAppManager.renounceAppAdministrator();
         // try to deactivate the rule
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         vm.expectRevert(0x23a87520);
         applicationNFTHandler.activateAdminWithdrawalRule(false);
         // try to set the rule to a different one.
@@ -223,6 +209,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
         // move a year into the future so that the rule is expired
         vm.warp(block.timestamp + (366 days));
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
         // try to renounce AppAdmin(this one should work)
         applicationAppManager.renounceAppAdministrator();
     }
@@ -301,15 +288,15 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
     ///---------------ACCESS TIER--------------------
     // Test adding the Access Tier roles
-    function testAddAccessTier() public {
+    function testAddaccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
 
-        applicationAppManager.addAccessTier(AccessTier); //add AccessLevel admin
-        assertEq(applicationAppManager.isAccessTier(AccessTier), true);
+        applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
+        assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);
         assertEq(applicationAppManager.isAccessTier(address(88)), false);
     }
 
-    function testAddMultipleAccessTier() public {
+    function testAddMultipleaccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
         applicationAppManager.addMultipleAccessTier(ADDRESSES); //add AccessLevel admin address array
         /// check addresses in array are added as access tier admins
@@ -321,11 +308,11 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     }
 
     // Test non app administrator attempt to add the Access Tier roles
-    function testFailAddAccessTier() public {
+    function testFailAddaccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
 
-        applicationAppManager.addAccessTier(AccessTier); //add AccessLevel admin
-        assertEq(applicationAppManager.isAccessTier(AccessTier), true);
+        applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
+        assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);
         assertEq(applicationAppManager.isAccessTier(address(88)), false);
 
         vm.stopPrank(); //stop interacting as the app administrator
@@ -335,38 +322,38 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     }
 
     /// Test renounce Access Tier role
-    function testRenounceAccessTier() public {
+    function testRenounceaccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addAccessTier(AccessTier); //add AccessLevel admin
-        assertEq(applicationAppManager.isAccessTier(AccessTier), true);
+        applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
+        assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);
         assertEq(applicationAppManager.isAccessTier(address(88)), false);
         vm.stopPrank(); //stop interacting as the app administrator
-        vm.startPrank(AccessTier); //interact as the created AccessLevel admin
+        vm.startPrank(accessLevelAdmin); //interact as the created AccessLevel admin
         applicationAppManager.renounceAccessTier();
     }
 
     /// Test revoke Access Tier role
-    function testRevokeAccessTier() public {
+    function testRevokeaccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addAccessTier(AccessTier); //add AccessLevel admin
-        assertEq(applicationAppManager.isAccessTier(AccessTier), true);
+        applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
+        assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);
         assertEq(applicationAppManager.isAccessTier(address(88)), false);
 
-        applicationAppManager.revokeRole(ACCESS_TIER_ADMIN_ROLE, AccessTier);
-        assertEq(applicationAppManager.isAccessTier(AccessTier), false);
+        applicationAppManager.revokeRole(ACCESS_TIER_ADMIN_ROLE, accessLevelAdmin);
+        assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), false);
     }
 
     /// Test attempt to revoke Access Tier role from non app administrator
-    function testFailRevokeAccessTier() public {
+    function testFailRevokeaccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addAccessTier(AccessTier); //add AccessLevel admin
-        assertEq(applicationAppManager.isAccessTier(AccessTier), true);
+        applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
+        assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);
         assertEq(applicationAppManager.isAccessTier(address(88)), false);
 
         vm.stopPrank(); //stop interacting as the app administrator
         vm.startPrank(address(77)); //interact as a different user
 
-        applicationAppManager.revokeRole(ACCESS_TIER_ADMIN_ROLE, AccessTier);
+        applicationAppManager.revokeRole(ACCESS_TIER_ADMIN_ROLE, accessLevelAdmin);
     }
 
     ///---------------Zero Address checks--------------------
@@ -396,69 +383,16 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         new ApplicationHandler(address(ruleProcessor), address(0x0));
     }
 
-    ///---------------USER ADMIN--------------------
-    // Test adding the User roles
-    function testAddUser() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        applicationAppManager.addUser(user); //add user
-        assertEq(applicationAppManager.isUser(user), true);
-        assertEq(applicationAppManager.isUser(address(88)), false);
-    }
-
-    // Test adding the User roles
-    function testFailAddUser() public {
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(user); //interact as a stamdard user
-        applicationAppManager.addUser(address(77)); //add another user
-    }
-
-    // Test removing the User roles
-    function testRemoveUser() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        applicationAppManager.addUser(user); //add user
-        assertEq(applicationAppManager.isUser(user), true);
-        assertEq(applicationAppManager.isUser(address(88)), false);
-        applicationAppManager.removeUser(user);
-        assertEq(applicationAppManager.isUser(user), false);
-    }
-
-    // Test non app administrator attempt at removing the User roles
-    function testFailRemoveUser() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        applicationAppManager.addUser(user); //add user
-        assertEq(applicationAppManager.isUser(user), true);
-        assertEq(applicationAppManager.isUser(address(88)), false);
-
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(88)); //interact as a different user
-
-        applicationAppManager.removeUser(user);
-    }
-
-    // Test getting the User roles
-    function testGetUser() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        applicationAppManager.addUser(user); //add user
-        assertEq(applicationAppManager.isUser(user), true);
-        assertEq(applicationAppManager.isUser(address(88)), false);
-    }
-
     ///---------------AccessLevel LEVEL MAINTENANCE--------------------
     function testAddAccessLevel() public {
-        switchToAccessTier(); // create a access tier and make it the sender.
-        console.log("Access Tier Address");
-        console.log(AccessTier);
+        switchToAccessLevelAdmin(); // create a access tier and make it the sender.
         applicationAppManager.addAccessLevel(user, 4);
         uint8 retLevel = applicationAppManager.getAccessLevel(user);
         assertEq(retLevel, 4);
     }
 
     function testAddAccessLevelToMultipleAccounts() public {
-        switchToAccessTier(); // create a access tier and make it the sender.
+        switchToAccessLevelAdmin(); // create a access tier and make it the sender.
 
         applicationAppManager.addAccessLevelToMultipleAccounts(ADDRESSES, 4);
         /// check addresses in array are correct access tier level
@@ -470,7 +404,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     }
 
     function testAddMultipleAccessLevels() public {
-        switchToAccessTier(); // create a access tier and make it the sender.
+        switchToAccessLevelAdmin(); // create a access tier and make it the sender.
 
         applicationAppManager.addMultipleAccessLevels(ADDRESSES, ACCESSTIERS);
         /// ACCESSTIERS ARRAY [1, 1, 1, 2, 2, 2, 3, 4]
@@ -507,9 +441,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     }
 
     function testUpdateAccessLevel() public {
-        switchToAccessTier(); // create a access tier and make it the sender.
-        console.log("Access Tier Address");
-        console.log(AccessTier);
+        switchToAccessLevelAdmin(); // create a access tier and make it the sender.
         applicationAppManager.addAccessLevel(user, 4);
         uint8 retLevel = applicationAppManager.getAccessLevel(user);
         assertEq(retLevel, 4);
@@ -585,14 +517,14 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     ///---------------PAUSE RULES----------------
     // Test setting/listing/removing pause rules
     function testAddPauseRule() public {
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
     }
 
     function testRemovePauseRule() public {
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
@@ -604,7 +536,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     function testAutoCleaningRules() public {
         vm.warp(TEST_DATE);
 
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         applicationAppManager.addPauseRule(TEST_DATE + 100, TEST_DATE + 200);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         PauseRule[] memory noRule = applicationAppManager.getPauseRules();
@@ -625,7 +557,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     }
 
     function testRuleSizeLimit() public {
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         vm.warp(TEST_DATE);
         for (uint8 i; i < 15; ) {
             applicationAppManager.addPauseRule(TEST_DATE + (i + 1) * 10, TEST_DATE + (i + 2) * 10);
@@ -641,7 +573,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     }
 
     function testManualCleaning() public {
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         vm.warp(TEST_DATE);
         for (uint256 i; i < 15; ) {
             applicationAppManager.addPauseRule(TEST_DATE + (i + 1) * 10, TEST_DATE + (i + 2) * 10);
@@ -659,7 +591,7 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
     }
 
     function testAnotherManualCleaning() public {
-        switchToAppAdministrator();
+        switchToRuleAdmin();
         vm.warp(TEST_DATE);
         applicationAppManager.addPauseRule(TEST_DATE + 1000, TEST_DATE + 1010);
         applicationAppManager.addPauseRule(TEST_DATE + 1020, TEST_DATE + 1030);
@@ -836,46 +768,6 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationAppManager.registerStaking(address(0x333));
     }
 
-    ///---------------UTILITY--------------------
-    function switchToAppAdministrator() public {
-        applicationAppManager.addAppAdministrator(appAdministrator); //set a app administrator
-        assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
-        assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
-
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(appAdministrator); //interact as the created app administrator
-    }
-
-    function switchToAccessTier() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        applicationAppManager.addAccessTier(AccessTier); //add AccessLevel admin
-        assertEq(applicationAppManager.isAccessTier(AccessTier), true);
-
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(AccessTier); //interact as the created AccessLevel admin
-    }
-
-    function switchToRiskAdmin() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        applicationAppManager.addRiskAdmin(riskAdmin); //add Risk admin
-        assertEq(applicationAppManager.isRiskAdmin(riskAdmin), true);
-
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(riskAdmin); //interact as the created Risk admin
-    }
-
-    function switchToUser() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        applicationAppManager.addUser(user); //add AccessLevel admin
-        assertEq(applicationAppManager.isUser(user), true);
-
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(user); //interact as the created AccessLevel admin
-    }
-
     ///-----------------------PAUSE ACTIONS-----------------------------///
     /// Test the checkAction. This tests all AccessLevel application compliance
     function testCheckActionWithPauseActive() public {
@@ -883,7 +775,9 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
 
         // check if users can not use system when paused
+        switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769924800, 1769984800);
+        switchToAppAdministrator();
         vm.warp(1769924800); // set block.timestamp
         vm.expectRevert();
         applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
@@ -893,7 +787,9 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
 
         // check if users can use system when in pause block but the pause has been deleted
+        switchToRuleAdmin();
         applicationAppManager.removePauseRule(1769924800, 1769984800);
+        switchToAppAdministrator();
         PauseRule[] memory removeTest = applicationAppManager.getPauseRules();
         assertTrue(removeTest.length == 0);
         vm.warp(1769924800); // set block.timestamp
@@ -932,6 +828,8 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         balanceAmounts[4] = 1;
 
         ///Register rule with application Handler
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 ruleId = AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), _riskLevel, balanceAmounts);
         ///Activate rule
         applicationHandler.setAccountBalanceByRiskRuleId(ruleId);
@@ -973,41 +871,36 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address upgradeUser2 = address(101);
         /// put data in the old app manager
         /// AccessLevel
-        switchToAccessTier(); // create a access tier and make it the sender.
+        switchToAccessLevelAdmin(); // create a access tier and make it the sender.
         applicationAppManager.addAccessLevel(upgradeUser1, 4);
         assertEq(applicationAppManager.getAccessLevel(upgradeUser1), 4);
         applicationAppManager.addAccessLevel(upgradeUser2, 3);
         assertEq(applicationAppManager.getAccessLevel(upgradeUser2), 3);
         /// Risk Data
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         switchToRiskAdmin(); // create a access tier and make it the sender.
         applicationAppManager.addRiskScore(upgradeUser1, 75);
         assertEq(75, applicationAppManager.getRiskScore(upgradeUser1));
         applicationAppManager.addRiskScore(upgradeUser2, 65);
         assertEq(65, applicationAppManager.getRiskScore(upgradeUser2));
         /// Account Data
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addUser(upgradeUser1); //add user
-        assertEq(applicationAppManager.isUser(upgradeUser1), true);
-        applicationAppManager.addUser(upgradeUser2); //add user
-        assertEq(applicationAppManager.isUser(upgradeUser2), true);
         /// General Tags Data
         applicationAppManager.addGeneralTag(upgradeUser1, "TAG1"); //add tag
         assertTrue(applicationAppManager.hasTag(upgradeUser1, "TAG1"));
         applicationAppManager.addGeneralTag(upgradeUser2, "TAG2"); //add tag
         assertTrue(applicationAppManager.hasTag(upgradeUser2, "TAG2"));
         /// Pause Rule Data
+        switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
 
         /// create new app manager
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        AppManager appManagerNew = new AppManager(defaultAdmin, "Castlevania", false);
+        vm.startPrank(superAdmin);
+        AppManager appManagerNew = new AppManager(superAdmin, "Castlevania", false);
         /// migrate data contracts to new app manager
         /// set a app administrator in the new app manager
         appManagerNew.addAppAdministrator(appAdministrator);
@@ -1025,8 +918,6 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         assertTrue(appManagerNew.hasTag(upgradeUser2, "TAG2"));
         test = appManagerNew.getPauseRules();
         assertTrue(test.length == 1);
-        assertEq(appManagerNew.isUser(upgradeUser1), true);
-        assertEq(appManagerNew.isUser(upgradeUser2), true);
     }
 
     ///--------------- PROVIDER UPGRADES ---------------
@@ -1074,44 +965,5 @@ contract ApplicationAppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationAppManager.proposePauseRulesProvider(address(dataMod));
         dataMod.confirmDataProvider(IDataModule.ProviderType.PAUSE_RULE);
         assertEq(address(dataMod), applicationAppManager.getPauseRulesProvider());
-    }
-
-    /**
-     * @dev this function ensures that unique addresses can be randomly retrieved from the address array.
-     */
-    function getUniqueAddresses(uint256 _seed, uint8 _number) public view returns (address[] memory _addressList) {
-        _addressList = new address[](ADDRESSES.length);
-        // first one will simply be the seed
-        _addressList[0] = ADDRESSES[_seed];
-        uint256 j;
-        if (_number > 1) {
-            // loop until all unique addresses are returned
-            for (uint256 i = 1; i < _number; i++) {
-                // find the next unique address
-                j = _seed;
-                do {
-                    j++;
-                    // if end of list reached, start from the beginning
-                    if (j == ADDRESSES.length) {
-                        j = 0;
-                    }
-                    if (!exists(ADDRESSES[j], _addressList)) {
-                        _addressList[i] = ADDRESSES[j];
-                        break;
-                    }
-                } while (0 == 0);
-            }
-        }
-        return _addressList;
-    }
-
-    // Check if an address exists in the list
-    function exists(address _address, address[] memory _addressList) public pure returns (bool) {
-        for (uint256 i = 0; i < _addressList.length; i++) {
-            if (_address == _addressList[i]) {
-                return true;
-            }
-        }
-        return false;
     }
 }

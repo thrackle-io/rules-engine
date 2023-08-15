@@ -45,7 +45,7 @@ contract ERC721StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     address[] applicationTokens;
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
@@ -53,7 +53,7 @@ contract ERC721StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
+        appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// connect the appHandler to the appManager
@@ -120,7 +120,7 @@ contract ERC721StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         stakingContract.stake(address(applicationNFT), 1, 3, 3);
         ///Move forward to end of staking time
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         vm.warp(Blocktime + 2 weeks);
         ///Rewardcheck user 1
         uint256 userReward = stakingContract.calculateRewards(address(user1));

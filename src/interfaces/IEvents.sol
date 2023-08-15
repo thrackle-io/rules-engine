@@ -18,6 +18,8 @@ interface IAppLevelEvents {
     event AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
     event DataContractsMigrated(address indexed ownerAddress);
     event RemoveFromRegistry(string contractName, address contractAddress);
+    event RuleAdminAdded(address newAdmin);
+    event RuleAdminRemoved(address removedAdmin);
     event RiskAdminAdded(address newAdmin);
     event RiskAdminRemoved(address removedAdmin);
     event AccessTierAdded(address newAdmin);

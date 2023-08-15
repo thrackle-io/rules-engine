@@ -19,6 +19,8 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0xb3cbc6f3 | riskScoreOutOfRange(uint8)                                       |
 | 0x70243426 | InvalidDateWindow(uint256,uint256)                               |
 | 0x17a84242 | NotAdmin(address)                                                |
+| 0x1f821969 | NotDefaultAdmin(address)                                         |
+| 0xd66c3008 | NotRuleAdministrator()                                           |
 | 0x27e2cba4 | NotAppAdministrator(address)                                     |
 | 0xba80c9e5 | NotAppAdministrator()                                            |
 | 0xebb4658e | NotAccessTierAdministrator(address)                              |

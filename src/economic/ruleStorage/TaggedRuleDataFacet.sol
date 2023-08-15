@@ -7,7 +7,7 @@ import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
 import {IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError} from "../../interfaces/IErrors.sol";
 import "./RuleCodeData.sol";
-import "../AppAdministratorOnly.sol";
+import "../RuleAdministratorOnly.sol";
 import "./RuleStorageCommonLib.sol";
 
 /**
@@ -16,7 +16,7 @@ import "./RuleStorageCommonLib.sol";
  * @dev setters and getters for Tagged token specific rules
  * @notice This contract sets and gets the Tagged Rules for the protocol. Rules will be applied via General Tags to accounts.
  */
-contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError {
+contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError {
     using RuleStorageCommonLib for uint64;
     using RuleStorageCommonLib for uint32;
 
@@ -29,7 +29,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
     /********************** Purchase Getters/Setters ***********************/
     /**
      * @dev Function add a Token Purchase Percentage rule
-     * @dev Function has AppAdministratorOnly Modifier and takes AppManager Address Param
+     * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _accountTypes Types of Accounts
      * @param _purchaseAmounts Allowed total purchase limits
@@ -43,7 +43,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         uint256[] calldata _purchaseAmounts,
         uint16[] calldata _purchasePeriods,
         uint64[] calldata _startTimes
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTypes.length != _purchaseAmounts.length || _accountTypes.length != _purchasePeriods.length || _accountTypes.length != _startTimes.length) revert InputArraysMustHaveSameLength();
         return _addPurchaseRule(_accountTypes, _purchaseAmounts, _purchasePeriods, _startTimes);
@@ -115,7 +115,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         uint192[] calldata _sellAmounts,
         uint16[] calldata _sellPeriod,
         uint64[] calldata _startTimes
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length) revert InputArraysMustHaveSameLength();
 
@@ -185,7 +185,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         bytes32[] calldata _accountTypes,
         uint256[] calldata _minimum,
         uint256[] calldata _maximum
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTypes.length != _minimum.length || _accountTypes.length != _maximum.length) revert InputArraysMustHaveSameLength();
 
@@ -254,7 +254,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         bytes32[] calldata _accountTypes,
         uint256[] calldata _amount,
         uint256[] calldata _releaseDate
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTypes.length != _amount.length) revert InputArraysMustHaveSameLength();
         if (_accountTypes.length != _releaseDate.length) revert InputArraysMustHaveSameLength();
@@ -318,7 +318,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @param _releaseDate Date of release
      * @return adminWithdrawalRulesPerToken position of new rule in array
      */
-    function addAdminWithdrawalRule(address _appManagerAddr, uint256 _amount, uint256 _releaseDate) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addAdminWithdrawalRule(address _appManagerAddr, uint256 _amount, uint256 _releaseDate) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
         if (_amount == 0) revert ZeroValueNotPermited();
         if (_releaseDate <= block.timestamp) revert DateInThePast(_releaseDate);
@@ -356,7 +356,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
     //***********************  Risk Rules  ******************************* */
     /**
      * @dev Function to add new TransactionLimitByRiskScore Rules
-     * @dev Function has AppAdministratorOnly Modifier and takes AppManager Address Param
+     * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _riskScores User Risk Level Array which defines the limits between ranges. The levels are inclusive as ceilings.
      * @param _txnLimits Transaction Limit in whole USD for each score range. It corresponds to the _riskScores array and is +1 longer than _riskScores.
@@ -369,7 +369,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      */
-    function addTransactionLimitByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _txnLimits) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addTransactionLimitByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _txnLimits) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_txnLimits.length != _riskScores.length + 1) revert InputArraysSizesNotValid();
         if (_riskScores[_riskScores.length - 1] > 99) revert RiskLevelCannotExceed99();
@@ -430,7 +430,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
     /********************** Minimum Account Balance By Date Getters/Setters ***********************/
     /**
      * @dev Function add a Minimum Account Balance By Date rule
-     * @dev Function has AppAdministratorOnly Modifier and takes AppManager Address Param
+     * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _accountTags Types of Accounts
      * @param _holdAmounts Allowed total purchase limits
@@ -444,7 +444,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         uint256[] calldata _holdAmounts,
         uint16[] calldata _holdPeriods,
         uint64[] calldata _startTimestamps
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTags.length != _holdAmounts.length || _accountTags.length != _holdPeriods.length || _accountTags.length != _startTimestamps.length) revert InputArraysMustHaveSameLength();
         return _addMinBalByDateRule(_accountTags, _holdAmounts, _holdPeriods, _startTimestamps);

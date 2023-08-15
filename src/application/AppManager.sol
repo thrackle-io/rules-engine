@@ -29,10 +29,11 @@ import "src/token/ProtocolTokenCommon.sol";
  */
 contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     using ERC165Checker for address;
-    bytes32 constant USER_ROLE = keccak256("USER");
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     bytes32 constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
     bytes32 constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
+    bytes32 constant RULE_ADMIN_ROLE = keccak256("RULE_ADMIN_ROLE");
+    bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
 
     /// Data contracts
     IAccounts accounts;
@@ -74,13 +75,13 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param upgradeMode specifies whether this is a fresh AppManager or an upgrade replacement.
      */
     constructor(address root, string memory _appName, bool upgradeMode) {
-        _setupRole(DEFAULT_ADMIN_ROLE, root);
-        _setupRole(APP_ADMIN_ROLE, root);
-        _setRoleAdmin(APP_ADMIN_ROLE, DEFAULT_ADMIN_ROLE);
-        _setRoleAdmin(APP_ADMIN_ROLE, APP_ADMIN_ROLE);
-        _setRoleAdmin(USER_ROLE, APP_ADMIN_ROLE);
+        // deployer is set as both an AppAdmin and the Default Admin
+        _grantRole(SUPER_ADMIN_ROLE, root);
+        _grantRole(APP_ADMIN_ROLE, root);
+        _setRoleAdmin(APP_ADMIN_ROLE, SUPER_ADMIN_ROLE);
         _setRoleAdmin(ACCESS_TIER_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RISK_ADMIN_ROLE, APP_ADMIN_ROLE);
+        _setRoleAdmin(RULE_ADMIN_ROLE, APP_ADMIN_ROLE);
         appName = _appName;
         if (!upgradeMode) {
             deployDataContracts();
@@ -92,12 +93,20 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     // /// -------------ADMIN---------------
     // /**
-    //  * @dev This function is where the default admin role is actually checked
+    //  * @dev This function is where the Super admin role is actually checked
     //  * @param account address to be checked
     //  * @return success true if admin, false if not
     //  */
-    function isAdmin(address account) public view returns (bool) {
-        return hasRole(DEFAULT_ADMIN_ROLE, account);
+    function isSuperAdmin(address account) public view returns (bool) {
+        return hasRole(SUPER_ADMIN_ROLE, account);
+    }
+
+    /**
+     * @dev Checks if msg.sender is a Super Administrators role
+     */
+    modifier onlySuperAdmin() {
+        if (!isSuperAdmin(msg.sender)) revert NotSuperAdmin(msg.sender);
+        _;
     }
 
     /// -------------APP ADMIN---------------
@@ -119,10 +128,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev Add an account to the app administrator role. Restricted to admins.
+     * @dev Add an account to the app administrator role. Restricted to super admins.
      * @param account address to be added
      */
-    function addAppAdministrator(address account) external onlyAppAdministrator {
+    function addAppAdministrator(address account) external onlySuperAdmin {
         if (account == address(0)) revert ZeroAddress();
         grantRole(APP_ADMIN_ROLE, account);
         emit AddAppAdministrator(account);
@@ -132,7 +141,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an array of accounts to the app administrator role. Restricted to admins.
      * @param _accounts address array to be added
      */
-    function addMultipleAppAdministrator(address[] memory _accounts) external onlyAppAdministrator {
+    function addMultipleAppAdministrator(address[] memory _accounts) external onlySuperAdmin {
         for (uint256 i; i < _accounts.length; ) {
             grantRole(APP_ADMIN_ROLE, _accounts[i]);
             emit AddAppAdministrator(_accounts[i]);
@@ -167,6 +176,56 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
                 ++i;
             }
         }
+    }
+
+    /// -------------RULE ADMIN---------------
+    /**
+     * @dev Checks for if msg.sender is a Rule Admin
+     */
+    modifier onlyRuleAdministrator() {
+        if (!isRuleAdministrator(msg.sender)) revert NotRuleAdministrator();
+        _;
+    }
+
+    /**
+     * @dev This function is where the rule admin role is actually checked
+     * @param account address to be checked
+     * @return success true if RULE_ADMIN_ROLE, false if not
+     */
+    function isRuleAdministrator(address account) public view returns (bool) {
+        return hasRole(RULE_ADMIN_ROLE, account);
+    }
+
+    /**
+     * @dev Add an account to the rule admin role. Restricted to app administrators.
+     * @param account address to be added as a rule admin
+     */
+    function addRuleAdministrator(address account) external onlyAppAdministrator {
+        if (account == address(0)) revert ZeroAddress();
+        grantRole(RULE_ADMIN_ROLE, account);
+        emit RuleAdminAdded(account);
+    }
+
+    /**
+     * @dev Add a list of accounts to the rule admin role. Restricted to app administrators.
+     * @param account address to be added as a rule admin
+     */
+    function addMultipleRuleAdministrator(address[] memory account) external onlyAppAdministrator {
+        for (uint256 i; i < account.length; ) {
+            grantRole(RULE_ADMIN_ROLE, account[i]);
+            emit RuleAdminAdded(account[i]);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev Remove oneself from the rule admin role.
+     */
+    function renounceRuleAdministrator() external {
+        renounceRole(ACCESS_TIER_ADMIN_ROLE, msg.sender);
+        emit RuleAdminRemoved(address(msg.sender));
     }
 
     /// -------------ACCESS TIER---------------
@@ -269,43 +328,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         emit RiskAdminRemoved(address(msg.sender));
     }
 
-    /// -------------USER---------------
-    /// The user roles are stored in a separate data contract
-    /// These roles can be used to specify if the account is simply a verified user in the application.
-    /**
-     * @dev Checks if the msg.sender is in the user role
-     */
-    modifier onlyUser() {
-        if (!isUser(msg.sender)) revert NotAUser(msg.sender);
-        _;
-    }
-
-    /**
-     * @dev This function is where the user role is actually checked
-     * @param _address address to be checked
-     * @return success true if USER_ROLE, false if not
-     */
-    function isUser(address _address) public view returns (bool) {
-        return accounts.isUserAccount(_address);
-    }
-
-    /**
-     * @dev Add an account to the user role. Restricted to app administrators.
-     * @param _account address to be added as a user
-     */
-    function addUser(address _account) external onlyAppAdministrator {
-        accounts.addAccount(_account);
-        emit AccountAdded(_account, block.timestamp);
-    }
-
-    /**
-     * @dev Remove an account from the user role. Restricted to app administrators.
-     * @param _account address to be removed as a user
-     */
-    function removeUser(address _account) external onlyAppAdministrator {
-        accounts.removeAccount(_account);
-    }
-
     /// -------------MAINTAIN ACCESS LEVELS---------------
 
     /**
@@ -401,7 +423,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
-    function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyAppAdministrator {
+    function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRuleAdministrator {
         pauseRules.addPauseRule(_pauseStart, _pauseStop);
     }
 
@@ -410,7 +432,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
-    function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyAppAdministrator {
+    function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRuleAdministrator {
         pauseRules.removePauseRule(_pauseStart, _pauseStop);
     }
 

@@ -6,7 +6,7 @@ import {IApplicationRules as AppRules} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
 import {IInputErrors, IAppRuleInputErrors, IRiskInputErrors} from "../../interfaces/IErrors.sol";
-import "../AppAdministratorOnly.sol";
+import "../RuleAdministratorOnly.sol";
 import "./RuleCodeData.sol";
 
 /**
@@ -16,20 +16,18 @@ import "./RuleCodeData.sol";
  * @notice This contract sets and gets the App Rules for the protocol
  */
 
-contract AppRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, IAppRuleInputErrors, IRiskInputErrors {
-    
-
+contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, IAppRuleInputErrors, IRiskInputErrors {
     //*********************** AccessLevel Rules ********************************************** */
     /**
      * @dev Function add a AccessLevel Balance rule
-     * @dev Function has AppAdministratorOnly Modifier and takes AppManager Address Param
+     * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _balanceAmounts Balance restrictions for each 5 levels from level 0 to 4 in whole USD.
      * @notice that position within the array matters. Posotion 0 represents access levellevel 0,
      * and position 4 represents level 4.
      * @return position of new rule in array
      */
-    function addAccessLevelBalanceRule(address _appManagerAddr, uint48[] calldata _balanceAmounts) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addAccessLevelBalanceRule(address _appManagerAddr, uint48[] calldata _balanceAmounts) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         RuleS.AccessLevelRuleS storage data = Storage.accessStorage();
         uint32 index = data.accessRuleIndex;
         if (_balanceAmounts.length != 5) revert BalanceAmountsShouldHave5Levels(uint8(_balanceAmounts.length));
@@ -74,14 +72,14 @@ contract AppRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IIn
 
     /**
      * @dev Function add a Accessc Level Withdrawal rule
-     * @dev Function has AppAdministratorOnly Modifier and takes AppManager Address Param
+     * @dev Function has ruleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _withdrawalAmounts withdrawal amaount restrictions for each 5 levels from level 0 to 4 in whole USD.
      * @notice that position within the array matters. Posotion 0 represents access levellevel 0,
      * and position 4 represents level 4.
      * @return position of new rule in array
      */
-    function addAccessLevelWithdrawalRule(address _appManagerAddr, uint48[] calldata _withdrawalAmounts) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addAccessLevelWithdrawalRule(address _appManagerAddr, uint48[] calldata _withdrawalAmounts) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         RuleS.AccessLevelWithrawalRuleS storage data = Storage.accessLevelWithdrawalRuleStorage();
         uint32 index = data.accessLevelWithdrawalRuleIndex;
         ///validation block
@@ -130,7 +128,7 @@ contract AppRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IIn
     //***********************  Max Tx Size Per Period By Risk Rule  ******************************* */
     /**
      * @dev Function add a Max Tx Size Per Period By Risk rule
-     * @dev Function has AppAdministratorOnly Modifier and takes AppManager Address Param
+     * @dev Function has ruleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _maxSize array of max-tx-size allowed within period (whole USD max values --no cents)
      * Each value in the array represents max USD value transacted within _period, and its positions
@@ -159,7 +157,7 @@ contract AppRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IIn
         uint8[] calldata _riskLevel,
         uint8 _period,
         uint8 _startingTime
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         /// Validation block
         if (_maxSize.length != _riskLevel.length + 1) revert InputArraysSizesNotValid();
         if (_riskLevel[_riskLevel.length - 1] > 99) revert RiskLevelCannotExceed99();
@@ -214,7 +212,7 @@ contract AppRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IIn
 
     /**
      * @dev Function to add new AccountBalanceByRiskScore Rules
-     * @dev Function has AppAdministratorOnly Modifier and takes AppManager Address Param
+     * @dev Function has ruleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _riskScores User Risk Level Array
      * @param _balanceLimits Account Balance Limit in whole USD for each score range. It corresponds to the _riskScores
@@ -233,7 +231,7 @@ contract AppRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IIn
      *    75              250            50-74 =   250
      *                    100            75-99 =   100
      */
-    function addAccountBalanceByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _balanceLimits) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addAccountBalanceByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _balanceLimits) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_balanceLimits.length != _riskScores.length + 1) revert InputArraysSizesNotValid();
         if (_riskScores[_riskScores.length - 1] > 99) revert RiskLevelCannotExceed99();
         for (uint i = 1; i < _riskScores.length; ) {

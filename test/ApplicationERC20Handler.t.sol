@@ -3,23 +3,15 @@ pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
-import "./DiamondTestUtil.sol";
-import "./RuleProcessorDiamondTestUtil.sol";
-import "src/example/application/ApplicationHandler.sol";
-import "src/application/AppManager.sol";
-import "src/example/ApplicationAppManager.sol";
-import "src/example/ApplicationERC20Handler.sol";
 
-import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "../src/economic/ruleStorage/RuleDataInterfaces.sol";
-import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
-import {RuleDataFacet as Facet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
+import {TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
+import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
+import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
+import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
-import "src/example/pricing/ApplicationERC20Pricing.sol";
-import "src/example/pricing/ApplicationERC721Pricing.sol";
 import "src/token/data/Fees.sol";
+import "test/helpers/TestCommon.sol";
 
 /**
  * @title Application Coin Handler Test
@@ -28,107 +20,73 @@ import "src/token/data/Fees.sol";
  *      contains all the rule checks for the particular ERC20.
  * @notice It simulates the input from a token contract
  */
-contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiamondTestUtil {
-    /// Store the FacetCut struct for each facet that is being deployed.
-    /// NOTE: using storage array to easily "push" new FacetCut as we
-    /// process the facets.
-    AppManager public appManager;
-    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
+contract ApplicationERC20HandlerTest is TestCommon {
     address user1 = address(1);
     address user2 = address(2);
     address accessTier = address(3);
-    address ac;
     address[] badBoys;
     address[] goodBoys;
-    uint64 Blocktime = 1675723152;
-    RuleProcessorDiamond ruleProcessor;
-    ApplicationHandler public applicationHandler;
-    RuleStorageDiamond ruleStorageDiamond;
-    ApplicationERC20Handler applicationCoinHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
-    ApplicationERC20Pricing erc20Pricer;
-    ApplicationERC721Pricing nftPricer;
+    ApplicationERC20Handler applicationCoinHandlerSpecialOwner;
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
-        /// Deploy the Rule Storage Diamond.
-        ruleStorageDiamond = getRuleStorageDiamond();
-        /// Deploy the rule processor diamonds
-        ruleProcessor = getRuleProcessorDiamond();
-
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        /// add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdministrator);
-        /// add the accessTier Admin
-        appManager.addAccessTier(accessTier);
-        ac = address(appManager);
-        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
-        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
-        /// create erc20 handler but with admin as its owner so it can call the handler directly
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), ac, defaultAdmin, false);
-
+        vm.warp(Blocktime);
+        vm.startPrank(superAdmin);
+        setUpProtocolAndAppManagerAndTokens();
+        switchToAppAdministrator();
+        // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
+        applicationCoinHandlerSpecialOwner = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), appAdministrator, false);
         // create the oracles
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
-        /// set the erc20 pricer
-        erc20Pricer = new ApplicationERC20Pricing();
-        /// connect ERC20 pricer to applicationCoinHandler
-        applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
-        vm.warp(Blocktime);
     }
 
     ///Test Fee Data setting/getting
     function testFeeCreationAndSetting() public {
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
         bytes32 tag1 = "cheap";
         uint256 minBalance = 10 * 10 ** 18;
         uint256 maxBalance = 1000 * 10 ** 18;
         int24 feePercentage = 300;
         address feeCollectorAccount = appAdministrator;
         // create one fee
-        applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
-        Fees.Fee memory fee = applicationCoinHandler.getFee(tag1);
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        Fees.Fee memory fee = applicationCoinHandlerSpecialOwner.getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
-        assertEq(1, applicationCoinHandler.getFeeTotal());
+        assertEq(1, applicationCoinHandlerSpecialOwner.getFeeTotal());
         // test replacing a fee
         tag1 = "cheap";
         minBalance = 10 * 10 ** 18;
         maxBalance = 1000 * 10 ** 18;
         feePercentage = -400;
-        applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
-        fee = applicationCoinHandler.getFee(tag1);
+        applicationCoinHandlerSpecialOwner.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        fee = applicationCoinHandlerSpecialOwner.getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
         assertEq(fee.feeCollectorAccount, feeCollectorAccount);
-        assertEq(1, applicationCoinHandler.getFeeTotal());
+        assertEq(1, applicationCoinHandlerSpecialOwner.getFeeTotal());
         // create a second fee
         tag1 = "expensive";
         minBalance = 10 * 10 ** 18;
         maxBalance = 1000 * 10 ** 18;
         feePercentage = 9000;
-        applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
-        fee = applicationCoinHandler.getFee(tag1);
+        applicationCoinHandlerSpecialOwner.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        fee = applicationCoinHandlerSpecialOwner.getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
         assertEq(fee.feeCollectorAccount, feeCollectorAccount);
-        assertEq(2, applicationCoinHandler.getFeeTotal());
+        assertEq(2, applicationCoinHandlerSpecialOwner.getFeeTotal());
         // remove a fee
         tag1 = "expensive";
-        applicationCoinHandler.removeFee(tag1);
-        fee = applicationCoinHandler.getFee(tag1);
+        applicationCoinHandlerSpecialOwner.removeFee(tag1);
+        fee = applicationCoinHandlerSpecialOwner.getFee(tag1);
         assertFalse(fee.isValue);
-        assertEq(1, applicationCoinHandler.getFeeTotal());
+        assertEq(1, applicationCoinHandlerSpecialOwner.getFeeTotal());
 
         // test the validations
         tag1 = "error";
@@ -136,69 +94,74 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         minBalance = 1000 * 10 ** 18;
         feePercentage = 9000;
         vm.expectRevert(0xeeb9d4f7);
-        applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        applicationCoinHandlerSpecialOwner.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
         tag1 = "error";
         minBalance = 10 * 10 ** 18;
         maxBalance = 1000 * 10 ** 18;
         feePercentage = 10001;
         bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 10001));
-        applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        applicationCoinHandlerSpecialOwner.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
     }
 
     ///Test getting the fees and discounts that apply and how they apply
     function testGetApplicableFees() public {
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToRuleAdmin();
         bytes32 tag1 = "cheap";
         uint256 minBalance = 10 * 10 ** 18;
         uint256 maxBalance = 1000 * 10 ** 18;
         int24 feePercentage = 300;
         address targetAccount = appAdministrator;
         // create one fee
-        applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, targetAccount);
-        Fees.Fee memory fee = applicationCoinHandler.getFee(tag1);
+        applicationCoinHandlerSpecialOwner.addFee(tag1, minBalance, maxBalance, feePercentage, targetAccount);
+        Fees.Fee memory fee = applicationCoinHandlerSpecialOwner.getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
-        assertEq(1, applicationCoinHandler.getFeeTotal());
+        assertEq(1, applicationCoinHandlerSpecialOwner.getFeeTotal());
+        switchToAppAdministrator();
         // now test the fee assessment
-        appManager.addGeneralTag(user1, "cheap"); ///add tag
+        applicationAppManager.addGeneralTag(user1, "cheap"); ///add tag
         address[] memory targetAccounts;
         int24[] memory feePercentages;
-        (targetAccounts, feePercentages) = applicationCoinHandler.getApplicableFees(user1, 100 * 10 ** 18);
+        (targetAccounts, feePercentages) = applicationCoinHandlerSpecialOwner.getApplicableFees(user1, 100 * 10 ** 18);
         assertEq(targetAccounts[0], appAdministrator);
         assertEq(feePercentages[0], 300);
         // add another to see if it comes back as well
-        appManager.addGeneralTag(user1, "not as cheap"); ///add tag
-        applicationCoinHandler.addFee("not as cheap", minBalance, maxBalance, 500, defaultAdmin);
-        (targetAccounts, feePercentages) = applicationCoinHandler.getApplicableFees(user1, 100 * 10 ** 18);
+        applicationAppManager.addGeneralTag(user1, "not as cheap"); ///add tag
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.addFee("not as cheap", minBalance, maxBalance, 500, appAdministrator);
+        switchToAppAdministrator();
+        (targetAccounts, feePercentages) = applicationCoinHandlerSpecialOwner.getApplicableFees(user1, 100 * 10 ** 18);
         assertEq(targetAccounts[0], appAdministrator);
         assertEq(feePercentages[0], 300);
-        assertEq(targetAccounts[1], defaultAdmin);
+        assertEq(targetAccounts[1], appAdministrator);
         assertEq(feePercentages[1], 500);
 
         // do discounts(they should get evenly distributed across all fees)
-        appManager.addGeneralTag(user1, "discount"); ///add tag
-        applicationCoinHandler.addFee("discount", minBalance, maxBalance, -100, address(0));
-        (targetAccounts, feePercentages) = applicationCoinHandler.getApplicableFees(user1, 100 * 10 ** 18);
+        applicationAppManager.addGeneralTag(user1, "discount"); ///add tag
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.addFee("discount", minBalance, maxBalance, -100, address(0));
+        switchToAppAdministrator();
+        (targetAccounts, feePercentages) = applicationCoinHandlerSpecialOwner.getApplicableFees(user1, 100 * 10 ** 18);
         assertEq(targetAccounts[0], appAdministrator);
         assertEq(feePercentages[0], 250);
-        assertEq(targetAccounts[1], defaultAdmin);
+        assertEq(targetAccounts[1], appAdministrator);
         assertEq(feePercentages[1], 450);
         assertEq(targetAccounts[2], address(0));
         assertEq(feePercentages[2], 0);
 
         // do discount only(This should return nothing as there is no such thing as a positive discount)
-        appManager.removeGeneralTag(user1, "cheap"); ///remove the previous tag
-        appManager.removeGeneralTag(user1, "not as cheap"); ///remove the previous tag
-        (targetAccounts, feePercentages) = applicationCoinHandler.getApplicableFees(user1, 100 * 10 ** 18);
+        applicationAppManager.removeGeneralTag(user1, "cheap"); ///remove the previous tag
+        applicationAppManager.removeGeneralTag(user1, "not as cheap"); ///remove the previous tag
+        (targetAccounts, feePercentages) = applicationCoinHandlerSpecialOwner.getApplicableFees(user1, 100 * 10 ** 18);
         assertEq(targetAccounts[0], address(0));
         assertEq(feePercentages[0], 0);
         // check when the balance negates the fee
-        appManager.addGeneralTag(user1, "cheap2"); ///add tag
-        applicationCoinHandler.addFee("cheap2", 300 * 10 ** 18, maxBalance, 200, targetAccount);
-        (targetAccounts, feePercentages) = applicationCoinHandler.getApplicableFees(user1, 100 * 10 ** 18);
+        applicationAppManager.addGeneralTag(user1, "cheap2"); ///add tag
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.addFee("cheap2", 300 * 10 ** 18, maxBalance, 200, targetAccount);
+        (targetAccounts, feePercentages) = applicationCoinHandlerSpecialOwner.getApplicableFees(user1, 100 * 10 ** 18);
         assertEq(targetAccounts[0], address(0));
         assertEq(feePercentages[0], 0);
     }
@@ -216,11 +179,10 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         _riskLevel[0] = 25;
         _riskLevel[1] = 50;
         _riskLevel[2] = 75;
-
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(appManager), _riskLevel, _maxSize);
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
         ///Activate rule
-        applicationCoinHandler.setTransactionLimitByRiskRuleId(ruleId);
-
+        applicationCoinHandlerSpecialOwner.setTransactionLimitByRiskRuleId(ruleId);
         ///add txnLimit failing (risk level 100)
         uint48[] memory maxSize = new uint48[](4);
         uint8[] memory riskLevel = new uint8[](3);
@@ -232,9 +194,8 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         riskLevel[0] = 25;
         riskLevel[1] = 75;
         riskLevel[2] = 100;
-
         vm.expectRevert();
-        TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(appManager), riskLevel, maxSize);
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskLevel, maxSize);
 
         ///add balanceLimit passing (less than 100)
         uint8[] memory _riskScores = new uint8[](5);
@@ -251,7 +212,7 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         _balanceLimits[4] = 100;
         _balanceLimits[5] = 1;
 
-        AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(appManager), _riskScores, _balanceLimits);
+        AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), _riskScores, _balanceLimits);
 
         ///add balanceLimit failing (risk level 100)
         uint8[] memory riskScores = new uint8[](5);
@@ -269,7 +230,7 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         balanceLimits[5] = 1;
 
         vm.expectRevert();
-        AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(appManager), riskScores, balanceLimits);
+        AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
     }
 
     /// now disable since it won't work unless an ERC20 is using it
@@ -279,31 +240,35 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         uint256[] memory _maximum = new uint256[](1);
 
         /// Set the min/max rule data
-        appManager.addGeneralTag(user1, "BALLER");
-        appManager.addGeneralTag(user2, "BALLER");
+        applicationAppManager.addGeneralTag(user1, "BALLER");
+        applicationAppManager.addGeneralTag(user2, "BALLER");
         _accountTypes[0] = "BALLER";
         _minimum[0] = 10;
         _maximum[0] = 1000;
         // add the rule.
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, _accountTypes, _minimum, _maximum);
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
         /// connect the rule to this handler
-        applicationCoinHandler.setMinMaxBalanceRuleId(ruleId);
+        applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(ruleId);
+        switchToAppAdministrator();
         /// execute a passing check for the minimum
-        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
         /// execute a passing check for the maximum
-        applicationCoinHandler.checkAllRules(1000, 0, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 0, user1, user2, 500, ActionTypes.TRADE);
         // execute a failing check for the minimum
         vm.expectRevert(0xf1737570);
-        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
         // execute a passing check for the maximum
         vm.expectRevert(0x24691f6b);
-        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
     }
 
     /// now disable since it won't work unless an ERC20 is using it
-    function testOracle() public {
+    function testOracleERC20Handler() public {
         // add the rule.
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 0, address(oracleRestricted));
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        switchToAppAdministrator();
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
@@ -312,31 +277,36 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         badBoys.push(address(69));
         oracleRestricted.addToSanctionsList(badBoys);
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.setOracleRuleId(_index);
+        switchToAppAdministrator();
         // test that the oracle works
         // This one should pass
-        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
         // This one should fail
         vm.expectRevert(0x6bdfffc0);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
 
         // check the allowed list type
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 1, address(oracleAllowed));
+        switchToRuleAdmin();
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
+        applicationCoinHandlerSpecialOwner.setOracleRuleId(_index);
+        switchToAppAdministrator();
         // add an allowed address
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
         // This one should pass
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(59), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(59), 10, ActionTypes.TRADE);
         // This one should fail
         vm.expectRevert(0x7304e213);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
 
         // Finally, check the invalid type
+        switchToRuleAdmin();
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 2, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 2, address(oracleAllowed));
     }
 
     /// now disable since it won't work unless an ERC20 is using it
@@ -346,77 +316,93 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         uint256[] memory _maximum = new uint256[](1);
 
         /// Set the min/max rule data
-        appManager.addGeneralTag(user1, "BALLER");
-        appManager.addGeneralTag(user2, "BALLER");
+        applicationAppManager.addGeneralTag(user1, "BALLER");
+        applicationAppManager.addGeneralTag(user2, "BALLER");
         _accountTypes[0] = "BALLER";
         _minimum[0] = 10;
         _maximum[0] = 1000;
         // add the rule.
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, _accountTypes, _minimum, _maximum);
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
         /// connect the rule to this handler
-        applicationCoinHandler.setMinMaxBalanceRuleId(ruleId);
+        applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(ruleId);
+        switchToAppAdministrator();
         /// execute a passing check for the minimum
-        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
         /// execute a passing check for the maximum
-        applicationCoinHandler.checkAllRules(1000, 0, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 0, user1, user2, 500, ActionTypes.TRADE);
         // execute a failing check for the minimum
         vm.expectRevert(0xf1737570);
-        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
         // execute a failing check for the maximum
         vm.expectRevert(0x24691f6b);
-        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
         /// turning rules off
-        applicationCoinHandler.activateMinMaxBalanceRule(false);
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.activateMinMaxBalanceRule(false);
+        switchToAppAdministrator();
         /// now we can "break" the rules
-        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
-        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
         /// turning rules back on
-        applicationCoinHandler.activateMinMaxBalanceRule(true);
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.activateMinMaxBalanceRule(true);
+        switchToAppAdministrator();
         /// now we cannot break the rules again
         vm.expectRevert(0xf1737570);
-        applicationCoinHandler.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
         vm.expectRevert(0x24691f6b);
-        applicationCoinHandler.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
 
         // add the rule.
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 0, address(oracleRestricted));
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleRestricted));
         // add a blocked address
+        switchToAppAdministrator();
         badBoys.push(address(69));
         oracleRestricted.addToSanctionsList(badBoys);
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.setOracleRuleId(_index);
+        switchToAppAdministrator();
         // test that the oracle works
         // This one should pass
-        applicationCoinHandler.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
         // This one should fail
         vm.expectRevert(0x6bdfffc0);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
 
         // check the allowed list type
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(ac, 1, address(oracleAllowed));
+        switchToRuleAdmin();
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
+        applicationCoinHandlerSpecialOwner.setOracleRuleId(_index);
+        switchToAppAdministrator();
         // add an allowed address
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
         // This one should pass
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(59), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(59), 10, ActionTypes.TRADE);
         // This one should fail
         vm.expectRevert(0x7304e213);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
 
         /// let's turn the rule off
-        applicationCoinHandler.activateOracleRule(false);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.activateOracleRule(false);
+        switchToAppAdministrator();
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
 
         /// let's turn it back on
-        applicationCoinHandler.activateOracleRule(true);
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.activateOracleRule(true);
+        switchToAppAdministrator();
         vm.expectRevert(0x7304e213);
-        applicationCoinHandler.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
     }
 
     ///---------------UPGRADEABILITY---------------
@@ -432,46 +418,47 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         int24 feePercentage = 300;
         address feeCollectorAccount = appAdministrator;
         // create one fee
-        applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
-        Fees.Fee memory fee = applicationCoinHandler.getFee(tag1);
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        Fees.Fee memory fee = applicationCoinHandlerSpecialOwner.getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
-        assertEq(1, applicationCoinHandler.getFeeTotal());
-
+        assertEq(1, applicationCoinHandlerSpecialOwner.getFeeTotal());
+        switchToAppAdministrator();
         /// create new handler
-        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, address(this), false);
+        ApplicationERC20Handler applicationCoinHandlerSpecialOwnerNew = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(this), false);
         /// connect the old data contract to the new handler
-        applicationCoinHandler.proposeDataContractMigration(address(applicationCoinHandlerNew));
-        applicationCoinHandlerNew.confirmDataContractMigration(address(applicationCoinHandler));
+        applicationCoinHandlerSpecialOwner.proposeDataContractMigration(address(applicationCoinHandlerSpecialOwnerNew));
+        applicationCoinHandlerSpecialOwnerNew.confirmDataContractMigration(address(applicationCoinHandlerSpecialOwner));
 
         /// test that the data is accessible only from the new handler
-        fee = applicationCoinHandlerNew.getFee(tag1);
+        fee = applicationCoinHandlerSpecialOwnerNew.getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
-        assertEq(1, applicationCoinHandlerNew.getFeeTotal());
+        assertEq(1, applicationCoinHandlerSpecialOwnerNew.getFeeTotal());
 
         vm.stopPrank();
         vm.startPrank(user1);
         vm.expectRevert(0xba80c9e5);
-        applicationCoinHandlerNew.proposeDataContractMigration(address(applicationCoinHandler));
+        applicationCoinHandlerSpecialOwnerNew.proposeDataContractMigration(address(applicationCoinHandlerSpecialOwner));
 
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationCoinHandlerNew.proposeDataContractMigration(address(applicationCoinHandler));
+        applicationCoinHandlerSpecialOwnerNew.proposeDataContractMigration(address(applicationCoinHandlerSpecialOwner));
     }
 
     function testZeroAddressErrors() public {
         /// test both address checks in constructor
         vm.expectRevert();
-        new ApplicationERC20Handler(address(0x0), ac, defaultAdmin, false);
+        new ApplicationERC20Handler(address(0x0), address(applicationAppManager), appAdministrator, false);
         vm.expectRevert();
-        new ApplicationERC20Handler(address(ruleProcessor), address(0x0), defaultAdmin, false);
+        new ApplicationERC20Handler(address(ruleProcessor), address(0x0), appAdministrator, false);
 
         vm.expectRevert();
-        applicationCoinHandler.setNFTPricingAddress(address(0x00));
+        applicationCoinHandlerSpecialOwner.setNFTPricingAddress(address(0x00));
         vm.expectRevert();
-        applicationCoinHandler.setERC20PricingAddress(address(0x00));
+        applicationCoinHandlerSpecialOwner.setERC20PricingAddress(address(0x00));
     }
 }

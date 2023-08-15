@@ -17,7 +17,7 @@ import "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
  * @dev This contract performs all rule checks related to the the ERC20 that implements it.
  * @notice Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
  */
-contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
+contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministratorOnly, RuleAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
     using ERC165Checker for address;
     /**
      * Functions added so far:
@@ -230,7 +230,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @param _feePercentage fee percentage to assess
      * @param _targetAccount target for the fee proceeds
      */
-    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external appAdministratorOrOwnerOnly(appManagerAddress) {
+    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external ruleAdministratorOnly(appManagerAddress) {
         fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
         feeActive = true;
     }
@@ -239,7 +239,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @dev This function adds a fee to the token
      * @param _tag meta data tag for fee
      */
-    function removeFee(bytes32 _tag) external appAdministratorOrOwnerOnly(appManagerAddress) {
+    function removeFee(bytes32 _tag) external ruleAdministratorOnly(appManagerAddress) {
         fees.removeFee(_tag);
     }
 
@@ -264,7 +264,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @dev Turn fees on/off
      * @param on_off value for fee status
      */
-    function setFeeActivation(bool on_off) external appAdministratorOrOwnerOnly(appManagerAddress) {
+    function setFeeActivation(bool on_off) external ruleAdministratorOnly(appManagerAddress) {
         feeActive = on_off;
         emit FeeActivationSet(on_off);
     }
@@ -344,7 +344,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setMinMaxBalanceRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setMinMaxBalanceRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateMinMaxAccountBalance(_ruleId);
         minMaxBalanceRuleId = _ruleId;
         minMaxBalanceRuleActive = true;
@@ -355,7 +355,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateMinMaxBalanceRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateMinMaxBalanceRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minMaxBalanceRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT, address(this));
@@ -385,7 +385,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setMinTransferRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setMinTransferRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateMinTransfer(_ruleId);
         minTransferRuleId = _ruleId;
         minTransferRuleActive = true;
@@ -396,7 +396,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateMinTransfereRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateMinTransfereRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minTransferRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(MIN_TRANSFER, address(this));
@@ -426,7 +426,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setOracleRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateOracle(_ruleId);
         oracleRuleId = _ruleId;
         oracleRuleActive = true;
@@ -437,7 +437,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateOracleRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         oracleRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(ORACLE, address(this));
@@ -475,7 +475,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setTransactionLimitByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateTransactionLimitByRiskScore(_ruleId);
         transactionLimitByRiskRuleId = _ruleId;
         transactionLimitByRiskRuleActive = true;
@@ -486,7 +486,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateTransactionLimitByRiskRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         transactionLimitByRiskRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(TX_SIZE_BY_RISK, address(this));
@@ -508,7 +508,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setAdminWithdrawalRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateAdminWithdrawal(_ruleId);
         /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
         if (adminWithdrawalActive) {
@@ -538,7 +538,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAdminWithdrawalRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateAdminWithdrawalRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired
         if (!_on) {
             if (isAdminWithdrawalActiveAndApplicable()) revert AdminWithdrawalRuleisActive();
@@ -580,7 +580,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setMinBalByDateRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setMinBalByDateRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateMinBalByDate(_ruleId);
         minBalByDateRuleId = _ruleId;
         minBalByDateRuleActive = true;
@@ -591,7 +591,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @dev Tells you if the min bal by date rule is active or not.
      * @param _on boolean representing if the rule is active
      */
-    function activateMinBalByDateRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minBalByDateRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE, address(this));
@@ -621,7 +621,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setTokenTransferVolumeRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setTokenTransferVolumeRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateTokenTransferVolume(_ruleId);
         tokenTransferVolumeRuleId = _ruleId;
         tokenTransferVolumeRuleActive = true;
@@ -632,7 +632,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @dev Tells you if the token transfer volume rule is active or not.
      * @param _on boolean representing if the rule is active
      */
-    function activateTokenTransferVolumeRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateTokenTransferVolumeRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         tokenTransferVolumeRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(TRANSFER_VOLUME, address(this));
@@ -662,7 +662,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateSupplyVolatility(_ruleId);
         totalSupplyVolatilityRuleId = _ruleId;
         totalSupplyVolatilityRuleActive = true;
@@ -673,7 +673,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @dev Tells you if the token total Supply Volatility rule is active or not.
      * @param _on boolean representing if the rule is active
      */
-    function activateTotalSupplyVolatilityRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateTotalSupplyVolatilityRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         totalSupplyVolatilityRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(SUPPLY_VOLATILITY, address(this));
@@ -722,13 +722,4 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         fees = Fees(oldHandler.getFeesDataAddress());
         fees.confirmOwner();
     }
-
-    // /**
-    //  * @dev This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.
-    //  * @param _oldHandlerAddress address of the old CoinHandler
-    //  */
-    // function connectDataContracts(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress) {
-    //     ProtocolERC20Handler oldHandler = ProtocolERC20Handler(_oldHandlerAddress);
-    //     fees = Fees(oldHandler.getFeesDataAddress());
-    // }
 }

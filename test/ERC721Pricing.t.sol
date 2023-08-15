@@ -31,7 +31,7 @@ contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     address bob = address(0xB0B);
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
@@ -40,7 +40,7 @@ contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
 
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
+        appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         appManager.addAppAdministrator(appAdministrator);
