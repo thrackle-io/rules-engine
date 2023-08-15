@@ -3,13 +3,13 @@ pragma solidity 0.8.17;
 
 /// TODO Create a wizard that creates custom versions of this contract for each implementation.
 
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 
 import "./data/Fees.sol";
 import {IZeroAddressError, IAssetHandlerErrors} from "src/interfaces/IErrors.sol";
 import "./ProtocolHandlerCommon.sol";
-import "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract

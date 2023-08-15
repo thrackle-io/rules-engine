@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "../token/ProtocolERC721.sol";
 import "../economic/AppAdministratorOrOwnerOnly.sol";
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title ApplicationERC721

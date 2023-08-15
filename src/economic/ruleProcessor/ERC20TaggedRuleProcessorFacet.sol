@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "openzeppelin-contracts/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {TaggedRuleDataFacet} from "../ruleStorage/TaggedRuleDataFacet.sol";

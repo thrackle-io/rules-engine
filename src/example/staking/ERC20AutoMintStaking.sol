@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "../../staking/IERC20Staking.sol";
 import "../../economic/AppAdministratorOnly.sol";
 import "../../application/IAppManager.sol";

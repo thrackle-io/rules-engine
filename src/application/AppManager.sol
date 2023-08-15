@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "openzeppelin-contracts/contracts/access/AccessControlEnumerable.sol";
-import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
+import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "src/data/Accounts.sol";
 import "src/data/IAccounts.sol";
 import "src/data/IAccessLevels.sol";

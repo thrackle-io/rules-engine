@@ -10,9 +10,9 @@ pragma solidity 0.8.17;
  *      Any rule handlers may be updated by modifying this contract, redeploying, and pointing the ERC721 to the new version.
  * @notice This contract is the interaction point for the application ecosystem to the protocol
  */
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./ProtocolHandlerCommon.sol";
 
 contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawalRuleCapable, ERC165 {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import {IApplicationEvents} from "../../interfaces/IEvents.sol";
 import {IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError} from "../../interfaces/IErrors.sol";
 import "src/economic/AppAdministratorOnly.sol";

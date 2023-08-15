@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 // import "./IAppAdministratorOrOwnerOnly.sol";
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import {IAppManager} from "../application/IAppManager.sol";
 import { IAppAdministratorOnlyErrors } from "../interfaces/IErrors.sol";
 

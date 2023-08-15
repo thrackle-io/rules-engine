@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {IAppManager} from "../application/IAppManager.sol";
 import { IAppAdministratorOnlyErrors } from "../interfaces/IErrors.sol";
-import "openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol";
+import "@openzeppelin-upgradeable/contracts/utils/ContextUpgradeable.sol";
 
 /**
  * @title Application Administrators Only Modifier Contract
