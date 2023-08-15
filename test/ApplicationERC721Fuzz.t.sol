@@ -104,9 +104,9 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address randomUser = addressList[0];
         address randomUser2 = addressList[1];
+        applicationNFT.safeMint(randomUser);
         vm.stopPrank();
         vm.startPrank(randomUser);
-        applicationNFT.safeMint(randomUser);
         applicationNFT.transferFrom(randomUser, randomUser2, 0);
         assertEq(applicationNFT.balanceOf(randomUser), 0);
         assertEq(applicationNFT.balanceOf(randomUser2), 1);
@@ -120,15 +120,21 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         // vm.startPrank(randomUser);
         ///Mint and transfer tokenId 0
         applicationNFT.safeMint(randomUser);
+        vm.stopPrank();
+        vm.startPrank(randomUser);
         applicationNFT.transferFrom(randomUser, randomUser2, 0);
         ///Mint tokenId 1
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
         applicationNFT.safeMint(randomUser);
         ///Test token burn of token 0 and token 1
+        vm.stopPrank();
+        vm.startPrank(randomUser);
         applicationNFT.burn(1);
         ///Switch to app administrator account for burn
-        // vm.stopPrank();
-        // vm.startPrank(randomUser2);
-        /// Burn appAdministrator token
+        vm.stopPrank();
+        vm.startPrank(randomUser2);
+        // Burn appAdministrator token
         applicationNFT.burn(0);
         ///Return to default admin account
         // vm.stopPrank();
@@ -1134,8 +1140,6 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         /// determine the maximum burn/mint amount for inital test
         uint256 maxVol = uint256(volLimit) / 1000;
         console.logUint(maxVol);
-        vm.stopPrank();
-        vm.startPrank(rich_user);
         /// make sure that transfer under the threshold works
         if (maxVol >= 1) {
             for (uint i = 0; i < maxVol - 1; i++) {
@@ -1152,14 +1156,24 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
             applicationNFT.safeMint(rich_user);
         }
         /// at vol limit
+        vm.stopPrank();
+        vm.startPrank(rich_user);
         if ((10000 / applicationNFT.totalSupply()) > volLimit) {
             vm.expectRevert();
             applicationNFT.burn(9);
         } else {
             applicationNFT.burn(9);
+            vm.stopPrank();
+            vm.startPrank(defaultAdmin);
             applicationNFT.safeMint(rich_user); // token 10
+            vm.stopPrank();
+            vm.startPrank(rich_user);
             applicationNFT.burn(10);
+            vm.stopPrank();
+            vm.startPrank(defaultAdmin);
             applicationNFT.safeMint(rich_user);
+            vm.stopPrank();
+            vm.startPrank(rich_user);
             applicationNFT.burn(11);
         }
     }
