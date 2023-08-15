@@ -116,8 +116,6 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address randomUser = addressList[0];
         address randomUser2 = addressList[1];
-        // vm.stopPrank();
-        // vm.startPrank(randomUser);
         ///Mint and transfer tokenId 0
         applicationNFT.safeMint(randomUser);
         vm.stopPrank();
@@ -137,8 +135,6 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         // Burn appAdministrator token
         applicationNFT.burn(0);
         ///Return to default admin account
-        // vm.stopPrank();
-        // vm.startPrank(randomUser);
         assertEq(applicationNFT.balanceOf(randomUser), 0);
         assertEq(applicationNFT.balanceOf(randomUser2), 0);
     }
@@ -229,8 +225,6 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.safeMint(user1); /// Id 9
         applicationNFT.safeMint(user1); /// Id 10
 
-        // vm.stopPrank();
-        // vm.startPrank(user2);
         applicationNFT.safeMint(user2);
         // transfer to user1 to exceed limit
         vm.stopPrank();
