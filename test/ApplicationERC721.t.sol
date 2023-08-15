@@ -204,7 +204,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         ///make sure the maximum rule fail results in revert
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(appAdministrator);
         // user1 mints to 6 total (limit)
         applicationNFT.safeMint(user1); /// Id 6
         applicationNFT.safeMint(user1); /// Id 7
@@ -213,9 +213,11 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFT.safeMint(user1); /// Id 10
 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(appAdministrator);
         applicationNFT.safeMint(user2);
         // transfer to user1 to exceed limit
+        vm.stopPrank();
+        vm.startPrank(user2);
         vm.expectRevert(0x24691f6b);
         applicationNFT.transferFrom(user2, user1, 3);
     }
@@ -793,7 +795,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         vm.warp(Blocktime + 13 hours);
         /// mint tokens under supply limit
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(defaultAdmin);
         applicationNFT.safeMint(user1);
         /// mint tokens to the cap
         applicationNFT.safeMint(user1);
@@ -801,12 +803,16 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         vm.expectRevert();
         applicationNFT.safeMint(user1);
 
+        vm.stopPrank();
+        vm.startPrank(user1);
         applicationNFT.burn(10);
         /// move out of rule period
         vm.warp(Blocktime + 36 hours);
         /// burn tokens (should pass)
         applicationNFT.burn(11);
         /// mint
+        vm.stopPrank();
+        vm.startPrank(defaultAdmin);
         applicationNFT.safeMint(user1);
     }
 

@@ -116,8 +116,8 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address randomUser = addressList[0];
         address randomUser2 = addressList[1];
-        vm.stopPrank();
-        vm.startPrank(randomUser);
+        // vm.stopPrank();
+        // vm.startPrank(randomUser);
         ///Mint and transfer tokenId 0
         applicationNFT.safeMint(randomUser);
         applicationNFT.transferFrom(randomUser, randomUser2, 0);
@@ -126,13 +126,13 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         ///Test token burn of token 0 and token 1
         applicationNFT.burn(1);
         ///Switch to app administrator account for burn
-        vm.stopPrank();
-        vm.startPrank(randomUser2);
+        // vm.stopPrank();
+        // vm.startPrank(randomUser2);
         /// Burn appAdministrator token
         applicationNFT.burn(0);
         ///Return to default admin account
-        vm.stopPrank();
-        vm.startPrank(randomUser);
+        // vm.stopPrank();
+        // vm.startPrank(randomUser);
         assertEq(applicationNFT.balanceOf(randomUser), 0);
         assertEq(applicationNFT.balanceOf(randomUser2), 0);
     }
@@ -215,7 +215,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         ///make sure the maximum rule fail results in revert
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(appAdministrator);
         // user1 mints to 6 total (limit)
         applicationNFT.safeMint(user1); /// Id 6
         applicationNFT.safeMint(user1); /// Id 7
@@ -223,10 +223,12 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.safeMint(user1); /// Id 9
         applicationNFT.safeMint(user1); /// Id 10
 
-        vm.stopPrank();
-        vm.startPrank(user2);
+        // vm.stopPrank();
+        // vm.startPrank(user2);
         applicationNFT.safeMint(user2);
         // transfer to user1 to exceed limit
+        vm.stopPrank();
+        vm.startPrank(user2);
         vm.expectRevert(0x24691f6b);
         applicationNFT.transferFrom(user2, user1, 3);
     }
