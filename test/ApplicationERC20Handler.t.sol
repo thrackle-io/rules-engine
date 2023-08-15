@@ -51,7 +51,7 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
     ApplicationERC721Pricing nftPricer;
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the rule processor diamonds
@@ -62,7 +62,7 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
 
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
+        appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the accessTier Admin
@@ -71,7 +71,7 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         /// create erc20 handler but with admin as its owner so it can call the handler directly
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), ac, defaultAdmin, false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), ac, superAdmin, false);
 
         // create the oracles
         oracleAllowed = new OracleAllowed();
@@ -171,11 +171,11 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         assertEq(feePercentages[0], 300);
         // add another to see if it comes back as well
         appManager.addGeneralTag(user1, "not as cheap"); ///add tag
-        applicationCoinHandler.addFee("not as cheap", minBalance, maxBalance, 500, defaultAdmin);
+        applicationCoinHandler.addFee("not as cheap", minBalance, maxBalance, 500, superAdmin);
         (targetAccounts, feePercentages) = applicationCoinHandler.getApplicableFees(user1, 100 * 10 ** 18);
         assertEq(targetAccounts[0], appAdministrator);
         assertEq(feePercentages[0], 300);
-        assertEq(targetAccounts[1], defaultAdmin);
+        assertEq(targetAccounts[1], superAdmin);
         assertEq(feePercentages[1], 500);
 
         // do discounts(they should get evenly distributed across all fees)
@@ -184,7 +184,7 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
         (targetAccounts, feePercentages) = applicationCoinHandler.getApplicableFees(user1, 100 * 10 ** 18);
         assertEq(targetAccounts[0], appAdministrator);
         assertEq(feePercentages[0], 250);
-        assertEq(targetAccounts[1], defaultAdmin);
+        assertEq(targetAccounts[1], superAdmin);
         assertEq(feePercentages[1], 450);
         assertEq(targetAccounts[2], address(0));
         assertEq(feePercentages[2], 0);
@@ -465,9 +465,9 @@ contract ApplicationERC20HandlerTest is Test, DiamondTestUtil, RuleProcessorDiam
     function testZeroAddressErrors() public {
         /// test both address checks in constructor
         vm.expectRevert();
-        new ApplicationERC20Handler(address(0x0), ac, defaultAdmin, false);
+        new ApplicationERC20Handler(address(0x0), ac, superAdmin, false);
         vm.expectRevert();
-        new ApplicationERC20Handler(address(ruleProcessor), address(0x0), defaultAdmin, false);
+        new ApplicationERC20Handler(address(ruleProcessor), address(0x0), superAdmin, false);
 
         vm.expectRevert();
         applicationCoinHandler.setNFTPricingAddress(address(0x00));

@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import "openzeppelin-contracts/contracts/utils/Context.sol";
-import "../AppAdministratorOnly.sol";
+import "../RuleAdministratorOnly.sol";
 import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
@@ -17,7 +17,7 @@ import "./RuleStorageCommonLib.sol";
  * @dev setters and getters for non tagged token specific rules
  * @notice This contract sets and gets the Rules for the protocol
  */
-contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors {
+contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors {
     using RuleStorageCommonLib for uint64;
     using RuleStorageCommonLib for uint32;
 
@@ -44,7 +44,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
         uint16 _purchasePeriod,
         uint256 _totalSupply,
         uint64 _startTimestamp
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_tokenPercentage > 9999) revert ValueOutOfRange(_tokenPercentage);
         if (_purchasePeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
@@ -97,7 +97,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
         uint16 _sellPeriod,
         uint256 _totalSupply,
         uint64 _startTimestamp
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_tokenPercentage > 9999) revert ValueOutOfRange(_tokenPercentage);
         if (_sellPeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
@@ -142,7 +142,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _rateIncreased Amount rate increased
      * @return ruleId position of new rule in array
      */
-    function addPurchaseFeeByVolumeRule(address _appManagerAddr, uint256 _volume, uint16 _rateIncreased) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addPurchaseFeeByVolumeRule(address _appManagerAddr, uint256 _volume, uint16 _rateIncreased) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_volume == 0 || _rateIncreased == 0) revert ZeroValueNotPermited();
         if (_rateIncreased > 10000) revert ValueOutOfRange(_rateIncreased);
@@ -193,7 +193,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
         uint16 _period,
         uint16 _hoursFrozen,
         uint256 _totalSupply
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_maxVolatility == 0 || _period == 0 || _hoursFrozen == 0) revert ZeroValueNotPermited();
         RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
@@ -244,7 +244,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
         uint16 _hoursPerPeriod,
         uint64 _startTimestamp,
         uint256 _totalSupply
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_maxVolumePercentage > 100000) revert ValueOutOfRange(_maxVolumePercentage);
         if (_maxVolumePercentage == 0 || _hoursPerPeriod == 0) revert ZeroValueNotPermited();
@@ -288,7 +288,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _minimumTransfer Mimimum amount of tokens required for transfer
      * @return ruleId position of new rule in array
      */
-    function addMinimumTransferRule(address _appManagerAddr, uint256 _minimumTransfer) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addMinimumTransferRule(address _appManagerAddr, uint256 _minimumTransfer) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_minimumTransfer == 0) revert ZeroValueNotPermited();
         RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
@@ -339,7 +339,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
         uint16 _period,
         uint64 _startTimestamp,
         uint256 _totalSupply
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_maxVolumePercentage == 0 || _period == 0) revert ZeroValueNotPermited();
         _startTimestamp.validateTimestamp();
         RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
@@ -382,7 +382,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
      * @param _oracleAddress Address of Oracle
      * @return ruleId position of rule in storage
      */
-    function addOracleRule(address _appManagerAddr, uint8 _type, address _oracleAddress) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addOracleRule(address _appManagerAddr, uint8 _type, address _oracleAddress) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_oracleAddress == address(0)) revert ZeroAddress();
         if (_type > 1) revert InvalidOracleType(_type);
@@ -431,7 +431,7 @@ contract RuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInput
         bytes32[] calldata _nftTypes,
         uint8[] calldata _tradesAllowed,
         uint64 _startTs
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_nftTypes.length == 0 || _startTs == 0) revert ZeroValueNotPermited();
         if (_nftTypes.length != _tradesAllowed.length) revert InputArraysMustHaveSameLength();

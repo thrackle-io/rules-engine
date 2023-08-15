@@ -16,7 +16,7 @@ contract ApplicationHandlerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
     string tokenId = "FEUD";
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         ruleProcessorDiamond = getApplicationProcessorDiamond();
         // Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
@@ -25,13 +25,13 @@ contract ApplicationHandlerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         // Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
 
-        appManager = new AppManager(defaultAdmin, "Castlevania", false);
+        appManager = new AppManager(superAdmin, "Castlevania", false);
 
         // for simplicity, set up default as all admins. This is fine because this role logic is
         // test thoroughly in AppManager.t.sol
-        appManager.addAppAdministrator(defaultAdmin);
-        appManager.addAccessTier(defaultAdmin);
-        appManager.addRiskAdmin(defaultAdmin);
+        appManager.addAppAdministrator(superAdmin);
+        appManager.addAccessTier(superAdmin);
+        appManager.addRiskAdmin(superAdmin);
         applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
     }

@@ -27,7 +27,7 @@ pragma solidity 0.8.17;
 //     // NOTE: using storage array to easily "push" new FacetCut as we
 //     // process the facets.
 //     AppManager public appManager;
-//     address defaultAdmin = address(0xAD);
+//     address superAdmin = address(0xDaBEEF);
 //     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
 //     address appAdministrator = address(0xDEAD);
 //     address ac;
@@ -43,7 +43,7 @@ pragma solidity 0.8.17;
 //     OracleAllowed oracleAllowed;
 
 //     function setUp() public {
-//         vm.startPrank(defaultAdmin);
+//         vm.startPrank(superAdmin);
 //         // Deploy the Rule Storage Diamond.
 //         ruleStorageDiamond = getRuleStorageDiamond();
 //         // Deploy the rule processor diamonds
@@ -58,7 +58,7 @@ pragma solidity 0.8.17;
 //
 
 //         // Deploy app manager
-//         appManager = new AppManager(defaultAdmin, "Castlevania", address(ruleProcessor), false);
+//         appManager = new AppManager(superAdmin, "Castlevania", address(ruleProcessor), false);
 //         applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
 //         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
 //         // add the DEAD address as a app administrator
@@ -80,7 +80,7 @@ pragma solidity 0.8.17;
 //         vm.startPrank(address(0xDEADA55));
 //         RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 1000);
 //         vm.stopPrank();
-//         vm.startPrank(defaultAdmin);
+//         vm.startPrank(superAdmin);
 //     }
 
 //     function testMinTransfer() public {

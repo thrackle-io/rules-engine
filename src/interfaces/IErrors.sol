@@ -90,10 +90,12 @@ interface ITagRuleInputErrors {
     error StartTimeNotValid();
 }
 
-interface IAppAdministratorOnlyErrors {
+interface IPermissionModifierErrors {
     error AppManagerNotConnected();
     error NotAppAdministrator();
     error NotAppAdministratorOrOwner();
+    error NotSuperAdmin(address);
+    error NotRuleAdministrator();
 }
 
 interface IAppManagerErrors {

@@ -20,28 +20,34 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     FacetCut[] private _facetCuts;
     AppManager public appManager;
     RuleStorageDiamond ruleStorageDiamond;
-    address defaultAdmin = address(0xAD);
-    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
+    address superAdmin = address(0xDaBEEF);
     address appAdministrator = address(0xB0B);
+    address ruleAdmin = address(0xACDC);
     address ac;
     uint256 totalSupply = 100_000_000_000;
     uint32 startTime = 12;
     uint64 Blocktime = 1675723152;
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         // Deploy the diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy app manager
-        appManager = new AppManager(defaultAdmin, "Castlevania", false);
+        appManager = new AppManager(superAdmin, "Castlevania", false);
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         ac = address(appManager);
         vm.warp(Blocktime);
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        // add the ACDC address as a app administrator
+        appManager.addRuleAdministrator(ruleAdmin);
     }
 
     /// Test to make sure that the Diamond will upgrade
     function testUpgrade() public {
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
         SampleFacet sampleFacet = new SampleFacet();
         //build cut struct
         FacetCut[] memory cut = new FacetCut[](1);
@@ -54,7 +60,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         console.log(ERC173Facet(address(ruleStorageDiamond)).owner());
         //console.log("TestFacet owner: ");
         //console.log(SampleFacet(address(ruleStorageDiamond)).getOwner());
-        ERC173Facet(address(ruleStorageDiamond)).transferOwnership(defaultAdmin);
+        ERC173Facet(address(ruleStorageDiamond)).transferOwnership(superAdmin);
 
         // call a function
         assertEq("good", SampleFacet(address(ruleStorageDiamond)).sampleFunction());
@@ -64,7 +70,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /*********************** Purchase *******************/
     /// Simple setting and getting
-    function testSettingPurchase() public {
+    function testSettingPurchaseStorage() public {
         vm.warp(Blocktime);
         bytes32[] memory accs = new bytes32[](3);
         accs[0] = bytes32("Oscar");
@@ -82,6 +88,8 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         sTimes[0] = uint64(8);
         sTimes[1] = uint64(12);
         sTimes[2] = uint64(16);
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
         assertEq(_index, 0);
         TaggedRules.PurchaseRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(_index, "Oscar");
@@ -107,7 +115,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /// testing only appAdministrators can add Purchase Rule
     function testSettingPurchaseRuleWithoutAppAdministratorAccount() public {
         vm.warp(Blocktime);
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         bytes32[] memory accs = new bytes32[](3);
         accs[0] = bytes32("Oscar");
@@ -125,20 +133,26 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         sTimes[0] = uint64(10);
         sTimes[1] = uint64(12);
         sTimes[2] = uint64(16);
-        vm.expectRevert(0xba80c9e5);
+        // set user to the super admin
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(appAdministrator); //interact as a different user
+        vm.stopPrank(); //stop interacting as the super admin
+        vm.startPrank(ruleAdmin); //interact as the rule admin
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
         assertEq(_index, 0);
     }
 
     /// testing check on input arrays with different sizes
     function testSettingPurchaseWithArraySizeMismatch() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
         bytes32[] memory accs = new bytes32[](3);
         accs[0] = bytes32("Oscar");
@@ -162,6 +176,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /// test total rules
     function testTotalRulesOnPurchase() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
         uint256[101] memory _indexes;
         bytes32[] memory accs = new bytes32[](1);
@@ -181,6 +198,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /************************ Sell *************************/
     /// Simple setting and getting
     function testSettingSell() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
         bytes32[] memory accs = new bytes32[](3);
         accs[0] = bytes32("Oscar");
@@ -242,22 +262,26 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         sTimes[0] = Blocktime;
         sTimes[1] = Blocktime;
         sTimes[2] = Blocktime;
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(appAdministrator); //interact as a different user
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
         assertEq(_index, 0);
     }
 
     /// testing check on input arrays with different sizes
     function testSettingSellWithArraySizeMismatch() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
         bytes32[] memory accs = new bytes32[](2);
         accs[0] = bytes32("Oscar");
@@ -280,6 +304,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /// test total rules
     function testTotalRulesOnSell() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
         uint256[101] memory _indexes;
         bytes32[] memory accs = new bytes32[](1);
@@ -301,6 +328,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /************************ Token Purchase Fee By Volume Percentage **********************/
     /// Simple setting and getting
     function testSettingPurchaseFeeByVolume() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPurchaseFeeByVolumeRule(ac, 5000000000000000000000000000000000, 100);
         assertEq(_index, 0);
         NonTaggedRules.TokenPurchaseFeeByVolume memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getPurchaseFeeByVolumeRule(_index);
@@ -315,26 +345,29 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
     function testSettingPurchaseFeeVolumeRuleWithoutAppAdministratorAccount() public {
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addPurchaseFeeByVolumeRule(ac, 5000000000000000000000000000000000, 100);
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addPurchaseFeeByVolumeRule(ac, 5000000000000000000000000000000000, 100);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(appAdministrator)); //interact as a different user
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPurchaseFeeByVolumeRule(ac, 5000000000000000000000000000000000, 100);
         assertEq(_index, 0);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(defaultAdmin)); //interact as a different user
+
         _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPurchaseFeeByVolumeRule(ac, 5000000000000000000000000000000000, 100);
         assertEq(_index, 1);
     }
 
     /// testing total rules
     function testTotalRulesOnPurchaseFeeByVolume() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addPurchaseFeeByVolumeRule(ac, 500 + i, 1 + i);
@@ -345,6 +378,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** Token Volatility ************************/
     /// Simple setting and getting
     function testSettingTokenVolatility() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 12, totalSupply);
         assertEq(_index, 0);
         NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getVolatilityRule(_index);
@@ -362,26 +398,29 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
     function testSettingVolatilityRuleWithoutAppAdministratorAccount() public {
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24, totalSupply);
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24, totalSupply);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(appAdministrator)); //interact as a different user
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24, totalSupply);
         assertEq(_index, 0);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(defaultAdmin)); //interact as a different user
+
         _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000, 60, 24, totalSupply);
         assertEq(_index, 1);
     }
 
     /// testing total rules
     function testTotalRulesOnTokenVolatility() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addVolatilityRule(ac, 5000 + i, 60 + i, 24 + i, totalSupply);
@@ -392,6 +431,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** Token Transfer Volume ************************/
     /// Simple setting and getting
     function testSettingTransferVolume() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 1000, 2, Blocktime, 0);
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
@@ -410,26 +452,29 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
     function testSettingVolumeRuleWithoutappAdministratorAccount() public {
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 4000, 2, 23, 0);
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 4000, 2, 23, 0);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(appAdministrator)); //interact as a different user
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 4000, 2, 23, 0);
         assertEq(_index, 0);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(defaultAdmin)); //interact as a different user
+
         _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 4000, 2, 23, 0);
         assertEq(_index, 1);
     }
 
     /// testing total rules
     function testTotalRulesOnTransferVolume() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addTransferVolumeRule(ac, 5000 + i, 60 + i, Blocktime, 0);
@@ -440,6 +485,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** Minimum Transfer ************************/
     /// Simple setting and getting
     function testSettingMinTransfer() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 500000000000000);
         assertEq(_index, 0);
         NonTaggedRules.TokenMinimumTransferRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getMinimumTransferRule(_index);
@@ -453,26 +501,28 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
     function testSettingMinTransferRuleWithoutAppAdministratorAccount() public {
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 500000000000000);
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 500000000000000);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(appAdministrator)); //interact as a different user
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 500000000000000);
         assertEq(_index, 0);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(defaultAdmin)); //interact as a different user
         _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 500000000000000);
         assertEq(_index, 1);
     }
 
     /// testing total rules
     function testTotalRulesOnMinTransfer() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 5000 + i);
@@ -483,6 +533,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** BalanceLimits *******************/
     /// Simple setting and getting
     function testSettingBalanceLimits() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         bytes32[] memory accs = new bytes32[](3);
         accs[0] = bytes32("Oscar");
         accs[1] = bytes32("Tayler");
@@ -533,26 +586,28 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         max[0] = uint256(10000000000000000000000000000000000000);
         max[1] = uint256(100000000000000000000000000000000000000000);
         max[2] = uint256(100000000000000000000000000000000000000000000000000000000000000000000000000);
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(appAdministrator)); //interact as a different user
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
         assertEq(_index, 0);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(defaultAdmin)); //interact as a different user
         _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
         assertEq(_index, 1);
     }
 
     /// testing check on input arrays with different sizes
     function testSettingBalanceLimitsWithArraySizeMismatch() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         bytes32[] memory accs = new bytes32[](3);
         accs[0] = bytes32("Oscar");
         accs[1] = bytes32("Tayler");
@@ -570,6 +625,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /// testing inverted limits
     function testAddBalanceLimitsWithInvertedLimits() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         bytes32[] memory accs = new bytes32[](1);
         accs[0] = bytes32("Oscar");
         uint256[] memory min = new uint256[](1);
@@ -582,6 +640,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /// test total rules
     function testTotalRulesOnBalanceLimits() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint256[101] memory _indexes;
         bytes32[] memory accs = new bytes32[](1);
         accs[0] = bytes32("Oscar");
@@ -598,6 +659,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** Supply Volatility ************************/
     /// Simple setting and getting
     function testSettingSupplyVolatility() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, Blocktime, totalSupply);
         assertEq(_index, 0);
         NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getSupplyVolatilityRule(_index);
@@ -611,26 +675,28 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
     function testSettingSupplyRuleWithoutAppAdministratorAccount() public {
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, Blocktime, totalSupply);
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, Blocktime, totalSupply);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(appAdministrator)); //interact as a different user
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, Blocktime, totalSupply);
         assertEq(_index, 0);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(defaultAdmin)); //interact as a different user
         _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500, 24, Blocktime, totalSupply);
         assertEq(_index, 1);
     }
 
     /// testing total rules
     function testTotalRulesOnSupplyVolatility() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, 6500 + i, 24 + i, 12, totalSupply);
@@ -641,6 +707,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** Oracle ************************/
     /// Simple setting and getting
     function testOracle() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addOracleRule(ac, 0, address(69));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getOracleRule(_index);
@@ -654,26 +723,29 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /// testing only appAdministrators can add Oracle Rule
     function testSettingOracleRuleWithoutAppAdministratorAccount() public {
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addOracleRule(ac, 0, address(69));
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addOracleRule(ac, 0, address(69));
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(appAdministrator)); //interact as a different user
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addOracleRule(ac, 0, address(69));
         assertEq(_index, 0);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(defaultAdmin)); //interact as a different user
+
         _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addOracleRule(ac, 1, address(79));
         assertEq(_index, 1);
     }
 
     /// testing total rules
     function testTotalRulesOnOracle() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addOracleRule(ac, 0, address(69));
@@ -684,6 +756,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** NFT Trade Counter ************************/
     /// Simple setting and getting
     function testNFTTransferCounterRule() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         bytes32[] memory nftTags = new bytes32[](2);
         nftTags[0] = bytes32("BoredGrape");
         nftTags[1] = bytes32("DiscoPunk");
@@ -706,26 +781,29 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         uint8[] memory tradesAllowed = new uint8[](2);
         tradesAllowed[0] = 1;
         tradesAllowed[1] = 5;
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(appAdministrator)); //interact as a different user
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(defaultAdmin)); //interact as a different user
+
         _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 1);
     }
 
     /// testing total rules
     function testTotalRulesOnNFTCounter() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         bytes32[] memory nftTags = new bytes32[](2);
         nftTags[0] = bytes32("BoredGrape");
         nftTags[1] = bytes32("DiscoPunk");
@@ -742,6 +820,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /**************** Tagged Withdrawal Rule Testing  ****************/
     //Test Adding Withdrawal Rule
     function testSettingWithdrawalRule() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         bytes32[] memory accs = new bytes32[](3);
         accs[0] = bytes32("Oscar");
         accs[1] = bytes32("Tayler");
@@ -778,6 +859,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     //Test Get Withdrawal Rule
     function testGetWithdrawalRuleUpdate() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         //Set Rule
         bytes32[] memory accs = new bytes32[](1);
         accs[0] = bytes32("Shane");
@@ -794,6 +878,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     //Test Get Total Withdrawal Rules
     function testGetTotalWithdrawalRules() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint256[3] memory _indexes;
         bytes32[] memory accs = new bytes32[](3);
         accs[0] = bytes32("Oscar");
@@ -817,6 +904,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
     /// Test Adding Balance by AccessLevel Rule
     function testBalanceByAccessLevelRule() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint48[] memory balanceAmounts = new uint48[](5);
         balanceAmounts[0] = 10;
         balanceAmounts[1] = 100;
@@ -829,15 +919,21 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     }
 
     function testAddBalanceByAccessLevelRulenotAdmin() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint48[] memory balanceAmounts;
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(ac, balanceAmounts);
     }
 
     ///Get Total Balance by AccessLevel Rules
     function testTotalBalanceByAccessLevelRules() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint256[101] memory _indexes;
         uint48[] memory balanceAmounts = new uint48[](5);
         balanceAmounts[0] = 10;
@@ -855,9 +951,14 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /**************** Tagged Admin Withdrawal Rule Testing  ****************/
 
     /// Test Adding Admin Withdrawal Rule releaseDate: block.timestamp + 10000
-    function testAddAdminWithdrawalRuleAppAdministrator() public {
-        appManager.addAppAdministrator(address(ruleStorageDiamond));
-        assertEq(appManager.isAppAdministrator(address(ruleStorageDiamond)), true);
+    function testAddAdminWithdrawalRuleAppAdministratorStorage() public {
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        appManager.addAppAdministrator(address(22));
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        assertEq(appManager.isAppAdministrator(address(22)), true);
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(ac, 5000, block.timestamp + 10000);
         TaggedRules.AdminWithdrawalRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getAdminWithdrawalRule(_index);
         assertEq(rule.amount, 5000);
@@ -865,11 +966,17 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     }
 
     function testFailAddAdminWithdrawalRulenotAdmin() public {
-        TaggedRuleDataFacet(defaultAdmin).addAdminWithdrawalRule(ac, 6500, 1669748600);
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        TaggedRuleDataFacet(superAdmin).addAdminWithdrawalRule(ac, 6500, 1669748600);
     }
 
     ///Get Total Admin Withdrawal Rules
     function testTotalAdminWithdrawalRules() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         uint256[101] memory _indexes;
         uint256 amount = 1000;
         uint256 releaseDate = block.timestamp + 10000;
@@ -884,6 +991,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     /*********************** Minimum Balance By Date *******************/
     /// Simple setting and getting
     function testSettingMinBalByDate() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
         bytes32[] memory accs = new bytes32[](3);
         accs[0] = bytes32("Oscar");
@@ -938,12 +1048,15 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(ac, accs, holdAmounts, holdPeriods, holdTimestamps);
     }
 
     /// Test for proper array size mismatch error
     function testSettingMinBalByDateSizeMismatch() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
         bytes32[] memory accs = new bytes32[](3);
         accs[0] = bytes32("Oscar");

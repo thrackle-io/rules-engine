@@ -41,7 +41,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
     event Log(string eventString, bytes32[] tag);
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
@@ -49,7 +49,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         /// Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
+        appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the AccessLevelAdmin address as a AccessLevel admin
@@ -75,7 +75,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         appManager.registerToken("DRAC", address(draculaCoin));
 
         //activateBalanceByAccessLevelRule
-        draculaCoin.mint(defaultAdmin, type(uint256).max);
+        draculaCoin.mint(superAdmin, type(uint256).max);
 
         /// set the token price
         nftPricer = new ApplicationERC721Pricing();
@@ -157,7 +157,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address user1 = addressList[2];
         address user2 = addressList[3];
         address user3 = addressList[4];
-        /// mint 6 NFTs to defaultAdmin for transfer
+        /// mint 6 NFTs to superAdmin for transfer
         applicationNFT.safeMint(randomUser);
         applicationNFT.safeMint(randomUser);
         applicationNFT.safeMint(randomUser);
@@ -185,7 +185,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.transferFrom(randomUser, user1, 4);
         assertEq(applicationNFT.balanceOf(user1), 2);
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(appManager), accs, min, max);
         // add the actual rule
         uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(appManager), accs, min, max);
@@ -281,7 +281,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFTHandler.setOracleRuleId(_index);
         // add an allowed address
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         goodBoys.push(randomUser);
         oracleAllowed.addToAllowList(goodBoys);
         vm.stopPrank();
@@ -294,7 +294,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         // Finally, check the invalid type
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
@@ -346,7 +346,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         // set to a tag that only allows 1 transfer
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         appManager.removeGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
         appManager.addGeneralTag(address(applicationNFT), "BoredGrape"); ///add tag
         // perform 1 transfer
@@ -367,7 +367,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         // add the other tag and check to make sure that it still only allows 1 trade
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         appManager.addGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
         vm.stopPrank();
         vm.startPrank(user1);
@@ -385,7 +385,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
      */
     function testTransactionSizeByRiskRuleNFT(uint8 _addressIndex, uint8 _risk) public {
         for (uint i; i < 30; ) {
-            applicationNFT.safeMint(defaultAdmin);
+            applicationNFT.safeMint(superAdmin);
             nftPricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * (10 ** 18)); //setting at $10 * (ID + 1)
             assertEq(nftPricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * (10 ** 18));
             unchecked {
@@ -398,16 +398,16 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address _user3 = addressList[2];
         address _user4 = addressList[3];
         /// set up a non admin user with tokens
-        applicationNFT.safeTransferFrom(defaultAdmin, _user1, 0);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user1, 1);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user1, 2);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user1, 3);
+        applicationNFT.safeTransferFrom(superAdmin, _user1, 0);
+        applicationNFT.safeTransferFrom(superAdmin, _user1, 1);
+        applicationNFT.safeTransferFrom(superAdmin, _user1, 2);
+        applicationNFT.safeTransferFrom(superAdmin, _user1, 3);
         assertEq(applicationNFT.balanceOf(_user1), 4);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user2, 5);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user2, 6);
+        applicationNFT.safeTransferFrom(superAdmin, _user2, 5);
+        applicationNFT.safeTransferFrom(superAdmin, _user2, 6);
         assertEq(applicationNFT.balanceOf(_user2), 2);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user3, 7);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user3, 19);
+        applicationNFT.safeTransferFrom(superAdmin, _user3, 7);
+        applicationNFT.safeTransferFrom(superAdmin, _user3, 19);
         assertEq(applicationNFT.balanceOf(_user3), 2);
 
         uint48[] memory _maxSize = new uint48[](6);
@@ -464,7 +464,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
      */
     function testNFTBalanceByAccessLevelRulePassesFuzz(uint8 _addressIndex, uint8 _amountSeed) public {
         for (uint i; i < 30; ) {
-            applicationNFT.safeMint(defaultAdmin);
+            applicationNFT.safeMint(superAdmin);
             nftPricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * (10 ** 18)); //setting at $10 * (ID + 1)
             assertEq(nftPricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * (10 ** 18));
             unchecked {
@@ -477,9 +477,9 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address _user3 = addressList[2];
         address _user4 = addressList[3];
         /// set up a non admin user with tokens
-        applicationNFT.safeTransferFrom(defaultAdmin, _user1, 0); // a 10-dollar NFT
+        applicationNFT.safeTransferFrom(superAdmin, _user1, 0); // a 10-dollar NFT
         assertEq(applicationNFT.balanceOf(_user1), 1);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user3, 19); // an 200-dollar NFT
+        applicationNFT.safeTransferFrom(superAdmin, _user3, 19); // an 200-dollar NFT
         assertEq(applicationNFT.balanceOf(_user3), 1);
         // we make sure that _amountSeed is between 10 and 255
         if (_amountSeed < 245) _amountSeed += 10;
@@ -539,8 +539,8 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         /// let's give user2 a 100-dollar NFT
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user2, 9); // a 100-dollar NFT
+        vm.startPrank(superAdmin);
+        applicationNFT.safeTransferFrom(superAdmin, _user2, 9); // a 100-dollar NFT
         assertEq(applicationNFT.balanceOf(_user2), 1);
         /// now let's assign him access=2 and let's check the rule again
         vm.stopPrank();
@@ -559,7 +559,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         /// create erc20 token, mint, and transfer to user
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
 
         draculaCoin.transfer(_user1, type(uint256).max);
         assertEq(draculaCoin.balanceOf(_user1), type(uint256).max);
@@ -572,8 +572,8 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         /// let's give user1 a 150-dollar NFT
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user1, 14); // a 150-dollar NFT
+        vm.startPrank(superAdmin);
+        applicationNFT.safeTransferFrom(superAdmin, _user1, 14); // a 150-dollar NFT
         assertEq(applicationNFT.balanceOf(_user1), 2);
 
         vm.stopPrank();
@@ -601,10 +601,10 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         uint8 mintAmount = _amountToMint;
         /// mint and load user 1 with 10-255 NFTs
         for (uint i; i < mintAmount; ) {
-            applicationNFT.safeMint(defaultAdmin);
+            applicationNFT.safeMint(superAdmin);
             nftPricer.setSingleNFTPrice(address(applicationNFT), i, 1 * (10 ** 18)); //setting at $1
             assertEq(nftPricer.getNFTPrice(address(applicationNFT), i), 1 * (10 ** 18));
-            applicationNFT.transferFrom(defaultAdmin, _user1, i);
+            applicationNFT.transferFrom(superAdmin, _user1, i);
             unchecked {
                 ++i;
             }
@@ -669,10 +669,10 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         /// mint and load user 1 with 50 NFTs
         for (uint i; i < 50; ) {
-            applicationNFT.safeMint(defaultAdmin);
+            applicationNFT.safeMint(superAdmin);
             nftPricer.setSingleNFTPrice(address(applicationNFT), i, 1 * (10 ** 18)); //setting at $1
             assertEq(nftPricer.getNFTPrice(address(applicationNFT), i), 1 * (10 ** 18));
-            applicationNFT.transferFrom(defaultAdmin, _user1, i);
+            applicationNFT.transferFrom(superAdmin, _user1, i);
             unchecked {
                 ++i;
             }
@@ -911,7 +911,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         /// we give some trillions to user1 to spend
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         /// let's deactivate the rule before minting to avoid triggering the rule
         applicationHandler.activateMaxTxSizePerPeriodByRiskRule(false);
         /// we register the rule in the protocol
@@ -995,7 +995,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         ///Switch to Default admin and activate AccountBalanceByRiskScore Rule
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         uint32 index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(appManager), riskScores, balanceLimits);
         applicationHandler.setAccountBalanceByRiskRuleId(index);
 
@@ -1015,7 +1015,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
     function testWithdrawalLimitByAccessLevelFuzz(uint8 _addressIndex, uint8 accessLevel) public {
         for (uint i; i < 30; ) {
-            applicationNFT.safeMint(defaultAdmin);
+            applicationNFT.safeMint(superAdmin);
             nftPricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * (10 ** 18)); //setting at $10 * (ID + 1)
             assertEq(nftPricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * (10 ** 18));
             unchecked {
@@ -1028,13 +1028,13 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address _user3 = addressList[2];
         address _user4 = addressList[3];
         /// set up a non admin user with tokens
-        applicationNFT.safeTransferFrom(defaultAdmin, _user1, 0); // a 10-dollar NFT
+        applicationNFT.safeTransferFrom(superAdmin, _user1, 0); // a 10-dollar NFT
         assertEq(applicationNFT.balanceOf(_user1), 1);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user3, 1); // an 20-dollar NFT
+        applicationNFT.safeTransferFrom(superAdmin, _user3, 1); // an 20-dollar NFT
         assertEq(applicationNFT.balanceOf(_user3), 1);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user4, 4); // a 50-dollar NFT
+        applicationNFT.safeTransferFrom(superAdmin, _user4, 4); // a 50-dollar NFT
         assertEq(applicationNFT.balanceOf(_user4), 1);
-        applicationNFT.safeTransferFrom(defaultAdmin, _user4, 19); // a 200-dollar NFT
+        applicationNFT.safeTransferFrom(superAdmin, _user4, 19); // a 200-dollar NFT
         assertEq(applicationNFT.balanceOf(_user4), 2);
 
         /// ensure access level is between 0-4
@@ -1059,7 +1059,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         appManager.addAccessLevel(_user4, accessLevel);
         /// set token pricing
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         /// ERC20 tokens priced $1 USD
         draculaCoin.transfer(_user1, 1000 * (10 ** 18));
         assertEq(draculaCoin.balanceOf(_user1), 1000 * (10 ** 18));
@@ -1100,7 +1100,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         /// reduce pricing
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         erc20Pricer.setSingleTokenPrice(address(draculaCoin), 5 * (10 ** 17)); //setting at $.50
         assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 5 * (10 ** 17));
 
@@ -1122,9 +1122,9 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address rich_user = addressList[0];
         /// mint initial supply
         for (uint i = 0; i < 10; i++) {
-            applicationNFT.safeMint(defaultAdmin);
+            applicationNFT.safeMint(superAdmin);
         }
-        applicationNFT.safeTransferFrom(defaultAdmin, rich_user, 9);
+        applicationNFT.safeTransferFrom(superAdmin, rich_user, 9);
         /// create and activate rule
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(appManager), volLimit, rulePeriod, startingTime, tokenSupply);
         applicationNFTHandler.setTotalSupplyVolatilityRuleId(_index);
@@ -1287,7 +1287,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         ///Switch to Default admin and activate AccountBalanceByRiskScore Rule
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
 
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -1468,7 +1468,7 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         address user1 = addressList[2];
         /// Mint TokenId 0-6 to default admin
-        for (uint i; i < 7; i++) applicationNFT.safeMint(defaultAdmin);
+        for (uint i; i < 7; i++) applicationNFT.safeMint(superAdmin);
         /// we create a rule that sets the minimum amount to 5 tokens to be tranferable in 1 year
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(appManager), 5, block.timestamp + 365 days);
         /// Set the rule in the handler
@@ -1481,15 +1481,15 @@ contract ApplicationERC721FuzzTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
 
         /// These transfers should pass
-        applicationNFT.safeTransferFrom(defaultAdmin, user1, 0);
-        applicationNFT.safeTransferFrom(defaultAdmin, user1, 1);
+        applicationNFT.safeTransferFrom(superAdmin, user1, 0);
+        applicationNFT.safeTransferFrom(superAdmin, user1, 1);
         /// This one fails
         vm.expectRevert();
-        applicationNFT.safeTransferFrom(defaultAdmin, user1, 2);
+        applicationNFT.safeTransferFrom(superAdmin, user1, 2);
 
         vm.warp(Blocktime + daysForward);
         if (daysForward < 365 days) vm.expectRevert();
-        applicationNFT.safeTransferFrom(defaultAdmin, user1, 2);
+        applicationNFT.safeTransferFrom(superAdmin, user1, 2);
 
         if (daysForward >= 365 days) {
             applicationNFTHandler.activateAdminWithdrawalRule(false);

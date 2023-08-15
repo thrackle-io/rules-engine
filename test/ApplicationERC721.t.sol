@@ -42,7 +42,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
     uint64 Blocktime = 1769924800;
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         /// Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
@@ -50,7 +50,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         /// Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
+        appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
         /// add the AccessLevelAdmin address as a AccessLevel admin
@@ -81,27 +81,27 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
     function testMint() public {
         /// Owner Mints new tokenId
-        applicationNFT.safeMint(defaultAdmin);
-        console.log(applicationNFT.balanceOf(defaultAdmin));
+        applicationNFT.safeMint(superAdmin);
+        console.log(applicationNFT.balanceOf(superAdmin));
         /// Owner Mints a second new tokenId
-        applicationNFT.safeMint(defaultAdmin);
-        console.log(applicationNFT.balanceOf(defaultAdmin));
-        assertEq(applicationNFT.balanceOf(defaultAdmin), 2);
+        applicationNFT.safeMint(superAdmin);
+        console.log(applicationNFT.balanceOf(superAdmin));
+        assertEq(applicationNFT.balanceOf(superAdmin), 2);
     }
 
     function testTransfer() public {
-        applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.transferFrom(defaultAdmin, appAdministrator, 0);
-        assertEq(applicationNFT.balanceOf(defaultAdmin), 0);
+        applicationNFT.safeMint(superAdmin);
+        applicationNFT.transferFrom(superAdmin, appAdministrator, 0);
+        assertEq(applicationNFT.balanceOf(superAdmin), 0);
         assertEq(applicationNFT.balanceOf(appAdministrator), 1);
     }
 
     function testBurn() public {
         ///Mint and transfer tokenId 0
-        applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.transferFrom(defaultAdmin, appAdministrator, 0);
+        applicationNFT.safeMint(superAdmin);
+        applicationNFT.transferFrom(superAdmin, appAdministrator, 0);
         ///Mint tokenId 1
-        applicationNFT.safeMint(defaultAdmin);
+        applicationNFT.safeMint(superAdmin);
         ///Test token burn of token 0 and token 1
         applicationNFT.burn(1);
         ///Switch to app administrator account for burn
@@ -111,17 +111,17 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFT.burn(0);
         ///Return to default admin account
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        assertEq(applicationNFT.balanceOf(defaultAdmin), 0);
+        vm.startPrank(superAdmin);
+        assertEq(applicationNFT.balanceOf(superAdmin), 0);
         assertEq(applicationNFT.balanceOf(appAdministrator), 0);
     }
 
     function testFailBurn() public {
         ///Mint and transfer tokenId 0
-        applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.transferFrom(defaultAdmin, appAdministrator, 0);
+        applicationNFT.safeMint(superAdmin);
+        applicationNFT.transferFrom(superAdmin, appAdministrator, 0);
         ///Mint tokenId 1
-        applicationNFT.safeMint(defaultAdmin);
+        applicationNFT.safeMint(superAdmin);
         ///attempt to burn token that user does not own
         applicationNFT.burn(0);
     }
@@ -147,7 +147,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
     }
 
     function testPassMinMaxAccountBalanceRule() public {
-        /// mint 6 NFTs to defaultAdmin for transfer
+        /// mint 6 NFTs to superAdmin for transfer
         applicationNFT.safeMint(appAdministrator);
         applicationNFT.safeMint(appAdministrator);
         applicationNFT.safeMint(appAdministrator);
@@ -264,7 +264,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFTHandler.setOracleRuleId(_index);
         // add an allowed address
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
         vm.stopPrank();
@@ -277,7 +277,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         // Finally, check the invalid type
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
@@ -346,7 +346,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         // set to a tag that only allows 1 transfer
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         appManager.removeGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
         appManager.addGeneralTag(address(applicationNFT), "BoredGrape"); ///add tag
         // perform 1 transfer
@@ -367,7 +367,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         // add the other tag and check to make sure that it still only allows 1 trade
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         appManager.addGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
         vm.stopPrank();
         vm.startPrank(user1);
@@ -412,7 +412,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         ///Set Rule in NFTHandler
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         applicationNFTHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
         vm.stopPrank();
@@ -423,7 +423,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         ///Set Pricing for NFTs 0-7
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         nftPricer.setSingleNFTPrice(address(applicationNFT), 1, 11 * (10 ** 18));
         nftPricer.setSingleNFTPrice(address(applicationNFT), 0, 10 * (10 ** 18));
         nftPricer.setSingleNFTPrice(address(applicationNFT), 2, 12 * (10 ** 18));
@@ -467,7 +467,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         ///simulate price changes
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
 
         nftPricer.setSingleNFTPrice(address(applicationNFT), 4, 1050 * (10 ** 16)); // in cents
         nftPricer.setSingleNFTPrice(address(applicationNFT), 5, 1550 * (10 ** 16)); // in cents
@@ -629,13 +629,13 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
     function testAdminWithdrawal() public {
         /// Mint TokenId 0-6 to default admin
-        applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.safeMint(defaultAdmin);
-        applicationNFT.safeMint(defaultAdmin);
+        applicationNFT.safeMint(superAdmin);
+        applicationNFT.safeMint(superAdmin);
+        applicationNFT.safeMint(superAdmin);
+        applicationNFT.safeMint(superAdmin);
+        applicationNFT.safeMint(superAdmin);
+        applicationNFT.safeMint(superAdmin);
+        applicationNFT.safeMint(superAdmin);
         /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(appManager), 5, block.timestamp + 365 days);
 
@@ -650,17 +650,17 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
 
         /// These transfers should pass
-        applicationNFT.safeTransferFrom(defaultAdmin, user1, 0);
-        applicationNFT.safeTransferFrom(defaultAdmin, user1, 1);
+        applicationNFT.safeTransferFrom(superAdmin, user1, 0);
+        applicationNFT.safeTransferFrom(superAdmin, user1, 1);
         /// This one fails
         vm.expectRevert();
-        applicationNFT.safeTransferFrom(defaultAdmin, user1, 2);
+        applicationNFT.safeTransferFrom(superAdmin, user1, 2);
 
         /// Move Time forward 366 days
         vm.warp(Blocktime + 366 days);
 
         /// Transfers and updating rules should now pass
-        applicationNFT.safeTransferFrom(defaultAdmin, user1, 2);
+        applicationNFT.safeTransferFrom(superAdmin, user1, 2);
         applicationNFTHandler.activateAdminWithdrawalRule(false);
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
     }
@@ -766,7 +766,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFT.safeTransferFrom(user2, user1, 0);
         // now change the rule hold hours to 2 and it should pass
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         applicationNFTHandler.setMinimumHoldTimeHours(2);
         vm.stopPrank();
         vm.startPrank(user2);
@@ -777,7 +777,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
     function testCollectionSupplyVolatilityRule() public {
         /// Mint tokens to specific supply
         for (uint i = 0; i < 10; i++) {
-            applicationNFT.safeMint(defaultAdmin);
+            applicationNFT.safeMint(superAdmin);
         }
         /// create rule params
         // create rule params
@@ -852,7 +852,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFT.transferFrom(user2, user1, 1);
 
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
         ApplicationERC721 applicationNFT2 = new ApplicationERC721("ToughTurtles", "THTR", address(appManager), "https://SampleApp.io");
         console.log("applicationNFT2", address(applicationNFT2));
@@ -864,8 +864,8 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         applicationNFTHandler2.setNFTPricingAddress(address(nftPricer));
         applicationNFTHandler2.setERC20PricingAddress(address(erc20Pricer));
         for (uint i = 0; i < 40; i++) {
-            applicationNFT2.safeMint(defaultAdmin);
-            applicationNFT2.transferFrom(defaultAdmin, user1, i);
+            applicationNFT2.safeMint(superAdmin);
+            applicationNFT2.transferFrom(superAdmin, user1, i);
             nftPricer.setSingleNFTPrice(address(applicationNFT2), i, 1 * (10 ** 18));
         }
         uint256 testPrice2 = nftPricer.getNFTPrice(address(applicationNFT2), 35);
@@ -913,7 +913,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         /// adjust nft valuation limit to ensure we revert back to individual pricing
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         applicationNFTHandler.setNFTValuationLimit(50);
 
         vm.stopPrank();
@@ -983,7 +983,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         ///Set Rule in NFTHandler
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         assetHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
         vm.stopPrank();
@@ -994,7 +994,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         ///Set Pricing for NFTs 0-7
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         nftPricer.setSingleNFTPrice(address(applicationNFT), 1, 11 * (10 ** 18));
         nftPricer.setSingleNFTPrice(address(applicationNFT), 0, 10 * (10 ** 18));
         nftPricer.setSingleNFTPrice(address(applicationNFT), 2, 12 * (10 ** 18));
@@ -1038,7 +1038,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
 
         ///simulate price changes
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
 
         nftPricer.setSingleNFTPrice(address(applicationNFT), 4, 1050 * (10 ** 16)); // in cents
         nftPricer.setSingleNFTPrice(address(applicationNFT), 5, 1550 * (10 ** 16)); // in cents
@@ -1072,11 +1072,11 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
         vm.startPrank(newAdmin);
         appManager2.confirmAppManager(address(applicationNFT));
         /// test to ensure it still works
-        applicationNFT.safeMint(defaultAdmin);
+        applicationNFT.safeMint(superAdmin);
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        applicationNFT.transferFrom(defaultAdmin, appAdministrator, 0);
-        assertEq(applicationNFT.balanceOf(defaultAdmin), 0);
+        vm.startPrank(superAdmin);
+        applicationNFT.transferFrom(superAdmin, appAdministrator, 0);
+        assertEq(applicationNFT.balanceOf(superAdmin), 0);
         assertEq(applicationNFT.balanceOf(appAdministrator), 1);
 
         /// Test fail scenarios
@@ -1104,11 +1104,11 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
     //     /// test admin setting mint price
     //     applicationNFT.setMintPrice(1 ether);
     //     /// test treasury not set error fires
-    //     vm.deal(defaultAdmin, 5 ether);
+    //     vm.deal(superAdmin, 5 ether);
     //     vm.expectRevert(0xf726ee2d);
     //     applicationNFT.safeMint{value: 1 ether}(user1);
     //     /// set treasury address
-    //     address payable treasuryAddress = payable(defaultAdmin);
+    //     address payable treasuryAddress = payable(superAdmin);
     //     applicationNFT.setTreasuryAddress(treasuryAddress);
     //     /// test mint without ether
     //     vm.stopPrank();
@@ -1120,7 +1120,7 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
     //     /// mint with msg.value
     //     applicationNFT.safeMint{value: 1 ether}(user1);
     //     /// send mint fee to treasury address
-    //     uint256 treasuryBalance = address(defaultAdmin).balance;
+    //     uint256 treasuryBalance = address(superAdmin).balance;
     //     assertEq(treasuryBalance, (6 * 10**18)); /// Balance is 6 as we gave 5 ETH for testing above plus the 1 ETH mint fee
 
     // }
@@ -1130,12 +1130,12 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
      */
     // function testAppAdminOnlyMinting() public {
     //     /// Owner Mints new tokenId
-    //     applicationNFT.safeMint(defaultAdmin);
-    //     console.log(applicationNFT.balanceOf(defaultAdmin));
+    //     applicationNFT.safeMint(superAdmin);
+    //     console.log(applicationNFT.balanceOf(superAdmin));
     //     /// Owner Mints a second new tokenId
-    //     applicationNFT.safeMint(defaultAdmin);
-    //     console.log(applicationNFT.balanceOf(defaultAdmin));
-    //     assertEq(applicationNFT.balanceOf(defaultAdmin), 2);
+    //     applicationNFT.safeMint(superAdmin);
+    //     console.log(applicationNFT.balanceOf(superAdmin));
+    //     assertEq(applicationNFT.balanceOf(superAdmin), 2);
     //     /// try to mint as non admin
     //     vm.stopPrank();
     //     vm.startPrank(user1);
@@ -1148,12 +1148,12 @@ contract ApplicationERC721Test is DiamondTestUtil, RuleProcessorDiamondTestUtil 
      */
     // function testOnlyOwnerMinting() public {
     //     /// Owner Mints new tokenId
-    //     applicationNFT.safeMint(defaultAdmin);
-    //     console.log(applicationNFT.balanceOf(defaultAdmin));
+    //     applicationNFT.safeMint(superAdmin);
+    //     console.log(applicationNFT.balanceOf(superAdmin));
     //     /// Owner Mints a second new tokenId
-    //     applicationNFT.safeMint(defaultAdmin);
-    //     console.log(applicationNFT.balanceOf(defaultAdmin));
-    //     assertEq(applicationNFT.balanceOf(defaultAdmin), 2);
+    //     applicationNFT.safeMint(superAdmin);
+    //     console.log(applicationNFT.balanceOf(superAdmin));
+    //     assertEq(applicationNFT.balanceOf(superAdmin), 2);
     //     /// try to mint as non admin
     //     vm.stopPrank();
     //     vm.startPrank(user1);

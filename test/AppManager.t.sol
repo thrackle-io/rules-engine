@@ -26,7 +26,7 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     string tokenName = "FEUD";
 
     function setUp() public {
-        vm.startPrank(defaultAdmin); //set up as the default admin
+        vm.startPrank(superAdmin); //set up as the default admin
         // Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy the token rule processor diamond
@@ -34,43 +34,42 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         // Connect the ruleProcessor into the ruleStorageDiamond
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
 
-        appManager = new AppManager(defaultAdmin, "Castlevania", false);
+        appManager = new AppManager(superAdmin, "Castlevania", false);
         applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         vm.warp(TEST_DATE); // set block.timestamp
     }
 
-    // Test deployment of data contracts
-    function testDeployDataContracts2() public {
-        assertEq(appManager.isUser(user), false);
-    }
-
     ///---------------DEFAULT ADMIN--------------------
     /// Test the Default Admin roles
-    function testIsDefaultAdmin() public {
-        assertEq(appManager.isAdmin(defaultAdmin), true);
-        assertEq(appManager.isAdmin(appAdministrator), false);
+    function testIsSuperAdmin() public {
+        assertEq(appManager.isSuperAdmin(superAdmin), true);
+        assertEq(appManager.isSuperAdmin(appAdministrator), false);
     }
 
     /// Test the Application Administrators roles
     function testIsAppAdministrator() public {
-        assertEq(appManager.isAppAdministrator(defaultAdmin), true);
+        assertEq(appManager.isAppAdministrator(superAdmin), true);
     }
 
-    function testRenounceDefaultAdmin() public {
-        appManager.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
+    function testRenounceSuperAdmin() public {
+        appManager.renounceRole(DEFAULT_ADMIN_ROLE, superAdmin);
     }
 
     ///---------------APP ADMIN--------------------
     // Test the Application Administrators roles(only DEFAULT_ADMIN can add app administrator)
     function testAddAppAdministratorAppManager() public {
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
         appManager.addAppAdministrator(appAdministrator);
         assertEq(appManager.isAppAdministrator(appAdministrator), true);
         assertEq(appManager.isAppAdministrator(user), false);
         vm.stopPrank(); //stop interacting as the app administrator
-        vm.startPrank(appAdministrator); //interact as a different user
+        vm.startPrank(appAdministrator); //interact as an app admin
+        bytes4 selector = bytes4(keccak256("NotSuperAdmin(address)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, appAdministrator));
         appManager.addAppAdministrator(address(77));
-        assertTrue(appManager.isAppAdministrator(address(77)));
+        assertFalse(appManager.isAppAdministrator(address(77)));
     }
 
     // Commented out because the UHGDA style admin role is not required for EVM Product
@@ -232,58 +231,6 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.startPrank(address(77)); //interact as a different user
 
         appManager.revokeRole(ACCESS_TIER_ADMIN_ROLE, AccessTier);
-    }
-
-    ///---------------USER ADMIN--------------------
-    // Test adding the User roles
-    function testAddUser() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        appManager.addUser(user); //add user
-        assertEq(appManager.isUser(user), true);
-        assertEq(appManager.isUser(address(88)), false);
-    }
-
-    // Test adding the User roles
-    function testFailAddUser() public {
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(user); //interact as a stamdard user
-        appManager.addUser(address(77)); //add another user
-    }
-
-    // Test removing the User roles
-    function testRemoveUser() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        appManager.addUser(user); //add user
-        assertEq(appManager.isUser(user), true);
-        assertEq(appManager.isUser(address(88)), false);
-
-        appManager.removeUser(user);
-        assertEq(appManager.isUser(user), false);
-    }
-
-    // Test non app administrator attempt at removing the User roles
-    function testFailRemoveUser() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        appManager.addUser(user); //add user
-        assertEq(appManager.isUser(user), true);
-        assertEq(appManager.isUser(address(88)), false);
-
-        vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(address(88)); //interact as a different user
-
-        appManager.removeUser(user);
-    }
-
-    // Test getting the User roles
-    function testGetUser() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        appManager.addUser(user); //add user
-        assertEq(appManager.isUser(user), true);
-        assertEq(appManager.isUser(address(88)), false);
     }
 
     ///---------------AccessLevel LEVEL MAINTENANCE--------------------
@@ -536,7 +483,7 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(appManager.getAccessLevel(upgradeUser2), 3);
         /// Risk Data
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         switchToRiskAdmin(); // create a access tier and make it the sender.
         appManager.addRiskScore(upgradeUser1, 75);
         assertEq(75, appManager.getRiskScore(upgradeUser1));
@@ -544,12 +491,8 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(65, appManager.getRiskScore(upgradeUser2));
         /// Account Data
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        appManager.addUser(upgradeUser1); //add user
-        assertEq(appManager.isUser(upgradeUser1), true);
-        appManager.addUser(upgradeUser2); //add user
-        assertEq(appManager.isUser(upgradeUser2), true);
         /// General Tags Data
         appManager.addGeneralTag(upgradeUser1, "TAG1"); //add tag
         assertTrue(appManager.hasTag(upgradeUser1, "TAG1"));
@@ -562,8 +505,8 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
         /// create new app manager
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        AppManager appManagerNew = new AppManager(defaultAdmin, "Castlevania", false);
+        vm.startPrank(superAdmin);
+        AppManager appManagerNew = new AppManager(superAdmin, "Castlevania", false);
         /// migrate data contracts to new app manager
         /// set a app administrator in the new app manager
         appManagerNew.addAppAdministrator(appAdministrator);
@@ -581,8 +524,6 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertTrue(appManagerNew.hasTag(upgradeUser2, "TAG2"));
         test = appManagerNew.getPauseRules();
         assertTrue(test.length == 1);
-        assertEq(appManagerNew.isUser(upgradeUser1), true);
-        assertEq(appManagerNew.isUser(upgradeUser2), true);
     }
 
     ///---------------UTILITY--------------------
@@ -616,12 +557,7 @@ contract AppManagerTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     }
 
     function switchToUser() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
-        appManager.addUser(user); //add AccessLevel admin
-        assertEq(appManager.isUser(user), true);
-
         vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(user); //interact as the created AccessLevel admin
+        vm.startPrank(address(33)); //interact as the created Risk admin
     }
 }
