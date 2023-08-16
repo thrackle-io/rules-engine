@@ -67,6 +67,7 @@ interface IInputErrors {
     error ZeroValueNotPermited();
     error InvertedLimits();
     error InvalidOracleType(uint8 _type);
+    error InvalidRuleInput();
 }
 
 interface IAppRuleInputErrors {
