@@ -27,9 +27,9 @@ Token Purchase Percentage Getters/Setters **********
 function addPercentagePurchaseRule(
     address _appManagerAddr,
     uint16 _tokenPercentage,
-    uint32 _purchasePeriod,
+    uint16 _purchasePeriod,
     uint256 _totalSupply,
-    uint32 _startingHour
+    uint64 _startTimestamp
 ) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -38,9 +38,9 @@ function addPercentagePurchaseRule(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_tokenPercentage`|`uint16`|Percentage of Tokens allowed to purchase|
-|`_purchasePeriod`|`uint32`|Time period that transactions are accumulated|
+|`_purchasePeriod`|`uint16`|Time period that transactions are accumulated|
 |`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
-|`_startingHour`|`uint32`|start time for the period|
+|`_startTimestamp`|`uint64`|start time for the period|
 
 **Returns**
 
@@ -96,9 +96,9 @@ Token Sell Percentage Getters/Setters **********
 function addPercentageSellRule(
     address _appManagerAddr,
     uint16 _tokenPercentage,
-    uint32 _sellPeriod,
+    uint16 _sellPeriod,
     uint256 _totalSupply,
-    uint32 _startingHour
+    uint64 _startingHour
 ) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -107,9 +107,9 @@ function addPercentageSellRule(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_tokenPercentage`|`uint16`|Percent of Tokens allowed to sell|
-|`_sellPeriod`|`uint32`|Time period that transactions are frozen|
+|`_sellPeriod`|`uint16`|Time period that transactions are frozen|
 |`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
-|`_startingHour`|`uint32`|start time for the period|
+|`_startTime`|`uint64`|start time for the period|
 
 **Returns**
 
@@ -232,8 +232,8 @@ Token Volatility Getters/Setters **********
 function addVolatilityRule(
     address _appManagerAddr,
     uint16 _maxVolatility,
-    uint8 _blocksPerPeriod,
-    uint8 _hoursFrozen,
+    uint16 _blocksPerPeriod,
+    uint16 _hoursFrozen,
     uint256 _totalSupply
 ) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
@@ -243,8 +243,8 @@ function addVolatilityRule(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_maxVolatility`|`uint16`|Maximum allowed volume|
-|`_blocksPerPeriod`|`uint8`|Allowed blocks per period|
-|`_hoursFrozen`|`uint8`|Time period that transactions are frozen|
+|`_blocksPerPeriod`|`uint16`|Allowed blocks per period|
+|`_hoursFrozen`|`uint16`|Time period that transactions are frozen|
 |`_totalSupply`|`uint256`||
 
 **Returns**
@@ -301,7 +301,7 @@ Token Transfer Volume Getters/Setters **********
 function addTransferVolumeRule(
     address _appManagerAddr,
     uint16 _maxVolumePercentage,
-    uint8 _hoursPerPeriod,
+    uint16 _hoursPerPeriod,
     uint64 _startTime,
     uint256 _totalSupply
 ) external appAdministratorOnly(_appManagerAddr) returns (uint32);
@@ -312,7 +312,7 @@ function addTransferVolumeRule(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_maxVolumePercentage`|`uint16`|Maximum allowed volume percentage (this is 4 digits to allow 2 decimal places)|
-|`_hoursPerPeriod`|`uint8`|Allowed hours per period|
+|`_hoursPerPeriod`|`uint16`|Allowed hours per period|
 |`_startTime`|`uint64`|Time to start the block|
 |`_totalSupply`|`uint256`|Circulating supply value to use in calculations. If not specified, defaults to ERC20 totalSupply|
 
@@ -433,8 +433,8 @@ Supply Volatility Getters/Setters **********
 function addSupplyVolatilityRule(
     address _appManagerAddr,
     uint16 _maxVolumePercentage,
-    uint8 _period,
-    uint8 _startTime,
+    uint16 _period,
+    uint64 _startTime,
     uint256 _totalSupply
 ) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
@@ -444,8 +444,8 @@ function addSupplyVolatilityRule(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_maxVolumePercentage`|`uint16`|Maximum amount of change allowed. This is not capped and will allow for values greater than 100%. Since there is no cap for _maxVolumePercentage this could allow burning of full totalSupply() if over 100% (10000).|
-|`_period`|`uint8`|Allowed hours per period|
-|`_startTime`|`uint8`|Hours that transactions are frozen|
+|`_period`|`uint16`|Allowed hours per period|
+|`_startTime`|`uint64`|Hours that transactions are frozen|
 |`_totalSupply`|`uint256`||
 
 **Returns**
@@ -566,7 +566,8 @@ NFT Getters/Setters **********
 function addNFTTransferCounterRule(
     address _appManagerAddr,
     bytes32[] calldata _nftTypes,
-    uint8[] calldata _tradesAllowed
+    uint8[] calldata _tradesAllowed,
+    uint64 _startTs
 ) external appAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -576,6 +577,7 @@ function addNFTTransferCounterRule(
 |`_appManagerAddr`|`address`|App Manager Address|
 |`_nftTypes`|`bytes32[]`|Types of NFTs|
 |`_tradesAllowed`|`uint8[]`|Maximum trades allowed within 24 hours|
+|`_startTs`|`uint64`|Starting timestamp for the rule|
 
 **Returns**
 
@@ -590,7 +592,7 @@ function addNFTTransferCounterRule(
 
 
 ```solidity
-function _addNFTTransferCounterRule(bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed)
+function _addNFTTransferCounterRule(bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed, uint64 _startTs)
     internal
     returns (uint32);
 ```
@@ -600,6 +602,7 @@ function _addNFTTransferCounterRule(bytes32[] calldata _nftTypes, uint8[] callda
 |----|----|-----------|
 |`_nftTypes`|`bytes32[]`|Types of NFTs|
 |`_tradesAllowed`|`uint8[]`|Maximum trades allowed within 24 hours|
+|`_startTs`|`uint64`|Starting timestamp for the rule|
 
 **Returns**
 

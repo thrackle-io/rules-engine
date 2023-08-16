@@ -26,7 +26,7 @@ struct TokenMinimumTransferRule {
 ```solidity
 struct TokenPercentagePurchaseRule {
     uint16 tokenPercentage;
-    uint32 purchasePeriod;
+    uint16 purchasePeriod;
     uint256 totalSupply;
     uint64 startTime;
 }
@@ -39,7 +39,7 @@ struct TokenPercentagePurchaseRule {
 ```solidity
 struct TokenPercentageSellRule {
     uint16 tokenPercentage;
-    uint32 sellPeriod;
+    uint16 sellPeriod;
     uint256 totalSupply;
     uint64 startTime;
 }
@@ -63,23 +63,12 @@ struct TokenPurchaseFeeByVolume {
 ```solidity
 struct TokenVolatilityRule {
     uint16 maxVolatility;
-    uint8 period;
-    uint64 startingTime;
+    uint16 period;
+    uint16 hoursFrozen;
     uint256 totalSupply;
 }
 ```
 
-### TokenTradingVolumeRule
-******** Token Trading Volume ********
-
-
-```solidity
-struct TokenTradingVolumeRule {
-    uint256 maxVolume;
-    uint8 hoursPerPeriod;
-    uint8 hoursFrozen;
-}
-```
 
 ### TokenTransferVolumeRule
 ******** Token Transfer Volume ********
@@ -101,7 +90,7 @@ struct TokenTransferVolumeRule {
 ```solidity
 struct SupplyVolatilityRule {
     uint16 maxChange;
-    uint8 period;
+    uint16 period;
     uint64 startingTime;
     uint256 totalSupply;
 }
@@ -125,7 +114,7 @@ struct OracleRule {
 ```solidity
 struct NFTTradeCounterRule {
     uint8 tradesAllowedPerDay;
-    bool active;
+    uint64 startTs;
 }
 ```
 

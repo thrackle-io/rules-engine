@@ -162,7 +162,7 @@ risk scores      balances         resultant logic
 25             1000            0-24  =  1000
 50              500            25-49 =   500
 75              250            50-74 =   250
-100            75-99 =   100
+                100            75-99 =   100
 
 *Function add a Max Tx Size Per Period By Risk rule*
 
@@ -248,7 +248,7 @@ risk scores      balances         resultant logic
 25             1000            0-24  =  1000
 50              500            25-49 =   500
 75              250            50-74 =   250
-100            75-99 =   100
+                100            75-99 =   100
 
 *Function to add new AccountBalanceByRiskScore Rules*
 

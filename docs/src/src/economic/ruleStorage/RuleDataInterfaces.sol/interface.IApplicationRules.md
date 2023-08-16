@@ -24,7 +24,7 @@ array must be ascendant.*
 struct TxSizePerPeriodToRiskRule {
     uint48[] maxSize;
     uint8[] riskLevel;
-    uint8 period;
+    uint16 period;
     uint64 startingTime;
 }
 ```
