@@ -61,8 +61,8 @@ jobs:
         run: |
           sed -i "s|{{ECR_REPOSITORY}}|${{ env.ANVIL_IMAGE_TAG }}|g" ${{ env.ANVIL_DEPLOYMENT_FILE }}
           sed -i "s|{{ECR_REPOSITORY}}|${{ env.TRON_IMAGE_TAG }}|g" ${{ env.TRON_DEPLOYMENT_FILE }}
-          sed -i "s|{{NAMESPACE}}|${{ vars.NAMESPACE }}'|g" k8s/{anvil,tron}/deployment.yaml
-          sed -i "s|{{NAMESPACE}}|${{ vars.NAMESPACE }}'|g" k8s/anvil/service.yaml
+          sed -i "s|{{NAMESPACE}}|${{ vars.NAMESPACE }}|g" k8s/{anvil,tron}/deployment.yaml
+          sed -i "s|{{NAMESPACE}}|${{ vars.NAMESPACE }}|g" k8s/anvil/service.yaml
           sed -i "s|{{NAMESPACE}}|${{ vars.NAMESPACE }}|g" k8s/tron/configmap.yaml
           sed -i "s|{{CHAIN_ID}}|${{ vars.CHAIN_ID }}|g" k8s/tron/configmap.yaml
           sed -i "s|{{CHAIN_ID}}|${{ vars.CHAIN_ID }}|g" k8s/anvil/deployment.yaml
