@@ -2,6 +2,15 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Test.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ApplicationERC20} from "../src/example/ApplicationERC20.sol";
+import {ApplicationERC721} from "src/example/ApplicationERC721.sol";
+import "../src/example/ApplicationAppManager.sol";
+import "../src/example/application/ApplicationHandler.sol";
+import "./DiamondTestUtil.sol";
+import {ApplicationERC721Handler} from "../src/example/ApplicationERC721Handler.sol";
+import {ApplicationERC20Handler} from "../src/example/ApplicationERC20Handler.sol";
+import "./RuleProcessorDiamondTestUtil.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
@@ -46,9 +55,9 @@ contract ApplicationERC721FuzzTest is TestCommon {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address randomUser = addressList[0];
         address randomUser2 = addressList[1];
+        applicationNFT.safeMint(randomUser);
         vm.stopPrank();
         vm.startPrank(randomUser);
-        applicationNFT.safeMint(randomUser);
         applicationNFT.transferFrom(randomUser, randomUser2, 0);
         assertEq(applicationNFT.balanceOf(randomUser), 0);
         assertEq(applicationNFT.balanceOf(randomUser2), 1);
@@ -58,23 +67,25 @@ contract ApplicationERC721FuzzTest is TestCommon {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address randomUser = addressList[0];
         address randomUser2 = addressList[1];
-        vm.stopPrank();
-        vm.startPrank(randomUser);
         ///Mint and transfer tokenId 0
         applicationNFT.safeMint(randomUser);
+        vm.stopPrank();
+        vm.startPrank(randomUser);
         applicationNFT.transferFrom(randomUser, randomUser2, 0);
         ///Mint tokenId 1
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
         applicationNFT.safeMint(randomUser);
         ///Test token burn of token 0 and token 1
+        vm.stopPrank();
+        vm.startPrank(randomUser);
         applicationNFT.burn(1);
         ///Switch to app administrator account for burn
         vm.stopPrank();
         vm.startPrank(randomUser2);
-        /// Burn appAdministrator token
+        // Burn appAdministrator token
         applicationNFT.burn(0);
         ///Return to default admin account
-        vm.stopPrank();
-        vm.startPrank(randomUser);
         assertEq(applicationNFT.balanceOf(randomUser), 0);
         assertEq(applicationNFT.balanceOf(randomUser2), 0);
     }
@@ -156,7 +167,7 @@ contract ApplicationERC721FuzzTest is TestCommon {
 
         ///make sure the maximum rule fail results in revert
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(appAdministrator);
         // user1 mints to 6 total (limit)
         applicationNFT.safeMint(user1); /// Id 6
         applicationNFT.safeMint(user1); /// Id 7
@@ -164,10 +175,10 @@ contract ApplicationERC721FuzzTest is TestCommon {
         applicationNFT.safeMint(user1); /// Id 9
         applicationNFT.safeMint(user1); /// Id 10
 
-        vm.stopPrank();
-        vm.startPrank(user2);
         applicationNFT.safeMint(user2);
         // transfer to user1 to exceed limit
+        vm.stopPrank();
+        vm.startPrank(user2);
         vm.expectRevert(0x24691f6b);
         applicationNFT.transferFrom(user2, user1, 3);
     }
@@ -1081,9 +1092,8 @@ contract ApplicationERC721FuzzTest is TestCommon {
         /// determine the maximum burn/mint amount for inital test
         uint256 maxVol = uint256(volLimit) / 1000;
         console.logUint(maxVol);
-        vm.stopPrank();
-        vm.startPrank(rich_user);
         /// make sure that transfer under the threshold works
+        switchToAppAdministrator();
         if (maxVol >= 1) {
             for (uint i = 0; i < maxVol - 1; i++) {
                 applicationNFT.safeMint(rich_user);
@@ -1099,14 +1109,24 @@ contract ApplicationERC721FuzzTest is TestCommon {
             applicationNFT.safeMint(rich_user);
         }
         /// at vol limit
+        vm.stopPrank();
+        vm.startPrank(rich_user);
         if ((10000 / applicationNFT.totalSupply()) > volLimit) {
             vm.expectRevert();
             applicationNFT.burn(9);
         } else {
             applicationNFT.burn(9);
+            vm.stopPrank();
+            vm.startPrank(appAdministrator);
             applicationNFT.safeMint(rich_user); // token 10
+            vm.stopPrank();
+            vm.startPrank(rich_user);
             applicationNFT.burn(10);
+            vm.stopPrank();
+            vm.startPrank(appAdministrator);
             applicationNFT.safeMint(rich_user);
+            vm.stopPrank();
+            vm.startPrank(rich_user);
             applicationNFT.burn(11);
         }
     }

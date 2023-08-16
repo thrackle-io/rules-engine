@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "src/economic/ruleProcessor/ActionEnum.sol";
-import "src/data/IDataModule.sol";
-import "src/data/IPauseRules.sol";
-import {IAppManagerErrors, IPermissionModifierErrors, IInputErrors, IZeroAddressError, IOwnershipErrors} from "src/interfaces/IErrors.sol";
+import "../economic/ruleProcessor/ActionEnum.sol";
+import "../data/IDataModule.sol";
+import "../data/IPauseRules.sol";
+import {IAppManagerErrors, IPermissionModifierErrors, IInputErrors, IZeroAddressError, IOwnershipErrors} from "../interfaces/IErrors.sol";
 
 /**
  * @title App Manager Inquiry Interface

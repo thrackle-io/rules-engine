@@ -2,8 +2,8 @@
 pragma solidity 0.8.17;
 
 import {IAppManager} from "../application/IAppManager.sol";
-import "openzeppelin-contracts/contracts/utils/Context.sol";
-import {IPermissionModifierErrors} from "../interfaces/IErrors.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+import { IPermissionModifierErrors } from "../interfaces/IErrors.sol";
 
 /**
  * @title Application Administrators Only Modifier Contract

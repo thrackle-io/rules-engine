@@ -253,23 +253,27 @@ contract ERC721StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationNFT.balanceOf(user2), 2);
         assertEq(applicationNFT.balanceOf(user3), 2);
 
+        applicationNFT2.safeMint(user1);
         vm.stopPrank();
         vm.startPrank(user1);
-        applicationNFT2.safeMint(user1);
         applicationNFT.approve(address(stakingContract), 0);
         applicationNFT.approve(address(stakingContract), 1);
         applicationNFT2.approve(address(stakingContract), 0);
 
         vm.stopPrank();
-        vm.startPrank(user2);
+        vm.startPrank(appAdministrator);
         applicationNFT2.safeMint(user2);
+        vm.stopPrank();
+        vm.startPrank(user2);
         applicationNFT.approve(address(stakingContract), 2);
         applicationNFT.approve(address(stakingContract), 3);
         applicationNFT2.approve(address(stakingContract), 1);
 
         vm.stopPrank();
-        vm.startPrank(user3);
+        vm.startPrank(appAdministrator);
         applicationNFT2.safeMint(user3);
+        vm.stopPrank();
+        vm.startPrank(user3);
         applicationNFT.approve(address(stakingContract), 4);
         applicationNFT.approve(address(stakingContract), 5);
         applicationNFT2.approve(address(stakingContract), 2);

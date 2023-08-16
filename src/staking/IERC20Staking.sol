@@ -8,7 +8,7 @@ pragma solidity ^0.8.17;
  * the TIME_UNITS_TO_SECS 'constant'
  */
 
-import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IStakingErrors } from "../interfaces/IErrors.sol";
 
 //// add context contract

@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "openzeppelin-contracts/contracts/utils/Context.sol";
 import "../RuleAdministratorOnly.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+import "../AppAdministratorOnly.sol";
 import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {IFeeRules as Fee} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
