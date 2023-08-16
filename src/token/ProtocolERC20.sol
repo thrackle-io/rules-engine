@@ -172,15 +172,6 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     }
 
     /**
-     * @dev Function to set the appManagerAddress and connect to the new appManager
-     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
-     */
-    function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
-        appManagerAddress = _appManagerAddress;
-        appManager = IAppManager(_appManagerAddress);
-    }
-
-    /**
      * @dev This function is overridden here as a guarantee that flashloans are not allowed. This is done in case they are enabled at a later time.
      * @param receiver loan recipient.
      * @param token address of token calling function

@@ -112,6 +112,7 @@ interface ITokenHandlerEvents {
     /// NFT Valuation Limit Updated
     event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit, address indexed handlerAddress);
     event AppManagerAddressSet(address indexed _address);
+    event AppManagerAddressProposed(address indexed _address); 
     /// Fees
     event FeeActivationSet(bool indexed _activation);
     /// Pricing
