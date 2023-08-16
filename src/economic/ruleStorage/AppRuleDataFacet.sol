@@ -160,6 +160,8 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         /// Validation block
         if (_maxSize.length != _riskLevel.length + 1) revert InputArraysSizesNotValid();
+        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        if (_maxSize.length == 0) revert InvalidRuleInput();
         if (_riskLevel[_riskLevel.length - 1] > 99) revert RiskLevelCannotExceed99();
         for (uint256 i = 1; i < _riskLevel.length; ) {
             if (_riskLevel[i] <= _riskLevel[i - 1]) revert WrongArrayOrder();
@@ -233,6 +235,8 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      */
     function addAccountBalanceByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _balanceLimits) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_balanceLimits.length != _riskScores.length + 1) revert InputArraysSizesNotValid();
+        // since the arrays are compared, it is only necessary to check for one of them being empty.
+        if (_balanceLimits.length == 0) revert InvalidRuleInput();
         if (_riskScores[_riskScores.length - 1] > 99) revert RiskLevelCannotExceed99();
         for (uint i = 1; i < _riskScores.length; ) {
             if (_riskScores[i] <= _riskScores[i - 1]) revert WrongArrayOrder();
