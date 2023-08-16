@@ -1,5 +1,5 @@
 # ProtocolHandlerCommon
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/e66fc809d7d2554e7ebbff7404b6c1d6e84d340d/src/token/ProtocolHandlerCommon.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/d0344b27291308c442daefb74b46bb81740099e4/src/token/ProtocolHandlerCommon.sol)
 
 **Inherits:**
 [IAppManagerUser](/src/application/IAppManagerUser.sol/interface.IAppManagerUser.md), [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/interfaces/IErrors.sol/interface.IAssetHandlerErrors.md), [AppAdministratorOrOwnerOnly](/src/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md)
@@ -64,6 +64,13 @@ address public erc20PricingAddress;
 
 ```solidity
 address public nftPricingAddress;
+```
+
+
+### ERC20_PRICER
+
+```solidity
+bytes32 ERC20_PRICER;
 ```
 
 

@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/e66fc809d7d2554e7ebbff7404b6c1d6e84d340d/src/token/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/d0344b27291308c442daefb74b46bb81740099e4/src/token/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [ProtocolTokenCommon](/src/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/interfaces/IErrors.sol/interface.IProtocolERC20Errors.md)
@@ -143,20 +143,9 @@ function mint(address to, uint256 amount) public virtual;
 |`amount`|`uint256`|number of tokens to mint|
 
 
-### setAppManagerAddress
+### flashLoan
 
 check that the address calling mint is authorized(appAdminstrator, AMM or Staking Contract)
-
-*Function to set the appManagerAddress and connect to the new appManager*
-
-*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress);
-```
-
-### flashLoan
 
 *This function is overridden here as a guarantee that flashloans are not allowed. This is done in case they are enabled at a later time.*
 
