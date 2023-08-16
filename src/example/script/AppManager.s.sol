@@ -2,8 +2,8 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
-import {ApplicationAppManager} from "src/example/ApplicationAppManager.sol";
-import "src/example/application/ApplicationHandler.sol";
+import {ApplicationAppManager} from "../ApplicationAppManager.sol";
+import "../application/ApplicationHandler.sol";
 
 /**
  * @title App Manager Deployment Script

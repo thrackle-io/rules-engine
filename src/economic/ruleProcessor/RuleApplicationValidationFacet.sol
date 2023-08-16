@@ -2,14 +2,14 @@
 pragma solidity 0.8.17;
 
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {FeeRuleDataFacet} from "src/economic/ruleStorage/FeeRuleDataFacet.sol";
-import {TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
+import {FeeRuleDataFacet} from "../ruleStorage/FeeRuleDataFacet.sol";
+import {TaggedRuleDataFacet} from "../ruleStorage/TaggedRuleDataFacet.sol";
+import {RuleDataFacet} from "../ruleStorage/RuleDataFacet.sol";
+import {AppRuleDataFacet} from "../ruleStorage/AppRuleDataFacet.sol";
 import {IFeeRules as Fee, ITaggedRules as TaggedRules, INonTaggedRules as NonTaggedRules} from "../ruleStorage/RuleDataInterfaces.sol";
-import "src/economic/ruleStorage/RuleStorageCommonLib.sol";
-import "src/data/PauseRule.sol";
-import "src/application/IAppManager.sol";
+import "../ruleStorage/RuleStorageCommonLib.sol";
+import "../../data/PauseRule.sol";
+import "../../application/IAppManager.sol";
 import "forge-std/console.sol";
 
 /**

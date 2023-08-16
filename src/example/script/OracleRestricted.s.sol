@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/OracleRestricted.sol";
+import "../OracleRestricted.sol";
 
 /**
  * @title Create the Restricted Oracle

@@ -2,10 +2,10 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/ApplicationERC721U.sol";
-import "src/example/ApplicationERC721UProxy.sol";
-import "src/application/IAppManager.sol";
-import {ApplicationERC721Handler} from "src/example/ApplicationERC721Handler.sol";
+import "../ApplicationERC721U.sol";
+import "../ApplicationERC721UProxy.sol";
+import "../../application/IAppManager.sol";
+import {ApplicationERC721Handler} from "../ApplicationERC721Handler.sol";
 
 /**
  * @title This is the deployment script for the ApplicationERC721U.

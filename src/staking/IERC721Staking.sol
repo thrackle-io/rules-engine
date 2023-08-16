@@ -8,8 +8,8 @@ pragma solidity ^0.8.17;
  * the TIME_UNITS_TO_SECS 'constant'
  */
 
-import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 import { IStakingErrors, IERC721StakingErrors } from "../interfaces/IErrors.sol";
 

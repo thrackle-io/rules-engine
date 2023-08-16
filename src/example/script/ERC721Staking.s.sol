@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/staking/ERC721Staking.sol";
+import "../staking/ERC721Staking.sol";
 
 /**
  * @title Create a ERC721 Staking Contract

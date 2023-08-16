@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "src/economic/ruleProcessor/RuleProcessorDiamondLib.sol";
-import "src/application/AppManager.sol";
-import "src/economic/ruleStorage/RuleCodeData.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "../application/AppManager.sol";
+import "../economic/AppAdministratorOnly.sol";
+import "../economic/ruleStorage/RuleCodeData.sol";
 import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
-import "src/economic/IRuleProcessor.sol";
-import "src/economic/ruleProcessor/ActionEnum.sol";
+import "../economic/IRuleProcessor.sol";
+import "../economic/ruleProcessor/ActionEnum.sol";
 import {IZeroAddressError, IInputErrors} from "../interfaces/IErrors.sol";
 import "src/economic/RuleAdministratorOnly.sol";
 
