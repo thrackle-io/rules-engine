@@ -369,6 +369,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     function setERC721Address(address _address) public appAdministratorOrOwnerOnly(appManagerAddress) {
         if (_address == address(0)) revert ZeroAddress();
         erc721Address = _address;
+        emit ERC721AddressSet(_address); 
     }
 
     /**
