@@ -1,7 +1,6 @@
 
 
 # Contents
-- [IERC721A](IERC721A.sol/interface.IERC721A.md)
 - [IERC721Errors](IErrors.sol/interface.IERC721Errors.md)
 - [IRuleProcessorErrors](IErrors.sol/interface.IRuleProcessorErrors.md)
 - [IAccessLevelErrors](IErrors.sol/interface.IAccessLevelErrors.md)
@@ -15,7 +14,7 @@
 - [IRiskInputErrors](IErrors.sol/interface.IRiskInputErrors.md)
 - [ITagInputErrors](IErrors.sol/interface.ITagInputErrors.md)
 - [ITagRuleInputErrors](IErrors.sol/interface.ITagRuleInputErrors.md)
-- [IAppAdministratorOnlyErrors](IErrors.sol/interface.IAppAdministratorOnlyErrors.md)
+- [IPermissionModifierErrors](IErrors.sol/interface.IPermissionModifierErrors.md)
 - [IAppManagerErrors](IErrors.sol/interface.IAppManagerErrors.md)
 - [AMMCalculatorErrors](IErrors.sol/interface.AMMCalculatorErrors.md)
 - [AMMErrors](IErrors.sol/interface.AMMErrors.md)
@@ -25,6 +24,7 @@
 - [IProtocolERC20Errors](IErrors.sol/interface.IProtocolERC20Errors.md)
 - [IZeroAddressError](IErrors.sol/interface.IZeroAddressError.md)
 - [IAssetHandlerErrors](IErrors.sol/interface.IAssetHandlerErrors.md)
+- [IOwnershipErrors](IErrors.sol/interface.IOwnershipErrors.md)
 - [IAppLevelEvents](IEvents.sol/interface.IAppLevelEvents.md)
 - [IApplicationHandlerEvents](IEvents.sol/interface.IApplicationHandlerEvents.md)
 - [IRuleStorageDiamondEvents](IEvents.sol/interface.IRuleStorageDiamondEvents.md)

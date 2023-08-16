@@ -1,5 +1,5 @@
 # IAccessLevels
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/data/IAccessLevels.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/e66fc809d7d2554e7ebbff7404b6c1d6e84d340d/src/data/IAccessLevels.sol)
 
 **Inherits:**
 [IDataModule](/src/data/IDataModule.sol/interface.IDataModule.md), [IAccessLevelErrors](/src/interfaces/IErrors.sol/interface.IAccessLevelErrors.md)
@@ -63,27 +63,6 @@ function getAccessLevel(address _account) external view returns (uint8);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint8`|level Access Level(0-4)|
-
-
-### hasAccessLevel
-
-*Check if an account has a Access Level*
-
-
-```solidity
-function hasAccessLevel(address _address) external view returns (bool);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_address`|`address`|address of the account|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|hasAccessLevel true if it has a level, false if it doesn't|
 
 
 ### addAccessLevelToMultipleAccounts

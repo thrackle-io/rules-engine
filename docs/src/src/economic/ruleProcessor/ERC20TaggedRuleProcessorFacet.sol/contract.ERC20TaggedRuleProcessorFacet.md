@@ -1,5 +1,5 @@
 # ERC20TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/e66fc809d7d2554e7ebbff7404b6c1d6e84d340d/src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [ITagRuleErrors](/src/interfaces/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/interfaces/IErrors.sol/interface.IMaxTagLimitError.md)
@@ -122,73 +122,11 @@ function minAccountBalanceCheck(uint256 balanceFrom, bytes32[] calldata fromTags
 |`ruleId`|`uint32`|Rule identifier for rule arguments|
 
 
-### checkPurchaseLimit
+### checkAdminWithdrawalRule
 
 This Function checks the min account balance for accounts depending on GeneralTags.
 Function will revert if a transaction breaks a single tag-dependent rule
 if a min is 0 then no need to check.
-
-*Rule checks if recipient balance + amount exceeded purchaseAmount during purchase period, prevent purchases for freeze period*
-
-
-```solidity
-function checkPurchaseLimit(
-    uint32 ruleId,
-    uint256 purchasedWithinPeriod,
-    uint256 amount,
-    bytes32[] calldata toTags,
-    uint64 lastUpdateTime
-) external view returns (uint256);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ruleId`|`uint32`|Rule identifier for rule arguments|
-|`purchasedWithinPeriod`|`uint256`|Number of tokens purchased within purchase Period|
-|`amount`|`uint256`|Number of tokens to be transferred|
-|`toTags`|`bytes32[]`|Account tags applied to sender via App Manager|
-|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint256`|cumulativePurchaseTotal Total tokens sold within sell period.|
-
-
-### checkSellLimit
-
-*Sell rule functions similar to purchase rule but "resets" at 12 utc after sellAmount is exceeded*
-
-
-```solidity
-function checkSellLimit(
-    uint32 ruleId,
-    uint256 salesWithinPeriod,
-    uint256 amount,
-    bytes32[] calldata fromTags,
-    uint256 lastUpdateTime
-) external view returns (uint256);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ruleId`|`uint32`|Rule identifier for rule arguments|
-|`salesWithinPeriod`|`uint256`||
-|`amount`|`uint256`|Number of tokens to be transferred|
-|`fromTags`|`bytes32[]`|Account tags applied to sender via App Manager|
-|`lastUpdateTime`|`uint256`|block.timestamp of most recent transaction from sender.|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint256`|cumulativeSalesTotal Total tokens sold within sell period.|
-
-
-### checkAdminWithdrawalRule
 
 that the function will revert if the check finds a violation of the rule, but won't give anything
 back if everything checks out.

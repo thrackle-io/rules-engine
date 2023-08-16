@@ -1,5 +1,5 @@
 # INonTaggedRules
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/economic/ruleStorage/RuleDataInterfaces.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/e66fc809d7d2554e7ebbff7404b6c1d6e84d340d/src/economic/ruleStorage/RuleDataInterfaces.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -69,16 +69,15 @@ struct TokenVolatilityRule {
 }
 ```
 
-
 ### TokenTransferVolumeRule
 ******** Token Transfer Volume ********
 
 
 ```solidity
 struct TokenTransferVolumeRule {
-    uint16 maxVolume;
-    uint8 period;
-    uint64 startingTime;
+    uint24 maxVolume;
+    uint16 period;
+    uint64 startTime;
     uint256 totalSupply;
 }
 ```

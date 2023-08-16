@@ -1,8 +1,8 @@
 # ProtocolERC721U
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/token/ProtocolERC721U.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/e66fc809d7d2554e7ebbff7404b6c1d6e84d340d/src/token/ProtocolERC721U.sol)
 
 **Inherits:**
-Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable, [AppAdministratorOnlyU](/src/economic/AppAdministratorOnlyU.sol/contract.AppAdministratorOnlyU.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), PausableUpgradeable, [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
+Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable, [ProtocolTokenCommonU](/src/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md), PausableUpgradeable
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -11,13 +11,6 @@ This is the base contract for all protocol ERC721Upgradeables
 
 
 ## State Variables
-### appManagerAddress
-
-```solidity
-address public appManagerAddress;
-```
-
-
 ### handlerAddress
 
 ```solidity
@@ -225,17 +218,6 @@ function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256
 
 ```solidity
 function withdraw() public payable virtual appAdministratorOnly(appManagerAddress);
-```
-
-### setAppManagerAddress
-
-*Function to set the appManagerAddress and connect to the new appManager*
-
-*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress);
 ```
 
 ### getHandlerAddress

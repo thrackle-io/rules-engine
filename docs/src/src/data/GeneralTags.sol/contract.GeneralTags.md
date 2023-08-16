@@ -1,8 +1,8 @@
 # GeneralTags
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/data/GeneralTags.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/e66fc809d7d2554e7ebbff7404b6c1d6e84d340d/src/data/GeneralTags.sol)
 
 **Inherits:**
-[DataModule](/src/data/DataModule.sol/contract.DataModule.md), [IGeneralTags](/src/data/IGeneralTags.sol/interface.IGeneralTags.md)
+[DataModule](/src/data/DataModule.sol/abstract.DataModule.md), [IGeneralTags](/src/data/IGeneralTags.sol/interface.IGeneralTags.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -27,8 +27,14 @@ mapping(address => bytes32[]) public tagRecords;
 
 
 ```solidity
-constructor();
+constructor(address _dataModuleAppManagerAddress) DataModule(dataModuleAppManagerAddress);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_dataModuleAppManagerAddress`|`address`|address of the owning app manager|
+
 
 ### addTag
 
@@ -39,7 +45,7 @@ protocol, so keeping this limit here prevents transfers to unexpectedly revert.
 
 
 ```solidity
-function addTag(address _address, bytes32 _tag) public onlyOwner;
+function addTag(address _address, bytes32 _tag) public virtual onlyOwner;
 ```
 **Parameters**
 
@@ -58,7 +64,7 @@ protocol, so keeping this limit here prevents transfers to unexpectedly revert.
 
 
 ```solidity
-function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyOwner;
+function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external virtual onlyOwner;
 ```
 **Parameters**
 
@@ -74,7 +80,7 @@ function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _ta
 
 
 ```solidity
-function _removeTag(address _address, uint256 i) internal;
+function _removeTag(address _address, uint256 i) internal virtual;
 ```
 **Parameters**
 
@@ -90,7 +96,7 @@ function _removeTag(address _address, uint256 i) internal;
 
 
 ```solidity
-function removeTag(address _address, bytes32 _tag) external onlyOwner;
+function removeTag(address _address, bytes32 _tag) external virtual onlyOwner;
 ```
 **Parameters**
 
@@ -102,11 +108,13 @@ function removeTag(address _address, bytes32 _tag) external onlyOwner;
 
 ### hasTag
 
+only one event should be emitted and only if a tag was actually removed
+
 *Check is a user has a certain tag*
 
 
 ```solidity
-function hasTag(address _address, bytes32 _tag) public view returns (bool);
+function hasTag(address _address, bytes32 _tag) public view virtual returns (bool);
 ```
 **Parameters**
 
@@ -126,6 +134,6 @@ function hasTag(address _address, bytes32 _tag) public view returns (bool);
 
 
 ```solidity
-function getAllTags(address _address) public view returns (bytes32[] memory);
+function getAllTags(address _address) public view virtual returns (bytes32[] memory);
 ```
 

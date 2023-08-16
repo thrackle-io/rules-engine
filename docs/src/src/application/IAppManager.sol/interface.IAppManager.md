@@ -1,8 +1,8 @@
 # IAppManager
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/application/IAppManager.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/e66fc809d7d2554e7ebbff7404b6c1d6e84d340d/src/application/IAppManager.sol)
 
 **Inherits:**
-[IAppManagerErrors](/src/interfaces/IErrors.sol/interface.IAppManagerErrors.md), [IAppAdministratorOnlyErrors](/src/interfaces/IErrors.sol/interface.IAppAdministratorOnlyErrors.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
+[IAppManagerErrors](/src/interfaces/IErrors.sol/interface.IAppManagerErrors.md), [IPermissionModifierErrors](/src/interfaces/IErrors.sol/interface.IPermissionModifierErrors.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -13,13 +13,13 @@ Interface for app manager server functions.
 
 
 ## Functions
-### isAdmin
+### isSuperAdmin
 
-*This function is where the default admin role is actually checked*
+*This function is where the super admin role is actually checked*
 
 
 ```solidity
-function isAdmin(address account) external view returns (bool);
+function isSuperAdmin(address account) external view returns (bool);
 ```
 **Parameters**
 
@@ -53,6 +53,27 @@ function isAppAdministrator(address account) external view returns (bool);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`bool`|success true if app administrator, false if not|
+
+
+### isRuleAdministrator
+
+*This function is where the rule administrator role is actually checked*
+
+
+```solidity
+function isRuleAdministrator(address account) external view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address`|address to be checked|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|success true if rule administrator, false if not|
 
 
 ### isAccessTier
@@ -116,27 +137,6 @@ function getAllTags(address _address) external view returns (bytes32[] memory);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`bytes32[]`|tags Array of all tags for the account|
-
-
-### isUser
-
-*This function is where the user role is actually checked*
-
-
-```solidity
-function isUser(address _address) external view returns (bool);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_address`|`address`|address to be checked|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|success true if USER_ROLE, false if not|
 
 
 ### getAccessLevel
@@ -345,52 +345,6 @@ function deRegisterAMM(address _AMMAddress) external;
 |`_AMMAddress`|`address`|The address of the AMM to be de-registered|
 
 
-### registerStaking
-
-*This function allows the devs to register their Staking contract addresses. Allow contracts to check if contract is registered staking contract within ecosystem.
-This check is used in minting rewards tokens for example.*
-
-
-```solidity
-function registerStaking(address _stakingAddress) external;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_stakingAddress`|`address`|Address for the AMM|
-
-
-### isRegisteredStaking
-
-*This function checks if the Staking contract address is registered.*
-
-
-```solidity
-function isRegisteredStaking(address _stakingAddress) external view returns (bool);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_stakingAddress`|`address`|Address of the Staking contract that is checked.|
-
-
-### deRegisterStaking
-
-*This function allows the devs to deregister an Staking contract address.*
-
-
-```solidity
-function deRegisterStaking(address _stakingAddress) external;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_stakingAddress`|`address`|The address of the Staking contract to be de-registered|
-
-
 ### isTreasury
 
 *This function allows the devs to register their treasury addresses. This will allow for token level rule exemptions*
@@ -444,5 +398,20 @@ function requireValuations() external returns (bool);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`bool`|true if one or more rules are active|
+
+
+### confirmNewDataProvider
+
+*Part of the two step process to set a new Data Provider within a Protocol AppManager. Final confirmation called by new provider*
+
+
+```solidity
+function confirmNewDataProvider(IDataModule.ProviderType _providerType) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_providerType`|`IDataModule.ProviderType`|the type of data provider|
 
 

@@ -8,5 +8,4 @@
 - [example](/src/example)
 - [interfaces](/src/interfaces)
 - [pricing](/src/pricing)
-- [staking](/src/staking)
 - [token](/src/token)

@@ -1,5 +1,5 @@
 # Constants
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/economic/ruleStorage/RuleCodeData.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/e66fc809d7d2554e7ebbff7404b6c1d6e84d340d/src/economic/ruleStorage/RuleCodeData.sol)
 
 ### AMM_FEE
 
@@ -77,12 +77,6 @@ bytes32 constant TX_SIZE_BY_RISK = "TX_SIZE_BY_RISK";
 
 ```solidity
 bytes32 constant BALANCE_BY_RISK = "BALANCE_BY_RISK";
-```
-
-### MIN_BALANCE_BY_DATE
-
-```solidity
-bytes32 constant MIN_BALANCE_BY_DATE = "MIN_BALANCE_BY_DATE";
 ```
 
 ### PURCHASE_PERCENT

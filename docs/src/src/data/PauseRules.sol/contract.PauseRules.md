@@ -1,8 +1,8 @@
 # PauseRules
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/data/PauseRules.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/e66fc809d7d2554e7ebbff7404b6c1d6e84d340d/src/data/PauseRules.sol)
 
 **Inherits:**
-[IPauseRules](/src/data/IPauseRules.sol/interface.IPauseRules.md), [DataModule](/src/data/DataModule.sol/contract.DataModule.md)
+[IPauseRules](/src/data/IPauseRules.sol/interface.IPauseRules.md), [DataModule](/src/data/DataModule.sol/abstract.DataModule.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -27,8 +27,14 @@ PauseRule[] private pauseRules;
 
 
 ```solidity
-constructor();
+constructor(address _dataModuleAppManagerAddress) DataModule(dataModuleAppManagerAddress);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_dataModuleAppManagerAddress`|`address`|address of the owning app manager|
+
 
 ### addPauseRule
 
@@ -36,7 +42,7 @@ constructor();
 
 
 ```solidity
-function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) public onlyOwner;
+function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) public virtual onlyOwner;
 ```
 **Parameters**
 
@@ -67,7 +73,7 @@ function _removePauseRule(uint256 i) internal;
 
 
 ```solidity
-function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyOwner;
+function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external virtual onlyOwner;
 ```
 **Parameters**
 
@@ -83,7 +89,7 @@ function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyO
 
 
 ```solidity
-function cleanOutdatedRules() public;
+function cleanOutdatedRules() public virtual;
 ```
 
 ### getPauseRules
@@ -92,7 +98,7 @@ function cleanOutdatedRules() public;
 
 
 ```solidity
-function getPauseRules() external view onlyOwner returns (PauseRule[] memory);
+function getPauseRules() external view virtual onlyOwner returns (PauseRule[] memory);
 ```
 **Returns**
 

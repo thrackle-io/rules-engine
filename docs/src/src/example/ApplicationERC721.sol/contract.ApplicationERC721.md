@@ -1,8 +1,8 @@
 # ApplicationERC721
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/example/ApplicationERC721.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/e66fc809d7d2554e7ebbff7404b6c1d6e84d340d/src/example/ApplicationERC721.sol)
 
 **Inherits:**
-[ProtocolERC721](/src/token/ProtocolERC721.sol/contract.ProtocolERC721.md), Ownable
+[ProtocolERC721](/src/token/ProtocolERC721.sol/contract.ProtocolERC721.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -11,8 +11,11 @@ This is an example implementation that App Devs should use.
 During deployment, _handlerAddress = ERC721Handler contract address
 _appManagerAddress = AppManager contract address
 
-*This contract contains optional functions commented out. These functions allow for: Priced Mint for user minting, AppAdministratorOnly Minting or Contract Owner Only Minting.
-Only one safeMint function can be used at a time. Comment out all other safeMint functions and variables used for that function.*
+*This contract contains 3 different safeMint implementations: priced minting, free minting and app-administrator-only minting. The safeMint is by default
+restricted to app-administrators or contract-owner, but it is possible to override such configuration and choose any of the other 3 options in here, or even
+creating a different safeMint implementation. However, bare in mind that only one safeMint function can exist at a time in the contract unless polymorphism is
+used. If it is wished to override the default minting restriction from app-administrators or contract-owners, select the desired safeMint function by simply
+uncommenting the desired implementations and its variables, or write your own implementation that overrides the default safeMint function.*
 
 
 ## Functions
@@ -21,7 +24,6 @@ Only one safeMint function can be used at a time. Comment out all other safeMint
 Optional Function Variables and Errors. Uncomment these if using option functions:
 Mint Fee
 Treasury Address
-Contract Owner Minting
 
 *Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address*
 
