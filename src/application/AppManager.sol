@@ -222,7 +222,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the rule admin role.
      */
     function renounceRuleAdministrator() external {
-        renounceRole(ACCESS_TIER_ADMIN_ROLE, msg.sender);
+        renounceRole(RULE_ADMIN_ROLE, msg.sender);
         emit RuleAdminRemoved(address(msg.sender));
     }
 
@@ -773,7 +773,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function deRegisterTreasury(address _treasuryAddress) external onlyAppAdministrator {
         _removeAddress(treasuryList, _treasuryAddress);
     }
-
 
     /**
      * @dev Getter for the access level contract address
