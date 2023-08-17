@@ -185,7 +185,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @param _ruleId Rule Id to set
      */
     function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateWithdrawalLimitsByAccessLevel(_ruleId);
+        ruleProcessor.validateAccBalanceByAccessLevel(_ruleId);
         accountBalanceByAccessLevelRuleId = _ruleId;
         accountBalanceByAccessLevelRuleActive = true;
         emit ApplicationRuleApplied(BALANCE_BY_ACCESSLEVEL, _ruleId);
