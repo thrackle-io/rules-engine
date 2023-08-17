@@ -9,7 +9,7 @@ import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/IRuleProcessor.sol";
 import "../economic/ruleProcessor/ActionEnum.sol";
 import {IZeroAddressError, IInputErrors} from "../interfaces/IErrors.sol";
-import "../economic/RuleAdministratorOnly.sol";
+import "src/economic/RuleAdministratorOnly.sol";
 
 /**
  * @title Protocol ApplicationHandler Contract
