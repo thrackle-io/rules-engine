@@ -45,7 +45,7 @@ That's it!
 
 ## Dependencies
 
-As of versions 0.0.8 and below, this package needs only one dependency although it is very sensitive to its version. The dependency is `@openzeppelin/contracts` version 4.8.1.
+As of versions 0.0.7 and below, this package needs only one dependency although it is very sensitive to its version. The dependency is `@openzeppelin/contracts` version 4.8.1.
 
 If the contracts show any compiling errors, try to manually update the version of the existing openzeppelin library in your project by doing:
 
