@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {RuleProcessorDiamondLib as DiamondLib, RuleProcessorDiamondStorage, RuleDataStorage, FacetCut} from "./RuleProcessorDiamondLib.sol";
+import {RuleProcessorDiamondLib as DiamondLib, RuleProcessorDiamondStorage, RuleDataStorage, FacetCut, VersionStorage} from "./RuleProcessorDiamondLib.sol";
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 import {ERC173Lib} from "diamond-std/implementations/ERC173/ERC173Lib.sol";
 
@@ -26,6 +26,7 @@ struct RuleProcessorDiamondArgs {
  * @notice Contract checks the rules for success
  */
 contract RuleProcessorDiamond is ERC173Facet {
+
     /**
      * @dev constructor creates facets for the diamond at deployment
      * @param diamondCut Array of Facets to be created at deployment
@@ -51,6 +52,16 @@ contract RuleProcessorDiamond is ERC173Facet {
     function getRuleDataDiamondAddress() external view returns (address) {
         RuleDataStorage storage data = DiamondLib.ruleDataStorage();
         return data.rules;
+    }
+
+    /**
+    * @dev Function to update the version of the Rule Processor Diamond
+    * @param newVersion string of the representation of the version in semantic
+    * versioning format: --> "MAJOR.MINOR.PATCH".
+    */
+    function updateVersion(string memory newVersion) external onlyOwner{
+        VersionStorage storage v = DiamondLib.versionStorage();
+        v.VERSION = newVersion;
     }
 
     /**

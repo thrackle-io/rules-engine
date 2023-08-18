@@ -34,6 +34,10 @@ struct RuleDataStorage {
     address rules;
 }
 
+struct VersionStorage{
+    string VERSION;
+}
+
 /**
  * @title Processor Diamond Library Contract
  * @author @oscarsernarosero, built on top of Nick Mudge implementation.
@@ -44,6 +48,7 @@ struct RuleDataStorage {
 library RuleProcessorDiamondLib {
     bytes32 constant DIAMOND_CUT_STORAGE = keccak256("diamond-cut.storage");
     bytes32 constant RULE_DATA_POSITION = keccak256("nontagged-ruless.rule-data.storage");
+    bytes32 constant VERSION_DATA_POSITION = keccak256("rule-processor.version");
 
     enum ActionTypes {
         PURCHASE,
@@ -71,6 +76,17 @@ library RuleProcessorDiamondLib {
         bytes32 position = RULE_DATA_POSITION;
         assembly {
             ds.slot := position
+        }
+    }
+
+     /**
+     * @dev Function to access the version data
+     * @return v Data storage for version
+     */
+    function versionStorage() internal pure returns (VersionStorage storage v) {
+        bytes32 position = VERSION_DATA_POSITION;
+        assembly {
+            v.slot := position
         }
     }
 

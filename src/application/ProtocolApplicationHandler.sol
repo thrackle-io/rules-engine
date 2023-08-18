@@ -18,6 +18,7 @@ import "src/economic/RuleAdministratorOnly.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, IInputErrors, IZeroAddressError {
+    string public constant VERSION="0.0.6";
     AppManager appManager;
     address public appManagerAddress;
     IRuleProcessor immutable ruleProcessor;

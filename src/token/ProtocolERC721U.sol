@@ -37,7 +37,7 @@ contract ProtocolERC721U is
     /// Base Contract URI
     string public baseUri;
     /// keeps track of RULE enum version and other features
-    uint8 public constant VERSION = 1;
+    // uint8 public constant VERSION = 1;
 
     /**
      * @dev Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address

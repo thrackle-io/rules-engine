@@ -12,6 +12,7 @@ import "../../economic/AppAdministratorOnly.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError, AppAdministratorOnly {
+    string public constant VERSION="0.0.6";
     int256 defaultFee;
     mapping(bytes32 => Fee) feesByTag;
     uint256 feeTotal;

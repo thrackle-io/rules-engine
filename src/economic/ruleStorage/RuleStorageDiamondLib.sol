@@ -30,6 +30,10 @@ struct DiamondCutStorage {
     bytes4[] selectors;
 }
 
+struct VersionStorage{
+    string VERSION;
+}
+
 /**
  * @title Rule Storage Diamond Library
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -38,6 +42,7 @@ struct DiamondCutStorage {
  */
 library RuleStorageDiamondLib {
     bytes32 constant DIAMOND_CUT_STORAGE_POSITION = keccak256("diamond-cut.storage");
+    bytes32 constant VERSION_DATA_POSITION = keccak256("rule-storage.version");
 
     /**
      * @dev Function for position of rules. Every rule has its own storage.
@@ -47,6 +52,17 @@ library RuleStorageDiamondLib {
         bytes32 position = DIAMOND_CUT_STORAGE_POSITION;
         assembly {
             ds.slot := position
+        }
+    }
+
+    /**
+     * @dev Function to access the version data
+     * @return v Data storage for version
+     */
+    function versionStorage() internal pure returns (VersionStorage storage v) {
+        bytes32 position = VERSION_DATA_POSITION;
+        assembly {
+            v.slot := position
         }
     }
 
