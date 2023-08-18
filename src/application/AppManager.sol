@@ -99,22 +99,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         return hasRole(SUPER_ADMIN_ROLE, account);
     }
 
-    /**
-     * @dev Checks if msg.sender is a Super Administrators role
-     */
-    modifier onlySuperAdmin() {
-        if (!isSuperAdmin(msg.sender)) revert NotSuperAdmin(msg.sender);
-        _;
-    }
-
     /// -------------APP ADMIN---------------
-    /**
-     * @dev Checks if msg.sender is a Application Administrators role
-     */
-    modifier onlyAppAdministrator() {
-        if (!isAppAdministrator(msg.sender)) revert NotAppAdministrator();
-        _;
-    }
 
     /**
      * @dev This function is where the app administrator role is actually checked
@@ -129,7 +114,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the app administrator role. Restricted to super admins.
      * @param account address to be added
      */
-    function addAppAdministrator(address account) external onlySuperAdmin {
+    function addAppAdministrator(address account) external onlyRole(SUPER_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(APP_ADMIN_ROLE, account);
         emit AddAppAdministrator(account);
@@ -139,7 +124,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an array of accounts to the app administrator role. Restricted to admins.
      * @param _accounts address array to be added
      */
-    function addMultipleAppAdministrator(address[] memory _accounts) external onlySuperAdmin {
+    function addMultipleAppAdministrator(address[] memory _accounts) external onlyRole(SUPER_ADMIN_ROLE) {
         for (uint256 i; i < _accounts.length; ) {
             grantRole(APP_ADMIN_ROLE, _accounts[i]);
             emit AddAppAdministrator(_accounts[i]);
@@ -177,13 +162,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /// -------------RULE ADMIN---------------
-    /**
-     * @dev Checks for if msg.sender is a Rule Admin
-     */
-    modifier onlyRuleAdministrator() {
-        if (!isRuleAdministrator(msg.sender)) revert NotRuleAdministrator();
-        _;
-    }
 
     /**
      * @dev This function is where the rule admin role is actually checked
@@ -198,7 +176,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the rule admin role. Restricted to app administrators.
      * @param account address to be added as a rule admin
      */
-    function addRuleAdministrator(address account) external onlyAppAdministrator {
+    function addRuleAdministrator(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(RULE_ADMIN_ROLE, account);
         emit RuleAdminAdded(account);
@@ -208,7 +186,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add a list of accounts to the rule admin role. Restricted to app administrators.
      * @param account address to be added as a rule admin
      */
-    function addMultipleRuleAdministrator(address[] memory account) external onlyAppAdministrator {
+    function addMultipleRuleAdministrator(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             grantRole(RULE_ADMIN_ROLE, account[i]);
             emit RuleAdminAdded(account[i]);
@@ -248,7 +226,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the access tier role. Restricted to app administrators.
      * @param account address to be added as a access tier
      */
-    function addAccessTier(address account) external onlyAppAdministrator {
+    function addAccessTier(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(ACCESS_TIER_ADMIN_ROLE, account);
         emit AccessTierAdded(account);
@@ -258,7 +236,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add a list of accounts to the access tier role. Restricted to app administrators.
      * @param account address to be added as a access tier
      */
-    function addMultipleAccessTier(address[] memory account) external onlyAppAdministrator {
+    function addMultipleAccessTier(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             grantRole(ACCESS_TIER_ADMIN_ROLE, account[i]);
             emit AccessTierAdded(account[i]);
@@ -277,13 +255,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /// -------------RISK ADMIN---------------
-    /**
-     * @dev Checks if msg.sender is a Risk Admin role
-     */
-    modifier onlyRiskAdmin() {
-        if (!isRiskAdmin(msg.sender)) revert NotRiskAdmin(msg.sender);
-        _;
-    }
 
     /**
      * @dev This function is where the risk admin role is actually checked
@@ -298,7 +269,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the risk admin role. Restricted to app administrators.
      * @param account address to be added
      */
-    function addRiskAdmin(address account) external onlyAppAdministrator {
+    function addRiskAdmin(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(RISK_ADMIN_ROLE, account);
         emit RiskAdminAdded(account);
@@ -308,7 +279,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add a list of accounts to the risk admin role. Restricted to app administrators.
      * @param account address to be added
      */
-    function addMultipleRiskAdmin(address[] memory account) external onlyAppAdministrator {
+    function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             grantRole(RISK_ADMIN_ROLE, account[i]);
             emit RiskAdminAdded(account[i]);
@@ -333,7 +304,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _account address upon which to apply the Access Level
      * @param _level Access Level to add
      */
-    function addAccessLevel(address _account, uint8 _level) external onlyAccessTierAdministrator {
+    function addAccessLevel(address _account, uint8 _level) external onlyRole(ACCESS_TIER_ADMIN_ROLE) {
         accessLevels.addLevel(_account, _level);
     }
 
@@ -342,7 +313,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _accounts address upon which to apply the Access Level
      * @param _level Access Level to add
      */
-    function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external onlyAccessTierAdministrator {
+    function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external onlyRole(ACCESS_TIER_ADMIN_ROLE) {
         accessLevels.addAccessLevelToMultipleAccounts(_accounts, _level);
     }
 
@@ -351,7 +322,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _accounts address array upon which to apply the Access Level
      * @param _level Access Level array to add
      */
-    function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyAccessTierAdministrator {
+    function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyRole(ACCESS_TIER_ADMIN_ROLE) {
         if (_level.length != _accounts.length) revert InputArraysMustHaveSameLength();
         for (uint256 i; i < _accounts.length; ) {
             accessLevels.addLevel(_accounts[i], _level[i]);
@@ -377,7 +348,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _account address upon which to apply the Risk Score
      * @param _score Risk Score(0-100)
      */
-    function addRiskScore(address _account, uint8 _score) external onlyRiskAdmin {
+    function addRiskScore(address _account, uint8 _score) external onlyRole(RISK_ADMIN_ROLE) {
         riskScores.addScore(_account, _score);
     }
 
@@ -386,7 +357,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _accounts address array upon which to apply the Risk Score
      * @param _score Risk Score(0-100)
      */
-    function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyRiskAdmin {
+    function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyRole(RISK_ADMIN_ROLE) {
         riskScores.addRiskScoreToMultipleAccounts(_accounts, _score);
     }
 
@@ -395,7 +366,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _accounts address array upon which to apply the Risk Score
      * @param _scores Risk Score array (0-100)
      */
-    function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyRiskAdmin {
+    function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyRole(RISK_ADMIN_ROLE) {
         if (_scores.length != _accounts.length) revert InputArraysMustHaveSameLength();
         for (uint256 i; i < _accounts.length; ) {
             riskScores.addScore(_accounts[i], _scores[i]);
@@ -421,7 +392,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
-    function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRuleAdministrator {
+    function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
         pauseRules.addPauseRule(_pauseStart, _pauseStop);
     }
 
@@ -430,7 +401,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
-    function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRuleAdministrator {
+    function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
         pauseRules.removePauseRule(_pauseStart, _pauseStop);
     }
 
@@ -457,7 +428,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _tag Tag for the account. Can be any allowed string variant
      * @notice there is a hard limit of 10 tags per address.
      */
-    function addGeneralTag(address _account, bytes32 _tag) external onlyAppAdministrator {
+    function addGeneralTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE) {
         generalTags.addTag(_account, _tag);
     }
 
@@ -467,7 +438,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _tag Tag for the account. Can be any allowed string variant
      * @notice there is a hard limit of 10 tags per address.
      */
-    function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyAppAdministrator {
+    function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE) {
         generalTags.addGeneralTagToMultipleAccounts(_accounts, _tag);
     }
 
@@ -477,7 +448,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _tag Tag array for the account at index. Can be any allowed string variant
      * @notice there is a hard limit of 10 tags per address.
      */
-    function addMultipleGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tag) external onlyAppAdministrator {
+    function addMultipleGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tag) external onlyRole(APP_ADMIN_ROLE) {
         if (_accounts.length != _tag.length) revert InputArraysMustHaveSameLength();
         for (uint256 i; i < _accounts.length; ) {
             generalTags.addTag(_accounts[i], _tag[i]);
@@ -492,7 +463,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _account Address to have its tag removed
      * @param _tag The tag to remove
      */
-    function removeGeneralTag(address _account, bytes32 _tag) external onlyAppAdministrator {
+    function removeGeneralTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE) {
         generalTags.removeTag(_account, _tag);
     }
 
@@ -519,7 +490,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev  First part of the 2 step process to set a new risk score provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
      * @param _newProvider Address of the new provider
      */
-    function proposeRiskScoresProvider(address _newProvider) external onlyAppAdministrator {
+    function proposeRiskScoresProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE) {
         if (_newProvider == address(0)) revert ZeroAddress();
         newRiskScoresProviderAddress = _newProvider;
     }
@@ -536,7 +507,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev  First part of the 2 step process to set a new general tag provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
      * @param _newProvider Address of the new provider
      */
-    function proposeGeneralTagsProvider(address _newProvider) external onlyAppAdministrator {
+    function proposeGeneralTagsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE) {
         if (_newProvider == address(0)) revert ZeroAddress();
         newGeneralTagsProviderAddress = _newProvider;
     }
@@ -553,7 +524,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev  First part of the 2 step process to set a new account provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
      * @param _newProvider Address of the new provider
      */
-    function proposeAccountsProvider(address _newProvider) external onlyAppAdministrator {
+    function proposeAccountsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE) {
         if (_newProvider == address(0)) revert ZeroAddress();
         newAccountsProviderAddress = _newProvider;
     }
@@ -570,7 +541,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev  First part of the 2 step process to set a new pause rule provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
      * @param _newProvider Address of the new provider
      */
-    function proposePauseRulesProvider(address _newProvider) external onlyAppAdministrator {
+    function proposePauseRulesProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE) {
         if (_newProvider == address(0)) revert ZeroAddress();
         newPauseRulesProviderAddress = _newProvider;
     }
@@ -587,7 +558,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev  First part of the 2 step process to set a new access level provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
      * @param _newProvider Address of the new provider
      */
-    function proposeAccessLevelsProvider(address _newProvider) external onlyAppAdministrator {
+    function proposeAccessLevelsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE) {
         if (_newProvider == address(0)) revert ZeroAddress();
         newAccessLevelsProviderAddress = _newProvider;
     }
@@ -631,7 +602,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _token The token identifier(may be NFT or ERC20)
      * @param _tokenAddress Address corresponding to the tokenId
      */
-    function registerToken(string calldata _token, address _tokenAddress) external onlyAppAdministrator {
+    function registerToken(string calldata _token, address _tokenAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_tokenAddress == address(0)) revert ZeroAddress();
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
@@ -667,7 +638,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function allows the devs to deregister a token contract address. This keeps everything in sync and will aid with the token factory and application level balance checks.
      * @param _tokenId The token id(may be NFT or ERC20)
      */
-    function deregisterToken(string calldata _tokenId) external onlyAppAdministrator {
+    function deregisterToken(string calldata _tokenId) external onlyRole(APP_ADMIN_ROLE) {
         _removeAddress(tokenList, tokenToAddress[_tokenId]);
         address tokenAddress = tokenToAddress[_tokenId];
         delete tokenToAddress[_tokenId];
@@ -708,7 +679,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions
      * @param _AMMAddress Address for the AMM
      */
-    function registerAMM(address _AMMAddress) external onlyAppAdministrator {
+    function registerAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_AMMAddress == address(0)) revert ZeroAddress();
         if (isRegisteredAMM(_AMMAddress)) revert AddressAlreadyRegistered();
         ammList.push(_AMMAddress);
@@ -735,7 +706,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function allows the devs to deregister an AMM contract address.
      * @param _AMMAddress The of the AMM to be de-registered
      */
-    function deRegisterAMM(address _AMMAddress) external onlyAppAdministrator {
+    function deRegisterAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE) {
         _removeAddress(ammList, _AMMAddress);
     }
 
@@ -759,7 +730,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function allows the devs to register their treasury addresses. This will allow for token level rule exemptions
      * @param _treasuryAddress Address for the treasury
      */
-    function registerTreasury(address _treasuryAddress) external onlyAppAdministrator {
+    function registerTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_treasuryAddress == address(0)) revert ZeroAddress();
         if (isTreasury(_treasuryAddress)) revert AddressAlreadyRegistered();
         treasuryList.push(_treasuryAddress);
@@ -770,7 +741,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function allows the devs to deregister an treasury address.
      * @param _treasuryAddress The of the AMM to be de-registered
      */
-    function deRegisterTreasury(address _treasuryAddress) external onlyAppAdministrator {
+    function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
         _removeAddress(treasuryList, _treasuryAddress);
     }
 
@@ -827,7 +798,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _newApplicationHandler address of new Application Handler contract
      * @notice this is for upgrading to a new ApplicationHandler contract
      */
-    function setNewApplicationHandlerAddress(address _newApplicationHandler) external onlyAppAdministrator {
+    function setNewApplicationHandlerAddress(address _newApplicationHandler) external onlyRole(APP_ADMIN_ROLE) {
         if (_newApplicationHandler == address(0)) revert ZeroAddress();
         applicationHandler = ProtocolApplicationHandler(_newApplicationHandler);
         applicationHandlerAddress = _newApplicationHandler;
@@ -846,7 +817,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Setter for application Name
      * @param _appName application name string
      */
-    function setAppName(string calldata _appName) external onlyAppAdministrator {
+    function setAppName(string calldata _appName) external onlyRole(APP_ADMIN_ROLE) {
         appName = _appName;
     }
 
@@ -854,7 +825,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Part of the two step process to set a new AppManager within a Protocol Entity
      * @param _assetAddress address of a protocol entity that uses AppManager
      */
-    function confirmAppManager(address _assetAddress) external onlyAppAdministrator {
+    function confirmAppManager(address _assetAddress) external onlyRole(APP_ADMIN_ROLE) {
         IAppManagerUser(_assetAddress).confirmAppManagerAddress();
     }
 
@@ -874,7 +845,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function is used to propose the new owner for data contracts.
      * @param _newOwner address of the new AppManager
      */
-    function proposeDataContractMigration(address _newOwner) external onlyAppAdministrator {
+    function proposeDataContractMigration(address _newOwner) external onlyRole(APP_ADMIN_ROLE) {
         accounts.proposeOwner(_newOwner);
         accessLevels.proposeOwner(_newOwner);
         riskScores.proposeOwner(_newOwner);
@@ -886,7 +857,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     /**
      * @dev This function is used to confirm this contract as the new owner for data contracts.
      */
-    function confirmDataContractMigration(address _oldAppManagerAddress) external onlyAppAdministrator {
+    function confirmDataContractMigration(address _oldAppManagerAddress) external onlyRole(APP_ADMIN_ROLE) {
         AppManager oldAppManager = AppManager(_oldAppManagerAddress);
         accounts = Accounts(oldAppManager.getAccountDataAddress());
         accounts.confirmOwner();
