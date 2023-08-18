@@ -51,6 +51,17 @@ contract ApplicationAppManagerTest is TestCommon {
         vm.warp(TEST_DATE); // set block.timestamp
     }
 
+    function testAppManagerAndHandlerVersions() public {
+        string memory version = applicationAppManager.VERSION();
+        assertEq(version, "0.0.6");
+        version = applicationHandler.VERSION();
+        assertEq(version, "0.0.6");
+        version = applicationAppManager2.VERSION();
+        assertEq(version, "0.0.6");
+        version = applicationHandler2.VERSION();
+        assertEq(version, "0.0.6");
+    }
+
     ///---------------DEFAULT ADMIN--------------------
     /// Test the Default Admin roles
     function testIsSuperAdmin() public {

@@ -57,6 +57,13 @@ contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         openOcean = new ApplicationERC721Pricing();
     }
 
+    function testERC721PricerVersion() public {
+        string memory version = openOcean.VERSION();
+        assertEq(version, "0.0.6");
+        version = boredWhaleNFT.VERSION();
+        assertEq(version, "0.0.6");
+    }
+
     /// Testing setting the price for a single NFT under the right conditions
     function testSettingSingleNFTPrice() public {
         openOcean.setSingleNFTPrice(address(boredWhaleNFT), 1, 5000 * (10 ** 18));
