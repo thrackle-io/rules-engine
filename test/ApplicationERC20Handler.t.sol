@@ -35,7 +35,7 @@ contract ApplicationERC20HandlerTest is TestCommon {
         vm.startPrank(superAdmin);
         setUpProtocolAndAppManagerAndTokens();
         switchToAppAdministrator();
-        /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it mayt be called directly. It still
+        /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
         // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
         applicationCoinHandlerSpecialOwner = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), appAdministrator, false);
