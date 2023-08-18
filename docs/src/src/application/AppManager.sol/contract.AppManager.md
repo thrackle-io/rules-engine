@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/32fc908f43bfbb804e52e049074d30ce661a637a/src/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/interfaces/IEvents.sol/interface.IAppLevelEvents.md)
@@ -157,6 +157,13 @@ mapping(address => string) addressToToken;
 ```
 
 
+### registeredHandlers
+
+```solidity
+mapping(address => bool) registeredHandlers;
+```
+
+
 ### tokenList
 Token array (for balance tallying)
 
@@ -213,32 +220,28 @@ constructor(address root, string memory _appName, bool upgradeMode);
 
 ### isSuperAdmin
 
+*This function is where the Super admin role is actually checked*
+
 
 ```solidity
 function isSuperAdmin(address account) public view returns (bool);
 ```
+**Parameters**
 
-### onlySuperAdmin
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address`|address to be checked|
 
-*Checks if msg.sender is a Super Administrators role*
+**Returns**
 
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|success true if admin, false if not|
 
-```solidity
-modifier onlySuperAdmin();
-```
-
-### onlyAppAdministrator
-
--------------APP ADMIN---------------
-
-*Checks if msg.sender is a Application Administrators role*
-
-
-```solidity
-modifier onlyAppAdministrator();
-```
 
 ### isAppAdministrator
+
+-------------APP ADMIN---------------
 
 *This function is where the app administrator role is actually checked*
 
@@ -265,7 +268,7 @@ function isAppAdministrator(address account) public view returns (bool);
 
 
 ```solidity
-function addAppAdministrator(address account) external onlySuperAdmin;
+function addAppAdministrator(address account) external onlyRole(SUPER_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -280,7 +283,7 @@ function addAppAdministrator(address account) external onlySuperAdmin;
 
 
 ```solidity
-function addMultipleAppAdministrator(address[] memory _accounts) external onlySuperAdmin;
+function addMultipleAppAdministrator(address[] memory _accounts) external onlyRole(SUPER_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -309,18 +312,9 @@ If the AdminWithdrawal rule is active, App Admins are not allowed to renounce th
 function checkForAdminWithdrawal() internal;
 ```
 
-### onlyRuleAdministrator
+### isRuleAdministrator
 
 -------------RULE ADMIN---------------
-
-*Checks for if msg.sender is a Rule Admin*
-
-
-```solidity
-modifier onlyRuleAdministrator();
-```
-
-### isRuleAdministrator
 
 *This function is where the rule admin role is actually checked*
 
@@ -347,7 +341,7 @@ function isRuleAdministrator(address account) public view returns (bool);
 
 
 ```solidity
-function addRuleAdministrator(address account) external onlyAppAdministrator;
+function addRuleAdministrator(address account) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -362,7 +356,7 @@ function addRuleAdministrator(address account) external onlyAppAdministrator;
 
 
 ```solidity
-function addMultipleRuleAdministrator(address[] memory account) external onlyAppAdministrator;
+function addMultipleRuleAdministrator(address[] memory account) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -418,7 +412,7 @@ function isAccessTier(address account) public view returns (bool);
 
 
 ```solidity
-function addAccessTier(address account) external onlyAppAdministrator;
+function addAccessTier(address account) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -433,7 +427,7 @@ function addAccessTier(address account) external onlyAppAdministrator;
 
 
 ```solidity
-function addMultipleAccessTier(address[] memory account) external onlyAppAdministrator;
+function addMultipleAccessTier(address[] memory account) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -451,18 +445,9 @@ function addMultipleAccessTier(address[] memory account) external onlyAppAdminis
 function renounceAccessTier() external;
 ```
 
-### onlyRiskAdmin
+### isRiskAdmin
 
 -------------RISK ADMIN---------------
-
-*Checks if msg.sender is a Risk Admin role*
-
-
-```solidity
-modifier onlyRiskAdmin();
-```
-
-### isRiskAdmin
 
 *This function is where the risk admin role is actually checked*
 
@@ -489,7 +474,7 @@ function isRiskAdmin(address account) public view returns (bool);
 
 
 ```solidity
-function addRiskAdmin(address account) external onlyAppAdministrator;
+function addRiskAdmin(address account) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -504,7 +489,7 @@ function addRiskAdmin(address account) external onlyAppAdministrator;
 
 
 ```solidity
-function addMultipleRiskAdmin(address[] memory account) external onlyAppAdministrator;
+function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -530,7 +515,7 @@ function renounceRiskAdmin() external;
 
 
 ```solidity
-function addAccessLevel(address _account, uint8 _level) external onlyAccessTierAdministrator;
+function addAccessLevel(address _account, uint8 _level) external onlyRole(ACCESS_TIER_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -548,7 +533,7 @@ function addAccessLevel(address _account, uint8 _level) external onlyAccessTierA
 ```solidity
 function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level)
     external
-    onlyAccessTierAdministrator;
+    onlyRole(ACCESS_TIER_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -566,7 +551,7 @@ function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _lev
 ```solidity
 function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level)
     external
-    onlyAccessTierAdministrator;
+    onlyRole(ACCESS_TIER_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -605,7 +590,7 @@ function getAccessLevel(address _account) external view returns (uint8);
 
 
 ```solidity
-function addRiskScore(address _account, uint8 _score) external onlyRiskAdmin;
+function addRiskScore(address _account, uint8 _score) external onlyRole(RISK_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -621,7 +606,7 @@ function addRiskScore(address _account, uint8 _score) external onlyRiskAdmin;
 
 
 ```solidity
-function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyRiskAdmin;
+function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyRole(RISK_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -637,7 +622,7 @@ function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score
 
 
 ```solidity
-function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyRiskAdmin;
+function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyRole(RISK_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -676,7 +661,7 @@ function getRiskScore(address _account) external view returns (uint8);
 
 
 ```solidity
-function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRuleAdministrator;
+function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -692,7 +677,7 @@ function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRule
 
 
 ```solidity
-function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRuleAdministrator;
+function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -736,7 +721,7 @@ there is a hard limit of 10 tags per address.
 
 
 ```solidity
-function addGeneralTag(address _account, bytes32 _tag) external onlyAppAdministrator;
+function addGeneralTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -754,7 +739,7 @@ there is a hard limit of 10 tags per address.
 
 
 ```solidity
-function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyAppAdministrator;
+function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -774,7 +759,7 @@ there is a hard limit of 10 tags per address.
 ```solidity
 function addMultipleGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tag)
     external
-    onlyAppAdministrator;
+    onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -790,7 +775,7 @@ function addMultipleGeneralTagToMultipleAccounts(address[] memory _accounts, byt
 
 
 ```solidity
-function removeGeneralTag(address _account, bytes32 _tag) external onlyAppAdministrator;
+function removeGeneralTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -849,7 +834,7 @@ function getAllTags(address _address) external view returns (bytes32[] memory);
 
 
 ```solidity
-function proposeRiskScoresProvider(address _newProvider) external onlyAppAdministrator;
+function proposeRiskScoresProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -879,7 +864,7 @@ function getRiskScoresProvider() external view returns (address);
 
 
 ```solidity
-function proposeGeneralTagsProvider(address _newProvider) external onlyAppAdministrator;
+function proposeGeneralTagsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -909,7 +894,7 @@ function getGeneralTagProvider() external view returns (address);
 
 
 ```solidity
-function proposeAccountsProvider(address _newProvider) external onlyAppAdministrator;
+function proposeAccountsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -939,7 +924,7 @@ function getAccountProvider() external view returns (address);
 
 
 ```solidity
-function proposePauseRulesProvider(address _newProvider) external onlyAppAdministrator;
+function proposePauseRulesProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -969,7 +954,7 @@ function getPauseRulesProvider() external view returns (address);
 
 
 ```solidity
-function proposeAccessLevelsProvider(address _newProvider) external onlyAppAdministrator;
+function proposeAccessLevelsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1022,7 +1007,7 @@ function checkApplicationRules(
     address _to,
     uint128 _usdBalanceTo,
     uint128 _usdAmountTransferring
-) external;
+) external onlyHandler;
 ```
 **Parameters**
 
@@ -1035,13 +1020,43 @@ function checkApplicationRules(
 |`_usdAmountTransferring`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
 
 
+### isRegisteredHandler
+
+*This function checks if the address is a registered handler within one of the registered protocol supported entities*
+
+
+```solidity
+function isRegisteredHandler(address _address) public view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_address`|`address`|address to be checked|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|isHandler true if handler, false if not|
+
+
+### onlyHandler
+
+*Checks if msg.sender is a registered handler*
+
+
+```solidity
+modifier onlyHandler();
+```
+
 ### registerToken
 
 *This function allows the devs to register their token contract addresses. This keeps everything in sync and will aid with the token factory and application level balance checks.*
 
 
 ```solidity
-function registerToken(string calldata _token, address _tokenAddress) external onlyAppAdministrator;
+function registerToken(string calldata _token, address _tokenAddress) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1052,6 +1067,8 @@ function registerToken(string calldata _token, address _tokenAddress) external o
 
 
 ### getTokenAddress
+
+Also add their handler to the registry
 
 *This function gets token contract address.*
 
@@ -1099,7 +1116,7 @@ function getTokenID(address _tokenAddress) external view returns (string memory)
 
 
 ```solidity
-function deregisterToken(string calldata _tokenId) external onlyAppAdministrator;
+function deregisterToken(string calldata _tokenId) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1110,13 +1127,15 @@ function deregisterToken(string calldata _tokenId) external onlyAppAdministrator
 
 ### _removeAddress
 
+also remove its handler from the registration
+
 This function should only be called with arrays that are free of duplicates.
 
 *This function removes an address from a dynamic address array by putting the last element in the one to remove and then removing last element.*
 
 
 ```solidity
-function _removeAddress(address[] storage _addressArray, address _address) private;
+function _removeAddress(address[] storage _addressArray, address _address) private returns (bool _removed);
 ```
 **Parameters**
 
@@ -1132,7 +1151,7 @@ function _removeAddress(address[] storage _addressArray, address _address) priva
 
 
 ```solidity
-function registerAMM(address _AMMAddress) external onlyAppAdministrator;
+function registerAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1162,7 +1181,7 @@ function isRegisteredAMM(address _AMMAddress) public view returns (bool);
 
 
 ```solidity
-function deRegisterAMM(address _AMMAddress) external onlyAppAdministrator;
+function deRegisterAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1192,7 +1211,7 @@ function isTreasury(address _treasuryAddress) public view returns (bool);
 
 
 ```solidity
-function registerTreasury(address _treasuryAddress) external onlyAppAdministrator;
+function registerTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1207,7 +1226,7 @@ function registerTreasury(address _treasuryAddress) external onlyAppAdministrato
 
 
 ```solidity
-function deRegisterTreasury(address _treasuryAddress) external onlyAppAdministrator;
+function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1314,7 +1333,7 @@ this is for upgrading to a new ApplicationHandler contract
 
 
 ```solidity
-function setNewApplicationHandlerAddress(address _newApplicationHandler) external onlyAppAdministrator;
+function setNewApplicationHandlerAddress(address _newApplicationHandler) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1344,7 +1363,7 @@ function getHandlerAddress() external view returns (address);
 
 
 ```solidity
-function setAppName(string calldata _appName) external onlyAppAdministrator;
+function setAppName(string calldata _appName) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1359,7 +1378,7 @@ function setAppName(string calldata _appName) external onlyAppAdministrator;
 
 
 ```solidity
-function confirmAppManager(address _assetAddress) external onlyAppAdministrator;
+function confirmAppManager(address _assetAddress) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1385,7 +1404,7 @@ function deployDataContracts() private;
 
 
 ```solidity
-function proposeDataContractMigration(address _newOwner) external onlyAppAdministrator;
+function proposeDataContractMigration(address _newOwner) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1400,7 +1419,7 @@ function proposeDataContractMigration(address _newOwner) external onlyAppAdminis
 
 
 ```solidity
-function confirmDataContractMigration(address _oldAppManagerAddress) external onlyAppAdministrator;
+function confirmDataContractMigration(address _oldAppManagerAddress) external onlyRole(APP_ADMIN_ROLE);
 ```
 
 ### confirmNewDataProvider
