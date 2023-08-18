@@ -731,6 +731,8 @@ contract ApplicationERC721UTest is TestCommon {
         ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), true);
         ///connect to apptoken
         ApplicationERC721U(address(applicationNFTProxy)).connectHandlerToToken(address(assetHandler));
+        applicationAppManager.deregisterToken("THRK");
+        applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
         assetHandler.setNFTPricingAddress(address(erc721Pricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
@@ -856,6 +858,9 @@ contract ApplicationERC721UTest is TestCommon {
         ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), true);
         ///connect to apptoken
         ApplicationERC721U(address(applicationNFTProxy)).connectHandlerToToken(address(assetHandler));
+        /// in order to handle upgrades and handler registrations, deregister and re-register with new
+        applicationAppManager.deregisterToken("THRK");
+        applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
         assetHandler.setNFTPricingAddress(address(erc721Pricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
