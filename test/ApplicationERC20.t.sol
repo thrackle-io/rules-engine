@@ -1089,6 +1089,8 @@ contract ApplicationERC20Test is TestCommon {
         ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), true);
         ///connect to apptoken
         applicationCoin.connectHandlerToToken(address(assetHandler));
+        applicationAppManager.deregisterToken("FRANK");
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
         bytes32 tag1 = "cheap";
         uint256 minBalance = 10 * 10 ** 18;
         uint256 maxBalance = 1000 * 10 ** 18;
@@ -1184,6 +1186,8 @@ contract ApplicationERC20Test is TestCommon {
         ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), true);
         ///connect to apptoken
         applicationCoin.connectHandlerToToken(address(assetHandler));
+        applicationAppManager.deregisterToken("FRANK");
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
 
         applicationCoinHandler.proposeDataContractMigration(address(assetHandler));
         assetHandler.confirmDataContractMigration(address(applicationCoinHandler));

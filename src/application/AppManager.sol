@@ -56,6 +56,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     mapping(string => address) tokenToAddress;
     mapping(address => string) addressToToken;
+    mapping(address => bool) registeredHandlers;
     /// Token array (for balance tallying)
     address[] tokenList;
     /// AMM List (for token level rule exemptions)
@@ -603,13 +604,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @return isHandler true if handler, false if not
      */
     function isRegisteredHandler(address _address) public view returns (bool) {
-        for (uint256 i = 0; i < tokenList.length; ) {
-            if (ProtocolTokenCommon(tokenList[i]).getHandlerAddress() == _address) return true;
-            unchecked {
-                ++i;
-            }
-        }
-        return false;
+        return registeredHandlers[_address];
     }
 
     /**
@@ -627,16 +622,24 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function registerToken(string calldata _token, address _tokenAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_tokenAddress == address(0)) revert ZeroAddress();
+        bool skip;
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
         for (uint256 i = 0; i < tokenList.length; ) {
-            if (tokenList[i] == _tokenAddress) revert AddressAlreadyRegistered();
+            if (tokenList[i] == _tokenAddress) {
+                skip = true;
+                break;
+            }
             unchecked {
                 ++i;
             }
         }
-        tokenList.push(_tokenAddress);
-        emit TokenRegistered(_token, _tokenAddress);
+        if (!skip) {
+            tokenList.push(_tokenAddress);
+            /// Also add their handler to the registry
+            registeredHandlers[ProtocolTokenCommon(_tokenAddress).getHandlerAddress()] = true;
+            emit TokenRegistered(_token, _tokenAddress);
+        }
     }
 
     /**
@@ -661,11 +664,16 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function allows the devs to deregister a token contract address. This keeps everything in sync and will aid with the token factory and application level balance checks.
      * @param _tokenId The token id(may be NFT or ERC20)
      */
+
     function deregisterToken(string calldata _tokenId) external onlyRole(APP_ADMIN_ROLE) {
-        _removeAddress(tokenList, tokenToAddress[_tokenId]);
+        bool exists = _removeAddress(tokenList, tokenToAddress[_tokenId]);
         address tokenAddress = tokenToAddress[_tokenId];
         delete tokenToAddress[_tokenId];
         delete addressToToken[tokenAddress];
+        /// also remove its handler from the registration
+        if (exists) {
+            registeredHandlers[ProtocolTokenCommon(tokenAddress).getHandlerAddress()] = false;
+        }
         emit RemoveFromRegistry(_tokenId, tokenAddress);
     }
 
@@ -674,28 +682,30 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @notice This function should only be called with arrays that are free of duplicates.
      * @param _addressArray The array to have an address removed
      * @param _address The address to remove
+     * @param _removed true if one was removed
      */
-    function _removeAddress(address[] storage _addressArray, address _address) private {
-        if (_addressArray.length == 0) {
-            revert NoAddressToRemove();
-        }
-        if (_addressArray.length == 1) {
-            if (_addressArray[0] == _address) {
-                _addressArray.pop();
-            }
-        }
-        if (_addressArray.length > 1) {
-            for (uint256 i = 0; i < _addressArray.length; ) {
-                if (_addressArray[i] == _address) {
-                    _addressArray[i] = _addressArray[_addressArray.length - 1];
+    function _removeAddress(address[] storage _addressArray, address _address) private returns (bool _removed) {
+        if (_addressArray.length > 0) {
+            if (_addressArray.length == 1) {
+                if (_addressArray[0] == _address) {
                     _addressArray.pop();
-                    break;
                 }
-                unchecked {
-                    ++i;
+            }
+            if (_addressArray.length > 1) {
+                for (uint256 i = 0; i < _addressArray.length; ) {
+                    if (_addressArray[i] == _address) {
+                        _addressArray[i] = _addressArray[_addressArray.length - 1];
+                        _addressArray.pop();
+                        _removed = true;
+                        break;
+                    }
+                    unchecked {
+                        ++i;
+                    }
                 }
             }
         }
+        return _removed;
     }
 
     /**

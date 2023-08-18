@@ -704,36 +704,43 @@ contract ApplicationAppManagerTest is TestCommon {
 
     /// Test the register token.
     function testRegisterToken() public {
-        applicationAppManager.registerToken("Frankenstein", address(77));
-        assertEq(address(77), applicationAppManager.getTokenAddress("Frankenstein"));
+        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
+        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
+        /// register the token
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANK"));
     }
 
     /// Test the deregister token.
     function testDeregisterToken() public {
-        applicationAppManager.registerToken("Frankenstein", address(77));
-        assertEq(address(77), applicationAppManager.getTokenAddress("Frankenstein"));
-        applicationAppManager.deregisterToken("Frankenstein");
-        assertEq(address(0), applicationAppManager.getTokenAddress("Frankenstein"));
+        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
+        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
+        /// register the token
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANK"));
+        applicationAppManager.deregisterToken("FRANK");
+        assertEq(address(0), applicationAppManager.getTokenAddress("FRANK"));
 
         /// test _removeAddress with multiple tokens
-        address testToken1 = address(0x111);
-        address testToken2 = address(0x222);
-        address testToken3 = address(0x333);
-        address testToken4 = address(0x444);
+        ApplicationERC20 testToken1;
+        ApplicationERC20 testToken2;
+        ApplicationERC20 testToken3;
+        testToken1 = _createERC20("TestCoin1", "FRK", applicationAppManager);
+        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, testToken1);
+        testToken2 = _createERC20("TestCoin2", "FRK", applicationAppManager);
+        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, testToken2);
+        testToken3 = _createERC20("TestCoin3", "FRK", applicationAppManager);
+        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, testToken3);
         /// register multiple tokens
-        applicationAppManager.registerToken("TestCoin1", testToken1);
-        applicationAppManager.registerToken("TestCoin2", testToken2);
-        applicationAppManager.registerToken("TestCoin3", testToken3);
+        applicationAppManager.registerToken("TestCoin1", address(testToken1));
+        applicationAppManager.registerToken("TestCoin2", address(testToken2));
+        applicationAppManager.registerToken("TestCoin3", address(testToken3));
 
         /// remove token 2
         applicationAppManager.deregisterToken("TestCoin2");
         /// call the token list and check the length
         address[] memory list = applicationAppManager.getTokenList();
         assertEq(list.length, 2);
-        /// try to register same token twice
-        applicationAppManager.registerToken("TestCoin4", testToken4);
-        vm.expectRevert();
-        applicationAppManager.registerToken("TestCoin4", testToken4);
     }
 
     /// Test the register AMM.
