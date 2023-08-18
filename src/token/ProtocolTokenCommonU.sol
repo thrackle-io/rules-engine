@@ -12,7 +12,6 @@ import {IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
  */
 
 contract ProtocolTokenCommonU is AppAdministratorOnlyU, IApplicationEvents, IZeroAddressError, IOwnershipErrors {
-    string public constant VERSION="0.0.6";
     address newAppManagerAddress;
     address appManagerAddress;
     IAppManager appManager;

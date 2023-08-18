@@ -37,9 +37,7 @@ contract ApplicationERC721Test is TestCommon {
     }
 
     function testERC721AndHandlerVersions() public {
-        string memory version = applicationNFT.VERSION();
-        assertEq(version, "0.0.6");
-        version = applicationNFTHandler.VERSION();
+        string memory version = applicationNFTHandler.VERSION();
         assertEq(version, "0.0.6");
     }
 
