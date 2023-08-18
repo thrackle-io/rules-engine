@@ -1,5 +1,5 @@
 # AppRuleDataFacet
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/d0344b27291308c442daefb74b46bb81740099e4/src/economic/ruleStorage/AppRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/32fc908f43bfbb804e52e049074d30ce661a637a/src/economic/ruleStorage/AppRuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IAppRuleInputErrors](/src/interfaces/IErrors.sol/interface.IAppRuleInputErrors.md), [IRiskInputErrors](/src/interfaces/IErrors.sol/interface.IRiskInputErrors.md)

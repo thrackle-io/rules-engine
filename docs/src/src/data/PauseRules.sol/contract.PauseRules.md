@@ -1,5 +1,5 @@
 # PauseRules
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/d0344b27291308c442daefb74b46bb81740099e4/src/data/PauseRules.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/32fc908f43bfbb804e52e049074d30ce661a637a/src/data/PauseRules.sol)
 
 **Inherits:**
 [IPauseRules](/src/data/IPauseRules.sol/interface.IPauseRules.md), [DataModule](/src/data/DataModule.sol/abstract.DataModule.md)
@@ -27,7 +27,7 @@ PauseRule[] private pauseRules;
 
 
 ```solidity
-constructor(address _dataModuleAppManagerAddress) DataModule(dataModuleAppManagerAddress);
+constructor(address _dataModuleAppManagerAddress) DataModule(_dataModuleAppManagerAddress);
 ```
 **Parameters**
 

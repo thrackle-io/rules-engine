@@ -1,5 +1,5 @@
 # ProtocolHandlerCommon
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/d0344b27291308c442daefb74b46bb81740099e4/src/token/ProtocolHandlerCommon.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/32fc908f43bfbb804e52e049074d30ce661a637a/src/token/ProtocolHandlerCommon.sol)
 
 **Inherits:**
 [IAppManagerUser](/src/application/IAppManagerUser.sol/interface.IAppManagerUser.md), [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/interfaces/IErrors.sol/interface.IAssetHandlerErrors.md), [AppAdministratorOrOwnerOnly](/src/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md)

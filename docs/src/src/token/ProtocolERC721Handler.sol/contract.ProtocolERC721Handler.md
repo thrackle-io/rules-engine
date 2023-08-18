@@ -1,5 +1,5 @@
 # ProtocolERC721Handler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/d0344b27291308c442daefb74b46bb81740099e4/src/token/ProtocolERC721Handler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/32fc908f43bfbb804e52e049074d30ce661a637a/src/token/ProtocolERC721Handler.sol)
 
 **Inherits:**
 Ownable, [ProtocolHandlerCommon](/src/token/ProtocolHandlerCommon.sol/abstract.ProtocolHandlerCommon.md), [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IAdminWithdrawalRuleCapable](/src/token/IAdminWithdrawalRuleCapable.sol/abstract.IAdminWithdrawalRuleCapable.md), ERC165

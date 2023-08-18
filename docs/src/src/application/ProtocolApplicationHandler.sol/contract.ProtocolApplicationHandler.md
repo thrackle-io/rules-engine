@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/d0344b27291308c442daefb74b46bb81740099e4/src/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/32fc908f43bfbb804e52e049074d30ce661a637a/src/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 Ownable, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/interfaces/IEvents.sol/interface.IApplicationHandlerEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)

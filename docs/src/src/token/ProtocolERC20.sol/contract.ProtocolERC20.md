@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/d0344b27291308c442daefb74b46bb81740099e4/src/token/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/32fc908f43bfbb804e52e049074d30ce661a637a/src/token/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [ProtocolTokenCommon](/src/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/interfaces/IErrors.sol/interface.IProtocolERC20Errors.md)

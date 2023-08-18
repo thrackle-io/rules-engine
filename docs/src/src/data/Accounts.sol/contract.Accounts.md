@@ -1,5 +1,5 @@
 # Accounts
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/d0344b27291308c442daefb74b46bb81740099e4/src/data/Accounts.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/32fc908f43bfbb804e52e049074d30ce661a637a/src/data/Accounts.sol)
 
 **Inherits:**
 [DataModule](/src/data/DataModule.sol/abstract.DataModule.md), [IAccounts](/src/data/IAccounts.sol/interface.IAccounts.md)
@@ -27,7 +27,7 @@ mapping(address => bool) public accounts;
 
 
 ```solidity
-constructor(address _dataModuleAppManagerAddress) DataModule(dataModuleAppManagerAddress);
+constructor(address _dataModuleAppManagerAddress) DataModule(_dataModuleAppManagerAddress);
 ```
 **Parameters**
 
