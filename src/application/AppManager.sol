@@ -90,11 +90,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     // /// -------------ADMIN---------------
-    // /**
-    //  * @dev This function is where the Super admin role is actually checked
-    //  * @param account address to be checked
-    //  * @return success true if admin, false if not
-    //  */
+    /**
+     * @dev This function is where the Super admin role is actually checked
+     * @param account address to be checked
+     * @return success true if admin, false if not
+     */
     function isSuperAdmin(address account) public view returns (bool) {
         return hasRole(SUPER_ADMIN_ROLE, account);
     }
@@ -593,8 +593,31 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external {
+    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external onlyHandler {
         applicationHandler.checkApplicationRules(_action, _from, _to, _usdBalanceTo, _usdAmountTransferring);
+    }
+
+    /**
+     * @dev This function checks if the address is a registered handler within one of the registered protocol supported entities
+     * @param _address address to be checked
+     * @return isHandler true if handler, false if not
+     */
+    function isRegisteredHandler(address _address) public view returns (bool) {
+        for (uint256 i = 0; i < tokenList.length; ) {
+            if (ProtocolTokenCommon(tokenList[i]).getHandlerAddress() == _address) return true;
+            unchecked {
+                ++i;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @dev Checks if msg.sender is a registered handler
+     */
+    modifier onlyHandler() {
+        if (!isRegisteredHandler(msg.sender)) revert NotRegisteredHandler(msg.sender);
+        _;
     }
 
     /**

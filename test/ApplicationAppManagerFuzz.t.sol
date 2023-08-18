@@ -469,29 +469,4 @@ contract ApplicationAppManagerFuzzTest is TestCommon {
             }
         }
     }
-
-    /**
-     * ################# TEST DIFFERENT SCENARIOS #####################
-     */
-    /// Test the checkAction. This tests all application compliance
-    function testCheckActionFuzz(uint start, uint end, uint128 forward) public {
-        switchToRuleAdmin();
-        /// add a pause rule
-        if (start >= end || start <= block.timestamp) vm.expectRevert();
-        applicationAppManager.addPauseRule(start, end);
-
-        /// go to the future
-        vm.warp(forward);
-
-        /// check against the the actual rules. We consult because they might've not been added
-        PauseRule[] memory pauseRules = applicationAppManager.getPauseRules();
-
-        /// Now we check for access action depending on these rules.
-        /// If we got a pause rule, then we check also against the AccessLevel score
-        if (pauseRules.length > 0) {
-            if (pauseRules[0].pauseStart <= block.timestamp && pauseRules[0].pauseStop > block.timestamp) vm.expectRevert();
-            //applicationAppManager.checkAction(ApplicationHandlerLib.ActionTypes.SELL, user);
-            applicationAppManager.checkApplicationRules(ActionTypes.SELL, user, user, 0, 0);
-        }
-    }
 }
