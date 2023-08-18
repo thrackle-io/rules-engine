@@ -81,6 +81,10 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         assertEq(RuleDataFacet(address(ruleStorageDiamond)).getMinimumTransferRule(index).minTransferAmount, 1000);
     }
 
+    function testRuleProcessorVersion() public {
+        ruleProcessorDiamond.updateVersion("1.0.1");
+    }
+
     function testFailAddMinTransferRuleByNonAdmin() public {
         vm.stopPrank();
         vm.startPrank(address(0xDEADA55));
