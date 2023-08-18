@@ -15,7 +15,6 @@ import {IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../int
  * @notice  Implements Token Rules on Tagged Accounts.
  */
 contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError {
-    uint8 public constant VERSION = 1;
 
     /**
      * @dev Check the minimum/maximum rule. This rule ensures that both the to and from accounts do not
