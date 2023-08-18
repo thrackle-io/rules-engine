@@ -65,6 +65,30 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         // call a function
         assertEq("good", SampleFacet(address(ruleStorageDiamond)).sampleFunction());
     }
+    
+     function testRuleStorageVersion() public {
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        // update version
+        ruleStorageDiamond.updateVersion("1.0.1");
+        string memory version = ruleStorageDiamond.VERSION();
+        console.log(version);
+        assertEq(version,"1.0.1");
+        // update version again
+        ruleStorageDiamond.updateVersion("2.2.2");
+        version = ruleStorageDiamond.VERSION();
+        console.log(version);
+        assertEq(version,"2.2.2");
+        // test that no other than the owner can update the version
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        vm.expectRevert("UNAUTHORIZED");
+        ruleStorageDiamond.updateVersion("6.6.6");
+        version = ruleStorageDiamond.VERSION();
+        console.log(version);
+        // make sure that the version didn't change
+        assertEq(version,"2.2.2");
+    }
 
     /***************** Test Setters and Getters *****************/
 

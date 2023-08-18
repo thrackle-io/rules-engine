@@ -82,7 +82,27 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     }
 
     function testRuleProcessorVersion() public {
-        ruleProcessorDiamond.updateVersion("1.0.1");
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        // update version
+        ruleProcessor.updateVersion("1.0.1");
+        string memory version = ruleProcessor.VERSION();
+        console.log(version);
+        assertEq(version,"1.0.1");
+        // update version again
+        ruleProcessor.updateVersion("2.2.2");
+        version = ruleProcessor.VERSION();
+        console.log(version);
+        assertEq(version,"2.2.2");
+        // test that no other than the owner can update the version
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        vm.expectRevert("UNAUTHORIZED");
+        ruleProcessor.updateVersion("6.6.6");
+        version = ruleProcessor.VERSION();
+        console.log(version);
+        // make sure that the version didn't change
+        assertEq(version,"2.2.2");
     }
 
     function testFailAddMinTransferRuleByNonAdmin() public {

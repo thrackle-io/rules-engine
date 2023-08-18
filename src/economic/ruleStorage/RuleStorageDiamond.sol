@@ -43,6 +43,15 @@ contract RuleStorageDiamond is IRuleStorageDiamondEvents, ERC173Facet {
     }
 
     /**
+    * @dev returns the version of the Rule Processor Diamond.
+    * @return string version.
+    */
+    function VERSION() external view returns(string memory){
+        VersionStorage storage v = DiamondLib.versionStorage();
+        return v.VERSION;
+    }
+
+    /**
      * @dev Function finds facet for function that is called and execute the function if a facet is found and return any value.
      */
     fallback() external payable {
