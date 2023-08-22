@@ -52,13 +52,13 @@ contract ApplicationAppManagerTest is TestCommon {
     }
 
     function testAppManagerAndHandlerVersions() public {
-        string memory version = applicationAppManager.VERSION();
+        string memory version = applicationAppManager.version();
         assertEq(version, "0.0.6");
-        version = applicationHandler.VERSION();
+        version = applicationHandler.version();
         assertEq(version, "0.0.6");
-        version = applicationAppManager2.VERSION();
+        version = applicationAppManager2.version();
         assertEq(version, "0.0.6");
-        version = applicationHandler2.VERSION();
+        version = applicationHandler2.version();
         assertEq(version, "0.0.6");
     }
 

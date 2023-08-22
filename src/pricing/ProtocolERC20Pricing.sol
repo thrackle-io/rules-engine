@@ -13,7 +13,7 @@ import {IApplicationEvents} from "../interfaces/IEvents.sol";
  * @dev This contract doesn't allow any marketplace operations.
  */
 contract ProtocolERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricing {
-    string public constant VERSION="0.0.6";
+    string private constant VERSION="0.0.6";
     
     mapping(address => uint256) public tokenPrices;
 
@@ -40,5 +40,13 @@ contract ProtocolERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pric
      */
     function getTokenPrice(address tokenContract) external view returns (uint256 price) {
         return tokenPrices[tokenContract];
+    }
+
+    /**
+     * @dev gets the version of the contract
+     * @return VERSION
+     */
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 }

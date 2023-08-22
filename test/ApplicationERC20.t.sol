@@ -49,7 +49,7 @@ contract ApplicationERC20Test is TestCommon {
     }
 
     function testERC20AndHandlerVersions() public {
-        string memory version = applicationCoinHandler.VERSION();
+        string memory version = applicationCoinHandler.version();
         assertEq(version, "0.0.6");
     }
 

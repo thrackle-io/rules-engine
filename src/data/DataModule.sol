@@ -15,7 +15,7 @@ import {IAppManager} from "../application/IAppManager.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAddressError {
-    string public constant VERSION="0.0.6";
+    string private constant VERSION="0.0.6";
     ///Data Module
     address public dataModuleAppManagerAddress;
     address newOwner; // This is used for data contract migration
@@ -63,5 +63,13 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
      */
     function confirmDataProvider(ProviderType _providerType) external virtual appAdminstratorOrOwnerOnly {
         IAppManager(dataModuleAppManagerAddress).confirmNewDataProvider(_providerType);
+    }
+
+    /**
+     * @dev gets the version of the contract
+     * @return VERSION
+     */
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 }
