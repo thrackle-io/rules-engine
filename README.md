@@ -37,7 +37,7 @@ This package contains everything necessary for developers to launch their own ap
 
 To install the package simply go to the root of your project in the terminal, and do:
 
-```
+```c
 npm i @thrackle-io/rules-protocol-client
 ```
 
@@ -45,19 +45,25 @@ That's it!
 
 ## Dependencies
 
-As of versions 0.0.7 and below, this package needs only one dependency although it is very sensitive to its version. The dependency is `@openzeppelin/contracts` version 4.8.1.
+As of versions 0.0.8 and below, this package needs only 2 dependencies although it is very sensitive to their versions. The dependencies are `@openzeppelin/contracts` version 4.8.1 and `@openzeppelin/contracts-upgradeable` version 4.9.0.
 
 If the contracts show any compiling errors, try to manually update the version of the existing openzeppelin library in your project by doing:
 
-```
+```c
 npm i @openzeppelin/contracts@=4.8.1
+```
+
+and
+
+```c
+npm i @openzeppelin/contracts-upgradeable@=4.9.0
 ```
 
 ## Usage
 
 To use the package simply import the files you are interested in. Here is an example on how to create a Rules-Protocol compatible ERC20:
 
-```
+```c
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
@@ -87,7 +93,7 @@ contract ApplicationERC20 is ProtocolERC20 {
 
 As you can see, everything is already encapsulated inside the:
 
-```
+```c
 import "@thrackle-io/rules-protocol-client/token/ProtocolERC20.sol";
 ```
 

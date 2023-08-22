@@ -7,7 +7,8 @@
   "version": "0.0.7",
   "description": "Set of contracts to easily start an application in rules protocol",
   "dependencies": {
-    "@openzeppelin/contracts": "4.8.1"
+    "@openzeppelin/contracts": "4.8.1",
+    "@openzeppelin/contracts-upgradeable": "4.9.0"
   },
   "files": [
     "src/application",
@@ -19,6 +20,7 @@
     "src/economic/AppAdministratorOnly.sol",
     "src/economic/AppAdministratorOrOwnerOnly.sol",
     "src/economic/RuleAdministratorOnly.sol",
+    "src/economic/AppAdministratorOnlyU.sol",
     "src/economic/ruleStorage/RuleCodeData.sol",
     "src/economic/ruleProcessor/ActionEnum.sol",
     "unpack.sh"

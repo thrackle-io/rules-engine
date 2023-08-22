@@ -1,17 +1,21 @@
 #!/bin/bash
 
-directories=("$client/application" "$client/interfaces" "$client/data" "$client/example" \
-"$client/example/application" "$client/example/liquidity" "$client/example/pricing" \
-"$client/example/script" "$client/example/staking" "$client/liquidity" "$client/pricing" \
-"$client/staking" "$client/token" "$client/token/data" "$client/economic" \
-"$client/economic/ruleStorage" "$client/economic/ruleProcessor" )
+directories=("./src/application" "./src/interfaces" "./src/data" "./src/example" \
+"./src/example/application" "./src/example/liquidity" "./src/example/pricing" \
+"./src/example/script" "./src/example/staking" "./src/liquidity" "./src/pricing" \
+"./src/staking" "./src/token" "./src/token/data" "./src/economic" \
+"./src/economic/ruleStorage" "./src/economic/ruleProcessor")
 
 # Replace openzeppelin-contracts for the npm version @openzepellin
 for dir in "${directories[@]}"; do
+    echo "${dir}"
     for file in "${dir}"/*.sol; do
         if [ -f "$file" ]; then
+             echo "${file}"
             # Replace the old string with the new string and overwrite the file
+            sed -i "" 's%openzeppelin-contracts-upgradeable/%@openzeppelin/contracts-upgradeable/%g' "$file"
             sed -i "" 's%openzeppelin-contracts%@openzeppelin%g' "$file"
+            sed -i "" 's%@openzeppelin-upgradeable/contracts/%@openzeppelin/contracts-upgradeable/%g' "$file"
             # echo "Replaced openzeppelin-contracts"
         fi
     done
