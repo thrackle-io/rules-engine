@@ -792,6 +792,53 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury remains the same
     }
 
+    ///Test transferring coins with fees and discounts where the discounts are greater than the fees
+    function testTransactionFeeTableDiscountsCoin() public {
+        applicationCoin.transfer(user4, 100000 * (10 ** 18));
+        uint256 minBalance = 10 * 10 ** 18;
+        uint256 maxBalance = 10000000 * 10 ** 18;
+        int24 feePercentage = 100;
+        address targetAccount = rich_user;
+        // create a fee
+        switchToRuleAdmin();
+        applicationCoinHandler.addFee("fee1", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        Fees.Fee memory fee = applicationCoinHandler.getFee("fee1");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        // create a discount
+        switchToRuleAdmin();
+        feePercentage = -9000;
+        applicationCoinHandler.addFee("discount1", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        fee = applicationCoinHandler.getFee("discount1");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        // create another discount that makes it more than the fee
+        switchToRuleAdmin();
+        feePercentage = -2000;
+        applicationCoinHandler.addFee("discount2", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        fee = applicationCoinHandler.getFee("discount2");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+
+        // now test the fee assessment
+        applicationAppManager.addGeneralTag(user4, "discount1"); ///add tag
+        applicationAppManager.addGeneralTag(user4, "discount2"); ///add tag
+        applicationAppManager.addGeneralTag(user4, "fee1"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // discounts are greater than fees so it should put fees to 0
+        applicationCoin.transfer(user3, 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user4), 99900 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(targetAccount), 0 * (10 ** 18));
+    }
+
     ///Test transferring coins with fees enabled using transferFrom
     function testTransactionFeeTableTransferFrom() public {
         applicationCoin.transfer(user4, 100000 * (10 ** 18));
