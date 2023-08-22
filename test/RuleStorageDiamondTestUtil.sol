@@ -21,7 +21,9 @@ contract RuleStorageDiamondTestUtil is GenerateSelectors {
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[6] memory facets = [
+        string[7] memory facets = [
+            // diamond version
+            "VersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
             // Raw implementation facets.

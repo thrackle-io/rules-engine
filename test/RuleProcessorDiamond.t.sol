@@ -12,6 +12,7 @@ import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFac
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 import {RuleDataFacet as Facet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
+import {VersionFacet} from "../src/diamond/VersionFacet.sol";
 
 import "../src/example/ApplicationERC20Handler.sol";
 import {ApplicationERC20} from "../src/example/ApplicationERC20.sol";
@@ -85,21 +86,21 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         // update version
-        ruleProcessor.updateVersion("1.0.1");
-        string memory version = ruleProcessor.VERSION();
+        VersionFacet(address(ruleProcessor)).updateVersion("1.0.1");
+        string memory version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
         assertEq(version,"1.0.1");
         // update version again
-        ruleProcessor.updateVersion("2.2.2");
-        version = ruleProcessor.VERSION();
+        VersionFacet(address(ruleProcessor)).updateVersion("2.2.2");
+        version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
         assertEq(version,"2.2.2");
         // test that no other than the owner can update the version
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         vm.expectRevert("UNAUTHORIZED");
-        ruleProcessor.updateVersion("6.6.6");
-        version = ruleProcessor.VERSION();
+        VersionFacet(address(ruleProcessor)).updateVersion("6.6.6");
+        version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
         // make sure that the version didn't change
         assertEq(version,"2.2.2");

@@ -12,6 +12,7 @@ import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {RuleDataFacet as NonTaggedRuleFacet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
+import {VersionFacet} from "../src/diamond/VersionFacet.sol";
 
 contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     // Store the FacetCut struct for each NonTaggedRuleFacetthat is being deployed.
@@ -70,21 +71,21 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         // update version
-        ruleStorageDiamond.updateVersion("1.0.1");
-        string memory version = ruleStorageDiamond.VERSION();
+        VersionFacet(address(ruleStorageDiamond)).updateVersion("1.0.1");
+        string memory version = VersionFacet(address(ruleStorageDiamond)).version();
         console.log(version);
         assertEq(version,"1.0.1");
         // update version again
-        ruleStorageDiamond.updateVersion("2.2.2");
-        version = ruleStorageDiamond.VERSION();
+        VersionFacet(address(ruleStorageDiamond)).updateVersion("2.2.2");
+        version = VersionFacet(address(ruleStorageDiamond)).version();
         console.log(version);
         assertEq(version,"2.2.2");
         // test that no other than the owner can update the version
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         vm.expectRevert("UNAUTHORIZED");
-        ruleStorageDiamond.updateVersion("6.6.6");
-        version = ruleStorageDiamond.VERSION();
+        VersionFacet(address(ruleStorageDiamond)).updateVersion("6.6.6");
+        version = VersionFacet(address(ruleStorageDiamond)).version();
         console.log(version);
         // make sure that the version didn't change
         assertEq(version,"2.2.2");
