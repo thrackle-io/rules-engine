@@ -5,6 +5,11 @@ struct VersionStorage{
     string VERSION;
 }
 
+/**
+ * @title Protocol Version Facet Library 
+ * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
+ * @dev the library that handles the storage for the Version facet
+ */
 library VersionFacetLib {
      bytes32 constant VERSION_DATA_POSITION = keccak256("protocol-version");
 

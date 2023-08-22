@@ -4,6 +4,12 @@ pragma solidity 0.8.17;
 import {ERC173} from  "lib/diamond-std/implementations/ERC173/ERC173.sol";
 import {VersionFacetLib as lib} from "./VersionFacetLib.sol";
 
+/**
+ * @title Protocol Version Facet 
+ * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
+ * @notice This is a facet that should be deployed for any protocol diamond.
+ * @dev setter and getter functions for Version of a diamond.
+ */
 contract VersionFacet is ERC173 {
 
     /**
