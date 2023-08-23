@@ -62,9 +62,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     /// AMM List (for token level rule exemptions)
     address[] ammList;
     mapping(address => uint) ammToIndex;
+    mapping(address => bool) isAMMRegistered;
     /// Treasury List (for token level rule exemptions)
     address[] treasuryList;
     mapping(address => uint) treasuryToIndex;
+    mapping(address => bool) isTreasuryRegistered;
 
     /// Application name string
     string appName;
@@ -710,13 +712,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         return _removed;
     }
 
-    function _removeAddressWithMapping(address[] storage  _addressArray, mapping(address => uint) storage addressToIndex, address _address) private {
+    function _removeAddressWithMapping(address[] storage  _addressArray, mapping(address => uint) storage addressToIndex, mapping(address => bool) storage registerFlag, address _address) private {
         address LastAddress = _addressArray[_addressArray.length -1];
         if(_address != LastAddress){
             uint index = addressToIndex[_address];
             _addressArray[index] = LastAddress;
             addressToIndex[LastAddress] = index;
         }
+        delete registerFlag[_address];
         delete addressToIndex[_address];
         _addressArray.pop();
     }
@@ -730,6 +733,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         if (isRegisteredAMM(_AMMAddress)) revert AddressAlreadyRegistered();
         ammList.push(_AMMAddress);
         ammToIndex[_AMMAddress] = ammList.length -1;
+        isAMMRegistered[_AMMAddress] = true;
         emit AMMRegistered(_AMMAddress);
     }
 
@@ -738,9 +742,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _AMMAddress Address for the AMM
      */
     function isRegisteredAMM(address _AMMAddress) public view returns (bool) {
-        if(ammToIndex[_AMMAddress] == 0)
-            return ammList.length > 0 && ammList[0] == _AMMAddress;
-        return true;
+        return isAMMRegistered[_AMMAddress];
     }
 
     /**
@@ -749,7 +751,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function deRegisterAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (!isRegisteredAMM(_AMMAddress)) revert NoAddressToRemove();
-        _removeAddressWithMapping(ammList, ammToIndex, _AMMAddress);
+        _removeAddressWithMapping(ammList, ammToIndex, isAMMRegistered, _AMMAddress);
     }
 
     /**
@@ -757,9 +759,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _treasuryAddress Address for the treasury
      */
     function isTreasury(address _treasuryAddress) public view returns (bool) {
-        if(treasuryToIndex[_treasuryAddress] == 0)
-            return treasuryList.length > 0 && treasuryList[0] == _treasuryAddress;
-        return true;
+        return isTreasuryRegistered[_treasuryAddress];
     }
 
     /**
@@ -771,6 +771,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         if (isTreasury(_treasuryAddress)) revert AddressAlreadyRegistered();
         treasuryList.push(_treasuryAddress);
         treasuryToIndex[_treasuryAddress] = treasuryList.length -1;
+        isTreasuryRegistered[_treasuryAddress] = true;
         emit TreasuryRegistered(_treasuryAddress);
     }
 
@@ -780,7 +781,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (!isTreasury(_treasuryAddress)) revert NoAddressToRemove();
-        _removeAddressWithMapping(treasuryList, treasuryToIndex, _treasuryAddress);
+        _removeAddressWithMapping(treasuryList, treasuryToIndex, isTreasuryRegistered, _treasuryAddress);
     }
 
     /**
