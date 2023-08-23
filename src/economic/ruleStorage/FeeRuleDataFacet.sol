@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "../RuleAdministratorOnly.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
@@ -18,7 +18,6 @@ import "./RuleCodeData.sol";
  * @notice This contract sets and gets the Fee Rules for the protocol
  */
 contract FeeRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors {
-    
     /************ AMM Fee Getters/Setters ***********/
 
     /**

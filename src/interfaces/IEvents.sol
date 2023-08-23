@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 /**
  * @title Protocol Events Interface
@@ -112,7 +112,7 @@ interface ITokenHandlerEvents {
     /// NFT Valuation Limit Updated
     event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit, address indexed handlerAddress);
     event AppManagerAddressSet(address indexed _address);
-    event AppManagerAddressProposed(address indexed _address); 
+    event AppManagerAddressProposed(address indexed _address);
     /// Fees
     event FeeActivationSet(bool indexed _activation);
     /// Pricing
