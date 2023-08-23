@@ -1,8 +1,8 @@
 # Fees
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/token/data/Fees.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/token/data/Fees.sol)
 
 **Inherits:**
-Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md)
+Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md), [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -31,6 +31,13 @@ mapping(bytes32 => Fee) feesByTag;
 
 ```solidity
 uint256 feeTotal;
+```
+
+
+### newOwner
+
+```solidity
+address newOwner;
 ```
 
 
@@ -106,6 +113,30 @@ function getFeeTotal() external view onlyOwner returns (uint256);
 |----|----|-----------|
 |`<none>`|`uint256`|feeTotal total number of fees|
 
+
+### proposeOwner
+
+*this function proposes a new owner that is put in storage to be confirmed in a separate process*
+
+
+```solidity
+function proposeOwner(address _newOwner) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_newOwner`|`address`|the new address being proposed|
+
+
+### confirmOwner
+
+*this function confirms a new asset handler address that was put in storage. It can only be confirmed by the proposed address*
+
+
+```solidity
+function confirmOwner() external;
+```
 
 ## Structs
 ### Fee

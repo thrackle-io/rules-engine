@@ -12,6 +12,7 @@
 - [ITaggedRules](RuleDataInterfaces.sol/interface.ITaggedRules.md)
 - [IFeeRules](RuleDataInterfaces.sol/interface.IFeeRules.md)
 - [IApplicationRules](RuleDataInterfaces.sol/interface.IApplicationRules.md)
+- [RuleStorageCommonLib](RuleStorageCommonLib.sol/library.RuleStorageCommonLib.md)
 - [FunctionNotFound](RuleStorageDiamond.sol/error.FunctionNotFound.md)
 - [RuleStorageDiamondArgs](RuleStorageDiamond.sol/struct.RuleStorageDiamondArgs.md)
 - [RuleStorageDiamond](RuleStorageDiamond.sol/contract.RuleStorageDiamond.md)

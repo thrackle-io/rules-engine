@@ -1,5 +1,5 @@
 # IApplicationEvents
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/interfaces/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/interfaces/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -38,72 +38,6 @@ ProtocolERC721 & ERC721A
 
 ```solidity
 event NewNFTDeployed(address indexed applicationNFT, address indexed appManagerAddress);
-```
-
-### ERC20StakingDeployed
-ERC20Staking & ERC20AutoMintStaking
-
-
-```solidity
-event ERC20StakingDeployed(address indexed stakingAddress);
-```
-
-### NewStake
-
-```solidity
-event NewStake(
-    address indexed staker, uint256 indexed staked, uint256 stakingPeriodInSeconds, uint256 indexed stakingSince
-);
-```
-
-### RewardsClaimed
-
-```solidity
-event RewardsClaimed(
-    address indexed staker, uint256 indexed staked, uint256 rewards, uint256 indexed stakingSince, uint256 date
-);
-```
-
-### StakeWithdrawal
-
-```solidity
-event StakeWithdrawal(address indexed staker, uint256 indexed amount, uint256 date);
-```
-
-### ERC721StakingDeployed
-ERC721Staking & ERC721 AutoMintStaking
-
-
-```solidity
-event ERC721StakingDeployed(address indexed stakingAddress);
-```
-
-### NewStakeERC721
-
-```solidity
-event NewStakeERC721(
-    address indexed staker, uint256 indexed tokenId, uint256 stakingPeriodInSeconds, uint256 indexed stakingSince
-);
-```
-
-### RewardsClaimedERC721
-
-```solidity
-event RewardsClaimedERC721(
-    address indexed staker, uint256 indexed tokenId, uint256 rewards, uint256 indexed stakingSince, uint256 date
-);
-```
-
-### StakeWithdrawalERC721
-
-```solidity
-event StakeWithdrawalERC721(address indexed staker, uint256 indexed tokenId, uint256 date);
-```
-
-### NewStakingAddress
-
-```solidity
-event NewStakingAddress(address indexed newStakingAddress);
 ```
 
 ### AllowedAddress
@@ -237,5 +171,13 @@ event FeeTypeAdded(
 
 ```solidity
 event FeeTypeRemoved(bytes32 indexed tag, uint256 date);
+```
+
+### AppManagerAddressSet
+AppManager set
+
+
+```solidity
+event AppManagerAddressSet(address indexed _address);
 ```
 

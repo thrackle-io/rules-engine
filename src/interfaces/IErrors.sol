@@ -67,6 +67,7 @@ interface IInputErrors {
     error ZeroValueNotPermited();
     error InvertedLimits();
     error InvalidOracleType(uint8 _type);
+    error InvalidRuleInput();
 }
 
 interface IAppRuleInputErrors {
@@ -106,6 +107,7 @@ interface IAppManagerErrors {
     error NoAddressToRemove();
     error AddressAlreadyRegistered();
     error AdminWithdrawalRuleisActive();
+    error NotRegisteredHandler(address);
 }
 
 interface AMMCalculatorErrors {

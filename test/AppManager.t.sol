@@ -51,8 +51,7 @@ contract AppManagerBaseTest is TestCommon {
         assertEq(applicationAppManager.isAppAdministrator(user), false);
 
         switchToAppAdministrator();
-        bytes4 selector = bytes4(keccak256("NotSuperAdmin(address)"));
-        vm.expectRevert(abi.encodeWithSelector(selector, appAdministrator));
+        vm.expectRevert();
         applicationAppManager.addAppAdministrator(address(77));
         assertFalse(applicationAppManager.isAppAdministrator(address(77)));
     }

@@ -1,5 +1,5 @@
 # CustomERC721Pricing
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/example/pricing/CustomERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/example/pricing/CustomERC721Pricing.sol)
 
 **Inherits:**
 Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IProtocolERC721Pricing](/src/pricing/IProtocolERC721Pricing.sol/interface.IProtocolERC721Pricing.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
@@ -86,6 +86,32 @@ function getNFTPrice(address nftContract, uint256 id) external view returns (uin
 |----|----|-----------|
 |`nftContract`|`address`|is the address of the NFT contract|
 |`id`|`uint256`||
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`price`|`uint256`|of the Token in weis of dollars. 10^18 => $ 1.00 USD|
+
+
+### getNFTCollectionPrice
+
+Chainlink only provides floor price feeds, so this function mirrors getNFTPrice() in functionality.
+The price is for the whole token and not of its atomic unit. This means that if
+an ERC721 with 18 decimals has a price of 2 dollars, then its atomic unit would be 2/10^18 USD.
+999_999_999_999_999_999 = 0xDE0B6B3A763FFFF, 1_000_000_000_000_000_000 = DE0B6B3A7640000
+
+*gets the price of an NFT. It will return the Token's specific price. This function is left here to preserve the function signature. NOTE: This is  * only the floor price at the contract level. As of create date, Chainlink does not have a tokenId based pricing solution.*
+
+
+```solidity
+function getNFTCollectionPrice(address nftContract) external view returns (uint256 price);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`nftContract`|`address`|is the address of the NFT contract|
 
 **Returns**
 

@@ -1,8 +1,8 @@
 # ProtocolERC721Umin
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/token/ProtocolERC721Umin.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/token/ProtocolERC721Umin.sol)
 
 **Inherits:**
-Initializable, [AppAdministratorOnlyU](/src/economic/AppAdministratorOnlyU.sol/contract.AppAdministratorOnlyU.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), ERC721EnumerableUpgradeable
+Initializable, ERC721EnumerableUpgradeable, [ProtocolTokenCommonU](/src/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -11,13 +11,6 @@ This is the base contract for all protocol ERC721Upgradeables
 
 
 ## State Variables
-### appManagerAddress
-
-```solidity
-address private appManagerAddress;
-```
-
-
 ### handlerAddress
 
 ```solidity
@@ -81,28 +74,6 @@ function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256
 |`tokenId`|`uint256`|Id of token to be transferred|
 |`batchSize`|`uint256`|the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will represent the first id to start the batch.|
 
-
-### setAppManagerAddress
-
-*Function to set the appManagerAddress*
-
-*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress);
-```
-
-### getAppManagerAddress
-
-*Function to get the appManagerAddress*
-
-*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function getAppManagerAddress() external view returns (address);
-```
 
 ### getHandlerAddress
 

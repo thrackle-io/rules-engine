@@ -1,5 +1,5 @@
 # RiskTaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/economic/ruleProcessor/RiskTaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/economic/ruleProcessor/RiskTaggedRuleProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [IRiskErrors](/src/interfaces/IErrors.sol/interface.IRiskErrors.md)
@@ -15,6 +15,19 @@ in terms of USD with 18 decimals of precision.
 
 ## Functions
 ### checkTransactionLimitByRiskScore
+
+_transactionSize size must be equal to _riskLevel + 1 since the _transactionSize must
+specify the maximum tx size for anything below the first level and between the highest risk score and 100. This also
+means that the positioning of the arrays is ascendant in terms of risk levels, and
+descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+will apply to all risk scores of 100.)
+eg.
+risk scores      TxLimit         resultant logic
+-----------      --------         ---------------
+25             1000            0-24  =  1000
+50              500            25-49 =   500
+75              250            50-74 =   250
+100            75-99 =   100
 
 *Transaction Limit for Risk Score*
 

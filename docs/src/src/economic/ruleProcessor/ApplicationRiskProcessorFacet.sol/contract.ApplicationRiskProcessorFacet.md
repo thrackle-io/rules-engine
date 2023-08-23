@@ -1,5 +1,5 @@
 # ApplicationRiskProcessorFacet
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [IRiskErrors](/src/interfaces/IErrors.sol/interface.IRiskErrors.md)
@@ -27,21 +27,26 @@ risk scores      balances         resultant logic
 25             1000            0-24  =  1000
 50              500            25-49 =   500
 75              250            50-74 =   250
-                100            75-99 =   100
+100            75-99 =   100
 
 *Account balance by Risk Score*
 
 
 ```solidity
-function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScore, uint128 _totalValuationTo, uint128 _amountToTransfer)
-    external
-    view;
+function checkAccBalanceByRisk(
+    uint32 _ruleId,
+    address _toAddress,
+    uint8 _riskScore,
+    uint128 _totalValuationTo,
+    uint128 _amountToTransfer
+) external view;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_ruleId`|`uint32`|Rule Identifier for rule arguments|
+|`_toAddress`|`address`|Address of the recipient|
 |`_riskScore`|`uint8`|the Risk Score of the recepient account|
 |`_totalValuationTo`|`uint128`|recipient account's beginning balance in USD with 18 decimals of precision|
 |`_amountToTransfer`|`uint128`|total dollar amount to be transferred in USD with 18 decimals of precision|
@@ -52,6 +57,7 @@ function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScore, uint128 _totalV
 create the 'data' variable which is simply a connection to the rule diamond
 retrieve the rule
 perform the rule check
+If recipient address being checked is zero address the rule passes (This allows for burning)
 If risk score is within the rule riskLevel array, find the maxBalance for that risk Score
 maxBalance must be multiplied by 10 ** 18 to account for decimals in token pricing in USD
 Jump out of loop once risk score is matched to array index
@@ -70,7 +76,7 @@ risk scores      balances         resultant logic
 25             1000            0-24  =  1000
 50              500            25-49 =   500
 75              250            50-74 =   250
-                100            75-99 =   100
+100            75-99 =   100
 
 *rule that checks if the tx exceeds the limit size in USD for a specific risk profile
 within a specified period of time.*

@@ -1,8 +1,8 @@
 # FeeRuleDataFacet
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/economic/ruleStorage/FeeRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/economic/ruleStorage/FeeRuleDataFacet.sol)
 
 **Inherits:**
-Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md)
+Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -23,7 +23,7 @@ AMM Fee Getters/Setters **********
 ```solidity
 function addAMMFeeRule(address _appManagerAddr, uint256 _feePercentage)
     external
-    appAdministratorOnly(_appManagerAddr)
+    ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);
 ```
 **Parameters**

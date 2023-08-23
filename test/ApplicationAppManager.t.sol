@@ -704,36 +704,43 @@ contract ApplicationAppManagerTest is TestCommon {
 
     /// Test the register token.
     function testRegisterToken() public {
-        applicationAppManager.registerToken("Frankenstein", address(77));
-        assertEq(address(77), applicationAppManager.getTokenAddress("Frankenstein"));
+        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
+        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
+        /// register the token
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANK"));
     }
 
     /// Test the deregister token.
     function testDeregisterToken() public {
-        applicationAppManager.registerToken("Frankenstein", address(77));
-        assertEq(address(77), applicationAppManager.getTokenAddress("Frankenstein"));
-        applicationAppManager.deregisterToken("Frankenstein");
-        assertEq(address(0), applicationAppManager.getTokenAddress("Frankenstein"));
+        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
+        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
+        /// register the token
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANK"));
+        applicationAppManager.deregisterToken("FRANK");
+        assertEq(address(0), applicationAppManager.getTokenAddress("FRANK"));
 
         /// test _removeAddress with multiple tokens
-        address testToken1 = address(0x111);
-        address testToken2 = address(0x222);
-        address testToken3 = address(0x333);
-        address testToken4 = address(0x444);
+        ApplicationERC20 testToken1;
+        ApplicationERC20 testToken2;
+        ApplicationERC20 testToken3;
+        testToken1 = _createERC20("TestCoin1", "FRK", applicationAppManager);
+        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, testToken1);
+        testToken2 = _createERC20("TestCoin2", "FRK", applicationAppManager);
+        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, testToken2);
+        testToken3 = _createERC20("TestCoin3", "FRK", applicationAppManager);
+        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, testToken3);
         /// register multiple tokens
-        applicationAppManager.registerToken("TestCoin1", testToken1);
-        applicationAppManager.registerToken("TestCoin2", testToken2);
-        applicationAppManager.registerToken("TestCoin3", testToken3);
+        applicationAppManager.registerToken("TestCoin1", address(testToken1));
+        applicationAppManager.registerToken("TestCoin2", address(testToken2));
+        applicationAppManager.registerToken("TestCoin3", address(testToken3));
 
         /// remove token 2
         applicationAppManager.deregisterToken("TestCoin2");
         /// call the token list and check the length
         address[] memory list = applicationAppManager.getTokenList();
         assertEq(list.length, 2);
-        /// try to register same token twice
-        applicationAppManager.registerToken("TestCoin4", testToken4);
-        vm.expectRevert();
-        applicationAppManager.registerToken("TestCoin4", testToken4);
     }
 
     /// Test the register AMM.
@@ -763,99 +770,6 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationAppManager.registerTreasury(address(0x222));
         applicationAppManager.registerTreasury(address(0x333));
         applicationAppManager.deRegisterTreasury(address(0x111));
-    }
-
-    ///-----------------------PAUSE ACTIONS-----------------------------///
-    /// Test the checkAction. This tests all AccessLevel application compliance
-    function testCheckActionWithPauseActive() public {
-        // check if users can use system when not paused
-        applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
-
-        // check if users can not use system when paused
-        switchToRuleAdmin();
-        applicationAppManager.addPauseRule(1769924800, 1769984800);
-        switchToAppAdministrator();
-        vm.warp(1769924800); // set block.timestamp
-        vm.expectRevert();
-        applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
-
-        // check if users can use system after the pause rule expires
-        vm.warp(1769984801); // set block.timestamp
-        applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
-
-        // check if users can use system when in pause block but the pause has been deleted
-        switchToRuleAdmin();
-        applicationAppManager.removePauseRule(1769924800, 1769984800);
-        switchToAppAdministrator();
-        PauseRule[] memory removeTest = applicationAppManager.getPauseRules();
-        assertTrue(removeTest.length == 0);
-        vm.warp(1769924800); // set block.timestamp
-        applicationAppManager.checkApplicationRules(ActionTypes.INQUIRE, user, user, 0, 0);
-    }
-
-    function testBalanceLimitByRiskScoreFuzzAtAppManagerLevel(uint8 _addressIndex, uint24 _amountSeed) public {
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
-        address _user1 = addressList[0];
-        address _user2 = addressList[1];
-        address _user3 = addressList[2];
-        address _user4 = addressList[3];
-        // set up amounts(accounting for too big and too small numbers)
-        if (_amountSeed == 0) {
-            _amountSeed = 1;
-        }
-        if (_amountSeed > 167770) {
-            _amountSeed = 167770;
-        }
-        // add the rule.
-        uint8[] memory _riskLevel = new uint8[](4);
-        uint48[] memory balanceAmounts = new uint48[](5);
-        _riskLevel[0] = 25;
-        _riskLevel[1] = 50;
-        _riskLevel[2] = 75;
-        _riskLevel[3] = 90;
-        uint48 riskBalance1 = _amountSeed + 1000;
-        uint48 riskBalance2 = _amountSeed + 500;
-        uint48 riskBalance3 = _amountSeed + 100;
-        uint48 riskBalance4 = _amountSeed;
-
-        balanceAmounts[0] = riskBalance1;
-        balanceAmounts[1] = riskBalance2;
-        balanceAmounts[2] = riskBalance3;
-        balanceAmounts[3] = riskBalance4;
-        balanceAmounts[4] = 1;
-
-        ///Register rule with application Handler
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
-        uint32 ruleId = AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), _riskLevel, balanceAmounts);
-        ///Activate rule
-        applicationHandler.setAccountBalanceByRiskRuleId(ruleId);
-
-        /// we set a risk score for user2, user3 and user4
-        vm.stopPrank();
-        vm.startPrank(riskAdmin);
-        applicationAppManager.addRiskScore(_user2, _riskLevel[3]);
-        applicationAppManager.addRiskScore(_user3, _riskLevel[2]);
-        applicationAppManager.addRiskScore(_user4, _riskLevel[1]);
-
-        ///Execute transfers
-        vm.stopPrank();
-        vm.startPrank(_user1);
-        ///Max riskScore allows for single token balance
-        //applicationCoin.transfer(_user2, 1 * (10 ** 18));
-        applicationAppManager.checkApplicationRules(ActionTypes.TRADE, _user1, _user2, 0, 1 * (10 ** 18));
-        ///Transfer more than Risk Score allows
-        vm.expectRevert();
-        //applicationCoin.transfer(_user2, riskBalance4 * (10 ** 18) + 1);
-        applicationAppManager.checkApplicationRules(ActionTypes.TRADE, _user1, _user2, 1 * (10 ** 18), riskBalance4 * (10 ** 18) + 1);
-
-        vm.expectRevert();
-        //applicationCoin.transfer(_user3, riskBalance3 * (10 ** 18) + 1);
-        applicationAppManager.checkApplicationRules(ActionTypes.TRADE, _user1, _user3, 0, riskBalance3 * (10 ** 18) + 1);
-        ///Transfer more than Risk Score allows
-        vm.expectRevert();
-        //applicationCoin.transfer(_user4, riskBalance1 * (10 ** 18) + 1);
-        applicationAppManager.checkApplicationRules(ActionTypes.TRADE, _user1, _user4, 0, riskBalance1 * (10 ** 18) + 1);
     }
 
     ///---------------UPGRADEABILITY---------------

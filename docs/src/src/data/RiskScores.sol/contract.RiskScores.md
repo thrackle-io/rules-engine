@@ -1,8 +1,8 @@
 # RiskScores
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/data/RiskScores.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/data/RiskScores.sol)
 
 **Inherits:**
-[IRiskScores](/src/data/IRiskScores.sol/interface.IRiskScores.md), [DataModule](/src/data/DataModule.sol/contract.DataModule.md)
+[IRiskScores](/src/data/IRiskScores.sol/interface.IRiskScores.md), [DataModule](/src/data/DataModule.sol/abstract.DataModule.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -27,8 +27,14 @@ mapping(address => uint8) public scores;
 
 
 ```solidity
-constructor();
+constructor(address _dataModuleAppManagerAddress) DataModule(_dataModuleAppManagerAddress);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_dataModuleAppManagerAddress`|`address`|address of the owning app manager|
+
 
 ### addScore
 
@@ -36,7 +42,7 @@ constructor();
 
 
 ```solidity
-function addScore(address _address, uint8 _score) public onlyOwner;
+function addScore(address _address, uint8 _score) public virtual onlyOwner;
 ```
 **Parameters**
 
@@ -52,7 +58,7 @@ function addScore(address _address, uint8 _score) public onlyOwner;
 
 
 ```solidity
-function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyOwner;
+function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external virtual onlyOwner;
 ```
 **Parameters**
 
@@ -68,7 +74,7 @@ function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score
 
 
 ```solidity
-function removeScore(address _account) external onlyOwner;
+function removeScore(address _account) external virtual onlyOwner;
 ```
 **Parameters**
 
@@ -83,7 +89,7 @@ function removeScore(address _account) external onlyOwner;
 
 
 ```solidity
-function getRiskScore(address _account) external view onlyOwner returns (uint8);
+function getRiskScore(address _account) external view virtual onlyOwner returns (uint8);
 ```
 **Parameters**
 
