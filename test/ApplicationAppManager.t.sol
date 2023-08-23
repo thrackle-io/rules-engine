@@ -768,8 +768,35 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationAppManager.registerTreasury(address(0x111));
 
         applicationAppManager.registerTreasury(address(0x222));
+        assertTrue(applicationAppManager.isTreasury(address(0x222)));
         applicationAppManager.registerTreasury(address(0x333));
+        assertTrue(applicationAppManager.isTreasury(address(0x333)));
+        applicationAppManager.registerTreasury(address(0x444));
+        assertTrue(applicationAppManager.isTreasury(address(0x444)));
+        applicationAppManager.registerTreasury(address(0x555));
+        assertTrue(applicationAppManager.isTreasury(address(0x555)));
+
+        /// deregistering the first address
+        assertTrue(applicationAppManager.isTreasury(address(0x111)));
         applicationAppManager.deRegisterTreasury(address(0x111));
+        assertFalse(applicationAppManager.isTreasury(address(0x111)));
+        /// deregistering the last address (it is now the forth one, not the fifth one)
+        assertTrue(applicationAppManager.isTreasury(address(0x444)));
+        applicationAppManager.deRegisterTreasury(address(0x444));
+        assertFalse(applicationAppManager.isTreasury(address(0x444)));
+        /// deregistering the address in the middle
+        assertTrue(applicationAppManager.isTreasury(address(0x222)));
+        applicationAppManager.deRegisterTreasury(address(0x222));
+        assertFalse(applicationAppManager.isTreasury(address(0x222)));
+        /// deregistering the last address again
+        assertTrue(applicationAppManager.isTreasury(address(0x333)));
+        applicationAppManager.deRegisterTreasury(address(0x333));
+        assertFalse(applicationAppManager.isTreasury(address(0x333)));
+        /// deregistering the only address
+        assertTrue(applicationAppManager.isTreasury(address(0x555)));
+        applicationAppManager.deRegisterTreasury(address(0x555));
+        assertFalse(applicationAppManager.isTreasury(address(0x555)));
+
     }
 
     ///---------------UPGRADEABILITY---------------
