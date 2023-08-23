@@ -11,6 +11,8 @@ import "./IGeneralTags.sol";
  */
 contract GeneralTags is DataModule, IGeneralTags {
     mapping(address => bytes32[]) public tagRecords;
+    mapping(address => mapping(bytes32 => uint)) tagToIndex;
+    mapping(address => mapping(bytes32 => bool)) isTagRegistered;
 
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
@@ -33,7 +35,9 @@ contract GeneralTags is DataModule, IGeneralTags {
         if (hasTag(_address, _tag)) emit TagAlreadyApplied(_address);
         else {
             if (tagRecords[_address].length >= 10) revert MaxTagLimitReached();
+            tagToIndex[_address][_tag] = tagRecords[_address].length;
             tagRecords[_address].push(_tag);
+            isTagRegistered[_address][_tag] = true;
             emit GeneralTagAdded(_address, _tag, block.timestamp);
         }
     }
@@ -51,7 +55,9 @@ contract GeneralTags is DataModule, IGeneralTags {
             if (hasTag(_accounts[i], _tag)) emit TagAlreadyApplied(_accounts[i]);
             else {
                 if (tagRecords[_accounts[i]].length >= 10) revert MaxTagLimitReached();
+                tagToIndex[_accounts[i]][_tag] = tagRecords[_accounts[i]].length;
                 tagRecords[_accounts[i]].push(_tag);
+                isTagRegistered[_accounts[i]][_tag] = true;
                 emit GeneralTagAdded(_accounts[i], _tag, block.timestamp);
             }
             unchecked {
@@ -77,19 +83,21 @@ contract GeneralTags is DataModule, IGeneralTags {
      * @param _tag metadata tag to be removed
      */
     function removeTag(address _address, bytes32 _tag) external virtual onlyOwner {
-        uint256 i;
-        bool removed;
-        while (i < tagRecords[_address].length) {
-            while (tagRecords[_address].length > 0 && i < tagRecords[_address].length && keccak256(abi.encodePacked(tagRecords[_address][i])) == keccak256(abi.encodePacked(_tag))) {
-                _removeTag(_address, i);
-                removed = true;
+        if( hasTag(_address, _tag)){
+            bytes32 LastTag = tagRecords[_address][tagRecords[_address].length -1];
+            if(LastTag != _tag){
+                uint index = tagToIndex[_address][_tag];
+                /// we replace the position of the tag to remove with the last tag
+                tagRecords[_address][index] = LastTag;
+                /// we update the last tag index
+                tagToIndex[_address][LastTag] = index;
             }
-            unchecked {
-                ++i;
+            delete isTagRegistered[_address][_tag];
+            delete tagToIndex[_address][_tag];
+            tagRecords[_address].pop();
+            /// only one event should be emitted and only if a tag was actually removed
+            emit GeneralTagRemoved(_address, _tag, block.timestamp);
             }
-        }
-        /// only one event should be emitted and only if a tag was actually removed
-        if (removed) emit GeneralTagRemoved(_address, _tag, block.timestamp);
     }
 
     /**
@@ -99,15 +107,7 @@ contract GeneralTags is DataModule, IGeneralTags {
      * @return hasTag true if it has the tag, false if it doesn't
      */
     function hasTag(address _address, bytes32 _tag) public view virtual returns (bool) {
-        for (uint256 i = 0; i < tagRecords[_address].length; ) {
-            if (keccak256(abi.encodePacked(tagRecords[_address][i])) == keccak256(abi.encodePacked(_tag))) {
-                return true;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        return false;
+        return isTagRegistered[_address][_tag];
     }
 
     // Get all the tags for the address
