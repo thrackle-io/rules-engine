@@ -4,7 +4,7 @@
     "prettier-plugin-solidity": "^1.1.1"
   },
   "name": "@thrackle-io/rules-protocol-client",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Set of contracts to easily start an application in rules protocol",
   "dependencies": {
     "@openzeppelin/contracts": "4.8.1",
