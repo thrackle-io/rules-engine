@@ -45,12 +45,12 @@ That's it!
 
 ## Dependencies
 
-As of versions 0.0.8 and below, this package needs only 2 dependencies although it is very sensitive to their versions. The dependencies are `@openzeppelin/contracts` version 4.8.1 and `@openzeppelin/contracts-upgradeable` version 4.9.0.
+As of versions 0.0.9, this package needs only 2 dependencies although it is very sensitive to their versions. The dependencies are `@openzeppelin/contracts` version 4.9.0 and `@openzeppelin/contracts-upgradeable` version 4.9.0.
 
 If the contracts show any compiling errors, try to manually update the version of the existing openzeppelin library in your project by doing:
 
 ```c
-npm i @openzeppelin/contracts@=4.8.1
+npm i @openzeppelin/contracts@=4.9.0
 ```
 
 and
