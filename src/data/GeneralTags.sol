@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 import "./DataModule.sol";
 import "./IGeneralTags.sol";
+import { INoAddressToRemove } from "../interfaces/IErrors.sol";
 
 /**
  * @title General Tag Data Contract
@@ -9,7 +10,7 @@ import "./IGeneralTags.sol";
  * @dev Tags are stored as an internal mapping
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract GeneralTags is DataModule, IGeneralTags {
+contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
     mapping(address => bytes32[]) public tagRecords;
     mapping(address => mapping(bytes32 => uint)) tagToIndex;
     mapping(address => mapping(bytes32 => bool)) isTagRegistered;
@@ -72,21 +73,28 @@ contract GeneralTags is DataModule, IGeneralTags {
      * @param _tag metadata tag to be removed
      */
     function removeTag(address _address, bytes32 _tag) external virtual onlyOwner {
+        /// we only remove the tag if this exists in the account's tag list
         if( hasTag(_address, _tag)){
+            /// we store the last tag on a local variable to avoid unnecessary costly memory reads
             bytes32 LastTag = tagRecords[_address][tagRecords[_address].length -1];
+            /// we check if we are trying to remove the last tag since this would mean we can skip some steps
             if(LastTag != _tag){
+                /// if it is not the last tag, then we store the index of the address to remove
                 uint index = tagToIndex[_address][_tag];
-                /// we replace the position of the tag to remove with the last tag
+                /// we remove the tag by replacing it in the array with the last tag (now duplicated)
                 tagRecords[_address][index] = LastTag;
-                /// we update the last tag index
+                /// we update the last tag index to its new position (the removed-tag index)
                 tagToIndex[_address][LastTag] = index;
             }
-            delete isTagRegistered[_address][_tag];
-            delete tagToIndex[_address][_tag];
+            /// we remove the last element of the tag array since it is now duplicated
             tagRecords[_address].pop();
+            /// we set to false the membership mapping for this tag in this account
+            delete isTagRegistered[_address][_tag];
+            /// we set the index to zero for this tag in this account
+            delete tagToIndex[_address][_tag];
             /// only one event should be emitted and only if a tag was actually removed
             emit GeneralTagRemoved(_address, _tag, block.timestamp);
-        }
+        }else revert NoAddressToRemove();
     }
 
     /**

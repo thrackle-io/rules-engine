@@ -99,12 +99,15 @@ interface IPermissionModifierErrors {
     error NotRuleAdministrator();
 }
 
-interface IAppManagerErrors {
+interface INoAddressToRemove{
+    error NoAddressToRemove();
+}
+
+interface IAppManagerErrors is INoAddressToRemove{
     error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
     error NotAccessTierAdministrator(address _address);
     error NotRiskAdmin(address _address);
     error NotAUser(address _address);
-    error NoAddressToRemove();
     error AddressAlreadyRegistered();
     error AdminWithdrawalRuleisActive();
     error NotRegisteredHandler(address);

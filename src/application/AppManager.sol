@@ -688,15 +688,23 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         address _address) 
         private 
         {
-        address LastAddress = _addressArray[_addressArray.length -1];
-        if(_address != LastAddress){
-            uint index = _addressToIndex[_address];
-            _addressArray[index] = LastAddress;
-            _addressToIndex[LastAddress] = index;
-        }
-        delete _registerFlag[_address];
-        delete _addressToIndex[_address];
-        _addressArray.pop();
+            /// we store the last address in the array on a local variable to avoid unnecessary costly memory reads
+            address LastAddress = _addressArray[_addressArray.length -1];
+            /// we check if we're trying to remove the last address in the array since this means we can skip some steps
+            if(_address != LastAddress){
+                /// if it is not the last address in the array, then we store the index of the address to remove
+                uint index = _addressToIndex[_address];
+                /// we remove the address by replacing it in the array with the last address of the array (now duplicated)
+                _addressArray[index] = LastAddress;
+                /// we update the last address index to its new position (the removed-address index)
+                _addressToIndex[LastAddress] = index;
+            }
+            /// we remove the last element of the _addressArray since it is now duplicated
+            _addressArray.pop();
+            /// we set to false the membership mapping for this address in _addressArray
+            delete _registerFlag[_address];
+            /// we set the index to zero for this address in _addressArray
+            delete _addressToIndex[_address];
     }
 
     /**
