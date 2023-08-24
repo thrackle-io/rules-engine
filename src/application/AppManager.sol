@@ -674,52 +674,28 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         emit RemoveFromRegistry(_tokenId, tokenAddress);
     }
 
-    /**
+     /**
      * @dev This function removes an address from a dynamic address array by putting the last element in the one to remove and then removing last element.
-     * @notice This function should only be called with arrays that are free of duplicates.
      * @param _addressArray The array to have an address removed
+     * @param _addressToIndex mapping that keeps track of the indexes in the list by address
+     * @param _registerFlag mapping that keeps track of the addresses that are members of the list
      * @param _address The address to remove
-     * @param _removed true if one was removed
      */
-    function _removeAddress(address[] storage _addressArray, address _address) private returns (bool _removed) {
-        if (_addressArray.length > 0) {
-            if (_addressArray.length == 1) {
-                if (_addressArray[0] == _address) {
-                    _addressArray.pop();
-                }
-            }
-            if (_addressArray.length > 1) {
-                for (uint256 i = 0; i < _addressArray.length; ) {
-                    if (_addressArray[i] == _address) {
-                        _addressArray[i] = _addressArray[_addressArray.length - 1];
-                        _addressArray.pop();
-                        _removed = true;
-                        break;
-                    }
-                    unchecked {
-                        ++i;
-                    }
-                }
-            }
-        }
-        return _removed;
-    }
-
     function _removeAddressWithMapping(
         address[] storage  _addressArray, 
-        mapping(address => uint) storage addressToIndex, 
-        mapping(address => bool) storage registerFlag, 
+        mapping(address => uint) storage _addressToIndex, 
+        mapping(address => bool) storage _registerFlag, 
         address _address) 
         private 
         {
         address LastAddress = _addressArray[_addressArray.length -1];
         if(_address != LastAddress){
-            uint index = addressToIndex[_address];
+            uint index = _addressToIndex[_address];
             _addressArray[index] = LastAddress;
-            addressToIndex[LastAddress] = index;
+            _addressToIndex[LastAddress] = index;
         }
-        delete registerFlag[_address];
-        delete addressToIndex[_address];
+        delete _registerFlag[_address];
+        delete _addressToIndex[_address];
         _addressArray.pop();
     }
 
