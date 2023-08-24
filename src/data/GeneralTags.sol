@@ -67,17 +67,6 @@ contract GeneralTags is DataModule, IGeneralTags {
     }
 
     /**
-     * @dev Helper function to remove tags
-     * @param _address of the account to remove tag
-     * @param i index of the tag to remove
-     */
-    function _removeTag(address _address, uint256 i) internal virtual {
-        uint256 tagCount = tagRecords[_address].length;
-        tagRecords[_address][i] = tagRecords[_address][tagCount - 1];
-        tagRecords[_address].pop();
-    }
-
-    /**
      * @dev Remove the tag. Restricted to owner.
      * @param _address user address
      * @param _tag metadata tag to be removed
@@ -97,7 +86,7 @@ contract GeneralTags is DataModule, IGeneralTags {
             tagRecords[_address].pop();
             /// only one event should be emitted and only if a tag was actually removed
             emit GeneralTagRemoved(_address, _tag, block.timestamp);
-            }
+        }
     }
 
     /**
