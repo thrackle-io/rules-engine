@@ -702,6 +702,86 @@ contract ApplicationAppManagerTest is TestCommon {
         assertFalse(applicationAppManager.hasTag(user, "TAG1"));
     }
 
+    function testOverAllGeneralTags() public {
+
+        switchToAppAdministrator(); 
+        /// test adding a singular Tag
+        applicationAppManager.addGeneralTag(user, "TAG1"); //add tag
+        /// add one tag to multiple addresses
+        applicationAppManager.addGeneralTagToMultipleAccounts(ADDRESSES, "TAG2"); //add tags
+        /// add multiple tags to multiple addresses
+        address[] memory addresses = new address[](2);
+        addresses[0] = address(0xBABE);
+        addresses[1] = address(0xDADD);
+        bytes32[] memory tags = new bytes32[](2);
+        tags[0] = bytes32("BABE");
+        tags[1] = bytes32("DADD");
+
+        applicationAppManager.addMultipleGeneralTagToMultipleAccounts(addresses, tags);
+
+        assertTrue(applicationAppManager.hasTag(user, "TAG1"));
+        assertFalse(applicationAppManager.hasTag(user, "TAG2"));
+        assertFalse(applicationAppManager.hasTag(user, "BABE"));
+        assertFalse(applicationAppManager.hasTag(user, "DADD"));
+        applicationAppManager.addGeneralTag(user, "TAG2"); 
+        applicationAppManager.addGeneralTag(user, "BABE"); 
+        applicationAppManager.addGeneralTag(user, "DADD"); 
+        applicationAppManager.addGeneralTag(user, "FIFTH"); 
+
+        assertTrue(applicationAppManager.hasTag(user, "TAG2"));
+        assertTrue(applicationAppManager.hasTag(user, "BABE"));
+        assertTrue(applicationAppManager.hasTag(user, "DADD"));
+        assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
+
+        assertTrue(applicationAppManager.hasTag(address(0xFF1), "TAG2"));
+        assertFalse(applicationAppManager.hasTag(address(0xFF1), "TAG1"));
+        assertTrue(applicationAppManager.hasTag(address(0xFF2), "TAG2"));
+        assertFalse(applicationAppManager.hasTag(address(0xFF1), "TAG1"));
+        assertTrue(applicationAppManager.hasTag(address(0xFF8), "TAG2"));
+        assertFalse(applicationAppManager.hasTag(address(0xFF1), "TAG1"));
+
+        assertTrue(applicationAppManager.hasTag(address(0xBABE), "BABE"));
+        assertFalse(applicationAppManager.hasTag(address(0xBABE), "DADD"));
+        assertTrue(applicationAppManager.hasTag(address(0xDADD), "DADD"));
+        assertFalse(applicationAppManager.hasTag(address(0xDADD), "BABE"));
+
+        applicationAppManager.removeGeneralTag(user, "TAG1");
+        assertFalse(applicationAppManager.hasTag(user, "TAG1"));
+        assertTrue(applicationAppManager.hasTag(user, "TAG2"));
+        assertTrue(applicationAppManager.hasTag(user, "BABE"));
+        assertTrue(applicationAppManager.hasTag(user, "DADD"));
+        assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
+        applicationAppManager.removeGeneralTag(address(0xFF1), "TAG2");
+        assertFalse(applicationAppManager.hasTag(address(0xFF1), "TAG2"));
+        applicationAppManager.removeGeneralTag(address(0xBABE), "BABE");
+        assertFalse(applicationAppManager.hasTag(address(0xBABE), "BABE"));
+        applicationAppManager.removeGeneralTag(address(0xDADD), "DADD");
+        assertFalse(applicationAppManager.hasTag(address(0xDADD), "DADD"));
+
+        /// remove last tag
+        applicationAppManager.removeGeneralTag(user, "DADD");
+        assertFalse(applicationAppManager.hasTag(user, "DADD"));
+        assertTrue(applicationAppManager.hasTag(user, "TAG2"));
+        assertTrue(applicationAppManager.hasTag(user, "BABE"));
+        assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
+
+        /// remove tag in the middle
+        applicationAppManager.removeGeneralTag(user, "BABE");
+        assertFalse(applicationAppManager.hasTag(user, "BABE"));
+        assertTrue(applicationAppManager.hasTag(user, "TAG2"));
+        assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
+
+        /// remove last tag again
+        applicationAppManager.removeGeneralTag(user, "TAG2");
+        assertFalse(applicationAppManager.hasTag(user, "TAG2"));
+        assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
+
+        /// remove only tag
+        applicationAppManager.removeGeneralTag(user, "FIFTH");
+        assertFalse(applicationAppManager.hasTag(user, "FIFTH"));
+
+    }
+
     /// Test the register token.
     function testRegisterToken() public {
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
