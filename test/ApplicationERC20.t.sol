@@ -797,6 +797,53 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury remains the same
     }
 
+    ///Test transferring coins with fees and discounts where the discounts are greater than the fees
+    function testTransactionFeeTableDiscountsCoin() public {
+        applicationCoin.transfer(user4, 100000 * (10 ** 18));
+        uint256 minBalance = 10 * 10 ** 18;
+        uint256 maxBalance = 10000000 * 10 ** 18;
+        int24 feePercentage = 100;
+        address targetAccount = rich_user;
+        // create a fee
+        switchToRuleAdmin();
+        applicationCoinHandler.addFee("fee1", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        Fees.Fee memory fee = applicationCoinHandler.getFee("fee1");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        // create a discount
+        switchToRuleAdmin();
+        feePercentage = -9000;
+        applicationCoinHandler.addFee("discount1", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        fee = applicationCoinHandler.getFee("discount1");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        // create another discount that makes it more than the fee
+        switchToRuleAdmin();
+        feePercentage = -2000;
+        applicationCoinHandler.addFee("discount2", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        fee = applicationCoinHandler.getFee("discount2");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+
+        // now test the fee assessment
+        applicationAppManager.addGeneralTag(user4, "discount1"); ///add tag
+        applicationAppManager.addGeneralTag(user4, "discount2"); ///add tag
+        applicationAppManager.addGeneralTag(user4, "fee1"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // discounts are greater than fees so it should put fees to 0
+        applicationCoin.transfer(user3, 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user4), 99900 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(targetAccount), 0 * (10 ** 18));
+    }
+
     ///Test transferring coins with fees enabled using transferFrom
     function testTransactionFeeTableTransferFrom() public {
         applicationCoin.transfer(user4, 100000 * (10 ** 18));
@@ -894,6 +941,70 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(user9), 100 * (10 ** 18)); // to account gets amount while ignoring fees
         assertEq(applicationCoin.balanceOf(targetAccount), 8 * (10 ** 18)); // treasury remains the same
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury remains the same
+    }
+
+    ///Test transferring coins with fees enabled
+    function testTransactionFeeTableCoinGt100() public {
+        applicationCoin.transfer(user4, 100000 * (10 ** 18));
+        uint256 minBalance = 10 * 10 ** 18;
+        uint256 maxBalance = 10000000 * 10 ** 18;
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        address targetAccount2 = user10;
+        // create a fee
+        switchToRuleAdmin();
+        applicationCoinHandler.addFee("cheap", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        Fees.Fee memory fee = applicationCoinHandler.getFee("cheap");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, applicationCoinHandler.getFeeTotal());
+
+        // now test the fee assessment
+        applicationAppManager.addGeneralTag(user4, "cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works
+        applicationCoin.transfer(user3, 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user4), 99900 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
+
+        // add a fee to bring it to 100 percent
+        switchToRuleAdmin();
+        feePercentage = 9700;
+        applicationCoinHandler.addFee("less cheap", minBalance, maxBalance, feePercentage, targetAccount2);
+        switchToAppAdministrator();
+        // now test the fee assessment
+        applicationAppManager.addGeneralTag(user4, "less cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works(other fee will also be assessed)
+        applicationCoin.transfer(user3, 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user4), 99800 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (10 ** 18)); // previous 3 + current 3
+        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * (10 ** 18)); // current 7
+
+        // add a fee to bring it over 100 percent
+        switchToRuleAdmin();
+        feePercentage = 10;
+        applicationCoinHandler.addFee("super cheap", minBalance, maxBalance, feePercentage, targetAccount2);
+        switchToAppAdministrator();
+        // now test the fee assessment
+        applicationAppManager.addGeneralTag(user4, "super cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works(other fee will also be assessed)
+        bytes4 selector = bytes4(keccak256("FeesAreGreaterThanTransactionAmount(address)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, user4));
+        applicationCoin.transfer(user3, 200 * (10 ** 18));
+        // make sure nothing changed
+        assertEq(applicationCoin.balanceOf(user4), 99800 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (10 ** 18)); // previous 3 + current 3
+        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * (10 ** 18)); // current 7
     }
 
     /// test the token transfer volume rule in erc20
@@ -1094,6 +1205,8 @@ contract ApplicationERC20Test is TestCommon {
         ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), true);
         ///connect to apptoken
         applicationCoin.connectHandlerToToken(address(assetHandler));
+        applicationAppManager.deregisterToken("FRANK");
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
         bytes32 tag1 = "cheap";
         uint256 minBalance = 10 * 10 ** 18;
         uint256 maxBalance = 1000 * 10 ** 18;
@@ -1189,6 +1302,8 @@ contract ApplicationERC20Test is TestCommon {
         ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), true);
         ///connect to apptoken
         applicationCoin.connectHandlerToToken(address(assetHandler));
+        applicationAppManager.deregisterToken("FRANK");
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
 
         applicationCoinHandler.proposeDataContractMigration(address(assetHandler));
         assetHandler.confirmDataContractMigration(address(applicationCoinHandler));

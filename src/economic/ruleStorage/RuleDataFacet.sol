@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
-
+pragma solidity ^0.8.17;
 
 import "../RuleAdministratorOnly.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
@@ -456,12 +455,12 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
             if (_nftTypes[i] == bytes32("")) revert BlankTag();
             NonTaggedRules.NFTTradeCounterRule memory rule = NonTaggedRules.NFTTradeCounterRule(_tradesAllowed[i], _startTs);
             data.NFTTransferCounterRule[index][_nftTypes[i]] = rule;
-            bytes32[] memory empty;
-            emit ProtocolRuleCreated(NFT_TRANSFER, index, empty);
             unchecked {
                 ++i;
             }
         }
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(NFT_TRANSFER, index, empty);
         ++data.NFTTransferCounterRuleIndex;
         return index;
     }

@@ -1,8 +1,8 @@
 # RuleDataFacet
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/economic/ruleStorage/RuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/economic/ruleStorage/RuleDataFacet.sol)
 
 **Inherits:**
-Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [IAppRuleInputErrors](/src/interfaces/IErrors.sol/interface.IAppRuleInputErrors.md)
+Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [IAppRuleInputErrors](/src/interfaces/IErrors.sol/interface.IAppRuleInputErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -30,7 +30,7 @@ function addPercentagePurchaseRule(
     uint16 _purchasePeriod,
     uint256 _totalSupply,
     uint64 _startTimestamp
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -40,7 +40,7 @@ function addPercentagePurchaseRule(
 |`_tokenPercentage`|`uint16`|Percentage of Tokens allowed to purchase|
 |`_purchasePeriod`|`uint16`|Time period that transactions are accumulated|
 |`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
-|`_startTimestamp`|`uint64`|start time for the period|
+|`_startTimestamp`|`uint64`|start timestamp for the rule|
 
 **Returns**
 
@@ -76,7 +76,7 @@ function getPctPurchaseRule(uint32 _index) external view returns (NonTaggedRules
 
 
 ```solidity
-function getTotalPctPurchaseRule() external view returns (uint32);
+function getTotalPctPurchaseRule() public view returns (uint32);
 ```
 **Returns**
 
@@ -98,8 +98,8 @@ function addPercentageSellRule(
     uint16 _tokenPercentage,
     uint16 _sellPeriod,
     uint256 _totalSupply,
-    uint64 _startingHour
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+    uint64 _startTimestamp
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -109,7 +109,7 @@ function addPercentageSellRule(
 |`_tokenPercentage`|`uint16`|Percent of Tokens allowed to sell|
 |`_sellPeriod`|`uint16`|Time period that transactions are frozen|
 |`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
-|`_startTime`|`uint64`|start time for the period|
+|`_startTimestamp`|`uint64`|start time for the period|
 
 **Returns**
 
@@ -145,7 +145,7 @@ function getPctSellRule(uint32 _index) external view returns (NonTaggedRules.Tok
 
 
 ```solidity
-function getTotalPctSellRule() external view returns (uint32);
+function getTotalPctSellRule() public view returns (uint32);
 ```
 **Returns**
 
@@ -164,7 +164,7 @@ Token Purchase Fee By Volume Getters/Setters **********
 ```solidity
 function addPurchaseFeeByVolumeRule(address _appManagerAddr, uint256 _volume, uint16 _rateIncreased)
     external
-    appAdministratorOnly(_appManagerAddr)
+    ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);
 ```
 **Parameters**
@@ -212,7 +212,7 @@ function getPurchaseFeeByVolumeRule(uint32 _index)
 
 
 ```solidity
-function getTotalTokenPurchaseFeeByVolumeRules() external view returns (uint32);
+function getTotalTokenPurchaseFeeByVolumeRules() public view returns (uint32);
 ```
 **Returns**
 
@@ -232,10 +232,10 @@ Token Volatility Getters/Setters **********
 function addVolatilityRule(
     address _appManagerAddr,
     uint16 _maxVolatility,
-    uint16 _blocksPerPeriod,
+    uint16 _period,
     uint16 _hoursFrozen,
     uint256 _totalSupply
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -243,8 +243,8 @@ function addVolatilityRule(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_maxVolatility`|`uint16`|Maximum allowed volume|
-|`_blocksPerPeriod`|`uint16`|Allowed blocks per period|
-|`_hoursFrozen`|`uint16`|Time period that transactions are frozen|
+|`_period`|`uint16`|period in hours for the rule|
+|`_hoursFrozen`|`uint16`|freeze period hours|
 |`_totalSupply`|`uint256`||
 
 **Returns**
@@ -281,7 +281,7 @@ function getVolatilityRule(uint32 _index) external view returns (NonTaggedRules.
 
 
 ```solidity
-function getTotalVolatilityRules() external view returns (uint32);
+function getTotalVolatilityRules() public view returns (uint32);
 ```
 **Returns**
 
@@ -300,20 +300,20 @@ Token Transfer Volume Getters/Setters **********
 ```solidity
 function addTransferVolumeRule(
     address _appManagerAddr,
-    uint16 _maxVolumePercentage,
+    uint24 _maxVolumePercentage,
     uint16 _hoursPerPeriod,
-    uint64 _startTime,
+    uint64 _startTimestamp,
     uint256 _totalSupply
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_maxVolumePercentage`|`uint16`|Maximum allowed volume percentage (this is 4 digits to allow 2 decimal places)|
+|`_maxVolumePercentage`|`uint24`|Maximum allowed volume percentage (this is 4 digits to allow 2 decimal places)|
 |`_hoursPerPeriod`|`uint16`|Allowed hours per period|
-|`_startTime`|`uint64`|Time to start the block|
+|`_startTimestamp`|`uint64`|Timestamp to start the rule|
 |`_totalSupply`|`uint256`|Circulating supply value to use in calculations. If not specified, defaults to ERC20 totalSupply|
 
 **Returns**
@@ -350,7 +350,7 @@ function getTransferVolumeRule(uint32 _index) external view returns (NonTaggedRu
 
 
 ```solidity
-function getTotalTransferVolumeRules() external view returns (uint32);
+function getTotalTransferVolumeRules() public view returns (uint32);
 ```
 **Returns**
 
@@ -369,7 +369,7 @@ Minimum Transfer Rule Getters/Setters **********
 ```solidity
 function addMinimumTransferRule(address _appManagerAddr, uint256 _minimumTransfer)
     external
-    appAdministratorOnly(_appManagerAddr)
+    ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);
 ```
 **Parameters**
@@ -392,7 +392,7 @@ function addMinimumTransferRule(address _appManagerAddr, uint256 _minimumTransfe
 
 
 ```solidity
-function getMinimumTransferRule(uint32 _index) external view returns (uint256);
+function getMinimumTransferRule(uint32 _index) external view returns (NonTaggedRules.TokenMinimumTransferRule memory);
 ```
 **Parameters**
 
@@ -404,7 +404,7 @@ function getMinimumTransferRule(uint32 _index) external view returns (uint256);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint256`|Rule at index|
+|`<none>`|`NonTaggedRules.TokenMinimumTransferRule`|Rule at index|
 
 
 ### getTotalMinimumTransferRules
@@ -413,7 +413,7 @@ function getMinimumTransferRule(uint32 _index) external view returns (uint256);
 
 
 ```solidity
-function getTotalMinimumTransferRules() external view returns (uint32);
+function getTotalMinimumTransferRules() public view returns (uint32);
 ```
 **Returns**
 
@@ -434,9 +434,9 @@ function addSupplyVolatilityRule(
     address _appManagerAddr,
     uint16 _maxVolumePercentage,
     uint16 _period,
-    uint64 _startTime,
+    uint64 _startTimestamp,
     uint256 _totalSupply
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -445,7 +445,7 @@ function addSupplyVolatilityRule(
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_maxVolumePercentage`|`uint16`|Maximum amount of change allowed. This is not capped and will allow for values greater than 100%. Since there is no cap for _maxVolumePercentage this could allow burning of full totalSupply() if over 100% (10000).|
 |`_period`|`uint16`|Allowed hours per period|
-|`_startTime`|`uint64`|Hours that transactions are frozen|
+|`_startTimestamp`|`uint64`|Hours that transactions are frozen|
 |`_totalSupply`|`uint256`||
 
 **Returns**
@@ -482,7 +482,7 @@ function getSupplyVolatilityRule(uint32 _index) external view returns (NonTagged
 
 
 ```solidity
-function getTotalSupplyVolatilityRules() external view returns (uint32);
+function getTotalSupplyVolatilityRules() public view returns (uint32);
 ```
 **Returns**
 
@@ -501,7 +501,7 @@ Oracle Getters/Setters **********
 ```solidity
 function addOracleRule(address _appManagerAddr, uint8 _type, address _oracleAddress)
     external
-    appAdministratorOnly(_appManagerAddr)
+    ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);
 ```
 **Parameters**
@@ -546,7 +546,7 @@ function getOracleRule(uint32 _index) external view returns (NonTaggedRules.Orac
 
 
 ```solidity
-function getTotalOracleRules() external view returns (uint32);
+function getTotalOracleRules() public view returns (uint32);
 ```
 **Returns**
 
@@ -568,7 +568,7 @@ function addNFTTransferCounterRule(
     bytes32[] calldata _nftTypes,
     uint8[] calldata _tradesAllowed,
     uint64 _startTs
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -577,7 +577,7 @@ function addNFTTransferCounterRule(
 |`_appManagerAddr`|`address`|App Manager Address|
 |`_nftTypes`|`bytes32[]`|Types of NFTs|
 |`_tradesAllowed`|`uint8[]`|Maximum trades allowed within 24 hours|
-|`_startTs`|`uint64`|Starting timestamp for the rule|
+|`_startTs`|`uint64`|starting timestamp for the rule|
 
 **Returns**
 
@@ -602,7 +602,7 @@ function _addNFTTransferCounterRule(bytes32[] calldata _nftTypes, uint8[] callda
 |----|----|-----------|
 |`_nftTypes`|`bytes32[]`|Types of NFTs|
 |`_tradesAllowed`|`uint8[]`|Maximum trades allowed within 24 hours|
-|`_startTs`|`uint64`|Starting timestamp for the rule|
+|`_startTs`|`uint64`|starting timestamp for the rule|
 
 **Returns**
 
@@ -642,7 +642,7 @@ function getNFTTransferCounterRule(uint32 _index, bytes32 _nftType)
 
 
 ```solidity
-function getTotalNFTTransferCounterRules() external view returns (uint32);
+function getTotalNFTTransferCounterRules() public view returns (uint32);
 ```
 **Returns**
 

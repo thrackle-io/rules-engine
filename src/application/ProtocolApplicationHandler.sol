@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../application/AppManager.sol";
@@ -119,7 +119,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
                 );
                 // set the last timestamp of check
                 lastTxDateRiskRule[_to] = uint64(block.timestamp);
-            } 
+            }
         }
     }
 
@@ -134,10 +134,11 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         uint8 fromScore = appManager.getAccessLevel(_from);
         /// Check if sender is not AMM and then check sender access level
         if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccessLevel0Passes(fromScore);
-        /// Check if receiver is not an AMM or address(0) and then check the recipient access level. Exempting address(0) allows for burning. 
+        /// Check if receiver is not an AMM or address(0) and then check the recipient access level. Exempting address(0) allows for burning.
         if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccessLevel0Passes(score);
-        /// Check that the recipient is not address(0). If it is we do not check this rule as it is a burn. 
-        if (accountBalanceByAccessLevelRuleActive && _to != address(0)) ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
+        /// Check that the recipient is not address(0). If it is we do not check this rule as it is a burn.
+        if (accountBalanceByAccessLevelRuleActive && _to != address(0))
+            ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
         if (withdrawalLimitByAccessLevelRuleActive) {
             usdValueTotalWithrawals[_from] = ruleProcessor.checkwithdrawalLimitsByAccessLevel(withdrawalLimitByAccessLevelRuleId, fromScore, usdValueTotalWithrawals[_from], _usdAmountTransferring);
         }
@@ -185,6 +186,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @param _ruleId Rule Id to set
      */
     function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccBalanceByAccessLevel(_ruleId);
         accountBalanceByAccessLevelRuleId = _ruleId;
         accountBalanceByAccessLevelRuleActive = true;
         emit ApplicationRuleApplied(BALANCE_BY_ACCESSLEVEL, _ruleId);

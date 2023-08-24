@@ -1,5 +1,5 @@
 # IAppLevelEvents
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/interfaces/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/interfaces/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -42,10 +42,34 @@ event AppManagerDeployedForUpgrade(address indexed deployedAddress);
 event AppManagerUpgrade(address indexed deployedAddress, address replacedAddress);
 ```
 
+### AppManagerDataUpgradeProposed
+
+```solidity
+event AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
+```
+
+### DataContractsMigrated
+
+```solidity
+event DataContractsMigrated(address indexed ownerAddress);
+```
+
 ### RemoveFromRegistry
 
 ```solidity
 event RemoveFromRegistry(string contractName, address contractAddress);
+```
+
+### RuleAdminAdded
+
+```solidity
+event RuleAdminAdded(address newAdmin);
+```
+
+### RuleAdminRemoved
+
+```solidity
+event RuleAdminRemoved(address removedAdmin);
 ```
 
 ### RiskAdminAdded
@@ -84,9 +108,35 @@ event AddAppAdministrator(address newAppAdministrator);
 event RemoveAppAdministrator(address removedAppAdministrator);
 ```
 
-### AccountAdded
+### TokenRegistered
+Registrations
+
+
+```solidity
+event TokenRegistered(string indexed _token, address indexed _address);
+```
+
+### AMMRegistered
+
+```solidity
+event AMMRegistered(address indexed _address);
+```
+
+### TreasuryRegistered
+
+```solidity
+event TreasuryRegistered(address indexed _address);
+```
+
+### AccountProviderSet
 Accounts
 
+
+```solidity
+event AccountProviderSet(address indexed _address);
+```
+
+### AccountAdded
 
 ```solidity
 event AccountAdded(address indexed account, uint256 date);
@@ -98,9 +148,15 @@ event AccountAdded(address indexed account, uint256 date);
 event AccountRemoved(address indexed account, uint256 date);
 ```
 
-### GeneralTagAdded
+### GeneralTagProviderSet
 GeneralTags
 
+
+```solidity
+event GeneralTagProviderSet(address indexed _address);
+```
+
+### GeneralTagAdded
 
 ```solidity
 event GeneralTagAdded(address indexed _address, bytes32 indexed _tag, uint256 date);
@@ -118,9 +174,15 @@ event GeneralTagRemoved(address indexed _address, bytes32 indexed _tag, uint256 
 event TagAlreadyApplied(address indexed _address);
 ```
 
-### AccessLevelAdded
+### AccessLevelProviderSet
 AccessLevels
 
+
+```solidity
+event AccessLevelProviderSet(address indexed _address);
+```
+
+### AccessLevelAdded
 
 ```solidity
 event AccessLevelAdded(address indexed _address, uint8 indexed _level, uint256 date);
@@ -132,9 +194,15 @@ event AccessLevelAdded(address indexed _address, uint8 indexed _level, uint256 d
 event AccessLevelRemoved(address indexed _address, uint256 date);
 ```
 
-### PauseRuleAdded
+### PauseRuleProviderSet
 PauseRules
 
+
+```solidity
+event PauseRuleProviderSet(address indexed _address);
+```
+
+### PauseRuleAdded
 
 ```solidity
 event PauseRuleAdded(uint256 indexed pauseStart, uint256 indexed pauseStop);
@@ -146,9 +214,15 @@ event PauseRuleAdded(uint256 indexed pauseStart, uint256 indexed pauseStop);
 event PauseRuleRemoved(uint256 indexed pauseStart, uint256 indexed pauseStop);
 ```
 
-### RiskScoreAdded
+### RiskProviderSet
 RiskScores
 
+
+```solidity
+event RiskProviderSet(address indexed _address);
+```
+
+### RiskScoreAdded
 
 ```solidity
 event RiskScoreAdded(address indexed _address, uint8 _score, uint256 date);

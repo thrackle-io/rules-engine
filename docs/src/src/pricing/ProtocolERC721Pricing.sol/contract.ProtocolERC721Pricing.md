@@ -1,5 +1,5 @@
 # ProtocolERC721Pricing
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/pricing/ProtocolERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/pricing/ProtocolERC721Pricing.sol)
 
 **Inherits:**
 Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IProtocolERC721Pricing](/src/pricing/IProtocolERC721Pricing.sol/interface.IProtocolERC721Pricing.md)
@@ -65,7 +65,7 @@ function setNFTCollectionPrice(address nftContract, uint256 price) external only
 ### getNFTPrice
 
 *gets the price of an NFT. It will return the NFT's specific price, or the
-price of the collection if no specific price hsa been given*
+price of the collection if no specific price has been given*
 
 
 ```solidity
@@ -83,5 +83,26 @@ function getNFTPrice(address nftContract, uint256 id) external view returns (uin
 |Name|Type|Description|
 |----|----|-----------|
 |`price`|`uint256`|of the Token in weis of dollars. 10^18 => $ 1.00 USD 999_999_999_999_999_999 = 0xDE0B6B3A763FFFF, 1_000_000_000_000_000_000 = DE0B6B3A7640000|
+
+
+### getNFTCollectionPrice
+
+*gets the price of an NFT Collection. It will return the NFT Collection price to be used for each token Id (i.e. Floor Price).*
+
+
+```solidity
+function getNFTCollectionPrice(address nftContract) external view returns (uint256 price);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`nftContract`|`address`|is the address of the NFT contract|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`price`|`uint256`|for the collection in weis of dollars. 10^18 => $ 1.00 USD 999_999_999_999_999_999 = 0xDE0B6B3A763FFFF, 1_000_000_000_000_000_000 = DE0B6B3A7640000|
 
 

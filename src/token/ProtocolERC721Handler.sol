@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 /// TODO Create a wizard that creates custom versions of this contract for each implementation.
 
@@ -224,11 +224,10 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         if (transactionLimitByRiskRuleActive) {
             /// if recipient is not address(0) check sender and recipient risk scores to ensure transaction limit is within rule limits
             ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _thisNFTValuation);
-            if (_to != address(0)){
+            if (_to != address(0)) {
                 ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _thisNFTValuation);
             }
         }
-
     }
 
     /**
@@ -369,6 +368,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     function setERC721Address(address _address) public appAdministratorOrOwnerOnly(appManagerAddress) {
         if (_address == address(0)) revert ZeroAddress();
         erc721Address = _address;
+        emit ERC721AddressSet(_address);
     }
 
     /**

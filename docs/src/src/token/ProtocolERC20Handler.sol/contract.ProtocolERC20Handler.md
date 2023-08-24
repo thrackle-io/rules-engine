@@ -1,8 +1,8 @@
 # ProtocolERC20Handler
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/token/ProtocolERC20Handler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/token/ProtocolERC20Handler.sol)
 
 **Inherits:**
-Ownable, [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IAssetHandlerErrors](/src/interfaces/IErrors.sol/interface.IAssetHandlerErrors.md)
+Ownable, [ProtocolHandlerCommon](/src/token/ProtocolHandlerCommon.sol/abstract.ProtocolHandlerCommon.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IAdminWithdrawalRuleCapable](/src/token/IAdminWithdrawalRuleCapable.sol/abstract.IAdminWithdrawalRuleCapable.md), ERC165
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -15,7 +15,7 @@ Any rules may be updated by modifying this contract, redeploying, and pointing t
 
 
 ## State Variables
-### appManagerAddress
+### riskScoreTokenId
 Functions added so far:
 minTransfer
 balanceLimits
@@ -27,13 +27,6 @@ AccessLevel Account balance
 Risk Score Transaction Limit
 Risk Score Account Balance Limit
 
-
-```solidity
-address public appManagerAddress;
-```
-
-
-### riskScoreTokenId
 
 ```solidity
 string private riskScoreTokenId;
@@ -209,48 +202,6 @@ uint256 private totalSupplyForPeriod;
 ```
 
 
-### ruleProcessor
-
-```solidity
-IRuleProcessor immutable ruleProcessor;
-```
-
-
-### appManager
-
-```solidity
-IAppManager appManager;
-```
-
-
-### erc20Pricer
-
-```solidity
-IProtocolERC20Pricing erc20Pricer;
-```
-
-
-### nftPricer
-
-```solidity
-IProtocolERC721Pricing nftPricer;
-```
-
-
-### erc20PricingAddress
-
-```solidity
-address public erc20PricingAddress;
-```
-
-
-### nftPricingAddress
-
-```solidity
-address public nftPricingAddress;
-```
-
-
 ## Functions
 ### constructor
 
@@ -270,6 +221,15 @@ constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, addr
 |`_upgradeMode`|`bool`|specifies whether this is a fresh CoinHandler or an upgrade replacement.|
 
 
+### supportsInterface
+
+*See {IERC165-supportsInterface}.*
+
+
+```solidity
+function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool);
+```
+
 ### checkAllRules
 
 *This function is the one called from the contract that implements this handler. It's the entry point.*
@@ -283,7 +243,7 @@ function checkAllRules(
     address _to,
     uint256 amount,
     ActionTypes _action
-) external returns (bool);
+) external onlyOwner returns (bool);
 ```
 **Parameters**
 
@@ -403,83 +363,6 @@ function _checkRiskRules(
 |`_price`|`uint256`||
 
 
-### getAccTotalValuation
-
-This gets the account's balance in dollars.
-
-*Get the account's balance in dollars. It uses the registered tokens in the app manager.*
-
-
-```solidity
-function getAccTotalValuation(address _account) public view returns (uint256 totalValuation);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_account`|`address`|address to get the balance for|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`totalValuation`|`uint256`|of the account in dollars with 18 decimals of precision|
-
-
-### _getERC20Price
-
-Loop through all Nfts and ERC20s and add values to balance
-First check to see if user owns the asset
-
-This gets the token's value in dollars.
-
-*Get the value for a specific ERC20. This is done by interacting with the pricing module*
-
-
-```solidity
-function _getERC20Price(address _tokenAddress) private view returns (uint256);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_tokenAddress`|`address`|the address of the token|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint256`|price the price of 1 in dollars|
-
-
-### _getNFTValuePerCollection
-
-This gets the token's value in dollars.
-
-*Get the value for a specific ERC721. This is done by interacting with the pricing module*
-
-
-```solidity
-function _getNFTValuePerCollection(address _tokenAddress, address _account, uint256 _tokenAmount)
-    private
-    view
-    returns (uint256 totalValueInThisContract);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_tokenAddress`|`address`|the address of the token|
-|`_account`|`address`|of the token holder|
-|`_tokenAmount`|`uint256`|amount of NFTs from _tokenAddress contract|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`totalValueInThisContract`|`uint256`|in USD with 18 decimals of precision|
-
-
 ### addFee
 
 *This function adds a fee to the token*
@@ -488,7 +371,7 @@ function _getNFTValuePerCollection(address _tokenAddress, address _account, uint
 ```solidity
 function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount)
     external
-    appAdministratorOnly(appManagerAddress);
+    ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -507,7 +390,7 @@ function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _f
 
 
 ```solidity
-function removeFee(bytes32 _tag) external appAdministratorOnly(appManagerAddress);
+function removeFee(bytes32 _tag) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -558,7 +441,7 @@ function getFeeTotal() public view returns (uint256);
 
 
 ```solidity
-function setFeeActivation(bool on_off) external appAdministratorOnly(appManagerAddress);
+function setFeeActivation(bool on_off) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -609,41 +492,10 @@ function getApplicableFees(address _from, uint256 _balanceFrom)
 |`feePercentages`|`int24[]`|list of all applicable fees/discounts|
 
 
-### setNFTPricingAddress
+### setMinMaxBalanceRuleId
 
 loop through and accumulate the fee percentages based on tags
 if an applicable discount(s) was found, then distribute it among all the fees
-
-*sets the address of the nft pricing contract and loads the contract.*
-
-
-```solidity
-function setNFTPricingAddress(address _address) external appAdministratorOnly(appManagerAddress);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_address`|`address`|Nft Pricing Contract address.|
-
-
-### setERC20PricingAddress
-
-*sets the address of the erc20 pricing contract and loads the contract.*
-
-
-```solidity
-function setERC20PricingAddress(address _address) external appAdministratorOnly(appManagerAddress);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_address`|`address`|ERC20 Pricing Contract address.|
-
-
-### setMinMaxBalanceRuleId
-
 Rule Setters and Getters
 
 that setting a rule will automatically activate it.
@@ -652,7 +504,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setMinMaxBalanceRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setMinMaxBalanceRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -667,7 +519,7 @@ function setMinMaxBalanceRuleId(uint32 _ruleId) external appAdministratorOnly(ap
 
 
 ```solidity
-function activateMinMaxBalanceRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateMinMaxBalanceRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -714,7 +566,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setMinTransferRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setMinTransferRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -729,7 +581,7 @@ function setMinTransferRuleId(uint32 _ruleId) external appAdministratorOnly(appM
 
 
 ```solidity
-function activateMinTransfereRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateMinTransfereRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -776,7 +628,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setOracleRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -791,7 +643,7 @@ function setOracleRuleId(uint32 _ruleId) external appAdministratorOnly(appManage
 
 
 ```solidity
-function activateOracleRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -853,7 +705,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setTransactionLimitByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -868,7 +720,7 @@ function setTransactionLimitByRiskRuleId(uint32 _ruleId) external appAdministrat
 
 
 ```solidity
-function activateTransactionLimitByRiskRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -900,7 +752,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setAdminWithdrawalRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -909,16 +761,31 @@ function setAdminWithdrawalRuleId(uint32 _ruleId) external appAdministratorOnly(
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
-### activateAdminWithdrawalRule
+### isAdminWithdrawalActiveAndApplicable
 
 if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
 after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
+
+*This function is used by the app manager to determine if the AdminWithdrawal rule is active*
+
+
+```solidity
+function isAdminWithdrawalActiveAndApplicable() public view override returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|Success equals true if all checks pass|
+
+
+### activateAdminWithdrawalRule
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.*
 
 
 ```solidity
-function activateAdminWithdrawalRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateAdminWithdrawalRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -982,7 +849,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setMinBalByDateRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setMinBalByDateRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -997,7 +864,7 @@ function setMinBalByDateRuleId(uint32 _ruleId) external appAdministratorOnly(app
 
 
 ```solidity
-function activateMinBalByDateRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -1044,7 +911,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setTokenTransferVolumeRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setTokenTransferVolumeRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -1059,7 +926,7 @@ function setTokenTransferVolumeRuleId(uint32 _ruleId) external appAdministratorO
 
 
 ```solidity
-function activateTokenTransferVolumeRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateTokenTransferVolumeRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -1106,7 +973,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -1121,7 +988,7 @@ function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external appAdministrato
 
 
 ```solidity
-function activateTotalSupplyVolatilityRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateTotalSupplyVolatilityRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -1171,34 +1038,27 @@ function getFeesDataAddress() external view returns (address);
 |`<none>`|`address`|feesDataAddress|
 
 
-### migrateDataContracts
+### proposeDataContractMigration
 
-*This function is used to migrate the data contracts to a new CoinHandler. Use with care because it changes ownership. They will no
-longer be accessible from the original CoinHandler*
+*This function is used to propose the new owner for data contracts.*
 
 
 ```solidity
-function migrateDataContracts(address _newOwner) external appAdministratorOnly(appManagerAddress);
+function proposeDataContractMigration(address _newOwner) external appAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_newOwner`|`address`|address of the new CoinHandler|
+|`_newOwner`|`address`|address of the new AppManager|
 
 
-### connectDataContracts
+### confirmDataContractMigration
 
-*This function is used to connect data contracts from an old CoinHandler to the current CoinHandler.*
+*This function is used to confirm this contract as the new owner for data contracts.*
 
 
 ```solidity
-function connectDataContracts(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress);
+function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress);
 ```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_oldHandlerAddress`|`address`|address of the old CoinHandler|
-
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "diamond-std/core/DiamondCut/FacetCut.sol";
 
@@ -105,8 +105,8 @@ library RuleProcessorDiamondLib {
             unchecked {
                 ++facetIndex;
             }
-            emit DiamondCut(_diamondCut, init, data);
         }
+        emit DiamondCut(_diamondCut, init, data);
         initializeDiamondCut(init, data);
     }
 

@@ -12,6 +12,8 @@
 - [FeeRuleProcessorFacet](FeeRuleProcessorFacet.sol/contract.FeeRuleProcessorFacet.md)
 - [IOracle](IOracle.sol/interface.IOracle.md)
 - [RiskTaggedRuleProcessorFacet](RiskTaggedRuleProcessorFacet.sol/contract.RiskTaggedRuleProcessorFacet.md)
+- [RuleApplicationValidationFacet](RuleApplicationValidationFacet.sol/contract.RuleApplicationValidationFacet.md)
+- [RuleProcessorCommonLib](RuleProcessorCommonLib.sol/library.RuleProcessorCommonLib.md)
 - [FunctionNotFound](RuleProcessorDiamond.sol/error.FunctionNotFound.md)
 - [RuleProcessorDiamondArgs](RuleProcessorDiamond.sol/struct.RuleProcessorDiamondArgs.md)
 - [RuleProcessorDiamond](RuleProcessorDiamond.sol/contract.RuleProcessorDiamond.md)

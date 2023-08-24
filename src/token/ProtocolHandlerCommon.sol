@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -33,6 +33,7 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
     IProtocolERC721Pricing nftPricer;
     address public erc20PricingAddress;
     address public nftPricingAddress;
+    bytes32 ERC20_PRICER;
 
     /**
      * @dev this function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process
@@ -41,6 +42,7 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
     function proposeAppManagerAddress(address _newAppManagerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
         if (_newAppManagerAddress == address(0)) revert ZeroAddress();
         newAppManagerAddress = _newAppManagerAddress;
+        emit AppManagerAddressProposed(_newAppManagerAddress);
     }
 
     /**
@@ -52,6 +54,7 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
         appManagerAddress = newAppManagerAddress;
         appManager = IAppManager(appManagerAddress);
         delete newAppManagerAddress;
+        emit AppManagerAddressSet(appManagerAddress);
     }
 
     /**
@@ -62,6 +65,7 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
         if (_address == address(0)) revert ZeroAddress();
         nftPricingAddress = _address;
         nftPricer = IProtocolERC721Pricing(_address);
+        emit ERC721PricingAddressSet(_address);
     }
 
     /**
@@ -72,6 +76,7 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
         if (_address == address(0)) revert ZeroAddress();
         erc20PricingAddress = _address;
         erc20Pricer = IProtocolERC20Pricing(_address);
+        emit ERC20PricingAddressSet(_address);
     }
 
     /**
@@ -83,11 +88,11 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
     function getAccTotalValuation(address _account, uint256 _nftValuationLimit) public view returns (uint256 totalValuation) {
         address[] memory tokenList = appManager.getTokenList();
         uint256 tokenAmount;
-        /// check if _account is zero address. If zero address we return a valuation of zero to allow for burning tokens when rules that need valuations are active. 
-        if (_account == address(0)){
-            return totalValuation; 
+        /// check if _account is zero address. If zero address we return a valuation of zero to allow for burning tokens when rules that need valuations are active.
+        if (_account == address(0)) {
+            return totalValuation;
         } else {
-            /// Loop through all Nfts and ERC20s and add values to balance for account valuation 
+            /// Loop through all Nfts and ERC20s and add values to balance for account valuation
             for (uint256 i; i < tokenList.length; ) {
                 /// First check to see if user owns the asset
                 tokenAmount = (IToken(tokenList[i]).balanceOf(_account));

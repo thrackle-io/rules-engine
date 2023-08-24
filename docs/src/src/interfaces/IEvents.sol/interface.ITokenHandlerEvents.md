@@ -1,5 +1,5 @@
 # ITokenHandlerEvents
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/interfaces/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/interfaces/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -52,5 +52,55 @@ Rule activated
 
 ```solidity
 event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
+```
+
+### NFTValuationLimitUpdated
+NFT Valuation Limit Updated
+
+
+```solidity
+event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit, address indexed handlerAddress);
+```
+
+### AppManagerAddressSet
+
+```solidity
+event AppManagerAddressSet(address indexed _address);
+```
+
+### AppManagerAddressProposed
+
+```solidity
+event AppManagerAddressProposed(address indexed _address);
+```
+
+### FeeActivationSet
+Fees
+
+
+```solidity
+event FeeActivationSet(bool indexed _activation);
+```
+
+### ERC721PricingAddressSet
+Pricing
+
+
+```solidity
+event ERC721PricingAddressSet(address indexed _address);
+```
+
+### ERC20PricingAddressSet
+
+```solidity
+event ERC20PricingAddressSet(address indexed _address);
+```
+
+### ERC721AddressSet
+Configuration
+
+
+```solidity
+event ERC721AddressSet(address indexed _address);
 ```
 

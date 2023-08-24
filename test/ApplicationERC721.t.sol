@@ -966,7 +966,9 @@ contract ApplicationERC721Test is TestCommon {
         ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), true);
         ///connect to apptoken
         applicationNFT.connectHandlerToToken(address(assetHandler));
-
+        /// in order to handle upgrades and handler registrations, deregister and re-register with new
+        applicationAppManager.deregisterToken("FRANKENSTEIN");
+        applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
         assetHandler.setNFTPricingAddress(address(erc721Pricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
 

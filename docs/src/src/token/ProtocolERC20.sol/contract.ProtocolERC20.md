@@ -1,8 +1,8 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/token/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/token/ProtocolERC20.sol)
 
 **Inherits:**
-ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [IProtocolERC20Errors](/src/interfaces/IErrors.sol/interface.IProtocolERC20Errors.md)
+ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [ProtocolTokenCommon](/src/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/interfaces/IErrors.sol/interface.IProtocolERC20Errors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -13,24 +13,10 @@ This is the base contract for all protocol ERC20s
 
 
 ## State Variables
-### appManagerAddress
-
-```solidity
-address public appManagerAddress;
-```
-
-
 ### handler
 
 ```solidity
 ProtocolERC20Handler handler;
-```
-
-
-### appManager
-
-```solidity
-IAppManager appManager;
 ```
 
 
@@ -205,7 +191,7 @@ function connectHandlerToToken(address _handlerAddress) external appAdministrato
 
 
 ```solidity
-function getHandlerAddress() external view returns (address);
+function getHandlerAddress() external view override returns (address);
 ```
 **Returns**
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
@@ -44,8 +44,9 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         uint16[] calldata _purchasePeriods,
         uint64[] calldata _startTimes
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTypes.length != _purchaseAmounts.length || _accountTypes.length != _purchasePeriods.length || _accountTypes.length != _startTimes.length) revert InputArraysMustHaveSameLength();
+        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        if (_accountTypes.length == 0) revert InvalidRuleInput();
         return _addPurchaseRule(_accountTypes, _purchaseAmounts, _purchasePeriods, _startTimes);
     }
 
@@ -118,7 +119,8 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length) revert InputArraysMustHaveSameLength();
-
+        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        if (_accountTypes.length == 0) revert InvalidRuleInput();
         return _addSellRule(_accountTypes, _sellAmounts, _sellPeriod, _startTimes);
     }
 
@@ -188,7 +190,8 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTypes.length != _minimum.length || _accountTypes.length != _maximum.length) revert InputArraysMustHaveSameLength();
-
+        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        if (_accountTypes.length == 0) revert InvalidRuleInput();
         return _addBalanceLimitRules(_accountTypes, _minimum, _maximum);
     }
 
@@ -256,8 +259,9 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         uint256[] calldata _releaseDate
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_accountTypes.length != _amount.length) revert InputArraysMustHaveSameLength();
-        if (_accountTypes.length != _releaseDate.length) revert InputArraysMustHaveSameLength();
+        if (_accountTypes.length != _amount.length || _accountTypes.length != _releaseDate.length) revert InputArraysMustHaveSameLength();
+        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        if (_accountTypes.length == 0) revert InvalidRuleInput();
         return _addWithdrawalRule(_accountTypes, _amount, _releaseDate);
     }
 
@@ -370,7 +374,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * will apply to all risk scores of 100.)
      */
     function addTransactionLimitByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _txnLimits) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_appManagerAddr == address(0)) revert ZeroAddress();
+        if (_riskScores.length == 0 || _txnLimits.length == 0) revert InvalidRuleInput();
         if (_txnLimits.length != _riskScores.length + 1) revert InputArraysSizesNotValid();
         if (_riskScores[_riskScores.length - 1] > 99) revert RiskLevelCannotExceed99();
         for (uint i = 1; i < _riskScores.length; ) {
@@ -447,6 +451,8 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTags.length != _holdAmounts.length || _accountTags.length != _holdPeriods.length || _accountTags.length != _startTimestamps.length) revert InputArraysMustHaveSameLength();
+        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        if (_accountTags.length == 0) revert InvalidRuleInput();
         return _addMinBalByDateRule(_accountTags, _holdAmounts, _holdPeriods, _startTimestamps);
     }
 

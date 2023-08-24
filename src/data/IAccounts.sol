@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 import "./IDataModule.sol";
-import {IInputErrors, IZeroAddressError} from  "../interfaces/IErrors.sol";
+import {IInputErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 
 /**
  * @title User accounts

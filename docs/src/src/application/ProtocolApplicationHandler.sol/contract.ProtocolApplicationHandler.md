@@ -1,8 +1,8 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/1967bc8c4a91d28c4a17e06555cea67921b90fa3/src/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
-Ownable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationHandlerEvents](/src/interfaces/IEvents.sol/interface.IApplicationHandlerEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md)
+Ownable, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/interfaces/IEvents.sol/interface.IApplicationHandlerEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -174,7 +174,7 @@ function checkApplicationRules(
     address _to,
     uint128 _usdBalanceTo,
     uint128 _usdAmountTransferring
-) external returns (bool);
+) external onlyOwner returns (bool);
 ```
 **Parameters**
 
@@ -213,6 +213,7 @@ function _checkRiskRules(address _from, address _to, uint128 _usdBalanceTo, uint
 
 ### _checkAccessLevelRules
 
+if rule is active check if the recipient is address(0) for burning tokens
 check if sender violates the rule
 check if recipient violates the rule
 
@@ -239,13 +240,17 @@ function _checkAccessLevelRules(
 
 ### setAccountBalanceByRiskRuleId
 
+Check if sender is not AMM and then check sender access level
+Check if receiver is not an AMM or address(0) and then check the recipient access level. Exempting address(0) allows for burning.
+Check that the recipient is not address(0). If it is we do not check this rule as it is a burn.
+
 that setting a rule will automatically activate it.
 
 *Set the accountBalanceByRiskRule. Restricted to app administrators only.*
 
 
 ```solidity
-function setAccountBalanceByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setAccountBalanceByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -260,7 +265,7 @@ function setAccountBalanceByRiskRuleId(uint32 _ruleId) external appAdministrator
 
 
 ```solidity
-function activateAccountBalanceByRiskRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateAccountBalanceByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -307,7 +312,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -322,7 +327,7 @@ function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external appAdmini
 
 
 ```solidity
-function activateAccountBalanceByAccessLevelRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateAccountBalanceByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -367,7 +372,7 @@ function getAccountBalanceByAccessLevelRule() external view returns (uint32);
 
 
 ```solidity
-function activateAccessLevel0Rule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateAccessLevel0Rule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -399,7 +404,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -414,7 +419,7 @@ function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external appAdmin
 
 
 ```solidity
-function activateWithdrawalLimitByAccessLevelRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateWithdrawalLimitByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -476,7 +481,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -491,7 +496,7 @@ function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external appAdministr
 
 
 ```solidity
-function activateMaxTxSizePerPeriodByRiskRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateMaxTxSizePerPeriodByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 

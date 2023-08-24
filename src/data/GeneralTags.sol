@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 import "./DataModule.sol";
 import "./IGeneralTags.sol";
 
@@ -16,9 +16,8 @@ contract GeneralTags is DataModule, IGeneralTags {
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
      * @param _dataModuleAppManagerAddress address of the owning app manager
      */
-    constructor(address _dataModuleAppManagerAddress) DataModule(dataModuleAppManagerAddress) {
-        dataModuleAppManagerAddress = _dataModuleAppManagerAddress;
-        _transferOwnership(dataModuleAppManagerAddress);
+    constructor(address _dataModuleAppManagerAddress) DataModule(_dataModuleAppManagerAddress) {
+        _transferOwnership(_dataModuleAppManagerAddress);
     }
 
     /**

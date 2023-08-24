@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "./IDataModule.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {IAppManager} from "../application/IAppManager.sol";
 import {IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 import {IAppManager} from "../application/IAppManager.sol";
-
 
 /**
  * @title Data Module
@@ -20,6 +19,7 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
     address public dataModuleAppManagerAddress;
     address newOwner; // This is used for data contract migration
     address newDataProviderOwner; // this is used for single new data provider
+
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
      * @param _dataModuleAppManagerAddress address of the owning app manager
