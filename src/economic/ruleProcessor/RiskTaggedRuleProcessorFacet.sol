@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {TaggedRuleDataFacet} from "../ruleStorage/TaggedRuleDataFacet.sol";
@@ -14,8 +14,6 @@ import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
  * in terms of USD with 18 decimals of precision.
  */
 contract RiskTaggedRuleProcessorFacet is IRuleProcessorErrors, IRiskErrors {
-   
-
     /**
      * @dev Transaction Limit for Risk Score
      * @param _ruleId Rule Identifier for rule arguments

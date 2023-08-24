@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
@@ -21,7 +21,7 @@ contract OracleAllowed is Ownable {
     /**
      * @dev Constructor that only serves the purpose of notifying the indexer of its creation via event
      */
-    constructor(){
+    constructor() {
         emit AllowListOracleDeployed();
     }
 

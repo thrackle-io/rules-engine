@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 /// TODO Create a wizard that creates custom versions of this contract for each implementation.
 
@@ -216,9 +216,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         if (transactionLimitByRiskRuleActive) {
             ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _transferValuation);
-            if (_to != address(0)){
+            if (_to != address(0)) {
                 ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _transferValuation);
-            } 
+            }
         }
     }
 

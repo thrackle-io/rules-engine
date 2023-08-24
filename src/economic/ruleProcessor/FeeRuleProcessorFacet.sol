@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {FeeRuleDataFacet} from "../ruleStorage/FeeRuleDataFacet.sol";
@@ -12,8 +12,7 @@ import {IRuleProcessorErrors} from "../../interfaces/IErrors.sol";
  * @dev Facet in charge of the logic to check fee rule compliance
  * @notice Implements Token Fee Rules on Accounts.
  */
-contract FeeRuleProcessorFacet is IRuleProcessorErrors{
-
+contract FeeRuleProcessorFacet is IRuleProcessorErrors {
     /**
      * @dev Assess the fee associated with the AMM Fee Rule
      * @param _ruleId Rule Identifier for rule arguments

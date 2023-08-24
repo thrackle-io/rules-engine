@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {AppRuleDataFacet} from "../ruleStorage/AppRuleDataFacet.sol";
@@ -13,9 +13,7 @@ import {IRuleProcessorErrors, IAccessLevelErrors} from "../../interfaces/IErrors
  * @notice Implements AccessLevel Rule Checks. AccessLevel rules are measured in
  * in terms of USD with 18 decimals of precision.
  */
-contract ApplicationAccessLevelProcessorFacet is IRuleProcessorErrors, IAccessLevelErrors{
-   
-
+contract ApplicationAccessLevelProcessorFacet is IRuleProcessorErrors, IAccessLevelErrors {
     /**
      * @dev Check if transaction passes Balance by AccessLevel rule.
      * @param _ruleId Rule Identifier for rule arguments

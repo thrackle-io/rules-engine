@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
@@ -17,7 +17,6 @@ contract ProtocolERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pr
 
     mapping(address => mapping(uint256 => uint256)) public nftPrice;
     mapping(address => uint256) public collectionPrice;
-
 
     /**
      * @dev set the price for a single NFT from a collection
