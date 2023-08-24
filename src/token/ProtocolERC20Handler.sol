@@ -289,9 +289,10 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function getApplicableFees(address _from, uint256 _balanceFrom) public view returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages) {
         Fees.Fee memory fee;
         bytes32[] memory _fromTags = appManager.getAllTags(_from);
+        int24 totalFeePercent;
+        uint24 discount;
         if (_fromTags.length != 0 && !appManager.isAppAdministrator(_from)) {
             uint feeCount;
-            uint24 discount;
             uint discountCount;
             // size the dynamic arrays by maximum possible fees
             feeCollectorAccounts = new address[](_fromTags.length);
@@ -308,6 +309,8 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
                     } else {
                         feePercentages[feeCount] = fee.feePercentage;
                         feeCollectorAccounts[feeCount] = fee.feeCollectorAccount;
+                        // add to the total fee percentage
+                        totalFeePercent += fee.feePercentage;
                         unchecked {
                             ++feeCount;
                         }
@@ -335,6 +338,10 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
                     }
                 }
             }
+        }
+        // if the total fees - discounts is greater than 100 percent, revert
+        if (totalFeePercent - int24(discount) > 10000) {
+            revert FeesAreGreaterThanTransactionAmount(_from);
         }
         return (feeCollectorAccounts, feePercentages);
     }

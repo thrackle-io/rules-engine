@@ -156,6 +156,7 @@ interface IAssetHandlerErrors {
     error PeriodExceeds5Years();
     error ZeroValueNotPermited();
     error BatchMintBurnNotSupported();
+    error FeesAreGreaterThanTransactionAmount(address);
 }
 
 interface IOwnershipErrors {
