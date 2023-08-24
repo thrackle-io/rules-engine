@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../application/AppManager.sol";
@@ -18,6 +18,7 @@ import "../economic/RuleAdministratorOnly.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, IInputErrors, IZeroAddressError {
+    string private constant VERSION="0.0.6";
     AppManager appManager;
     address public appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
@@ -302,5 +303,13 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function isMaxTxSizePerPeriodByRiskActive() external view returns (bool) {
         return maxTxSizePerPeriodByRiskActive;
+    }
+
+    /**
+     * @dev gets the version of the contract
+     * @return VERSION
+     */
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 }

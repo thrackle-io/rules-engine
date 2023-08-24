@@ -12,6 +12,8 @@ import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFac
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 import {RuleDataFacet as Facet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
+import {VersionFacet} from "../src/diamond/VersionFacet.sol";
+import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 
 import "../src/example/ApplicationERC20Handler.sol";
 import {ApplicationERC20} from "../src/example/ApplicationERC20.sol";
@@ -59,18 +61,51 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     }
 
     /// Test to make sure that the Diamond will upgrade
-    function testUpgrade() public {
+    function testUpgradeRuleProcessor() public {
         // must be the owner for upgrade
         vm.stopPrank();
         vm.startPrank(superAdmin);
         SampleFacet _sampleFacet = new SampleFacet();
-        //build _cut struct
-        FacetCut[] memory _cut = new FacetCut[](1);
-        _cut[0] = (FacetCut({facetAddress: address(_sampleFacet), action: FacetCutAction.Add, functionSelectors: generateSelectors("SampleFacet")}));
-        IDiamondCut(address(ruleProcessor)).diamondCut(_cut, address(0x0), "");
+        //build cut struct
+        FacetCut[] memory cut = new FacetCut[](1);
+        cut[0] = (FacetCut({facetAddress: address(_sampleFacet), action: FacetCutAction.Add, functionSelectors: generateSelectors("SampleFacet")}));
+        //upgrade diamond
+        IDiamondCut(address(ruleProcessor)).diamondCut(cut, address(0x0), "");
         console.log("ERC173Facet owner: ");
         console.log(ERC173Facet(address(ruleProcessor)).owner());
-        ERC173Facet(address(ruleProcessor)).transferOwnership(superAdmin);
+
+        // call a function
+        assertEq("good", SampleFacet(address(ruleProcessor)).sampleFunction());
+
+        /// test transfer ownership
+        address newOwner = address(0xB00B);
+        ERC173Facet(address(ruleProcessor)).transferOwnership(newOwner);
+        address retrievedOwner = ERC173Facet(address(ruleProcessor)).owner();
+        assertEq(retrievedOwner, newOwner);
+
+        /// test that an onlyOwner function will fail when called by not the owner
+        vm.expectRevert("UNAUTHORIZED");
+        SampleFacet(address(ruleProcessor)).sampleFunction();
+
+        AppRuleDataFacet testFacet = new AppRuleDataFacet();
+        //build new cut struct
+        console.log("before generate selectors");
+        cut[0] = (FacetCut({facetAddress: address(testFacet), action: FacetCutAction.Add, functionSelectors: generateSelectors("AppRuleDataFacet")}));
+        console.log("after generate selectors");
+
+        // test that account that isn't the owner cannot upgrade
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        //upgrade diamond
+        vm.expectRevert("UNAUTHORIZED");
+        IDiamondCut(address(ruleProcessor)).diamondCut(cut, address(0x0), "");
+
+        //test that the newOwner can upgrade
+        vm.stopPrank();
+        vm.startPrank(newOwner);
+        IDiamondCut(address(ruleProcessor)).diamondCut(cut, address(0x0), "");
+        retrievedOwner = ERC173Facet(address(ruleProcessor)).owner();
+        assertEq(retrievedOwner, newOwner);
 
         // call a function
         assertEq("good", SampleFacet(address(ruleProcessor)).sampleFunction());
@@ -79,6 +114,30 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     function testAddMinTransferRule() public {
         uint32 index = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 1000);
         assertEq(RuleDataFacet(address(ruleStorageDiamond)).getMinimumTransferRule(index).minTransferAmount, 1000);
+    }
+
+    function testRuleProcessorVersion() public {
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        // update version
+        VersionFacet(address(ruleProcessor)).updateVersion("1.0.1");
+        string memory version = VersionFacet(address(ruleProcessor)).version();
+        console.log(version);
+        assertEq(version,"1.0.1");
+        // update version again
+        VersionFacet(address(ruleProcessor)).updateVersion("2.2.2");
+        version = VersionFacet(address(ruleProcessor)).version();
+        console.log(version);
+        assertEq(version,"2.2.2");
+        // test that no other than the owner can update the version
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        vm.expectRevert("UNAUTHORIZED");
+        VersionFacet(address(ruleProcessor)).updateVersion("6.6.6");
+        version = VersionFacet(address(ruleProcessor)).version();
+        console.log(version);
+        // make sure that the version didn't change
+        assertEq(version,"2.2.2");
     }
 
     function testFailAddMinTransferRuleByNonAdmin() public {

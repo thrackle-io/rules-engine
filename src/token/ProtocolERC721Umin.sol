@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
@@ -14,9 +14,6 @@ import "./ProtocolTokenCommonU.sol";
 contract ProtocolERC721Umin is Initializable, ERC721EnumerableUpgradeable, ProtocolTokenCommonU {
     address private handlerAddress;
     IProtocolERC721Handler private handler;
-
-    /// keeps track of RULE enum version and other features
-    uint8 private constant VERSION = 1;
 
     /**
      * @dev Initializer sets the the App Manager

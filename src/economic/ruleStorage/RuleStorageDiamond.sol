@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {RuleStorageDiamondLib as DiamondLib, DiamondCutStorage, FacetCut} from "./RuleStorageDiamondLib.sol";
 import {IRuleStorageDiamondEvents} from "../../interfaces/IEvents.sol";

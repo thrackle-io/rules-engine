@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {IAppManager} from "../application/IAppManager.sol";
-import { IPermissionModifierErrors } from "../interfaces/IErrors.sol";
+import {IPermissionModifierErrors} from "../interfaces/IErrors.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 
 /**

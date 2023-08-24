@@ -66,7 +66,9 @@ contract DeployAllModulesScript is Script {
         DiamondInit diamondInit = new DiamondInit();
 
         /// Register all facets.
-        string[6] memory facets = [
+        string[7] memory facets = [
+            // diamond version
+            "VersionFacet",
             /// Native facets,
             "ProtocolNativeFacet",
             /// Raw implementation facets.
@@ -123,7 +125,9 @@ contract DeployAllModulesScript is Script {
         DiamondInit diamondInit = new DiamondInit();
 
         /// Register all facets.
-        string[11] memory facets = [
+        string[12] memory facets = [
+            // diamond version
+            "VersionFacet",
             /// Native facets,
             "ProtocolNativeFacet",
             /// Raw implementation facets.

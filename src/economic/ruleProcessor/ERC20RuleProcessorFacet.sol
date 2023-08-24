@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {RuleDataFacet} from "../ruleStorage/RuleDataFacet.sol";
@@ -54,9 +54,9 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
                             revert AddressNotOnAllowedList();
                         }
                     }
-                /// Deny List type
+                    /// Deny List type
                 } else if (oType == uint(ORACLE_TYPE.RESTRICTED_LIST)) {
-                    /// If Deny List Oracle rule active all transactions to addresses registered to deny list (including address(0)) will be denied. 
+                    /// If Deny List Oracle rule active all transactions to addresses registered to deny list (including address(0)) will be denied.
                     if (IOracle(oracleAddress).isRestricted(_address)) {
                         revert AddressIsRestricted();
                     }

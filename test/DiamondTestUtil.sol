@@ -9,7 +9,6 @@ import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
 
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/RuleProcessorDiamond.sol";
-// import {AppManager} from "../src/application/AppManager.sol";
 import {ApplicationPauseProcessorFacet} from "../src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
@@ -32,7 +31,9 @@ contract DiamondTestUtil is GenerateSelectors {
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[5] memory facets = [
+        string[6] memory facets = [
+            // diamond version
+            "VersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
             // Raw implementation facets.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "../token/ProtocolERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -11,14 +11,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * During deployment, _handlerAddress = ERC721Handler contract address
  *                    _appManagerAddress = AppManager contract address
  * @dev This contract contains 3 different safeMint implementations: priced minting, free minting and app-administrator-only minting. The safeMint is by default
- * restricted to app-administrators or contract-owner, but it is possible to override such configuration and choose any of the other 3 options in here, or even   
- * creating a different safeMint implementation. However, bare in mind that only one safeMint function can exist at a time in the contract unless polymorphism is 
- * used. If it is wished to override the default minting restriction from app-administrators or contract-owners, select the desired safeMint function by simply 
+ * restricted to app-administrators or contract-owner, but it is possible to override such configuration and choose any of the other 3 options in here, or even
+ * creating a different safeMint implementation. However, bare in mind that only one safeMint function can exist at a time in the contract unless polymorphism is
+ * used. If it is wished to override the default minting restriction from app-administrators or contract-owners, select the desired safeMint function by simply
  * uncommenting the desired implementations and its variables, or write your own implementation that overrides the default safeMint function.
  */
 
 contract ApplicationERC721 is ProtocolERC721 {
-
     /// Optional Function Variables and Errors. Uncomment these if using option functions:
     // using Counters for Counters.Counter;
     // Counters.Counter private _tokenIdCounter;
@@ -41,7 +40,7 @@ contract ApplicationERC721 is ProtocolERC721 {
      */
     constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {
         /// This is used for owner only minting. Uncomment this with the below safeMint() for owner only minting.
-        //owner = msg.sender; 
+        //owner = msg.sender;
     }
 
     /// *********************************** OPTIONAL FUNCTIONS ***********************************
@@ -117,5 +116,4 @@ contract ApplicationERC721 is ProtocolERC721 {
     //     _tokenIdCounter.increment();
     //     _safeMint(to, tokenId);
     // }
-
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import { NFTPricingErrors } from "../interfaces/IErrors.sol";
+import {NFTPricingErrors} from "../interfaces/IErrors.sol";
 
 /**
  * @title ERC721 Pricing interface
@@ -19,5 +19,5 @@ interface IProtocolERC721Pricing is NFTPricingErrors {
      */
     function getNFTPrice(address nftContract, uint256 id) external view returns (uint256 price);
 
-    function getNFTCollectionPrice(address nftContract) external view returns (uint256 price); 
+    function getNFTCollectionPrice(address nftContract) external view returns (uint256 price);
 }

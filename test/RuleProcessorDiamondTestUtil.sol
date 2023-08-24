@@ -24,7 +24,9 @@ contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTe
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[12] memory facets = [
+        string[13] memory facets = [
+            // diamond version
+            "VersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
             // Raw implementation facets.

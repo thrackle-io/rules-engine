@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "./IDataModule.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {IAppManager} from "../application/IAppManager.sol";
 import {IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 import {IAppManager} from "../application/IAppManager.sol";
-
 
 /**
  * @title Data Module
@@ -15,10 +14,12 @@ import {IAppManager} from "../application/IAppManager.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAddressError {
+    string private constant VERSION="0.0.6";
     ///Data Module
     address public dataModuleAppManagerAddress;
     address newOwner; // This is used for data contract migration
     address newDataProviderOwner; // this is used for single new data provider
+
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
      * @param _dataModuleAppManagerAddress address of the owning app manager
@@ -62,5 +63,13 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
      */
     function confirmDataProvider(ProviderType _providerType) external virtual appAdminstratorOrOwnerOnly {
         IAppManager(dataModuleAppManagerAddress).confirmNewDataProvider(_providerType);
+    }
+
+    /**
+     * @dev gets the version of the contract
+     * @return VERSION
+     */
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 }

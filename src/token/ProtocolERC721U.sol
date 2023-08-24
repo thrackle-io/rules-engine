@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
@@ -36,8 +36,6 @@ contract ProtocolERC721U is
 
     /// Base Contract URI
     string public baseUri;
-    /// keeps track of RULE enum version and other features
-    uint8 public constant VERSION = 1;
 
     /**
      * @dev Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
