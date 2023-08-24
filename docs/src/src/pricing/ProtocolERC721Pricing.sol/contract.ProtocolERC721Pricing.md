@@ -1,5 +1,5 @@
 # ProtocolERC721Pricing
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/pricing/ProtocolERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/pricing/ProtocolERC721Pricing.sol)
 
 **Inherits:**
 Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IProtocolERC721Pricing](/src/pricing/IProtocolERC721Pricing.sol/interface.IProtocolERC721Pricing.md)
@@ -13,6 +13,13 @@ This contract is a simple pricing mechanism only. Its main purpose is to store p
 
 
 ## State Variables
+### VERSION
+
+```solidity
+string private constant VERSION = "0.0.6";
+```
+
+
 ### nftPrice
 
 ```solidity
@@ -104,5 +111,20 @@ function getNFTCollectionPrice(address nftContract) external view returns (uint2
 |Name|Type|Description|
 |----|----|-----------|
 |`price`|`uint256`|for the collection in weis of dollars. 10^18 => $ 1.00 USD 999_999_999_999_999_999 = 0xDE0B6B3A763FFFF, 1_000_000_000_000_000_000 = DE0B6B3A7640000|
+
+
+### version
+
+*gets the version of the contract*
+
+
+```solidity
+function version() external pure returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|VERSION|
 
 

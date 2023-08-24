@@ -1,5 +1,5 @@
 # ProtocolHandlerCommon
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/token/ProtocolHandlerCommon.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/token/ProtocolHandlerCommon.sol)
 
 **Inherits:**
 [IAppManagerUser](/src/application/IAppManagerUser.sol/interface.IAppManagerUser.md), [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/interfaces/IErrors.sol/interface.IAssetHandlerErrors.md), [AppAdministratorOrOwnerOnly](/src/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md)
@@ -11,6 +11,13 @@ This contract contains common variables and functions for all Protocol Asset Han
 
 
 ## State Variables
+### VERSION
+
+```solidity
+string private constant VERSION = "0.0.6";
+```
+
+
 ### newAppManagerAddress
 
 ```solidity
@@ -238,5 +245,20 @@ function _getNFTCollectionValue(address _tokenAddress, uint256 _tokenAmount)
 |Name|Type|Description|
 |----|----|-----------|
 |`totalValueInThisContract`|`uint256`|total valuation of tokens by collection in whole USD|
+
+
+### version
+
+*gets the version of the contract*
+
+
+```solidity
+function version() external pure returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|VERSION|
 
 
