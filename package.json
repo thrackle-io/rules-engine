@@ -2,5 +2,42 @@
   "devDependencies": {
     "prettier": "^2.8.3",
     "prettier-plugin-solidity": "^1.1.1"
-  }
+  },
+  "name": "@thrackle-io/rules-protocol-client",
+  "version": "0.0.9",
+  "description": "Set of contracts to easily start an application in rules protocol",
+  "dependencies": {
+    "@openzeppelin/contracts": "4.9.0",
+    "@openzeppelin/contracts-upgradeable": "4.9.0"
+  },
+  "files": [
+    "src/application",
+    "src/interfaces",
+    "src/data",
+    "src/pricing",
+    "src/token",
+    "src/economic/IRuleProcessor.sol",
+    "src/economic/AppAdministratorOnly.sol",
+    "src/economic/AppAdministratorOrOwnerOnly.sol",
+    "src/economic/RuleAdministratorOnly.sol",
+    "src/economic/AppAdministratorOnlyU.sol",
+    "src/economic/ruleStorage/RuleCodeData.sol",
+    "src/economic/ruleProcessor/ActionEnum.sol",
+    "unpack.sh"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "chmod +x unpack.sh",
+    "postinstall": "./unpack.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thrackle-io/rules-protocol.git"
+  },
+  "author": "Thrackle",
+  "license": "TBD",
+  "bugs": {
+    "url": "https://github.com/thrackle-io/rules-protocol/issues"
+  },
+  "homepage": "https://github.com/thrackle-io/rules-protocol#readme"
 }
