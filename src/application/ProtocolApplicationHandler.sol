@@ -18,6 +18,7 @@ import "src/economic/RuleAdministratorOnly.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, IInputErrors, IZeroAddressError {
+    string private constant VERSION="0.0.6";
     AppManager appManager;
     address public appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
@@ -302,5 +303,13 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function isMaxTxSizePerPeriodByRiskActive() external view returns (bool) {
         return maxTxSizePerPeriodByRiskActive;
+    }
+
+    /**
+     * @dev gets the version of the contract
+     * @return VERSION
+     */
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 }

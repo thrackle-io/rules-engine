@@ -62,7 +62,9 @@ abstract contract TestCommon is Test {
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[6] memory facets = [
+        string[7] memory facets = [
+            // diamond version
+            "VersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
             // Raw implementation facets.
@@ -119,7 +121,9 @@ abstract contract TestCommon is Test {
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[12] memory facets = [
+        string[13] memory facets = [
+            // diamond version
+            "VersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
             // Raw implementation facets.

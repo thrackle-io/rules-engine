@@ -48,6 +48,11 @@ contract ApplicationERC20Test is TestCommon {
         vm.warp(Blocktime);
     }
 
+    function testERC20AndHandlerVersions() public {
+        string memory version = applicationCoinHandler.version();
+        assertEq(version, "0.0.6");
+    }
+
     /// Test balance
     function testBalance() public {
         console.logUint(applicationCoin.totalSupply());

@@ -15,9 +15,6 @@ contract ProtocolERC721Umin is Initializable, ERC721EnumerableUpgradeable, Proto
     address private handlerAddress;
     IProtocolERC721Handler private handler;
 
-    /// keeps track of RULE enum version and other features
-    uint8 private constant VERSION = 1;
-
     /**
      * @dev Initializer sets the the App Manager
      * @param _appManagerAddress Address of App Manager

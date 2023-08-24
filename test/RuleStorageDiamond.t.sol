@@ -12,6 +12,8 @@ import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {RuleDataFacet as NonTaggedRuleFacet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
+import {VersionFacet} from "../src/diamond/VersionFacet.sol";
+import {FeeRuleProcessorFacet} from "../src/economic/ruleProcessor/FeeRuleProcessorFacet.sol"; // for upgrade test only
 
 contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     // Store the FacetCut struct for each NonTaggedRuleFacetthat is being deployed.
@@ -45,7 +47,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
     }
 
     /// Test to make sure that the Diamond will upgrade
-    function testUpgrade() public {
+    function testUpgradeRuleStorage() public {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         SampleFacet sampleFacet = new SampleFacet();
@@ -58,12 +60,66 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         IDiamondCut(address(ruleStorageDiamond)).diamondCut(cut, address(0x0), "");
         console.log("ERC173Facet owner: ");
         console.log(ERC173Facet(address(ruleStorageDiamond)).owner());
-        //console.log("TestFacet owner: ");
-        //console.log(SampleFacet(address(ruleStorageDiamond)).getOwner());
-        ERC173Facet(address(ruleStorageDiamond)).transferOwnership(superAdmin);
 
         // call a function
         assertEq("good", SampleFacet(address(ruleStorageDiamond)).sampleFunction());
+        
+        /// test transfer ownership
+        address newOwner = address(0xB00B);
+        ERC173Facet(address(ruleStorageDiamond)).transferOwnership(newOwner);
+        address retrievedOwner = ERC173Facet(address(ruleStorageDiamond)).owner();
+        assertEq(retrievedOwner, newOwner);
+
+        /// test that an onlyOwner function will fail when called by not the owner
+        vm.expectRevert("UNAUTHORIZED");
+        SampleFacet(address(ruleStorageDiamond)).sampleFunction();
+
+        FeeRuleProcessorFacet testFacet = new FeeRuleProcessorFacet();
+        //build new cut struct
+        console.log("before generate selectors");
+        cut[0] = (FacetCut({facetAddress: address(testFacet), action: FacetCutAction.Add, functionSelectors: generateSelectors("FeeRuleProcessorFacet")}));
+        console.log("after generate selectors");
+
+        // test that account that isn't the owner cannot upgrade
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        //upgrade diamond
+        vm.expectRevert("UNAUTHORIZED");
+        IDiamondCut(address(ruleStorageDiamond)).diamondCut(cut, address(0x0), "");
+
+        //test that the newOwner can upgrade
+        vm.stopPrank();
+        vm.startPrank(newOwner);
+        IDiamondCut(address(ruleStorageDiamond)).diamondCut(cut, address(0x0), "");
+        retrievedOwner = ERC173Facet(address(ruleStorageDiamond)).owner();
+        assertEq(retrievedOwner, newOwner);
+
+        // call a function
+        assertEq("good", SampleFacet(address(ruleStorageDiamond)).sampleFunction());
+    }
+    
+     function testRuleStorageVersion() public {
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        // update version
+        VersionFacet(address(ruleStorageDiamond)).updateVersion("1.0.1");
+        string memory version = VersionFacet(address(ruleStorageDiamond)).version();
+        console.log(version);
+        assertEq(version,"1.0.1");
+        // update version again
+        VersionFacet(address(ruleStorageDiamond)).updateVersion("2.2.2");
+        version = VersionFacet(address(ruleStorageDiamond)).version();
+        console.log(version);
+        assertEq(version,"2.2.2");
+        // test that no other than the owner can update the version
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        vm.expectRevert("UNAUTHORIZED");
+        VersionFacet(address(ruleStorageDiamond)).updateVersion("6.6.6");
+        version = VersionFacet(address(ruleStorageDiamond)).version();
+        console.log(version);
+        // make sure that the version didn't change
+        assertEq(version,"2.2.2");
     }
 
     /***************** Test Setters and Getters *****************/

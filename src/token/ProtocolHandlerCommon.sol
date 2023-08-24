@@ -23,6 +23,7 @@ import "./IAdminWithdrawalRuleCapable.sol";
  */
 
 abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZeroAddressError, ITokenHandlerEvents, IAssetHandlerErrors, AppAdministratorOrOwnerOnly {
+    string private constant VERSION="0.0.6";
     address private newAppManagerAddress;
     address public appManagerAddress;
     IRuleProcessor ruleProcessor;
@@ -163,6 +164,14 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
         } else {
             revert PricingModuleNotConfigured(erc20PricingAddress, nftPricingAddress);
         }
+    }
+
+    /**
+     * @dev gets the version of the contract
+     * @return VERSION
+     */
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 }
 

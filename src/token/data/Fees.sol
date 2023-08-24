@@ -12,6 +12,7 @@ import "../../economic/AppAdministratorOnly.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError, AppAdministratorOnly {
+    string private constant VERSION="0.0.6";
     int256 defaultFee;
     mapping(bytes32 => Fee) feesByTag;
     uint256 feeTotal;
@@ -80,6 +81,14 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
      */
     function getFeeTotal() external view onlyOwner returns (uint256) {
         return feeTotal;
+    }
+
+    /**
+     * @dev gets the version of the contract
+     * @return VERSION
+     */
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 
     /**

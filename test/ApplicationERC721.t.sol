@@ -36,6 +36,11 @@ contract ApplicationERC721Test is TestCommon {
         oracleRestricted = new OracleRestricted();
     }
 
+    function testERC721AndHandlerVersions() public {
+        string memory version = applicationNFTHandler.version();
+        assertEq(version, "0.0.6");
+    }
+
     function testMint() public {
         /// Owner Mints new tokenId
         applicationNFT.safeMint(appAdministrator);

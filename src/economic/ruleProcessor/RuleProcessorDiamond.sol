@@ -2,8 +2,7 @@
 pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as DiamondLib, RuleProcessorDiamondStorage, RuleDataStorage, FacetCut} from "./RuleProcessorDiamondLib.sol";
-import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
-import {ERC173Lib} from "diamond-std/implementations/ERC173/ERC173Lib.sol";
+import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
 
 /// When no function exists for function called
 error FunctionNotFound(bytes4 _functionSelector);
@@ -25,7 +24,8 @@ struct RuleProcessorDiamondArgs {
  * on rules compliance.
  * @notice Contract checks the rules for success
  */
-contract RuleProcessorDiamond is ERC173Facet {
+contract RuleProcessorDiamond is ERC173{
+
     /**
      * @dev constructor creates facets for the diamond at deployment
      * @param diamondCut Array of Facets to be created at deployment
