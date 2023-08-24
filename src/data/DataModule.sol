@@ -14,7 +14,7 @@ import {IAppManager} from "../application/IAppManager.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAddressError {
-    string private constant VERSION="0.0.6";
+    string private constant VERSION="1.0.0";
     ///Data Module
     address public dataModuleAppManagerAddress;
     address newOwner; // This is used for data contract migration
