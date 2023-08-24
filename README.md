@@ -45,18 +45,18 @@ That's it!
 
 ## Dependencies
 
-As of versions 0.0.9, this package needs only 2 dependencies although it is very sensitive to their versions. The dependencies are `@openzeppelin/contracts` version 4.9.0 and `@openzeppelin/contracts-upgradeable` version 4.9.0.
+This package requires `@openzeppelin/contracts` version 4.9 and `@openzeppelin/contracts-upgradeable` version 4.9.
 
 If the contracts show any compiling errors, try to manually update the version of the existing openzeppelin library in your project by doing:
 
 ```c
-npm i @openzeppelin/contracts@=4.9.0
+npm i @openzeppelin/contracts@=4.9
 ```
 
 and
 
 ```c
-npm i @openzeppelin/contracts-upgradeable@=4.9.0
+npm i @openzeppelin/contracts-upgradeable@=4.9
 ```
 
 ## Usage
@@ -65,7 +65,7 @@ To use the package simply import the files you are interested in. Here is an exa
 
 ```c
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "@thrackle-io/rules-protocol-client/token/ProtocolERC20.sol";
 
