@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {IAppManager} from "../application/IAppManager.sol";
 import "openzeppelin-contracts/contracts/utils/Context.sol";

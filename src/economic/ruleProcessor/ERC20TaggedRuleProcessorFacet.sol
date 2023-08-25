@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/Context.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
@@ -15,7 +15,6 @@ import {IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../int
  * @notice  Implements Token Rules on Tagged Accounts.
  */
 contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError {
-    uint8 public constant VERSION = 1;
 
     /**
      * @dev Check the minimum/maximum rule. This rule ensures that both the to and from accounts do not

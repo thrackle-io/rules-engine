@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "./IDataModule.sol";
-import { IRiskInputErrors } from "../interfaces/IErrors.sol";
+import {IRiskInputErrors} from "../interfaces/IErrors.sol";
 
 /**
  * @title Risk Scores interface Contract
@@ -36,5 +36,4 @@ interface IRiskScores is IDataModule, IRiskInputErrors {
      * @param _score Risk Score(0-100)
      */
     function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external;
-
 }

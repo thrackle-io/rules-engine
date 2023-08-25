@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
@@ -28,6 +28,7 @@ import "../token/ProtocolTokenCommon.sol";
  * @notice This contract is the permissions contract
  */
 contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
+    string private constant VERSION="0.0.6";
     using ERC165Checker for address;
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     bytes32 constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
@@ -813,6 +814,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function getTokenList() external view returns (address[] memory) {
         return tokenList;
+    }
+
+    /**
+     * @dev gets the version of the contract
+     * @return VERSION
+     */
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 
     /**
