@@ -1,5 +1,5 @@
 # DataModule
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/data/DataModule.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/data/DataModule.sol)
 
 **Inherits:**
 [IDataModule](/src/data/IDataModule.sol/interface.IDataModule.md), Ownable, [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
@@ -13,6 +13,13 @@ This contract serves as a template for all data modules and is abstract as it is
 
 
 ## State Variables
+### VERSION
+
+```solidity
+string private constant VERSION = "0.0.6";
+```
+
+
 ### dataModuleAppManagerAddress
 Data Module
 
@@ -98,5 +105,20 @@ function confirmDataProvider(ProviderType _providerType) external virtual appAdm
 |Name|Type|Description|
 |----|----|-----------|
 |`_providerType`|`ProviderType`|the type of data provider|
+
+
+### version
+
+*gets the version of the contract*
+
+
+```solidity
+function version() external pure returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|VERSION|
 
 

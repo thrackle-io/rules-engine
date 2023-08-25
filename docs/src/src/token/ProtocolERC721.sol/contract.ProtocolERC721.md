@@ -1,5 +1,5 @@
 # ProtocolERC721
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/token/ProtocolERC721.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/token/ProtocolERC721.sol)
 
 **Inherits:**
 ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, [ProtocolTokenCommon](/src/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [AppAdministratorOrOwnerOnly](/src/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md)
@@ -38,15 +38,6 @@ Base Contract URI
 
 ```solidity
 string public baseUri;
-```
-
-
-### VERSION
-keeps track of RULE enum version and other features
-
-
-```solidity
-uint8 public constant VERSION = 1;
 ```
 
 
@@ -224,7 +215,11 @@ This function call must use less than 30 000 gas.*
 
 
 ```solidity
-function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool);
+function supportsInterface(bytes4 interfaceId)
+    public
+    view
+    override(ERC721, ERC721Enumerable, ERC721URIStorage)
+    returns (bool);
 ```
 
 ### connectHandlerToToken

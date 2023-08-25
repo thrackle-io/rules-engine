@@ -59,7 +59,7 @@ contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
     function testERC721PricerVersion() public {
         string memory version = openOcean.version();
-        assertEq(version, "0.0.6");
+        assertEq(version,"1.0.0");
     }
 
     /// Testing setting the price for a single NFT under the right conditions

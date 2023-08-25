@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/a2d57139b7236b5b0e9a0727e55f81e5332cd216/src/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 Ownable, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/interfaces/IEvents.sol/interface.IApplicationHandlerEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
@@ -13,6 +13,13 @@ This contract is the rules handler for all application level rules. It is implem
 
 
 ## State Variables
+### VERSION
+
+```solidity
+string private constant VERSION = "0.0.6";
+```
+
+
 ### appManager
 
 ```solidity
@@ -518,5 +525,20 @@ function isMaxTxSizePerPeriodByRiskActive() external view returns (bool);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`bool`|boolean representing if the rule is active for specified token|
+
+
+### version
+
+*gets the version of the contract*
+
+
+```solidity
+function version() external pure returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|VERSION|
 
 

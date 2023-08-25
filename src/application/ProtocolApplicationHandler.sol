@@ -9,7 +9,7 @@ import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/IRuleProcessor.sol";
 import "../economic/ruleProcessor/ActionEnum.sol";
 import {IZeroAddressError, IInputErrors} from "../interfaces/IErrors.sol";
-import "src/economic/RuleAdministratorOnly.sol";
+import "../economic/RuleAdministratorOnly.sol";
 
 /**
  * @title Protocol ApplicationHandler Contract
@@ -18,7 +18,7 @@ import "src/economic/RuleAdministratorOnly.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, IInputErrors, IZeroAddressError {
-    string private constant VERSION="0.0.6";
+    string private constant VERSION="1.0.0";
     AppManager appManager;
     address public appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
