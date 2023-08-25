@@ -13,7 +13,7 @@ for dir in "${directories[@]}"; do
         if [ -f "$file" ]; then
              echo "${file}"
             # Replace the old string with the new string and overwrite the file
-            sed -i "" 's%openzeppelin-contracts-upgradeable/%@openzeppelin/contracts-upgradeable/%g' "$file"
+            sed -i "" 's%openzeppelin-contracts-upgradeable/contracts/%@openzeppelin/contracts-upgradeable/%g' "$file"
             sed -i "" 's%openzeppelin-contracts%@openzeppelin%g' "$file"
             sed -i "" 's%@openzeppelin-upgradeable/contracts/%@openzeppelin/contracts-upgradeable/%g' "$file"
             # echo "Replaced openzeppelin-contracts"
