@@ -27,4 +27,4 @@ broadcast/
 node_modules/
 
 *.idea
-tron/
+./tron/
