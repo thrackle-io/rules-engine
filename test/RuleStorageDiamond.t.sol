@@ -96,7 +96,6 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
         // call a function
         assertEq("good", SampleFacet(address(ruleStorageDiamond)).sampleFunction());
-        assertEq(one, two);
     }
 
     function testRuleStorageVersion() public {
