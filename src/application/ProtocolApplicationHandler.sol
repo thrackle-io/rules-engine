@@ -36,6 +36,8 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     bool private accountBalanceByAccessLevelRuleActive;
     bool private AccessLevel0RuleActive;
     bool private withdrawalLimitByAccessLevelRuleActive;
+    /// Pause Rule on-off switch
+    bool private pauseRuleActive; 
 
     /// MaxTxSizePerPeriodByRisk data
     mapping(address => uint128) usdValueTransactedInRiskPeriod;
@@ -76,7 +78,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external onlyOwner returns (bool) {
         _action;
-        ruleProcessor.checkPauseRules(appManagerAddress);
+        if (pauseRuleActive) ruleProcessor.checkPauseRules(appManagerAddress);
         if (requireValuations() || AccessLevel0RuleActive) {
             _checkRiskRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
             _checkAccessLevelRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
@@ -303,6 +305,29 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function isMaxTxSizePerPeriodByRiskActive() external view returns (bool) {
         return maxTxSizePerPeriodByRiskActive;
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * This function does not use ruleAdministratorOnly modifier, the function checks if the caller is the appManager contract or if rule admin. 
+     * @notice This function does not use ruleAdminisitratorOnly modifier so adding pause rules via app manager will activate pause rule check automatically. 
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+
+    function activatePauseRule(bool _on) external {
+        if (msg.sender == address(appManagerAddress)) {
+            pauseRuleActive = _on;
+        } else if (!appManager.isRuleAdministrator(msg.sender)){
+        pauseRuleActive = _on;
+        }
+    }
+
+    /**
+     * @dev Tells you if the pause rule check is active or not.
+     * @return boolean representing if the rule is active for specified token
+     */
+    function isPauseRuleActive() external view returns (bool) {
+        return pauseRuleActive;
     }
 
     /**

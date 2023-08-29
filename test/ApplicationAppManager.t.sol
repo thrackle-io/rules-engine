@@ -544,9 +544,11 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
+        assertTrue(applicationHandler.isPauseRuleActive() == true);
         applicationAppManager.removePauseRule(1769924800, 1769984800);
         PauseRule[] memory removeTest = applicationAppManager.getPauseRules();
         assertTrue(removeTest.length == 0);
+        assertTrue(applicationHandler.isPauseRuleActive() == false); 
     }
 
     function testAutoCleaningRules() public {
