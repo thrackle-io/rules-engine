@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
@@ -63,7 +63,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
 
         // call a function
         assertEq("good", SampleFacet(address(ruleStorageDiamond)).sampleFunction());
-        
+
         /// test transfer ownership
         address newOwner = address(0xB00B);
         ERC173Facet(address(ruleStorageDiamond)).transferOwnership(newOwner);
@@ -97,20 +97,20 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         // call a function
         assertEq("good", SampleFacet(address(ruleStorageDiamond)).sampleFunction());
     }
-    
-     function testRuleStorageVersion() public {
+
+    function testRuleStorageVersion() public {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         // update version
         VersionFacet(address(ruleStorageDiamond)).updateVersion("1.0.1");
         string memory version = VersionFacet(address(ruleStorageDiamond)).version();
         console.log(version);
-        assertEq(version,"1.0.1");
+        assertEq(version, "1.0.1");
         // update version again
         VersionFacet(address(ruleStorageDiamond)).updateVersion("2.2.2");
         version = VersionFacet(address(ruleStorageDiamond)).version();
         console.log(version);
-        assertEq(version,"2.2.2");
+        assertEq(version, "2.2.2");
         // test that no other than the owner can update the version
         vm.stopPrank();
         vm.startPrank(appAdministrator);
@@ -119,7 +119,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         version = VersionFacet(address(ruleStorageDiamond)).version();
         console.log(version);
         // make sure that the version didn't change
-        assertEq(version,"2.2.2");
+        assertEq(version, "2.2.2");
     }
 
     /***************** Test Setters and Getters *****************/

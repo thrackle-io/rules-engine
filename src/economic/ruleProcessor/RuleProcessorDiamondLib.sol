@@ -42,7 +42,7 @@ struct RuleDataStorage {
  * @notice Contract serves as library for the Processor Diamond
  */
 library RuleProcessorDiamondLib {
-    bytes32 constant DIAMOND_CUT_STORAGE = keccak256("diamond-cut.storage");
+    bytes32 constant DIAMOND_CUT_STORAGE = bytes32(uint256(keccak256("diamond-cut.storage")) - 1);
     bytes32 constant RULE_DATA_POSITION = keccak256("nontagged-ruless.rule-data.storage");
 
     enum ActionTypes {
