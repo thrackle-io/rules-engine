@@ -51,7 +51,7 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
     }
 
     /**
-     * @dev This function adds a fee to the token
+     * @dev This function removes a fee to the token
      * @param _tag meta data tag for fee
      */
     function removeFee(bytes32 _tag) external onlyOwner {
@@ -59,7 +59,7 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
         if (feesByTag[_tag].isValue) {
             delete (feesByTag[_tag]);
             emit FeeTypeRemoved(_tag, block.timestamp);
-            // if the fee did exist and was active, then decrement total
+            // if the fee existed, then decrement total
             if (feeTotal > 0) {
                 feeTotal -= 1;
             }
