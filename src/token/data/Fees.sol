@@ -13,7 +13,6 @@ import "../../economic/AppAdministratorOnly.sol";
  */
 contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError, AppAdministratorOnly {
     string private constant VERSION="0.0.6";
-    int256 defaultFee;
     mapping(bytes32 => Fee) feesByTag;
     uint256 feeTotal;
     address newOwner; // This is used for data contract migration
