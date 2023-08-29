@@ -548,6 +548,7 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationAppManager.removePauseRule(1769924800, 1769984800);
         PauseRule[] memory removeTest = applicationAppManager.getPauseRules();
         assertTrue(removeTest.length == 0);
+        /// test that when all rules are removed the check is skipped in the handler
         assertTrue(applicationHandler.isPauseRuleActive() == false); 
     }
 
@@ -572,6 +573,16 @@ contract ApplicationAppManagerTest is TestCommon {
         assertTrue(test.length == 1);
         assertTrue(noRule.length == 1);
         vm.warp(TEST_DATE);
+    }
+
+    function testNonAdminAddingOrActivatingPauseRules() public {
+        switchToUser(); 
+        vm.expectRevert();
+        applicationAppManager.addPauseRule(1769924800, 1769984800);
+        PauseRule[] memory test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 0);
+        vm.expectRevert("Ownable: caller is not the owner");
+        applicationHandler.activatePauseRule(true);
     }
 
     function testRuleSizeLimit() public {

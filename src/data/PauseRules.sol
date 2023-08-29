@@ -102,10 +102,6 @@ contract PauseRules is IPauseRules, DataModule {
      * @return true if empty 
      */
     function isPauseRulesEmpty() external view virtual onlyOwner returns(bool) {
-        if (pauseRules.length == 0){
-            return true; 
-        } else {
-            return false; 
-        }
+        return pauseRules.length == 0;
     }
 }

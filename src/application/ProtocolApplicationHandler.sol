@@ -309,15 +309,13 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * This function does not use ruleAdministratorOnly modifier, the function checks if the caller is the appManager contract or if rule admin. 
-     * @notice This function does not use ruleAdminisitratorOnly modifier so adding pause rules via app manager will activate pause rule check automatically. 
+     * This function does not use ruleAdministratorOnly modifier, the onlyOwner modifier checks that the caller is the appManager contract. 
+     * @notice This function uses the onlyOwner modifier since the appManager contract is calling this function when adding a pause rule or removing the final pause rule of the array. 
      * @param _on boolean representing if a rule must be checked or not.
      */
 
-    function activatePauseRule(bool _on) external {
-        if (msg.sender == address(appManagerAddress) || appManager.isRuleAdministrator(msg.sender)) {
-            pauseRuleActive = _on;
-        } 
+    function activatePauseRule(bool _on) external onlyOwner {
+        pauseRuleActive = _on; 
     }
 
     /**
