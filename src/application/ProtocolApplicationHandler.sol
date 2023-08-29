@@ -315,11 +315,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
 
     function activatePauseRule(bool _on) external {
-        if (msg.sender == address(appManagerAddress)) {
+        if (msg.sender == address(appManagerAddress) || appManager.isRuleAdministrator(msg.sender)) {
             pauseRuleActive = _on;
-        } else if (!appManager.isRuleAdministrator(msg.sender)){
-        pauseRuleActive = _on;
-        }
+        } 
     }
 
     /**

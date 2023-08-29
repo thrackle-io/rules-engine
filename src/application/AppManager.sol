@@ -408,10 +408,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
         pauseRules.removePauseRule(_pauseStart, _pauseStop);
-        /// retieve pause rule array 
-        PauseRule[] memory pauseRule = pauseRules.getPauseRules();
         /// if length is 0 no pause rules exist
-        if (pauseRule.length == 0){
+        if (pauseRules.isPauseRulesEmpty()){
             /// set handler bool to false to save gas and prevent pause rule checks when non exist
             applicationHandler.activatePauseRule(false);
         }
