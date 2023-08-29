@@ -13,7 +13,7 @@ import {IApplicationEvents} from "../interfaces/IEvents.sol";
  * @dev This contract doesn't allow any marketplace operations.
  */
 contract ProtocolERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricing {
-    string private constant VERSION="0.0.6";
+    string private constant VERSION="1.0.1";
     
     mapping(address => uint256) public tokenPrices;
 
