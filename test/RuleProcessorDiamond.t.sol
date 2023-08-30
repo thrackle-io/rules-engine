@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
@@ -123,12 +123,12 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         VersionFacet(address(ruleProcessor)).updateVersion("1.0.1");
         string memory version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
-        assertEq(version,"1.0.1");
+        assertEq(version, "1.0.1");
         // update version again
         VersionFacet(address(ruleProcessor)).updateVersion("2.2.2");
         version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
-        assertEq(version,"2.2.2");
+        assertEq(version, "2.2.2");
         // test that no other than the owner can update the version
         vm.stopPrank();
         vm.startPrank(appAdministrator);
@@ -137,7 +137,7 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
         // make sure that the version didn't change
-        assertEq(version,"2.2.2");
+        assertEq(version, "2.2.2");
     }
 
     function testFailAddMinTransferRuleByNonAdmin() public {

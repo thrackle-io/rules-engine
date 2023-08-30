@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 
@@ -50,7 +50,7 @@ contract ApplicationERC20Test is TestCommon {
 
     function testERC20AndHandlerVersions() public {
         string memory version = applicationCoinHandler.version();
-        assertEq(version,"1.0.1");
+        assertEq(version, "1.0.1");
     }
 
     /// Test balance
