@@ -237,7 +237,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     }
 
     /**
-     * @dev This function adds a fee to the token
+     * @dev This function removes a fee to the token
      * @param _tag meta data tag for fee
      */
     function removeFee(bytes32 _tag) external ruleAdministratorOnly(appManagerAddress) {

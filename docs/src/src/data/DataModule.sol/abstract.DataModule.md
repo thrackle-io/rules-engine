@@ -59,13 +59,13 @@ constructor(address _dataModuleAppManagerAddress);
 |`_dataModuleAppManagerAddress`|`address`|address of the owning app manager|
 
 
-### appAdminstratorOrOwnerOnly
+### appAdministratorOrOwnerOnly
 
 *Modifier ensures function caller is a Application Administrators or the parent contract*
 
 
 ```solidity
-modifier appAdminstratorOrOwnerOnly();
+modifier appAdministratorOrOwnerOnly();
 ```
 
 ### proposeOwner
@@ -74,7 +74,7 @@ modifier appAdminstratorOrOwnerOnly();
 
 
 ```solidity
-function proposeOwner(address _newOwner) external appAdminstratorOrOwnerOnly;
+function proposeOwner(address _newOwner) external appAdministratorOrOwnerOnly;
 ```
 **Parameters**
 
@@ -98,7 +98,7 @@ function confirmOwner() external;
 
 
 ```solidity
-function confirmDataProvider(ProviderType _providerType) external virtual appAdminstratorOrOwnerOnly;
+function confirmDataProvider(ProviderType _providerType) external virtual appAdministratorOrOwnerOnly;
 ```
 **Parameters**
 
