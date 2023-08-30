@@ -120,10 +120,10 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         // update version
-        VersionFacet(address(ruleProcessor)).updateVersion("1,0,1"); // commas are used here to avoid upgrade_version-script replacements
+        VersionFacet(address(ruleProcessor)).updateVersion("1,0,0"); // commas are used here to avoid upgrade_version-script replacements
         string memory version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
-        assertEq(version, "1,0,1");
+        assertEq(version, "1,0,0");
         // update version again
         VersionFacet(address(ruleProcessor)).updateVersion("2.2.2");// upgrade_version script will replace this version
         version = VersionFacet(address(ruleProcessor)).version();

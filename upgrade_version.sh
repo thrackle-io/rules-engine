@@ -7,7 +7,7 @@
 # Usage:                                                                                                       #
 #           ./upgrade_version.sh <MAJOR.MINOR.MICRO>                                                           #
 #                                                                                                              #
-# Notice that there are no quote marks in the version.                                                         #
+# Notice that there are no quotation marks in the version.                                                         #
 ################################################################################################################
 
 # since all the files in source will have the same declaration pattern, we can use it to accurately change versions
