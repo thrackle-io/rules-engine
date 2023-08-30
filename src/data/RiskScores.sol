@@ -62,7 +62,7 @@ contract RiskScores is IRiskScores, DataModule {
      * @dev Get the risk score for the account. Restricted to the owner
      * @param _account address of the account
      */
-    function getRiskScore(address _account) external view virtual onlyOwner returns (uint8) {
+    function getRiskScore(address _account) external view virtual returns (uint8) {
         return scores[_account];
     }
 }
