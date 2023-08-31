@@ -391,20 +391,38 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Add a pause rule. Restricted to Application Administrators
+     * @notice Adding a pause rule will change the bool to true in the hanlder contract and pause rules will be checked. 
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
     function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
         pauseRules.addPauseRule(_pauseStart, _pauseStop);
+        applicationHandler.activatePauseRule(true);
     }
 
     /**
      * @dev Remove a pause rule. Restricted to Application Administrators
+     * @notice If no pause rules exist after removal bool is set to false in handler and pause rules will not be checked until new rule is added. 
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
     function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
         pauseRules.removePauseRule(_pauseStart, _pauseStop);
+        /// if length is 0 no pause rules exist
+        if (pauseRules.isPauseRulesEmpty()){
+            /// set handler bool to false to save gas and prevent pause rule checks when non exist
+            applicationHandler.activatePauseRule(false);
+        }
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * This function calls the appHandler contract to enable/disable this check.  
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+
+    function activatePauseRuleCheck(bool _on) external onlyRole(RULE_ADMIN_ROLE) {
+        applicationHandler.activatePauseRule(_on); 
     }
 
     /**
