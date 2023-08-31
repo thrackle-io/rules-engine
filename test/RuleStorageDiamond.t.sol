@@ -102,12 +102,12 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         // update version
-        VersionFacet(address(ruleStorageDiamond)).updateVersion("1.0.1");
+        VersionFacet(address(ruleStorageDiamond)).updateVersion("1,0,0"); // commas are used here to avoid upgrade_version-script replacements
         string memory version = VersionFacet(address(ruleStorageDiamond)).version();
         console.log(version);
-        assertEq(version, "1.0.1");
+        assertEq(version, "1,0,0");
         // update version again
-        VersionFacet(address(ruleStorageDiamond)).updateVersion("2.2.2");
+        VersionFacet(address(ruleStorageDiamond)).updateVersion("2.2.2"); // upgrade_version script will replace this version
         version = VersionFacet(address(ruleStorageDiamond)).version();
         console.log(version);
         assertEq(version, "2.2.2");
@@ -115,7 +115,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         vm.expectRevert("UNAUTHORIZED");
-        VersionFacet(address(ruleStorageDiamond)).updateVersion("6.6.6");
+        VersionFacet(address(ruleStorageDiamond)).updateVersion("6,6,6"); // commas are used here to avoid upgrade_version-script replacements
         version = VersionFacet(address(ruleStorageDiamond)).version();
         console.log(version);
         // make sure that the version didn't change

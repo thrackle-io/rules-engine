@@ -120,12 +120,12 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         // update version
-        VersionFacet(address(ruleProcessor)).updateVersion("1.0.1");
+        VersionFacet(address(ruleProcessor)).updateVersion("1,0,0"); // commas are used here to avoid upgrade_version-script replacements
         string memory version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
-        assertEq(version, "1.0.1");
+        assertEq(version, "1,0,0");
         // update version again
-        VersionFacet(address(ruleProcessor)).updateVersion("2.2.2");
+        VersionFacet(address(ruleProcessor)).updateVersion("2.2.2");// upgrade_version script will replace this version
         version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
         assertEq(version, "2.2.2");
@@ -133,7 +133,7 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         vm.expectRevert("UNAUTHORIZED");
-        VersionFacet(address(ruleProcessor)).updateVersion("6.6.6");
+        VersionFacet(address(ruleProcessor)).updateVersion("6,6,6"); // this is done to avoid upgrade_version-script replace this version
         version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
         // make sure that the version didn't change
