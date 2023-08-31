@@ -416,6 +416,16 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * This function calls the appHandler contract to enable/disable this check.  
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+
+    function activatePauseRuleCheck(bool _on) external onlyRole(RULE_ADMIN_ROLE) {
+        applicationHandler.activatePauseRule(_on); 
+    }
+
+    /**
      * @dev Get all pause rules for the token
      * @return PauseRule An array of all the pause rules
      */

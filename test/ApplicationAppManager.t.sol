@@ -585,6 +585,24 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationHandler.activatePauseRule(true);
     }
 
+    function testActivatePauseRulesFromAppManager() public {
+        switchToRuleAdmin();
+        /// add rule as rule admin 
+        applicationAppManager.addPauseRule(1769924800, 1769984800);
+        PauseRule[] memory test = applicationAppManager.getPauseRules();
+        assertTrue(test.length == 1);
+        assertTrue(applicationHandler.isPauseRuleActive() == true);
+        /// test deactivation of rule while pause rule exists 
+        applicationAppManager.activatePauseRuleCheck(false);
+        assertTrue(applicationHandler.isPauseRuleActive() == false);
+        /// reactivate pause rule 
+        applicationAppManager.activatePauseRuleCheck(true);
+        assertTrue(applicationHandler.isPauseRuleActive() == true);
+        /// remove rule and ensure pause rule check is false 
+        applicationAppManager.removePauseRule(1769924800, 1769984800);
+        assertTrue(applicationHandler.isPauseRuleActive() == false);
+    }
+
     function testRuleSizeLimit() public {
         switchToRuleAdmin();
         vm.warp(TEST_DATE);
