@@ -208,14 +208,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /// -------------ACCESS TIER---------------
     /**
-     * @dev Checks for if msg.sender is a Access Tier
-     */
-    modifier onlyAccessTierAdministrator() {
-        if (!isAccessTier(msg.sender)) revert NotAccessTierAdministrator(msg.sender);
-        _;
-    }
-
-    /**
      * @dev This function is where the access tier role is actually checked
      * @param account address to be checked
      * @return success true if ACCESS_TIER_ADMIN_ROLE, false if not
