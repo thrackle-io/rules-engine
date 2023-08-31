@@ -37,7 +37,7 @@ struct DiamondCutStorage {
  * @notice Library for the Rule Storage Diamond
  */
 library RuleStorageDiamondLib {
-    bytes32 constant DIAMOND_CUT_STORAGE_POSITION = keccak256("diamond-cut.storage");
+    bytes32 constant DIAMOND_CUT_STORAGE_POSITION = bytes32(uint256(keccak256("diamond-cut.storage")) - 1);
 
     /**
      * @dev Function for position of rules. Every rule has its own storage.

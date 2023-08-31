@@ -50,15 +50,6 @@ contract AccessLevels is IAccessLevels, DataModule {
     }
 
     /**
-     * @dev Remove the Access Level for the account. Restricted to the owner
-     * @param _account address of the account
-     */
-    function removelevel(address _account) external virtual onlyOwner {
-        delete levels[_account];
-        emit AccessLevelRemoved(_account, block.timestamp);
-    }
-
-    /**
      * @dev Get the Access Level for the account. Restricted to the owner
      * @param _account address of the account
      * @return level Access Level(0-4)
