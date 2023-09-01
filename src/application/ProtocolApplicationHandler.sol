@@ -69,7 +69,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
 
     /**
      * @dev Check Application Rules for valid transaction.
-     * @param _action Action to be checked
+     * @param _action Action to be checked. This param is intentially added for future enhancements.
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
