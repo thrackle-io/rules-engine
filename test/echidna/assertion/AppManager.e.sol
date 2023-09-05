@@ -7,12 +7,12 @@ contract TestAppManager is TestCommonEchidna {
     address public addr;
 
     constructor() public {
-        applicationAppManager = _createAppManager();
+        applicationAppManager = _createAppManager(address(this));
     }
 
     /// Test the Default Admin roles
     function testIsSuperAdmin() public {
-        assert(applicationAppManager.isSuperAdmin(superAdmin));
+        assert(applicationAppManager.isSuperAdmin(address(this)));
         assert(!applicationAppManager.isSuperAdmin(address(0)));
     }
 

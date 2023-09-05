@@ -1,11 +1,11 @@
 #coverage controls coverage guided testing(When this is true, test takes much longer)
-coverage: true
+coverage: false
 #seqLen defines how many transactions are in a test sequence
 seqLen: 100
 #testLimit is the number of test sequences to run
 testLimit: 1000
 #estimateGas makes echidna perform analysis of maximum gas costs for functions (experimental)
-estimateGas: true
+estimateGas: false
 shrinkLimit: 5000
 #codeSize max code size for deployed contracts. This must remain a large number.
 codeSize: 0x600000000000000

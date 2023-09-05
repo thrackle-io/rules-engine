@@ -15,7 +15,7 @@ contract TestAppManager is AppManager {
     /**
      * App Name should never be blank
      */
-    function echidna_appNameNotBlank() public returns (bool) {
+    function echidna_appNameNotBlank() public view returns (bool) {
         if (bytes(appName).length != 0) return true;
         return false;
     }
@@ -23,7 +23,7 @@ contract TestAppManager is AppManager {
     /**
      * Accounts address should never be 0x
      */
-    function echidna_accountsNotZero() public returns (bool) {
+    function echidna_accountsNotZero() public view returns (bool) {
         if (address(accounts) != address(0)) return true;
         return false;
     }
@@ -31,7 +31,7 @@ contract TestAppManager is AppManager {
     /**
      * General Tags address should never be 0x
      */
-    function echidna_generalTagsNotZero() public returns (bool) {
+    function echidna_generalTagsNotZero() public view returns (bool) {
         if (address(accounts) != address(0)) return true;
         return false;
     }
@@ -39,7 +39,7 @@ contract TestAppManager is AppManager {
     /**
      * AccessLevels address should never be 0x
      */
-    function echidna_accessLevelsNotZero() public returns (bool) {
+    function echidna_accessLevelsNotZero() public view returns (bool) {
         if (address(accessLevels) != address(0)) return true;
         return false;
     }
@@ -55,7 +55,7 @@ contract TestAppManager is AppManager {
     /**
      * PauseRules address should never be 0x
      */
-    function echidna_pauseRulesNotZero() public returns (bool) {
+    function echidna_pauseRulesNotZero() public view returns (bool) {
         if (address(pauseRules) != address(0)) return true;
         return false;
     }

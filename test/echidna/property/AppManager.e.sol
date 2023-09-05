@@ -5,7 +5,7 @@ import "test/echidna/helpers/TestCommonEchidna.sol";
 
 contract TestAppManager is TestCommonEchidna {
     constructor() public {
-        applicationAppManager = _createAppManager();
+        applicationAppManager = _createAppManager(address(this));
     }
 
     function echidna_versionNotBlank() public returns (bool) {

@@ -21,10 +21,11 @@ abstract contract TestCommonEchidna {
 
     /**
      * @dev Deploy and set up an AppManager
+     * @param _owner _owner the address to own the app manager
      * @return _appManager fully configured app manager
      */
-    function _createAppManager() public returns (ApplicationAppManager _appManager) {
-        _appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
+    function _createAppManager(address _owner) public returns (ApplicationAppManager _appManager) {
+        _appManager = new ApplicationAppManager(_owner, "Castlevania", false);
         return _appManager;
     }
 }
