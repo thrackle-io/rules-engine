@@ -10,16 +10,16 @@ contract TestAppManager is TestCommonEchidna {
 
     function echidna_versionNotBlank() public returns (bool) {
         if (bytes(applicationAppManager.version()).length != 0) return true;
-        return true;
+        return false;
     }
 
     function echidna_superAdminNotLost() public returns (bool) {
-        if (applicationAppManager.isSuperAdmin(superAdmin)) return true;
-        return true;
+        if (applicationAppManager.isSuperAdmin(address(this))) return true;
+        return false;
     }
 
     function echidna_appAdminNotLost() public returns (bool) {
-        if (applicationAppManager.isAppAdministrator(superAdmin)) return true;
-        return true;
+        if (applicationAppManager.isAppAdministrator(address(this))) return true;
+        return false;
     }
 }
