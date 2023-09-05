@@ -1,5 +1,5 @@
 # RuleProcessorDiamondLib
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/economic/ruleProcessor/RuleProcessorDiamondLib.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/economic/ruleProcessor/RuleProcessorDiamondLib.sol)
 
 **Author:**
 @oscarsernarosero, built on top of Nick Mudge implementation.
@@ -14,7 +14,7 @@ on rules compliance.*
 ### DIAMOND_CUT_STORAGE
 
 ```solidity
-bytes32 constant DIAMOND_CUT_STORAGE = keccak256("diamond-cut.storage");
+bytes32 constant DIAMOND_CUT_STORAGE = bytes32(uint256(keccak256("diamond-cut.storage")) - 1);
 ```
 
 
@@ -165,17 +165,5 @@ function enforceHasContractCode(address _contract, string memory _errorMessage) 
 
 ```solidity
 event DiamondCut(FacetCut[] _diamondCut, address init, bytes data);
-```
-
-## Enums
-### ActionTypes
-
-```solidity
-enum ActionTypes {
-    PURCHASE,
-    SELL,
-    TRADE,
-    INQUIRE
-}
 ```
 

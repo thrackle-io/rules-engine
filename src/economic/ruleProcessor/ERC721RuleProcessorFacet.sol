@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {RuleDataFacet} from "../ruleStorage/RuleDataFacet.sol";
 import {INonTaggedRules as NonTaggedRules} from "../ruleStorage/RuleDataInterfaces.sol";
 import {IERC721Errors, IRuleProcessorErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";
+import "./RuleProcessorCommonLib.sol";
 
 /**
  * @title NFT Rule Processor Facet Contract
@@ -13,6 +14,8 @@ import {IERC721Errors, IRuleProcessorErrors, IMaxTagLimitError} from "../../inte
  * @notice Implements NFT Rule checks for rules
  */
 contract ERC721RuleProcessorFacet is IERC721Errors, IRuleProcessorErrors, IMaxTagLimitError {
+    using RuleProcessorCommonLib for uint64;
+
     /**
      * @dev This function receives a rule id, which it uses to get the NFT Trade Counter rule to check if the transfer is valid.
      * @param ruleId Rule identifier for rule arguments
@@ -21,7 +24,7 @@ contract ERC721RuleProcessorFacet is IERC721Errors, IRuleProcessorErrors, IMaxTa
      * @param lastTransferTime block.timestamp of most recent transaction from sender.
      */
     function checkNFTTransferCounter(uint32 ruleId, uint256 transfersWithinPeriod, bytes32[] calldata nftTags, uint64 lastTransferTime) public view returns (uint256) {
-        if(nftTags.length > 10) revert MaxTagLimitReached(); 
+        if (nftTags.length > 10) revert MaxTagLimitReached();
         uint256 cumulativeTotal;
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
         uint totalRules = data.getTotalNFTTransferCounterRules();
@@ -31,23 +34,16 @@ contract ERC721RuleProcessorFacet is IERC721Errors, IRuleProcessorErrors, IMaxTa
                 cumulativeTotal = 0;
                 if (totalRules > ruleId) {
                     NonTaggedRules.NFTTradeCounterRule memory rule = data.getNFTTransferCounterRule(ruleId, nftTags[i]);
-                    // check to see if the rule is active(this is to account for zero tradesAllowedPerDay)
-                    if (rule.active) {
-                        uint32 period = 1 days; // set purchase period to one day
-                        uint256 tradesAllowedPerDay = rule.tradesAllowedPerDay;
-                        // if within time period, add to cumulative
-                        if (lastTransferTime > 0) {
-                            if ((block.timestamp % period) >= block.timestamp - lastTransferTime) {
-                                cumulativeTotal = transfersWithinPeriod + 1;
-                            } else {
-                                cumulativeTotal = 1;
-                            }
-                        } else {
-                            cumulativeTotal = 1;
-                        }
-                        if (cumulativeTotal > tradesAllowedPerDay) {
-                            revert MaxNFTTransferReached();
-                        }
+                    uint32 period = 24; // set purchase period to one day(24 hours)
+                    uint256 tradesAllowedPerDay = rule.tradesAllowedPerDay;
+                    // if within time period, add to cumulative
+                    if (rule.startTs.isWithinPeriod(period, lastTransferTime)) {
+                        cumulativeTotal = transfersWithinPeriod + 1;
+                    } else {
+                        cumulativeTotal = 1;
+                    }
+                    if (cumulativeTotal > tradesAllowedPerDay) {
+                        revert MaxNFTTransferReached();
                     }
                     unchecked {
                         ++i;

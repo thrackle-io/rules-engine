@@ -1,5 +1,5 @@
 # ApplicationAMMHandler
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/example/liquidity/ApplicationAMMHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/example/liquidity/ApplicationAMMHandler.sol)
 
 **Inherits:**
 [ProtocolAMMHandler](/src/liquidity/ProtocolAMMHandler.sol/contract.ProtocolAMMHandler.md)
@@ -19,8 +19,8 @@ Any rule checks may be updated by modifying this contract and redeploying.
 
 
 ```solidity
-constructor(address _appManagerAddress, address _ruleProcessorProxyAddress)
-    ProtocolAMMHandler(_appManagerAddress, _ruleProcessorProxyAddress);
+constructor(address _appManagerAddress, address _ruleProcessorProxyAddress, address _assetAddress)
+    ProtocolAMMHandler(_appManagerAddress, _ruleProcessorProxyAddress, _assetAddress);
 ```
 **Parameters**
 
@@ -28,5 +28,6 @@ constructor(address _appManagerAddress, address _ruleProcessorProxyAddress)
 |----|----|-----------|
 |`_appManagerAddress`|`address`|App Manager Address|
 |`_ruleProcessorProxyAddress`|`address`|Rule Router Proxy Address|
+|`_assetAddress`|`address`|address of the congtrolling address|
 
 

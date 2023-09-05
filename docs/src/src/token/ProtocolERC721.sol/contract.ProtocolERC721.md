@@ -1,8 +1,8 @@
 # ProtocolERC721
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/token/ProtocolERC721.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/token/ProtocolERC721.sol)
 
 **Inherits:**
-ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
+ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, [ProtocolTokenCommon](/src/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [AppAdministratorOrOwnerOnly](/src/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -11,13 +11,6 @@ This is the base contract for all protocol ERC721s
 
 
 ## State Variables
-### appManagerAddress
-
-```solidity
-address public appManagerAddress;
-```
-
-
 ### handlerAddress
 
 ```solidity
@@ -29,13 +22,6 @@ address public handlerAddress;
 
 ```solidity
 IProtocolERC721Handler handler;
-```
-
-
-### appManager
-
-```solidity
-IAppManager appManager;
 ```
 
 
@@ -52,15 +38,6 @@ Base Contract URI
 
 ```solidity
 string public baseUri;
-```
-
-
-### VERSION
-keeps track of RULE enum version and other features
-
-
-```solidity
-uint8 public constant VERSION = 1;
 ```
 
 
@@ -170,7 +147,7 @@ Function is payable for child contracts to override with priced mint function.
 
 
 ```solidity
-function safeMint(address to) public payable virtual whenNotPaused;
+function safeMint(address to) public payable virtual whenNotPaused appAdministratorOrOwnerOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -228,17 +205,6 @@ function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) when
 function withdraw() public payable virtual appAdministratorOnly(appManagerAddress);
 ```
 
-### setAppManagerAddress
-
-*Function to set the appManagerAddress and connect to the new appManager*
-
-*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress);
-```
-
 ### supportsInterface
 
 *Returns true if this contract implements the interface defined by
@@ -249,7 +215,11 @@ This function call must use less than 30 000 gas.*
 
 
 ```solidity
-function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool);
+function supportsInterface(bytes4 interfaceId)
+    public
+    view
+    override(ERC721, ERC721Enumerable, ERC721URIStorage)
+    returns (bool);
 ```
 
 ### connectHandlerToToken
@@ -273,7 +243,7 @@ function connectHandlerToToken(address _deployedHandlerAddress) external appAdmi
 
 
 ```solidity
-function getHandlerAddress() external view returns (address);
+function getHandlerAddress() external view override returns (address);
 ```
 **Returns**
 

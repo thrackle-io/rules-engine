@@ -1,5 +1,5 @@
 # IDataModule
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/data/IDataModule.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/data/IDataModule.sol)
 
 **Inherits:**
 [IAppLevelEvents](/src/interfaces/IEvents.sol/interface.IAppLevelEvents.md)
@@ -13,22 +13,44 @@ This contract serves as a template for all data modules.
 
 
 ## Functions
-### setAppManagerAddress
+### proposeOwner
+
+*this function proposes a new owner that is put in storage to be confirmed in a separate process*
 
 
 ```solidity
-function setAppManagerAddress(address _appManagerAddress) external;
+function proposeOwner(address _newOwner) external;
 ```
+**Parameters**
 
-### transferDataOwnership
+|Name|Type|Description|
+|----|----|-----------|
+|`_newOwner`|`address`|the new address being proposed|
 
-*Transfers ownership of the contract to a new account (`newOwner`).
-Can only be called by the current owner.*
+
+### confirmOwner
+
+*this function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address*
 
 
 ```solidity
-function transferDataOwnership(address newOwner) external;
+function confirmOwner() external;
 ```
+
+### confirmDataProvider
+
+*Part of the two step process to set a new Data Provider within a Protocol AppManager*
+
+
+```solidity
+function confirmDataProvider(ProviderType _providerType) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_providerType`|`ProviderType`|the type of data provider|
+
 
 ## Errors
 ### AppManagerNotConnected
@@ -43,5 +65,18 @@ error AppManagerNotConnected();
 
 ```solidity
 error NotAppAdministratorOrOwner();
+```
+
+## Enums
+### ProviderType
+
+```solidity
+enum ProviderType {
+    ACCESS_LEVEL,
+    ACCOUNT,
+    GENERAL_TAG,
+    PAUSE_RULE,
+    RISK_SCORE
+}
 ```
 

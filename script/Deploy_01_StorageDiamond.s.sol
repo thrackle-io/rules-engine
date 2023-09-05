@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
@@ -54,7 +54,9 @@ contract DeployAllModulesScript is Script {
         DiamondInit diamondInit = new DiamondInit();
 
         /// Register all facets.
-        string[6] memory facets = [
+        string[7] memory facets = [
+            // diamond version
+            "VersionFacet",
             /// Native facets,
             "ProtocolNativeFacet",
             /// Raw implementation facets.

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "./IDataModule.sol";
-import {ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError} from  "../interfaces/IErrors.sol";
+import {ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError} from "../interfaces/IErrors.sol";
 
 /**
  * @title General Tag interface Contract

@@ -3,6 +3,8 @@
 
 ---
 
+NOTE: NFT Batch minting and burning is not supported in this release.
+
 1. Ensure the [environment variables][environment-url] are set correctly.
 2. Copy the template from src/example/ApplicationERC721.sol to your desired location
 3. Change the name of the contract to suit your naming standards
@@ -32,16 +34,7 @@
           ````
           export APPLICATION_ERC721_1=address from output
           ````
-6. Deploy an NFT handler contract sending in the following parameters:
-    1. _RuleProcessorAddress_ - The address noted from previous steps and set as an environment variable($RULE_PROCESSOR_DIAMOND).
-    2. _App Manager Address_ - The address noted from previous steps and set as an environment variable($APPLICATION_APP_MANAGER).
-    3. _upgradeMode_ 
-       1. The bool representing if this is an upgraded handler contract
-    4. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
-    ````
-    forge create src/example/ApplicationERC721Handler.sol:ApplicationERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
-
-    ````   
+6. Deploy an [NFT handler contract][ERC721Handler-url]
 7. Use the output from the deployment to set an environment variable for NFT Handler's address.
     1. Locate the address from the output, example:
     ````
@@ -55,12 +48,8 @@
 8.  Connect the Handler to its token
     ````
     cast send $APPLICATION_ERC721_1 "connectHandlerToToken(address)" $APPLICATION_ERC721_1_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
-    ````
-9.  Register NFT with the handler
-    ````
-    cast send $APPLICATION_ERC721_1_HANDLER "setERC721Address(address)" $APPLICATION_ERC721_1 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
-    ````
-10. Register NFT with the App Manager: Call the registerToken function on the App Manager created in previous steps. It accepts parameters of an identifying name and the NFT address, e.g. ("FRANKPIC", 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266) 
+    ```` 
+9. Register NFT with the App Manager: Call the registerToken function on the App Manager created in previous steps. It accepts parameters of an identifying name and the NFT address, e.g. ("FRANKPIC", 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266) 
     ````
     cast send $APPLICATION_APP_MANAGER "registerToken(string,address)" "FRANKPIC" $APPLICATION_ERC721_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
@@ -69,6 +58,7 @@
 
 <!-- These are the body links -->
 [ERC721-url]: https://docs.openzeppelin.com/contracts/2.x/api/token/erc721
+[ERC721Handler-url]: ./DEPLOY-NFTHANDLER.md
 [environment-url]: ./SETENVIRONMENT.md
 
 

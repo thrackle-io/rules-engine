@@ -13,7 +13,7 @@
 
    ````
 5. Deploy the contract sending in the following parameters:
-    1. _Owner Address_ - This is the account that is to be the first Application Administrator. NOTE: This address must be used throughout the deployment process
+    1. _Owner Address_ - This is the account that is to be the first Application Administrator and Super Admin. NOTE: This address must be used throughout the deployment process
     2. _appName_ - The Name for your Application. 
     3. _ruleProcessorAddress_ - The address of the RuleProcessorDiamond contract set in Step 1.
     4. _upgradeMode_ - This is a boolean value for if this is an upgraded AppManager being deployed. NOTE: Passing in a true boolean value will not deploy new data contracts. 

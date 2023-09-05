@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "../token/ProtocolERC20.sol";
 
@@ -16,14 +16,10 @@ contract ApplicationERC20 is ProtocolERC20 {
      * @param _symbol  Symbol of the token
      * @param _appManagerAddress App Manager address
      */
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        address _appManagerAddress
-    ) ProtocolERC20(_name, _symbol, _appManagerAddress) {}
+    constructor(string memory _name, string memory _symbol, address _appManagerAddress) ProtocolERC20(_name, _symbol, _appManagerAddress) {}
 
-     /**
-     * @dev Function mints new tokens. Allows for free and open minting of tokens. Comment out to use appAdministatorOnly minting. 
+    /**
+     * @dev Function mints new tokens. Allows for free and open minting of tokens. Comment out to use appAdministatorOnly minting.
      * @param to recipient address
      * @param amount number of tokens to mint
      */

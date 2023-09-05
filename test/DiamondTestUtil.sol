@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "./helpers/GenerateSelectors.sol";
@@ -9,7 +9,6 @@ import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
 
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/RuleProcessorDiamond.sol";
-// import {AppManager} from "../src/application/AppManager.sol";
 import {ApplicationPauseProcessorFacet} from "../src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
@@ -20,8 +19,9 @@ contract DiamondTestUtil is GenerateSelectors {
     // process the facets.
     FacetCut[] private _facetCuts;
     RuleProcessorDiamond ruleProcessorDiamond;
-    address defaultAdmin = address(0xDEFAD);
+    address superAdmin = address(0xDaBEEF);
     address appAdministrator = address(0xAAA);
+    address ruleAdmin = address(0xACDC);
     address AccessTier = address(0xBBB);
     address riskAdmin = address(0xCCC);
     address user = address(0xDDD);
@@ -31,7 +31,9 @@ contract DiamondTestUtil is GenerateSelectors {
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[5] memory facets = [
+        string[6] memory facets = [
+            // diamond version
+            "VersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
             // Raw implementation facets.

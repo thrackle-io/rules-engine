@@ -1,8 +1,8 @@
 # TaggedRuleDataFacet
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/economic/ruleStorage/TaggedRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/economic/ruleStorage/TaggedRuleDataFacet.sol)
 
 **Inherits:**
-Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IRiskInputErrors](/src/interfaces/IErrors.sol/interface.IRiskInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md), [ITagRuleInputErrors](/src/interfaces/IErrors.sol/interface.ITagRuleInputErrors.md)
+Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IRiskInputErrors](/src/interfaces/IErrors.sol/interface.IRiskInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md), [ITagRuleInputErrors](/src/interfaces/IErrors.sol/interface.ITagRuleInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -22,7 +22,7 @@ Purchase Getters/Setters **********************
 
 *Function add a Token Purchase Percentage rule*
 
-*Function has AppAdministratorOnly Modifier and takes AppManager Address Param*
+*Function has RuleAdministratorOnly Modifier and takes AppManager Address Param*
 
 
 ```solidity
@@ -30,9 +30,9 @@ function addPurchaseRule(
     address _appManagerAddr,
     bytes32[] calldata _accountTypes,
     uint256[] calldata _purchaseAmounts,
-    uint32[] calldata _purchasePeriods,
-    uint32[] calldata _startTimes
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+    uint16[] calldata _purchasePeriods,
+    uint64[] calldata _startTimes
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -41,8 +41,8 @@ function addPurchaseRule(
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_purchaseAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_purchasePeriods`|`uint32[]`|Hours purhchases allowed|
-|`_startTimes`|`uint32[]`|Hours of the day in utc for first period to start|
+|`_purchasePeriods`|`uint16[]`|Hours purhchases allowed|
+|`_startTimes`|`uint64[]`|timestamp period to start|
 
 **Returns**
 
@@ -60,8 +60,8 @@ function addPurchaseRule(
 function _addPurchaseRule(
     bytes32[] calldata _accountTypes,
     uint256[] calldata _purchaseAmounts,
-    uint32[] calldata _purchasePeriods,
-    uint32[] calldata _startTimes
+    uint16[] calldata _purchasePeriods,
+    uint64[] calldata _startTimes
 ) internal returns (uint32);
 ```
 **Parameters**
@@ -70,8 +70,8 @@ function _addPurchaseRule(
 |----|----|-----------|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_purchaseAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_purchasePeriods`|`uint32[]`|Hours purhchases allowed|
-|`_startTimes`|`uint32[]`|Hours of the day in utc for first period to start|
+|`_purchasePeriods`|`uint16[]`|Hours purhchases allowed|
+|`_startTimes`|`uint64[]`|timestamps for first period to start|
 
 **Returns**
 
@@ -81,8 +81,6 @@ function _addPurchaseRule(
 
 
 ### getPurchaseRule
-
-Low Rank Approximation
 
 *Function get the purchase rule in the rule set that belongs to an account type*
 
@@ -110,7 +108,7 @@ function getPurchaseRule(uint32 _index, bytes32 _accountType) external view retu
 
 
 ```solidity
-function getTotalPurchaseRule() external view returns (uint32);
+function getTotalPurchaseRule() public view returns (uint32);
 ```
 **Returns**
 
@@ -131,9 +129,9 @@ function addSellRule(
     address _appManagerAddr,
     bytes32[] calldata _accountTypes,
     uint192[] calldata _sellAmounts,
-    uint32[] calldata _sellPeriod,
-    uint32[] calldata _startTimes
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+    uint16[] calldata _sellPeriod,
+    uint64[] calldata _startTimes
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -142,8 +140,8 @@ function addSellRule(
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_sellAmounts`|`uint192[]`|Allowed total sell limits|
-|`_sellPeriod`|`uint32[]`|Period for sales|
-|`_startTimes`|`uint32[]`||
+|`_sellPeriod`|`uint16[]`|Period for sales|
+|`_startTimes`|`uint64[]`|rule starts|
 
 **Returns**
 
@@ -161,8 +159,8 @@ function addSellRule(
 function _addSellRule(
     bytes32[] calldata _accountTypes,
     uint192[] calldata _sellAmounts,
-    uint32[] calldata _sellPeriod,
-    uint32[] calldata _startTimes
+    uint16[] calldata _sellPeriod,
+    uint64[] calldata _startTimes
 ) internal returns (uint32);
 ```
 **Parameters**
@@ -171,8 +169,8 @@ function _addSellRule(
 |----|----|-----------|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_sellAmounts`|`uint192[]`|Allowed total sell limits|
-|`_sellPeriod`|`uint32[]`|Period for sales|
-|`_startTimes`|`uint32[]`||
+|`_sellPeriod`|`uint16[]`|Period for sales|
+|`_startTimes`|`uint64[]`|rule starts|
 
 **Returns**
 
@@ -182,8 +180,6 @@ function _addSellRule(
 
 
 ### getSellRuleByIndex
-
-Low Rank Approximation
 
 *Function to get Sell rule at index*
 
@@ -211,7 +207,7 @@ function getSellRuleByIndex(uint32 _index, bytes32 _accountType) external view r
 
 
 ```solidity
-function getTotalSellRule() external view returns (uint32);
+function getTotalSellRule() public view returns (uint32);
 ```
 **Returns**
 
@@ -233,7 +229,7 @@ function addBalanceLimitRules(
     bytes32[] calldata _accountTypes,
     uint256[] calldata _minimum,
     uint256[] calldata _maximum
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -309,7 +305,7 @@ function getBalanceLimitRule(uint32 _index, bytes32 _accountType)
 
 
 ```solidity
-function getTotalBalanceLimitRules() external view returns (uint32);
+function getTotalBalanceLimitRules() public view returns (uint32);
 ```
 **Returns**
 
@@ -331,7 +327,7 @@ function addWithdrawalRule(
     bytes32[] calldata _accountTypes,
     uint256[] calldata _amount,
     uint256[] calldata _releaseDate
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -407,7 +403,7 @@ function getWithdrawalRule(uint32 _index, bytes32 _accountType)
 
 
 ```solidity
-function getTotalWithdrawalRule() external view returns (uint32);
+function getTotalWithdrawalRule() public view returns (uint32);
 ```
 **Returns**
 
@@ -426,7 +422,7 @@ Admin Account Withdrawal Getters/Setters **********
 ```solidity
 function addAdminWithdrawalRule(address _appManagerAddr, uint256 _amount, uint256 _releaseDate)
     external
-    appAdministratorOnly(_appManagerAddr)
+    ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);
 ```
 **Parameters**
@@ -471,7 +467,7 @@ function getAdminWithdrawalRule(uint32 _index) external view returns (TaggedRule
 
 
 ```solidity
-function getTotalAdminWithdrawalRules() external view returns (uint32);
+function getTotalAdminWithdrawalRules() public view returns (uint32);
 ```
 **Returns**
 
@@ -491,7 +487,7 @@ will apply to all risk scores of 100.)
 
 *Function to add new TransactionLimitByRiskScore Rules*
 
-*Function has AppAdministratorOnly Modifier and takes AppManager Address Param*
+*Function has RuleAdministratorOnly Modifier and takes AppManager Address Param*
 
 
 ```solidity
@@ -499,7 +495,7 @@ function addTransactionLimitByRiskScore(
     address _appManagerAddr,
     uint8[] calldata _riskScores,
     uint48[] calldata _txnLimits
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -570,7 +566,7 @@ function getTransactionLimitByRiskRule(uint32 _index)
 
 
 ```solidity
-function getTotalTransactionLimitByRiskRules() external view returns (uint32);
+function getTotalTransactionLimitByRiskRules() public view returns (uint32);
 ```
 **Returns**
 
@@ -585,7 +581,7 @@ Minimum Account Balance By Date Getters/Setters **********************
 
 *Function add a Minimum Account Balance By Date rule*
 
-*Function has AppAdministratorOnly Modifier and takes AppManager Address Param*
+*Function has RuleAdministratorOnly Modifier and takes AppManager Address Param*
 
 
 ```solidity
@@ -593,9 +589,9 @@ function addMinBalByDateRule(
     address _appManagerAddr,
     bytes32[] calldata _accountTags,
     uint256[] calldata _holdAmounts,
-    uint256[] calldata _holdPeriods,
-    uint256[] calldata _startTimestamps
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+    uint16[] calldata _holdPeriods,
+    uint64[] calldata _startTimestamps
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -604,8 +600,8 @@ function addMinBalByDateRule(
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_accountTags`|`bytes32[]`|Types of Accounts|
 |`_holdAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_holdPeriods`|`uint256[]`|Hours purchases allowed|
-|`_startTimestamps`|`uint256[]`|Timestamp that the check should start|
+|`_holdPeriods`|`uint16[]`|Hours purchases allowed|
+|`_startTimestamps`|`uint64[]`|Timestamp that the check should start|
 
 **Returns**
 
@@ -623,8 +619,8 @@ function addMinBalByDateRule(
 function _addMinBalByDateRule(
     bytes32[] calldata _accountTags,
     uint256[] calldata _holdAmounts,
-    uint256[] calldata _holdPeriods,
-    uint256[] memory _startTimestamps
+    uint16[] calldata _holdPeriods,
+    uint64[] memory _startTimestamps
 ) internal returns (uint32);
 ```
 **Parameters**
@@ -633,8 +629,8 @@ function _addMinBalByDateRule(
 |----|----|-----------|
 |`_accountTags`|`bytes32[]`|Types of Accounts|
 |`_holdAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_holdPeriods`|`uint256[]`|Hours purhchases allowed|
-|`_startTimestamps`|`uint256[]`|Timestamp that the check should start|
+|`_holdPeriods`|`uint16[]`|Hours purhchases allowed|
+|`_startTimestamps`|`uint64[]`|Timestamp that the check should start|
 
 **Returns**
 
@@ -676,7 +672,7 @@ function getMinBalByDateRule(uint32 _index, bytes32 _accountTag)
 
 
 ```solidity
-function getTotalMinBalByDateRule() external view returns (uint32);
+function getTotalMinBalByDateRule() public view returns (uint32);
 ```
 **Returns**
 

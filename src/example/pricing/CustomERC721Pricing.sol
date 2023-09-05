@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import {IApplicationEvents} from "../../interfaces/IEvents.sol";
 import "../../pricing/IProtocolERC721Pricing.sol";
 import "../../economic/AppAdministratorOnly.sol";
@@ -39,6 +39,29 @@ contract CustomERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pric
      */
     function getNFTPrice(address nftContract, uint256 id) external view returns (uint256 price) {
         id;
+        uint256 feedPrice;
+        if (nftContract == pudgyPenguin) {
+            feedPrice = getChainlinkPudgyToUSDFeedPrice();
+        } else if (nftContract == cryptoPunk) {
+            feedPrice = getChainlinkCryptoToUSDFeedPrice();
+        } else if (nftContract == azuki) {
+            feedPrice = getChainlinkAzukiToUSDFeedPrice();
+        } else {
+            revert NoPriceFeed(nftContract);
+        }
+        return feedPrice;
+    }
+
+    /**
+     * @dev gets the price of an NFT. It will return the Token's specific price. This function is left here to preserve the function signature. NOTE: This is  * only the floor price at the contract level. As of create date, Chainlink does not have a tokenId based pricing solution.
+     * @param nftContract is the address of the NFT contract
+     * @return price of the Token in weis of dollars. 10^18 => $ 1.00 USD
+     * @notice Chainlink only provides floor price feeds, so this function mirrors getNFTPrice() in functionality.
+     * The price is for the whole token and not of its atomic unit. This means that if
+     * an ERC721 with 18 decimals has a price of 2 dollars, then its atomic unit would be 2/10^18 USD.
+     * 999_999_999_999_999_999 = 0xDE0B6B3A763FFFF, 1_000_000_000_000_000_000 = DE0B6B3A7640000
+     */
+    function getNFTCollectionPrice(address nftContract) external view returns (uint256 price) {
         uint256 feedPrice;
         if (nftContract == pudgyPenguin) {
             feedPrice = getChainlinkPudgyToUSDFeedPrice();

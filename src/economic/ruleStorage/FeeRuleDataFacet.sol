@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/contracts/utils/Context.sol";
+import "../RuleAdministratorOnly.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "../AppAdministratorOnly.sol";
 import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {IFeeRules as Fee} from "./RuleDataInterfaces.sol";
@@ -16,8 +17,7 @@ import "./RuleCodeData.sol";
  * @dev Contains the setters and getters for fee rules
  * @notice This contract sets and gets the Fee Rules for the protocol
  */
-contract FeeRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors {
-    
+contract FeeRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors {
     /************ AMM Fee Getters/Setters ***********/
 
     /**
@@ -26,7 +26,7 @@ contract FeeRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IIn
      * @param _feePercentage percentage of collateralized token to be assessed for fees
      * @return ruleId position of rule in storage
      */
-    function addAMMFeeRule(address _appManagerAddr, uint256 _feePercentage) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addAMMFeeRule(address _appManagerAddr, uint256 _feePercentage) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_feePercentage < 1 || _feePercentage > 10000) revert ValueOutOfRange(_feePercentage);
         RuleS.AMMFeeRuleS storage data = Storage.ammFeeRuleStorage();
         Fee.AMMFeeRule memory rule = Fee.AMMFeeRule(_feePercentage);

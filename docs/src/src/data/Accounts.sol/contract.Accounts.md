@@ -1,8 +1,8 @@
 # Accounts
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/data/Accounts.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/data/Accounts.sol)
 
 **Inherits:**
-[DataModule](/src/data/DataModule.sol/contract.DataModule.md), [IAccounts](/src/data/IAccounts.sol/interface.IAccounts.md)
+[DataModule](/src/data/DataModule.sol/abstract.DataModule.md), [IAccounts](/src/data/IAccounts.sol/interface.IAccounts.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -27,8 +27,14 @@ mapping(address => bool) public accounts;
 
 
 ```solidity
-constructor();
+constructor(address _dataModuleAppManagerAddress) DataModule(_dataModuleAppManagerAddress);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_dataModuleAppManagerAddress`|`address`|address of the owning app manager|
+
 
 ### addAccount
 
@@ -36,7 +42,7 @@ constructor();
 
 
 ```solidity
-function addAccount(address _account) external onlyOwner;
+function addAccount(address _account) external virtual onlyOwner;
 ```
 **Parameters**
 
@@ -51,7 +57,7 @@ function addAccount(address _account) external onlyOwner;
 
 
 ```solidity
-function removeAccount(address _account) external onlyOwner;
+function removeAccount(address _account) external virtual onlyOwner;
 ```
 **Parameters**
 
@@ -66,7 +72,7 @@ function removeAccount(address _account) external onlyOwner;
 
 
 ```solidity
-function isUserAccount(address _address) external view returns (bool);
+function isUserAccount(address _address) external view virtual returns (bool);
 ```
 **Parameters**
 

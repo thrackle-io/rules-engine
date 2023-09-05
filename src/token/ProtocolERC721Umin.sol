@@ -1,25 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
-import "openzeppelin-contracts-upgradeable/contracts/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
-import "src/economic/AppAdministratorOnlyU.sol";
-import "src/token/IProtocolERC721Handler.sol";
-import {IApplicationEvents} from "src/interfaces/IEvents.sol";
-import {IZeroAddressError} from "src/interfaces/IErrors.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
+import "./IProtocolERC721Handler.sol";
+import "./ProtocolTokenCommonU.sol";
 
 /**
  * @title ERC721 Upgradeable Protocol Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This is the base contract for all protocol ERC721Upgradeables
  */
-contract ProtocolERC721Umin is Initializable, AppAdministratorOnlyU, IApplicationEvents, IZeroAddressError, ERC721EnumerableUpgradeable {
-    address private appManagerAddress;
+contract ProtocolERC721Umin is Initializable, ERC721EnumerableUpgradeable, ProtocolTokenCommonU {
     address private handlerAddress;
     IProtocolERC721Handler private handler;
-
-    /// keeps track of RULE enum version and other features
-    uint8 private constant VERSION = 1;
 
     /**
      * @dev Initializer sets the the App Manager
@@ -30,6 +24,7 @@ contract ProtocolERC721Umin is Initializable, AppAdministratorOnlyU, IApplicatio
     }
 
     function __ProtocolERC721_init_unchained(address _appManagerAddress) internal onlyInitializing {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         emit NewNFTDeployed(address(this), _appManagerAddress);
     }
@@ -44,24 +39,8 @@ contract ProtocolERC721Umin is Initializable, AppAdministratorOnlyU, IApplicatio
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal virtual override {
         // Rule Processor Module Check
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, 1, tokenId, ActionTypes.TRADE));
+        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, batchSize, tokenId, ActionTypes.TRADE));
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
-    }
-
-    /**
-     * @dev Function to set the appManagerAddress
-     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
-     */
-    function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
-        appManagerAddress = _appManagerAddress;
-    }
-
-    /**
-     * @dev Function to get the appManagerAddress
-     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
-     */
-    function getAppManagerAddress() external view returns (address) {
-        return appManagerAddress;
     }
 
     /**

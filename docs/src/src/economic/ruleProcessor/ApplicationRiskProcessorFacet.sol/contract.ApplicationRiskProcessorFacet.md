@@ -1,5 +1,5 @@
 # ApplicationRiskProcessorFacet
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [IRiskErrors](/src/interfaces/IErrors.sol/interface.IRiskErrors.md)
@@ -33,15 +33,20 @@ risk scores      balances         resultant logic
 
 
 ```solidity
-function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScore, uint128 _totalValuationTo, uint128 _amountToTransfer)
-    external
-    view;
+function checkAccBalanceByRisk(
+    uint32 _ruleId,
+    address _toAddress,
+    uint8 _riskScore,
+    uint128 _totalValuationTo,
+    uint128 _amountToTransfer
+) external view;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_ruleId`|`uint32`|Rule Identifier for rule arguments|
+|`_toAddress`|`address`|Address of the recipient|
 |`_riskScore`|`uint8`|the Risk Score of the recepient account|
 |`_totalValuationTo`|`uint128`|recipient account's beginning balance in USD with 18 decimals of precision|
 |`_amountToTransfer`|`uint128`|total dollar amount to be transferred in USD with 18 decimals of precision|
@@ -52,6 +57,7 @@ function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScore, uint128 _totalV
 create the 'data' variable which is simply a connection to the rule diamond
 retrieve the rule
 perform the rule check
+If recipient address being checked is zero address the rule passes (This allows for burning)
 If risk score is within the rule riskLevel array, find the maxBalance for that risk Score
 maxBalance must be multiplied by 10 ** 18 to account for decimals in token pricing in USD
 Jump out of loop once risk score is matched to array index

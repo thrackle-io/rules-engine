@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {IAppManager} from "../application/IAppManager.sol";
-import { IAppAdministratorOnlyErrors } from "../interfaces/IErrors.sol";
-import "openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol";
+import {IPermissionModifierErrors} from "../interfaces/IErrors.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 
 /**
  * @title Application Administrators Only Modifier Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev appAdministratorOnly modifier encapsulated for easy imports.
  */
-contract AppAdministratorOnlyU is ContextUpgradeable, IAppAdministratorOnlyErrors {
-
+contract AppAdministratorOnlyU is ContextUpgradeable, IPermissionModifierErrors {
     /**
      * @dev Modifier ensures function caller is a App Admin
      * @param _appManagerAddr Address of App Manager

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/ApplicationERC20.sol";
-import "src/application/IAppManager.sol";
+import "../ApplicationERC20.sol";
+import "../../application/IAppManager.sol";
 
 /**
  * @title This is the deployment script for the Application Coin ERC20.

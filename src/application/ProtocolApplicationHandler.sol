@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "src/economic/ruleProcessor/RuleProcessorDiamondLib.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../application/AppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
 import "../economic/ruleStorage/RuleCodeData.sol";
 import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/IRuleProcessor.sol";
-import "src/economic/ruleProcessor/ActionEnum.sol";
-import { IInputErrors } from "../interfaces/IErrors.sol";
+import "../economic/ruleProcessor/ActionEnum.sol";
+import {IZeroAddressError, IInputErrors} from "../interfaces/IErrors.sol";
+import "../economic/RuleAdministratorOnly.sol";
 
 /**
  * @title Protocol ApplicationHandler Contract
@@ -17,7 +17,8 @@ import { IInputErrors } from "../interfaces/IErrors.sol";
  * @dev This contract is injected into the appManagers.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicationHandlerEvents, IInputErrors {
+contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, IInputErrors, IZeroAddressError {
+    string private constant VERSION = "1.0.1";
     AppManager appManager;
     address public appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
@@ -48,9 +49,11 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @param _appManagerAddress address of the application AppManager.
      */
     constructor(address _ruleProcessorProxyAddress, address _appManagerAddress) {
+        if (_ruleProcessorProxyAddress == address(0) || _appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = AppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+        transferOwnership(_appManagerAddress);
         emit ApplicationHandlerDeployed(address(this), _appManagerAddress);
     }
 
@@ -71,7 +74,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      * @return success Returns true if allowed, false if not allowed
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external returns (bool) {
+    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external onlyOwner returns (bool) {
         _action;
         ruleProcessor.checkPauseRules(appManagerAddress);
         if (requireValuations() || AccessLevel0RuleActive) {
@@ -92,9 +95,10 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         if (accountBalanceByRiskRuleActive) {
-            ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
+            ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, _to, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
         }
         if (maxTxSizePerPeriodByRiskActive) {
+            /// if rule is active check if the recipient is address(0) for burning tokens
             /// check if sender violates the rule
             usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
                 maxTxSizePerPeriodByRiskRuleId,
@@ -103,17 +107,19 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
                 lastTxDateRiskRule[_from],
                 riskScoreFrom
             );
-            lastTxDateRiskRule[_from] = uint64(block.timestamp);
-            /// check if recipient violates the rule
-            usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
-                maxTxSizePerPeriodByRiskRuleId,
-                usdValueTransactedInRiskPeriod[_to],
-                _usdAmountTransferring,
-                lastTxDateRiskRule[_to],
-                riskScoreTo
-            );
-            // set the last timestamp of check
-            lastTxDateRiskRule[_to] = uint64(block.timestamp);
+            if (_to != address(0)) {
+                lastTxDateRiskRule[_from] = uint64(block.timestamp);
+                /// check if recipient violates the rule
+                usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
+                    maxTxSizePerPeriodByRiskRuleId,
+                    usdValueTransactedInRiskPeriod[_to],
+                    _usdAmountTransferring,
+                    lastTxDateRiskRule[_to],
+                    riskScoreTo
+                );
+                // set the last timestamp of check
+                lastTxDateRiskRule[_to] = uint64(block.timestamp);
+            }
         }
     }
 
@@ -126,9 +132,16 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
     function _checkAccessLevelRules(address _from, address _to, uint128 _usdBalanceValuation, uint128 _usdAmountTransferring) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        if (AccessLevel0RuleActive && appManager.isRegisteredAMM(_to)) ruleProcessor.checkAccessLevel0Passes(fromScore);
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to)) ruleProcessor.checkAccessLevel0Passes(score);
-        if (accountBalanceByAccessLevelRuleActive) ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
+        /// Perform the access level = 0 rule checks if necessary
+        if (AccessLevel0RuleActive) {
+            /// If sender is not AMM and then check sender access level
+            if (!appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccessLevel0Passes(fromScore);
+            /// If receiver is not AMM or AMM treasury and then check receiver access level. Exempting address(0) allows for burning.
+            if (!(appManager.isRegisteredAMM(_to) || appManager.isTreasury(_to) || _to == address(0))) ruleProcessor.checkAccessLevel0Passes(score);
+        }
+        /// Check that the recipient is not address(0). If it is we do not check this rule as it is a burn.
+        if (accountBalanceByAccessLevelRuleActive && _to != address(0))
+            ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
         if (withdrawalLimitByAccessLevelRuleActive) {
             usdValueTotalWithrawals[_from] = ruleProcessor.checkwithdrawalLimitsByAccessLevel(withdrawalLimitByAccessLevelRuleId, fromScore, usdValueTotalWithrawals[_from], _usdAmountTransferring);
         }
@@ -139,7 +152,8 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setAccountBalanceByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setAccountBalanceByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccBalanceByRisk(_ruleId);
         accountBalanceByRiskRuleId = _ruleId;
         accountBalanceByRiskRuleActive = true;
         emit ApplicationRuleApplied(BALANCE_BY_RISK, _ruleId);
@@ -149,7 +163,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAccountBalanceByRiskRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateAccountBalanceByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountBalanceByRiskRuleActive = _on;
     }
 
@@ -174,7 +188,8 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccBalanceByAccessLevel(_ruleId);
         accountBalanceByAccessLevelRuleId = _ruleId;
         accountBalanceByAccessLevelRuleActive = true;
         emit ApplicationRuleApplied(BALANCE_BY_ACCESSLEVEL, _ruleId);
@@ -184,7 +199,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAccountBalanceByAccessLevelRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateAccountBalanceByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountBalanceByAccessLevelRuleActive = _on;
     }
 
@@ -208,7 +223,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAccessLevel0Rule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateAccessLevel0Rule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         AccessLevel0RuleActive = _on;
     }
 
@@ -225,7 +240,8 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateWithdrawalLimitsByAccessLevel(_ruleId);
         withdrawalLimitByAccessLevelRuleId = _ruleId;
         withdrawalLimitByAccessLevelRuleActive = true;
         emit ApplicationRuleApplied(ACCESS_LEVEL_WITHDRAWAL, _ruleId);
@@ -235,7 +251,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateWithdrawalLimitByAccessLevelRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateWithdrawalLimitByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         withdrawalLimitByAccessLevelRuleActive = _on;
     }
 
@@ -268,7 +284,8 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateMaxTxSizePerPeriodByRisk(_ruleId);
         maxTxSizePerPeriodByRiskRuleId = _ruleId;
         maxTxSizePerPeriodByRiskActive = true;
         emit ApplicationRuleApplied(MAX_TX_PER_PERIOD, _ruleId);
@@ -279,7 +296,7 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      * @param _on boolean representing if a rule must be checked or not.
      */
 
-    function activateMaxTxSizePerPeriodByRiskRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateMaxTxSizePerPeriodByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         maxTxSizePerPeriodByRiskActive = _on;
     }
 
@@ -289,5 +306,13 @@ contract ProtocolApplicationHandler is Ownable, AppAdministratorOnly, IApplicati
      */
     function isMaxTxSizePerPeriodByRiskActive() external view returns (bool) {
         return maxTxSizePerPeriodByRiskActive;
+    }
+
+    /**
+     * @dev gets the version of the contract
+     * @return VERSION
+     */
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 }

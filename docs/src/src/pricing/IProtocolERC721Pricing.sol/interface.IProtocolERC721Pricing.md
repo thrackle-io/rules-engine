@@ -1,5 +1,5 @@
 # IProtocolERC721Pricing
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/pricing/IProtocolERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/pricing/IProtocolERC721Pricing.sol)
 
 **Inherits:**
 [NFTPricingErrors](/src/interfaces/IErrors.sol/interface.NFTPricingErrors.md)
@@ -35,4 +35,11 @@ function getNFTPrice(address nftContract, uint256 id) external view returns (uin
 |----|----|-----------|
 |`price`|`uint256`|of the NFT in cents of dollars. 1000 => $ 10.00 USD|
 
+
+### getNFTCollectionPrice
+
+
+```solidity
+function getNFTCollectionPrice(address nftContract) external view returns (uint256 price);
+```
 

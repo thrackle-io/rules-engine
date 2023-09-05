@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "./FacetCut.sol";
 
@@ -39,8 +39,7 @@ struct DiamondCutStorage {
 }
 
 library DiamondCutLib {
-    bytes32 constant DIAMOND_CUT_STORAGE_POSITION = keccak256("diamond-cut.storage");
-
+    bytes32 constant DIAMOND_CUT_STORAGE_POSITION = bytes32(uint256(keccak256("diamond-cut.storage")) - 1);
     function s() internal pure returns (DiamondCutStorage storage ds) {
         bytes32 position = DIAMOND_CUT_STORAGE_POSITION;
         assembly {

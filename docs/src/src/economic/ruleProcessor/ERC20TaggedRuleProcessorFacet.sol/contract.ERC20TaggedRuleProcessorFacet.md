@@ -1,5 +1,5 @@
 # ERC20TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [ITagRuleErrors](/src/interfaces/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/interfaces/IErrors.sol/interface.IMaxTagLimitError.md)
@@ -10,14 +10,6 @@
 Implements Token Rules on Tagged Accounts.
 
 *Contract implements rules to be checked by Handler.*
-
-
-## State Variables
-### VERSION
-
-```solidity
-uint8 public constant VERSION = 1;
-```
 
 
 ## Functions
@@ -168,7 +160,7 @@ function checkSellLimit(
     uint256 salesWithinPeriod,
     uint256 amount,
     bytes32[] calldata fromTags,
-    uint256 lastUpdateTime
+    uint64 lastUpdateTime
 ) external view returns (uint256);
 ```
 **Parameters**
@@ -179,7 +171,7 @@ function checkSellLimit(
 |`salesWithinPeriod`|`uint256`||
 |`amount`|`uint256`|Number of tokens to be transferred|
 |`fromTags`|`bytes32[]`|Account tags applied to sender via App Manager|
-|`lastUpdateTime`|`uint256`|block.timestamp of most recent transaction from sender.|
+|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
 
 **Returns**
 

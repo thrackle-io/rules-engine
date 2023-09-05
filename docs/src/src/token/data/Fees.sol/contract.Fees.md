@@ -1,8 +1,8 @@
 # Fees
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/token/data/Fees.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/token/data/Fees.sol)
 
 **Inherits:**
-Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md)
+Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md), [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -13,10 +13,10 @@ This contract serves as a storage for asset transfer fees
 
 
 ## State Variables
-### defaultFee
+### VERSION
 
 ```solidity
-int256 defaultFee;
+string private constant VERSION = "1.0.1";
 ```
 
 
@@ -31,6 +31,13 @@ mapping(bytes32 => Fee) feesByTag;
 
 ```solidity
 uint256 feeTotal;
+```
+
+
+### newOwner
+
+```solidity
+address newOwner;
 ```
 
 
@@ -58,7 +65,7 @@ function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _f
 
 ### removeFee
 
-*This function adds a fee to the token*
+*This function removes a fee to the token*
 
 
 ```solidity
@@ -106,6 +113,45 @@ function getFeeTotal() external view onlyOwner returns (uint256);
 |----|----|-----------|
 |`<none>`|`uint256`|feeTotal total number of fees|
 
+
+### version
+
+*gets the version of the contract*
+
+
+```solidity
+function version() external pure returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|VERSION|
+
+
+### proposeOwner
+
+*this function proposes a new owner that is put in storage to be confirmed in a separate process*
+
+
+```solidity
+function proposeOwner(address _newOwner) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_newOwner`|`address`|the new address being proposed|
+
+
+### confirmOwner
+
+*this function confirms a new asset handler address that was put in storage. It can only be confirmed by the proposed address*
+
+
+```solidity
+function confirmOwner() external;
+```
 
 ## Structs
 ### Fee

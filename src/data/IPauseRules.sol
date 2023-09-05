@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "./PauseRule.sol";
 import "./IDataModule.sol";
-import { IPauseRuleErrors } from "../interfaces/IErrors.sol";
+import {IPauseRuleErrors} from "../interfaces/IErrors.sol";
 
 /**
  * @title Pause Rule Interface

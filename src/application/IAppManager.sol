@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-
-import "src/economic/ruleProcessor/ActionEnum.sol";
+import "../economic/ruleProcessor/ActionEnum.sol";
+import "../data/IDataModule.sol";
 import "../data/IPauseRules.sol";
-import { IAppManagerErrors, IAppAdministratorOnlyErrors, IInputErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
+import {IAppManagerErrors, IPermissionModifierErrors, IInputErrors, IZeroAddressError, IOwnershipErrors} from "../interfaces/IErrors.sol";
 
 /**
  * @title App Manager Inquiry Interface
@@ -12,13 +12,13 @@ import { IAppManagerErrors, IAppAdministratorOnlyErrors, IInputErrors, IZeroAddr
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice Interface for app manager server functions.
  */
-interface IAppManager is IAppManagerErrors, IAppAdministratorOnlyErrors, IInputErrors, IZeroAddressError {
+interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErrors, IZeroAddressError, IOwnershipErrors {
     /**
-     * @dev This function is where the default admin role is actually checked
+     * @dev This function is where the super admin role is actually checked
      * @param account address to be checked
      * @return success true if admin, false if not
      */
-    function isAdmin(address account) external view returns (bool);
+    function isSuperAdmin(address account) external view returns (bool);
 
     /**
      * @dev This function is where the app administrator role is actually checked
@@ -26,6 +26,13 @@ interface IAppManager is IAppManagerErrors, IAppAdministratorOnlyErrors, IInputE
      * @return success true if app administrator, false if not
      */
     function isAppAdministrator(address account) external view returns (bool);
+
+    /**
+     * @dev This function is where the rule administrator role is actually checked
+     * @param account address to be checked
+     * @return success true if rule administrator, false if not
+     */
+    function isRuleAdministrator(address account) external view returns (bool);
 
     /**
      * @dev This function is where the access tier role is actually checked
@@ -47,13 +54,6 @@ interface IAppManager is IAppManagerErrors, IAppAdministratorOnlyErrors, IInputE
      * @return tags Array of all tags for the account
      */
     function getAllTags(address _address) external view returns (bytes32[] memory);
-
-    /**
-     * @dev This function is where the user role is actually checked
-     * @param _address address to be checked
-     * @return success true if USER_ROLE, false if not
-     */
-    function isUser(address _address) external view returns (bool);
 
     /**
      * @dev Get the AccessLevel Score for the specified account
@@ -173,4 +173,10 @@ interface IAppManager is IAppManagerErrors, IAppAdministratorOnlyErrors, IInputE
      * @return true if one or more rules are active
      */
     function requireValuations() external returns (bool);
+
+    /**
+     * @dev Part of the two step process to set a new Data Provider within a Protocol AppManager. Final confirmation called by new provider
+     * @param _providerType the type of data provider
+     */
+    function confirmNewDataProvider(IDataModule.ProviderType _providerType) external;
 }

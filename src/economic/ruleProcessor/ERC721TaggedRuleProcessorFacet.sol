@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {TaggedRuleDataFacet} from "../ruleStorage/TaggedRuleDataFacet.sol";
@@ -11,9 +11,7 @@ import {IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../int
  * @dev This contract implements rules to be checked by Handler.
  * @notice Implements Non-Fungible Token Checks on Tagged Accounts.
  */
-contract ERC721TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError{
-
-
+contract ERC721TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError {
     /**
      * @dev Check the minMaxAccoutBalace rule. This rule ensures accounts cannot exceed or drop below specified account balances via account tags.
      * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
@@ -23,7 +21,7 @@ contract ERC721TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors,
      * @param fromTags tags applied via App Manager to sender address
      */
     function checkMinMaxAccountBalanceERC721(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, bytes32[] calldata toTags, bytes32[] calldata fromTags) public view {
-        if(fromTags.length > 10 || toTags.length > 10) revert MaxTagLimitReached();
+        if (fromTags.length > 10 || toTags.length > 10) revert MaxTagLimitReached();
         minAccountBalanceERC721(balanceFrom, fromTags, ruleId);
         maxAccountBalanceERC721(balanceTo, toTags, ruleId);
     }

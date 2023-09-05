@@ -1,21 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/ApplicationERC20Handler.sol";
-import {ApplicationERC721Handler} from "src/example/ApplicationERC721Handler.sol";
-import "src/example/ApplicationERC20.sol";
-import {ApplicationERC721} from "src/example/ApplicationERC721.sol";
-import {ApplicationAppManager} from "src/example/ApplicationAppManager.sol";
-import "src/example/application/ApplicationHandler.sol";
-import "src/example/OracleRestricted.sol";
-import "src/example/OracleAllowed.sol";
-import "src/example/pricing/ApplicationERC20Pricing.sol";
-import "src/example/pricing/ApplicationERC721Pricing.sol";
-import "src/example/staking/ERC20Staking.sol";
-import "src/example/staking/ERC20AutoMintStaking.sol";
-import "src/example/staking/ERC721Staking.sol";
-import "src/example/staking/ERC721AutoMintStaking.sol";
+import "../ApplicationERC20Handler.sol";
+import {ApplicationERC721Handler} from "../ApplicationERC721Handler.sol";
+import "../ApplicationERC20.sol";
+import {ApplicationERC721} from "../ApplicationERC721.sol";
+import {ApplicationAppManager} from "../ApplicationAppManager.sol";
+import "../application/ApplicationHandler.sol";
+import "../OracleRestricted.sol";
+import "../OracleAllowed.sol";
+import "../pricing/ApplicationERC20Pricing.sol";
+import "../pricing/ApplicationERC721Pricing.sol";
 
 /**
  * @title Application Deploy All Script
@@ -38,21 +34,20 @@ contract ApplicationDeployAllScript is Script {
         ApplicationHandler applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
         applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
         /// create ERC20 token 1
-        applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"),  address(applicationAppManager), false);
         ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
+        applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), false);
         coin1.connectHandlerToToken(address(applicationCoinHandler));
         /// create ERC20 token 2
-        applicationCoinHandler2 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"),  address(applicationAppManager), false);
         ApplicationERC20 coin2 = new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager));
+        applicationCoinHandler2 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2), false);
         coin2.connectHandlerToToken(address(applicationCoinHandler2));
         /// oracle
         new OracleAllowed();
         new OracleRestricted();
         /// create NFT
         ApplicationERC721 nft1 = new ApplicationERC721("Frankenstein", "FRANKPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
-        applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), false);
+        applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1), false);
         nft1.connectHandlerToToken(address(applicationNFTHandler));
-        applicationNFTHandler.setERC721Address(address(nft1));
 
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("Frankenstein Coin", address(coin1));
@@ -71,28 +66,12 @@ contract ApplicationDeployAllScript is Script {
         applicationCoinHandler2.setNFTPricingAddress(address(openOcean));
         applicationNFTHandler.setERC20PricingAddress(address(exchange));
         applicationNFTHandler.setNFTPricingAddress(address(openOcean));
-        /// Deploy ERC20 Staking and set reward rate
-        ERC20Staking stakingContract = new ERC20Staking(address(coin2), address(coin1), address(applicationAppManager));
-        stakingContract.updateMinStakeAllowed(1_000_000);
-        stakingContract.updateRewardsPerMillStakedPerTimeUnit(yieldPerTimeUnitArray);
-        /// Deploy ERC20 Auto Mint Staking and set reward rate
-        ERC20AutoMintStaking autoMintStaking = new ERC20AutoMintStaking(address(coin2), address(coin1), address(applicationAppManager));
-        autoMintStaking.updateMinStakeAllowed(1);
-        autoMintStaking.updateRewardsPerMillStakedPerTimeUnit(yieldPerTimeUnitArray);
-        applicationAppManager.registerStaking(address(autoMintStaking));
-        /// Deploy ERC721 Staking and set reward rate
-        uint128[7][] memory rewardsPerAddress = new uint128[7][](1);
-        rewardsPerAddress[0] = yieldPerTimeUnitArray;
-        applicationNFTAddresses = [address(nft1)];
-        new ERC721Staking(address(coin2), applicationNFTAddresses, rewardsPerAddress, address(applicationAppManager));
-        /// Deploy ERC721 Auto Mint Staking and set reward rate
-        ERC721AutoMintStaking nftAutoMintStaking = new ERC721AutoMintStaking(address(coin2), applicationNFTAddresses, rewardsPerAddress, address(applicationAppManager));
-        applicationAppManager.registerStaking(address(nftAutoMintStaking));
+
         /// register the coin treasury
         applicationAppManager.registerTreasury(vm.envAddress("FEE_TREASURY"));
         /// This is a new app manager used for upgrade testing
         new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", true);
-        new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), true);
+        new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), true);
         vm.stopBroadcast();
     }
 }

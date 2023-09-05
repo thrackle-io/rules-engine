@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "./IProtocolERC20Pricing.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
 
@@ -13,6 +13,8 @@ import {IApplicationEvents} from "../interfaces/IEvents.sol";
  * @dev This contract doesn't allow any marketplace operations.
  */
 contract ProtocolERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricing {
+    string private constant VERSION="1.0.1";
+    
     mapping(address => uint256) public tokenPrices;
 
     /**
@@ -38,5 +40,13 @@ contract ProtocolERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pric
      */
     function getTokenPrice(address tokenContract) external view returns (uint256 price) {
         return tokenPrices[tokenContract];
+    }
+
+    /**
+     * @dev gets the version of the contract
+     * @return VERSION
+     */
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 }

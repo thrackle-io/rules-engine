@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "src/example/ApplicationERC20Handler.sol";
@@ -44,27 +44,31 @@ contract ApplicationUIDeployAllScript is Script {
         ApplicationHandler applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
         applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
         /// create ERC20 token 1
-        applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"),  address(applicationAppManager), false);
         ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
+        applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"),  address(applicationAppManager), address(coin1), false);
         coin1.connectHandlerToToken(address(applicationCoinHandler));
         /// create ERC20 token 2
-        applicationCoinHandler2 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"),  address(applicationAppManager), false);
         ApplicationERC20 coin2 = new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager));
+        applicationCoinHandler2 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"),  address(applicationAppManager), address(coin2), false);
         coin2.connectHandlerToToken(address(applicationCoinHandler2));
         /// create NFT
         ApplicationERC721 nft1 = new ApplicationERC721("Frankenstein", "FRANKPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
-        applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), false);
+        applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1), false);
         nft1.connectHandlerToToken(address(applicationNFTHandler));
         applicationNFTHandler.setERC721Address(address(nft1));
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("Frankenstein Coin", address(coin1));
         applicationAppManager.registerToken("Dracula Coin", address(coin2));
-        applicationCoinHandler3 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), false);
+        applicationCoinHandler3 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2), false);
         applicationAppManager.registerToken("Frankenstein Picture", address(nft1));
         applicationNFTHandler.setERC721Address(address(nft1));
         ///These are deployed to test fire events for indexer testing
-        applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"));
-        applicationCoinHandler3 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), false);
+        /// create the AMM with Dracula and Frankenstein tokens
+        /// create the AMM Linear Calculator
+        ApplicationAMMCalcLinear applicationAMMCalcLinear = new ApplicationAMMCalcLinear();
+        ApplicationAMM amm = new ApplicationAMM(address(coin1), address(coin2), address(applicationAppManager), address(applicationAMMCalcLinear));
+        applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(amm));
+        applicationCoinHandler3 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2), false);
 
         vm.stopBroadcast();
     }

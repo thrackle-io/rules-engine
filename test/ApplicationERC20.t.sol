@@ -1,44 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "../src/example/ApplicationERC20.sol";
-import "../src/example/ApplicationAppManager.sol";
-import "../src/example/application/ApplicationHandler.sol";
-import "./DiamondTestUtil.sol";
-
-import "../src/example/ApplicationERC20Handler.sol";
-import "./RuleProcessorDiamondTestUtil.sol";
-import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 
 import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
-import "../src/example/pricing/ApplicationERC20Pricing.sol";
-import "../src/example/pricing/ApplicationERC721Pricing.sol";
+
 import {ApplicationAssetHandlerMod} from "./helpers/ApplicationAssetHandlerMod.sol";
+import "test/helpers/TestCommon.sol";
 
-contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
-    ApplicationERC20 applicationCoin;
-    RuleProcessorDiamond ruleProcessor;
-    RuleStorageDiamond ruleStorageDiamond;
-
-    ApplicationERC20Handler applicationCoinHandler;
+contract ApplicationERC20Test is TestCommon {
     ApplicationERC20Handler applicationCoinHandler2;
-    ApplicationAppManager appManager;
 
-    ApplicationHandler public applicationHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
 
-    ApplicationERC20Pricing erc20Pricer;
-    ApplicationERC721Pricing nftPricer;
     ApplicationAssetHandlerMod newAssetHandler;
-    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    address user1 = address(11);
-    address user2 = address(22);
-    address user3 = address(33);
-    address user4 = address(44);
     address user5 = address(55);
     address user6 = address(66);
     address user7 = address(77);
@@ -46,84 +23,66 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     address user9 = address(99);
     address user10 = address(100);
     address transferFromUser = address(110);
-    address accessTier = address(3);
     address rich_user = address(45);
     address[] badBoys;
     address[] goodBoys;
-    address ac;
-    uint256 Blocktime = 1675723152;
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
-        /// Deploy the Rule Storage Diamond.
-        ruleStorageDiamond = getRuleStorageDiamond();
-        /// Deploy the token rule processor diamond
-        ruleProcessor = getRuleProcessorDiamond();
-        /// Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        ac = address(appManager);
-        /// add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdministrator);
-        /// add the AccessLevelAdmin address as a AccessLevel admin
-        appManager.addAccessTier(accessTier);
-        /// add Risk Admin
-        appManager.addRiskAdmin(riskAdmin);
-        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
-        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
-
-        applicationCoin = new ApplicationERC20("FRANK", "FRANK", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
-        applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
-
-        applicationCoin.mint(defaultAdmin, 10_000_000_000_000_000_000_000 * (10 ** 18));
-        
-        /// register the token
-        appManager.registerToken("FRANK", address(applicationCoin));
-        /// set the token price
-        erc20Pricer = new ApplicationERC20Pricing();
-        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
-        /// connect ERC20 pricer to applicationCoinHandler
-        applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
+        vm.startPrank(superAdmin);
+        setUpProtocolAndAppManagerAndTokens();
+        switchToAppAdministrator();
         // create the oracles
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
+        applicationCoin.mint(appAdministrator, 10_000_000_000_000_000_000_000 * (10 ** 18));
         vm.warp(Blocktime);
+    }
+
+    function testERC20AndHandlerVersions() public {
+        string memory version = applicationCoinHandler.version();
+        assertEq(version, "1.0.1");
     }
 
     /// Test balance
     function testBalance() public {
         console.logUint(applicationCoin.totalSupply());
-        assertEq(applicationCoin.balanceOf(defaultAdmin), 10000000000000000000000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(appAdministrator), 10000000000000000000000 * (10 ** 18));
     }
 
     /// Test Mint
     function testMint() public {
-        applicationCoin.mint(defaultAdmin, 1000);
+        applicationCoin.mint(superAdmin, 1000);
         vm.stopPrank();
         vm.startPrank(user1);
     }
 
     /// Test token transfer
     function testTransfer() public {
-        applicationCoin.transfer(appAdministrator, 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(appAdministrator), 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(defaultAdmin), 9999999999999999999990 * (10 ** 18));
+        applicationCoin.transfer(user, 10 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user), 10 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(appAdministrator), 9999999999999999999990 * (10 ** 18));
+    }
+
+    function testZeroAddressChecksERC20() public {
+        vm.expectRevert();
+        new ApplicationERC20("FRANK", "FRANK", address(0x0));
+        vm.expectRevert();
+        applicationCoin.connectHandlerToToken(address(0));
     }
 
     /// test updating min transfer rule
     function testPassesMinTransferRule() public {
         /// We add the empty rule at index 0
-        RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(appManager), 1);
+        switchToRuleAdmin();
+        RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 1);
 
         // Then we add the actual rule. Its index should be 1
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(appManager), 10);
+        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 10);
 
-        appManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
         /// we update the rule id in the token
         applicationCoinHandler.setMinTransferRuleId(ruleId);
-
+        switchToAppAdministrator();
         /// now we perform the transfer
         applicationCoin.transfer(rich_user, 1000000);
         assertEq(applicationCoin.balanceOf(rich_user), 1000000);
@@ -149,16 +108,18 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         min[0] = uint256(10);
         max[0] = uint256(1000);
         // add the actual rule
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(appManager), accs, min, max);
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
         ///update ruleId in coin rule handler
         applicationCoinHandler.setMinMaxBalanceRuleId(ruleId);
+        switchToAppAdministrator();
         ///Add GeneralTag to account
-        appManager.addGeneralTag(user1, "Oscar"); ///add tag
-        assertTrue(appManager.hasTag(user1, "Oscar"));
-        appManager.addGeneralTag(user2, "Oscar"); ///add tag
-        assertTrue(appManager.hasTag(user2, "Oscar"));
-        appManager.addGeneralTag(user3, "Oscar"); ///add tag
-        assertTrue(appManager.hasTag(user3, "Oscar"));
+        applicationAppManager.addGeneralTag(user1, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
+        applicationAppManager.addGeneralTag(user2, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "Oscar"));
+        applicationAppManager.addGeneralTag(user3, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user3, "Oscar"));
 
         ///perform transfer that checks rule
         vm.stopPrank();
@@ -190,22 +151,24 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     /**
      * @dev Test the oracle rule, both allow and restrict types
      */
-    function testOracle() public {
+    function testOracleERC20() public {
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 100000);
         assertEq(applicationCoin.balanceOf(user1), 100000);
 
         // add the rule.
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 0, address(oracleRestricted));
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleRestricted));
+        /// connect the rule to this handler
+        applicationCoinHandler.setOracleRuleId(_index);
+        switchToAppAdministrator();
         // add a blocked address
         badBoys.push(address(69));
         oracleRestricted.addToSanctionsList(badBoys);
-        /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -219,11 +182,13 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.transfer(address(69), 10);
         assertEq(applicationCoin.balanceOf(address(69)), 0);
         // check the allowed list type
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 1, address(oracleAllowed));
+
+        switchToRuleAdmin();
+        uint32 _indexAllowed = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
+        applicationCoinHandler.setOracleRuleId(_indexAllowed);
+        switchToAppAdministrator();
+
         // add an allowed address
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
@@ -236,15 +201,33 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.transfer(address(88), 10);
 
         // Finally, check the invalid type
+
+        switchToRuleAdmin();
+        bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, 2));
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 2, address(oracleAllowed));
+
+        /// test burning while oracle rule is active (allow list active)
+        applicationCoinHandler.setOracleRuleId(_indexAllowed);
+        /// first mint to user
+        switchToAppAdministrator();
+        applicationCoin.transfer(user5, 10000);
+        /// burn some tokens as user
+        /// burns do not check for the recipient address as it is address(0)
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
-        /// connect the rule to this handler
+        vm.startPrank(user5);
+        applicationCoin.burn(5000);
+        /// add address(0) to deny list and switch oracle rule to deny list
+        switchToRuleAdmin();
         applicationCoinHandler.setOracleRuleId(_index);
+        switchToAppAdministrator();
+        badBoys.push(address(0));
+        oracleRestricted.addToSanctionsList(badBoys);
+        /// attempt to burn (should fail)
         vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0x2a15491e);
-        applicationCoin.transfer(user2, 10);
+        vm.startPrank(user5);
+        vm.expectRevert(0x6bdfffc0);
+        applicationCoin.burn(5000);
     }
 
     /**
@@ -262,7 +245,8 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         balanceAmounts[2] = 500;
         balanceAmounts[3] = 1000;
         balanceAmounts[4] = 10000;
-        uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(appManager), balanceAmounts);
+        switchToRuleAdmin();
+        uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         uint256 balance = AppRuleDataFacet(address(ruleStorageDiamond)).getAccessLevelBalanceRule(_index, 2);
         assertEq(balance, 500);
         /// connect the rule to this handler
@@ -276,9 +260,8 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
         /// Add access levellevel to whale
         address whale = address(99);
-        vm.stopPrank();
-        vm.startPrank(accessTier);
-        appManager.addAccessLevel(whale, 4);
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(whale, 4);
 
         /// perform transfer that checks user with AccessLevel and no balances
         vm.stopPrank();
@@ -290,23 +273,22 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.transfer(whale, 10000 * (10 ** 18));
 
         /// create secondary token, mint, and transfer to user
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(appManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
-        draculaCoin.connectHandlerToToken(address(applicationCoinHandler));
+        switchToSuperAdmin();
+        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
+        switchToAppAdministrator();
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(draculaCoin), false);
+        draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
         applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
-        appManager.registerToken("DRAC", address(draculaCoin));
-        draculaCoin.mint(defaultAdmin, 10000000000000000000000 * (10 ** 18));
+        applicationAppManager.registerToken("DRAC", address(draculaCoin));
+        draculaCoin.mint(appAdministrator, 10000000000000000000000 * (10 ** 18));
         draculaCoin.transfer(user1, 100000 * (10 ** 18));
         assertEq(draculaCoin.balanceOf(user1), 100000 * (10 ** 18));
         erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * (10 ** 18));
         // set the access levellevel for the user4
-        vm.stopPrank();
-        vm.startPrank(accessTier);
-        appManager.addAccessLevel(user4, 3);
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user4, 3);
 
         vm.stopPrank();
         vm.startPrank(user1);
@@ -321,6 +303,21 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// perform transfer that checks user with AccessLevel and existing balances(should pass)
         applicationCoin.transfer(user4, 1 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user4), 1 * (10 ** 18));
+
+        /// test burning is allowed while rule is active
+        applicationCoin.burn(1 * (10 ** 18));
+        /// burn remaining balance to ensure rule limit is not checked on burns
+        applicationCoin.burn(89998000000000000000000);
+        /// test burn with account that has access level assign
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.burn(1 * (10 ** 18));
+        /// test the user account balance is decreased from burn and can receive tokens
+        vm.stopPrank();
+        vm.startPrank(whale);
+        applicationCoin.transfer(user4, 1 * (10 ** 18));
+        /// now whale account burns
+        applicationCoin.burn(1 * (10 ** 18));
     }
 
     function testPauseRulesViaAppManager() public {
@@ -334,9 +331,8 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.transfer(user2, 1000);
 
         ///set pause rule and check check that the transaction reverts
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
-        appManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
+        switchToRuleAdmin();
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
         vm.warp(Blocktime + 1001);
 
         vm.stopPrank();
@@ -345,20 +341,19 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.transfer(user2, 1000);
 
         ///Check that appAdministrators can still transfer within pausePeriod
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
-        applicationCoin.transfer(defaultAdmin, 1000);
+        switchToAppAdministrator();
+        applicationCoin.transfer(superAdmin, 1000);
         ///move blocktime after pause to resume transfers
         vm.warp(Blocktime + 1600);
         ///transfer again to check
         applicationCoin.transfer(user2, 1000);
 
         ///Set multiple pause rules
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
-        appManager.addPauseRule(Blocktime + 1700, Blocktime + 2000);
-        appManager.addPauseRule(Blocktime + 2100, Blocktime + 2500);
-        appManager.addPauseRule(Blocktime + 3000, Blocktime + 3500);
+        switchToRuleAdmin();
+        applicationAppManager.addPauseRule(Blocktime + 1700, Blocktime + 2000);
+        applicationAppManager.addPauseRule(Blocktime + 2100, Blocktime + 2500);
+        applicationAppManager.addPauseRule(Blocktime + 3000, Blocktime + 3500);
+        switchToAppAdministrator();
         ///warp between periods to test pause effect
 
         ///Pause window 1
@@ -399,27 +394,29 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         txnLimits[3] = 10000;
         txnLimits[4] = 1000;
         txnLimits[5] = 10;
-        uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(appManager), riskScores, txnLimits);
-
+        switchToRuleAdmin();
+        uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
+        switchToAppAdministrator();
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 10000000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user1), 10000000 * (10 ** 18));
         applicationCoin.transfer(user2, 10000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
+        applicationCoin.transfer(user5, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user5), 10000 * (10 ** 18));
 
         ///Assign Risk scores to user1 and user 2
-        vm.stopPrank();
-        vm.startPrank(riskAdmin);
-        appManager.addRiskScore(user1, riskScores[0]);
-        appManager.addRiskScore(user2, riskScores[1]);
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user5, riskScores[3]);
 
-        ///Switch to Default admin and set up ERC20Pricer and activate TransactionLimitByRiskScore Rule
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        ///Switch to app admin and set up ERC20Pricer and activate TransactionLimitByRiskScore Rule
+        switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
+        switchToRuleAdmin();
         applicationCoinHandler.setTransactionLimitByRiskRuleId(index);
-
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
         vm.startPrank(user2);
@@ -431,14 +428,12 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.expectRevert(0x9fe6aeac);
         applicationCoin.transfer(user2, 1000001 * (10 ** 18));
 
-        vm.stopPrank();
-        vm.startPrank(riskAdmin);
+        switchToRiskAdmin();
         ///Test in between Risk Score Values
-        appManager.addRiskScore(user3, 49);
-        appManager.addRiskScore(user4, 81);
+        applicationAppManager.addRiskScore(user3, 49);
+        applicationAppManager.addRiskScore(user4, 81);
 
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator();
         applicationCoin.transfer(user3, 1500 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 1500 * (10 ** 18));
         applicationCoin.transfer(user4, 1000000 * (10 ** 18));
@@ -454,6 +449,14 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
         vm.expectRevert(0x9fe6aeac);
         applicationCoin.transfer(user3, 1001 * (10 ** 18));
+
+        /// test burning tokens while rule is active
+        vm.stopPrank();
+        vm.startPrank(user5);
+        applicationCoin.burn(999 * (10 ** 18));
+        vm.expectRevert(0x9fe6aeac);
+        applicationCoin.burn(1001 * (10 ** 18));
+        applicationCoin.burn(1000 * (10 ** 18));
     }
 
     function testBalanceLimitByRiskScoreERC20() public {
@@ -466,8 +469,9 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         balanceLimits[1] = 500;
         balanceLimits[2] = 250;
         balanceLimits[3] = 100;
-        uint32 index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(appManager), riskScores, balanceLimits);
-
+        switchToRuleAdmin();
+        uint32 index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
+        switchToAppAdministrator();
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 999 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user1), 999 * (10 ** 18));
@@ -481,18 +485,17 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(user5), 1000000 * (10 ** 18));
 
         ///Assign Risk scores to user1 and user 2
-        vm.stopPrank();
-        vm.startPrank(riskAdmin);
-        appManager.addRiskScore(user1, 1); ///Max 1000
-        appManager.addRiskScore(user2, 65); ///Max 250
-        appManager.addRiskScore(user3, 49); ///Max 500
-        appManager.addRiskScore(user4, 81); ///Max 100
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, 1); ///Max 1000
+        applicationAppManager.addRiskScore(user2, 65); ///Max 250
+        applicationAppManager.addRiskScore(user3, 49); ///Max 500
+        applicationAppManager.addRiskScore(user4, 81); ///Max 100
 
-        ///Switch to Default admin and set up ERC20Pricer and activate AccountBalanceByRiskScore Rule
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        ///Switch to Super admin and set up ERC20Pricer and activate AccountBalanceByRiskScore Rule
+        switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
+        switchToRuleAdmin();
         applicationHandler.setAccountBalanceByRiskRuleId(index);
 
         ///Transfer funds to all that will put them one from limit(should all pass)
@@ -521,25 +524,58 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(rich_user), 1000000 * (10 ** 18));
         vm.stopPrank();
         vm.startPrank(rich_user);
-        /// check transfer without access levelscore but with the rule turned off
+        /// check transfer without access level but with the rule turned off
         applicationCoin.transfer(user3, 5 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 5 * (10 ** 18));
         /// now turn the rule on so the transfer will fail
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToRuleAdmin();
         applicationHandler.activateAccessLevel0Rule(true);
         vm.stopPrank();
         vm.startPrank(rich_user);
         vm.expectRevert(0x3fac082d);
         applicationCoin.transfer(user3, 5 * (10 ** 18));
-        // set AccessLevel and try again
+
         vm.stopPrank();
-        vm.startPrank(accessTier);
-        appManager.addAccessLevel(user3, 1);
+        vm.startPrank(user3);
+        vm.expectRevert(0x3fac082d);
+        applicationCoin.transfer(rich_user, 5 * (10 ** 18));
+
+        // set AccessLevel and try again
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user3, 1);
+
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        vm.expectRevert(0x3fac082d); /// this fails because rich_user is still accessLevel0
+        applicationCoin.transfer(user3, 5 * (10 ** 18));
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        vm.expectRevert(0x3fac082d); /// this fails because rich_user is still accessLevel0
+        applicationCoin.transfer(rich_user, 5 * (10 ** 18));
+
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(rich_user, 1);
+
         vm.stopPrank();
         vm.startPrank(rich_user);
         applicationCoin.transfer(user3, 5 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 10 * (10 ** 18));
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        applicationCoin.transfer(rich_user, 5 * (10 ** 18));
+
+        /// test that burn works when user has accessLevel above 0
+        applicationCoin.burn(5 * (10 ** 18));
+        /// test burn fails when rule active and user has access level 0
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(rich_user, 0);
+
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        vm.expectRevert(0x3fac082d);
+        applicationCoin.burn(1 * (10 ** 18));
     }
 
     function testAccessLevelWithdrawalRule() public {
@@ -552,29 +588,26 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.transfer(user3, 50 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 50 * (10 ** 18));
         /// price the tokens
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
         /// create and activate rule
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToRuleAdmin();
         uint48[] memory withdrawalLimits = new uint48[](5);
         withdrawalLimits[0] = 10;
         withdrawalLimits[1] = 100;
         withdrawalLimits[2] = 1000;
         withdrawalLimits[3] = 10000;
         withdrawalLimits[4] = 100000;
-        uint32 index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelWithdrawalRule(address(appManager), withdrawalLimits);
+        uint32 index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelWithdrawalRule(address(applicationAppManager), withdrawalLimits);
         applicationHandler.setWithdrawalLimitByAccessLevelRuleId(index);
         /// test transfers pass under rule value
         //User 1 currently has 950 tokens valued at $950
         //User3 currently has 50 tokens valued at $50
-        vm.stopPrank();
-        vm.startPrank(accessTier);
-        appManager.addAccessLevel(user1, 1);
-        appManager.addAccessLevel(user3, 0);
-        appManager.addAccessLevel(user4, 0);
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user1, 1);
+        applicationAppManager.addAccessLevel(user3, 0);
+        applicationAppManager.addAccessLevel(user4, 0);
 
         vm.stopPrank();
         vm.startPrank(user1);
@@ -600,8 +633,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.expectRevert(0x2bbc9aea);
         applicationCoin.transfer(user4, 50 * (10 ** 18));
         /// reduce price and test pass fail situations
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 5 * (10 ** 17));
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 5 * (10 ** 17));
 
@@ -626,16 +658,19 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         holdAmounts[0] = uint256(1000 * (10 ** 18));
         holdAmounts[1] = uint256(2000 * (10 ** 18));
         holdAmounts[2] = uint256(3000 * (10 ** 18));
-        uint256[] memory holdPeriods = new uint256[](3);
-        holdPeriods[0] = uint32(720); // one month
-        holdPeriods[1] = uint32(4380); // six months
-        holdPeriods[2] = uint32(17520); // two years
-        uint256[] memory holdTimestamps = new uint256[](3);
+        uint16[] memory holdPeriods = new uint16[](3);
+        holdPeriods[0] = uint16(720); // one month
+        holdPeriods[1] = uint16(4380); // six months
+        holdPeriods[2] = uint16(17520); // two years
+        uint64[] memory holdTimestamps = new uint64[](3);
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
-        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(appManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        switchToRuleAdmin();
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
         assertEq(_index, 0);
+        applicationCoinHandler.setMinBalByDateRuleId(_index);
+        switchToAppAdministrator();
         /// load non admin users with application coin
         applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(rich_user), 10000 * (10 ** 18));
@@ -643,14 +678,13 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
         applicationCoin.transfer(user3, 10000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 10000 * (10 ** 18));
-        applicationCoinHandler.setMinBalByDateRuleId(_index);
         /// tag the user
-        appManager.addGeneralTag(rich_user, "Oscar"); ///add tag
-        assertTrue(appManager.hasTag(rich_user, "Oscar"));
-        appManager.addGeneralTag(user2, "Tayler"); ///add tag
-        assertTrue(appManager.hasTag(user2, "Tayler"));
-        appManager.addGeneralTag(user3, "Shane"); ///add tag
-        assertTrue(appManager.hasTag(user3, "Shane"));
+        applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
+        applicationAppManager.addGeneralTag(user2, "Tayler"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "Tayler"));
+        applicationAppManager.addGeneralTag(user3, "Shane"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user3, "Shane"));
         /// switch to the user
         vm.stopPrank();
         vm.startPrank(rich_user);
@@ -683,19 +717,21 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         address targetAccount = rich_user;
         address targetAccount2 = user10;
         // create a fee
+        switchToRuleAdmin();
         applicationCoinHandler.addFee("cheap", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
         Fees.Fee memory fee = applicationCoinHandler.getFee("cheap");
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
         assertEq(1, applicationCoinHandler.getFeeTotal());
         // make sure fees don't affect Application Administrators(even if tagged)
-        appManager.addGeneralTag(defaultAdmin, "cheap"); ///add tag
+        applicationAppManager.addGeneralTag(superAdmin, "cheap"); ///add tag
         applicationCoin.transfer(user2, 100 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user2), 100 * (10 ** 18));
 
         // now test the fee assessment
-        appManager.addGeneralTag(user4, "cheap"); ///add tag
+        applicationAppManager.addGeneralTag(user4, "cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works
@@ -705,8 +741,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
 
         // make sure when fees are active, that non qualifying users are not affected
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator();
         applicationCoin.transfer(user5, 100 * (10 ** 18));
         vm.stopPrank();
         vm.startPrank(user5);
@@ -715,10 +750,10 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
 
         // make sure multiple fees work by adding additional rule and applying to user4
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToRuleAdmin();
         applicationCoinHandler.addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
-        appManager.addGeneralTag(user4, "less cheap"); ///add tag
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user4, "less cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         applicationCoin.transfer(user7, 100 * (10 ** 18));
@@ -728,10 +763,10 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(targetAccount2), 6 * (10 ** 18)); // treasury gets fees
 
         // make sure discounts work by adding a discount to user4
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToRuleAdmin();
         applicationCoinHandler.addFee("discount", minBalance, maxBalance, -200, address(0));
-        appManager.addGeneralTag(user4, "discount"); ///add tag
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user4, "discount"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         applicationCoin.transfer(user8, 100 * (10 ** 18));
@@ -741,8 +776,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury gets fees(added from previous...6 + 5)
 
         // make sure deactivation works
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToRuleAdmin();
         applicationCoinHandler.setFeeActivation(false);
         vm.stopPrank();
         vm.startPrank(user4);
@@ -751,6 +785,53 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(user9), 100 * (10 ** 18)); // to account gets amount while ignoring fees
         assertEq(applicationCoin.balanceOf(targetAccount), 8 * (10 ** 18)); // treasury remains the same
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury remains the same
+    }
+
+    ///Test transferring coins with fees and discounts where the discounts are greater than the fees
+    function testTransactionFeeTableDiscountsCoin() public {
+        applicationCoin.transfer(user4, 100000 * (10 ** 18));
+        uint256 minBalance = 10 * 10 ** 18;
+        uint256 maxBalance = 10000000 * 10 ** 18;
+        int24 feePercentage = 100;
+        address targetAccount = rich_user;
+        // create a fee
+        switchToRuleAdmin();
+        applicationCoinHandler.addFee("fee1", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        Fees.Fee memory fee = applicationCoinHandler.getFee("fee1");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        // create a discount
+        switchToRuleAdmin();
+        feePercentage = -9000;
+        applicationCoinHandler.addFee("discount1", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        fee = applicationCoinHandler.getFee("discount1");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        // create another discount that makes it more than the fee
+        switchToRuleAdmin();
+        feePercentage = -2000;
+        applicationCoinHandler.addFee("discount2", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        fee = applicationCoinHandler.getFee("discount2");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+
+        // now test the fee assessment
+        applicationAppManager.addGeneralTag(user4, "discount1"); ///add tag
+        applicationAppManager.addGeneralTag(user4, "discount2"); ///add tag
+        applicationAppManager.addGeneralTag(user4, "fee1"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // discounts are greater than fees so it should put fees to 0
+        applicationCoin.transfer(user3, 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user4), 99900 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(targetAccount), 0 * (10 ** 18));
     }
 
     ///Test transferring coins with fees enabled using transferFrom
@@ -762,24 +843,25 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         address targetAccount = rich_user;
         address targetAccount2 = user10;
         // create a fee
+        switchToRuleAdmin();
         applicationCoinHandler.addFee("cheap", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
         Fees.Fee memory fee = applicationCoinHandler.getFee("cheap");
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
         assertEq(1, applicationCoinHandler.getFeeTotal());
         // make sure fees don't affect Application Administrators(even if tagged)
-        appManager.addGeneralTag(defaultAdmin, "cheap"); ///add tag
+        applicationAppManager.addGeneralTag(appAdministrator, "cheap"); ///add tag
         applicationCoin.approve(address(transferFromUser), 100 * (10 ** 18));
         vm.stopPrank();
         vm.startPrank(transferFromUser);
-        applicationCoin.transferFrom(defaultAdmin, user2, 100 * (10 ** 18));
+        applicationCoin.transferFrom(appAdministrator, user2, 100 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user2), 100 * (10 ** 18));
 
         // now test the fee assessment
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        appManager.addGeneralTag(user4, "cheap"); ///add tag
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user4, "cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works
@@ -793,7 +875,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
         // make sure when fees are active, that non qualifying users are not affected
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(appAdministrator);
         applicationCoin.transfer(user5, 100 * (10 ** 18));
         vm.stopPrank();
         vm.startPrank(user5);
@@ -805,10 +887,10 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
 
         // make sure multiple fees work by adding additional rule and applying to user4
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToRuleAdmin();
         applicationCoinHandler.addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
-        appManager.addGeneralTag(user4, "less cheap"); ///add tag
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user4, "less cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         applicationCoin.approve(address(transferFromUser), 100 * (10 ** 18));
@@ -821,10 +903,10 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(targetAccount2), 6 * (10 ** 18)); // treasury gets fees
 
         // make sure discounts work by adding a discount to user4
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToRuleAdmin();
         applicationCoinHandler.addFee("discount", minBalance, maxBalance, -200, address(0));
-        appManager.addGeneralTag(user4, "discount"); ///add tag
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user4, "discount"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         applicationCoin.approve(address(transferFromUser), 100 * (10 ** 18));
@@ -837,8 +919,7 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury gets fees(added from previous...6 + 5)
 
         // make sure deactivation works
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToRuleAdmin();
         applicationCoinHandler.setFeeActivation(false);
         vm.stopPrank();
         vm.startPrank(user4);
@@ -852,23 +933,91 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury remains the same
     }
 
+    ///Test transferring coins with fees enabled
+    function testTransactionFeeTableCoinGt100() public {
+        applicationCoin.transfer(user4, 100000 * (10 ** 18));
+        uint256 minBalance = 10 * 10 ** 18;
+        uint256 maxBalance = 10000000 * 10 ** 18;
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        address targetAccount2 = user10;
+        // create a fee
+        switchToRuleAdmin();
+        applicationCoinHandler.addFee("cheap", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        Fees.Fee memory fee = applicationCoinHandler.getFee("cheap");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, applicationCoinHandler.getFeeTotal());
+
+        // now test the fee assessment
+        applicationAppManager.addGeneralTag(user4, "cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works
+        applicationCoin.transfer(user3, 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user4), 99900 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
+
+        // add a fee to bring it to 100 percent
+        switchToRuleAdmin();
+        feePercentage = 9700;
+        applicationCoinHandler.addFee("less cheap", minBalance, maxBalance, feePercentage, targetAccount2);
+        switchToAppAdministrator();
+        // now test the fee assessment
+        applicationAppManager.addGeneralTag(user4, "less cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works(other fee will also be assessed)
+        applicationCoin.transfer(user3, 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user4), 99800 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (10 ** 18)); // previous 3 + current 3
+        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * (10 ** 18)); // current 7
+
+        // add a fee to bring it over 100 percent
+        switchToRuleAdmin();
+        feePercentage = 10;
+        applicationCoinHandler.addFee("super cheap", minBalance, maxBalance, feePercentage, targetAccount2);
+        switchToAppAdministrator();
+        // now test the fee assessment
+        applicationAppManager.addGeneralTag(user4, "super cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works(other fee will also be assessed)
+        bytes4 selector = bytes4(keccak256("FeesAreGreaterThanTransactionAmount(address)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, user4));
+        applicationCoin.transfer(user3, 200 * (10 ** 18));
+        // make sure nothing changed
+        assertEq(applicationCoin.balanceOf(user4), 99800 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (10 ** 18)); // previous 3 + current 3
+        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * (10 ** 18)); // current 7
+    }
+
     /// test the token transfer volume rule in erc20
     function testTokenTransferVolumeRuleCoin() public {
         /// set the rule for 40% in 2 hours, starting at midnight
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 4000, 2, 0, 0);
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(applicationAppManager), 4000, 2, Blocktime, 0);
         assertEq(_index, 0);
+        switchToAppAdministrator();
         NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, 4000);
         assertEq(rule.period, 2);
-        assertEq(rule.startingTime, 0);
+        assertEq(rule.startTime, Blocktime);
         /// burn all default supply down and mint a manageable number
         applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
-        applicationCoin.mint(defaultAdmin, 100_000 * (10 ** 18));
+        applicationCoin.mint(appAdministrator, 100_000 * (10 ** 18));
         /// load non admin users with game coin
+        /// apply the rule
+        switchToRuleAdmin();
+        applicationCoinHandler.setTokenTransferVolumeRuleId(_index);
+        switchToAppAdministrator();
         applicationCoin.transfer(rich_user, 100_000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(rich_user), 100_000 * (10 ** 18));
-        /// apply the rule
-        applicationCoinHandler.setTokenTransferVolumeRuleId(_index);
         vm.stopPrank();
         vm.startPrank(rich_user);
         /// make sure that transfer under the threshold works
@@ -902,16 +1051,19 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     /// test the token transfer volume rule in erc20 when they give a total supply instead of relying on ERC20
     function testTokenTransferVolumeRuleCoinWithSupplySet() public {
         /// set the rule for 40% in 2 hours, starting at midnight
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(appManager), 4000, 2, 0, 100_000 * (10 ** 18));
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(applicationAppManager), 4000, 2, Blocktime, 100_000 * (10 ** 18));
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, 4000);
         assertEq(rule.period, 2);
-        assertEq(rule.startingTime, 0);
+        assertEq(rule.startTime, Blocktime);
+        switchToAppAdministrator();
         /// load non admin users with game coin
         applicationCoin.transfer(rich_user, 100_000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(rich_user), 100_000 * (10 ** 18));
         /// apply the rule
+        switchToRuleAdmin();
         applicationCoinHandler.setTokenTransferVolumeRuleId(_index);
         vm.stopPrank();
         vm.startPrank(rich_user);
@@ -943,28 +1095,30 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(user1), 79_999 * (10 ** 18));
     }
 
-    /// test supply volatility rule 
+    /// test supply volatility rule
     function testSupplyVolatilityRule() public {
         /// burn tokens to specific supply
         applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
-        applicationCoin.mint(defaultAdmin, 100_000 * (10 ** 18));
-        applicationCoin.transfer(user1, 5000 * (10**18));
+        applicationCoin.mint(appAdministrator, 100_000 * (10 ** 18));
+        applicationCoin.transfer(user1, 5000 * (10 ** 18));
 
-        /// create rule params 
-        uint16 volatilityLimit = 1000; /// 10% 
-        uint8 rulePeriod = 24; /// 24 hours 
-        uint8 startingTime = 12; /// start at noon 
-        uint256 tokenSupply = 0; /// calls totalSupply() for the token 
+        /// create rule params
+        uint16 volatilityLimit = 1000; /// 10%
+        uint8 rulePeriod = 24; /// 24 hours
+        uint64 startingTime = Blocktime; /// default timestamp
+        uint256 tokenSupply = 0; /// calls totalSupply() for the token
 
-        /// set rule id and activate 
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(ac, volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index); 
-        /// move within period 
+        /// set rule id and activate
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(applicationAppManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index);
+        switchToAppAdministrator();
+        /// move within period
         vm.warp(Blocktime + 13 hours);
-        console.log(applicationCoin.totalSupply()); 
+        console.log(applicationCoin.totalSupply());
         vm.stopPrank();
         vm.startPrank(user1);
-        /// mint tokens to the cap 
+        /// mint tokens to the cap
         applicationCoin.mint(user1, 1);
         applicationCoin.mint(user1, 1000 * (10 ** 18));
         applicationCoin.mint(user1, 8000 * (10 ** 18));
@@ -972,31 +1126,28 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.expectRevert(0x81af27fa);
         applicationCoin.mint(user1, 6500 * (10 ** 18));
 
-        /// move out of rule period 
+        /// move out of rule period
         vm.warp(Blocktime + 40 hours);
         applicationCoin.mint(user1, 2550 * (10 ** 18));
 
-        /// burn tokens 
-        /// move into fresh period 
+        /// burn tokens
+        /// move into fresh period
         vm.warp(Blocktime + 95 hours);
         applicationCoin.burn(1000 * (10 ** 18));
         applicationCoin.burn(1000 * (10 ** 18));
         applicationCoin.burn(8000 * (10 ** 18));
 
         vm.expectRevert(0x81af27fa);
-        applicationCoin.burn(2550 * (10 ** 18)); 
+        applicationCoin.burn(2550 * (10 ** 18));
 
-        applicationCoin.mint(user1, 2550 * (10 ** 18));
-        applicationCoin.burn(2550 * (10 ** 18)); 
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
         applicationCoin.mint(user1, 2550 * (10 ** 18));
         applicationCoin.burn(2550 * (10 ** 18));
-
-
-
+        applicationCoin.mint(user1, 2550 * (10 ** 18));
+        applicationCoin.burn(2550 * (10 ** 18));
     }
 
     function testDataContractMigration() public {
@@ -1008,7 +1159,9 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         int24 feePercentage = 300;
         address feeCollectorAccount = appAdministrator;
         // create one fee
+        switchToRuleAdmin();
         applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        switchToAppAdministrator();
         Fees.Fee memory fee = applicationCoinHandler.getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
         assertEq(fee.minBalance, minBalance);
@@ -1016,13 +1169,14 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(1, applicationCoinHandler.getFeeTotal());
 
         /// create new handler
-        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), ac, true);
+        ApplicationERC20Handler applicationCoinHandlerNew = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), true);
         /// migrate data contracts to new handler
         console.log(applicationCoinHandler.owner());
         console.log(address(applicationCoin));
-        applicationCoinHandler.migrateDataContracts(address(applicationCoinHandlerNew));
         /// connect the old data contract to the new handler
-        applicationCoinHandlerNew.connectDataContracts(address(applicationCoinHandler));
+        applicationCoinHandler.proposeDataContractMigration(address(applicationCoinHandlerNew));
+        applicationCoinHandlerNew.confirmDataContractMigration(address(applicationCoinHandler));
+        // applicationCoinHandlerNew.connectDataContracts(address(applicationCoinHandler));
         /// test that the data is accessible only from the new handler
         fee = applicationCoinHandlerNew.getFee(tag1);
         assertEq(fee.feePercentage, feePercentage);
@@ -1033,18 +1187,40 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.stopPrank();
         vm.startPrank(user1);
         vm.expectRevert(0xba80c9e5);
-        applicationCoinHandler.migrateDataContracts(address(applicationCoinHandler));
+        applicationCoinHandlerNew.confirmDataContractMigration(address(applicationCoinHandler));
     }
 
-    function testHandlerUpgrading() public {
+    function testHandlerUpgradingWithFeeMigration() public {
         ///deploy new modified appliction asset handler contract
-        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), ac, true);
+        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), true);
         ///connect to apptoken
         applicationCoin.connectHandlerToToken(address(assetHandler));
-        ///connect data contract
-        applicationCoinHandler.migrateDataContracts(address(applicationCoinHandler));
+        applicationAppManager.deregisterToken("FRANK");
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        bytes32 tag1 = "cheap";
+        uint256 minBalance = 10 * 10 ** 18;
+        uint256 maxBalance = 1000 * 10 ** 18;
+        int24 feePercentage = 300;
+        address feeCollectorAccount = appAdministrator;
+        // create one fee in old handler
+        switchToRuleAdmin();
+        applicationCoinHandler.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
+        switchToAppAdministrator();
+        Fees.Fee memory fee = applicationCoinHandler.getFee(tag1);
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, applicationCoinHandler.getFeeTotal());
 
-        assetHandler.connectDataContracts(address(applicationCoinHandler));
+        applicationCoinHandler.proposeDataContractMigration(address(assetHandler));
+        assetHandler.confirmDataContractMigration(address(applicationCoinHandler));
+
+        // verify fees are still there
+        fee = assetHandler.getFee(tag1);
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, assetHandler.getFeeTotal());
 
         ///Create and activate rule in new Handler
         bytes32[] memory accs = new bytes32[](3);
@@ -1055,17 +1231,19 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         holdAmounts[0] = uint256(1000 * (10 ** 18));
         holdAmounts[1] = uint256(2000 * (10 ** 18));
         holdAmounts[2] = uint256(3000 * (10 ** 18));
-        uint256[] memory holdPeriods = new uint256[](3);
-        holdPeriods[0] = uint32(720); // one month
-        holdPeriods[1] = uint32(4380); // six months
-        holdPeriods[2] = uint32(17520); // two years
-        uint256[] memory holdTimestamps = new uint256[](3);
+        uint16[] memory holdPeriods = new uint16[](3);
+        holdPeriods[0] = uint16(720); // one month
+        holdPeriods[1] = uint16(4380); // six months
+        holdPeriods[2] = uint16(17520); // two years
+        uint64[] memory holdTimestamps = new uint64[](3);
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
-        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(appManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        switchToRuleAdmin();
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
         assertEq(_index, 0);
         assetHandler.setMinBalByDateRuleId(_index);
+        switchToAppAdministrator();
 
         /// load non admin users with application coin
         applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
@@ -1074,14 +1252,16 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
         applicationCoin.transfer(user3, 10000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), 10000 * (10 ** 18));
+        switchToRuleAdmin();
         assetHandler.setMinBalByDateRuleId(_index);
+        switchToAppAdministrator();
         /// tag the user
-        appManager.addGeneralTag(rich_user, "Oscar"); ///add tag
-        assertTrue(appManager.hasTag(rich_user, "Oscar"));
-        appManager.addGeneralTag(user2, "Tayler"); ///add tag
-        assertTrue(appManager.hasTag(user2, "Tayler"));
-        appManager.addGeneralTag(user3, "Shane"); ///add tag
-        assertTrue(appManager.hasTag(user3, "Shane"));
+        applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
+        applicationAppManager.addGeneralTag(user2, "Tayler"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "Tayler"));
+        applicationAppManager.addGeneralTag(user3, "Shane"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user3, "Shane"));
         /// switch to the user
         vm.stopPrank();
         vm.startPrank(rich_user);
@@ -1105,5 +1285,113 @@ contract ApplicationERC20Test is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.transfer(user1, 8001 * (10 ** 18));
 
         console.log(assetHandler.newTestFunction());
+    }
+
+    function testHandlerUpgradingWithoutFeeMigration() public {
+        ///deploy new modified appliction asset handler contract
+        ApplicationAssetHandlerMod assetHandler = new ApplicationAssetHandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), true);
+        ///connect to apptoken
+        applicationCoin.connectHandlerToToken(address(assetHandler));
+        applicationAppManager.deregisterToken("FRANK");
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+
+        applicationCoinHandler.proposeDataContractMigration(address(assetHandler));
+        assetHandler.confirmDataContractMigration(address(applicationCoinHandler));
+
+        ///Create and activate rule in new Handler
+        bytes32[] memory accs = new bytes32[](3);
+        accs[0] = bytes32("Oscar");
+        accs[1] = bytes32("Tayler");
+        accs[2] = bytes32("Shane");
+        uint256[] memory holdAmounts = new uint256[](3);
+        holdAmounts[0] = uint256(1000 * (10 ** 18));
+        holdAmounts[1] = uint256(2000 * (10 ** 18));
+        holdAmounts[2] = uint256(3000 * (10 ** 18));
+        uint16[] memory holdPeriods = new uint16[](3);
+        holdPeriods[0] = uint16(720); // one month
+        holdPeriods[1] = uint16(4380); // six months
+        holdPeriods[2] = uint16(17520); // two years
+        uint64[] memory holdTimestamps = new uint64[](3);
+        holdTimestamps[0] = Blocktime;
+        holdTimestamps[1] = Blocktime;
+        holdTimestamps[2] = Blocktime;
+        switchToRuleAdmin();
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        assertEq(_index, 0);
+        assetHandler.setMinBalByDateRuleId(_index);
+        switchToAppAdministrator();
+
+        /// load non admin users with application coin
+        applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(rich_user), 10000 * (10 ** 18));
+        applicationCoin.transfer(user2, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
+        applicationCoin.transfer(user3, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 10000 * (10 ** 18));
+        switchToRuleAdmin();
+        assetHandler.setMinBalByDateRuleId(_index);
+        switchToAppAdministrator();
+        /// tag the user
+        applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
+        applicationAppManager.addGeneralTag(user2, "Tayler"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "Tayler"));
+        applicationAppManager.addGeneralTag(user3, "Shane"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user3, "Shane"));
+        /// switch to the user
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        /// attempt a transfer that violates the rule
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 9001 * (10 ** 18));
+        /// make sure a transfer that is acceptable will still pass within the freeze window.
+        applicationCoin.transfer(user1, 9000 * (10 ** 18));
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 1 * (10 ** 18));
+        /// add enough time so that it should pass
+        vm.warp(Blocktime + (720 * 1 hours));
+        applicationCoin.transfer(user1, 1 * (10 ** 18));
+
+        /// try tier 2
+        /// switch to the user
+        vm.stopPrank();
+        vm.startPrank(user2);
+        /// attempt a transfer that violates the rule
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 8001 * (10 ** 18));
+
+        console.log(assetHandler.newTestFunction());
+    }
+
+    function testUpgradeAppManager20() public {
+        address newAdmin = address(75);
+        /// create a new app manager
+        ApplicationAppManager appManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
+        /// propose a new AppManager
+        applicationCoin.proposeAppManagerAddress(address(appManager2));
+        /// confirm the app manager
+        vm.stopPrank();
+        vm.startPrank(newAdmin);
+        appManager2.confirmAppManager(address(applicationCoin));
+        /// test to ensure it still works
+        switchToAppAdministrator();
+        applicationCoin.transfer(user, 10 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user), 10 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(appAdministrator), 9999999999999999999990 * (10 ** 18));
+
+        /// Test fail scenarios
+        vm.stopPrank();
+        vm.startPrank(newAdmin);
+        // zero address
+        vm.expectRevert(0xd92e233d);
+        applicationCoin.proposeAppManagerAddress(address(0));
+        // no proposed address
+        vm.expectRevert(0x821e0eeb);
+        appManager2.confirmAppManager(address(applicationCoin));
+        // non proposer tries to confirm
+        applicationCoin.proposeAppManagerAddress(address(appManager2));
+        ApplicationAppManager appManager3 = new ApplicationAppManager(newAdmin, "Castlevania3", false);
+        vm.expectRevert(0x41284967);
+        appManager3.confirmAppManager(address(applicationCoin));
     }
 }

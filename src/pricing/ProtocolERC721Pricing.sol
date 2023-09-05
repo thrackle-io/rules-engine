@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "./IProtocolERC721Pricing.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
 
@@ -13,11 +13,11 @@ import {IApplicationEvents} from "../interfaces/IEvents.sol";
  * @dev This contract allows for setting prices on entire collections or by tokenId
  */
 contract ProtocolERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pricing {
+    string private constant VERSION="1.0.1";
     using ERC165Checker for address;
 
     mapping(address => mapping(uint256 => uint256)) public nftPrice;
     mapping(address => uint256) public collectionPrice;
-
 
     /**
      * @dev set the price for a single NFT from a collection
@@ -53,7 +53,7 @@ contract ProtocolERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pr
 
     /**
      * @dev gets the price of an NFT. It will return the NFT's specific price, or the
-     * price of the collection if no specific price hsa been given
+     * price of the collection if no specific price has been given
      * @param nftContract is the address of the NFT contract
      * @param id of the NFT
      * @return price of the Token in weis of dollars. 10^18 => $ 1.00 USD
@@ -66,5 +66,23 @@ contract ProtocolERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pr
         } else {
             return singlePrice;
         }
+    }
+
+    /**
+     * @dev gets the price of an NFT Collection. It will return the NFT Collection price to be used for each token Id (i.e. Floor Price).
+     * @param nftContract is the address of the NFT contract
+     * @return price for the collection in weis of dollars. 10^18 => $ 1.00 USD
+     * 999_999_999_999_999_999 = 0xDE0B6B3A763FFFF, 1_000_000_000_000_000_000 = DE0B6B3A7640000
+     */
+    function getNFTCollectionPrice(address nftContract) external view returns (uint256 price) {
+        return collectionPrice[nftContract];
+    }
+
+    /**
+     * @dev gets the version of the contract
+     * @return VERSION
+     */
+    function version() external pure returns (string memory) {
+        return VERSION;
     }
 }

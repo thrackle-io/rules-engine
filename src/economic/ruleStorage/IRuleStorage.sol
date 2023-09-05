@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {INonTaggedRules, ITaggedRules, IFeeRules, IApplicationRules} from "./RuleDataInterfaces.sol";
 
@@ -53,7 +53,8 @@ interface IRuleStorage {
 
     /// ******** Token Transfer Volume ********
     struct TransferVolRuleS {
-        INonTaggedRules.TokenTransferVolumeRule[] transferVolumeRules;
+        mapping(uint32 => INonTaggedRules.TokenTransferVolumeRule) transferVolumeRules;
+        uint32 transferVolRuleIndex;
     }
 
     /// ******** Withdrawal Rules ********
@@ -73,14 +74,15 @@ interface IRuleStorage {
 
     /// ******** Minimum Transaction ********
     struct MinTransferRuleS {
-        uint256[] minimumTransferRules;
+        mapping(uint32 => INonTaggedRules.TokenMinimumTransferRule) minimumTransferRules;
+        uint32 minimumTransferRuleIndex; /// increments every time someone adds a rule
     }
 
     /// ******** Minimum/Maximum Account Balances ********
     struct BalanceLimitRuleS {
         /// ruleIndex => taggedAccount => minimumTransfer
         mapping(uint32 => mapping(bytes32 => ITaggedRules.BalanceLimitRule)) balanceLimitsPerAccountType;
-        uint32 balanceLimitRuleIndex; /// increments every time someone adds a rule\
+        uint32 balanceLimitRuleIndex; /// increments every time someone adds a rule
     }
 
     /// ******** Minimum Balance By Date ********

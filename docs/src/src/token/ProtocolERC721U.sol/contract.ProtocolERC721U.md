@@ -1,8 +1,8 @@
 # ProtocolERC721U
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/token/ProtocolERC721U.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/token/ProtocolERC721U.sol)
 
 **Inherits:**
-Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable, [AppAdministratorOnlyU](/src/economic/AppAdministratorOnlyU.sol/contract.AppAdministratorOnlyU.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), PausableUpgradeable, [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
+Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable, [ProtocolTokenCommonU](/src/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md), PausableUpgradeable
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -11,13 +11,6 @@ This is the base contract for all protocol ERC721Upgradeables
 
 
 ## State Variables
-### appManagerAddress
-
-```solidity
-address public appManagerAddress;
-```
-
-
 ### handlerAddress
 
 ```solidity
@@ -45,15 +38,6 @@ Base Contract URI
 
 ```solidity
 string public baseUri;
-```
-
-
-### VERSION
-keeps track of RULE enum version and other features
-
-
-```solidity
-uint8 public constant VERSION = 1;
 ```
 
 
@@ -225,17 +209,6 @@ function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256
 
 ```solidity
 function withdraw() public payable virtual appAdministratorOnly(appManagerAddress);
-```
-
-### setAppManagerAddress
-
-*Function to set the appManagerAddress and connect to the new appManager*
-
-*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress);
 ```
 
 ### getHandlerAddress
