@@ -36,4 +36,11 @@ interface IPauseRules is IDataModule, IPauseRuleErrors {
      * @return pauseRules all the pause rules for the token
      */
     function getPauseRules() external view returns (PauseRule[] memory);
+
+    /**
+     * @dev Return a bool for if the PauseRule array is empty
+     * @notice return true if pause rules is empty and return false if array contains rules 
+     * @return true if empty 
+     */
+    function isPauseRulesEmpty() external view returns(bool);
 }

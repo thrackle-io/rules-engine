@@ -95,4 +95,14 @@ contract PauseRules is IPauseRules, DataModule {
     function getPauseRules() external view virtual onlyOwner returns (PauseRule[] memory) {
         return (pauseRules);
     }
+
+    /**
+     * @dev Return a bool for if the PauseRule array is empty
+     * @notice return true if pause rules is empty and return false if array contains rules 
+     * @return true if empty 
+     */
+    function isPauseRulesEmpty() external view virtual onlyOwner returns(bool) {
+        return pauseRules.length == 0;
+    }
+
 }
