@@ -793,7 +793,7 @@ contract ApplicationAMMTest is TestCommon {
         vm.startPrank(user1);
         // applicationAMM.swap(address(applicationCoin), 100);
 
-        ///create new pause rule to check that swaps and trasnfers are paused
+        ///create new pause rule to check that swaps and transfers are paused
         switchToRuleAdmin();
         applicationAppManager.addPauseRule(Blocktime + 1700, Blocktime + 2000);
         vm.warp(Blocktime + 1750);
