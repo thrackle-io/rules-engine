@@ -121,24 +121,22 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
                 }
                 appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
                 _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
-                _checkNonTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
+                _checkNonTaggedRules(_from, _to, amount);
             } else {
                 if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
             }
         }
-        /// If everything checks out, return true
+         /// If all rule checks pass, return true
         return true;
     }
 
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual  rule checks.
-     * @param _balanceFrom token balance of sender address
-     * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens transferred
      */
-    function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount) internal {
+     function _checkNonTaggedRules(address _from, address _to, uint256 _amount) internal {
         if (minTransferRuleActive) ruleProcessor.checkMinTransferPasses(minTransferRuleId, _amount);
         if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _to);
         if (tokenTransferVolumeRuleActive) {
@@ -157,10 +155,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
             );
             lastSupplyUpdateTime = uint64(block.timestamp);
         }
-        //added the following lines to remove warnings TODO remove later
-        _balanceFrom;
-        _balanceTo;
-        _from;
     }
 
     /**
@@ -175,10 +169,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         _checkTaggedIndividualRules(_from, _to, _balanceFrom, _balanceTo, _amount);
         /// we only ask for price if we need it since this might cause the contract to require setting the pricing contracts when there is no need
         if (transactionLimitByRiskRuleActive) {
-            uint256 balanceValuation = getAccTotalValuation(_to, 0);
             uint256 price = _getERC20Price(msg.sender);
             uint256 transferValuation = (price * _amount) / (10 ** IToken(msg.sender).decimals());
-            _checkRiskRules(_from, _to, balanceValuation, transferValuation, _amount, price);
+            _checkRiskRules(_from, _to, transferValuation);
         }
     }
 
@@ -204,14 +197,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @dev This function consolidates all the Risk rules that utilize tagged account Risk scores.
      * @param _from address of the from account
      * @param _to address of the to account
-     * @param _balanceValuation address current balance in USD
      * @param _transferValuation valuation of all tokens owned by the address in USD
-     * @param _amount number of tokens to be transferred
      */
-    function _checkRiskRules(address _from, address _to, uint256 _balanceValuation, uint256 _transferValuation, uint256 _amount, uint256 _price) internal view {
-        _balanceValuation; // this is to get rid of compiler warnings...these variables will be used in the future.
-        _amount;
-        _price;
+     function _checkRiskRules(address _from, address _to, uint256 _transferValuation) internal view {
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         if (transactionLimitByRiskRuleActive) {
@@ -293,7 +281,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         uint24 discount;
         if (_fromTags.length != 0 && !appManager.isAppAdministrator(_from)) {
             uint feeCount;
-            uint discountCount;
             // size the dynamic arrays by maximum possible fees
             feeCollectorAccounts = new address[](_fromTags.length);
             feePercentages = new int24[](_fromTags.length);
@@ -305,7 +292,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
                     // if it's a discount, accumulate it for distribution among all applicable fees
                     if (fee.feePercentage < 0) {
                         discount = uint24((fee.feePercentage * -1)) + discount; // convert to uint
-                        discountCount += 1;
                     } else {
                         feePercentages[feeCount] = fee.feePercentage;
                         feeCollectorAccounts[feeCount] = fee.feeCollectorAccount;
