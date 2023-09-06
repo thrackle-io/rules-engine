@@ -1,8 +1,8 @@
 # ProtocolAMMHandler
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/liquidity/ProtocolAMMHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/liquidity/ProtocolAMMHandler.sol)
 
 **Inherits:**
-Ownable, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [ITokenHandlerEvents](/src/interfaces/IEvents.sol/interface.ITokenHandlerEvents.md), [IProtocolAMMHandler](/src/liquidity/IProtocolAMMHandler.sol/interface.IProtocolAMMHandler.md)
+Ownable, [ProtocolHandlerCommon](/src/token/ProtocolHandlerCommon.sol/abstract.ProtocolHandlerCommon.md), [IProtocolAMMHandler](/src/liquidity/IProtocolAMMHandler.sol/interface.IProtocolAMMHandler.md), [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -41,14 +41,7 @@ mapping(address => uint256) salesWithinPeriod;
 ### lastSellTime
 
 ```solidity
-mapping(address => uint256) lastSellTime;
-```
-
-
-### appManagerAddress
-
-```solidity
-address public appManagerAddress;
+mapping(address => uint64) lastSellTime;
 ```
 
 
@@ -89,23 +82,9 @@ uint256 private totalSoldWithinPeriod;
 ```
 
 
-### ruleProcessor
+### token
 total number of tokens purchased in period
 
-
-```solidity
-IRuleProcessor immutable ruleProcessor;
-```
-
-
-### appManager
-
-```solidity
-IAppManager appManager;
-```
-
-
-### token
 
 ```solidity
 IERC20 public token;
@@ -246,7 +225,7 @@ bool private ammFeeRuleActive;
 
 
 ```solidity
-constructor(address _appManagerAddress, address _ruleProcessorProxyAddress);
+constructor(address _appManagerAddress, address _ruleProcessorProxyAddress, address _assetAddress);
 ```
 **Parameters**
 
@@ -254,6 +233,7 @@ constructor(address _appManagerAddress, address _ruleProcessorProxyAddress);
 |----|----|-----------|
 |`_appManagerAddress`|`address`|Application App Manager Address|
 |`_ruleProcessorProxyAddress`|`address`|Rule Processor Address|
+|`_assetAddress`|`address`|address of the controlling asset|
 
 
 ### checkAllRules
@@ -271,7 +251,7 @@ function checkAllRules(
     uint256 token_amount_1,
     address _tokenAddress,
     ActionTypes _action
-) external returns (bool);
+) external onlyOwner returns (bool);
 ```
 **Parameters**
 
@@ -424,7 +404,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setPurchaseLimitRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setPurchaseLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -439,7 +419,7 @@ function setPurchaseLimitRuleId(uint32 _ruleId) external appAdministratorOnly(ap
 
 
 ```solidity
-function activatePurchaseLimitRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activatePurchaseLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -486,7 +466,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setSellLimitRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setSellLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -501,7 +481,7 @@ function setSellLimitRuleId(uint32 _ruleId) external appAdministratorOnly(appMan
 
 
 ```solidity
-function activateSellLimitRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateSellLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -546,7 +526,11 @@ function isSellLimitActive() external view returns (bool);
 
 
 ```solidity
-function getLastPurchaseTime(address account) external view appAdministratorOnly(appManagerAddress) returns (uint256);
+function getLastPurchaseTime(address account)
+    external
+    view
+    ruleAdministratorOnly(appManagerAddress)
+    returns (uint256);
 ```
 **Returns**
 
@@ -561,7 +545,7 @@ function getLastPurchaseTime(address account) external view appAdministratorOnly
 
 
 ```solidity
-function getLastSellTime(address account) external view appAdministratorOnly(appManagerAddress) returns (uint256);
+function getLastSellTime(address account) external view returns (uint256);
 ```
 **Returns**
 
@@ -576,11 +560,7 @@ function getLastSellTime(address account) external view appAdministratorOnly(app
 
 
 ```solidity
-function getPurchasedWithinPeriod(address account)
-    external
-    view
-    appAdministratorOnly(appManagerAddress)
-    returns (uint256);
+function getPurchasedWithinPeriod(address account) external view returns (uint256);
 ```
 **Returns**
 
@@ -595,11 +575,7 @@ function getPurchasedWithinPeriod(address account)
 
 
 ```solidity
-function getSalesWithinPeriod(address account)
-    external
-    view
-    appAdministratorOnly(appManagerAddress)
-    returns (uint256);
+function getSalesWithinPeriod(address account) external view returns (uint256);
 ```
 **Returns**
 
@@ -616,7 +592,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setMinTransferRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setMinTransferRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -631,7 +607,7 @@ function setMinTransferRuleId(uint32 _ruleId) external appAdministratorOnly(appM
 
 
 ```solidity
-function activateMinTransferRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateMinTransferRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -678,7 +654,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setMinMaxBalanceRuleIdToken0(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setMinMaxBalanceRuleIdToken0(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -695,7 +671,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setMinMaxBalanceRuleIdToken1(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setMinMaxBalanceRuleIdToken1(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -710,7 +686,7 @@ function setMinMaxBalanceRuleIdToken1(uint32 _ruleId) external appAdministratorO
 
 
 ```solidity
-function activateMinMaxBalanceRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateMinMaxBalanceRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -772,7 +748,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setOracleRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -787,7 +763,7 @@ function setOracleRuleId(uint32 _ruleId) external appAdministratorOnly(appManage
 
 
 ```solidity
-function activateOracleRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -834,7 +810,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setAMMFeeRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setAMMFeeRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -849,7 +825,7 @@ function setAMMFeeRuleId(uint32 _ruleId) external appAdministratorOnly(appManage
 
 
 ```solidity
-function activateAMMFeeRule(bool on_off) external appAdministratorOnly(appManagerAddress);
+function activateAMMFeeRule(bool on_off) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -896,7 +872,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setPurchasePercentageRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setPurchasePercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -911,7 +887,7 @@ function setPurchasePercentageRuleId(uint32 _ruleId) external appAdministratorOn
 
 
 ```solidity
-function activatePurchasePercentageRuleIdRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activatePurchasePercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -958,7 +934,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setSellPercentageRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress);
+function setSellPercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -973,7 +949,7 @@ function setSellPercentageRuleId(uint32 _ruleId) external appAdministratorOnly(a
 
 
 ```solidity
-function activateSellPercentageRuleIdRule(bool _on) external appAdministratorOnly(appManagerAddress);
+function activateSellPercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 

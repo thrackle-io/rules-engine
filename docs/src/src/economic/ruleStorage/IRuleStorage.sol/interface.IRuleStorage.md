@@ -1,5 +1,5 @@
 # IRuleStorage
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/economic/ruleStorage/IRuleStorage.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/economic/ruleStorage/IRuleStorage.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -83,7 +83,8 @@ struct VolatilityRuleS {
 
 ```solidity
 struct TransferVolRuleS {
-    INonTaggedRules.TokenTransferVolumeRule[] transferVolumeRules;
+    mapping(uint32 => INonTaggedRules.TokenTransferVolumeRule) transferVolumeRules;
+    uint32 transferVolRuleIndex;
 }
 ```
 
@@ -115,7 +116,8 @@ struct AdminWithdrawalRuleS {
 
 ```solidity
 struct MinTransferRuleS {
-    uint256[] minimumTransferRules;
+    mapping(uint32 => INonTaggedRules.TokenMinimumTransferRule) minimumTransferRules;
+    uint32 minimumTransferRuleIndex;
 }
 ```
 

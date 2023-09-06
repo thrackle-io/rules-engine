@@ -1,25 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "../src/example/ApplicationERC20.sol";
-import "../src/example/liquidity/ApplicationAMM.sol";
-import "../src/example/liquidity/ApplicationAMMCalcLinear.sol";
-import "../src/example/liquidity/ApplicationAMMCalcCP.sol";
-import "../src/example/liquidity/ApplicationAMMCalcSample01.sol";
-import "../src/example/ApplicationAppManager.sol";
-import "../src/example/application/ApplicationHandler.sol";
-import "./DiamondTestUtil.sol";
-import "../src/example/ApplicationERC20Handler.sol";
-import "./RuleProcessorDiamondTestUtil.sol";
-import "../src/example/OracleRestricted.sol";
-import "../src/example/OracleAllowed.sol";
-import "../src/example/pricing/ApplicationERC20Pricing.sol";
-import "../src/example/pricing/ApplicationERC721Pricing.sol";
+import "src/example/liquidity/ApplicationAMM.sol";
+import "src/example/liquidity/ApplicationAMMCalcLinear.sol";
+import "src/example/liquidity/ApplicationAMMCalcCP.sol";
+import "src/example/liquidity/ApplicationAMMCalcSample01.sol";
+import "src/example/OracleRestricted.sol";
+import "src/example/OracleAllowed.sol";
 import {ApplicationAMMHandler} from "../src/example/liquidity/ApplicationAMMHandler.sol";
-import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import {FeeRuleDataFacet} from "../src/economic/ruleStorage/FeeRuleDataFacet.sol";
 import {ApplicationAMMHandlerMod} from "./helpers/ApplicationAMMHandlerMod.sol";
+import "test/helpers/TestCommon.sol";
 
 /**
  * @title Test all AMM related functions
@@ -27,84 +18,52 @@ import {ApplicationAMMHandlerMod} from "./helpers/ApplicationAMMHandlerMod.sol";
  * @dev A substantial amount of set up work is needed for each test.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract ApplicationAMMTest is TestCommon {
     ApplicationAMMHandler handler;
     ApplicationAMM applicationAMM;
     ApplicationAMMCalcLinear applicationAMMLinearCalc;
     ApplicationAMMCalcCP applicationAMMCPCalc;
     ApplicationAMMCalcSample01 applicationAMMSample01Calc;
-    ApplicationERC20 applicationCoin;
     ApplicationERC20 applicationCoin2;
-    RuleProcessorDiamond ruleProcessor;
-    RuleStorageDiamond ruleStorageDiamond;
-    ApplicationERC20Handler applicationCoinHandler;
     ApplicationERC20Handler applicationCoinHandler2;
-    ApplicationAMMHandler applicationAMMHandler;
-    ApplicationAppManager appManager;
-    ApplicationHandler public applicationHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
-    ApplicationERC20Pricing erc20Pricer;
-    ApplicationERC721Pricing nftPricer;
+    ApplicationAMMHandler applicationAMMHandler;
     ApplicationAMMHandlerMod newAssetHandler;
 
-    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    address user1 = address(11);
-    address user2 = address(22);
-    address user3 = address(33);
     address rich_user = address(44);
     address treasuryAddress = address(55);
     address[] badBoys;
     address[] goodBoys;
-    uint256 Blocktime = 1675723152;
     address[] addresses = [user1, user2, user3, rich_user];
-    address[] ADDRESSES = [address(0xFF1), address(0xFF2), address(0xFF3), address(0xFF4), address(0xFF5), address(0xFF6), address(0xFF7), address(0xFF8)];
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
-        /// Deploy the Rule Storage Diamond.
-        ruleStorageDiamond = getRuleStorageDiamond();
-        /// Deploy the token rule processor diamond
-        ruleProcessor = getRuleProcessorDiamond();
-        /// Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        /// add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdministrator);
-        appManager.addAccessTier(AccessTier);
-        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
-        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
+        vm.startPrank(superAdmin);
+        setUpProtocolAndAppManagerAndTokens();
+        switchToAppAdministrator();
+        applicationCoin.mint(appAdministrator, 1_000_000_000_000 * (10 ** 18));
+        applicationCoin2 = _createERC20("application2", "GMC2", applicationAppManager);
+        applicationCoinHandler2 = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin2);
+        /// register the token
+        applicationAppManager.registerToken("application2", address(applicationCoin2));
+        applicationCoin2.mint(appAdministrator, 1_000_000_000_000 * (10 ** 18));
 
-        /// Create two tokens and mint a bunch
-        applicationCoin = new ApplicationERC20("application", "GMC", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
-        applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
-        applicationCoin.mint(defaultAdmin, 1_000_000_000_000 * (10 ** 18));
-        applicationCoin2 = new ApplicationERC20("application2", "GMC2", address(appManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
-        applicationCoin2.connectHandlerToToken(address(applicationCoinHandler2));
-        applicationCoin2.mint(defaultAdmin, 1_000_000_000_000 * (10 ** 18));
-        
         /// Create calculators for the AMM
         applicationAMMLinearCalc = new ApplicationAMMCalcLinear();
         applicationAMMCPCalc = new ApplicationAMMCalcCP();
         applicationAMMSample01Calc = new ApplicationAMMCalcSample01();
         /// Set up the AMM
-        handler = new ApplicationAMMHandler(address(appManager), address(ruleProcessor));
-        applicationAMM = new ApplicationAMM(address(applicationCoin), address(applicationCoin2), address(appManager), address(applicationAMMLinearCalc));
+        applicationAMM = new ApplicationAMM(address(applicationCoin), address(applicationCoin2), address(applicationAppManager), address(applicationAMMLinearCalc));
+        handler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(applicationAMM));
         applicationAMM.connectHandlerToAMM(address(handler));
         applicationAMMHandler = ApplicationAMMHandler(applicationAMM.getHandlerAddress());
         /// Register AMM
-        appManager.registerAMM(address(applicationAMM));
+        applicationAppManager.registerAMM(address(applicationAMM));
         /// set the treasury address
         applicationAMM.setTreasuryAddress(treasuryAddress);
-        appManager.addAppAdministrator(treasuryAddress);
+        applicationAppManager.registerTreasury(treasuryAddress);
+        // applicationAppManager.addAppAdministrator(treasuryAddress);
 
-        /// set the erc20 pricer
-        erc20Pricer = new ApplicationERC20Pricing();
-        /// connect ERC20 pricer to applicationCoinHandler
-        applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
         applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         vm.warp(Blocktime);
 
@@ -136,11 +95,11 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationAMM.getReserve0(), 1000);
         assertEq(applicationAMM.getReserve1(), 1000);
         /// Get user's initial balance
-        uint256 balance = applicationCoin.balanceOf(defaultAdmin);
+        uint256 balance = applicationCoin.balanceOf(appAdministrator);
         /// Remove some token0's
         applicationAMM.removeToken0(500);
         /// Make sure they came back to admin
-        assertEq(balance + 500, applicationCoin.balanceOf(defaultAdmin));
+        assertEq(balance + 500, applicationCoin.balanceOf(appAdministrator));
         /// Make sure they no longer show in AMM
         assertEq(500, applicationAMM.getReserve0());
     }
@@ -156,11 +115,11 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationAMM.getReserve0(), 1000);
         assertEq(applicationAMM.getReserve1(), 1000);
         /// Get user's initial balance
-        uint256 balance = applicationCoin2.balanceOf(defaultAdmin);
+        uint256 balance = applicationCoin2.balanceOf(appAdministrator);
         /// Remove some token0's
         applicationAMM.removeToken1(500);
         /// Make sure they came back to admin
-        assertEq(balance + 500, applicationCoin2.balanceOf(defaultAdmin));
+        assertEq(balance + 500, applicationCoin2.balanceOf(appAdministrator));
         /// Make sure they no longer show in AMM
         assertEq(500, applicationAMM.getReserve1());
     }
@@ -177,16 +136,14 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationAMM.getReserve1(), 1000000);
         /// Set up a regular user with some tokens
         applicationCoin.transfer(user, 100000);
-        vm.stopPrank();
-        vm.startPrank(user);
+        switchToUser();
         /// Approve transfer
         applicationCoin.approve(address(applicationAMM), 100000);
         applicationAMM.swap(address(applicationCoin), 0);
         /// Make sure AMM balances show change
         assertEq(applicationAMM.getReserve0(), 1100000);
         assertEq(applicationAMM.getReserve1(), 900000);
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToSuperAdmin();
 
         /// Make sure user's wallet shows change
         assertEq(applicationCoin.balanceOf(user), 0);
@@ -205,16 +162,15 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationAMM.getReserve1(), 1000000);
         /// Set up a regular user with some tokens
         applicationCoin.transfer(user, 100000);
-        vm.stopPrank();
-        vm.startPrank(user);
+        switchToUser();
         /// Approve transfer
         applicationCoin.approve(address(applicationAMM), 100000);
-        applicationAMM.swap(address(new ApplicationERC20("application3", "GMC3", address(appManager))), 100000);
+        applicationAMM.swap(address(new ApplicationERC20("application3", "GMC3", address(applicationAppManager))), 100000);
         /// Make sure AMM balances show change
         assertEq(applicationAMM.getReserve0(), 1100000);
         assertEq(applicationAMM.getReserve1(), 900000);
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
 
         /// Make sure user's wallet shows change
         assertEq(applicationCoin.balanceOf(user), 0);
@@ -242,7 +198,7 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationAMM.getReserve0(), 1100000);
         assertEq(applicationAMM.getReserve1(), 900000);
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
 
         /// Make sure user's wallet shows change
         assertEq(applicationCoin.balanceOf(user), 0);
@@ -269,7 +225,7 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationAMM.getReserve1(), 1100000);
         assertEq(applicationAMM.getReserve0(), 900000);
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
 
         /// Make sure user's wallet shows change
         assertEq(applicationCoin2.balanceOf(user), 0);
@@ -301,7 +257,7 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationAMM.getReserve0(), 1000050000);
         assertEq(applicationAMM.getReserve1(), 999950003);
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
 
         /// Make sure user's wallet shows change
         assertEq(applicationCoin.balanceOf(user), 0);
@@ -332,7 +288,7 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationAMM.getReserve1(), 1000050000);
         assertEq(applicationAMM.getReserve0(), 999950003);
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
 
         /// Make sure user's wallet shows change
         assertEq(applicationCoin2.balanceOf(user), 0);
@@ -363,7 +319,7 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
         /// now make the opposite trade to ensure we get the proper value back
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(appAdministrator);
         applicationCoin2.transfer(user, 10 * (10 ** 18));
         vm.stopPrank();
         vm.startPrank(user);
@@ -503,22 +459,23 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationAMM.getReserve1(), 999950003);
 
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         ///Add tag to user
         bytes32[] memory accs = new bytes32[](1);
         uint192[] memory sellAmounts = new uint192[](1);
-        uint32[] memory sellPeriod = new uint32[](1);
-        uint32[] memory startTime = new uint32[](1);
+        uint16[] memory sellPeriod = new uint16[](1);
+        uint64[] memory startTime = new uint64[](1);
         accs[0] = bytes32("SellRule");
         sellAmounts[0] = uint192(600); ///Amount to trigger Sell freeze rules
-        sellPeriod[0] = uint32(36); ///Hours
-        startTime[0] = uint32(12); ///Hours
+        sellPeriod[0] = uint16(36); ///Hours
+        startTime[0] = uint64(Blocktime);
 
         /// Set the rule data
-        appManager.addGeneralTag(user1, "SellRule");
-        appManager.addGeneralTag(user2, "SellRule");
+        applicationAppManager.addGeneralTag(user1, "SellRule");
+        applicationAppManager.addGeneralTag(user2, "SellRule");
         /// add the rule.
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(appManager), accs, sellAmounts, sellPeriod, startTime);
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
         ///update ruleId in application AMM rule handler
         applicationAMMHandler.setSellLimitRuleId(ruleId);
         /// Swap that passes rule check
@@ -539,9 +496,8 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// initialize the AMM
         initializeAMMAndUsers();
         /// we add the rule.
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(appManager), 10);
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 10);
         /// we update the rule id in the token
         applicationAMMHandler.setMinTransferRuleId(ruleId);
         /// Set up this particular swap
@@ -562,18 +518,18 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// initialize the AMM
         initializeAMMAndUsers();
         /// we add the rule.
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToRuleAdmin();
         /// make sure that no bogus fee percentage can get in
         bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 10001));
-        uint32 ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(appManager), 10001);
+        uint32 ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), 10001);
         vm.expectRevert(abi.encodeWithSelector(selector, 0));
-        ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(appManager), 0);
+        ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), 0);
         /// now add the good rule
-        ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(appManager), 300);
+        ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), 300);
         /// we update the rule id in the token
         applicationAMMHandler.setAMMFeeRuleId(ruleId);
+        switchToAppAdministrator();
         /// set the treasury address
         applicationAMM.setTreasuryAddress(address(99));
         /// Set up this particular swap
@@ -609,7 +565,6 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address ammUser = addressList[0];
         address treasury = addressList[1];
-        appManager.addAccessTier(treasury);
         /// Approve the transfer of tokens into AMM
         applicationCoin.approve(address(applicationAMM), 1_000_000_000 * 10 ** 18);
         applicationCoin2.approve(address(applicationAMM), 1_000_000_000 * 10 ** 18);
@@ -622,12 +577,12 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.transfer(ammUser, swapAmount);
 
         /// we add the rule.
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToRuleAdmin();
         console.logString("Create the Fee Rule");
-        uint32 ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(appManager), feePercentage);
+        uint32 ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), feePercentage);
         /// we update the rule id in the token
         applicationAMMHandler.setAMMFeeRuleId(ruleId);
+        switchToAppAdministrator();
         /// set the treasury address
         applicationAMM.setTreasuryAddress(treasury);
         /// Set up this particular swap
@@ -652,22 +607,23 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// skiping not-allowed values
         vm.assume(amount1 != 0 && amount2 != 0);
 
-        /// selecting addresses randomly
+        /// selecting ADDRESSES randomly
         address targetedTrader = addresses[target % addresses.length];
         address traderB = addresses[secondTrader % addresses.length];
 
         // BLOCKLIST ORACLE
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 0, address(oracleRestricted));
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleRestricted));
+        switchToAppAdministrator();
         // add a blocked address
         badBoys.push(targetedTrader);
         oracleRestricted.addToSanctionsList(badBoys);
+        switchToRuleAdmin();
         /// connect the rule to this handler
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
         applicationAMMHandler.setOracleRuleId(_index);
         vm.stopPrank();
         vm.startPrank(user1);
@@ -687,11 +643,11 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         }
 
         /// ALLOWLIST ORACLE
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 1, address(oracleAllowed));
+        switchToRuleAdmin();
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
         applicationAMMHandler.setOracleRuleId(_index);
+        switchToAppAdministrator();
         // add an allowed address
         goodBoys.push(targetedTrader);
         oracleAllowed.addToAllowList(goodBoys);
@@ -741,8 +697,9 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         accs[0] = bytes32("MINMAXTAG");
         min[0] = uint256(10 * 10 ** 18);
         max[0] = uint256(1100 * 10 ** 18);
+        switchToRuleAdmin();
         /// add the actual rule
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(appManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
 
         ///Token 1 Limits
         bytes32[] memory accs1 = new bytes32[](1);
@@ -752,19 +709,20 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         min1[0] = uint256(500 * 10 ** 18);
         max1[0] = uint256(2000 * 10 ** 18);
         /// add the actual rule
-        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(appManager), accs1, min1, max1);
+        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
         ////update ruleId in coin rule handler
         applicationAMMHandler.setMinMaxBalanceRuleIdToken0(ruleId);
         applicationAMMHandler.setMinMaxBalanceRuleIdToken1(ruleId1);
+        switchToAppAdministrator();
         ///Add GeneralTag to account
-        appManager.addGeneralTag(user1, "MINMAXTAG"); ///add tag
-        assertTrue(appManager.hasTag(user1, "MINMAXTAG"));
-        appManager.addGeneralTag(user2, "MINMAXTAG"); ///add tag
-        assertTrue(appManager.hasTag(user2, "MINMAXTAG"));
-        appManager.addGeneralTag(user1, "MINMAX"); ///add tag
-        assertTrue(appManager.hasTag(user1, "MINMAX"));
-        appManager.addGeneralTag(user2, "MINMAX"); ///add tag
-        assertTrue(appManager.hasTag(user2, "MINMAX"));
+        applicationAppManager.addGeneralTag(user1, "MINMAXTAG"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "MINMAXTAG"));
+        applicationAppManager.addGeneralTag(user2, "MINMAXTAG"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "MINMAXTAG"));
+        applicationAppManager.addGeneralTag(user1, "MINMAX"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "MINMAX"));
+        applicationAppManager.addGeneralTag(user2, "MINMAX"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "MINMAX"));
 
         ///perform transfer that checks rule
         vm.stopPrank();
@@ -812,9 +770,8 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.transfer(appAdministrator, 1000);
         applicationCoin2.transfer(appAdministrator, 1000);
         ///set pause rule and check check that the transaction reverts
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
-        appManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
+        switchToRuleAdmin();
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
         vm.warp(Blocktime + 1001);
 
         vm.stopPrank();
@@ -825,8 +782,7 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationAMM.swap(address(applicationCoin), 100);
 
         //Check that appAdministrators can still transfer within pausePeriod
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToAppAdministrator();
         applicationCoin.approve(address(applicationAMM), 10000);
         applicationCoin2.approve(address(applicationAMM), 10000);
         applicationAMM.swap(address(applicationCoin), 100);
@@ -837,10 +793,9 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.startPrank(user1);
         // applicationAMM.swap(address(applicationCoin), 100);
 
-        ///create new pause rule to check that swaps and trasnfers are paused
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
-        appManager.addPauseRule(Blocktime + 1700, Blocktime + 2000);
+        ///create new pause rule to check that swaps and transfers are paused
+        switchToRuleAdmin();
+        applicationAppManager.addPauseRule(Blocktime + 1700, Blocktime + 2000);
         vm.warp(Blocktime + 1750);
 
         vm.stopPrank();
@@ -852,11 +807,10 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationCoin.transfer(user2, 100);
 
         ///Set multiple pause rules and ensure pauses during and regular function between
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
-        appManager.addPauseRule(Blocktime + 2100, Blocktime + 2500);
-        appManager.addPauseRule(Blocktime + 2750, Blocktime + 3000);
-        appManager.addPauseRule(Blocktime + 3150, Blocktime + 3500);
+        switchToRuleAdmin();
+        applicationAppManager.addPauseRule(Blocktime + 2100, Blocktime + 2500);
+        applicationAppManager.addPauseRule(Blocktime + 2750, Blocktime + 3000);
+        applicationAppManager.addPauseRule(Blocktime + 3150, Blocktime + 3500);
 
         vm.warp(Blocktime + 2050); ///Expire previous pause rule
         vm.stopPrank();
@@ -874,8 +828,7 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.expectRevert();
         applicationAMM.swap(address(applicationCoin), 100);
 
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToAppAdministrator();
         // applicationAMM.swap(address(applicationCoin), 10); ///Show Application Administrators can utilize system during pauses
 
         vm.warp(Blocktime + 3015); ///Expire previous pause rule
@@ -906,8 +859,7 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         // this one should pass because the rule is off
         assertEq(applicationAMM.swap(address(applicationCoin), 10), 10);
         /// turn the rule on
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToRuleAdmin();
         applicationHandler.activateAccessLevel0Rule(true);
         /// now we check for proper failure
         vm.stopPrank();
@@ -916,9 +868,8 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.expectRevert(0x3fac082d);
         applicationAMM.swap(address(applicationCoin), 9);
         /// now add a AccessLevel score and try again
-        vm.stopPrank();
-        vm.startPrank(AccessTier);
-        appManager.addAccessLevel(user1, 1);
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user1, 1);
         vm.stopPrank();
         vm.startPrank(user1);
         applicationCoin.approve(address(applicationAMM), 9);
@@ -927,10 +878,13 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
     function testUpgradeHandlerAMM() public {
         /// Deploy the modified AMM Handler contract
-        ApplicationAMMHandlerMod assetHandler = new ApplicationAMMHandlerMod(address(appManager), address(ruleProcessor));
+        ApplicationAMMHandlerMod assetHandler = new ApplicationAMMHandlerMod(address(applicationAppManager), address(ruleProcessor), address(applicationAMM));
 
         /// connect AMM to new Handler
         applicationAMM.connectHandlerToAMM(address(assetHandler));
+        /// must deregister and reregister AMM
+        applicationAppManager.deRegisterAMM(address(applicationAMM));
+        applicationAppManager.registerAMM(address(applicationAMM));
 
         /// Test Min Max Balance Rule with New Handler
         initializeAMMAndUsers();
@@ -942,7 +896,8 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         min[0] = uint256(10 * 10 ** 18);
         max[0] = uint256(1100 * 10 ** 18);
         /// add the actual rule
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(appManager), accs, min, max);
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
         ///Token 1 Limits
         bytes32[] memory accs1 = new bytes32[](1);
         uint256[] memory min1 = new uint256[](1);
@@ -951,19 +906,20 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         min1[0] = uint256(500 * 10 ** 18);
         max1[0] = uint256(2000 * 10 ** 18);
         /// add the actual rule
-        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(appManager), accs1, min1, max1);
+        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
         ////update ruleId in coin rule handler
         assetHandler.setMinMaxBalanceRuleIdToken0(ruleId);
         assetHandler.setMinMaxBalanceRuleIdToken1(ruleId1);
+        switchToAppAdministrator();
         ///Add GeneralTag to account
-        appManager.addGeneralTag(user1, "MINMAXTAG"); ///add tag
-        assertTrue(appManager.hasTag(user1, "MINMAXTAG"));
-        appManager.addGeneralTag(user2, "MINMAXTAG"); ///add tag
-        assertTrue(appManager.hasTag(user2, "MINMAXTAG"));
-        appManager.addGeneralTag(user1, "MINMAX"); ///add tag
-        assertTrue(appManager.hasTag(user1, "MINMAX"));
-        appManager.addGeneralTag(user2, "MINMAX"); ///add tag
-        assertTrue(appManager.hasTag(user2, "MINMAX"));
+        applicationAppManager.addGeneralTag(user1, "MINMAXTAG"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "MINMAXTAG"));
+        applicationAppManager.addGeneralTag(user2, "MINMAXTAG"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "MINMAXTAG"));
+        applicationAppManager.addGeneralTag(user1, "MINMAX"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "MINMAX"));
+        applicationAppManager.addGeneralTag(user2, "MINMAX"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "MINMAX"));
         ///perform transfer that checks rule
         vm.stopPrank();
         vm.startPrank(user1);
@@ -1014,10 +970,11 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin2.balanceOf(user1), 50_001_000 * 10 ** 18);
         /// set up rule
         uint16 tokenPercentage = 5000; /// 50%
-        uint32 purchasePeriod = 24; /// 24 hour periods
+        uint16 purchasePeriod = 24; /// 24 hour periods
         uint256 totalSupply = 100_000_000;
-        uint32 ruleStartTime = 12; /// start at 12 hours into the day
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(appManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
+        uint64 ruleStartTime = Blocktime;
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
         /// add and activate rule
         applicationAMMHandler.setPurchasePercentageRuleId(ruleId);
         vm.warp(Blocktime + 36 hours);
@@ -1047,13 +1004,12 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         /// check that rule does not apply to coin 0 as this would be a sell
         applicationAMM.swap(address(applicationCoin), 60_000_000);
 
-        /// Low percentage rule checks 
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        /// create new rule 
+        /// Low percentage rule checks
+        switchToRuleAdmin();
+        /// create new rule
         uint16 newTokenPercentage = 1; /// .01%
-        uint256 newTotalSupply = 100_000; 
-        uint32 newRuleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(appManager), newTokenPercentage, purchasePeriod, newTotalSupply, ruleStartTime);
+        uint256 newTotalSupply = 100_000;
+        uint32 newRuleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(applicationAppManager), newTokenPercentage, purchasePeriod, newTotalSupply, ruleStartTime);
         /// add and activate rule
         applicationAMMHandler.setPurchasePercentageRuleId(newRuleId);
         vm.warp(Blocktime + 96 hours);
@@ -1078,10 +1034,11 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         assertEq(applicationCoin2.balanceOf(user1), 50_001_000 * 10 ** 18);
         /// set up rule
         uint16 tokenPercentage = 5000; /// 50%
-        uint32 purchasePeriod = 24; /// 24 hour periods
+        uint16 purchasePeriod = 24; /// 24 hour periods
         uint256 totalSupply = 100_000_000;
-        uint32 ruleStartTime = 12; /// start at 12 hours into the day
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(appManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
+        uint64 ruleStartTime = Blocktime;
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
         /// add and activate rule
         applicationAMMHandler.setSellPercentageRuleId(ruleId);
         vm.warp(Blocktime + 36 hours);
@@ -1112,19 +1069,18 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationAMM.swap(address(applicationCoin2), 60_000_000);
     }
 
-    function testPurchasePercentageRuleFuzz(uint256 amountA, uint16 tokenPercentage, uint32 purchasePeriod, uint32 ruleStartTime) public {
+    function testPurchasePercentageRuleFuzz(uint256 amountA, uint16 tokenPercentage, uint16 purchasePeriod, uint64 ruleStartTime) public {
         initializeAMMAndUsers();
         vm.assume(amountA > 0 && amountA < 99999999 && tokenPercentage > 0 && tokenPercentage < 9999 && purchasePeriod > 0 && ruleStartTime > 0);
 
         if (purchasePeriod > 23) {
             purchasePeriod = 23;
         }
-        if (ruleStartTime > 12) {
-            ruleStartTime = 12;
-        }
+        if (ruleStartTime > block.timestamp) ruleStartTime = uint64(block.timestamp);
         uint256 totalSupply = 100_000_000;
         uint256 amountB = ((totalSupply / tokenPercentage) * 10000);
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(appManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
         /// add and activate rule
         applicationAMMHandler.setPurchasePercentageRuleId(ruleId);
         vm.warp(Blocktime + 36 hours);
@@ -1147,19 +1103,18 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationAMM.swap(address(applicationCoin), amountA);
     }
 
-    function testSellPercentageRuleFuzz(uint256 amountA, uint16 tokenPercentage, uint32 sellPeriod, uint32 ruleStartTime) public {
+    function testSellPercentageRuleFuzz(uint256 amountA, uint16 tokenPercentage, uint16 sellPeriod, uint64 ruleStartTime) public {
         initializeAMMAndUsers();
         vm.assume(amountA > 0 && amountA < 99999999 && tokenPercentage > 0 && tokenPercentage < 9999 && sellPeriod > 0 && ruleStartTime > 0);
 
         if (sellPeriod > 23) {
             sellPeriod = 23;
         }
-        if (ruleStartTime > 12) {
-            ruleStartTime = 12;
-        }
+        if (ruleStartTime > block.timestamp) ruleStartTime = uint64(block.timestamp);
         uint256 totalSupply = 100_000_000;
         uint256 amountB = ((totalSupply / tokenPercentage) * 10000);
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(appManager), tokenPercentage, sellPeriod, totalSupply, ruleStartTime);
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(applicationAppManager), tokenPercentage, sellPeriod, totalSupply, ruleStartTime);
         /// add and activate rule
         applicationAMMHandler.setSellPercentageRuleId(ruleId);
         vm.warp(Blocktime + 36 hours);
@@ -1180,44 +1135,5 @@ contract ApplicationAMMTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         if (amountA > amountB) vm.expectRevert();
         applicationAMM.swap(address(applicationCoin), amountA);
         applicationAMM.swap(address(applicationCoin2), amountA);
-    }
-
-    /**
-     * @dev this function ensures that unique addresses can be randomly retrieved from the address array.
-     */
-    function getUniqueAddresses(uint256 _seed, uint8 _number) public view returns (address[] memory _addressList) {
-        _addressList = new address[](ADDRESSES.length);
-        // first one will simply be the seed
-        _addressList[0] = ADDRESSES[_seed];
-        uint256 j;
-        if (_number > 1) {
-            // loop until all unique addresses are returned
-            for (uint256 i = 1; i < _number; i++) {
-                // find the next unique address
-                j = _seed;
-                do {
-                    j++;
-                    // if end of list reached, start from the beginning
-                    if (j == ADDRESSES.length) {
-                        j = 0;
-                    }
-                    if (!exists(ADDRESSES[j], _addressList)) {
-                        _addressList[i] = ADDRESSES[j];
-                        break;
-                    }
-                } while (0 == 0);
-            }
-        }
-        return _addressList;
-    }
-
-    // Check if an address exists in the list
-    function exists(address _address, address[] memory _addressList) public pure returns (bool) {
-        for (uint256 i = 0; i < _addressList.length; i++) {
-            if (_address == _addressList[i]) {
-                return true;
-            }
-        }
-        return false;
     }
 }

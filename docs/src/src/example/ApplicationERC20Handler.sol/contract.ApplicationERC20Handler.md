@@ -1,5 +1,5 @@
 # ApplicationERC20Handler
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/example/ApplicationERC20Handler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/example/ApplicationERC20Handler.sol)
 
 **Inherits:**
 [ProtocolERC20Handler](/src/token/ProtocolERC20Handler.sol/contract.ProtocolERC20Handler.md)
@@ -20,8 +20,8 @@ to deploy in order to gain all the rule functionality for a token*
 
 
 ```solidity
-constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode)
-    ProtocolERC20Handler(_ruleProcessorProxyAddress, _appManagerAddress, _upgradeMode);
+constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress, bool _upgradeMode)
+    ProtocolERC20Handler(_ruleProcessorProxyAddress, _appManagerAddress, _assetAddress, _upgradeMode);
 ```
 **Parameters**
 
@@ -29,6 +29,7 @@ constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool
 |----|----|-----------|
 |`_ruleProcessorProxyAddress`|`address`|address of the protocol's Rule Processor contract.|
 |`_appManagerAddress`|`address`|address of the application AppManager.|
+|`_assetAddress`|`address`|address of the controlling asset.|
 |`_upgradeMode`|`bool`|specifies whether this is a fresh CoinHandler or an upgrade replacement.|
 
 

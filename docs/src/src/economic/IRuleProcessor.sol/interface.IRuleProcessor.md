@@ -1,5 +1,5 @@
 # IRuleProcessor
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/economic/IRuleProcessor.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/economic/IRuleProcessor.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -155,8 +155,8 @@ function checkSellLimit(
     uint256 salesWithinPeriod,
     uint256 amount,
     bytes32[] calldata fromTags,
-    uint256 lastUpdateTime
-) external view returns (uint256);
+    uint64 lastUpdateTime
+) external view returns (uint64);
 ```
 **Parameters**
 
@@ -166,7 +166,7 @@ function checkSellLimit(
 |`salesWithinPeriod`|`uint256`||
 |`amount`|`uint256`|Number of tokens to be transferred|
 |`fromTags`|`bytes32[]`|Account tags applied to sender via App Manager|
-|`lastUpdateTime`|`uint256`|block.timestamp of most recent transaction from sender.|
+|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
 
 
 ### checkMinMaxAccountBalancePassesAMM
@@ -320,15 +320,20 @@ function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount,
 
 
 ```solidity
-function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScoreTo, uint128 _totalValuationTo, uint128 _amountToTransfer)
-    external
-    view;
+function checkAccBalanceByRisk(
+    uint32 _ruleId,
+    address _toAddress,
+    uint8 _riskScoreTo,
+    uint128 _totalValuationTo,
+    uint128 _amountToTransfer
+) external view;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_ruleId`|`uint32`|Rule Identifier|
+|`_toAddress`|`address`|Address of the recipient|
 |`_riskScoreTo`|`uint8`|the Risk Score of the recepient account|
 |`_totalValuationTo`|`uint128`|recepient account's beginning balance in USD with 18 decimals of precision|
 |`_amountToTransfer`|`uint128`|total dollar amount to be transferred in USD with 18 decimals of precision|
@@ -585,5 +590,306 @@ function checkNFTHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view
 |----|----|-----------|
 |`_holdHours`|`uint32`|minimum number of hours the asset must be held|
 |`_ownershipTs`|`uint256`|beginning of hold period|
+
+
+### validateAMMFee
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateAMMFee(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateTransactionLimitByRiskScore
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateTransactionLimitByRiskScore(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateMinMaxAccountBalanceERC721
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateMinMaxAccountBalanceERC721(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateNFTTransferCounter
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateNFTTransferCounter(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateMinMaxAccountBalance
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateMinMaxAccountBalance(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validatePurchaseLimit
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validatePurchaseLimit(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateSellLimit
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateSellLimit(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateAdminWithdrawal
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateAdminWithdrawal(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateMinBalByDate
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateMinBalByDate(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateMinTransfer
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateMinTransfer(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateOracle
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateOracle(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validatePurchasePercentage
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validatePurchasePercentage(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateSellPercentage
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateSellPercentage(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateTokenTransferVolume
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateTokenTransferVolume(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateSupplyVolatility
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateSupplyVolatility(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateAccBalanceByRisk
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateAccBalanceByRisk(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateMaxTxSizePerPeriodByRisk
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateMaxTxSizePerPeriodByRisk(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validatePause
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validatePause(uint32 _ruleId, address _dataServer) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+|`_dataServer`|`address`|address of the appManager contract|
+
+
+### validateAccBalanceByAccessLevel
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateAccBalanceByAccessLevel(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
+
+
+### validateWithdrawalLimitsByAccessLevel
+
+*Validate the existence of the rule*
+
+
+```solidity
+function validateWithdrawalLimitsByAccessLevel(uint32 _ruleId) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule Identifier|
 
 

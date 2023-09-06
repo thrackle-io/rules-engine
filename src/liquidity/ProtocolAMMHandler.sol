@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 /// TODO Create a wizard that creates custom versions of this contract for each implementation.
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "../economic/IRuleProcessor.sol";
-import "../application/IAppManager.sol";
 import "./IProtocolAMMHandler.sol";
-import "../economic/AppAdministratorOnly.sol";
-import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
-import "../economic/ruleStorage/RuleCodeData.sol";
+import "src/token/ProtocolHandlerCommon.sol";
 
 /**
  * @title ProtocolAMMHandler Contract
@@ -19,22 +16,19 @@ import "../economic/ruleStorage/RuleCodeData.sol";
  * @notice Any rules may be updated by modifying this contract and redeploying.
  */
 
-contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvents, IProtocolAMMHandler {
+contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandler, RuleAdministratorOnly {
     /// Mapping lastUpdateTime for most recent previous tranaction through Protocol
     mapping(address => uint64) lastPurchaseTime;
     mapping(address => uint256) purchasedWithinPeriod;
     mapping(address => uint256) salesWithinPeriod;
-    mapping(address => uint256) lastSellTime;
+    mapping(address => uint64) lastSellTime;
 
-    address public appManagerAddress;
     address public ruleProcessorAddress;
     uint64 public previousPurchaseTime;
     uint64 public previousSellTime;
     uint256 private totalPurchasedWithinPeriod; /// total number of tokens purchased in period
     uint256 private totalSoldWithinPeriod; /// total number of tokens purchased in period
 
-    IRuleProcessor immutable ruleProcessor;
-    IAppManager appManager;
     IERC20 public token;
 
     /// Rule ID's
@@ -66,11 +60,13 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev Constructor sets the App Manager andToken Rule Router Address
      * @param _appManagerAddress Application App Manager Address
      * @param _ruleProcessorProxyAddress Rule Processor Address
+     * @param _assetAddress address of the controlling asset
      */
-    constructor(address _appManagerAddress, address _ruleProcessorProxyAddress) {
+    constructor(address _appManagerAddress, address _ruleProcessorProxyAddress,address _assetAddress) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+        transferOwnership(_assetAddress);
         ruleProcessorAddress = _ruleProcessorProxyAddress;
         emit HandlerDeployed(address(this), _appManagerAddress);
     }
@@ -95,7 +91,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
         uint256 token_amount_1,
         address _tokenAddress,
         ActionTypes _action
-    ) external returns (bool) {
+    ) external onlyOwner returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         // // All transfers to treasury account are allowed
@@ -167,7 +163,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
 
         if (sellLimitRuleActive && _action == ActionTypes.SELL) {
             salesWithinPeriod[sellerAccount] = ruleProcessor.checkSellLimit(sellLimitRuleId, salesWithinPeriod[sellerAccount], _token_amount_0, fromTags, lastSellTime[sellerAccount]);
-            lastSellTime[sellerAccount] = block.timestamp;
+            lastSellTime[sellerAccount] = uint64(block.timestamp);
         }
         /// Pass in fromTags twice because AMM address will not have tags applied (AMM Address is address_to).
         if (minMaxBalanceRuleActive) {
@@ -232,7 +228,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setPurchaseLimitRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setPurchaseLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         purchaseLimitRuleId = _ruleId;
         purchaseLimitRuleActive = true;
         emit ApplicationHandlerApplied(PURCHASE_LIMIT, address(this), _ruleId);
@@ -242,7 +238,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activatePurchaseLimitRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activatePurchaseLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         purchaseLimitRuleActive = _on;
     }
 
@@ -267,7 +263,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setSellLimitRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setSellLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         sellLimitRuleId = _ruleId;
         sellLimitRuleActive = true;
         emit ApplicationHandlerApplied(SELL_LIMIT, address(this), _ruleId);
@@ -277,7 +273,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateSellLimitRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateSellLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         sellLimitRuleActive = _on;
     }
 
@@ -301,7 +297,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev Get the block timestamp of the last purchase for account.
      * @return LastPurchaseTime for account
      */
-    function getLastPurchaseTime(address account) external view appAdministratorOnly(appManagerAddress) returns (uint256) {
+    function getLastPurchaseTime(address account) external view ruleAdministratorOnly(appManagerAddress) returns (uint256) {
         return lastPurchaseTime[account];
     }
 
@@ -309,7 +305,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev Get the block timestamp of the last Sell for account.
      * @return LastSellTime for account
      */
-    function getLastSellTime(address account) external view appAdministratorOnly(appManagerAddress) returns (uint256) {
+    function getLastSellTime(address account) external view returns (uint256) {
         return lastSellTime[account];
     }
 
@@ -317,7 +313,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev Get the cumulative total of the purchases for account in purchase period.
      * @return purchasedWithinPeriod for account
      */
-    function getPurchasedWithinPeriod(address account) external view appAdministratorOnly(appManagerAddress) returns (uint256) {
+    function getPurchasedWithinPeriod(address account) external view returns (uint256) {
         return purchasedWithinPeriod[account];
     }
 
@@ -325,7 +321,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev Get the cumulative total of the Sales for account during sell period.
      * @return salesWithinPeriod for account
      */
-    function getSalesWithinPeriod(address account) external view appAdministratorOnly(appManagerAddress) returns (uint256) {
+    function getSalesWithinPeriod(address account) external view  returns (uint256) {
         return salesWithinPeriod[account];
     }
 
@@ -334,7 +330,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setMinTransferRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setMinTransferRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         minTransferRuleId = _ruleId;
         minTransferRuleActive = true;
         emit ApplicationHandlerApplied(MIN_TRANSFER, address(this), _ruleId);
@@ -344,7 +340,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateMinTransferRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateMinTransferRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minTransferRuleActive = _on;
     }
 
@@ -369,7 +365,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setMinMaxBalanceRuleIdToken0(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setMinMaxBalanceRuleIdToken0(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         minMaxBalanceRuleIdToken0 = _ruleId;
         minMaxBalanceRuleActive = true;
     }
@@ -379,7 +375,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setMinMaxBalanceRuleIdToken1(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setMinMaxBalanceRuleIdToken1(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         minMaxBalanceRuleIdToken1 = _ruleId;
         minMaxBalanceRuleActive = true;
         emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, address(this), _ruleId);
@@ -389,7 +385,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateMinMaxBalanceRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateMinMaxBalanceRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minMaxBalanceRuleActive = _on;
     }
 
@@ -422,7 +418,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setOracleRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         oracleRuleId = _ruleId;
         oracleRuleActive = true;
         emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
@@ -432,7 +428,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateOracleRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         oracleRuleActive = _on;
     }
 
@@ -457,7 +453,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setAMMFeeRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setAMMFeeRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ammFeeRuleId = _ruleId;
         ammFeeRuleActive = true;
         emit ApplicationHandlerApplied(AMM_FEE, address(this), _ruleId);
@@ -467,7 +463,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param on_off boolean representing if a rule must be checked or not.
      */
-    function activateAMMFeeRule(bool on_off) external appAdministratorOnly(appManagerAddress) {
+    function activateAMMFeeRule(bool on_off) external ruleAdministratorOnly(appManagerAddress) {
         ammFeeRuleActive = on_off;
     }
 
@@ -492,7 +488,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setPurchasePercentageRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setPurchasePercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         purchasePercentageRuleId = _ruleId;
         purchasePercentageRuleActive = true;
         emit ApplicationHandlerApplied(PURCHASE_PERCENTAGE, address(this), _ruleId);
@@ -502,7 +498,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activatePurchasePercentageRuleIdRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activatePurchasePercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         purchasePercentageRuleActive = _on;
     }
 
@@ -527,7 +523,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setSellPercentageRuleId(uint32 _ruleId) external appAdministratorOnly(appManagerAddress) {
+    function setSellPercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         sellPercentageRuleId = _ruleId;
         sellPercentageRuleActive = true;
         emit ApplicationHandlerApplied(SELL_PERCENTAGE, address(this), _ruleId);
@@ -537,7 +533,7 @@ contract ProtocolAMMHandler is Ownable, AppAdministratorOnly, ITokenHandlerEvent
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateSellPercentageRuleIdRule(bool _on) external appAdministratorOnly(appManagerAddress) {
+    function activateSellPercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         sellPercentageRuleActive = _on;
     }
 

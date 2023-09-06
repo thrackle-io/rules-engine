@@ -1,8 +1,8 @@
 # AppRuleDataFacet
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/economic/ruleStorage/AppRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/economic/ruleStorage/AppRuleDataFacet.sol)
 
 **Inherits:**
-Context, [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IAppRuleInputErrors](/src/interfaces/IErrors.sol/interface.IAppRuleInputErrors.md), [IRiskInputErrors](/src/interfaces/IErrors.sol/interface.IRiskInputErrors.md)
+Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IAppRuleInputErrors](/src/interfaces/IErrors.sol/interface.IAppRuleInputErrors.md), [IRiskInputErrors](/src/interfaces/IErrors.sol/interface.IRiskInputErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -20,13 +20,13 @@ and position 4 represents level 4.
 
 *Function add a AccessLevel Balance rule*
 
-*Function has AppAdministratorOnly Modifier and takes AppManager Address Param*
+*Function has RuleAdministratorOnly Modifier and takes AppManager Address Param*
 
 
 ```solidity
 function addAccessLevelBalanceRule(address _appManagerAddr, uint48[] calldata _balanceAmounts)
     external
-    appAdministratorOnly(_appManagerAddr)
+    ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);
 ```
 **Parameters**
@@ -87,13 +87,13 @@ and position 4 represents level 4.
 
 *Function add a Accessc Level Withdrawal rule*
 
-*Function has AppAdministratorOnly Modifier and takes AppManager Address Param*
+*Function has ruleAdministratorOnly Modifier and takes AppManager Address Param*
 
 
 ```solidity
 function addAccessLevelWithdrawalRule(address _appManagerAddr, uint48[] calldata _withdrawalAmounts)
     external
-    appAdministratorOnly(_appManagerAddr)
+    ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);
 ```
 **Parameters**
@@ -166,7 +166,7 @@ risk scores      balances         resultant logic
 
 *Function add a Max Tx Size Per Period By Risk rule*
 
-*Function has AppAdministratorOnly Modifier and takes AppManager Address Param*
+*Function has ruleAdministratorOnly Modifier and takes AppManager Address Param*
 
 
 ```solidity
@@ -176,7 +176,7 @@ function addMaxTxSizePerPeriodByRiskRule(
     uint8[] calldata _riskLevel,
     uint8 _period,
     uint8 _startingTime
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 
@@ -252,7 +252,7 @@ risk scores      balances         resultant logic
 
 *Function to add new AccountBalanceByRiskScore Rules*
 
-*Function has AppAdministratorOnly Modifier and takes AppManager Address Param*
+*Function has ruleAdministratorOnly Modifier and takes AppManager Address Param*
 
 
 ```solidity
@@ -260,7 +260,7 @@ function addAccountBalanceByRiskScore(
     address _appManagerAddr,
     uint8[] calldata _riskScores,
     uint48[] calldata _balanceLimits
-) external appAdministratorOnly(_appManagerAddr) returns (uint32);
+) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
 

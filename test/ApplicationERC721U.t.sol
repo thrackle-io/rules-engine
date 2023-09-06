@@ -1,83 +1,48 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "../src/example/ApplicationERC721U.sol";
-import "../src/example/ApplicationERC721UProxy.sol";
-import {ApplicationAppManager} from "../src/example/ApplicationAppManager.sol";
-import "../src/example/application/ApplicationHandler.sol";
-import "./DiamondTestUtil.sol";
-import "../src/example/ApplicationERC721Handler.sol";
-import "./RuleProcessorDiamondTestUtil.sol";
-import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import "../src/example/OracleRestricted.sol";
-import "../src/example/OracleAllowed.sol";
-import "../src/example/pricing/ApplicationERC20Pricing.sol";
-import "../src/example/pricing/ApplicationERC721Pricing.sol";
+import "src/example/ApplicationERC721UProxy.sol";
+import "src/example/ApplicationERC721U.sol";
+import "src/example/OracleRestricted.sol";
+import "src/example/OracleAllowed.sol";
 import {ApplicationERC721HandlerMod} from "./helpers/ApplicationERC721HandlerMod.sol";
+import "test/helpers/TestCommon.sol";
 
-contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
-    ApplicationERC721U applicationNFT;
+contract ApplicationERC721UTest is TestCommon {
+    ApplicationERC721U applicationNFTU;
     ApplicationERC721U applicationNFT2;
     ApplicationERC721UProxy applicationNFTProxy;
-    RuleProcessorDiamond ruleProcessor;
-    RuleStorageDiamond ruleStorageDiamond;
-    ApplicationERC721Handler applicationNFTHandler;
     ApplicationERC721Handler applicationNFTHandler2;
-    ApplicationAppManager appManager;
-    ApplicationHandler public applicationHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
-    ApplicationERC20Pricing erc20Pricer;
-    ApplicationERC721Pricing nftPricer;
     ApplicationERC721HandlerMod newAssetHandler;
 
-    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    address user1 = address(11);
-    address user2 = address(22);
-    address user3 = address(33);
     address rich_user = address(44);
-    address accessTier = address(3);
-    address ac;
     address[] badBoys;
     address[] goodBoys;
-    uint256 Blocktime = 1769924800;
     address proxyOwner = address(787);
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
-        /// Deploy the Rule Storage Diamond.
-        ruleStorageDiamond = getRuleStorageDiamond();
-        /// Deploy the token rule processor diamond
-        ruleProcessor = getRuleProcessorDiamond();
-        /// Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        /// add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdministrator);
-        /// add the AccessLevelAdmin address as a AccessLevel admin
-        appManager.addAccessTier(accessTier);
-        appManager.addAccessTier(AccessTier);
-        /// add Risk Admin
-        appManager.addRiskAdmin(riskAdmin);
-        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
-        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
+        vm.warp(Blocktime);
+        vm.startPrank(superAdmin);
+        setUpProtocolAndAppManagerAndTokens();
+        switchToAppAdministrator();
+        // create the oracles
+        oracleAllowed = new OracleAllowed();
+        oracleRestricted = new OracleRestricted();
 
-        applicationNFT = new ApplicationERC721U();
-        applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFT), proxyOwner, "");
-        ApplicationERC721U(address(applicationNFTProxy)).initialize("Prime Eternal", "CHAMP", address(appManager));
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), false);
+        applicationNFTU = new ApplicationERC721U();
+        applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFTU), proxyOwner, "");
+        ApplicationERC721U(address(applicationNFTProxy)).initialize("Prime Eternal", "CHAMP", address(applicationAppManager));
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), false);
         ApplicationERC721U(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        applicationNFTHandler.setERC721Address(address(applicationNFTProxy));
         /// register the token
-        appManager.registerToken("THRK", address(applicationNFTProxy));
+        applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
         ///Pricing Contracts
-        nftPricer = new ApplicationERC721Pricing();
-        applicationNFTHandler.setNFTPricingAddress(address(nftPricer));
+        erc721Pricer = new ApplicationERC721Pricing();
+        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
         erc20Pricer = new ApplicationERC20Pricing();
         applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
         /// create the oracles
@@ -88,28 +53,28 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
 
     function testMintUpgradeable() public {
         /// Owner Mints new tokenId
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
-        console.log(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(defaultAdmin));
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
+        console.log(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(appAdministrator));
         /// Owner Mints a second new tokenId
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
-        console.log(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(defaultAdmin));
-        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(defaultAdmin), 2);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
+        console.log(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(appAdministrator));
+        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(appAdministrator), 2);
     }
 
     function testTransferUpgradeable() public {
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
-        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(defaultAdmin), 1);
-        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(defaultAdmin, appAdministrator, 0);
-        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(defaultAdmin), 0);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(appAdministrator), 1);
+        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(appAdministrator, user, 0);
+        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(appAdministrator), 0);
+        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user), 1);
     }
 
     function testBurnUpgradeable() public {
         ///Mint and transfer tokenId 0
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
-        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(defaultAdmin, appAdministrator, 0);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
+        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(appAdministrator, appAdministrator, 0);
         ///Mint tokenId 1
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
         ///Test token burn of token 0 and token 1
         ApplicationERC721U(address(applicationNFTProxy)).burn(1);
         ///Switch to app administrator account for burn
@@ -119,23 +84,22 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         ApplicationERC721U(address(applicationNFTProxy)).burn(0);
         ///Return to default admin account
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(defaultAdmin), 0);
+        vm.startPrank(appAdministrator);
+        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(appAdministrator), 0);
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(appAdministrator), 0);
     }
 
     function testFailBurnUpgradeable() public {
         ///Mint and transfer tokenId 0
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
-        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(defaultAdmin, appAdministrator, 0);
-        ///Mint tokenId 1
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(user);
+        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user, appAdministrator, 0);
         ///attempt to burn token that user does not own
+        switchToUser();
         ApplicationERC721U(address(applicationNFTProxy)).burn(0);
     }
 
     function testPassMinMaxAccountBalanceRuleUpgradeable() public {
-        /// mint 6 NFTs to defaultAdmin for transfer
+        /// mint 6 NFTs to appAdministrator for transfer
         ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
         ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
         ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
@@ -151,8 +115,7 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         max[0] = uint256(6);
 
         /// set up a non admin user with tokens
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToAppAdministrator();
         ///transfer tokenId 1 and 2 to rich_user
         ApplicationERC721U(address(applicationNFTProxy)).transferFrom(appAdministrator, rich_user, 1);
         ApplicationERC721U(address(applicationNFTProxy)).transferFrom(appAdministrator, rich_user, 2);
@@ -162,26 +125,26 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         ApplicationERC721U(address(applicationNFTProxy)).transferFrom(appAdministrator, user1, 4);
         ApplicationERC721U(address(applicationNFTProxy)).transferFrom(appAdministrator, user1, 5);
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user1), 2);
-
-        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(appManager), accs, min, max);
+        switchToRuleAdmin();
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
         // add the actual rule
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(appManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
 
         ///Add GeneralTag to account
-        appManager.addGeneralTag(user1, "Oscar"); ///add tag
-        assertTrue(appManager.hasTag(user1, "Oscar"));
-        appManager.addGeneralTag(user2, "Oscar"); ///add tag
-        assertTrue(appManager.hasTag(user2, "Oscar"));
-        appManager.addGeneralTag(user3, "Oscar"); ///add tag
-        assertTrue(appManager.hasTag(user3, "Oscar"));
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user1, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
+        applicationAppManager.addGeneralTag(user2, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "Oscar"));
+        applicationAppManager.addGeneralTag(user3, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user3, "Oscar"));
         ///perform transfer that checks rule
         vm.stopPrank();
         vm.startPrank(user1);
         ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, user2, 4);
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user2), 1);
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user1), 1);
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToRuleAdmin();
         ///update ruleId in application NFT handler
         applicationNFTHandler.setMinMaxBalanceRuleId(ruleId);
         /// make sure the minimum rules fail results in revert
@@ -232,15 +195,18 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user1), 5);
 
         // add the rule.
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 0, address(oracleRestricted));
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleRestricted));
         // add a blocked address
+        switchToAppAdministrator();
         badBoys.push(address(69));
         oracleRestricted.addToSanctionsList(badBoys);
         /// connect the rule to this handler
+        switchToRuleAdmin();
         applicationNFTHandler.setOracleRuleId(_index);
         // test that the oracle works
         // This one should pass
@@ -255,14 +221,12 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, address(69), 1);
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(address(69)), 0);
         // check the allowed list type
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 1, address(oracleAllowed));
+        switchToRuleAdmin();
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
         applicationNFTHandler.setOracleRuleId(_index);
         // add an allowed address
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator();
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
         vm.stopPrank();
@@ -274,24 +238,10 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, address(88), 3);
 
         // Finally, check the invalid type
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(appManager), 2, address(oracleAllowed));
-        /// connect the rule to this handler
-        applicationNFTHandler.setOracleRuleId(_index);
-        vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0x2a15491e);
-        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, address(88), 3);
-        // upgrade the NFT and make sure it still works
-        vm.stopPrank();
-        vm.startPrank(proxyOwner);
-        applicationNFT2 = new ApplicationERC721U();
-        applicationNFTProxy.upgradeTo(address(applicationNFT2));
-        vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0x2a15491e);
-        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, address(88), 3);
+        switchToRuleAdmin();
+        bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, 2));
+        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 2, address(oracleAllowed));
     }
 
     function testPauseRulesViaAppManagerERC721U() public {
@@ -304,9 +254,8 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
 
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user1), 5);
         ///set pause rule and check check that the transaction reverts
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
-        appManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
+        switchToRuleAdmin();
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
         vm.warp(Blocktime + 1001);
 
         vm.stopPrank();
@@ -344,14 +293,17 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         uint8[] memory tradesAllowed = new uint8[](2);
         tradesAllowed[0] = 1;
         tradesAllowed[1] = 5;
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(appManager), nftTags, tradesAllowed);
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
         NonTaggedRules.NFTTradeCounterRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
-        assertTrue(rule.active);
+        assertEq(rule.startTs, Blocktime);
         // tag the NFT collection
-        appManager.addGeneralTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
         // apply the rule to the ApplicationERC721Handler
+        switchToRuleAdmin();
         applicationNFTHandler.setTradeCounterRuleId(_index);
 
         // ensure standard transfer works by transferring 1 to user2 and back(2 trades)
@@ -366,10 +318,9 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user2), 0);
 
         // set to a tag that only allows 1 transfer
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        appManager.removeGeneralTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
-        appManager.addGeneralTag(address(applicationNFTProxy), "BoredGrape"); ///add tag
+        switchToAppAdministrator();
+        applicationAppManager.removeGeneralTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
+        applicationAppManager.addGeneralTag(address(applicationNFTProxy), "BoredGrape"); ///add tag
         // perform 1 transfer
         vm.stopPrank();
         vm.startPrank(user1);
@@ -387,9 +338,8 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user2), 0);
 
         // add the other tag and check to make sure that it still only allows 1 trade
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        appManager.addGeneralTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
         vm.stopPrank();
         vm.startPrank(user1);
         // first one should pass
@@ -425,8 +375,9 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         txnLimits[3] = 12;
         txnLimits[4] = 11;
         txnLimits[5] = 10;
-        uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(appManager), riskScores, txnLimits);
-
+        switchToRuleAdmin();
+        uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
+        switchToAppAdministrator();
         ///Mint NFT's (user1,2,3)
         ApplicationERC721U(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
         ApplicationERC721U(address(applicationNFTProxy)).safeMint(user1); // tokenId = 1
@@ -441,27 +392,25 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user2), 3);
 
         ///Set Rule in NFTHandler
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToRuleAdmin();
         applicationNFTHandler.setTransactionLimitByRiskRuleId(index);
+
         ///Set Risk Scores for users
-        vm.stopPrank();
-        vm.startPrank(riskAdmin);
-        appManager.addRiskScore(user1, riskScores[0]);
-        appManager.addRiskScore(user2, riskScores[1]);
-        appManager.addRiskScore(user3, 49);
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user3, 49);
 
         ///Set Pricing for NFTs 0-7
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 1, 11 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 0, 10 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 2, 12 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 3, 13 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 15 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 15 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 17 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 20 * (10 ** 18));
+        switchToAppAdministrator();
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 1, 11 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 0, 10 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 2, 12 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 3, 13 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 15 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 15 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 17 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 20 * (10 ** 18));
 
         ///Transfer NFT's
         ///Positive cases
@@ -496,13 +445,12 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(user2, user3, 4);
 
         ///simulate price changes
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator();
 
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 1050 * (10 ** 16)); // in cents
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 1550 * (10 ** 16)); // in cents
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 11 * (10 ** 18)); // in dollars
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 9 * (10 ** 18)); // in dollars
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 1050 * (10 ** 16)); // in cents
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 1550 * (10 ** 16)); // in cents
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 11 * (10 ** 18)); // in dollars
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 9 * (10 ** 18)); // in dollars
 
         vm.stopPrank();
         vm.startPrank(user2);
@@ -541,6 +489,7 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user1), 5);
 
         // apply the rule to the ApplicationERC721Handler
+        switchToRuleAdmin();
         applicationHandler.activateAccessLevel0Rule(true);
 
         // transfers should not work for addresses without AccessLevel
@@ -559,9 +508,15 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, user2, 0);
 
         // set AccessLevel and try again
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user2, 1);
         vm.stopPrank();
-        vm.startPrank(AccessTier);
-        appManager.addAccessLevel(user2, 1);
+        vm.startPrank(user1);
+        vm.expectRevert(0x3fac082d); /// user 1 accessLevel is still 0 so tx reverts
+        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, user2, 0);
+
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user1, 1);
         vm.stopPrank();
         vm.startPrank(user1);
         ApplicationERC721U(address(applicationNFTProxy)).transferFrom(user1, user2, 0);
@@ -593,24 +548,27 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         holdAmounts[0] = uint256(1);
         holdAmounts[1] = uint256(2);
         holdAmounts[2] = uint256(3);
-        uint256[] memory holdPeriods = new uint256[](3);
-        holdPeriods[0] = uint32(720); // one month
-        holdPeriods[1] = uint32(4380); // six months
-        holdPeriods[2] = uint32(17520); // two years
-        uint256[] memory holdTimestamps = new uint256[](3); /// StartTime of hold period
+        uint16[] memory holdPeriods = new uint16[](3);
+        holdPeriods[0] = uint16(720); // one month
+        holdPeriods[1] = uint16(4380); // six months
+        holdPeriods[2] = uint16(17520); // two years
+        uint64[] memory holdTimestamps = new uint64[](3); /// StartTime of hold period
         holdTimestamps[0] = Blocktime;
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
-        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(appManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        switchToRuleAdmin();
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
         assertEq(_index, 0);
         /// Add Tags to users
-        appManager.addGeneralTag(user1, "MIN1"); ///add tag
-        assertTrue(appManager.hasTag(user1, "MIN1"));
-        appManager.addGeneralTag(user2, "MIN2"); ///add tag
-        assertTrue(appManager.hasTag(user2, "MIN2"));
-        appManager.addGeneralTag(user3, "MIN3"); ///add tag
-        assertTrue(appManager.hasTag(user3, "MIN3"));
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user1, "MIN1"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "MIN1"));
+        applicationAppManager.addGeneralTag(user2, "MIN2"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "MIN2"));
+        applicationAppManager.addGeneralTag(user3, "MIN3"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user3, "MIN3"));
         /// Set rule bool to active
+        switchToRuleAdmin();
         applicationNFTHandler.setMinBalByDateRuleId(_index);
         /// Transfers passing (above min value limit)
         vm.stopPrank();
@@ -682,59 +640,95 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
 
     function testAdminWithdrawalUpgradeable() public {
         /// Mint TokenId 0-6 to default admin
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
-        ApplicationERC721U(address(applicationNFTProxy)).safeMint(defaultAdmin);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
         /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
-        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(appManager), 5, block.timestamp + 365 days);
+        switchToRuleAdmin();
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// Set the rule in the handler
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
         applicationNFTHandler.activateAdminWithdrawalRule(false);
         vm.expectRevert();
-        applicationNFTHandler.setAdminWithdrawalRuleId(1);
-
+        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        switchToAppAdministrator();
         /// These transfers should pass
-        ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(defaultAdmin, user1, 0);
-        ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(defaultAdmin, user1, 1);
+        ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(appAdministrator, user1, 0);
+        ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(appAdministrator, user1, 1);
         /// This one fails
         vm.expectRevert();
-        ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(defaultAdmin, user1, 2);
+        ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(appAdministrator, user1, 2);
 
         // upgrade the NFT and make sure it still fails
         vm.stopPrank();
         vm.startPrank(proxyOwner);
         applicationNFT2 = new ApplicationERC721U();
         applicationNFTProxy.upgradeTo(address(applicationNFT2));
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator();
         vm.expectRevert();
-        ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(defaultAdmin, user1, 2);
+        ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(appAdministrator, user1, 2);
 
         /// Move Time forward 366 days
         vm.warp(Blocktime + 366 days);
 
         /// Transfers and updating rules should now pass
-        ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(defaultAdmin, user1, 2);
+        ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(appAdministrator, user1, 2);
+        switchToRuleAdmin();
         applicationNFTHandler.activateAdminWithdrawalRule(false);
-        applicationNFTHandler.setAdminWithdrawalRuleId(1);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+    }
+
+    function testUpgradeAppManager721u() public {
+        address newAdmin = address(75);
+        /// create a new app manager
+        ApplicationAppManager applicationAppManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
+        /// propose a new AppManager
+        ApplicationERC721U(address(applicationNFTProxy)).proposeAppManagerAddress(address(applicationAppManager2));
+        /// confirm the app manager
+        vm.stopPrank();
+        vm.startPrank(newAdmin);
+        applicationAppManager2.confirmAppManager(address(applicationNFTProxy));
+        /// test to ensure it still works
+        ApplicationERC721U(address(applicationNFTProxy)).safeMint(appAdministrator);
+        switchToAppAdministrator();
+        ApplicationERC721U(address(applicationNFTProxy)).transferFrom(appAdministrator, user, 0);
+        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(appAdministrator), 0);
+        assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user), 1);
+
+        /// Test fail scenarios
+        vm.stopPrank();
+        vm.startPrank(newAdmin);
+        // zero address
+        vm.expectRevert(0xd92e233d);
+        ApplicationERC721U(address(applicationNFTProxy)).proposeAppManagerAddress(address(0));
+        // no proposed address
+        vm.expectRevert(0x821e0eeb);
+        applicationAppManager2.confirmAppManager(address(applicationNFT));
+        // non proposer tries to confirm
+        ApplicationERC721U(address(applicationNFTProxy)).proposeAppManagerAddress(address(applicationAppManager2));
+        ApplicationAppManager applicationAppManager3 = new ApplicationAppManager(newAdmin, "Castlevania3", false);
+        vm.expectRevert(0x41284967);
+        applicationAppManager3.confirmAppManager(address(applicationNFTProxy));
     }
 
     function testUpgradingHandlersUpgradeable() public {
         ///deploy new modified appliction asset handler contract
-        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), true);
+        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), true);
         ///connect to apptoken
         ApplicationERC721U(address(applicationNFTProxy)).connectHandlerToToken(address(assetHandler));
+        applicationAppManager.deregisterToken("THRK");
+        applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
-        assetHandler.setERC721Address(address(applicationNFTProxy));
-        assetHandler.setNFTPricingAddress(address(nftPricer));
+        assetHandler.setNFTPricingAddress(address(erc721Pricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
 
         ///Set transaction limit rule params
@@ -751,8 +745,9 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         txnLimits[3] = 12;
         txnLimits[4] = 11;
         txnLimits[5] = 10;
-        uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(appManager), riskScores, txnLimits);
-
+        switchToRuleAdmin();
+        uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
+        switchToAppAdministrator();
         ///Mint NFT's (user1,2,3)
         ApplicationERC721U(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
         ApplicationERC721U(address(applicationNFTProxy)).safeMint(user1); // tokenId = 1
@@ -767,27 +762,24 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user2), 3);
 
         ///Set Rule in NFTHandler
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToRuleAdmin();
         assetHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
-        vm.stopPrank();
-        vm.startPrank(riskAdmin);
-        appManager.addRiskScore(user1, riskScores[0]);
-        appManager.addRiskScore(user2, riskScores[1]);
-        appManager.addRiskScore(user3, 49);
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user3, 49);
 
         ///Set Pricing for NFTs 0-7
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 1, 11 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 0, 10 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 2, 12 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 3, 13 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 15 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 15 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 17 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 20 * (10 ** 18));
+        switchToAppAdministrator();
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 1, 11 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 0, 10 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 2, 12 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 3, 13 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 15 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 15 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 17 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 20 * (10 ** 18));
 
         ///Transfer NFT's
         ///Positive cases
@@ -822,13 +814,12 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(user2, user3, 4);
 
         ///simulate price changes
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator();
 
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 1050 * (10 ** 16)); // in cents
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 1550 * (10 ** 16)); // in cents
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 11 * (10 ** 18)); // in dollars
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 9 * (10 ** 18)); // in dollars
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 1050 * (10 ** 16)); // in cents
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 1550 * (10 ** 16)); // in cents
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 11 * (10 ** 18)); // in dollars
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 9 * (10 ** 18)); // in dollars
 
         vm.stopPrank();
         vm.startPrank(user2);
@@ -853,17 +844,19 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         applicationNFT2 = new ApplicationERC721U();
         applicationNFTProxy.upgradeTo(address(applicationNFT2));
         // make it a double
-        applicationNFT = new ApplicationERC721U();
-        applicationNFTProxy.upgradeTo(address(applicationNFT));
+        applicationNFTU = new ApplicationERC721U();
+        applicationNFTProxy.upgradeTo(address(applicationNFTU));
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(appAdministrator);
         ///deploy new modified appliction asset handler contract
-        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(appManager), true);
+        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), true);
         ///connect to apptoken
         ApplicationERC721U(address(applicationNFTProxy)).connectHandlerToToken(address(assetHandler));
+        /// in order to handle upgrades and handler registrations, deregister and re-register with new
+        applicationAppManager.deregisterToken("THRK");
+        applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
-        assetHandler.setERC721Address(address(applicationNFTProxy));
-        assetHandler.setNFTPricingAddress(address(nftPricer));
+        assetHandler.setNFTPricingAddress(address(erc721Pricer));
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
 
         ///Set transaction limit rule params
@@ -880,8 +873,9 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         txnLimits[3] = 12;
         txnLimits[4] = 11;
         txnLimits[5] = 10;
-        uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(appManager), riskScores, txnLimits);
-
+        switchToRuleAdmin();
+        uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
+        switchToAppAdministrator();
         ///Mint NFT's (user1,2,3)
         ApplicationERC721U(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
         ApplicationERC721U(address(applicationNFTProxy)).safeMint(user1); // tokenId = 1
@@ -896,27 +890,24 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         assertEq(ApplicationERC721U(address(applicationNFTProxy)).balanceOf(user2), 3);
 
         ///Set Rule in NFTHandler
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToRuleAdmin();
         assetHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
-        vm.stopPrank();
-        vm.startPrank(riskAdmin);
-        appManager.addRiskScore(user1, riskScores[0]);
-        appManager.addRiskScore(user2, riskScores[1]);
-        appManager.addRiskScore(user3, 49);
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user3, 49);
 
         ///Set Pricing for NFTs 0-7
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 1, 11 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 0, 10 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 2, 12 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 3, 13 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 15 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 15 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 17 * (10 ** 18));
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 20 * (10 ** 18));
+        switchToAppAdministrator();
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 1, 11 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 0, 10 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 2, 12 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 3, 13 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 15 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 15 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 17 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 20 * (10 ** 18));
 
         ///Transfer NFT's
         ///Positive cases
@@ -951,13 +942,12 @@ contract ApplicationERC721UTest is DiamondTestUtil, RuleProcessorDiamondTestUtil
         ApplicationERC721U(address(applicationNFTProxy)).safeTransferFrom(user2, user3, 4);
 
         ///simulate price changes
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator();
 
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 1050 * (10 ** 16)); // in cents
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 1550 * (10 ** 16)); // in cents
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 11 * (10 ** 18)); // in dollars
-        nftPricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 9 * (10 ** 18)); // in dollars
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 4, 1050 * (10 ** 16)); // in cents
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 5, 1550 * (10 ** 16)); // in cents
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 6, 11 * (10 ** 18)); // in dollars
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTProxy), 7, 9 * (10 ** 18)); // in dollars
 
         vm.stopPrank();
         vm.startPrank(user2);

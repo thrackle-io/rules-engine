@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import "src/token/ProtocolERC721.sol";
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "../token/ProtocolERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title ApplicationERC721
@@ -10,11 +10,14 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
  * @notice This is an example implementation that App Devs should use.
  * During deployment, _handlerAddress = ERC721Handler contract address
  *                    _appManagerAddress = AppManager contract address
- * @dev This contract contains optional functions commented out. These functions allow for: Priced Mint for user minting, AppAdministratorOnly Minting or Contract Owner Only Minting.
- * Only one safeMint function can be used at a time. Comment out all other safeMint functions and variables used for that function.
+ * @dev This contract contains 3 different safeMint implementations: priced minting, free minting and app-administrator-only minting. The safeMint is by default
+ * restricted to app-administrators or contract-owner, but it is possible to override such configuration and choose any of the other 3 options in here, or even
+ * creating a different safeMint implementation. However, bare in mind that only one safeMint function can exist at a time in the contract unless polymorphism is
+ * used. If it is wished to override the default minting restriction from app-administrators or contract-owners, select the desired safeMint function by simply
+ * uncommenting the desired implementations and its variables, or write your own implementation that overrides the default safeMint function.
  */
 
-contract ApplicationERC721 is ProtocolERC721, Ownable {
+contract ApplicationERC721 is ProtocolERC721 {
     /// Optional Function Variables and Errors. Uncomment these if using option functions:
     // using Counters for Counters.Counter;
     // Counters.Counter private _tokenIdCounter;
@@ -28,9 +31,6 @@ contract ApplicationERC721 is ProtocolERC721, Ownable {
     // error TreasuryAddressCannotBeTokenContract();
     // error TreasuryAddressNotSet();
 
-    /// Contract Owner Minting
-    // error OnlyOwnerCanMint();
-
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
      * @param _name Name of NFT
@@ -38,7 +38,10 @@ contract ApplicationERC721 is ProtocolERC721, Ownable {
      * @param _appManagerAddress Address of App Manager
      * @param _baseUri URI for the base token
      */
-    constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {}
+    constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {
+        /// This is used for owner only minting. Uncomment this with the below safeMint() for owner only minting.
+        //owner = msg.sender;
+    }
 
     /// *********************************** OPTIONAL FUNCTIONS ***********************************
 
@@ -46,7 +49,7 @@ contract ApplicationERC721 is ProtocolERC721, Ownable {
 
     /**
      * @dev Function mints new a new token to caller with tokenId incremented by 1 from previous minted token at mintPrice.
-     * @notice Uncomment this function and comment out safeMint() above. This allows for user minting at fixed price.
+     * @notice Uncomment this function. This allows for user minting at fixed price.
      * This function assumes the mintPrice is in Chain Native Token (ETH/MATIC/BNB/etc...)
      * Uncomment setMintPrice(), setTreasuryAddress(), withdrawMintFees() and receive(). It is essential that all of these are implemented so you do not lock up tokens into the contract permanently.
      * @param to Address of recipient
@@ -102,14 +105,13 @@ contract ApplicationERC721 is ProtocolERC721, Ownable {
     //     _safeMint(to, tokenId);
     // }
 
-    /// Contract Owner Minting Only
+    /// Free Mint (Not Recommended)
     /**
-     * @dev Function mints new a new token to caller with tokenId incremented by 1 from previous minted token at mintPrice.
-     * @notice Uncomment this function and comment out safeMint() above. This allows for user minting at fixed price.
+     * @dev Function mints new a new token to anybody. Don't enabled this function if you are not sure about what you're doing.
+     * @notice To use, uncomment this function and comment out safeMint() above. This allows everybody to mint for free.
      * @param to Address of recipient
      */
-    // function safeMint(address to) public payable override whenNotPaused {
-    //     if (msg.sender != owner) revert OnlyOwnerCanMint();
+    // function safeMint(address to) public payable override whenNotPaused{
     //     uint256 tokenId = _tokenIdCounter.current();
     //     _tokenIdCounter.increment();
     //     _safeMint(to, tokenId);

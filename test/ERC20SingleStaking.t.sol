@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import "../src/example/ApplicationERC20.sol";
@@ -41,7 +41,7 @@ contract ERC20StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     uint256[7] timeUnits = [1, 1 minutes, 1 hours, 1 days, 1 weeks, 30 days, 365 days];
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(superAdmin);
         // Deploy the Rule Storage Diamond.
         ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy the token rule processor diamond
@@ -50,23 +50,23 @@ contract ERC20StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
 
         // Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
+        appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
         appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         // add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
 
-        // Set up the ApplicationERC20Handler
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
         // Create two tokens and mint a bunch
         stakingCoin = new ApplicationERC20("stakingCoin", "STK", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(stakingCoin), false);
         stakingCoin.connectHandlerToToken(address(applicationCoinHandler));
+        appManager.registerToken("stakingCoin", address(stakingCoin));
         stakingCoin.mint(user1, 2_000_000_000_000_000_000_000_000);
 
         rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), false);
-        rewardCoin.connectHandlerToToken(address(applicationCoinHandler));
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(rewardCoin), false);
+        rewardCoin.connectHandlerToToken(address(applicationCoinHandler2));
+        appManager.registerToken("rewardCoin", address(rewardCoin));
 
         stakingContract = new ERC20Staking(address(rewardCoin), address(stakingCoin), address(appManager));
 

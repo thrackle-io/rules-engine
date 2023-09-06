@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "../../liquidity/ProtocolAMMHandler.sol";
 
@@ -15,5 +15,6 @@ contract ApplicationAMMHandler is ProtocolAMMHandler {
      * @dev Constructor sets the App Manager and token rule router Address
      * @param _appManagerAddress App Manager Address
      * @param _ruleProcessorProxyAddress Rule Router Proxy Address
-     */ constructor(address _appManagerAddress, address _ruleProcessorProxyAddress) ProtocolAMMHandler(_appManagerAddress, _ruleProcessorProxyAddress) {}
+     * @param _assetAddress address of the congtrolling address
+     */ constructor(address _appManagerAddress, address _ruleProcessorProxyAddress,address _assetAddress) ProtocolAMMHandler(_appManagerAddress, _ruleProcessorProxyAddress,_assetAddress) {}
 }

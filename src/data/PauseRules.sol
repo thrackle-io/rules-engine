@@ -15,9 +15,10 @@ contract PauseRules is IPauseRules, DataModule {
 
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
+     * @param _dataModuleAppManagerAddress address of the owning app manager
      */
-    constructor() {
-        dataModuleAppManagerAddress = owner();
+    constructor(address _dataModuleAppManagerAddress) DataModule(_dataModuleAppManagerAddress) {
+        _transferOwnership(_dataModuleAppManagerAddress);
     }
 
     /**
@@ -25,9 +26,9 @@ contract PauseRules is IPauseRules, DataModule {
      * @param _pauseStart pause window start timestamp
      * @param _pauseStop pause window stop timestamp
      */
-    function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) public onlyOwner {
-        if(pauseRules.length >= 15) revert MaxPauseRulesReached();
-        
+    function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) public virtual onlyOwner {
+        if (pauseRules.length >= 15) revert MaxPauseRulesReached();
+
         cleanOutdatedRules();
         if (_pauseStop <= _pauseStart || _pauseStart <= block.timestamp) {
             revert InvalidDateWindow(_pauseStart, _pauseStop);
@@ -52,7 +53,7 @@ contract PauseRules is IPauseRules, DataModule {
      * @param _pauseStart pause window start timestamp
      * @param _pauseStop pause window stop timestamp
      */
-    function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyOwner {
+    function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external virtual onlyOwner {
         uint256 i;
         while (i < pauseRules.length) {
             bool exit;
@@ -74,7 +75,7 @@ contract PauseRules is IPauseRules, DataModule {
     /**
      * @dev Cleans up outdated pause rules by removing them from the mapping
      */
-    function cleanOutdatedRules() public {
+    function cleanOutdatedRules() public virtual {
         uint256 i;
         while (i < pauseRules.length) {
             while (pauseRules.length > 0 && i < pauseRules.length && pauseRules[i].pauseStop <= block.timestamp) {
@@ -91,7 +92,17 @@ contract PauseRules is IPauseRules, DataModule {
      * @dev Get the pauseRules data for a given tokenName.
      * @return pauseRules all the pause rules for the token
      */
-    function getPauseRules() external view onlyOwner returns (PauseRule[] memory) {
+    function getPauseRules() external view virtual onlyOwner returns (PauseRule[] memory) {
         return (pauseRules);
     }
+
+    /**
+     * @dev Return a bool for if the PauseRule array is empty
+     * @notice return true if pause rules is empty and return false if array contains rules 
+     * @return true if empty 
+     */
+    function isPauseRulesEmpty() external view virtual onlyOwner returns(bool) {
+        return pauseRules.length == 0;
+    }
+
 }

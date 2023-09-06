@@ -1,5 +1,5 @@
 # ERC20RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [IERC20Errors](/src/interfaces/IErrors.sol/interface.IERC20Errors.md)
@@ -47,8 +47,10 @@ function checkOraclePasses(uint32 _ruleId, address _address) external view;
 
 ### checkPurchasePercentagePasses
 
-White List type
-Black List type
+Allow List type
+If Allow List Oracle rule active, address(0) is exempt to allow for burning
+Deny List type
+If Deny List Oracle rule active all transactions to addresses registered to deny list (including address(0)) will be denied.
 Invalid oracle type
 
 *Function receives a rule id, retrieves the rule data and checks if the Purchase Percentage Rule passes*
@@ -76,8 +78,10 @@ function checkPurchasePercentagePasses(
 
 ### checkSellPercentagePasses
 
+validation block
 resets value for purchases outside of purchase period
 check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
+we perform the rule check
 update totalPurchasedWithinPeriod to include the amountToTransfer when inside purchase period
 perform rule check if amountToTransfer + purchasedWithinPeriod is over allowed amount of total supply
 
@@ -104,8 +108,10 @@ function checkSellPercentagePasses(
 
 ### checkTokenTransferVolumePasses
 
+validation block
 resets value for purchases outside of purchase period
 check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
+we perform the rule check
 update soldWithinPeriod to include the amountToTransfer when inside purchase period
 perform rule check if amountToTransfer + soldWithinPeriod is over allowed amount of total supply
 
@@ -135,7 +141,7 @@ function checkTokenTransferVolumePasses(
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint256`|volumeTotal new accumulated volume|
+|`<none>`|`uint256`|_volume new accumulated volume|
 
 
 ### checkTotalSupplyVolatilityPasses
@@ -148,6 +154,8 @@ This means that the last trades "tradesWithinPeriod" were inside current period,
 and we need to acumulate this trade to the those ones
 if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
 
+*Rule checks if the token total supply volatility rule will be violated.*
+
 
 ```solidity
 function checkTotalSupplyVolatilityPasses(
@@ -159,4 +167,22 @@ function checkTotalSupplyVolatilityPasses(
     uint64 _lastSupplyUpdateTime
 ) external view returns (int256, uint256);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ruleId`|`uint32`|Rule identifier for rule arguments|
+|`_volumeTotalForPeriod`|`int256`|token's trading volume for the period|
+|`_tokenTotalSupply`|`uint256`|the total supply from token tallies|
+|`_supply`|`uint256`|token total supply value|
+|`_amount`|`int256`|amount in the current transfer|
+|`_lastSupplyUpdateTime`|`uint64`|the last timestamp the supply was updated|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`int256`|_volumeTotalForPeriod properly adjusted total for the current period|
+|`<none>`|`uint256`|_tokenTotalSupply properly adjusted token total supply. This is necessary because if the token's total supply is used it skews results within the period|
+
 

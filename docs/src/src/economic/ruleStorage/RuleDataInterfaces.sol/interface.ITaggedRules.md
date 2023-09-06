@@ -1,5 +1,5 @@
 # ITaggedRules
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/economic/ruleStorage/RuleDataInterfaces.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/economic/ruleStorage/RuleDataInterfaces.sol)
 
 
 ## Structs
@@ -10,7 +10,7 @@
 ```solidity
 struct PurchaseRule {
     uint256 purchaseAmount;
-    uint32 purchasePeriod;
+    uint16 purchasePeriod;
     uint64 startTime;
 }
 ```
@@ -22,7 +22,7 @@ struct PurchaseRule {
 ```solidity
 struct SellRule {
     uint256 sellAmount;
-    uint32 sellPeriod;
+    uint16 sellPeriod;
     uint64 startTime;
 }
 ```
@@ -78,7 +78,7 @@ struct TransactionSizeToRiskRule {
 ```solidity
 struct MinBalByDateRule {
     uint256 holdAmount;
-    uint256 holdPeriod;
+    uint16 holdPeriod;
     uint256 startTimeStamp;
 }
 ```

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
-import {IApplicationRules as ApplicationRuleStorage} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
+import {AppRuleDataFacet} from "../ruleStorage/AppRuleDataFacet.sol";
+import {IApplicationRules as ApplicationRuleStorage} from "../ruleStorage/RuleDataInterfaces.sol";
 import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
 
 /**
@@ -14,11 +14,10 @@ import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
  * in terms of USD with 18 decimals of precision.
  */
 contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
-    
-
     /**
      * @dev Account balance by Risk Score
      * @param _ruleId Rule Identifier for rule arguments
+     * @param _toAddress Address of the recipient
      * @param _riskScore the Risk Score of the recepient account
      * @param _totalValuationTo recipient account's beginning balance in USD with 18 decimals of precision
      * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
@@ -35,7 +34,7 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
      *    75              250            50-74 =   250
      *                    100            75-99 =   100
      */
-    function checkAccBalanceByRisk(uint32 _ruleId, uint8 _riskScore, uint128 _totalValuationTo, uint128 _amountToTransfer) external view {
+    function checkAccBalanceByRisk(uint32 _ruleId, address _toAddress, uint8 _riskScore, uint128 _totalValuationTo, uint128 _amountToTransfer) external view {
         /// create the 'data' variable which is simply a connection to the rule diamond
         AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().rules);
         uint256 totalRules = data.getTotalAccountBalanceByRiskScoreRules();
@@ -44,24 +43,27 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
         ApplicationRuleStorage.AccountBalanceToRiskRule memory rule = data.getAccountBalanceByRiskScore(_ruleId);
         uint total = _totalValuationTo + _amountToTransfer;
         /// perform the rule check
-        for (uint256 i; i < rule.riskLevel.length; ) {
-            ///If risk score is within the rule riskLevel array, find the maxBalance for that risk Score
-            if (_riskScore < rule.riskLevel[i]) {
-                /// maxBalance must be multiplied by 10 ** 18 to account for decimals in token pricing in USD
-                if (total > uint(rule.maxBalance[i]) * (10 ** 18)) {
-                    revert BalanceExceedsRiskScoreLimit();
-                } else {
-                    ///Jump out of loop once risk score is matched to array index
-                    break;
+        /// If recipient address being checked is zero address the rule passes (This allows for burning)
+        if (_toAddress != address(0)) {
+            for (uint256 i; i < rule.riskLevel.length; ) {
+                ///If risk score is within the rule riskLevel array, find the maxBalance for that risk Score
+                if (_riskScore < rule.riskLevel[i]) {
+                    /// maxBalance must be multiplied by 10 ** 18 to account for decimals in token pricing in USD
+                    if (total > uint(rule.maxBalance[i]) * (10 ** 18)) {
+                        revert BalanceExceedsRiskScoreLimit();
+                    } else {
+                        ///Jump out of loop once risk score is matched to array index
+                        break;
+                    }
+                }
+                unchecked {
+                    ++i;
                 }
             }
-            unchecked {
-                ++i;
+            ///Check if Risk Score is higher than highest riskLevel for rule
+            if (_riskScore >= rule.riskLevel[rule.riskLevel.length - 1]) {
+                if (total > uint256(rule.maxBalance[rule.maxBalance.length - 1]) * (10 ** 18)) revert BalanceExceedsRiskScoreLimit();
             }
-        }
-        ///Check if Risk Score is higher than highest riskLevel for rule
-        if (_riskScore >= rule.riskLevel[rule.riskLevel.length - 1]) {
-            if (total > uint256(rule.maxBalance[rule.maxBalance.length - 1]) * (10 ** 18)) revert BalanceExceedsRiskScoreLimit();
         }
     }
 
@@ -97,7 +99,6 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
         /// validation block
         uint256 totalRules = data.getTotalMaxTxSizePerPeriodRules();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
-
         /// we retrieve the rule
         ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory rule = data.getMaxTxSizePerPeriodRule(ruleId);
         /// reseting the "tradesWithinPeriod", unless...

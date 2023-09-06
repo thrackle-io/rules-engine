@@ -17,14 +17,14 @@
 5. Deploy the contract sending in the following parameters:
     1. _RuleProcessorAddress_ - The address noted from previous steps and set as an environment variable($RULE_PROCESSOR_DIAMOND).
     2. _App Manager Address_ - The address noted from previous steps and set as an environment variable($APPLICATION_APP_MANAGER).
-    3. _upgradeMode_ 
-       1. The bool representing if this is an upgraded handler contract
-    4. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
+    3. _assetAddress_ - The address of the controlling asset
+    4. _upgradeMode_ - The bool representing if this is an upgraded handler contract
+6. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
     ````
-    forge create src/example/deploy/FrankensteinERC721Handler.sol:FrankensteinERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+    forge create src/example/deploy/FrankensteinERC721Handler.sol:FrankensteinERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC721_1 false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
     ````
-6. Use the output from the deployment to set an environment variable for NFT Handler's address.
+7. Use the output from the deployment to set an environment variable for NFT Handler's address.
     1. Locate the address from the output, example:
     ````
     Deployed to: 0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575

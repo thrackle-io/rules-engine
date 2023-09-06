@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "../../src/token/ProtocolERC20Handler.sol";
 
@@ -15,9 +15,15 @@ contract ApplicationAssetHandlerMod is ProtocolERC20Handler {
      * @dev Constructor sets params
      * @param _ruleProcessorProxyAddress of the protocol's TokenRuleRouter contract.
      * @param _appManagerAddress address of the application AppManager.
+     * @param _assetAddress address of the controlling asset.
      * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
-    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, bool _upgradeMode) ProtocolERC20Handler(_ruleProcessorProxyAddress, _appManagerAddress, _upgradeMode) {}
+    constructor(
+        address _ruleProcessorProxyAddress,
+        address _appManagerAddress,
+        address _assetAddress,
+        bool _upgradeMode
+    ) ProtocolERC20Handler(_ruleProcessorProxyAddress, _appManagerAddress, _assetAddress, _upgradeMode) {}
 
     /**
      * This function is used for testing the upgradability of the Handler contract.

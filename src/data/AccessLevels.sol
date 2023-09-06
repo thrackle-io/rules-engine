@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "./DataModule.sol";
 import "./IAccessLevels.sol";
@@ -15,9 +15,10 @@ contract AccessLevels is IAccessLevels, DataModule {
 
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
+     * @param _dataModuleAppManagerAddress address of the owning app manager
      */
-    constructor() {
-        dataModuleAppManagerAddress = owner();
+    constructor(address _dataModuleAppManagerAddress) DataModule(_dataModuleAppManagerAddress) {
+        _transferOwnership(_dataModuleAppManagerAddress);
     }
 
     /**
@@ -25,8 +26,9 @@ contract AccessLevels is IAccessLevels, DataModule {
      * @param _address address of the account
      * @param _level access levellevel(0-4)
      */
-    function addLevel(address _address, uint8 _level) public onlyOwner {
+    function addLevel(address _address, uint8 _level) public virtual onlyOwner {
         if (_level > 4) revert AccessLevelIsNotValid(_level);
+        if (_address == address(0)) revert ZeroAddress();
         levels[_address] = _level;
         emit AccessLevelAdded(_address, _level, block.timestamp);
     }
@@ -36,7 +38,7 @@ contract AccessLevels is IAccessLevels, DataModule {
      * @param _accounts address upon which to apply the Access Level
      * @param _level Access Level to add
      */
-    function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external onlyOwner {
+    function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external virtual onlyOwner {
         if (_level > 4) revert AccessLevelIsNotValid(_level);
         for (uint256 i; i < _accounts.length; ) {
             levels[_accounts[i]] = _level;
@@ -48,29 +50,11 @@ contract AccessLevels is IAccessLevels, DataModule {
     }
 
     /**
-     * @dev Remove the Access Level for the account. Restricted to the owner
-     * @param _account address of the account
-     */
-    function removelevel(address _account) external onlyOwner {
-        delete levels[_account];
-        emit AccessLevelRemoved(_account, block.timestamp);
-    }
-
-    /**
      * @dev Get the Access Level for the account. Restricted to the owner
      * @param _account address of the account
      * @return level Access Level(0-4)
      */
-    function getAccessLevel(address _account) external view returns (uint8) {
+    function getAccessLevel(address _account) external view virtual returns (uint8) {
         return (levels[_account]);
-    }
-
-    /**
-     * @dev Check if an account has a Access Level
-     * @param _address address of the account
-     * @return hasAccessLevel true if it has a level, false if it doesn't
-     */
-    function hasAccessLevel(address _address) external view returns (bool) {
-        return levels[_address] > 0;
     }
 }

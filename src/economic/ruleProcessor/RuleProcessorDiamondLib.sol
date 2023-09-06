@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "diamond-std/core/DiamondCut/FacetCut.sol";
+import {ActionTypes} from "./ActionEnum.sol";
 
 error NoSelectorsGivenToAdd();
 error NotContractOwner(address _user, address _contractOwner);
@@ -42,15 +43,8 @@ struct RuleDataStorage {
  * @notice Contract serves as library for the Processor Diamond
  */
 library RuleProcessorDiamondLib {
-    bytes32 constant DIAMOND_CUT_STORAGE = keccak256("diamond-cut.storage");
+    bytes32 constant DIAMOND_CUT_STORAGE = bytes32(uint256(keccak256("diamond-cut.storage")) - 1);
     bytes32 constant RULE_DATA_POSITION = keccak256("nontagged-ruless.rule-data.storage");
-
-    enum ActionTypes {
-        PURCHASE,
-        SELL,
-        TRADE,
-        INQUIRE
-    }
 
     /**
      * @dev Function for position of rules. Every rule has its own storage.

@@ -1,5 +1,5 @@
 # CustomERC20Pricing
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/example/pricing/CustomERC20Pricing.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/example/pricing/CustomERC20Pricing.sol)
 
 **Inherits:**
 Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IProtocolERC20Pricing](/src/pricing/IProtocolERC20Pricing.sol/interface.IProtocolERC20Pricing.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)

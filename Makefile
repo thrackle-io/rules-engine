@@ -44,7 +44,7 @@ deployApplicationAMMCalcLinear:; forge script src/example/script/ApplicationAMMC
 deployApplicationAMMCalcCP:; forge script src/example/script/ApplicationAMMCalcCP.s.sol --ffi --broadcast --verify -vvvv
 deployApplicationAMM:; forge script src/example/script/ApplicationAMM.s.sol --ffi --broadcast --verify -vvvv
 # Deploy Application Contracts(entire application implementation)
-deployAllApp:; forge script src/example/script/ApplicationDeployAllWithAMM.s.sol --ffi  --broadcast --verify -vvvvv
+deployAllApp:; forge script src/example/script/ApplicationDeployAll.s.sol --ffi  --broadcast --verify -vvvvv
 deployNewApp:; forge script src/example/script/ApplicationUIDeploy.s.sol --ffi  --broadcast --verify -vvvvv
 # Using a different env ref for pipeline deploy command.
 # Note from RK -- Outside the scope of what I'm doing right now, but

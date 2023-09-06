@@ -1,5 +1,5 @@
 # ProtocolERC721Pricing
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/pricing/ProtocolERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/pricing/ProtocolERC721Pricing.sol)
 
 **Inherits:**
 Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IProtocolERC721Pricing](/src/pricing/IProtocolERC721Pricing.sol/interface.IProtocolERC721Pricing.md)
@@ -13,6 +13,13 @@ This contract is a simple pricing mechanism only. Its main purpose is to store p
 
 
 ## State Variables
+### VERSION
+
+```solidity
+string private constant VERSION = "1.0.1";
+```
+
+
 ### nftPrice
 
 ```solidity
@@ -65,7 +72,7 @@ function setNFTCollectionPrice(address nftContract, uint256 price) external only
 ### getNFTPrice
 
 *gets the price of an NFT. It will return the NFT's specific price, or the
-price of the collection if no specific price hsa been given*
+price of the collection if no specific price has been given*
 
 
 ```solidity
@@ -83,5 +90,41 @@ function getNFTPrice(address nftContract, uint256 id) external view returns (uin
 |Name|Type|Description|
 |----|----|-----------|
 |`price`|`uint256`|of the Token in weis of dollars. 10^18 => $ 1.00 USD 999_999_999_999_999_999 = 0xDE0B6B3A763FFFF, 1_000_000_000_000_000_000 = DE0B6B3A7640000|
+
+
+### getNFTCollectionPrice
+
+*gets the price of an NFT Collection. It will return the NFT Collection price to be used for each token Id (i.e. Floor Price).*
+
+
+```solidity
+function getNFTCollectionPrice(address nftContract) external view returns (uint256 price);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`nftContract`|`address`|is the address of the NFT contract|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`price`|`uint256`|for the collection in weis of dollars. 10^18 => $ 1.00 USD 999_999_999_999_999_999 = 0xDE0B6B3A763FFFF, 1_000_000_000_000_000_000 = DE0B6B3A7640000|
+
+
+### version
+
+*gets the version of the contract*
+
+
+```solidity
+function version() external pure returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|VERSION|
 
 

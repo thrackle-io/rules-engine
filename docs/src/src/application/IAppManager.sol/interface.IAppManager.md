@@ -1,8 +1,8 @@
 # IAppManager
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/application/IAppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/application/IAppManager.sol)
 
 **Inherits:**
-[IAppManagerErrors](/src/interfaces/IErrors.sol/interface.IAppManagerErrors.md), [IAppAdministratorOnlyErrors](/src/interfaces/IErrors.sol/interface.IAppAdministratorOnlyErrors.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
+[IAppManagerErrors](/src/interfaces/IErrors.sol/interface.IAppManagerErrors.md), [IPermissionModifierErrors](/src/interfaces/IErrors.sol/interface.IPermissionModifierErrors.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -13,13 +13,13 @@ Interface for app manager server functions.
 
 
 ## Functions
-### isAdmin
+### isSuperAdmin
 
-*This function is where the default admin role is actually checked*
+*This function is where the super admin role is actually checked*
 
 
 ```solidity
-function isAdmin(address account) external view returns (bool);
+function isSuperAdmin(address account) external view returns (bool);
 ```
 **Parameters**
 
@@ -53,6 +53,27 @@ function isAppAdministrator(address account) external view returns (bool);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`bool`|success true if app administrator, false if not|
+
+
+### isRuleAdministrator
+
+*This function is where the rule administrator role is actually checked*
+
+
+```solidity
+function isRuleAdministrator(address account) external view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address`|address to be checked|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|success true if rule administrator, false if not|
 
 
 ### isAccessTier
@@ -116,27 +137,6 @@ function getAllTags(address _address) external view returns (bytes32[] memory);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`bytes32[]`|tags Array of all tags for the account|
-
-
-### isUser
-
-*This function is where the user role is actually checked*
-
-
-```solidity
-function isUser(address _address) external view returns (bool);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_address`|`address`|address to be checked|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|success true if USER_ROLE, false if not|
 
 
 ### getAccessLevel
@@ -444,5 +444,20 @@ function requireValuations() external returns (bool);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`bool`|true if one or more rules are active|
+
+
+### confirmNewDataProvider
+
+*Part of the two step process to set a new Data Provider within a Protocol AppManager. Final confirmation called by new provider*
+
+
+```solidity
+function confirmNewDataProvider(IDataModule.ProviderType _providerType) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_providerType`|`IDataModule.ProviderType`|the type of data provider|
 
 

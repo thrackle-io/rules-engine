@@ -1,5 +1,5 @@
 # ProtocolERC20Pricing
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/pricing/ProtocolERC20Pricing.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/pricing/ProtocolERC20Pricing.sol)
 
 **Inherits:**
 Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IProtocolERC20Pricing](/src/pricing/IProtocolERC20Pricing.sol/interface.IProtocolERC20Pricing.md)
@@ -13,6 +13,13 @@ This contract is a simple pricing mechanism only. Its main purpose is to store p
 
 
 ## State Variables
+### VERSION
+
+```solidity
+string private constant VERSION = "1.0.1";
+```
+
+
 ### tokenPrices
 
 ```solidity
@@ -64,5 +71,20 @@ function getTokenPrice(address tokenContract) external view returns (uint256 pri
 |Name|Type|Description|
 |----|----|-----------|
 |`price`|`uint256`|of the Token in weis of dollars. 10^18 => $ 1.00 USD|
+
+
+### version
+
+*gets the version of the contract*
+
+
+```solidity
+function version() external pure returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|VERSION|
 
 

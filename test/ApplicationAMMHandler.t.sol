@@ -1,24 +1,14 @@
 // // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import "forge-std/Script.sol";
-import "forge-std/Test.sol";
-import "./DiamondTestUtil.sol";
-import "./RuleProcessorDiamondTestUtil.sol";
-import "../src/application/AppManager.sol";
-import "../src/example/ApplicationAppManager.sol";
-import "../src/example/ApplicationERC20.sol";
 import "../src/example/liquidity/ApplicationAMM.sol";
 import "../src/example/liquidity/ApplicationAMMCalcLinear.sol";
 import "../src/example/liquidity/ApplicationAMMCalcCP.sol";
-import "../src/example/ApplicationERC20Handler.sol";
-import "../src/example/application/ApplicationHandler.sol";
 import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
 import {ApplicationAMMHandler} from "../src/example/liquidity/ApplicationAMMHandler.sol";
-import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
-import {RuleDataFacet as Facet} from "../src/economic/ruleStorage/RuleDataFacet.sol";
+import "test/helpers/TestCommon.sol";
 
 /**
  * @title Application AMM Handler  Test
@@ -26,26 +16,12 @@ import {RuleDataFacet as Facet} from "../src/economic/ruleStorage/RuleDataFacet.
  * @dev this contract tests the Application AMM Handler.
  * @notice It simulates the input from a token contract and the AMM contract
  */
-contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamondTestUtil {
-    AppManager public appManager;
-    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    address user1 = address(1);
-    address user2 = address(2);
-    address user3 = address(33);
-    address user4 = address(44);
-    address accessTier = address(3);
+contract ApplicationAMMHandlerTest is TestCommon {
     address rich_user = address(44);
-    address ac;
     address[] badBoys;
     address[] goodBoys;
-    uint256 Blocktime = 1675723152;
-    ApplicationERC20 applicationCoin;
     ApplicationERC20 applicationCoin2;
-    RuleProcessorDiamond ruleProcessor;
-    ApplicationHandler public applicationHandler;
-    RuleStorageDiamond ruleStorageDiamond;
     ApplicationAMMHandler applicationAMMHandler;
-    ApplicationERC20Handler applicationCoinHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationAMM applicationAMM;
@@ -53,26 +29,9 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
     ApplicationAMMCalcCP applicationAMMCPCalc;
 
     function setUp() public {
-        vm.startPrank(defaultAdmin);
-        /// Deploy the Rule Storage Diamond.
-        ruleStorageDiamond = getRuleStorageDiamond();
-        /// Deploy the rule processor diamonds
-        ruleProcessor = getRuleProcessorDiamond();
-
-        /// Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-
-        /// Deploy app manager
-        appManager = new ApplicationAppManager(defaultAdmin, "Castlevania", false);
-        /// add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdministrator);
-        /// add the AccessLevelAdmin address as a AccessLevel admin
-        appManager.addAccessTier(accessTier);
-        ac = address(appManager);
-        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
-        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
-        /// Set up the ApplicationERC20Handler
-        applicationAMMHandler = new ApplicationAMMHandler(address(appManager), address(ruleProcessor));
+        vm.startPrank(superAdmin);
+        setUpProtocolAndAppManagerAndTokens();
+        switchToAppAdministrator();
 
         // create the oracles
         oracleAllowed = new OracleAllowed();
@@ -82,7 +41,12 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         applicationAMMLinearCalc = new ApplicationAMMCalcLinear();
         applicationAMMCPCalc = new ApplicationAMMCalcCP();
         /// Set up the AMM
-        applicationAMM = new ApplicationAMM(address(applicationCoin), address(applicationCoin2), address(appManager), address(applicationAMMLinearCalc));
+        applicationAMM = new ApplicationAMM(address(applicationCoin), address(applicationCoin2), address(applicationAppManager), address(applicationAMMLinearCalc));
+        /// Set up the ApplicationAMMHandler
+        applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(applicationAMM));
+        applicationAMM.connectHandlerToAMM(address(applicationAMMHandler));
+        /// Register AMM
+        applicationAppManager.registerAMM(address(applicationAMM));
         vm.warp(Blocktime);
     }
 
@@ -90,24 +54,25 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         /// Purchase Rule
         bytes32[] memory accs = new bytes32[](1);
         uint256[] memory purchaseAmounts = new uint256[](1);
-        uint32[] memory purchasePeriods = new uint32[](1);
-        uint32[] memory startTime = new uint32[](1);
+        uint16[] memory purchasePeriods = new uint16[](1);
+        uint64[] memory startTime = new uint64[](1);
         accs[0] = bytes32("PURCHASE_RULE");
         purchaseAmounts[0] = uint192(600); ///Amount to trigger purchase freeze rules
-        purchasePeriods[0] = uint32(36); ///Hours
-        startTime[0] = uint32(12); ///Hours
+        purchasePeriods[0] = uint16(36); ///Hours
+        startTime[0] = uint64(Blocktime); ///Hours
 
         /// Set the rule data
-        appManager.addGeneralTag(user1, "PURCHASE_RULE");
-        appManager.addGeneralTag(user2, "PURCHASE_RULE");
-        assertTrue(appManager.hasTag(user1, "PURCHASE_RULE"));
-        assertTrue(appManager.hasTag(user2, "PURCHASE_RULE"));
+        applicationAppManager.addGeneralTag(user1, "PURCHASE_RULE");
+        applicationAppManager.addGeneralTag(user2, "PURCHASE_RULE");
+        assertTrue(applicationAppManager.hasTag(user1, "PURCHASE_RULE"));
+        assertTrue(applicationAppManager.hasTag(user2, "PURCHASE_RULE"));
         accs[0] = bytes32("PURCHASE_RULE");
         purchaseAmounts[0] = uint256(600); ///Amount to trigger purchase freeze rules
-        purchasePeriods[0] = uint32(36); ///Hours Purchase Period lasts
+        purchasePeriods[0] = uint16(36); ///Hours Purchase Period lasts
         startTime[0] = uint32(12); ///Hours rule starts after block.timestamp
         // add the rule.
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(address(appManager), accs, purchaseAmounts, purchasePeriods, startTime);
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, startTime);
         ///update ruleId in application AMM rule handler
         applicationAMMHandler.setPurchaseLimitRuleId(ruleId);
         applicationAMMHandler.activatePurchaseLimitRule(true);
@@ -115,60 +80,61 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         ///Sell Rule
         bytes32[] memory sellAccs = new bytes32[](1);
         uint192[] memory sellAmounts = new uint192[](1);
-        uint32[] memory sellPeriod = new uint32[](1);
-        uint32[] memory sellStartTime = new uint32[](1);
+        uint16[] memory sellPeriod = new uint16[](1);
         sellAccs[0] = bytes32("SellRule");
         sellAmounts[0] = uint192(600); ///Amount to trigger Sell freeze rules
-        sellPeriod[0] = uint32(36); ///Hours
-        startTime[0] = uint32(12); ///Hours
+        sellPeriod[0] = uint16(36); ///Hours
+        startTime[0] = uint64(Blocktime); ///Hours
 
         // add the actual rule
-        uint32 sellRuleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(appManager), sellAccs, sellAmounts, sellPeriod, sellStartTime);
+        uint32 sellRuleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(applicationAppManager), sellAccs, sellAmounts, sellPeriod, startTime);
         ///update ruleId in application AMM rule handler
         applicationAMMHandler.setSellLimitRuleId(sellRuleId);
         applicationAMMHandler.activateSellLimitRule(true);
         ///Add GeneralTag to account
-        appManager.addGeneralTag(user1, "SellRule"); ///add tag
-        assertTrue(appManager.hasTag(user1, "SellRule"));
-        appManager.addGeneralTag(user2, "SellRule"); ///add tag
-        assertTrue(appManager.hasTag(user2, "SellRule"));
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user1, "SellRule"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "SellRule"));
+        applicationAppManager.addGeneralTag(user2, "SellRule"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "SellRule"));
     }
 
     ///Test setting and checking purchase Rule
     function testPurchaseLimitRule() public {
         bytes32[] memory accs = new bytes32[](1);
         uint256[] memory purchaseAmounts = new uint256[](1);
-        uint32[] memory purchasePeriods = new uint32[](1);
-        uint32[] memory startTime = new uint32[](1);
+        uint16[] memory purchasePeriods = new uint16[](1);
+        uint64[] memory startTime = new uint64[](1);
         accs[0] = bytes32("PurchaseRule");
         purchaseAmounts[0] = uint256(600); ///Amount to trigger purchase freeze rules
-        purchasePeriods[0] = uint32(36); ///Hours
-        startTime[0] = uint32(12); ///Hours
+        purchasePeriods[0] = uint16(36); ///Hours
+        startTime[0] = uint64(12); ///Hours
 
         // add the actual rule
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(address(appManager), accs, purchaseAmounts, purchasePeriods, startTime);
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, startTime);
         ///update ruleId in application coin rule handler
         applicationAMMHandler.setPurchaseLimitRuleId(ruleId);
         applicationAMMHandler.activatePurchaseLimitRule(true);
-
-        appManager.addGeneralTag(user1, "PurchaseRule"); ///add tag
-        assertTrue(appManager.hasTag(user1, "PurchaseRule"));
-        appManager.addGeneralTag(user2, "PurchaseRule"); ///add tag
-        assertTrue(appManager.hasTag(user2, "PurchaseRule"));
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user1, "PurchaseRule"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "PurchaseRule"));
+        applicationAppManager.addGeneralTag(user2, "PurchaseRule"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "PurchaseRule"));
         //Attempt to turn off rule as non-admin
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         applicationAMMHandler.activatePurchaseLimitRule(false);
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         applicationAMMHandler.setPurchaseLimitRuleId(15);
 
         TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(ruleId, "PurchaseRule");
         ///1675723152 = Feb 6 2023 22hrs 39min 12 sec
         /// Check Rule passes
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 50, 50, address(applicationCoin), ActionTypes.PURCHASE);
         vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        vm.startPrank(address(applicationAMM));
+        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 50, 50, address(applicationCoin), ActionTypes.PURCHASE);
         uint256 lastPurchaseTotal = applicationAMMHandler.getPurchasedWithinPeriod(user2);
         assertEq(lastPurchaseTotal, 50);
         /// Check Rule Fails
@@ -177,8 +143,6 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         ///Move into new Purchase Period
         vm.warp(Blocktime + 14 hours);
         applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, address(applicationCoin), ActionTypes.PURCHASE);
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
         uint256 purchaseTotal = applicationAMMHandler.getPurchasedWithinPeriod(user2);
         assertEq(purchaseTotal, 551);
     }
@@ -186,49 +150,50 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
     function testSellLimitRule() public {
         bytes32[] memory accs = new bytes32[](1);
         uint192[] memory sellAmounts = new uint192[](1);
-        uint32[] memory sellPeriod = new uint32[](1);
-        uint32[] memory startTime = new uint32[](1);
+        uint16[] memory sellPeriod = new uint16[](1);
+        uint64[] memory startTime = new uint64[](1);
         accs[0] = bytes32("SellRule");
         sellAmounts[0] = uint192(600); ///Amount to trigger Sell freeze rules
-        sellPeriod[0] = uint32(36); ///Hours
-        startTime[0] = uint32(12); ///Hours
+        sellPeriod[0] = uint16(36); ///Hours
+        startTime[0] = uint64(12); ///Hours
 
         // add the actual rule
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(appManager), accs, sellAmounts, sellPeriod, startTime);
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
         ///update ruleId in application coin rule handler
         applicationAMMHandler.setSellLimitRuleId(ruleId);
         applicationAMMHandler.activateSellLimitRule(true);
-
-        appManager.addGeneralTag(user1, "SellRule"); ///add tag
-        assertTrue(appManager.hasTag(user1, "SellRule"));
-        appManager.addGeneralTag(user2, "SellRule"); ///add tag
-        assertTrue(appManager.hasTag(user2, "SellRule"));
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user1, "SellRule"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "SellRule"));
+        applicationAppManager.addGeneralTag(user2, "SellRule"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "SellRule"));
         //Attempt to turn off rule as non-admin
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         applicationAMMHandler.activateSellLimitRule(false);
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0xd66c3008);
         applicationAMMHandler.setSellLimitRuleId(15);
 
         /// Check Rule passes
+        vm.stopPrank();
+        vm.startPrank(address(applicationAMM));
         applicationAMMHandler.checkAllRules(0, 0, user1, user2, 50, 50, address(applicationCoin), ActionTypes.SELL);
 
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator();
         uint256 lastSellTotal = applicationAMMHandler.getSalesWithinPeriod(user1);
         assertEq(lastSellTotal, 50);
 
         vm.stopPrank();
-        vm.startPrank(user1);
+        vm.startPrank(address(applicationAMM));
         /// Check Rule Fails
         vm.expectRevert(0xc11d5f20);
         applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, address(applicationCoin), ActionTypes.SELL);
         ///Move into new Sell Period
         vm.warp(Blocktime + 14 hours);
         applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, address(applicationCoin), ActionTypes.SELL);
-        vm.stopPrank();
-        vm.startPrank(defaultAdmin);
+        switchToAppAdministrator();
         uint256 sellTotal = applicationAMMHandler.getSalesWithinPeriod(user1);
         assertEq(sellTotal, 551);
     }
@@ -236,12 +201,15 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
     /// test updating min transfer rule
     function testPassesMinTransferRule() public {
         /// We add the empty rule at index 0
-        RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(appManager), 1);
+        switchToRuleAdmin();
+        RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 1);
 
         // Then we add the actual rule. Its index should be 1
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(appManager), 10);
+        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 10);
         /// we update the rule id in the token
         applicationAMMHandler.setMinTransferRuleId(ruleId);
+        vm.stopPrank();
+        vm.startPrank(address(applicationAMM));
         /// These should all pass
         assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10, 10, address(applicationCoin), ActionTypes.TRADE));
         assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 11, 11, address(applicationCoin), ActionTypes.TRADE));
@@ -251,10 +219,13 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         vm.expectRevert(0x70311aa2);
         applicationAMMHandler.checkAllRules(0, 0, user1, user2, 9, 9, address(applicationCoin), ActionTypes.TRADE);
         /// no2 change the rule and recheck
-        ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(appManager), 100);
+        switchToRuleAdmin();
+        ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 100);
         /// we update the rule id in the token
         applicationAMMHandler.setMinTransferRuleId(ruleId);
         /// These should all pass
+        vm.stopPrank();
+        vm.startPrank(address(applicationAMM));
         assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 100, 100, address(applicationCoin), ActionTypes.TRADE));
         assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 111, 100, address(applicationCoin), ActionTypes.TRADE));
         assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10000000000, 1000, address(applicationCoin), ActionTypes.TRADE));
@@ -270,8 +241,8 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         uint256[] memory _maximum = new uint256[](1);
 
         /// Set the min/max rule data
-        appManager.addGeneralTag(user1, "WHALE");
-        appManager.addGeneralTag(user2, "WHALE");
+        applicationAppManager.addGeneralTag(user1, "WHALE");
+        applicationAppManager.addGeneralTag(user2, "WHALE");
         _accountTypes[0] = "WHALE";
         _minimum[0] = 10;
         _maximum[0] = 1000;
@@ -282,18 +253,21 @@ contract ApplicationAMMHandlerTest is Test, DiamondTestUtil, RuleProcessorDiamon
         uint256[] memory _max = new uint256[](1);
 
         /// Set the min/max rule data
-        appManager.addGeneralTag(user1, "MINMAX");
-        appManager.addGeneralTag(user2, "MINMAX");
+        applicationAppManager.addGeneralTag(user1, "MINMAX");
+        applicationAppManager.addGeneralTag(user2, "MINMAX");
         _accs[0] = "MINMAX";
         _min[0] = 15;
         _max[0] = 1100;
         // add the rule.
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, _accountTypes, _minimum, _maximum);
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
 
-        uint32 ruleId2 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, _accs, _min, _max);
+        uint32 ruleId2 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), _accs, _min, _max);
         /// connect the rule to this handler
         applicationAMMHandler.setMinMaxBalanceRuleIdToken0(ruleId);
         applicationAMMHandler.setMinMaxBalanceRuleIdToken1(ruleId2);
+        vm.stopPrank();
+        vm.startPrank(address(applicationAMM));
         /// execute a passing check for the minimum
         applicationAMMHandler.checkAllRules(200, 200, user1, address(applicationAMM), 10, 10, address(applicationCoin), ActionTypes.TRADE);
 

@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-contracts/contracts/security/Pausable.sol";
-import "../economic/AppAdministratorOnly.sol";
-import "../application/IAppManager.sol";
-import "../../src/token/ProtocolERC20Handler.sol";
-import "openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
 import {IApplicationEvents} from "../interfaces/IEvents.sol";
-import { IZeroAddressError, IProtocolERC20Errors } from "../interfaces/IErrors.sol";
+import {IZeroAddressError, IProtocolERC20Errors} from "../interfaces/IErrors.sol";
+import "./ProtocolTokenCommon.sol";
+import "./ProtocolERC20Handler.sol";
+import "../economic/AppAdministratorOnly.sol";
 
 /**
  * @title ERC20 Base Contract
@@ -18,11 +18,9 @@ import { IZeroAddressError, IProtocolERC20Errors } from "../interfaces/IErrors.s
  * @notice This is the base contract for all protocol ERC20s
  * @dev The only thing to recognize is that flash minting is added but not allowed...yet
  */
-contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, AppAdministratorOnly, IApplicationEvents, IZeroAddressError, IProtocolERC20Errors {
-    address public appManagerAddress;
+contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, ProtocolTokenCommon, IProtocolERC20Errors {
     // address of the Handler
     ProtocolERC20Handler handler;
-    IAppManager appManager;
 
     /// Max supply should only be set once. Zero means infinite supply.
     uint256 MAX_SUPPLY;
@@ -35,6 +33,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.
      */
     constructor(string memory _name, string memory _symbol, address _appManagerAddress) ERC20(_name, _symbol) {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
 
@@ -163,7 +162,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function mint(address to, uint256 amount) public virtual {
         ///check that the address calling mint is authorized(appAdminstrator, AMM or Staking Contract)
-        if (!appManager.isAppAdministrator(msg.sender) && !appManager.isRegisteredStaking(msg.sender) && !appManager.isRegisteredAMM(msg.sender)) {
+        if (!appManager.isAppAdministrator(msg.sender) && !appManager.isRegisteredAMM(msg.sender)) {
             revert CallerNotAuthorizedToMint();
         }
         if (MAX_SUPPLY > 0 && totalSupply() + amount > MAX_SUPPLY) {
@@ -202,7 +201,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * @dev this function returns the handler address
      * @return handlerAddress
      */
-    function getHandlerAddress() external view returns (address) {
+    function getHandlerAddress() external view override returns (address) {
         return address(handler);
     }
 }

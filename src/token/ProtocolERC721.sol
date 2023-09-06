@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/contracts/utils/Counters.sol";
-import "openzeppelin-contracts/contracts/security/Pausable.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "src/application/IAppManager.sol";
-import "src/economic/AppAdministratorOnly.sol";
-import "src/token/IProtocolERC721Handler.sol";
-import {IApplicationEvents} from "../interfaces/IEvents.sol";
-import {IZeroAddressError} from "../interfaces/IErrors.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "./ProtocolTokenCommon.sol";
+import "../economic/AppAdministratorOnly.sol";
+import "../economic/AppAdministratorOrOwnerOnly.sol";
+import "../token/IProtocolERC721Handler.sol";
 
 /**
  * @title ERC721 Base Contract
@@ -19,18 +18,14 @@ import {IZeroAddressError} from "../interfaces/IErrors.sol";
  * @notice This is the base contract for all protocol ERC721s
  */
 
-contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, AppAdministratorOnly, IApplicationEvents, IZeroAddressError {
+contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly {
     using Counters for Counters.Counter;
-    address public appManagerAddress;
     address public handlerAddress;
     IProtocolERC721Handler handler;
-    IAppManager appManager;
     Counters.Counter private _tokenIdCounter;
 
     /// Base Contract URI
     string public baseUri;
-    /// keeps track of RULE enum version and other features
-    uint8 public constant VERSION = 1;
 
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
@@ -40,6 +35,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @param _baseUri URI for the base token
      */
     constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ERC721(_name, _symbol) {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         setBaseURI(_baseUri);
@@ -96,7 +92,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * Function is payable for child contracts to override with priced mint function.
      * @param to Address of recipient
      */
-    function safeMint(address to) public payable virtual whenNotPaused {
+    function safeMint(address to) public payable virtual whenNotPaused appAdministratorOrOwnerOnly(appManagerAddress) {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -112,7 +108,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) whenNotPaused {
         // Rule Processor Module Check
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, 1, tokenId, ActionTypes.TRADE));
+        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, batchSize, tokenId, ActionTypes.TRADE));
 
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
@@ -136,15 +132,6 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     }
 
     /**
-     * @dev Function to set the appManagerAddress and connect to the new appManager
-     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
-     */
-    function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
-        appManagerAddress = _appManagerAddress;
-        appManager = IAppManager(_appManagerAddress);
-    }
-
-    /**
      * @dev Returns true if this contract implements the interface defined by
      * `interfaceId`. See the corresponding
      * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
@@ -152,8 +139,8 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      *
      * This function call must use less than 30 000 gas.
      */
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
-        return super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable, ERC721URIStorage) returns (bool) {
+        return ERC721Enumerable.supportsInterface(interfaceId) || ERC721URIStorage.supportsInterface(interfaceId) || super.supportsInterface(interfaceId);
     }
 
     /**
@@ -164,14 +151,14 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolERC721Handler(_deployedHandlerAddress);
-        emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
+        emit HandlerConnected(_deployedHandlerAddress, address(this));
     }
 
     /**
      * @dev this function returns the handler address
      * @return handlerAddress
      */
-    function getHandlerAddress() external view returns (address) {
+    function getHandlerAddress() external view override returns (address) {
         return handlerAddress;
     }
 }

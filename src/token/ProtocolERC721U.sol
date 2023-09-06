@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol";
-import "openzeppelin-contracts-upgradeable/contracts/security/PausableUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/contracts/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/contracts/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
-import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/contracts/utils/CountersUpgradeable.sol";
-import "src/economic/AppAdministratorOnlyU.sol";
-import "src/token/IProtocolERC721Handler.sol";
-import {IApplicationEvents} from "../interfaces/IEvents.sol";
-import {IZeroAddressError} from "../interfaces/IErrors.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "./IProtocolERC721Handler.sol";
+import "./ProtocolTokenCommonU.sol";
 
 /**
  * @title ERC721 Upgradeable Protocol Contract
@@ -28,21 +26,16 @@ contract ProtocolERC721U is
     ERC721BurnableUpgradeable,
     OwnableUpgradeable,
     UUPSUpgradeable,
-    AppAdministratorOnlyU,
-    IApplicationEvents,
-    PausableUpgradeable,
-    IZeroAddressError
+    ProtocolTokenCommonU,
+    PausableUpgradeable
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
-    address public appManagerAddress;
     address public handlerAddress;
     IProtocolERC721Handler handler;
     CountersUpgradeable.Counter private _tokenIdCounter;
 
     /// Base Contract URI
     string public baseUri;
-    /// keeps track of RULE enum version and other features
-    uint8 public constant VERSION = 1;
 
     /**
      * @dev Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
@@ -65,6 +58,7 @@ contract ProtocolERC721U is
      * @param _appManagerAddress Address of App Manager
      */
     function _initializeProtocol(address _appManagerAddress) private onlyInitializing {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         emit NewNFTDeployed(address(this), _appManagerAddress);
     }
@@ -135,7 +129,7 @@ contract ProtocolERC721U is
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
         // Rule Processor Module Check
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, 1, tokenId, ActionTypes.TRADE));
+        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, batchSize, tokenId, ActionTypes.TRADE));
 
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
@@ -147,14 +141,6 @@ contract ProtocolERC721U is
     function withdraw() public payable virtual appAdministratorOnly(appManagerAddress) {
         (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(success);
-    }
-
-    /**
-     * @dev Function to set the appManagerAddress and connect to the new appManager
-     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
-     */
-    function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
-        appManagerAddress = _appManagerAddress;
     }
 
     /**

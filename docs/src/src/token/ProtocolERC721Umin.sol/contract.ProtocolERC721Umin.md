@@ -1,8 +1,8 @@
 # ProtocolERC721Umin
-[Git Source](https://github.com/thrackle-io/Tron_Internal/blob/de9d46fc7f857fca8d253f1ed09221b1c3873dd9/src/token/ProtocolERC721Umin.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/token/ProtocolERC721Umin.sol)
 
 **Inherits:**
-Initializable, [AppAdministratorOnlyU](/src/economic/AppAdministratorOnlyU.sol/contract.AppAdministratorOnlyU.md), [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), ERC721EnumerableUpgradeable
+Initializable, ERC721EnumerableUpgradeable, [ProtocolTokenCommonU](/src/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -11,13 +11,6 @@ This is the base contract for all protocol ERC721Upgradeables
 
 
 ## State Variables
-### appManagerAddress
-
-```solidity
-address private appManagerAddress;
-```
-
-
 ### handlerAddress
 
 ```solidity
@@ -29,15 +22,6 @@ address private handlerAddress;
 
 ```solidity
 IProtocolERC721Handler private handler;
-```
-
-
-### VERSION
-keeps track of RULE enum version and other features
-
-
-```solidity
-uint8 private constant VERSION = 1;
 ```
 
 
@@ -81,28 +65,6 @@ function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256
 |`tokenId`|`uint256`|Id of token to be transferred|
 |`batchSize`|`uint256`|the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will represent the first id to start the batch.|
 
-
-### setAppManagerAddress
-
-*Function to set the appManagerAddress*
-
-*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress);
-```
-
-### getAppManagerAddress
-
-*Function to get the appManagerAddress*
-
-*AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
-
-
-```solidity
-function getAppManagerAddress() external view returns (address);
-```
 
 ### getHandlerAddress
 

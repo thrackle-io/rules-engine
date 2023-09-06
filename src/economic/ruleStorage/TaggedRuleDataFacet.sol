@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
 import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
-import { IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors} from "../../interfaces/IErrors.sol";
+import {IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError} from "../../interfaces/IErrors.sol";
 import "./RuleCodeData.sol";
-import "../AppAdministratorOnly.sol";
+import "../RuleAdministratorOnly.sol";
+import "./RuleStorageCommonLib.sol";
 
 /**
  * @title Tagged Rule Data Facet
@@ -15,35 +16,37 @@ import "../AppAdministratorOnly.sol";
  * @dev setters and getters for Tagged token specific rules
  * @notice This contract sets and gets the Tagged Rules for the protocol. Rules will be applied via General Tags to accounts.
  */
+contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError {
+    using RuleStorageCommonLib for uint64;
+    using RuleStorageCommonLib for uint32;
 
-contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors {
     /**
      * Note that no update method is implemented. Since reutilization of
      * rules is encouraged, it is preferred to add an extra rule to the
      * set instead of modifying an existing one.
      */
 
-
-
     /********************** Purchase Getters/Setters ***********************/
     /**
      * @dev Function add a Token Purchase Percentage rule
-     * @dev Function has AppAdministratorOnly Modifier and takes AppManager Address Param
+     * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _accountTypes Types of Accounts
      * @param _purchaseAmounts Allowed total purchase limits
      * @param _purchasePeriods Hours purhchases allowed
-     * @param _startTimes Hours of the day in utc for first period to start
+     * @param _startTimes timestamp period to start
      * @return position of new rule in array
      */
     function addPurchaseRule(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
         uint256[] calldata _purchaseAmounts,
-        uint32[] calldata _purchasePeriods,
-        uint32[] calldata _startTimes
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        uint16[] calldata _purchasePeriods,
+        uint64[] calldata _startTimes
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_accountTypes.length != _purchaseAmounts.length || _accountTypes.length != _purchasePeriods.length || _accountTypes.length != _startTimes.length) revert InputArraysMustHaveSameLength();
+        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        if (_accountTypes.length == 0) revert InvalidRuleInput();
         return _addPurchaseRule(_accountTypes, _purchaseAmounts, _purchasePeriods, _startTimes);
     }
 
@@ -52,18 +55,17 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @param _accountTypes Types of Accounts
      * @param _purchaseAmounts Allowed total purchase limits
      * @param _purchasePeriods Hours purhchases allowed
-     * @param _startTimes Hours of the day in utc for first period to start
+     * @param _startTimes timestamps for first period to start
      * @return position of new rule in array
      */
-    function _addPurchaseRule(bytes32[] calldata _accountTypes, uint256[] calldata _purchaseAmounts, uint32[] calldata _purchasePeriods, uint32[] calldata _startTimes) internal returns (uint32) {
+    function _addPurchaseRule(bytes32[] calldata _accountTypes, uint256[] calldata _purchaseAmounts, uint16[] calldata _purchasePeriods, uint64[] calldata _startTimes) internal returns (uint32) {
         RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
         uint32 index = data.purchaseRulesIndex;
         for (uint256 i; i < _accountTypes.length; ) {
             if (_accountTypes[i] == bytes32("")) revert BlankTag();
             if (_purchaseAmounts[i] == 0 || _purchasePeriods[i] == 0 || _startTimes[i] == 0) revert ZeroValueNotPermited();
-            if (_startTimes[i] > 23) revert StartTimeNotValid();
-            uint64 _startTime = uint64((block.timestamp - (block.timestamp % (3600 seconds * 12)) - 1 days) + (_startTimes[i] * 1 hours)); ///Low Rank Approximation
-            data.purchaseRulesPerUser[index][_accountTypes[i]] = TaggedRules.PurchaseRule(_purchaseAmounts[i], _purchasePeriods[i], _startTime);
+            _startTimes[i].validateTimestamp();
+            data.purchaseRulesPerUser[index][_accountTypes[i]] = TaggedRules.PurchaseRule(_purchaseAmounts[i], _purchasePeriods[i], _startTimes[i]);
 
             unchecked {
                 ++i;
@@ -81,6 +83,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return PurchaseRule rule at index position
      */
     function getPurchaseRule(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.PurchaseRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalPurchaseRule());
         RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
         if (_index >= data.purchaseRulesIndex) revert IndexOutOfRange();
         return data.purchaseRulesPerUser[_index][_accountType];
@@ -90,7 +94,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total purchase rules
      * @return Total length of array
      */
-    function getTotalPurchaseRule() external view returns (uint32) {
+    function getTotalPurchaseRule() public view returns (uint32) {
         RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
         return data.purchaseRulesIndex;
     }
@@ -103,17 +107,20 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @param _accountTypes Types of Accounts
      * @param _sellAmounts Allowed total sell limits
      * @param _sellPeriod Period for sales
+     * @param _startTimes rule starts
      * @return position of new rule in array
      */
     function addSellRule(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
         uint192[] calldata _sellAmounts,
-        uint32[] calldata _sellPeriod,
-        uint32[] calldata _startTimes
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        uint16[] calldata _sellPeriod,
+        uint64[] calldata _startTimes
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length) revert InputArraysMustHaveSameLength();
-
+        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        if (_accountTypes.length == 0) revert InvalidRuleInput();
         return _addSellRule(_accountTypes, _sellAmounts, _sellPeriod, _startTimes);
     }
 
@@ -122,17 +129,17 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @param _accountTypes Types of Accounts
      * @param _sellAmounts Allowed total sell limits
      * @param _sellPeriod Period for sales
+     * @param _startTimes rule starts
      * @return position of new rule in array
      */
-    function _addSellRule(bytes32[] calldata _accountTypes, uint192[] calldata _sellAmounts, uint32[] calldata _sellPeriod, uint32[] calldata _startTimes) internal returns (uint32) {
+    function _addSellRule(bytes32[] calldata _accountTypes, uint192[] calldata _sellAmounts, uint16[] calldata _sellPeriod, uint64[] calldata _startTimes) internal returns (uint32) {
         RuleS.SellRuleS storage data = Storage.sellStorage();
         uint32 index = data.sellRulesIndex;
         for (uint256 i; i < _accountTypes.length; ) {
             if (_accountTypes[i] == bytes32("")) revert BlankTag();
             if (_sellAmounts[i] == 0 || _sellPeriod[i] == 0) revert ZeroValueNotPermited();
-            if (_startTimes[i] > 23) revert StartTimeNotValid();
-            uint64 _startTime = uint64((block.timestamp - (block.timestamp % (3600 seconds * 12)) - 1 days) + (_startTimes[i] * 1 hours)); ///Low Rank Approximation
-            data.sellRulesPerUser[index][_accountTypes[i]] = TaggedRules.SellRule(_sellAmounts[i], _sellPeriod[i], _startTime);
+            _startTimes[i].validateTimestamp();
+            data.sellRulesPerUser[index][_accountTypes[i]] = TaggedRules.SellRule(_sellAmounts[i], _sellPeriod[i], _startTimes[i]);
             unchecked {
                 ++i;
             }
@@ -149,6 +156,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return SellRule at position in array
      */
     function getSellRuleByIndex(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.SellRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalSellRule());
         RuleS.SellRuleS storage data = Storage.sellStorage();
         if (_index >= data.sellRulesIndex) revert IndexOutOfRange();
         return data.sellRulesPerUser[_index][_accountType];
@@ -158,7 +167,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total Sell rules
      * @return Total length of array
      */
-    function getTotalSellRule() external view returns (uint32) {
+    function getTotalSellRule() public view returns (uint32) {
         RuleS.SellRuleS storage data = Storage.sellStorage();
         return data.sellRulesIndex;
     }
@@ -178,9 +187,11 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         bytes32[] calldata _accountTypes,
         uint256[] calldata _minimum,
         uint256[] calldata _maximum
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTypes.length != _minimum.length || _accountTypes.length != _maximum.length) revert InputArraysMustHaveSameLength();
-
+        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        if (_accountTypes.length == 0) revert InvalidRuleInput();
         return _addBalanceLimitRules(_accountTypes, _minimum, _maximum);
     }
 
@@ -216,6 +227,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return BalanceLimitRule at index location in array
      */
     function getBalanceLimitRule(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.BalanceLimitRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalBalanceLimitRules());
         RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
         if (_index >= data.balanceLimitRuleIndex) revert IndexOutOfRange();
         return data.balanceLimitsPerAccountType[_index][_accountType];
@@ -225,7 +238,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function gets total Balance Limit rules
      * @return Total length of array
      */
-    function getTotalBalanceLimitRules() external view returns (uint32) {
+    function getTotalBalanceLimitRules() public view returns (uint32) {
         RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
         return data.balanceLimitRuleIndex;
     }
@@ -244,9 +257,11 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         bytes32[] calldata _accountTypes,
         uint256[] calldata _amount,
         uint256[] calldata _releaseDate
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_accountTypes.length != _amount.length) revert InputArraysMustHaveSameLength();
-        if (_accountTypes.length != _releaseDate.length) revert InputArraysMustHaveSameLength();
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress();
+        if (_accountTypes.length != _amount.length || _accountTypes.length != _releaseDate.length) revert InputArraysMustHaveSameLength();
+        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        if (_accountTypes.length == 0) revert InvalidRuleInput();
         return _addWithdrawalRule(_accountTypes, _amount, _releaseDate);
     }
 
@@ -282,6 +297,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return WithdrawalRule rule at indexed postion
      */
     function getWithdrawalRule(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.WithdrawalRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalWithdrawalRule());
         RuleS.WithdrawalRuleS storage data = Storage.withdrawalStorage();
         if (_index >= data.withdrawalRulesIndex) revert IndexOutOfRange();
         return data.withdrawalRulesPerToken[_index][_accountType];
@@ -291,7 +308,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total withdrawal rules
      * @return withdrawalRulesIndex total length of array
      */
-    function getTotalWithdrawalRule() external view returns (uint32) {
+    function getTotalWithdrawalRule() public view returns (uint32) {
         RuleS.WithdrawalRuleS storage data = Storage.withdrawalStorage();
         return data.withdrawalRulesIndex;
     }
@@ -305,7 +322,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @param _releaseDate Date of release
      * @return adminWithdrawalRulesPerToken position of new rule in array
      */
-    function addAdminWithdrawalRule(address _appManagerAddr, uint256 _amount, uint256 _releaseDate) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addAdminWithdrawalRule(address _appManagerAddr, uint256 _amount, uint256 _releaseDate) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
         if (_amount == 0) revert ZeroValueNotPermited();
         if (_releaseDate <= block.timestamp) revert DateInThePast(_releaseDate);
@@ -324,6 +341,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return adminWithdrawalRulesPerToken rule at indexed postion
      */
     function getAdminWithdrawalRule(uint32 _index) external view returns (TaggedRules.AdminWithdrawalRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalAdminWithdrawalRules());
         RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
         if (_index >= data.adminWithdrawalRulesIndex) revert IndexOutOfRange();
         return data.adminWithdrawalRulesPerToken[_index];
@@ -333,7 +352,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total Admin withdrawal rules
      * @return adminWithdrawalRulesPerToken total length of array
      */
-    function getTotalAdminWithdrawalRules() external view returns (uint32) {
+    function getTotalAdminWithdrawalRules() public view returns (uint32) {
         RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
         return data.adminWithdrawalRulesIndex;
     }
@@ -341,7 +360,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
     //***********************  Risk Rules  ******************************* */
     /**
      * @dev Function to add new TransactionLimitByRiskScore Rules
-     * @dev Function has AppAdministratorOnly Modifier and takes AppManager Address Param
+     * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _riskScores User Risk Level Array which defines the limits between ranges. The levels are inclusive as ceilings.
      * @param _txnLimits Transaction Limit in whole USD for each score range. It corresponds to the _riskScores array and is +1 longer than _riskScores.
@@ -354,7 +373,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      */
-    function addTransactionLimitByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _txnLimits) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addTransactionLimitByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _txnLimits) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_riskScores.length == 0 || _txnLimits.length == 0) revert InvalidRuleInput();
         if (_txnLimits.length != _riskScores.length + 1) revert InputArraysSizesNotValid();
         if (_riskScores[_riskScores.length - 1] > 99) revert RiskLevelCannotExceed99();
         for (uint i = 1; i < _riskScores.length; ) {
@@ -395,6 +415,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return balanceAmount balance allowed for access levellevel
      */
     function getTransactionLimitByRiskRule(uint32 _index) external view returns (TaggedRules.TransactionSizeToRiskRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalTransactionLimitByRiskRules());
         RuleS.TxSizeToRiskRuleS storage data = Storage.txSizeToRiskStorage();
         if (_index >= data.txSizeToRiskRuleIndex) revert IndexOutOfRange();
         return data.txSizeToRiskRule[_index];
@@ -404,7 +426,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total Transaction Limit by Risk Score rules
      * @return Total length of array
      */
-    function getTotalTransactionLimitByRiskRules() external view returns (uint32) {
+    function getTotalTransactionLimitByRiskRules() public view returns (uint32) {
         RuleS.TxSizeToRiskRuleS storage data = Storage.txSizeToRiskStorage();
         return data.txSizeToRiskRuleIndex;
     }
@@ -412,7 +434,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
     /********************** Minimum Account Balance By Date Getters/Setters ***********************/
     /**
      * @dev Function add a Minimum Account Balance By Date rule
-     * @dev Function has AppAdministratorOnly Modifier and takes AppManager Address Param
+     * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _accountTags Types of Accounts
      * @param _holdAmounts Allowed total purchase limits
@@ -424,10 +446,13 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
         address _appManagerAddr,
         bytes32[] calldata _accountTags,
         uint256[] calldata _holdAmounts,
-        uint256[] calldata _holdPeriods,
-        uint256[] calldata _startTimestamps
-    ) external appAdministratorOnly(_appManagerAddr) returns (uint32) {
+        uint16[] calldata _holdPeriods,
+        uint64[] calldata _startTimestamps
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTags.length != _holdAmounts.length || _accountTags.length != _holdPeriods.length || _accountTags.length != _startTimestamps.length) revert InputArraysMustHaveSameLength();
+        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        if (_accountTags.length == 0) revert InvalidRuleInput();
         return _addMinBalByDateRule(_accountTags, _holdAmounts, _holdPeriods, _startTimestamps);
     }
 
@@ -439,12 +464,12 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @param _startTimestamps Timestamp that the check should start
      * @return ruleId of new rule in array
      */
-    function _addMinBalByDateRule(bytes32[] calldata _accountTags, uint256[] calldata _holdAmounts, uint256[] calldata _holdPeriods, uint256[] memory _startTimestamps) internal returns (uint32) {
+    function _addMinBalByDateRule(bytes32[] calldata _accountTags, uint256[] calldata _holdAmounts, uint16[] calldata _holdPeriods, uint64[] memory _startTimestamps) internal returns (uint32) {
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         uint32 index = data.minBalByDateRulesIndex;
         /// if defaults sent for timestamp, start them with current block time
         for (uint256 i; i < _startTimestamps.length; ) {
-            if (_startTimestamps[i] == 0) _startTimestamps[i] = block.timestamp;
+            if (_startTimestamps[i] == 0) _startTimestamps[i] = uint64(block.timestamp);
             unchecked {
                 ++i;
             }
@@ -469,6 +494,8 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @return PurchaseRule rule at index position
      */
     function getMinBalByDateRule(uint32 _index, bytes32 _accountTag) external view returns (TaggedRules.MinBalByDateRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalMinBalByDateRule());
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         if (_index >= data.minBalByDateRulesIndex) revert IndexOutOfRange();
         return data.minBalByDateRulesPerUser[_index][_accountTag];
@@ -478,7 +505,7 @@ contract TaggedRuleDataFacet is Context, AppAdministratorOnly, IEconomicEvents, 
      * @dev Function to get total minimum balance by date rules
      * @return Total length of array
      */
-    function getTotalMinBalByDateRule() external view returns (uint32) {
+    function getTotalMinBalByDateRule() public view returns (uint32) {
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         return data.minBalByDateRulesIndex;
     }
