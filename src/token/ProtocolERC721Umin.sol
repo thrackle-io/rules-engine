@@ -14,6 +14,8 @@ import "./ProtocolTokenCommonU.sol";
 contract ProtocolERC721Umin is Initializable, ERC721EnumerableUpgradeable, ProtocolTokenCommonU {
     address private handlerAddress;
     IProtocolERC721Handler private handler;
+    /// memory placeholders to allow variable addition without affecting client upgradeability
+    uint256[49] __gap;
 
     /**
      * @dev Initializer sets the the App Manager
