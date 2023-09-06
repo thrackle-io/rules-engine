@@ -3,8 +3,8 @@ pragma solidity ^0.8.17;
 
 /// TODO Create a wizard that creates custom versions of this contract for each implementation.
 
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../economic/IRuleProcessor.sol";
 import "./IProtocolAMMHandler.sol";
 import "src/token/ProtocolHandlerCommon.sol";
