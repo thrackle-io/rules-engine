@@ -36,7 +36,7 @@ contract ProtocolERC721U is
 
     /// Base Contract URI
     string public baseUri;
-    /// memory placeholders to allow up variable addition without affecting client upgradeability
+    /// memory placeholders to allow variable addition without affecting client upgradeability
     uint256[49] __gap;
 
     /**
