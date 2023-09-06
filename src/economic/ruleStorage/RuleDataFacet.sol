@@ -21,6 +21,9 @@ import "./RuleStorageCommonLib.sol";
 contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors {
     using RuleStorageCommonLib for uint64;
     using RuleStorageCommonLib for uint32;
+    uint16 constant MAX_TOKEN_PERCENTAGE = 9999;
+    uint16 constant MAX_PERCENTAGE = 10000;
+    uint24 constant MAX_VOLUME_PERCENTAGE = 100000;
 
     /**
      * Note that no update method is implemented for rules. Since reutilization of
@@ -47,7 +50,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         uint64 _startTimestamp
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_tokenPercentage > 9999) revert ValueOutOfRange(_tokenPercentage);
+        if (_tokenPercentage > MAX_TOKEN_PERCENTAGE) revert ValueOutOfRange(_tokenPercentage);
         if (_purchasePeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
         _startTimestamp.validateTimestamp();
         RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
@@ -100,7 +103,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         uint64 _startTimestamp
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_tokenPercentage > 9999) revert ValueOutOfRange(_tokenPercentage);
+        if (_tokenPercentage > MAX_TOKEN_PERCENTAGE) revert ValueOutOfRange(_tokenPercentage);
         if (_sellPeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
         _startTimestamp.validateTimestamp();
         RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
@@ -146,7 +149,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
     function addPurchaseFeeByVolumeRule(address _appManagerAddr, uint256 _volume, uint16 _rateIncreased) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_volume == 0 || _rateIncreased == 0) revert ZeroValueNotPermited();
-        if (_rateIncreased > 10000) revert ValueOutOfRange(_rateIncreased);
+        if (_rateIncreased > MAX_PERCENTAGE) revert ValueOutOfRange(_rateIncreased);
         RuleS.PurchaseFeeByVolRuleS storage data = Storage.purchaseFeeByVolumeStorage();
         NonTaggedRules.TokenPurchaseFeeByVolume memory rule = NonTaggedRules.TokenPurchaseFeeByVolume(_volume, _rateIncreased);
         uint32 ruleId = data.purchaseFeeByVolumeRuleIndex;
@@ -247,7 +250,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         uint256 _totalSupply
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_maxVolumePercentage > 100000) revert ValueOutOfRange(_maxVolumePercentage);
+        if (_maxVolumePercentage > MAX_VOLUME_PERCENTAGE) revert ValueOutOfRange(_maxVolumePercentage);
         if (_maxVolumePercentage == 0 || _hoursPerPeriod == 0) revert ZeroValueNotPermited();
         _startTimestamp.validateTimestamp();
         RuleS.TransferVolRuleS storage data = Storage.volumeStorage();

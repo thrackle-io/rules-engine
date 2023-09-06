@@ -66,6 +66,8 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
 
     /// Minimum Hold time data
     mapping(uint256 => uint256) ownershipStart;
+    /// Max Hold time hours
+    uint16 constant MAX_HOLD_TIME_HOURS = 43830;
 
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
@@ -600,7 +602,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      */
     function setMinimumHoldTimeHours(uint32 _minimumHoldTimeHours) external ruleAdministratorOnly(appManagerAddress) {
         if (_minimumHoldTimeHours == 0) revert ZeroValueNotPermited();
-        if (_minimumHoldTimeHours > 43830) revert PeriodExceeds5Years();
+        if (_minimumHoldTimeHours > MAX_HOLD_TIME_HOURS) revert PeriodExceeds5Years();
         minimumHoldTimeHours = _minimumHoldTimeHours;
         minimumHoldTimeRuleActive = true;
         emit ApplicationHandlerSimpleApplied(MINIMUM_HOLD_TIME, address(this), uint256(minimumHoldTimeHours));

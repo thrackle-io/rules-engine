@@ -47,7 +47,7 @@ contract TestAppManager is AppManager {
     /**
      * RiskScores address should never be 0x
      */
-    function echidna_riskScoresNotZero() public returns (bool) {
+    function echidna_riskScoresNotZero() public view returns (bool) {
         if (address(riskScores) != address(0)) return true;
         return false;
     }
