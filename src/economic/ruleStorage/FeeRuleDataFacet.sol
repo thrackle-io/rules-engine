@@ -18,6 +18,8 @@ import "./RuleCodeData.sol";
  * @notice This contract sets and gets the Fee Rules for the protocol
  */
 contract FeeRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors {
+    uint16 constant MAX_PERCENTAGE = 10000;
+
     /************ AMM Fee Getters/Setters ***********/
 
     /**
@@ -27,7 +29,7 @@ contract FeeRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      * @return ruleId position of rule in storage
      */
     function addAMMFeeRule(address _appManagerAddr, uint256 _feePercentage) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_feePercentage < 1 || _feePercentage > 10000) revert ValueOutOfRange(_feePercentage);
+        if (_feePercentage < 1 || _feePercentage > MAX_PERCENTAGE) revert ValueOutOfRange(_feePercentage);
         RuleS.AMMFeeRuleS storage data = Storage.ammFeeRuleStorage();
         Fee.AMMFeeRule memory rule = Fee.AMMFeeRule(_feePercentage);
         uint32 ruleId = data.ammFeeRuleIndex;
