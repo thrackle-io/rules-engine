@@ -10,15 +10,15 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import "./IProtocolERC721Handler.sol";
-import "./ProtocolTokenCommonU.sol";
+import "src/token/IProtocolERC721Handler.sol";
+import "src/token/ProtocolTokenCommonU.sol";
 
 /**
  * @title ERC721 Upgradeable Protocol Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This is the base contract for all protocol ERC721Upgradeables
  */
-contract ProtocolERC721U is
+contract ProtocolERC721UExtra is
     Initializable,
     ERC721Upgradeable,
     ERC721EnumerableUpgradeable,
@@ -37,7 +37,10 @@ contract ProtocolERC721U is
     /// Base Contract URI
     string public baseUri;
     /// memory placeholders to allow up variable addition without affecting client upgradeability
-    uint256[49] __gap;
+    uint256[46] __gap;
+    uint256 newVariable1;
+    uint256 newVariable2;
+    string newVariable3;
 
     /**
      * @dev Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
