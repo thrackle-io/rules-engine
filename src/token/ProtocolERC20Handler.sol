@@ -76,9 +76,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         transferOwnership(_assetAddress);
-        // register the supported interface, IAdminWithdrawalRuleCapable, ERC165
-        // _registerInterface(type(IAdminWithdrawalRuleCapable).interfaceId);
-        // _registerInterface(type(IAdminWithdrawalRuleCapable).interfaceId);
         if (!_upgradeMode) {
             deployDataContract();
             emit HandlerDeployed(address(this), _appManagerAddress);
