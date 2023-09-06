@@ -153,6 +153,7 @@ contract AppManagerBaseTest is TestCommon {
     // Test adding the Access Tier roles
     function testAddaccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
+        switchToSuperAdmin(); // create a app administrator and make it the sender.
 
         applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
         assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);
