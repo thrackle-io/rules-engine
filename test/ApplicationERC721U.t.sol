@@ -1012,6 +1012,11 @@ contract ApplicationERC721UTest is TestCommon {
         // check to make sure the storage level variables defined after the memory slot are still fine.
         assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable1(), 14);
         assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable2(), "awesome");
+        // change the variables and check to make sure they are still functioning
+        ApplicationERC721UExtra(address(applicationNFTProxy)).setTestVariable1(15);
+        ApplicationERC721UExtra(address(applicationNFTProxy)).setTestVariable2("awesome2");
+        assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable1(), 15);
+        assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable2(), "awesome2");
     }
 
     function testERC721Upgrade() public {

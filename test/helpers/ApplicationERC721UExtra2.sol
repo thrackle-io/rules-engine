@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "./ProtocolERC721UExtra.sol";
 
 /**
- * @title ApplicationERC721U
+ * @title ApplicationERC721UExtra2
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @dev This is an example implementation that App Devs should use.
  * During deployment, this contract should be deployed first, then initialize should be invoked, then ApplicationERC721UProxy should be deployed and pointed at * this contract. Any special or additional initializations can be done by overriding initialize but all initializations performed in ProtocolERC721U
