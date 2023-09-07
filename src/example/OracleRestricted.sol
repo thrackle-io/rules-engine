@@ -71,7 +71,7 @@ contract OracleRestricted is Ownable {
      * @return restricted returns true if in the restricted list, false if not.
      */
     function isRestricted(address addr) public view returns (bool) {
-        return sanctionedAddresses[addr] == true;
+        return sanctionedAddresses[addr];
     }
 
     /**

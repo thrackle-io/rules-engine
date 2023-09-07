@@ -165,7 +165,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
         if (!appManager.isAppAdministrator(msg.sender) && !appManager.isRegisteredAMM(msg.sender)) {
             revert CallerNotAuthorizedToMint();
         }
-        if (MAX_SUPPLY > 0 && totalSupply() + amount > MAX_SUPPLY) {
+        if (totalSupply() + amount > MAX_SUPPLY) {
             revert ExceedingMaxSupply();
         }
         _mint(to, amount);
