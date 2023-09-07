@@ -12,6 +12,7 @@ import "./IRiskScores.sol";
  */
 contract RiskScores is IRiskScores, DataModule {
     mapping(address => uint8) public scores;
+    uint8 constant MAX_RISK = 100;
 
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
@@ -27,7 +28,7 @@ contract RiskScores is IRiskScores, DataModule {
      * @param _score risk score (0-100)
      */
     function addScore(address _address, uint8 _score) public virtual onlyOwner {
-        if (_score > 100) revert riskScoreOutOfRange(_score);
+        if (_score > MAX_RISK) revert riskScoreOutOfRange(_score);
         if (_address == address(0)) revert ZeroAddress();
         scores[_address] = _score;
         emit RiskScoreAdded(_address, _score, block.timestamp);
@@ -39,7 +40,7 @@ contract RiskScores is IRiskScores, DataModule {
      * @param _score Risk Score(0-100)
      */
     function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external virtual onlyOwner {
-        if (_score > 100) revert riskScoreOutOfRange(_score);
+        if (_score > MAX_RISK) revert riskScoreOutOfRange(_score);
         for (uint256 i; i < _accounts.length; ) {
             scores[_accounts[i]] = _score;
             emit RiskScoreAdded(_accounts[i], _score, block.timestamp);
