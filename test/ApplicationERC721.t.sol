@@ -16,7 +16,6 @@ contract ApplicationERC721Test is TestCommon {
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationERC721HandlerMod newAssetHandler;
-
     address user1 = address(11);
     address user2 = address(22);
     address user3 = address(33);

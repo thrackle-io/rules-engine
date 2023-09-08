@@ -6,8 +6,8 @@
 
 | Version | Environment | Contract Name        | Contract Address |
 | :--- | :--- |:---------------------| :--- | 
-| v0.0.3 | Polygon Mumbai | RuleStorageDiamond | 0x53599C890aC5f0B643994F2C88d636bd407F0728
-| v0.0.3 | Polygon Mumbai | RuleProcessorDiamond | 0x7a19Cc45e6466349eC5864774cdE8F6aB6c5E9C3
+| v1.0.1 | Polygon Mumbai | RuleStorageDiamond | 0xc42E13D26917014B2109824780B73760d513a566
+| v1.0.1 | Polygon Mumbai | RuleProcessorDiamond | 0x26DB256496aCc3cAC7F4D7254F8f96A947AFaaAf
 | v0.0.3 | Polygon PoS | RuleStorageDiamond | TBD
 | v0.0.3 | Polygon PoS | RuleProcessorDiamond | TBD
 
