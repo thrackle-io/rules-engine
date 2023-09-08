@@ -190,15 +190,14 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
-        assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
-        applicationCoin.mint(superAdmin, 10000);
+        applicationAppManager.addGeneralTag(user1, "Oscar"); //add tag
+        assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
+        switchToSuperAdmin();
+        applicationCoin.mint(user1, 10000);
         uint256 amount = 10;
-        bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
+        bytes32[] memory tags = applicationAppManager.getAllTags(user1);
         switchToUser();
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).minAccountBalanceCheck(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).minAccountBalanceCheck(applicationCoin.balanceOf(user1), tags, amount, ruleId);
     }
 
     function testMaxTagEnforcementThroughMinAccountBalanceCheck() public {
@@ -221,12 +220,11 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         for (uint i = 1; i < 11; i++) {
-            applicationAppManager.addGeneralTag(superAdmin, bytes32(i)); //add tag
+            applicationAppManager.addGeneralTag(user1, bytes32(i)); //add tag
         }
         vm.expectRevert(0xa3afb2e2);
-        applicationAppManager.addGeneralTag(superAdmin, "xtra tag"); //add tag should fail
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
+        applicationAppManager.addGeneralTag(user1, "xtra tag"); //add tag should fail
+
         uint256 amount = 1;
         bytes32[] memory tags = new bytes32[](11);
         for (uint i = 1; i < 12; i++) {
@@ -259,8 +257,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         vm.startPrank(appAdministrator);
         applicationAppManager.addGeneralTag(user1, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
+        switchToSuperAdmin();
         applicationCoin.mint(user1, 10000000000000000000000);
         uint256 amount = 10000000000000000000000;
         assertEq(applicationCoin.balanceOf(user1), 10000000000000000000000);
@@ -291,14 +288,13 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
-        assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
+        applicationAppManager.addGeneralTag(user1, "Oscar"); //add tag
+        assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
+        switchToSuperAdmin();
         uint256 amount = 999;
-        bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
+        bytes32[] memory tags = applicationAppManager.getAllTags(user1);
         switchToUser();
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(applicationCoin.balanceOf(user1), tags, amount, ruleId);
     }
 
     function testNotPassingMaxAccountBalanceCheck() public {
@@ -322,8 +318,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         vm.startPrank(appAdministrator);
         applicationAppManager.addGeneralTag(user1, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
-         vm.stopPrank();
-        vm.startPrank(superAdmin);  
+        switchToSuperAdmin(); 
         applicationCoin.mint(user1, 10000000000000000000000000);
         uint256 amount = 10000000000000000000000;
         assertEq(applicationCoin.balanceOf(user1), 10000000000000000000000000);
