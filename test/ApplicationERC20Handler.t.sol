@@ -92,7 +92,7 @@ contract ApplicationERC20HandlerTest is TestCommon {
         tag1 = "expensive";
         applicationCoinHandlerSpecialOwner.removeFee(tag1);
         fee = applicationCoinHandlerSpecialOwner.getFee(tag1);
-        assertFalse(fee.isValue);
+        assertFalse(fee.feePercentage > 0);
         assertEq(1, applicationCoinHandlerSpecialOwner.getFeeTotal());
 
         // test the validations

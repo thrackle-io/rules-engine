@@ -38,7 +38,7 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
         /// create the 'data' variable which is simply a connection to the rule diamond
         AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().rules);
         uint256 totalRules = data.getTotalAccountBalanceByRiskScoreRules();
-        if ((totalRules > 0 && totalRules <= _ruleId) || totalRules == 0) revert RuleDoesNotExist();
+        if (totalRules <= _ruleId) revert RuleDoesNotExist();
         /// retrieve the rule
         ApplicationRuleStorage.AccountBalanceToRiskRule memory rule = data.getAccountBalanceByRiskScore(_ruleId);
         uint total = _totalValuationTo + _amountToTransfer;

@@ -52,7 +52,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
         uint256 amountOut,
         bytes32[] calldata fromTags
     ) public view {
-        fromTags.checkMaxTags();
+        // no need to check for max tags here since it is checked in the min and max functions
         minAccountBalanceCheck(tokenBalance0, fromTags, amountOut, ruleIdToken0);
         maxAccountBalanceCheck(tokenBalance1, fromTags, amountIn, ruleIdToken1);
     }
