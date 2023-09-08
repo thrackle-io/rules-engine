@@ -151,15 +151,16 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         assertEq(version, "2.2.2");
     }
 
-    function testFailAddMinTransferRuleByNonAdmin() public {
-        vm.stopPrank();
-        vm.startPrank(address(0xDEADA55));
+    function testNotPassingAddMinTransferRuleByNonAdmin() public {
+        switchToUser();
+        vm.expectRevert(0xd66c3008);
         RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 1000);
     }
 
     function testPassingMinTransferRule() public {
         switchToRuleAdmin();
         uint32 index = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 2222);
+        switchToUser();
         ERC20RuleProcessorFacet(address(ruleProcessor)).checkMinTransferPasses(index, 2222);
     }
 
@@ -232,11 +233,12 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
             tags[i - 1] = bytes32(i); //add tag
         }
         console.log(uint(tags[10]));
+        switchToUser();
         vm.expectRevert(0xa3afb2e2);
         ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).minAccountBalanceCheck(10000000000000000000000, tags, amount, ruleId);
     }
 
-    function testFailsMinAccountBalanceCheck() public {
+    function testNotPassingMinAccountBalanceCheck() public {
         bytes32[] memory accs = new bytes32[](3);
         uint256[] memory min = new uint256[](3);
         uint256[] memory max = new uint256[](3);
@@ -263,9 +265,10 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         uint256 amount = 10000000000000000000000;
         assertEq(applicationCoin.balanceOf(user1), 10000000000000000000000);
         bytes32[] memory tags = applicationAppManager.getAllTags(user1);
+        uint256 balance = applicationCoin.balanceOf(user1);
         switchToUser();
-
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).minAccountBalanceCheck(applicationCoin.balanceOf(user1), tags, amount, ruleId);
+        vm.expectRevert(0xf1737570);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).minAccountBalanceCheck(balance, tags, amount, ruleId);
     }
 
     function testMaxAccountBalanceCheck() public {
@@ -298,8 +301,8 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
 
-    function testFailsMaxAccountBalanceCheck() public {
-        // add empty rule at ruleId 0
+    function testNotPassingMaxAccountBalanceCheck() public {
+        switchToRuleAdmin();
         bytes32[] memory accs = new bytes32[](3);
         uint256[] memory min = new uint256[](3);
         uint256[] memory max = new uint256[](3);
@@ -320,13 +323,15 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         applicationAppManager.addGeneralTag(user1, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
          vm.stopPrank();
-        vm.startPrank(superAdmin);
-        applicationCoin.mint(user1, 10000000000000000000000);
+        vm.startPrank(superAdmin);  
+        applicationCoin.mint(user1, 10000000000000000000000000);
         uint256 amount = 10000000000000000000000;
-        assertEq(applicationCoin.balanceOf(user1), 10000000000000000000000);
+        assertEq(applicationCoin.balanceOf(user1), 10000000000000000000000000);
         bytes32[] memory tags = applicationAppManager.getAllTags(user1);
+        uint256 balance = applicationCoin.balanceOf(user1);
         switchToUser();
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(applicationCoin.balanceOf(user1), tags, amount, ruleId);
+        vm.expectRevert(0x24691f6b);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(balance, tags, amount, ruleId);
     }
 
     function testMinMaxAccountBalanceRuleNFT() public { 

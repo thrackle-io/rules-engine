@@ -972,9 +972,10 @@ function testUpgradeRuleStorage() public {
         assertEq(rule.releaseDate, block.timestamp + 10000);
     }
 
-    function testFailAddAdminWithdrawalRulenotAdmin() public {
-        switchToRuleAdmin();
-        TaggedRuleDataFacet(superAdmin).addAdminWithdrawalRule(address(applicationAppManager), 6500, 1669748600);
+    function testNotPassingAddAdminWithdrawalRulenotAdmin() public {
+        switchToUser();
+        vm.expectRevert(0xd66c3008);
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 6500, 1669748600);
     }
 
     ///Get Total Admin Withdrawal Rules
