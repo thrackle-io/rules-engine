@@ -72,6 +72,21 @@ contract ApplicationDeployAllScript is Script {
         /// This is a new app manager used for upgrade testing
         new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", true);
         new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), true);
+        /// Admin set up:
+        /// Quorra sets Kevin as app admin 
+        applicationAppManager.addAppAdministrator(vm.envAddress("KEVIN"));
+         
+        /** 
+        * Kevin as App admin sets:
+        * Clu = Rule admin 
+        * Gem = Access Tier admin 
+        * Sam = Risk admin 
+        */ 
+        vm.stopBroadcast();
+        vm.startBroadcast(vm.envUint("KEVIN_PRIVATE_KEY"));
+        applicationAppManager.addRuleAdministrator(vm.envAddress("CLU"));
+        applicationAppManager.addAccessTier(vm.envAddress("GEM"));
+        applicationAppManager.addRiskAdmin(vm.envAddress("CLU"));
         vm.stopBroadcast();
     }
 }
