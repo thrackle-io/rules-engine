@@ -35,7 +35,7 @@ contract GeneralTags is DataModule, IGeneralTags {
         else {
             if (tagRecords[_address].length >= MAX_TAGS) revert MaxTagLimitReached();
             tagRecords[_address].push(_tag);
-            emit GeneralTagAdded(_address, _tag, block.timestamp);
+            emit GeneralTagAdded(_address, _tag);
         }
     }
 
@@ -53,7 +53,7 @@ contract GeneralTags is DataModule, IGeneralTags {
             else {
                 if (tagRecords[_accounts[i]].length >= MAX_TAGS) revert MaxTagLimitReached();
                 tagRecords[_accounts[i]].push(_tag);
-                emit GeneralTagAdded(_accounts[i], _tag, block.timestamp);
+                emit GeneralTagAdded(_accounts[i], _tag);
             }
             unchecked {
                 ++i;
@@ -90,7 +90,7 @@ contract GeneralTags is DataModule, IGeneralTags {
             }
         }
         /// only one event should be emitted and only if a tag was actually removed
-        if (removed) emit GeneralTagRemoved(_address, _tag, block.timestamp);
+        if (removed) emit GeneralTagRemoved(_address, _tag);
     }
 
     /**
