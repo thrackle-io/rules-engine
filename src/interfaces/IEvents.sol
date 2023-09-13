@@ -32,25 +32,25 @@ interface IAppLevelEvents {
     event TreasuryRegistered(address indexed _address);
     ///Accounts
     event AccountProviderSet(address indexed _address);
-    event AccountAdded(address indexed account, uint256 date);
-    event AccountRemoved(address indexed account, uint256 date);
+    event AccountAdded(address indexed account);
+    event AccountRemoved(address indexed account);
     ///GeneralTags
     event GeneralTagProviderSet(address indexed _address);
-    event GeneralTagAdded(address indexed _address, bytes32 indexed _tag, uint256 date);
-    event GeneralTagRemoved(address indexed _address, bytes32 indexed _tag, uint256 date);
+    event GeneralTagAdded(address indexed _address, bytes32 indexed _tag);
+    event GeneralTagRemoved(address indexed _address, bytes32 indexed _tag);
     event TagAlreadyApplied(address indexed _address);
     ///AccessLevels
     event AccessLevelProviderSet(address indexed _address);
-    event AccessLevelAdded(address indexed _address, uint8 indexed _level, uint256 date);
-    event AccessLevelRemoved(address indexed _address, uint256 date);
+    event AccessLevelAdded(address indexed _address, uint8 indexed _level);
+    event AccessLevelRemoved(address indexed _address);
     ///PauseRules
     event PauseRuleProviderSet(address indexed _address);
     event PauseRuleAdded(uint256 indexed pauseStart, uint256 indexed pauseStop);
     event PauseRuleRemoved(uint256 indexed pauseStart, uint256 indexed pauseStop);
     ///RiskScores
     event RiskProviderSet(address indexed _address);
-    event RiskScoreAdded(address indexed _address, uint8 _score, uint256 date);
-    event RiskScoreRemoved(address indexed _address, uint256 date);
+    event RiskScoreAdded(address indexed _address, uint8 _score);
+    event RiskScoreRemoved(address indexed _address);
 }
 
 /**
@@ -160,8 +160,8 @@ interface IApplicationEvents {
     event SingleTokenPrice(address indexed collection, uint256 indexed tokenID, uint256 indexed price);
     event CollectionPrice(address indexed collection, uint256 indexed price);
     ///Fees
-    event FeeTypeAdded(bytes32 indexed tag, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount, uint256 date);
-    event FeeTypeRemoved(bytes32 indexed tag, uint256 date);
+    event FeeTypeAdded(bytes32 indexed tag, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount);
+    event FeeTypeRemoved(bytes32 indexed tag);
     ///AppManager set
     event AppManagerAddressSet(address indexed _address);
 }
