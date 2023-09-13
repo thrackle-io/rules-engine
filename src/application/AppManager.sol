@@ -77,9 +77,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     constructor(address root, string memory _appName, bool upgradeMode) {
         // deployer is set as both an AppAdmin and the Default Admin
         _grantRole(SUPER_ADMIN_ROLE, root);
-        emit SuperAdministrator(root, true);
         _grantRole(APP_ADMIN_ROLE, root);
-        emit AppAdministrator(root, true);
         _setRoleAdmin(APP_ADMIN_ROLE, SUPER_ADMIN_ROLE);
         _setRoleAdmin(ACCESS_TIER_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RISK_ADMIN_ROLE, APP_ADMIN_ROLE);
@@ -87,9 +85,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         appName = _appName;
         if (!upgradeMode) {
             deployDataContracts();
-            emit AppManagerDeployed(address(this));
+            emit AppManagerDeployed(root, _appName);
         } else {
-            emit AppManagerDeployedForUpgrade(address(this));
+            emit AppManagerDeployedForUpgrade(root, _appName);
         }
     }
 
