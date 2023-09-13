@@ -35,7 +35,7 @@ contract GeneralTags is DataModule, IGeneralTags {
         else {
             if (tagRecords[_address].length >= MAX_TAGS) revert MaxTagLimitReached();
             tagRecords[_address].push(_tag);
-            emit GeneralTag(_accounts[i], _tag, true);
+            emit GeneralTag(_address, _tag, true);
         }
     }
 

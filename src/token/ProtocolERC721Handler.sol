@@ -86,7 +86,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         if (!_upgradeMode) {
             emit HandlerDeployed(address(this), _appManagerAddress);
         } else {
-            emit HandlerDeployedForUpgrade(address(this), _appManagerAddress);
+            emit HandlerDeployed(address(this), _appManagerAddress);
         }
     }
 
