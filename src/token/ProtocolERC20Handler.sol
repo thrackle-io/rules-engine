@@ -83,7 +83,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
             deployDataContract();
             emit HandlerDeployed(address(this), _appManagerAddress);
         } else {
-            emit HandlerDeployedForUpgrade(address(this), _appManagerAddress);
+            emit HandlerDeployed(address(this), _appManagerAddress);
         }
     }
 
