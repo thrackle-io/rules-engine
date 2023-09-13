@@ -79,6 +79,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         _grantRole(SUPER_ADMIN_ROLE, root);
         emit SuperAdministrator(root, true);
         _grantRole(APP_ADMIN_ROLE, root);
+        emit AppAdministrator(root, true);
         _setRoleAdmin(APP_ADMIN_ROLE, SUPER_ADMIN_ROLE);
         _setRoleAdmin(ACCESS_TIER_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RISK_ADMIN_ROLE, APP_ADMIN_ROLE);
