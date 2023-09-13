@@ -85,9 +85,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         appName = _appName;
         if (!upgradeMode) {
             deployDataContracts();
-            emit AppManagerDeployed(address(this));
+            emit AppManagerDeployed(root, _appName);
         } else {
-            emit AppManagerDeployedForUpgrade(address(this));
+            emit AppManagerDeployedForUpgrade(root, _appName);
         }
     }
 
@@ -119,7 +119,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addAppAdministrator(address account) external onlyRole(SUPER_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(APP_ADMIN_ROLE, account);
-        emit AddAppAdministrator(account);
+        emit AppAdministrator(account, true);
     }
 
     /**
@@ -129,7 +129,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleAppAdministrator(address[] memory _accounts) external onlyRole(SUPER_ADMIN_ROLE) {
         for (uint256 i; i < _accounts.length; ) {
             grantRole(APP_ADMIN_ROLE, _accounts[i]);
-            emit AddAppAdministrator(_accounts[i]);
+            emit AppAdministrator(_accounts[i], true);
             unchecked {
                 ++i;
             }
@@ -143,7 +143,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         /// If the AdminWithdrawal rule is active, App Admins are not allowed to renounce their role to prevent manipulation of the rule
         checkForAdminWithdrawal();
         renounceRole(APP_ADMIN_ROLE, msg.sender);
-        emit RemoveAppAdministrator(address(msg.sender));
+        emit AppAdministrator(address(msg.sender), false);
     }
 
     /**
@@ -181,7 +181,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addRuleAdministrator(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(RULE_ADMIN_ROLE, account);
-        emit RuleAdminAdded(account);
+        emit RuleAdmin(account, true);
     }
 
     /**
@@ -191,7 +191,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleRuleAdministrator(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             grantRole(RULE_ADMIN_ROLE, account[i]);
-            emit RuleAdminAdded(account[i]);
+            emit RuleAdmin(account[i], true);
             unchecked {
                 ++i;
             }
@@ -203,7 +203,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function renounceRuleAdministrator() external {
         renounceRole(RULE_ADMIN_ROLE, msg.sender);
-        emit RuleAdminRemoved(address(msg.sender));
+        emit RuleAdmin(msg.sender, false);
     }
 
     /// -------------ACCESS TIER---------------
@@ -223,7 +223,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addAccessTier(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(ACCESS_TIER_ADMIN_ROLE, account);
-        emit AccessTierAdded(account);
+        emit AccessTierAdmin(account, true);
     }
 
     /**
@@ -233,7 +233,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleAccessTier(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             grantRole(ACCESS_TIER_ADMIN_ROLE, account[i]);
-            emit AccessTierAdded(account[i]);
+            emit AccessTierAdmin(account[i], true);
             unchecked {
                 ++i;
             }
@@ -245,7 +245,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function renounceAccessTier() external {
         renounceRole(ACCESS_TIER_ADMIN_ROLE, msg.sender);
-        emit AccessTierRemoved(address(msg.sender));
+        emit AccessTierAdmin(address(msg.sender), false);
     }
 
     /// -------------RISK ADMIN---------------
@@ -266,7 +266,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addRiskAdmin(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(RISK_ADMIN_ROLE, account);
-        emit RiskAdminAdded(account);
+        emit RiskAdmin(account, true);
     }
 
     /**
@@ -276,7 +276,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             grantRole(RISK_ADMIN_ROLE, account[i]);
-            emit RiskAdminAdded(account[i]);
+            emit RiskAdmin(account[i], true);
             unchecked {
                 ++i;
             }
@@ -288,7 +288,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function renounceRiskAdmin() external {
         renounceRole(RISK_ADMIN_ROLE, msg.sender);
-        emit RiskAdminRemoved(address(msg.sender));
+        emit RiskAdmin(address(msg.sender), false);
     }
 
     /// -------------MAINTAIN ACCESS LEVELS---------------

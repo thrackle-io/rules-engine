@@ -30,7 +30,7 @@ contract AccessLevels is IAccessLevels, DataModule {
         if (_level > 4) revert AccessLevelIsNotValid(_level);
         if (_address == address(0)) revert ZeroAddress();
         levels[_address] = _level;
-        emit AccessLevelAdded(_address, _level, block.timestamp);
+        emit AccessLevelAdded(_address, _level);
     }
 
     /**
@@ -42,7 +42,7 @@ contract AccessLevels is IAccessLevels, DataModule {
         if (_level > 4) revert AccessLevelIsNotValid(_level);
         for (uint256 i; i < _accounts.length; ) {
             levels[_accounts[i]] = _level;
-            emit AccessLevelAdded(_accounts[i], _level, block.timestamp);
+            emit AccessLevelAdded(_accounts[i], _level);
             unchecked {
                 ++i;
             }

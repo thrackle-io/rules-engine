@@ -6,12 +6,12 @@ import "test/echidna/helpers/TestCommonEchidna.sol";
 contract TestAppManager is TestCommonEchidna {
     address public addr;
 
-    constructor() public {
+    constructor() {
         applicationAppManager = _createAppManager(address(this));
     }
 
     /// Test the Default Admin roles
-    function testIsSuperAdmin() public {
+    function testIsSuperAdmin() public view {
         assert(applicationAppManager.isSuperAdmin(address(this)));
         assert(!applicationAppManager.isSuperAdmin(address(0)));
     }
