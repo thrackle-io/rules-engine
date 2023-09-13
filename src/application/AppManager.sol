@@ -77,6 +77,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     constructor(address root, string memory _appName, bool upgradeMode) {
         // deployer is set as both an AppAdmin and the Default Admin
         _grantRole(SUPER_ADMIN_ROLE, root);
+        emit SuperAdministrator(root, true);
         _grantRole(APP_ADMIN_ROLE, root);
         _setRoleAdmin(APP_ADMIN_ROLE, SUPER_ADMIN_ROLE);
         _setRoleAdmin(ACCESS_TIER_ADMIN_ROLE, APP_ADMIN_ROLE);
@@ -181,7 +182,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addRuleAdministrator(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(RULE_ADMIN_ROLE, account);
-        emit RuleAdminAdded(account);
+        emit RuleAdmin(account, true);
     }
 
     /**
@@ -191,7 +192,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleRuleAdministrator(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             grantRole(RULE_ADMIN_ROLE, account[i]);
-            emit RuleAdminAdded(account[i]);
+            emit RuleAdmin(account[i], true);
             unchecked {
                 ++i;
             }
@@ -203,7 +204,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function renounceRuleAdministrator() external {
         renounceRole(RULE_ADMIN_ROLE, msg.sender);
-        emit RuleAdminRemoved(address(msg.sender));
+        emit RuleAdmin(msg.sender, false);
     }
 
     /// -------------ACCESS TIER---------------

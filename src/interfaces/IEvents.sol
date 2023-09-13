@@ -18,11 +18,11 @@ interface IAppLevelEvents {
     event AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
     event DataContractsMigrated(address indexed ownerAddress);
     event RemoveFromRegistry(string contractName, address contractAddress);
-    event RuleAdminAdded(address newAdmin);
-    event RuleAdminRemoved(address removedAdmin);
+    event RuleAdmin(address indexed admin, bool indexed add);
     event RiskAdmin(address indexed admin, bool indexed add);
     event AccessTierAdmin(address indexed admin, bool indexed add);
     event AppAdministrator(address indexed admin, bool indexed add); 
+    event SuperAdministrator(address indexed admin, bool indexed add); 
     ///Registrations
     event TokenRegistered(string indexed _token, address indexed _address);
     event AMMRegistered(address indexed _address);
