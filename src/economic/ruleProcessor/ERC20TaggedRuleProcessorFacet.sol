@@ -7,6 +7,7 @@ import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcess
 import {TaggedRuleDataFacet} from "../ruleStorage/TaggedRuleDataFacet.sol";
 import {ITaggedRules as TaggedRules} from "../ruleStorage/RuleDataInterfaces.sol";
 import {IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";
+import "./RuleProcessorCommonLib.sol";
 
 /**
  * @title ERC20 Tagged Rule Processor Facet Contract
@@ -15,6 +16,7 @@ import {IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../int
  * @notice  Implements Token Rules on Tagged Accounts.
  */
 contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError {
+    using RuleProcessorCommonLib for bytes32[];
 
     /**
      * @dev Check the minimum/maximum rule. This rule ensures that both the to and from accounts do not
@@ -50,7 +52,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
         uint256 amountOut,
         bytes32[] calldata fromTags
     ) public view {
-        if (fromTags.length > 10) revert MaxTagLimitReached();
+        // no need to check for max tags here since it is checked in the min and max functions
         minAccountBalanceCheck(tokenBalance0, fromTags, amountOut, ruleIdToken0);
         maxAccountBalanceCheck(tokenBalance1, fromTags, amountIn, ruleIdToken1);
     }
@@ -65,7 +67,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
     function maxAccountBalanceCheck(uint256 balanceTo, bytes32[] calldata toTags, uint256 amount, uint32 ruleId) public view {
         /// This Function checks the max account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
-        if (toTags.length > 10) revert MaxTagLimitReached();
+        toTags.checkMaxTags();
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
         uint totalRules = data.getTotalBalanceLimitRules();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
@@ -94,7 +96,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
     function minAccountBalanceCheck(uint256 balanceFrom, bytes32[] calldata fromTags, uint256 amount, uint32 ruleId) public view {
         /// This Function checks the min account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
-        if (fromTags.length > 10) revert MaxTagLimitReached();
+        fromTags.checkMaxTags();
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
         uint totalRules = data.getTotalBalanceLimitRules();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
@@ -139,7 +141,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
      * @param toTags Account tags applied to sender via App Manager
      */
     function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags) external view {
-        if (toTags.length > 10) revert MaxTagLimitReached();
+        toTags.checkMaxTags();
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
         uint totalRules = data.getTotalMinBalByDateRule();
         if (totalRules > ruleId) {

@@ -4,12 +4,14 @@
 
 # *** UNDER CONSTRUCTION ***
 
-| Version | Environment | Contract Name        | Contract Address |
-| :--- | :--- |:---------------------| :--- | 
-| v0.0.3 | Polygon Mumbai | RuleStorageDiamond | 0x53599C890aC5f0B643994F2C88d636bd407F0728
-| v0.0.3 | Polygon Mumbai | RuleProcessorDiamond | 0x7a19Cc45e6466349eC5864774cdE8F6aB6c5E9C3
-| v0.0.3 | Polygon PoS | RuleStorageDiamond | TBD
-| v0.0.3 | Polygon PoS | RuleProcessorDiamond | TBD
+| Version | Environment     | Contract Name        | Contract Address |
+| :--- |:----------------|:---------------------| :--- | 
+| v1.0.1 | Ethereum Goerli | RuleStorageDiamond | 0x5038B18cCd5B0886e6c6736ad3Ac10039446eCe6 
+| v1.0.1 | Ethereum Goerli | RuleProcessorDiamond | 0xf0319D73Db76b7B594D5Fd659bbE03502D97816E
+| v1.0.1 | Polygon Mumbai  | RuleStorageDiamond | 0xc42E13D26917014B2109824780B73760d513a566
+| v1.0.1 | Polygon Mumbai  | RuleProcessorDiamond | 0x26DB256496aCc3cAC7F4D7254F8f96A947AFaaAf
+| v0.0.3 | Polygon PoS     | RuleStorageDiamond | TBD
+| v0.0.3 | Polygon PoS     | RuleProcessorDiamond | TBD
 
 
 

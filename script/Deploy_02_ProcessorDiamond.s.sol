@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
@@ -40,6 +40,7 @@ contract DeployAllModulesScript is Script {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         ruleStorageDiamondAddress = vm.envAddress("RULE_STORAGE_DIAMOND");
+        if (ruleStorageDiamondAddress == address(0)) revert("Rule Storage Diamond cannot be zero address");
         vm.startBroadcast(privateKey);
 
         ruleProcessorDiamond = deployRuleProcessorDiamond();

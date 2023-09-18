@@ -15,6 +15,9 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
     mapping(address => mapping(bytes32 => uint)) tagToIndex;
     mapping(address => mapping(bytes32 => bool)) isTagRegistered;
 
+    uint8 constant MAX_TAGS = 10;
+
+
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
      * @param _dataModuleAppManagerAddress address of the owning app manager
@@ -27,7 +30,7 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
      * @dev Add the tag. Restricted to owner.
      * @param _address user address
      * @param _tag metadata tag to be added
-     * @notice there is a hard limit of 10 tags per address. This limit is also enforced by the
+     * @notice there is a hard limit of MAX_TAGS tags per address. This limit is also enforced by the
      * protocol, so keeping this limit here prevents transfers to unexpectedly revert.
      */
     function addTag(address _address, bytes32 _tag) public virtual onlyOwner {
@@ -35,11 +38,12 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
         if (_address == address(0)) revert ZeroAddress();
         if (hasTag(_address, _tag)) emit TagAlreadyApplied(_address);
         else {
-            if (tagRecords[_address].length >= 10) revert MaxTagLimitReached();
+            if (tagRecords[_address].length >= MAX_TAGS) revert MaxTagLimitReached();
             tagToIndex[_address][_tag] = tagRecords[_address].length;
             tagRecords[_address].push(_tag);
             isTagRegistered[_address][_tag] = true;
             emit GeneralTagAdded(_address, _tag, block.timestamp);
+
         }
     }
 
@@ -47,7 +51,7 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
      * @dev Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.
      * @param _accounts Address array to be tagged
      * @param _tag Tag for the account. Can be any allowed string variant
-     * @notice there is a hard limit of 10 tags per address. This limit is also enforced by the
+     * @notice there is a hard limit of MAX_TAGS tags per address. This limit is also enforced by the
      * protocol, so keeping this limit here prevents transfers to unexpectedly revert.
      */
     function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external virtual onlyOwner {
@@ -55,7 +59,7 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
         for (uint256 i; i < _accounts.length; ) {
             if (hasTag(_accounts[i], _tag)) emit TagAlreadyApplied(_accounts[i]);
             else {
-                if (tagRecords[_accounts[i]].length >= 10) revert MaxTagLimitReached();
+                if (tagRecords[_accounts[i]].length >= MAX_TAGS) revert MaxTagLimitReached();
                 tagToIndex[_accounts[i]][_tag] = tagRecords[_accounts[i]].length;
                 tagRecords[_accounts[i]].push(_tag);
                 isTagRegistered[_accounts[i]][_tag] = true;
@@ -95,6 +99,7 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
             /// only one event should be emitted and only if a tag was actually removed
             emit GeneralTagRemoved(_address, _tag, block.timestamp);
         }else revert NoAddressToRemove();
+
     }
 
     /**

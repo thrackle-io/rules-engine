@@ -17,6 +17,10 @@ import "./RuleCodeData.sol";
  */
 
 contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, IAppRuleInputErrors, IRiskInputErrors {
+    uint8 constant MAX_ACCESSLEVELS = 5;
+    uint8 constant MAX_RISKSCORE = 99;
+    uint8 constant MAX_HOUR_OF_DAY = 23;
+
     //*********************** AccessLevel Rules ********************************************** */
     /**
      * @dev Function add a AccessLevel Balance rule
@@ -30,7 +34,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
     function addAccessLevelBalanceRule(address _appManagerAddr, uint48[] calldata _balanceAmounts) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         RuleS.AccessLevelRuleS storage data = Storage.accessStorage();
         uint32 index = data.accessRuleIndex;
-        if (_balanceAmounts.length != 5) revert BalanceAmountsShouldHave5Levels(uint8(_balanceAmounts.length));
+        if (_balanceAmounts.length != MAX_ACCESSLEVELS) revert BalanceAmountsShouldHave5Levels(uint8(_balanceAmounts.length));
         for (uint i = 1; i < _balanceAmounts.length; ) {
             if (_balanceAmounts[i] < _balanceAmounts[i - 1]) revert WrongArrayOrder();
             unchecked {
@@ -83,7 +87,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         RuleS.AccessLevelWithrawalRuleS storage data = Storage.accessLevelWithdrawalRuleStorage();
         uint32 index = data.accessLevelWithdrawalRuleIndex;
         ///validation block
-        if (_withdrawalAmounts.length != 5) revert WithdrawalAmountsShouldHave5Levels(uint8(_withdrawalAmounts.length));
+        if (_withdrawalAmounts.length != MAX_ACCESSLEVELS) revert WithdrawalAmountsShouldHave5Levels(uint8(_withdrawalAmounts.length));
         for (uint i = 1; i < _withdrawalAmounts.length; ) {
             if (_withdrawalAmounts[i] < _withdrawalAmounts[i - 1]) revert WrongArrayOrder();
             unchecked {
@@ -162,7 +166,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         if (_maxSize.length != _riskLevel.length + 1) revert InputArraysSizesNotValid();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_maxSize.length == 0) revert InvalidRuleInput();
-        if (_riskLevel[_riskLevel.length - 1] > 99) revert RiskLevelCannotExceed99();
+        if (_riskLevel[_riskLevel.length - 1] > MAX_RISKSCORE) revert RiskLevelCannotExceed99();
         for (uint256 i = 1; i < _riskLevel.length; ) {
             if (_riskLevel[i] <= _riskLevel[i - 1]) revert WrongArrayOrder();
             unchecked {
@@ -175,7 +179,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
                 ++i;
             }
         }
-        if (_startingTime > 23) revert InvalidHourOfTheDay();
+        if (_startingTime > MAX_HOUR_OF_DAY) revert InvalidHourOfTheDay();
 
         /// before creating the rule, we convert the starting time from hour of the day to timestamp date
         uint64 startingDate = uint64(block.timestamp - (block.timestamp % (1 days)) - 1 days + uint256(_startingTime) * (1 hours));
@@ -237,7 +241,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         if (_balanceLimits.length != _riskScores.length + 1) revert InputArraysSizesNotValid();
         // since the arrays are compared, it is only necessary to check for one of them being empty.
         if (_balanceLimits.length == 0) revert InvalidRuleInput();
-        if (_riskScores[_riskScores.length - 1] > 99) revert RiskLevelCannotExceed99();
+        if (_riskScores[_riskScores.length - 1] > MAX_RISKSCORE) revert RiskLevelCannotExceed99();
         for (uint i = 1; i < _riskScores.length; ) {
             if (_riskScores[i] <= _riskScores[i - 1]) revert WrongArrayOrder();
             unchecked {
