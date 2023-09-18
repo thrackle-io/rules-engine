@@ -60,10 +60,16 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     mapping(address => bool) registeredHandlers;
     /// Token array (for balance tallying)
     address[] tokenList;
+    mapping(address => uint) tokenToIndex;
+    mapping(address => bool) isTokenRegistered;
     /// AMM List (for token level rule exemptions)
     address[] ammList;
+    mapping(address => uint) ammToIndex;
+    mapping(address => bool) isAMMRegistered;
     /// Treasury List (for token level rule exemptions)
     address[] treasuryList;
+    mapping(address => uint) treasuryToIndex;
+    mapping(address => bool) isTreasuryRegistered;
 
     /// Application name string
     string appName;
@@ -633,24 +639,16 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function registerToken(string calldata _token, address _tokenAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_tokenAddress == address(0)) revert ZeroAddress();
-        bool skip;
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
-        for (uint256 i = 0; i < tokenList.length; ) {
-            if (tokenList[i] == _tokenAddress) {
-                skip = true;
-                break;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        if (!skip) {
+        if(!isTokenRegistered[_tokenAddress]){  
+            tokenToIndex[_tokenAddress] = tokenList.length;  
             tokenList.push(_tokenAddress);
-            /// Also add their handler to the registry
+            isTokenRegistered[_tokenAddress] = true;
             registeredHandlers[ProtocolTokenCommon(_tokenAddress).getHandlerAddress()] = true;
             emit TokenRegistered(_token, _tokenAddress);
-        }
+        }else emit TokenNameUpdated(_token, _tokenAddress);
+        
     }
 
     /**
@@ -677,46 +675,47 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
 
     function deregisterToken(string calldata _tokenId) external onlyRole(APP_ADMIN_ROLE) {
-        bool exists = _removeAddress(tokenList, tokenToAddress[_tokenId]);
         address tokenAddress = tokenToAddress[_tokenId];
+        if(!isTokenRegistered[tokenAddress]) revert NoAddressToRemove();
+        _removeAddressWithMapping(tokenList, tokenToIndex, isTokenRegistered, tokenAddress);
         delete tokenToAddress[_tokenId];
         delete addressToToken[tokenAddress];
         /// also remove its handler from the registration
-        if (exists) {
-            registeredHandlers[ProtocolTokenCommon(tokenAddress).getHandlerAddress()] = false;
-        }
+        delete registeredHandlers[ProtocolTokenCommon(tokenAddress).getHandlerAddress()];
         emit RemoveFromRegistry(_tokenId, tokenAddress);
     }
 
-    /**
+     /**
      * @dev This function removes an address from a dynamic address array by putting the last element in the one to remove and then removing last element.
-     * @notice This function should only be called with arrays that are free of duplicates.
      * @param _addressArray The array to have an address removed
+     * @param _addressToIndex mapping that keeps track of the indexes in the list by address
+     * @param _registerFlag mapping that keeps track of the addresses that are members of the list
      * @param _address The address to remove
-     * @param _removed true if one was removed
      */
-    function _removeAddress(address[] storage _addressArray, address _address) private returns (bool _removed) {
-        if (_addressArray.length > 0) {
-            if (_addressArray.length == 1) {
-                if (_addressArray[0] == _address) {
-                    _addressArray.pop();
-                }
+    function _removeAddressWithMapping(
+        address[] storage  _addressArray, 
+        mapping(address => uint) storage _addressToIndex, 
+        mapping(address => bool) storage _registerFlag, 
+        address _address) 
+        private 
+        {
+            /// we store the last address in the array on a local variable to avoid unnecessary costly memory reads
+            address LastAddress = _addressArray[_addressArray.length -1];
+            /// we check if we're trying to remove the last address in the array since this means we can skip some steps
+            if(_address != LastAddress){
+                /// if it is not the last address in the array, then we store the index of the address to remove
+                uint index = _addressToIndex[_address];
+                /// we remove the address by replacing it in the array with the last address of the array (now duplicated)
+                _addressArray[index] = LastAddress;
+                /// we update the last address index to its new position (the removed-address index)
+                _addressToIndex[LastAddress] = index;
             }
-            if (_addressArray.length > 1) {
-                for (uint256 i = 0; i < _addressArray.length; ) {
-                    if (_addressArray[i] == _address) {
-                        _addressArray[i] = _addressArray[_addressArray.length - 1];
-                        _addressArray.pop();
-                        _removed = true;
-                        break;
-                    }
-                    unchecked {
-                        ++i;
-                    }
-                }
-            }
-        }
-        return _removed;
+            /// we remove the last element of the _addressArray since it is now duplicated
+            _addressArray.pop();
+            /// we set to false the membership mapping for this address in _addressArray
+            delete _registerFlag[_address];
+            /// we set the index to zero for this address in _addressArray
+            delete _addressToIndex[_address];
     }
 
     /**
@@ -726,7 +725,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function registerAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_AMMAddress == address(0)) revert ZeroAddress();
         if (isRegisteredAMM(_AMMAddress)) revert AddressAlreadyRegistered();
+        ammToIndex[_AMMAddress] = ammList.length;
         ammList.push(_AMMAddress);
+        isAMMRegistered[_AMMAddress] = true;
         emit AMMRegistered(_AMMAddress);
     }
 
@@ -735,15 +736,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _AMMAddress Address for the AMM
      */
     function isRegisteredAMM(address _AMMAddress) public view returns (bool) {
-        for (uint256 i = 0; i < ammList.length; ) {
-            if (ammList[i] == _AMMAddress) {
-                return true;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        return false;
+        return isAMMRegistered[_AMMAddress];
     }
 
     /**
@@ -751,7 +744,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _AMMAddress The of the AMM to be de-registered
      */
     function deRegisterAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE) {
-        _removeAddress(ammList, _AMMAddress);
+        if (!isRegisteredAMM(_AMMAddress)) revert NoAddressToRemove();
+        _removeAddressWithMapping(ammList, ammToIndex, isAMMRegistered, _AMMAddress);
     }
 
     /**
@@ -759,15 +753,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _treasuryAddress Address for the treasury
      */
     function isTreasury(address _treasuryAddress) public view returns (bool) {
-        for (uint256 i = 0; i < treasuryList.length; ) {
-            if (treasuryList[i] == _treasuryAddress) {
-                return true;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        return false;
+        return isTreasuryRegistered[_treasuryAddress];
     }
 
     /**
@@ -777,7 +763,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function registerTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_treasuryAddress == address(0)) revert ZeroAddress();
         if (isTreasury(_treasuryAddress)) revert AddressAlreadyRegistered();
+        treasuryToIndex[_treasuryAddress] = treasuryList.length;
         treasuryList.push(_treasuryAddress);
+        isTreasuryRegistered[_treasuryAddress] = true;
         emit TreasuryRegistered(_treasuryAddress);
     }
 
@@ -786,7 +774,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _treasuryAddress The of the AMM to be de-registered
      */
     function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
-        _removeAddress(treasuryList, _treasuryAddress);
+        if (!isTreasury(_treasuryAddress)) revert NoAddressToRemove();
+        _removeAddressWithMapping(treasuryList, treasuryToIndex, isTreasuryRegistered, _treasuryAddress);
     }
 
     /**

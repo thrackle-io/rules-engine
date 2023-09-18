@@ -25,6 +25,7 @@ interface IAppLevelEvents {
     event SuperAdministrator(address indexed admin, bool indexed add); 
     ///Registrations
     event TokenRegistered(string indexed _token, address indexed _address);
+    event TokenNameUpdated(string indexed _token, address indexed _address);
     event AMMRegistered(address indexed _address);
     event TreasuryRegistered(address indexed _address);
     ///Accounts
