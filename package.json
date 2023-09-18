@@ -4,7 +4,7 @@
     "prettier-plugin-solidity": "^1.1.1"
   },
   "name": "@thrackle-io/rules-protocol-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Set of contracts to easily start an application in rules protocol",
   "dependencies": {
     "@openzeppelin/contracts": "4.9",
@@ -23,11 +23,12 @@
     "src/economic/AppAdministratorOnlyU.sol",
     "src/economic/ruleStorage/RuleCodeData.sol",
     "src/economic/ruleProcessor/ActionEnum.sol",
-    "unpack.sh"
+    "unpack.sh",
+    "to_relative.sh"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "chmod +x unpack.sh",
+    "install": "chmod +x unpack.sh to_relative.sh & ./to_relative.sh",
     "postinstall": "./unpack.sh"
   },
   "repository": {

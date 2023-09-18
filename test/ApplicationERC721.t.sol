@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
@@ -16,7 +16,6 @@ contract ApplicationERC721Test is TestCommon {
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationERC721HandlerMod newAssetHandler;
-
     address user1 = address(11);
     address user2 = address(22);
     address user3 = address(33);
@@ -38,7 +37,7 @@ contract ApplicationERC721Test is TestCommon {
 
     function testERC721AndHandlerVersions() public {
         string memory version = applicationNFTHandler.version();
-        assertEq(version,"1.0.0");
+        assertEq(version, "1.0.1");
     }
 
     function testMint() public {

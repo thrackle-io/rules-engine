@@ -12,8 +12,7 @@ import "../../economic/AppAdministratorOnly.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError, AppAdministratorOnly {
-    string private constant VERSION="1.0.0";
-    int256 defaultFee;
+    string private constant VERSION = "1.0.1";
     mapping(bytes32 => Fee) feesByTag;
     uint256 feeTotal;
     address newOwner; // This is used for data contract migration
@@ -22,7 +21,6 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
         uint256 maxBalance;
         int24 feePercentage;
         address feeCollectorAccount;
-        bool isValue; // this is just for housekeeping purposes
     }
 
     /**
@@ -40,29 +38,28 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
         if (_feePercentage == 0) revert ZeroValueNotPermited();
         if (_targetAccount == address(0) && _feePercentage > 0) revert ZeroValueNotPermited();
         // if the fee did not already exist, then increment total
-        if (!feesByTag[_tag].isValue) {
+        if (feesByTag[_tag].feePercentage == 0) {
             feeTotal += 1;
         }
         // if necessary, default the max balance
         if (_maxBalance == 0) _maxBalance = type(uint256).max;
         // add the fee to the mapping. If it already exists, it will replace the old one.
-        feesByTag[_tag] = Fee(_minBalance, _maxBalance, _feePercentage, _targetAccount, true);
-        emit FeeTypeAdded(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount, block.timestamp);
+        feesByTag[_tag] = Fee(_minBalance, _maxBalance, _feePercentage, _targetAccount);
+        emit FeeType(_tag, true, _minBalance, _maxBalance, _feePercentage, _targetAccount);
     }
 
     /**
-     * @dev This function adds a fee to the token
+     * @dev This function removes a fee to the token
      * @param _tag meta data tag for fee
      */
     function removeFee(bytes32 _tag) external onlyOwner {
         if (_tag == "") revert BlankTag();
-        if (feesByTag[_tag].isValue) {
+        // feePercentage must always not be 0 so it can be used to check rule existence
+        if (feesByTag[_tag].feePercentage != 0) {
             delete (feesByTag[_tag]);
-            emit FeeTypeRemoved(_tag, block.timestamp);
-            // if the fee did exist and was active, then decrement total
-            if (feeTotal > 0) {
-                feeTotal -= 1;
-            }
+            emit FeeType(_tag, false, 0, 0, 0, address(0));
+            // if the fee existed, then decrement total
+            feeTotal -= 1;
         }
     }
 

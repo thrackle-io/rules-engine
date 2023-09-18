@@ -8,6 +8,8 @@ pragma solidity ^0.8.17;
  */
 library RuleProcessorCommonLib {
     error InvalidTimestamp(uint64 _timestamp);
+    error MaxTagLimitReached();
+    uint8 constant MAX_TAGS = 10;
 
     /**
      * @dev Determine is the rule is active. This is only for use in rules that are stored with activation timestamps.
@@ -39,5 +41,13 @@ library RuleProcessorCommonLib {
         } else {
             return false;
         }
+    }
+
+    /**
+     * @dev determine if the max tag number is reached
+     * @param _tags the timestamp the rule was enabled
+     */
+    function checkMaxTags(bytes32[] memory _tags) internal pure {
+        if (_tags.length > MAX_TAGS) revert MaxTagLimitReached();
     }
 }

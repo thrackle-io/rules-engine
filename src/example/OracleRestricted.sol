@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable.sol";
+import {IOracleEvents} from "src/interfaces/IEvents.sol";
 
 /**
  * @title Example On-chain Restrict-List Oracle
@@ -8,15 +9,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @notice This is an example on-chain oracle that maintains a restricted list.
  * @dev This is intended to be a model only. It stores the allow list internally and returns bool true if address is in list.
  */
-contract OracleRestricted is Ownable {
+contract OracleRestricted is Ownable, IOracleEvents {
     mapping(address => bool) private sanctionedAddresses;
 
-    event SanctionedAddress(address indexed addr);
-    event NonSanctionedAddress(address indexed addr);
-    event SanctionedAddressesAdded(address[] addrs);
-    event SanctionedAddressAdded(address addrs);
-    event SanctionedAddressesRemoved(address[] addrs);
-    event SanctionedListOracleDeployed();
 
     /**
      * @dev Constructor that only serves the purpose of notifying the indexer of its creation via event
@@ -41,7 +36,7 @@ contract OracleRestricted is Ownable {
         for (uint256 i = 0; i < newSanctions.length; i++) {
             sanctionedAddresses[newSanctions[i]] = true;
         }
-        emit SanctionedAddressesAdded(newSanctions);
+        emit OracleListChanged(true, newSanctions);
     }
 
     /**
@@ -50,8 +45,9 @@ contract OracleRestricted is Ownable {
      */
     function addAddressToSanctionsList(address newSanction) public onlyOwner {
         sanctionedAddresses[newSanction] = true;
-
-        emit SanctionedAddressAdded(newSanction);
+address[] memory addresses;
+        addresses[0] =  newSanction;
+        emit OracleListChanged(true, addresses);
     }
 
     /**
@@ -62,7 +58,7 @@ contract OracleRestricted is Ownable {
         for (uint256 i = 0; i < removeSanctions.length; i++) {
             sanctionedAddresses[removeSanctions[i]] = false;
         }
-        emit SanctionedAddressesRemoved(removeSanctions);
+        emit OracleListChanged(false, removeSanctions);
     }
 
     /**
@@ -71,7 +67,7 @@ contract OracleRestricted is Ownable {
      * @return restricted returns true if in the restricted list, false if not.
      */
     function isRestricted(address addr) public view returns (bool) {
-        return sanctionedAddresses[addr] == true;
+        return sanctionedAddresses[addr];
     }
 
     /**

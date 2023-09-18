@@ -1,42 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-/**
- * @notice VERSION 1
- * @title RULE enum
- * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev This enum is a representation of the positioning inside the
- * rule_set array of the protocol.
- * @notice Rule enum houses enumerative list of rules for immutability
- */
-
-enum RULE {
-    PURCHASE, // 0
-    SELL, //1
-    PCT_PURCHASE,
-    PCT_SELL,
-    PURCHASE_FEE_PER_VOL,
-    VOLATILITY,
-    TRADING_VOL,
-    WIDTHDRAWAL,
-    ADMIN_WIDTHDRAWAL,
-    MIN_TRANSFER,
-    BALANCE_LIMIT,
-    MIN_BALANCE_HELD_BY_PERIOD,
-    SUPPLY_VOLATILITY,
-    AccessLevel,
-    TX_SIZE_TO_RISK,
-    TX_SIZE_PER_PERIOD_TO_RISK,
-    ACCOUNT_BALANCE,
-    ORACLE,
-    WITHDRAWAL_LIMIT_ACCESS_LEVEL
-}
-
-enum ORACLE_TYPE {
-    RESTRICTED_LIST,
-    ALLOWED_LIST
-}
-
 // Rule Code Constants
 bytes32 constant AMM_FEE = "AMM_FEE";
 bytes32 constant PURCHASE_LIMIT = "PURCHASE_LIMIT";
@@ -62,3 +26,9 @@ bytes32 constant ORACLE = "ORACLE";
 bytes32 constant NFT_TRANSFER = "NFT_TRANSFER";
 bytes32 constant ACCESS_LEVEL_WITHDRAWAL = "ACCESS_LEVEL_WITHDRAWAL";
 bytes32 constant MINIMUM_HOLD_TIME = "MINIMUM_HOLD_TIME";
+
+
+enum ORACLE_TYPE {
+    RESTRICTED_LIST,
+    ALLOWED_LIST
+}

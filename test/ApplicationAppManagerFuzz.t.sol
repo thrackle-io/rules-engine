@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "src/data/IPauseRules.sol";
 import "test/helpers/TestCommon.sol";
@@ -449,6 +449,7 @@ contract ApplicationAppManagerFuzzTest is TestCommon {
             if (start < end && start > block.timestamp) {
                 PauseRule[] memory test = applicationAppManager.getPauseRules();
                 assertTrue(test.length == 2);
+                assertTrue(applicationHandler.isPauseRuleActive() == true);
 
                 /// test if not-an-admin can set a rule
                 vm.stopPrank();

@@ -9,29 +9,29 @@ import "./IRuleStorage.sol";
  * @notice Library for Rules
  */
 library RuleStoragePositionLib {
-    bytes32 constant DIAMOND_CUT_STORAGE_POSITION = keccak256("diamond-cut.storage");
+    bytes32 constant DIAMOND_CUT_STORAGE_POSITION = bytes32(uint256(keccak256("diamond-cut.storage")) - 1);
     /// every rule has its own storage
-    bytes32 constant PURCHASE_RULE_POSITION = keccak256("amm.purchase");
-    bytes32 constant SELL_RULE_POSITION = keccak256("amm.sell");
-    bytes32 constant PCT_PURCHASE_RULE_POSITION = keccak256("amm.pct-purchase");
-    bytes32 constant PCT_SELL_RULE_POSITION = keccak256("amm.pct.sell");
-    bytes32 constant PURCHASE_FEE_BY_VOLUME_RULE_POSITION = keccak256("amm.fee-by-volume");
-    bytes32 constant PRICE_VOLATILITY_RULE_POSITION = keccak256("amm.price.volatility");
-    bytes32 constant VOLUME_RULE_POSITION = keccak256("amm.volume");
-    bytes32 constant WITHDRAWAL_RULE_POSITION = keccak256("vault.withdrawal");
-    bytes32 constant ADMIN_WITHDRAWAL_RULE_POSITION = keccak256("vault.admin-withdrawal");
-    bytes32 constant MIN_TRANSFER_RULE_POSITION = keccak256("token.min-transfer");
-    bytes32 constant BALANCE_LIMIT_RULE_POSITION = keccak256("token.balance-limit");
-    bytes32 constant SUPPLY_VOLATILITY_RULE_POSITION = keccak256("token.supply-volatility");
-    bytes32 constant ORACLE_RULE_POSITION = keccak256("all.oracle");
-    bytes32 constant ACCESS_LEVEL_RULE_POSITION = keccak256("token.access");
-    bytes32 constant TX_SIZE_TO_RISK_RULE_POSITION = keccak256("token.tx-size-to-risk");
-    bytes32 constant TX_SIZE_PER_PERIOD_TO_RISK_RULE_POSITION = keccak256("token.tx-size-per-period-to-risk");
-    bytes32 constant BALANCE_LIMIT_TO_RISK_RULE_POSITION = keccak256("token.balance-limit-to-risk");
-    bytes32 constant NFT_TRANSFER_RULE_POSITION = keccak256("NFT.transfer-rule");
-    bytes32 constant MIN_BAL_BY_DATE_RULE_POSITION = keccak256("token.min-bal-by-date-rule");
-    bytes32 constant AMM_FEE_RULE_POSITION = keccak256("AMM.fee-rule");
-    bytes32 constant ACCESS_LEVEL_WITHDRAWAL_RULE_POSITION = keccak256("token.access-level-withdrawal-rule");
+    bytes32 constant PURCHASE_RULE_POSITION = bytes32(uint256(keccak256("amm.purchase")) - 1);
+    bytes32 constant SELL_RULE_POSITION = bytes32(uint256(keccak256("amm.sell")) - 1);
+    bytes32 constant PCT_PURCHASE_RULE_POSITION = bytes32(uint256(keccak256("amm.pct-purchase")) - 1);
+    bytes32 constant PCT_SELL_RULE_POSITION = bytes32(uint256(keccak256("amm.pct.sell")) - 1);
+    bytes32 constant PURCHASE_FEE_BY_VOLUME_RULE_POSITION = bytes32(uint256(keccak256("amm.fee-by-volume")) - 1);
+    bytes32 constant PRICE_VOLATILITY_RULE_POSITION = bytes32(uint256(keccak256("amm.price.volatility")) - 1);
+    bytes32 constant VOLUME_RULE_POSITION = bytes32(uint256(keccak256("amm.volume")) - 1);
+    bytes32 constant WITHDRAWAL_RULE_POSITION = bytes32(uint256(keccak256("vault.withdrawal")) - 1);
+    bytes32 constant ADMIN_WITHDRAWAL_RULE_POSITION = bytes32(uint256(keccak256("vault.admin-withdrawal")) - 1);
+    bytes32 constant MIN_TRANSFER_RULE_POSITION = bytes32(uint256(keccak256("token.min-transfer")) - 1);
+    bytes32 constant BALANCE_LIMIT_RULE_POSITION = bytes32(uint256(keccak256("token.balance-limit")) - 1);
+    bytes32 constant SUPPLY_VOLATILITY_RULE_POSITION = bytes32(uint256(keccak256("token.supply-volatility")) - 1);
+    bytes32 constant ORACLE_RULE_POSITION = bytes32(uint256(keccak256("all.oracle")) - 1);
+    bytes32 constant ACCESS_LEVEL_RULE_POSITION = bytes32(uint256(keccak256("token.access")) - 1);
+    bytes32 constant TX_SIZE_TO_RISK_RULE_POSITION = bytes32(uint256(keccak256("token.tx-size-to-risk")) - 1);
+    bytes32 constant TX_SIZE_PER_PERIOD_TO_RISK_RULE_POSITION = bytes32(uint256(keccak256("token.tx-size-per-period-to-risk")) - 1);
+    bytes32 constant BALANCE_LIMIT_TO_RISK_RULE_POSITION = bytes32(uint256(keccak256("token.balance-limit-to-risk")) - 1);
+    bytes32 constant NFT_TRANSFER_RULE_POSITION = bytes32(uint256(keccak256("NFT.transfer-rule")) - 1);
+    bytes32 constant MIN_BAL_BY_DATE_RULE_POSITION = bytes32(uint256(keccak256("token.min-bal-by-date-rule")) - 1);
+    bytes32 constant AMM_FEE_RULE_POSITION = bytes32(uint256(keccak256("AMM.fee-rule")) - 1);
+    bytes32 constant ACCESS_LEVEL_WITHDRAWAL_RULE_POSITION = bytes32(uint256(keccak256("token.access-level-withdrawal-rule")) - 1);
 
     /**
      * @dev Function to store Purchase rules

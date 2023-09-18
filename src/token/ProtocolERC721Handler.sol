@@ -66,6 +66,8 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
 
     /// Minimum Hold time data
     mapping(uint256 => uint256) ownershipStart;
+    /// Max Hold time hours
+    uint16 constant MAX_HOLD_TIME_HOURS = 43830;
 
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
@@ -84,7 +86,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         if (!_upgradeMode) {
             emit HandlerDeployed(address(this), _appManagerAddress);
         } else {
-            emit HandlerDeployedForUpgrade(address(this), _appManagerAddress);
+            emit HandlerDeployed(address(this), _appManagerAddress);
         }
     }
 
@@ -121,31 +123,26 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
             }
             appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
             _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
-            _checkNonTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
+            _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
         } else {
             if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
         }
         /// set the ownership start time for the token if the Minimum Hold time rule is active
         if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
-        // If everything checks out, return true
+        /// If all rule checks pass, return true
         return true;
     }
 
     /**
      * @dev This function uses the protocol's ruleProcessor to perform the actual rule checks.
-     * @param _balanceFrom token balance of sender address
-     * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens transferred
      * @param tokenId the token's specific ID
      */
-    function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 tokenId) internal {
+    function _checkNonTaggedRules(address _from, address _to, uint256 _amount, uint256 tokenId) internal {
         if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _to);
-        _balanceFrom;
-        _balanceTo;
-        _from;
         if (tradeCounterRuleActive) {
             // get all the tags for this NFT
             bytes32[] memory tags = appManager.getAllTags(erc721Address);
@@ -180,12 +177,10 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      */
     function _checkTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 tokenId) internal view {
         _checkTaggedIndividualRules(_from, _to, _balanceFrom, _balanceTo, _amount);
-
         if (transactionLimitByRiskRuleActive) {
             /// If more rules need these values, then this can be moved above.
-            uint256 currentAssetValuation = getAccTotalValuation(_to, nftValuationLimit);
             uint256 thisNFTValuation = nftPricer.getNFTPrice(msg.sender, tokenId);
-            _checkRiskRules(_from, _to, currentAssetValuation, _amount, thisNFTValuation);
+            _checkRiskRules(_from, _to, thisNFTValuation);
         }
     }
 
@@ -211,13 +206,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @dev This function uses the protocol's ruleProcessor to perform the risk rule checks.(Ones that require risk score values)
      * @param _from address of the from account
      * @param _to address of the to account
-     * @param _currentAssetValuation current total valuation of all assets
-     * @param _amount number of tokens transferred
      * @param _thisNFTValuation valuation of NFT in question
      */
-    function _checkRiskRules(address _from, address _to, uint256 _currentAssetValuation, uint256 _amount, uint256 _thisNFTValuation) internal view {
-        _currentAssetValuation;
-        _amount;
+    function _checkRiskRules(address _from, address _to, uint256 _thisNFTValuation) internal view {
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         /// if rule is active check if the recipient is address(0) for burning tokens
@@ -611,7 +602,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      */
     function setMinimumHoldTimeHours(uint32 _minimumHoldTimeHours) external ruleAdministratorOnly(appManagerAddress) {
         if (_minimumHoldTimeHours == 0) revert ZeroValueNotPermited();
-        if (_minimumHoldTimeHours > 43830) revert PeriodExceeds5Years();
+        if (_minimumHoldTimeHours > MAX_HOLD_TIME_HOURS) revert PeriodExceeds5Years();
         minimumHoldTimeHours = _minimumHoldTimeHours;
         minimumHoldTimeRuleActive = true;
         emit ApplicationHandlerSimpleApplied(MINIMUM_HOLD_TIME, address(this), uint256(minimumHoldTimeHours));

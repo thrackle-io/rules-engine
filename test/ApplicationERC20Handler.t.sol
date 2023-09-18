@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
@@ -92,7 +92,7 @@ contract ApplicationERC20HandlerTest is TestCommon {
         tag1 = "expensive";
         applicationCoinHandlerSpecialOwner.removeFee(tag1);
         fee = applicationCoinHandlerSpecialOwner.getFee(tag1);
-        assertFalse(fee.isValue);
+        assertFalse(fee.feePercentage > 0);
         assertEq(1, applicationCoinHandlerSpecialOwner.getFeeTotal());
 
         // test the validations

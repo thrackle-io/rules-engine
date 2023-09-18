@@ -14,7 +14,7 @@ import {IAppManager} from "../application/IAppManager.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAddressError {
-    string private constant VERSION="1.0.0";
+    string private constant VERSION="1.0.1";
     ///Data Module
     address public dataModuleAppManagerAddress;
     address newOwner; // This is used for data contract migration
@@ -31,7 +31,7 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
     /**
      * @dev Modifier ensures function caller is a Application Administrators or the parent contract
      */
-    modifier appAdminstratorOrOwnerOnly() {
+    modifier appAdministratorOrOwnerOnly() {
         if (dataModuleAppManagerAddress == address(0)) revert AppManagerNotConnected();
         IAppManager appManager = IAppManager(dataModuleAppManagerAddress);
 
@@ -43,7 +43,7 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
      * @dev this function proposes a new owner that is put in storage to be confirmed in a separate process
      * @param _newOwner the new address being proposed
      */
-    function proposeOwner(address _newOwner) external appAdminstratorOrOwnerOnly {
+    function proposeOwner(address _newOwner) external appAdministratorOrOwnerOnly {
         if (_newOwner == address(0)) revert ZeroAddress();
         newOwner = _newOwner;
     }
@@ -61,7 +61,7 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
      * @dev Part of the two step process to set a new Data Provider within a Protocol AppManager
      * @param _providerType the type of data provider
      */
-    function confirmDataProvider(ProviderType _providerType) external virtual appAdminstratorOrOwnerOnly {
+    function confirmDataProvider(ProviderType _providerType) external virtual appAdministratorOrOwnerOnly {
         IAppManager(dataModuleAppManagerAddress).confirmNewDataProvider(_providerType);
     }
 

@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import "src/example/ApplicationERC721UProxy.sol";
 import "src/example/ApplicationERC721U.sol";
+import "./helpers/ApplicationERC721UExtra.sol";
+import "./helpers/ApplicationERC721UExtra2.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
 import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
@@ -15,6 +17,8 @@ import "test/helpers/TestCommon.sol";
 contract ApplicationERC721UTest is TestCommon {
     ApplicationERC721U applicationNFTU;
     ApplicationERC721U applicationNFT2;
+    ApplicationERC721UExtra applicationNFTExtra;
+    ApplicationERC721UExtra2 applicationNFTExtra2;
     ApplicationERC721UProxy applicationNFTProxy;
     ApplicationERC721Handler applicationNFTHandler2;
     OracleRestricted oracleRestricted;
@@ -969,6 +973,50 @@ contract ApplicationERC721UTest is TestCommon {
 
         address testAddress = assetHandler.newTestFunction();
         console.log(assetHandler.newTestFunction(), testAddress);
+    }
+
+    function testUpgradingHandlersPostUpgradesWithAddedVariables() public {
+        // Create the upgradeable nft that has extra variables but points to the original ProtocolERC721U
+        applicationNFTExtra = new ApplicationERC721UExtra();
+        applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFTExtra), proxyOwner, "");
+        ApplicationERC721UExtra(address(applicationNFTProxy)).initialize("Extra", "CHAMP", address(applicationAppManager));
+        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), false);
+        ApplicationERC721UExtra(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
+        /// register the token
+        applicationAppManager.registerToken("CHAMP", address(applicationNFTProxy));
+
+        ///Pricing Contracts
+        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
+        // Set the extra variables
+        ApplicationERC721UExtra(address(applicationNFTProxy)).setTestVariable1(14);
+        ApplicationERC721UExtra(address(applicationNFTProxy)).setTestVariable2("awesome");
+        // upgrade the a new version of the NFT that points to the ProtocolERC721UExtra which has additional variables and memory slot adjustments
+        vm.stopPrank();
+        vm.startPrank(proxyOwner);
+        applicationNFTExtra2 = new ApplicationERC721UExtra2();
+        applicationNFTProxy.upgradeTo(address(applicationNFTExtra2));
+
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        ///deploy new modified appliction asset handler contract
+        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), true);
+        ///connect to apptoken
+        ApplicationERC721UExtra(address(applicationNFTProxy)).connectHandlerToToken(address(assetHandler));
+        /// in order to handle upgrades and handler registrations, deregister and re-register with new
+        applicationAppManager.deregisterToken("THRK");
+        applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
+
+        assetHandler.setNFTPricingAddress(address(erc721Pricer));
+        assetHandler.setERC20PricingAddress(address(erc20Pricer));
+        // check to make sure the storage level variables defined after the memory slot are still fine.
+        assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable1(), 14);
+        assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable2(), "awesome");
+        // change the variables and check to make sure they are still functioning
+        ApplicationERC721UExtra(address(applicationNFTProxy)).setTestVariable1(15);
+        ApplicationERC721UExtra(address(applicationNFTProxy)).setTestVariable2("awesome2");
+        assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable1(), 15);
+        assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable2(), "awesome2");
     }
 
     function testERC721Upgrade() public {

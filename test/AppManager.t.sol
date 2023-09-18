@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "src/data/GeneralTags.sol";
 import "src/data/PauseRules.sol";
@@ -153,6 +153,7 @@ contract AppManagerBaseTest is TestCommon {
     // Test adding the Access Tier roles
     function testAddaccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
+        switchToSuperAdmin(); // create a app administrator and make it the sender.
 
         applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
         assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);

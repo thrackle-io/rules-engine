@@ -27,7 +27,7 @@ contract Accounts is DataModule, IAccounts {
     function addAccount(address _account) external virtual onlyOwner {
         if (_account == address(0)) revert ZeroAddress();
         accounts[_account] = true;
-        emit AccountAdded(_account, block.timestamp);
+        emit AccountAdded(_account);
     }
 
     /**
@@ -36,7 +36,7 @@ contract Accounts is DataModule, IAccounts {
      */
     function removeAccount(address _account) external virtual onlyOwner {
         accounts[_account] = false;
-        emit AccountRemoved(_account, block.timestamp);
+        emit AccountRemoved(_account);
     }
 
     /**

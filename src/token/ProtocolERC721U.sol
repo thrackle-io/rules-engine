@@ -36,6 +36,8 @@ contract ProtocolERC721U is
 
     /// Base Contract URI
     string public baseUri;
+    /// memory placeholders to allow variable addition without affecting client upgradeability
+    uint256[49] __gap;
 
     /**
      * @dev Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
@@ -159,6 +161,6 @@ contract ProtocolERC721U is
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolERC721Handler(handlerAddress);
-        emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
+        emit HandlerConnected(_deployedHandlerAddress, address(this));
     }
 }
