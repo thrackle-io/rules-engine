@@ -42,7 +42,7 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
             tagToIndex[_address][_tag] = tagRecords[_address].length;
             tagRecords[_address].push(_tag);
             isTagRegistered[_address][_tag] = true;
-            emit GeneralTagAdded(_address, _tag, block.timestamp);
+            emit GeneralTag(_address, _tag, true);
 
         }
     }
@@ -63,7 +63,7 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
                 tagToIndex[_accounts[i]][_tag] = tagRecords[_accounts[i]].length;
                 tagRecords[_accounts[i]].push(_tag);
                 isTagRegistered[_accounts[i]][_tag] = true;
-                emit GeneralTagAdded(_accounts[i], _tag, block.timestamp);
+                emit GeneralTag(_accounts[i], _tag, true);
             }
             unchecked {
                 ++i;
@@ -97,7 +97,7 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
             /// we set the index to zero for this tag in this account
             delete tagToIndex[_address][_tag];
             /// only one event should be emitted and only if a tag was actually removed
-            emit GeneralTagRemoved(_address, _tag, block.timestamp);
+            emit GeneralTag(_address, _tag, false);
         }else revert NoAddressToRemove();
 
     }
