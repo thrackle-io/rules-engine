@@ -1,0 +1,16 @@
+FROM ghcr.io/foundry-rs/foundry
+
+RUN apk update
+RUN apk add make git python3 py3-pip
+
+EXPOSE 8545
+
+WORKDIR /usr/local/src/delylah
+
+COPY . .
+
+ENV CHAIN_ID 31337
+
+RUN pip install -r requirements.txt
+
+ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID
