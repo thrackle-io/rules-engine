@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 import "../src/example/pricing/ApplicationERC721Pricing.sol";
-import "../src/example/ApplicationERC721.sol";
+import "../src/example/ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";

@@ -87,14 +87,10 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
         /// we procede to retrieve the rule
         try data.getTransferVolumeRule(_ruleId) returns (NonTaggedRules.TokenTransferVolumeRule memory rule) {
             if (rule.startTime.isRuleActive()) {
-                /// we perform the rule check
-                if (rule.startTime.isWithinPeriod(rule.period, _lastTransferTs)) {
-                    /// This means that the last trades "tradesWithinPeriod" were inside current period,
-                    /// and we need to acumulate this trade to the those ones
-                    _volume += _amount;
-                } else {
-                    _volume = _amount;
-                }
+                /// If the last trades "tradesWithinPeriod" were inside current period,
+                /// we need to acumulate this trade to the those ones. If not, reset to only current amount.
+                _volume = rule.startTime.isWithinPeriod(rule.period, _lastTransferTs) ? 
+                _volume + _amount : _amount;
                 /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
                 if (rule.totalSupply != 0) {
                     _supply = rule.totalSupply;

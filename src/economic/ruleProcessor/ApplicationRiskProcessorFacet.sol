@@ -5,6 +5,7 @@ import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleP
 import {AppRuleDataFacet} from "../ruleStorage/AppRuleDataFacet.sol";
 import {IApplicationRules as ApplicationRuleStorage} from "../ruleStorage/RuleDataInterfaces.sol";
 import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
+import "./RuleProcessorCommonLib.sol";
 
 /**
  * @title Risk Score Processor Facet Contract
@@ -14,6 +15,7 @@ import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
  * in terms of USD with 18 decimals of precision.
  */
 contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
+    using RuleProcessorCommonLib for uint64;
     /**
      * @dev Account balance by Risk Score
      * @param _ruleId Rule Identifier for rule arguments
@@ -53,7 +55,7 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
                         revert BalanceExceedsRiskScoreLimit();
                     } else {
                         ///Jump out of loop once risk score is matched to array index
-                        break;
+                        return;
                     }
                 }
                 unchecked {
@@ -101,14 +103,10 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
         /// we retrieve the rule
         ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory rule = data.getMaxTxSizePerPeriodRule(ruleId);
-        /// reseting the "tradesWithinPeriod", unless...
-        uint128 amountTransactedInPeriod = amount;
-        /// if (we have been in current period for longer than the last update)...
-        if (((block.timestamp - rule.startingTime) % (uint256(rule.period) * 1 hours)) >= (block.timestamp - lastTxDate)) {
-            /// This means that the last trades "tradesWithinPeriod" were inside current period,
-            /// and we need to acumulate this trade to the those ones
-            amountTransactedInPeriod = amount + _usdValueTransactedInPeriod;
-        }
+        /// reseting the "tradesWithinPeriod", unless we have been in current period for longer than the last update
+        uint128 amountTransactedInPeriod = rule.startingTime.isWithinPeriod(rule.period, lastTxDate) ? 
+        amount + _usdValueTransactedInPeriod: amount;
+        
         for (uint256 i; i < rule.riskLevel.length; ) {
             if (riskScore < rule.riskLevel[i]) {
                 /// we found our range. Now we check...

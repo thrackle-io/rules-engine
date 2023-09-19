@@ -41,15 +41,13 @@ contract ERC721TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors,
         /// Function will revert if a transaction breaks a single tag-dependent rule
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
         uint256 totalRules = data.getTotalBalanceLimitRules();
-        if (totalRules != 0) {
-            if (totalRules <= ruleId) revert RuleDoesNotExist();
-        }
-        for (uint256 i = 0; i < fromTags.length; ) {
+        if (totalRules <= ruleId) revert RuleDoesNotExist();
+        /// we decrease the balance to check the rule
+        --balanceFrom;
+        for (uint256 i; i < fromTags.length; ) {
             uint256 min = data.getBalanceLimitRule(ruleId, fromTags[i]).minimum;
             /// if a min is 0 then no need to check.
-            if (min > 0) {
-                if (balanceFrom - 1 < min) revert BalanceBelowMin();
-            }
+            if (min > 0 && balanceFrom < min) revert BalanceBelowMin();
             unchecked {
                 ++i;
             }
@@ -67,15 +65,13 @@ contract ERC721TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors,
         // Function will revert if a transaction breaks a single tag-dependent rule
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
         uint256 totalRules = data.getTotalBalanceLimitRules();
-        if (totalRules != 0) {
-            if (totalRules <= ruleId) revert RuleDoesNotExist();
-        }
+        if (totalRules != 0 && totalRules <= ruleId) revert RuleDoesNotExist();
+        /// we increase the balance to check the rule.
+        ++balanceTo;
         for (uint256 i = 0; i < toTags.length; ) {
             uint256 max = data.getBalanceLimitRule(ruleId, toTags[i]).maximum;
             // if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
-            if (max > 0) {
-                if (balanceTo + 1 > max) revert MaxBalanceExceeded();
-            }
+            if (max > 0 && balanceTo > max) revert MaxBalanceExceeded();
             unchecked {
                 ++i;
             }

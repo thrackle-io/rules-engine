@@ -13,7 +13,7 @@ import "src/data/Accounts.sol";
 import "src/data/IDataModule.sol";
 import "src/example/ApplicationERC20.sol";
 import "src/example/ApplicationERC20Handler.sol";
-import "src/example/ApplicationERC721.sol";
+import "src/example/ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
 import "src/example/ApplicationERC721Handler.sol";
 import "src/token/IAdminWithdrawalRuleCapable.sol";
 import "test/helpers/TestCommon.sol";

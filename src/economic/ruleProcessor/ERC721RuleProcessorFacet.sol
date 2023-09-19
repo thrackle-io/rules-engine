@@ -38,14 +38,9 @@ contract ERC721RuleProcessorFacet is IERC721Errors, IRuleProcessorErrors, IMaxTa
                     uint32 period = 24; // set purchase period to one day(24 hours)
                     uint256 tradesAllowedPerDay = rule.tradesAllowedPerDay;
                     // if within time period, add to cumulative
-                    if (rule.startTs.isWithinPeriod(period, lastTransferTime)) {
-                        cumulativeTotal = transfersWithinPeriod + 1;
-                    } else {
-                        cumulativeTotal = 1;
-                    }
-                    if (cumulativeTotal > tradesAllowedPerDay) {
-                        revert MaxNFTTransferReached();
-                    }
+                    cumulativeTotal = rule.startTs.isWithinPeriod(period, lastTransferTime) ? 
+                    transfersWithinPeriod + 1 : 1;
+                    if (cumulativeTotal > tradesAllowedPerDay) revert MaxNFTTransferReached();
                     unchecked {
                         ++i;
                     }

@@ -25,7 +25,7 @@ contract ApplicationPauseProcessorFacet is ERC173, IPauseRuleErrors {
         // Get Pause rules
         PauseRule[] memory pauseRules = IAppManager(_dataServer).getPauseRules();
         // Loop through the pause blocks and see if current time falls in one
-        for (uint256 i = 0; i < pauseRules.length; ) {
+        for (uint256 i; i < pauseRules.length; ) {
             PauseRule memory rule = pauseRules[i];
             if (block.timestamp >= rule.pauseStart && block.timestamp < rule.pauseStop) {
                 revert ApplicationPaused(rule.pauseStart, rule.pauseStop);

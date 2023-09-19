@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "../ApplicationERC20Handler.sol";
 import {ApplicationERC721Handler} from "../ApplicationERC721Handler.sol";
 import "../ApplicationERC20.sol";
-import {ApplicationERC721} from "../ApplicationERC721.sol";
+import {ApplicationERC721} from "../ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
 import {ApplicationAppManager} from "../ApplicationAppManager.sol";
 import "../application/ApplicationHandler.sol";
 import "../OracleRestricted.sol";

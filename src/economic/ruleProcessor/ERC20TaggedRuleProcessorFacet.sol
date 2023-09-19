@@ -72,14 +72,10 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
         uint totalRules = data.getTotalBalanceLimitRules();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
 
-        for (uint i = 0; i < toTags.length; ) {
+        for (uint i; i < toTags.length; ) {
             uint256 max = data.getBalanceLimitRule(ruleId, toTags[i]).maximum;
             /// if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
-            if (max > 0) {
-                if (balanceTo + amount > max) {
-                    revert MaxBalanceExceeded();
-                }
-            }
+             if (max > 0 && balanceTo + amount > max) revert MaxBalanceExceeded();
             unchecked {
                 ++i;
             }
@@ -104,11 +100,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
         for (uint i = 0; i < fromTags.length; ) {
             uint256 min = data.getBalanceLimitRule(ruleId, fromTags[i]).minimum;
             /// if a min is 0 then no need to check.
-            if (min > 0) {
-                if (balanceFrom - amount < min) {
-                    revert BalanceBelowMin();
-                }
-            }
+            if (min > 0 && balanceFrom - amount < min) revert BalanceBelowMin();
             unchecked {
                 ++i;
             }
@@ -144,6 +136,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
         toTags.checkMaxTags();
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
         uint totalRules = data.getTotalMinBalByDateRule();
+        uint finalBalance = balance - amount;
         if (totalRules > ruleId) {
             for (uint i = 0; i < toTags.length; ) {
                 if (toTags[i] != "") {
@@ -153,7 +146,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
                     if ((block.timestamp - (holdPeriod * 1 hours)) < minBalByDateRule.startTimeStamp) {
                         uint256 holdAmount = minBalByDateRule.holdAmount;
                         /// If the transaction will violate the rule, then revert
-                        if (balance - amount < holdAmount) revert TxnInFreezeWindow();
+                        if (finalBalance < holdAmount) revert TxnInFreezeWindow();
                     }
                 }
                 unchecked {
