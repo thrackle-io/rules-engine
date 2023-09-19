@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
-import "src/example/ApplicationERC721U.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
 import "./helpers/ApplicationERC721UExtra.sol";
 import "./helpers/ApplicationERC721UExtra2.sol";
@@ -185,8 +184,7 @@ contract ApplicationERC721UTest is TestCommon {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user1, user3, 5);
 
         ///make sure the maximum rule fail results in revert
-        vm.stopPrank();
-        vm.startPrank(user1);
+        switchToAppAdministrator();
         // user1 mints to 6 total (limit)
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); /// Id 6
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); /// Id 7
@@ -194,10 +192,11 @@ contract ApplicationERC721UTest is TestCommon {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); /// Id 9
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); /// Id 10
 
-        vm.stopPrank();
-        vm.startPrank(user2);
+
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user2);
         // transfer to user1 to exceed limit
+        vm.stopPrank();
+        vm.startPrank(user2);
         vm.expectRevert(0x24691f6b);
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 4);
         // upgrade the NFT and make sure it still works
