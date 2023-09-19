@@ -103,7 +103,7 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
         /// we retrieve the rule
         ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory rule = data.getMaxTxSizePerPeriodRule(ruleId);
-        /// reseting the "tradesWithinPeriod", unless we have been in current period for longer than the last update
+        /// resetting the "tradesWithinPeriod", unless we have been in current period for longer than the last update
         uint128 amountTransactedInPeriod = rule.startingTime.isWithinPeriod(rule.period, lastTxDate) ? 
         amount + _usdValueTransactedInPeriod: amount;
         

@@ -135,8 +135,8 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
     function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags) external view {
         toTags.checkMaxTags();
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        uint totalRules = data.getTotalMinBalByDateRule();
-        uint finalBalance = balance - amount;
+        uint256 totalRules = data.getTotalMinBalByDateRule();
+        uint256 finalBalance = balance - amount;
         if (totalRules > ruleId) {
             for (uint i = 0; i < toTags.length; ) {
                 if (toTags[i] != "") {

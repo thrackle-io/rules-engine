@@ -57,7 +57,7 @@ contract ApplicationERC721 is ProtocolERC721 {
         if (msg.value < mintPrice) revert MintFeeNotReached();
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        // withdrawMintFees(msg.value); // uncomment this is automatic withdrawal is desired. withdrawMintFees should be marked as private
+        // withdrawMintFees(msg.value); // uncomment this if automatic withdrawal is desired. withdrawMintFees should be marked as private
         _safeMint(to, tokenId);
     }
 

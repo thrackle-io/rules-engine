@@ -152,7 +152,7 @@ contract ApplicationERC721ExampleTest is TestCommon {
         mintForAFeeNFT.safeMint{value: 1 ether}(riskAdmin);
 
         /// it's time to test our withdrawal methods
-        /// let's deploy some treasury dummy contracts: 1 that wors and 1 that doesnt
+        /// let's deploy some treasury dummy contracts: 1 that works and 1 that doesnt
         DummyTreasury treasury = new DummyTreasury();
         FaultyDummyTreasury badTreasury = new FaultyDummyTreasury();
         /// now let's withdraw some money
