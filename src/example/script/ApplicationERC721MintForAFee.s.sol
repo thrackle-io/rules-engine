@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "../ApplicationERC721.sol";
+import "../ERC721/not-upgradeable/ApplicationERC721MintForAFee.sol";
 import "../../application/IAppManager.sol";
 import {ApplicationERC721Handler} from "../ApplicationERC721Handler.sol";
 
@@ -21,7 +21,7 @@ contract ApplicationERC721Script is Script {
     function run() public {
         vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
 
-        ApplicationERC721 nft1 = new ApplicationERC721("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), vm.envString("APPLICATION_ERC721_URI_1"));
+        ApplicationERC721 nft1 = new ApplicationERC721("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), vm.envString("APPLICATION_ERC721_URI_1"), 10_000_000 gwei);
         ApplicationERC721Handler applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), vm.envAddress("APPLICATION_APP_MANAGER"), address(nft1), false);
         nft1.connectHandlerToToken(address(applicationNFTHandler));
         // Register the token with the application's app manager

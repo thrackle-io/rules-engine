@@ -45,7 +45,7 @@ contract ProtocolERC721U is
      * @param _symbol Symbol for the NFT
      * @param _appManagerAddress Address of App Manager
      */
-    function initialize(string memory _name, string memory _symbol, address _appManagerAddress) external virtual appAdministratorOnly(_appManagerAddress) initializer {
+    function initialize(string memory _name, string memory _symbol, address _appManagerAddress,  string memory _baseUri) public virtual appAdministratorOnly(_appManagerAddress) initializer {
         __ERC721_init(_name, _symbol);
         __ERC721Enumerable_init();
         __ERC721URIStorage_init();
@@ -53,6 +53,7 @@ contract ProtocolERC721U is
         __UUPSUpgradeable_init();
         __Pausable_init();
         _initializeProtocol(_appManagerAddress);
+        setBaseURI(_baseUri);
     }
 
     /**
@@ -115,7 +116,7 @@ contract ProtocolERC721U is
      * @notice Add appAdministratorOnly modifier to restrict minting privilages
      * @param to Address of recipient
      */
-    function safeMint(address to) public payable virtual {
+    function safeMint(address to) public payable appAdministratorOnly(appManagerAddress) virtual {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);

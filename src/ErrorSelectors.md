@@ -121,3 +121,11 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x57a7068b | InvalidRuleInput()                                               |
 | 0xe8ada65f | NotRegisteredHandler(address)                                    |
 | 0x248ee764 | FeesAreGreaterThanTransactionAmount(address)                     |
+| 0x27515afa | PriceNotSet()                                                    |
+| 0xc3771360 | CannotWithdrawZero()                                             |
+| 0xa9ad62f8 | FunctionDoesNotExist()                                           |
+| 0xad3a8b9e | NotEnoughBalance()                                               |
+| 0xac28d0b2 | NotProposedTreasury(address proposedTreasury)                    |
+| 0xb19c6749 | TrasferFailed(bytes reason)                                      |
+| 0x202409e9 | NoMintsAvailable()                                               |
+| 0x2a79d188 | NotAppAdministratorOrOwner()                                     |

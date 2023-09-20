@@ -8,7 +8,7 @@ import "src/example/application/ApplicationHandler.sol";
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/ApplicationERC20.sol";
 import "src/example/ApplicationERC20Handler.sol";
-import "src/example/ApplicationERC721.sol";
+import "src/example/ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
 import "src/example/ApplicationERC721Handler.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/economic/ruleProcessor/RuleProcessorDiamond.sol";
