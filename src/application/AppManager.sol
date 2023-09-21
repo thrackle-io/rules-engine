@@ -28,7 +28,7 @@ import "../token/ProtocolTokenCommon.sol";
  * @notice This contract is the permissions contract
  */
 contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
-    string private constant VERSION = "1.0.1";
+    string private constant VERSION = "1.1.0";
     using ERC165Checker for address;
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     bytes32 constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");

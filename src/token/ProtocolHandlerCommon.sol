@@ -23,7 +23,7 @@ import "./IAdminWithdrawalRuleCapable.sol";
  */
 
 abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZeroAddressError, ITokenHandlerEvents, IAssetHandlerErrors, AppAdministratorOrOwnerOnly {
-    string private constant VERSION="1.0.1";
+    string private constant VERSION="1.1.0";
     address private newAppManagerAddress;
     address public appManagerAddress;
     IRuleProcessor ruleProcessor;

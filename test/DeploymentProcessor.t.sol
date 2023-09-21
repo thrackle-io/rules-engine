@@ -136,10 +136,10 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         console.log(version);
         assertEq(version, "1,0,0");
         // update version again
-        VersionFacet(address(ruleProcessor)).updateVersion("2.2.2");// upgrade_version script will replace this version
+        VersionFacet(address(ruleProcessor)).updateVersion("1.1.0");// upgrade_version script will replace this version
         version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
-        assertEq(version, "2.2.2");
+        assertEq(version, "1.1.0");
         // test that no other than the owner can update the version
         vm.stopPrank();
         vm.startPrank(appAdministrator);
@@ -148,7 +148,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
         // make sure that the version didn't change
-        assertEq(version, "2.2.2");
+        assertEq(version, "1.1.0");
     }
 
     function testNotPassingAddMinTransferRuleByNonAdmin() public {
