@@ -1,5 +1,5 @@
 # Fees
-[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/token/data/Fees.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/token/data/Fees.sol)
 
 **Inherits:**
 Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md), [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
@@ -16,14 +16,7 @@ This contract serves as a storage for asset transfer fees
 ### VERSION
 
 ```solidity
-string private constant VERSION = "0.0.6";
-```
-
-
-### defaultFee
-
-```solidity
-int256 defaultFee;
+string private constant VERSION = "1.1.0";
 ```
 
 
@@ -72,7 +65,7 @@ function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _f
 
 ### removeFee
 
-*This function adds a fee to the token*
+*This function removes a fee to the token*
 
 
 ```solidity
@@ -169,7 +162,6 @@ struct Fee {
     uint256 maxBalance;
     int24 feePercentage;
     address feeCollectorAccount;
-    bool isValue;
 }
 ```
 

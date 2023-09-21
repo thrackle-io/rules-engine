@@ -1,5 +1,5 @@
 # DataModule
-[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/data/DataModule.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/data/DataModule.sol)
 
 **Inherits:**
 [IDataModule](/src/data/IDataModule.sol/interface.IDataModule.md), Ownable, [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
@@ -16,7 +16,7 @@ This contract serves as a template for all data modules and is abstract as it is
 ### VERSION
 
 ```solidity
-string private constant VERSION = "0.0.6";
+string private constant VERSION = "1.1.0";
 ```
 
 

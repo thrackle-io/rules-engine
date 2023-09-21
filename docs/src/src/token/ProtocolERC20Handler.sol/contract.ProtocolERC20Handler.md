@@ -1,5 +1,5 @@
 # ProtocolERC20Handler
-[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/token/ProtocolERC20Handler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/token/ProtocolERC20Handler.sol)
 
 **Inherits:**
 Ownable, [ProtocolHandlerCommon](/src/token/ProtocolHandlerCommon.sol/abstract.ProtocolHandlerCommon.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IAdminWithdrawalRuleCapable](/src/token/IAdminWithdrawalRuleCapable.sol/abstract.IAdminWithdrawalRuleCapable.md), ERC165
@@ -266,21 +266,18 @@ function checkAllRules(
 ### _checkNonTaggedRules
 
 standard rules do not apply when either to or from is an admin
-If everything checks out, return true
+If all rule checks pass, return true
 
 *This function uses the protocol's ruleProcessorto perform the actual  rule checks.*
 
 
 ```solidity
-function _checkNonTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount)
-    internal;
+function _checkNonTaggedRules(address _from, address _to, uint256 _amount) internal;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_balanceFrom`|`uint256`|token balance of sender address|
-|`_balanceTo`|`uint256`|token balance of recipient address|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
 |`_amount`|`uint256`|number of tokens transferred|
@@ -342,14 +339,7 @@ function _checkTaggedIndividualRules(
 
 
 ```solidity
-function _checkRiskRules(
-    address _from,
-    address _to,
-    uint256 _balanceValuation,
-    uint256 _transferValuation,
-    uint256 _amount,
-    uint256 _price
-) internal view;
+function _checkRiskRules(address _from, address _to, uint256 _transferValuation) internal view;
 ```
 **Parameters**
 
@@ -357,10 +347,7 @@ function _checkRiskRules(
 |----|----|-----------|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
-|`_balanceValuation`|`uint256`|address current balance in USD|
 |`_transferValuation`|`uint256`|valuation of all tokens owned by the address in USD|
-|`_amount`|`uint256`|number of tokens to be transferred|
-|`_price`|`uint256`||
 
 
 ### addFee
@@ -386,7 +373,7 @@ function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _f
 
 ### removeFee
 
-*This function adds a fee to the token*
+*This function removes a fee to the token*
 
 
 ```solidity

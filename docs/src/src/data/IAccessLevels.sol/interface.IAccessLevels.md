@@ -1,5 +1,5 @@
 # IAccessLevels
-[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/data/IAccessLevels.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/data/IAccessLevels.sol)
 
 **Inherits:**
 [IDataModule](/src/data/IDataModule.sol/interface.IDataModule.md), [IAccessLevelErrors](/src/interfaces/IErrors.sol/interface.IAccessLevelErrors.md)
@@ -27,21 +27,6 @@ function addLevel(address _address, uint8 _level) external;
 |----|----|-----------|
 |`_address`|`address`|address of the account|
 |`_level`|`uint8`|access levellevel(0-4)|
-
-
-### removelevel
-
-*Remove the Access Level for the account. Restricted to the owner*
-
-
-```solidity
-function removelevel(address _account) external;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_account`|`address`|address of the account|
 
 
 ### getAccessLevel

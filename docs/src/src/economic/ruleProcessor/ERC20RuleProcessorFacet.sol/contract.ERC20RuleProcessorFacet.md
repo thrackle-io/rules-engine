@@ -1,5 +1,5 @@
 # ERC20RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [IERC20Errors](/src/interfaces/IErrors.sol/interface.IERC20Errors.md)
@@ -87,9 +87,8 @@ function checkTokenTransferVolumePasses(
 we create the 'data' variable which is simply a connection to the rule diamond
 validation block
 we procede to retrieve the rule
-we perform the rule check
-This means that the last trades "tradesWithinPeriod" were inside current period,
-and we need to acumulate this trade to the those ones
+If the last trades "tradesWithinPeriod" were inside current period,
+we need to acumulate this trade to the those ones. If not, reset to only current amount.
 if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
 
 *Rule checks if the token total supply volatility rule will be violated.*

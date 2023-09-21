@@ -1,5 +1,5 @@
 # PauseRules
-[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/data/PauseRules.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/data/PauseRules.sol)
 
 **Inherits:**
 [IPauseRules](/src/data/IPauseRules.sol/interface.IPauseRules.md), [DataModule](/src/data/DataModule.sol/abstract.DataModule.md)
@@ -17,6 +17,13 @@ Data contract to store Pause for user accounts
 
 ```solidity
 PauseRule[] private pauseRules;
+```
+
+
+### MAX_RULES
+
+```solidity
+uint8 constant MAX_RULES = 15;
 ```
 
 
@@ -105,5 +112,22 @@ function getPauseRules() external view virtual onlyOwner returns (PauseRule[] me
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`PauseRule[]`|pauseRules all the pause rules for the token|
+
+
+### isPauseRulesEmpty
+
+return true if pause rules is empty and return false if array contains rules
+
+*Return a bool for if the PauseRule array is empty*
+
+
+```solidity
+function isPauseRulesEmpty() external view virtual onlyOwner returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|true if empty|
 
 

@@ -4,7 +4,6 @@
 - [AppRuleDataFacet](AppRuleDataFacet.sol/contract.AppRuleDataFacet.md)
 - [FeeRuleDataFacet](FeeRuleDataFacet.sol/contract.FeeRuleDataFacet.md)
 - [IRuleStorage](IRuleStorage.sol/interface.IRuleStorage.md)
-- [RULE](RuleCodeData.sol/enum.RULE.md)
 - [ORACLE_TYPE](RuleCodeData.sol/enum.ORACLE_TYPE.md)
 - [RuleCodeData constants](RuleCodeData.sol/constants.RuleCodeData.md)
 - [RuleDataFacet](RuleDataFacet.sol/contract.RuleDataFacet.md)

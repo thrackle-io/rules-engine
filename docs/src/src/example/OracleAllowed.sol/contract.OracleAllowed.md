@@ -1,8 +1,8 @@
 # OracleAllowed
-[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/example/OracleAllowed.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/example/OracleAllowed.sol)
 
 **Inherits:**
-Ownable
+Ownable, [IOracleEvents](/src/interfaces/IEvents.sol/interface.IOracleEvents.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -131,41 +131,4 @@ function isAllowedVerbose(address addr) public returns (bool);
 |----|----|-----------|
 |`<none>`|`bool`|allowed returns true if in the allowed list, false if not.|
 
-
-## Events
-### AllowedAddress
-
-```solidity
-event AllowedAddress(address indexed addr);
-```
-
-### AllowedAddressesAdded
-
-```solidity
-event AllowedAddressesAdded(address[] addrs);
-```
-
-### AllowedAddressAdded
-
-```solidity
-event AllowedAddressAdded(address addrs);
-```
-
-### AllowedAddressesRemoved
-
-```solidity
-event AllowedAddressesRemoved(address[] addrs);
-```
-
-### NotAllowedAddress
-
-```solidity
-event NotAllowedAddress(address indexed addr);
-```
-
-### AllowListOracleDeployed
-
-```solidity
-event AllowListOracleDeployed();
-```
 

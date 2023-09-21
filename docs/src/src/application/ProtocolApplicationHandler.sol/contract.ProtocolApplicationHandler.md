@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 Ownable, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/interfaces/IEvents.sol/interface.IApplicationHandlerEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md)
@@ -16,7 +16,7 @@ This contract is the rules handler for all application level rules. It is implem
 ### VERSION
 
 ```solidity
-string private constant VERSION = "0.0.6";
+string private constant VERSION = "1.1.0";
 ```
 
 
@@ -112,6 +112,15 @@ bool private withdrawalLimitByAccessLevelRuleActive;
 ```
 
 
+### pauseRuleActive
+Pause Rule on-off switch
+
+
+```solidity
+bool private pauseRuleActive;
+```
+
+
 ### usdValueTransactedInRiskPeriod
 MaxTxSizePerPeriodByRisk data
 
@@ -187,7 +196,7 @@ function checkApplicationRules(
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_action`|`ActionTypes`|Action to be checked|
+|`_action`|`ActionTypes`|Action to be checked. This param is intentially added for future enhancements.|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
 |`_usdBalanceTo`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
@@ -519,6 +528,39 @@ function activateMaxTxSizePerPeriodByRiskRule(bool _on) external ruleAdministrat
 
 ```solidity
 function isMaxTxSizePerPeriodByRiskActive() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active for specified token|
+
+
+### activatePauseRule
+
+This function uses the onlyOwner modifier since the appManager contract is calling this function when adding a pause rule or removing the final pause rule of the array.
+
+*enable/disable rule. Disabling a rule will save gas on transfer transactions.
+This function does not use ruleAdministratorOnly modifier, the onlyOwner modifier checks that the caller is the appManager contract.*
+
+
+```solidity
+function activatePauseRule(bool _on) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if a rule must be checked or not.|
+
+
+### isPauseRuleActive
+
+*Tells you if the pause rule check is active or not.*
+
+
+```solidity
+function isPauseRuleActive() external view returns (bool);
 ```
 **Returns**
 

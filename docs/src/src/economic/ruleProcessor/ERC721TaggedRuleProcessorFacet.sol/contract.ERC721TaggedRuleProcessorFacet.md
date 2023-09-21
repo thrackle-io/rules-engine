@@ -1,5 +1,5 @@
 # ERC721TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/interfaces/IErrors.sol/interface.IRuleProcessorErrors.md), [ITagRuleErrors](/src/interfaces/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/interfaces/IErrors.sol/interface.IMaxTagLimitError.md)
@@ -59,6 +59,7 @@ function minAccountBalanceERC721(uint256 balanceFrom, bytes32[] calldata fromTag
 
 This Function checks the min account balance for accounts depending on GeneralTags.
 Function will revert if a transaction breaks a single tag-dependent rule
+we decrease the balance to check the rule
 if a min is 0 then no need to check.
 
 *Check if tagged account passes maxAccountBalanceERC721 rule*

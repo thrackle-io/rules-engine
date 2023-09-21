@@ -1,5 +1,5 @@
 # ProtocolERC721Handler
-[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/token/ProtocolERC721Handler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/token/ProtocolERC721Handler.sol)
 
 **Inherits:**
 Ownable, [ProtocolHandlerCommon](/src/token/ProtocolHandlerCommon.sol/abstract.ProtocolHandlerCommon.md), [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IAdminWithdrawalRuleCapable](/src/token/IAdminWithdrawalRuleCapable.sol/abstract.IAdminWithdrawalRuleCapable.md), ERC165
@@ -240,6 +240,15 @@ mapping(uint256 => uint256) ownershipStart;
 ```
 
 
+### MAX_HOLD_TIME_HOURS
+Max Hold time hours
+
+
+```solidity
+uint16 constant MAX_HOLD_TIME_HOURS = 43830;
+```
+
+
 ## Functions
 ### constructor
 
@@ -307,26 +316,18 @@ function checkAllRules(
 
 standard tagged and non-tagged rules do not apply when either to or from is an admin
 set the ownership start time for the token if the Minimum Hold time rule is active
+If all rule checks pass, return true
 
 *This function uses the protocol's ruleProcessor to perform the actual rule checks.*
 
 
 ```solidity
-function _checkNonTaggedRules(
-    uint256 _balanceFrom,
-    uint256 _balanceTo,
-    address _from,
-    address _to,
-    uint256 _amount,
-    uint256 tokenId
-) internal;
+function _checkNonTaggedRules(address _from, address _to, uint256 _amount, uint256 tokenId) internal;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_balanceFrom`|`uint256`|token balance of sender address|
-|`_balanceTo`|`uint256`|token balance of recipient address|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
 |`_amount`|`uint256`|number of tokens transferred|
@@ -395,13 +396,7 @@ function _checkTaggedIndividualRules(
 
 
 ```solidity
-function _checkRiskRules(
-    address _from,
-    address _to,
-    uint256 _currentAssetValuation,
-    uint256 _amount,
-    uint256 _thisNFTValuation
-) internal view;
+function _checkRiskRules(address _from, address _to, uint256 _thisNFTValuation) internal view;
 ```
 **Parameters**
 
@@ -409,8 +404,6 @@ function _checkRiskRules(
 |----|----|-----------|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
-|`_currentAssetValuation`|`uint256`|current total valuation of all assets|
-|`_amount`|`uint256`|number of tokens transferred|
 |`_thisNFTValuation`|`uint256`|valuation of NFT in question|
 
 

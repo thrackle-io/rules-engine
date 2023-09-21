@@ -1,5 +1,5 @@
 # FeeRuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/fceb75bbcbc9fcccdbb0ae49e82ea903ed8190d1/src/economic/ruleStorage/FeeRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/economic/ruleStorage/FeeRuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md)
@@ -10,6 +10,14 @@ Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contrac
 This contract sets and gets the Fee Rules for the protocol
 
 *Contains the setters and getters for fee rules*
+
+
+## State Variables
+### MAX_PERCENTAGE
+
+```solidity
+uint16 constant MAX_PERCENTAGE = 10000;
+```
 
 
 ## Functions
