@@ -10,4 +10,5 @@ COPY . .
 RUN curl -L https://foundry.paradigm.xyz | bash
 RUN chmod a+x install-forge.sh
 
-CMD ["./install-forge.sh"]
+#CMD ["./install-forge.sh"]
+CMD ["tail", "-f", "/dev/null"]
