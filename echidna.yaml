@@ -1,5 +1,5 @@
 #coverage controls coverage guided testing(When this is true, test takes much longer)
-coverage: false
+coverage: true
 #seqLen defines how many transactions are in a test sequence
 seqLen: 100
 #testLimit is the number of test sequences to run
@@ -13,15 +13,16 @@ codeSize: 0x600000000000000
 #directory to save the corpus; by default is disabled
 corpusDir: test/echidna/reports
 # enable or disable ffi HEVM cheatcode
-allowFFI: false
+allowFFI: true
 # list of methods to filter
 filterFunctions: []
 #sender is set of addresses transactions may originate from (regular users)
 sender: ["0x10000", "0x20000", "0x30000"]
+quiet: false
 #sender is set of addresses transactions may originate from (SuperAdmin)
 #sender: ["0xDaBEEF"]
 #contractAddr: "0x14dc79964da2c08b23698b3d3cc7ca32193d9955"
-
+propMaxGas: 8000030000000000
 cryticArgs: # If we add more dependencies they will need to be added as symlinks here!
   [
     "--solc-remaps",
