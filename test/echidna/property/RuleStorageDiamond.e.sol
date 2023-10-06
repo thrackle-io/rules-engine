@@ -18,7 +18,7 @@ contract TestRuleStorageDiamond is TestCommonRuleStorageDiamond {
     }
 
     /* ------------------------------ INVARIANTS -------------------------------- */
-    /// Test the Default Admin roles
+    /// Test the version
     function echidna_version_notblank() public returns (bool) {
         return (bytes(VersionFacet(address(ruleStorageDiamond)).version()).length != 0);
     }
