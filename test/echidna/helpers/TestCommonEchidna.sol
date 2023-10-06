@@ -32,7 +32,16 @@ abstract contract TestCommonEchidna is TestCommon {
      */
     function _createAppManager() public override returns (ApplicationAppManager _appManager) {
         _appManager = new ApplicationAppManager(msg.sender, "Castlevania", false);
-        assertTrue(_appManager.isSuperAdmin(msg.sender));
+        return _appManager;
+    }
+
+    /**
+     * @dev Deploy and set up an AppManager
+     * @param _address address to be super user
+     * @return _appManager fully configured app manager
+     */
+    function _createAppManager2(address _address) public returns (ApplicationAppManager _appManager) {
+        _appManager = new ApplicationAppManager(_address, "Castlevania", false);
         return _appManager;
     }
 

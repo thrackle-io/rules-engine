@@ -4,10 +4,11 @@ pragma solidity ^0.8.17;
 import "test/echidna/helpers/TestCommonEchidna.sol";
 
 contract TestAppManager is TestCommonEchidna {
-    address public addr;
+    address public echidna_addr;
 
     constructor() {
-        applicationAppManager = _createAppManager();
+        echidna_addr = msg.sender;
+        applicationAppManager = _createAppManager2(address(this));
     }
 
     /// Test the Default Admin roles
