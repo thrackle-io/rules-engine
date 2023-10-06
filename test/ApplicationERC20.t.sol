@@ -12,9 +12,9 @@ import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
 
 import {ApplicationAssetHandlerMod} from "./helpers/ApplicationAssetHandlerMod.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
-contract ApplicationERC20Test is TestCommon {
+contract ApplicationERC20Test is TestCommonFoundry {
     ApplicationERC20Handler applicationCoinHandler2;
 
     OracleRestricted oracleRestricted;

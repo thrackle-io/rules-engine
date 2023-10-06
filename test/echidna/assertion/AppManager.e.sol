@@ -7,7 +7,7 @@ contract TestAppManager is TestCommonEchidna {
     address public addr;
 
     constructor() {
-        applicationAppManager = _createAppManager(address(this));
+        applicationAppManager = _createAppManager();
     }
 
     /// Test the Default Admin roles

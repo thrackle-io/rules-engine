@@ -14,38 +14,37 @@ import {ApplicationERC721Upgradeable as FreeForAllERC721Upgradeable} from "src/e
 import {ApplicationERC721HandlerMod} from "./helpers/ApplicationERC721HandlerMod.sol";
 import "../src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
 import "test/helpers/ApplicationERC721WithBatchMintBurn.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
-interface NFT{
+interface NFT {
     function confirmTreasuryAddress() external;
 }
 
-contract FaultyDummyTreasury{
-
+contract FaultyDummyTreasury {
     error CannotReceive(uint256 weis);
 
     function acceptTreasuryRole(address nft) external {
         NFT(nft).confirmTreasuryAddress();
     }
-    receive() payable external{
+
+    receive() external payable {
         revert CannotReceive(msg.value);
     }
 }
 
-contract DummyTreasury{
-
+contract DummyTreasury {
     uint256 public balance;
 
     function acceptTreasuryRole(address nft) external {
         NFT(nft).confirmTreasuryAddress();
     }
 
-    receive() payable external {
+    receive() external payable {
         balance += msg.value;
     }
 }
 
-contract ApplicationERC721ExampleTest is TestCommon {
+contract ApplicationERC721ExampleTest is TestCommonFoundry {
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationERC721HandlerMod newAssetHandler;
@@ -101,13 +100,19 @@ contract ApplicationERC721ExampleTest is TestCommon {
         whitelistMintNFTUpImplementation = new WhitelistMintERC721Upgradeable();
         freeNFTUpImplementation = new FreeForAllERC721Upgradeable();
 
-        mintForAFeeNFTUp = new ApplicationERC721UProxy(address(mintForAFeeNFTUpImplementation), proxyOwner, ""); 
+        mintForAFeeNFTUp = new ApplicationERC721UProxy(address(mintForAFeeNFTUpImplementation), proxyOwner, "");
         whitelistMintNFTUp = new ApplicationERC721UProxy(address(whitelistMintNFTUpImplementation), proxyOwner, "");
         freeNFTUp = new ApplicationERC721UProxy(address(freeNFTUpImplementation), proxyOwner, "");
 
-         MintForAFeeERC721Upgradeable(payable(address(mintForAFeeNFTUp))).initialize("BlindSailersUp", "BSLU", address(applicationAppManager), "blindsailers.com/iseeyou", 1 ether);
-         WhitelistMintERC721Upgradeable(payable(address(whitelistMintNFTUp))).initialize("MonkeysPlayingInBonsaiTreesUp", "MBTU", address(applicationAppManager), "monkeysdontknowwhattodo.com/havingfun", 2);
-         FreeForAllERC721Upgradeable(payable(address(freeNFTUp))).initialize("ParkinsonBarbersUp", "PKBU", address(applicationAppManager), "bloodinmyhands.com/bookyourcut");
+        MintForAFeeERC721Upgradeable(payable(address(mintForAFeeNFTUp))).initialize("BlindSailersUp", "BSLU", address(applicationAppManager), "blindsailers.com/iseeyou", 1 ether);
+        WhitelistMintERC721Upgradeable(payable(address(whitelistMintNFTUp))).initialize(
+            "MonkeysPlayingInBonsaiTreesUp",
+            "MBTU",
+            address(applicationAppManager),
+            "monkeysdontknowwhattodo.com/havingfun",
+            2
+        );
+        FreeForAllERC721Upgradeable(payable(address(freeNFTUp))).initialize("ParkinsonBarbersUp", "PKBU", address(applicationAppManager), "bloodinmyhands.com/bookyourcut");
 
         MintForAFeeNFTHandlerUp = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(mintForAFeeNFTUp), false);
         MintForAFeeERC721Upgradeable(payable(address(mintForAFeeNFTUp))).connectHandlerToToken(address(MintForAFeeNFTHandlerUp));
@@ -161,7 +166,7 @@ contract ApplicationERC721ExampleTest is TestCommon {
         mintForAFeeNFT.proposeTreasuryAddress(payable(address(treasury)));
         assertEq(mintForAFeeNFT.getProposedTreasuryAddress(), address(treasury));
         /// let's make sure only the right address can confirm the treasury
-        vm.expectRevert(abi.encodeWithSignature("NotProposedTreasury(address)",address(treasury)));
+        vm.expectRevert(abi.encodeWithSignature("NotProposedTreasury(address)", address(treasury)));
         badTreasury.acceptTreasuryRole(address(mintForAFeeNFT));
         /// let's accept the role as treasury
         treasury.acceptTreasuryRole(address(mintForAFeeNFT));
@@ -195,10 +200,10 @@ contract ApplicationERC721ExampleTest is TestCommon {
         /// let's accept the role as treasury
         badTreasury.acceptTreasuryRole(address(mintForAFeeNFT));
         /// now we can try to withdraw
-        vm.expectRevert(abi.encodeWithSignature("TrasferFailed(bytes)", abi.encodeWithSignature("CannotReceive(uint256)",1 ether)));
+        vm.expectRevert(abi.encodeWithSignature("TrasferFailed(bytes)", abi.encodeWithSignature("CannotReceive(uint256)", 1 ether)));
         mintForAFeeNFT.withdrawAmount(1 ether);
         /// and finally let's test the withdrawAll method
-        vm.expectRevert(abi.encodeWithSignature("TrasferFailed(bytes)", abi.encodeWithSignature("CannotReceive(uint256)",4 ether)));
+        vm.expectRevert(abi.encodeWithSignature("TrasferFailed(bytes)", abi.encodeWithSignature("CannotReceive(uint256)", 4 ether)));
         mintForAFeeNFT.withdrawAll();
 
         /// let's check that we can update the price. But before, let's check current price
@@ -214,7 +219,6 @@ contract ApplicationERC721ExampleTest is TestCommon {
         mintForAFeeNFT.safeMint{value: 5 ether - 1}(riskAdmin);
         /// finally we test that we can mint if we send the correct amount
         mintForAFeeNFT.safeMint{value: 5 ether}(riskAdmin);
-
     }
 
     function testMintForAFeeUpgradeable() public {
@@ -250,7 +254,7 @@ contract ApplicationERC721ExampleTest is TestCommon {
         nft.proposeTreasuryAddress(payable(address(treasury)));
         assertEq(nft.getProposedTreasuryAddress(), address(treasury));
         /// let's make sure only the right address can confirm the treasury
-        vm.expectRevert(abi.encodeWithSignature("NotProposedTreasury(address)",address(treasury)));
+        vm.expectRevert(abi.encodeWithSignature("NotProposedTreasury(address)", address(treasury)));
         badTreasury.acceptTreasuryRole(address(nft));
         /// let's accept the role as treasury
         treasury.acceptTreasuryRole(address(nft));
@@ -284,10 +288,10 @@ contract ApplicationERC721ExampleTest is TestCommon {
         /// let's accept the role as treasury
         badTreasury.acceptTreasuryRole(address(nft));
         /// now we can try to withdraw
-        vm.expectRevert(abi.encodeWithSignature("TrasferFailed(bytes)", abi.encodeWithSignature("CannotReceive(uint256)",1 ether)));
+        vm.expectRevert(abi.encodeWithSignature("TrasferFailed(bytes)", abi.encodeWithSignature("CannotReceive(uint256)", 1 ether)));
         nft.withdrawAmount(1 ether);
         /// and finally let's test the withdrawAll method
-        vm.expectRevert(abi.encodeWithSignature("TrasferFailed(bytes)", abi.encodeWithSignature("CannotReceive(uint256)",4 ether)));
+        vm.expectRevert(abi.encodeWithSignature("TrasferFailed(bytes)", abi.encodeWithSignature("CannotReceive(uint256)", 4 ether)));
         nft.withdrawAll();
 
         /// let's check that we can update the price. But before, let's check current price
@@ -303,7 +307,6 @@ contract ApplicationERC721ExampleTest is TestCommon {
         nft.safeMint{value: 5 ether - 1}(riskAdmin);
         /// finally we test that we can mint if we send the correct amount
         nft.safeMint{value: 5 ether}(riskAdmin);
-
     }
 
     function testWhitelistMint() public {
@@ -361,7 +364,6 @@ contract ApplicationERC721ExampleTest is TestCommon {
         /// now, if we try to mint one more, it should fail since we ran out of free mints
         vm.expectRevert(0x202409e9);
         whitelistMintNFT.safeMint(user2);
-
     }
 
     function testWhitelistMintUpgradeable() public {
@@ -421,23 +423,21 @@ contract ApplicationERC721ExampleTest is TestCommon {
         /// now, if we try to mint one more, it should fail since we ran out of free mints
         vm.expectRevert(0x202409e9);
         nft.safeMint(user2);
-
     }
 
     function testFreeForAllMint() public {
         /// let's test that we can mint as many as we want for anybody
         vm.stopPrank();
         vm.startPrank(user1);
-        for(uint i; i < 25; i++){
+        for (uint i; i < 25; i++) {
             freeNFT.safeMint(user1);
         }
 
         vm.stopPrank();
         vm.startPrank(user2);
-        for(uint i; i < 6; i++){
+        for (uint i; i < 6; i++) {
             freeNFT.safeMint(user2);
         }
-
     }
 
     function testFreeForAllMintUpgradeable() public {
@@ -445,34 +445,33 @@ contract ApplicationERC721ExampleTest is TestCommon {
         /// let's test that we can mint as many as we want for anybody
         vm.stopPrank();
         vm.startPrank(user1);
-        for(uint i; i < 25; i++){
+        for (uint i; i < 25; i++) {
             nft.safeMint(user1);
         }
 
         vm.stopPrank();
         vm.startPrank(user2);
-        for(uint i; i < 6; i++){
+        for (uint i; i < 6; i++) {
             nft.safeMint(user2);
         }
-
     }
 
     function testOwnerOrAdminMint() public {
         /// since this is the default implementation, we only need to test the negative case
         switchToUser();
         vm.expectRevert(0x2a79d188);
-        applicationNFT.safeMint(appAdministrator); 
+        applicationNFT.safeMint(appAdministrator);
 
         switchToAccessLevelAdmin();
         vm.expectRevert(0x2a79d188);
-        applicationNFT.safeMint(appAdministrator);    
+        applicationNFT.safeMint(appAdministrator);
 
         switchToRuleAdmin();
         vm.expectRevert(0x2a79d188);
-        applicationNFT.safeMint(appAdministrator); 
+        applicationNFT.safeMint(appAdministrator);
 
         switchToRiskAdmin();
         vm.expectRevert(0x2a79d188);
-        applicationNFT.safeMint(appAdministrator);  
+        applicationNFT.safeMint(appAdministrator);
     }
 }

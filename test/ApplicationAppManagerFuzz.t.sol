@@ -2,9 +2,9 @@
 pragma solidity ^0.8.17;
 
 import "src/data/IPauseRules.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
-contract ApplicationAppManagerFuzzTest is TestCommon {
+contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     bytes32 public constant SUPER_ADMIN_ROLE = ("SUPER_ADMIN_ROLE");
     bytes32 public constant USER_ROLE = keccak256("USER");
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");

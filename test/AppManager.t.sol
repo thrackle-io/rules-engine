@@ -7,9 +7,9 @@ import "src/data/AccessLevels.sol";
 import "src/data/RiskScores.sol";
 import "src/data/Accounts.sol";
 import "src/data/IDataModule.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
-contract AppManagerBaseTest is TestCommon {
+contract AppManagerBaseTest is TestCommonFoundry {
     bytes32 public constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
     bytes32 public constant USER_ROLE = keccak256("USER");
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
