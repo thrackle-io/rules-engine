@@ -421,6 +421,48 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         return data.oracleRuleIndex;
     }
 
+    /************ Status Oracle Getters/Setters ***********/
+
+    /**
+     * @dev Function add a Status Oracle rule
+     * @param _appManagerAddr Address of App Manager
+     * @param _oracleAddress Address of the Status Oracle
+     * @return ruleId position of rule in storage
+     */
+    function addStatusOracleRule(address _appManagerAddr, address _oracleAddress) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress();
+        if (_oracleAddress == address(0)) revert ZeroAddress();
+        RuleS.StatusOracleRuleS storage data = Storage.statusOracleStorage();
+        NonTaggedRules.StatusOracleRule memory rule = NonTaggedRules.StatusOracleRule( _oracleAddress);
+        uint32 ruleId = data.statusOracleRuleIndex;
+        data.statusOracleRules[ruleId] = rule;
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(STATUS_ORACLE, ruleId, empty);
+        ++data.statusOracleRuleIndex;
+        return ruleId;
+    }
+
+    /**
+     * @dev Function get Status Oracle Rule by index
+     * @param _index Position of rule in storage
+     * @return OracleRule at index
+     */
+    function getStatusOracleRule(uint32 _index) external view returns (NonTaggedRules.StatusOracleRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalStatusOracleRules());
+        RuleS.StatusOracleRuleS storage data = Storage.statusOracleStorage();
+        return data.statusOracleRules[_index];
+    }
+
+    /**
+     * @dev Function get total Oracle rules
+     * @return total statusOracleRules array length
+     */
+    function getTotalStatusOracleRules() public view returns (uint32) {
+        RuleS.StatusOracleRuleS storage data = Storage.statusOracleStorage();
+        return data.statusOracleRuleIndex;
+    }
+
     /************ NFT Getters/Setters ***********/
     /**
      * @dev Function adds Balance Limit Rule

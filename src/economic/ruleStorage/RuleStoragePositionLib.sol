@@ -24,6 +24,7 @@ library RuleStoragePositionLib {
     bytes32 constant BALANCE_LIMIT_RULE_POSITION = bytes32(uint256(keccak256("token.balance-limit")) - 1);
     bytes32 constant SUPPLY_VOLATILITY_RULE_POSITION = bytes32(uint256(keccak256("token.supply-volatility")) - 1);
     bytes32 constant ORACLE_RULE_POSITION = bytes32(uint256(keccak256("all.oracle")) - 1);
+    bytes32 constant STATUS_ORACLE_RULE_POSITION = bytes32(uint256(keccak256("status.oracle")) - 1);
     bytes32 constant ACCESS_LEVEL_RULE_POSITION = bytes32(uint256(keccak256("token.access")) - 1);
     bytes32 constant TX_SIZE_TO_RISK_RULE_POSITION = bytes32(uint256(keccak256("token.tx-size-to-risk")) - 1);
     bytes32 constant TX_SIZE_PER_PERIOD_TO_RISK_RULE_POSITION = bytes32(uint256(keccak256("token.tx-size-per-period-to-risk")) - 1);
@@ -171,6 +172,17 @@ library RuleStoragePositionLib {
      */
     function oracleStorage() internal pure returns (IRuleStorage.OracleRuleS storage ds) {
         bytes32 position = ORACLE_RULE_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
+
+    /**
+     * @dev Function to store Oracle rules
+     * @return ds Data Storage of Oracle Rule
+     */
+    function statusOracleStorage() internal pure returns (IRuleStorage.StatusOracleRuleS storage ds) {
+        bytes32 position = STATUS_ORACLE_RULE_POSITION;
         assembly {
             ds.slot := position
         }

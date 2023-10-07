@@ -104,6 +104,12 @@ interface IRuleStorage {
         uint32 oracleRuleIndex;
     }
 
+    /// ******** Status Oracle ********
+    struct StatusOracleRuleS {
+        mapping(uint32 => INonTaggedRules.StatusOracleRule) statusOracleRules;
+        uint32 statusOracleRuleIndex;
+    }
+
     /*****************************************
     ************* AccessLevel Rules ***********
     /*****************************************/

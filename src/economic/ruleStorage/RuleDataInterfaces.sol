@@ -63,6 +63,12 @@ interface INonTaggedRules {
         uint8 oracleType; /// enum value --> 0 = restricted; 1 = allowed
         address oracleAddress;
     }
+
+    /// ******** Status Oracle ********
+    struct StatusOracleRule {
+        address oracleAddress;
+    }
+
     /// ******** NFT ********
     struct NFTTradeCounterRule {
         uint8 tradesAllowedPerDay;
