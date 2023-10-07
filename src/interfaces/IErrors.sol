@@ -41,6 +41,7 @@ interface IERC20Errors {
     error AddressIsRestricted();
     error AddressNotOnAllowedList();
     error OracleTypeInvalid();
+    error OracleCheckFailed(uint8 reson);
     error PurchasePercentageReached();
     error SellPercentageReached();
     error TransferExceedsMaxVolumeAllowed();

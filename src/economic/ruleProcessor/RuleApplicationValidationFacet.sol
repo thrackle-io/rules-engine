@@ -137,6 +137,16 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
+    function validateStatusOracle(uint32 _ruleId) external view {
+        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
+        // Check to make sure the rule exists within rule storage
+        _ruleId.checkRuleExistence(data.getTotalStatusOracleRules());
+    }
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
     function validatePurchasePercentage(uint32 _ruleId) external view {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
         // Check to make sure the rule exists within rule storage

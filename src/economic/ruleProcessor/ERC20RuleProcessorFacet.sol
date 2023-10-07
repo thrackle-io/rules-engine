@@ -18,6 +18,8 @@ import "./RuleProcessorCommonLib.sol";
 contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
     using RuleProcessorCommonLib for uint64;
 
+    uint8 ORACLE_CALL_FAILED = 3; 
+
     /**
      * @dev Check if transaction passes minTransfer rule.
      * @param _ruleId Rule Identifier for rule arguments
@@ -68,6 +70,26 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
                 revert RuleDoesNotExist();
             }
         }
+    }
+
+    /**
+     * @dev This function receives a rule id, which it uses to get the status oracle details, then calls the oracle to determine permissions.
+     * @param _ruleId Rule Id
+     * @param _address user address to be checked
+     */
+    function checkStatusOraclePasses(uint32 _ruleId, address _address) external view {
+        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
+        //uint256 totalRules = data.getTotalStatusOracleRules();
+        if ( data.getTotalStatusOracleRules() <= _ruleId ) revert RuleDoesNotExist();
+        NonTaggedRules.StatusOracleRule memory statusOracleRule = data.getStatusOracleRule(_ruleId);
+        address oracleAddress = statusOracleRule.oracleAddress;
+        /// bytes4(keccak256(bytes('requestStatusCheck(address)')));= 0x03605228
+        (bool success, bytes memory res) = oracleAddress.staticcall(abi.encodeWithSelector(0x03605228, _address));
+        if(! success) revert OracleCheckFailed(ORACLE_CALL_FAILED);
+        else{
+            uint8 decodedRes = uint8(uint256(bytes32(res)));
+            if(decodedRes != 1) revert OracleCheckFailed(decodedRes);
+        }       
     }
 
     /**
