@@ -8,6 +8,7 @@ import {IEconomicEvents} from "../../interfaces/IEvents.sol";
 import {IInputErrors, IAppRuleInputErrors, IRiskInputErrors} from "../../interfaces/IErrors.sol";
 import "../RuleAdministratorOnly.sol";
 import "./RuleCodeData.sol";
+import "./RuleStorageCommonLib.sol";
 
 /**
  * @title App Rules Facet
@@ -17,9 +18,10 @@ import "./RuleCodeData.sol";
  */
 
 contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, IAppRuleInputErrors, IRiskInputErrors {
+    using RuleStorageCommonLib for uint64;
+    using RuleStorageCommonLib for uint32;
     uint8 constant MAX_ACCESSLEVELS = 5;
     uint8 constant MAX_RISKSCORE = 99;
-    uint8 constant MAX_HOUR_OF_DAY = 23;
 
     //*********************** AccessLevel Rules ********************************************** */
     /**
@@ -139,8 +141,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      * indicate what range of risk levels it applies to. A value of 1000 here means $1000.00 USD.
      * @param _riskLevel array of risk-level ceilings that define each range. Risk levels are inclusive.
      * @param _period amount of hours that each period lasts for.
-     * @param _startingTime between 00 and 23 representing the time of the day that the
-     * rule starts taking effect. The rule will always start in a date in the past.
+     * @param _startTimestamp start timestamp for the rule
      * @return position of new rule in array
      * @notice _maxSize size must be equal to _riskLevel + 1 since the _balanceLimits must
      * specifies the maximum tx size for anything below the first level and between the highest risk score and 100. This also
@@ -160,13 +161,14 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         uint48[] calldata _maxSize,
         uint8[] calldata _riskLevel,
         uint8 _period,
-        uint8 _startingTime
+        uint64 _startTimestamp
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         /// Validation block
         if (_maxSize.length != _riskLevel.length + 1) revert InputArraysSizesNotValid();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_maxSize.length == 0) revert InvalidRuleInput();
         if (_riskLevel[_riskLevel.length - 1] > MAX_RISKSCORE) revert RiskLevelCannotExceed99();
+        if (_period == 0) revert ZeroValueNotPermited();
         for (uint256 i = 1; i < _riskLevel.length; ) {
             if (_riskLevel[i] <= _riskLevel[i - 1]) revert WrongArrayOrder();
             unchecked {
@@ -179,15 +181,11 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
                 ++i;
             }
         }
-        if (_startingTime > MAX_HOUR_OF_DAY) revert InvalidHourOfTheDay();
-
-        /// before creating the rule, we convert the starting time from hour of the day to timestamp date
-        uint64 startingDate = uint64(block.timestamp - (block.timestamp % (1 days)) - 1 days + uint256(_startingTime) * (1 hours));
-
+        _startTimestamp.validateTimestamp();
         /// We create the rule now
         RuleS.TxSizePerPeriodToRiskRuleS storage data = Storage.txSizePerPeriodToRiskStorage();
         uint32 ruleId = data.txSizePerPeriodToRiskRuleIndex;
-        AppRules.TxSizePerPeriodToRiskRule memory rule = AppRules.TxSizePerPeriodToRiskRule(_maxSize, _riskLevel, _period, startingDate);
+        AppRules.TxSizePerPeriodToRiskRule memory rule = AppRules.TxSizePerPeriodToRiskRule(_maxSize, _riskLevel, _period, _startTimestamp);
         data.txSizePerPeriodToRiskRule[ruleId] = rule;
         ++data.txSizePerPeriodToRiskRuleIndex;
         bytes32[] memory empty;
