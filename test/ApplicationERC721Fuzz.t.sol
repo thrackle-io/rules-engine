@@ -755,13 +755,12 @@ contract ApplicationERC721FuzzTest is TestCommon {
         applicationNFT.safeTransferFrom(_user3, _user4, 6);
     }
 
-    function testMaxTxSizePerPeriodByRiskRuleNFT(uint8 _risk, uint8 _period, uint8 _hourOfDay) public {
-        vm.warp(100_000_000);
+    function testMaxTxSizePerPeriodByRiskRuleNFT(uint8 _risk, uint8 _period) public {
+        vm.warp(Blocktime);
         /// we create the rule
         uint48[] memory _maxSize = new uint48[](4);
         uint8[] memory _riskLevel = new uint8[](3);
         uint8 period = _period > 6 ? _period / 6 + 1 : 1;
-        uint8 hourOfDay = _hourOfDay < 235 ? _hourOfDay / 10 : 2;
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
 
         address user1 = address(0xaa);
@@ -794,7 +793,7 @@ contract ApplicationERC721FuzzTest is TestCommon {
 
         /// we register the rule in the protocol
         switchToRuleAdmin();
-        uint32 ruleId = AppRuleDataFacet(address(ruleStorageDiamond)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, period, hourOfDay);
+        uint32 ruleId = AppRuleDataFacet(address(ruleStorageDiamond)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, period, Blocktime);
         /// now we set the rule in the applicationHandler for the applicationCoin only
         applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(ruleId);
 
@@ -802,8 +801,8 @@ contract ApplicationERC721FuzzTest is TestCommon {
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, risk);
 
-        /// we start the prank exactly at the time when the rule starts taking effect + 1 full period + 1 second
-        uint256 startTestAt = (block.timestamp - (block.timestamp % (1 days))) + ((uint256(hourOfDay) * (1 hours)) + (uint256(period) * (1 hours))) + 1 - 1 days;
+        /// we start the prank exactly at the time when the rule starts taking effect + 1 full period + 1 minute
+        uint256 startTestAt = (block.timestamp + (uint256(period) * (1 hours)) + 1 minutes);
         vm.warp(startTestAt);
 
         /// TEST RULE ON SENDER
@@ -857,7 +856,7 @@ contract ApplicationERC721FuzzTest is TestCommon {
         /// let's deactivate the rule before minting to avoid triggering the rule
         applicationHandler.activateMaxTxSizePerPeriodByRiskRule(false);
         /// we register the rule in the protocol
-        ruleId = AppRuleDataFacet(address(ruleStorageDiamond)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, period, hourOfDay);
+        ruleId = AppRuleDataFacet(address(ruleStorageDiamond)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, period, Blocktime);
         assertEq(ruleId, 1);
         /// now we set the rule in the applicationHandler for the applicationCoin only
         applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(ruleId);
