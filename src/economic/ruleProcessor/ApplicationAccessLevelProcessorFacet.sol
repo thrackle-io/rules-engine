@@ -43,15 +43,11 @@ contract ApplicationAccessLevelProcessorFacet is IRuleProcessorErrors, IAccessLe
      */
     function checkwithdrawalLimitsByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _usdWithdrawalTotal, uint128 _usdAmountTransferring) external view returns (uint128) {
         AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().rules);
-        if (data.getTotalAccessLevelWithdrawalRules() < _ruleId) revert RuleDoesNotExist();
-        uint128 usdWithdrawnTotal = _usdWithdrawalTotal;
         uint48 max = data.getAccessLevelWithdrawalRule(_ruleId, _accessLevel);
         /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
-        if (_usdAmountTransferring + usdWithdrawnTotal > (uint256(max) * (10 ** 18))) revert WithdrawalExceedsAccessLevelAllowedLimit();
-        if (_usdAmountTransferring + usdWithdrawnTotal <= (uint256(max) * (10 ** 18))) {
-            usdWithdrawnTotal += _usdAmountTransferring;
-        }
-        return usdWithdrawnTotal;
+       if (_usdAmountTransferring + _usdWithdrawalTotal > (uint256(max) * (10 ** 18))) revert WithdrawalExceedsAccessLevelAllowedLimit();
+        else _usdWithdrawalTotal += _usdAmountTransferring;
+        return _usdWithdrawalTotal;
     }
 
     /**

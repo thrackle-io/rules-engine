@@ -141,10 +141,10 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
     function registerStaking(address _stakingAddress) external;
 
     /**
-     * @dev This function checks if the Staking contract address is registered.
-     * @param _stakingAddress Address of the Staking contract that is checked.
+     * @dev This function allows the devs to register their staking addresses. This will allow for token level rule exemptions
+     * @param _stakingAddress Address for the treasury
      */
-    function isRegisteredStaking(address _stakingAddress) external view returns (bool);
+    function isStaking(address _stakingAddress) external view returns (bool);
 
     /**
      * @dev This function allows the devs to deregister an Staking contract address.

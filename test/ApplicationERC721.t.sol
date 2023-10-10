@@ -12,11 +12,14 @@ contract ApplicationERC721Test is TestCommon {
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationERC721HandlerMod newAssetHandler;
-
     address rich_user = address(44);
     address ac;
     address[] badBoys;
     address[] goodBoys;
+    address user1 = address(0x111);
+    address user2 = address(0x222);
+    address user3 = address(0x333);
+    address user4 = address(0x444);
 
     function setUp() public {
         vm.warp(Blocktime);
@@ -30,7 +33,7 @@ contract ApplicationERC721Test is TestCommon {
 
     function testERC721AndHandlerVersions() public {
         string memory version = applicationNFTHandler.version();
-        assertEq(version, "1.0.1");
+        assertEq(version, "1.1.0");
     }
 
     function testMint() public {

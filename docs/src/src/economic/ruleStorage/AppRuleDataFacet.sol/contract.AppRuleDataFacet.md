@@ -1,5 +1,5 @@
 # AppRuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/economic/ruleStorage/AppRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/economic/ruleStorage/AppRuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IAppRuleInputErrors](/src/interfaces/IErrors.sol/interface.IAppRuleInputErrors.md), [IRiskInputErrors](/src/interfaces/IErrors.sol/interface.IRiskInputErrors.md)
@@ -10,6 +10,28 @@ Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contrac
 This contract sets and gets the App Rules for the protocol
 
 *Setters and getters for Application level Rules*
+
+
+## State Variables
+### MAX_ACCESSLEVELS
+
+```solidity
+uint8 constant MAX_ACCESSLEVELS = 5;
+```
+
+
+### MAX_RISKSCORE
+
+```solidity
+uint8 constant MAX_RISKSCORE = 99;
+```
+
+
+### MAX_HOUR_OF_DAY
+
+```solidity
+uint8 constant MAX_HOUR_OF_DAY = 23;
+```
 
 
 ## Functions

@@ -80,7 +80,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
             deployDataContract();
             emit HandlerDeployed(address(this), _appManagerAddress);
         } else {
-            emit HandlerDeployedForUpgrade(address(this), _appManagerAddress);
+            emit HandlerDeployed(address(this), _appManagerAddress);
         }
     }
 
@@ -285,7 +285,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
             for (uint i; i < _fromTags.length; ) {
                 fee = fees.getFee(_fromTags[i]);
                 // fee must be active and the initiating account must have an acceptable balance
-                if (fee.isValue && _balanceFrom < fee.maxBalance && _balanceFrom > fee.minBalance) {
+                if (fee.feePercentage != 0 && _balanceFrom < fee.maxBalance && _balanceFrom > fee.minBalance) {
                     // if it's a discount, accumulate it for distribution among all applicable fees
                     if (fee.feePercentage < 0) {
                         discount = uint24((fee.feePercentage * -1)) + discount; // convert to uint
@@ -306,18 +306,16 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
             /// if an applicable discount(s) was found, then distribute it among all the fees
             if (discount > 0 && feeCount != 0) {
                 // if there are fees to discount then do so
-                if (feeCount > 0) {
-                    uint24 discountSlice = ((discount * 100) / (uint24(feeCount))) / 100;
-                    for (uint i; i < feeCount; ) {
-                        // if discount is greater than fee, then set to zero
-                        if (int24(discountSlice) > feePercentages[i]) {
-                            feePercentages[i] = 0;
-                        } else {
-                            feePercentages[i] -= int24(discountSlice);
-                        }
-                        unchecked {
-                            ++i;
-                        }
+                uint24 discountSlice = ((discount * 100) / (uint24(feeCount))) / 100;
+                for (uint i; i < feeCount; ) {
+                    // if discount is greater than fee, then set to zero
+                    if (int24(discountSlice) > feePercentages[i]) {
+                        feePercentages[i] = 0;
+                    } else {
+                        feePercentages[i] -= int24(discountSlice);
+                    }
+                    unchecked {
+                        ++i;
                     }
                 }
             }

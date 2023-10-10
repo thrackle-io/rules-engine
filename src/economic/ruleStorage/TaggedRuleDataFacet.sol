@@ -118,7 +118,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         uint64[] calldata _startTimes
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length) revert InputArraysMustHaveSameLength();
+        if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length || _accountTypes.length != _startTimes.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
         return _addSellRule(_accountTypes, _sellAmounts, _sellPeriod, _startTimes);

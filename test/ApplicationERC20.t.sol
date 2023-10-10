@@ -16,6 +16,11 @@ contract ApplicationERC20Test is TestCommon {
     OracleAllowed oracleAllowed;
 
     ApplicationAssetHandlerMod newAssetHandler;
+
+    address user1 = address(0x111);
+    address user2 = address(0x222);
+    address user3 = address(0x333);
+    address user4 = address(0x444);
     address user5 = address(55);
     address user6 = address(66);
     address user7 = address(77);
@@ -40,7 +45,7 @@ contract ApplicationERC20Test is TestCommon {
 
     function testERC20AndHandlerVersions() public {
         string memory version = applicationCoinHandler.version();
-        assertEq(version, "1.0.1");
+        assertEq(version, "1.1.0");
     }
 
     /// Test balance

@@ -1,5 +1,5 @@
 # Fees
-[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/token/data/Fees.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/token/data/Fees.sol)
 
 **Inherits:**
 Ownable, [IApplicationEvents](/src/interfaces/IEvents.sol/interface.IApplicationEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md), [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md)
@@ -16,7 +16,7 @@ This contract serves as a storage for asset transfer fees
 ### VERSION
 
 ```solidity
-string private constant VERSION = "1.0.1";
+string private constant VERSION = "1.1.0";
 ```
 
 
@@ -162,7 +162,6 @@ struct Fee {
     uint256 maxBalance;
     int24 feePercentage;
     address feeCollectorAccount;
-    bool isValue;
 }
 ```
 

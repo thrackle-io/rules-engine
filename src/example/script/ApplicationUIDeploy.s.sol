@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "src/example/ApplicationERC20Handler.sol";
 import {ApplicationERC721Handler} from "src/example/ApplicationERC721Handler.sol";
 import "src/example/ApplicationERC20.sol";
-import {ApplicationERC721} from "src/example/ApplicationERC721.sol";
+import {ApplicationERC721} from "src/example/ERC721/not-upgradeable/ApplicationERC721FreeMint.sol";
 import "src/example/liquidity/ApplicationAMMCalcLinear.sol";
 import "src/example/liquidity/ApplicationAMMCalcCP.sol";
 import "src/example/liquidity/ApplicationAMM.sol";
@@ -45,11 +45,11 @@ contract ApplicationUIDeployAllScript is Script {
         applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
         /// create ERC20 token 1
         ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
-        applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"),  address(applicationAppManager), address(coin1), false);
+        applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), false);
         coin1.connectHandlerToToken(address(applicationCoinHandler));
         /// create ERC20 token 2
         ApplicationERC20 coin2 = new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"),  address(applicationAppManager), address(coin2), false);
+        applicationCoinHandler2 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2), false);
         coin2.connectHandlerToToken(address(applicationCoinHandler2));
         /// create NFT
         ApplicationERC721 nft1 = new ApplicationERC721("Frankenstein", "FRANKPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));

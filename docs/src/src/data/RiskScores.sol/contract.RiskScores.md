@@ -1,5 +1,5 @@
 # RiskScores
-[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/data/RiskScores.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/data/RiskScores.sol)
 
 **Inherits:**
 [IRiskScores](/src/data/IRiskScores.sol/interface.IRiskScores.md), [DataModule](/src/data/DataModule.sol/abstract.DataModule.md)
@@ -17,6 +17,13 @@ Data contract to store risk scores for user accounts
 
 ```solidity
 mapping(address => uint8) public scores;
+```
+
+
+### MAX_RISK
+
+```solidity
+uint8 constant MAX_RISK = 100;
 ```
 
 
@@ -89,7 +96,7 @@ function removeScore(address _account) external virtual onlyOwner;
 
 
 ```solidity
-function getRiskScore(address _account) external view virtual onlyOwner returns (uint8);
+function getRiskScore(address _account) external view virtual returns (uint8);
 ```
 **Parameters**
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 import "../src/example/pricing/ApplicationERC721Pricing.sol";
-import "../src/example/ApplicationERC721.sol";
+import "../src/example/ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
@@ -59,7 +59,7 @@ contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
     function testERC721PricerVersion() public {
         string memory version = openOcean.version();
-        assertEq(version, "1.0.1");
+        assertEq(version, "1.1.0");
     }
 
     /// Testing setting the price for a single NFT under the right conditions

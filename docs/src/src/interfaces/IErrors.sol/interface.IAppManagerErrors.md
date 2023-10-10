@@ -1,5 +1,8 @@
 # IAppManagerErrors
-[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/interfaces/IErrors.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/interfaces/IErrors.sol)
+
+**Inherits:**
+[INoAddressToRemove](/src/interfaces/IErrors.sol/interface.INoAddressToRemove.md)
 
 
 ## Errors
@@ -25,12 +28,6 @@ error NotRiskAdmin(address _address);
 
 ```solidity
 error NotAUser(address _address);
-```
-
-### NoAddressToRemove
-
-```solidity
-error NoAddressToRemove();
 ```
 
 ### AddressAlreadyRegistered

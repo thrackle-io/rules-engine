@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/interfaces/IEvents.sol/interface.IAppLevelEvents.md)
@@ -16,7 +16,7 @@ This contract is the permissions contract
 ### VERSION
 
 ```solidity
-string private constant VERSION = "1.0.1";
+string private constant VERSION = "1.1.0";
 ```
 
 
@@ -180,12 +180,40 @@ address[] tokenList;
 ```
 
 
+### tokenToIndex
+
+```solidity
+mapping(address => uint256) tokenToIndex;
+```
+
+
+### isTokenRegistered
+
+```solidity
+mapping(address => bool) isTokenRegistered;
+```
+
+
 ### ammList
 AMM List (for token level rule exemptions)
 
 
 ```solidity
 address[] ammList;
+```
+
+
+### ammToIndex
+
+```solidity
+mapping(address => uint256) ammToIndex;
+```
+
+
+### isAMMRegistered
+
+```solidity
+mapping(address => bool) isAMMRegistered;
 ```
 
 
@@ -198,12 +226,40 @@ address[] treasuryList;
 ```
 
 
+### treasuryToIndex
+
+```solidity
+mapping(address => uint256) treasuryToIndex;
+```
+
+
+### isTreasuryRegistered
+
+```solidity
+mapping(address => bool) isTreasuryRegistered;
+```
+
+
 ### stakingList
 Staking Contracts List (for token level rule exemptions)
 
 
 ```solidity
 address[] stakingList;
+```
+
+
+### stakingToIndex
+
+```solidity
+mapping(address => uint256) stakingToIndex;
+```
+
+
+### isStakingRegistered
+
+```solidity
+mapping(address => bool) isStakingRegistered;
 ```
 
 
@@ -673,6 +729,8 @@ function getRiskScore(address _account) external view returns (uint8);
 
 --------------MAINTAIN PAUSE RULES---------------
 
+Adding a pause rule will change the bool to true in the hanlder contract and pause rules will be checked.
+
 *Add a pause rule. Restricted to Application Administrators*
 
 
@@ -689,6 +747,8 @@ function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole
 
 ### removePauseRule
 
+If no pause rules exist after removal bool is set to false in handler and pause rules will not be checked until new rule is added.
+
 *Remove a pause rule. Restricted to Application Administrators*
 
 
@@ -701,6 +761,25 @@ function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyR
 |----|----|-----------|
 |`_pauseStart`|`uint256`|Beginning of the pause window|
 |`_pauseStop`|`uint256`|End of the pause window|
+
+
+### activatePauseRuleCheck
+
+if length is 0 no pause rules exist
+set handler bool to false to save gas and prevent pause rule checks when non exist
+
+*enable/disable rule. Disabling a rule will save gas on transfer transactions.
+This function calls the appHandler contract to enable/disable this check.*
+
+
+```solidity
+function activatePauseRuleCheck(bool _on) external onlyRole(RULE_ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
 ### getPauseRules
@@ -1084,8 +1163,6 @@ function registerToken(string calldata _token, address _tokenAddress) external o
 
 ### getTokenAddress
 
-Also add their handler to the registry
-
 *This function gets token contract address.*
 
 
@@ -1141,27 +1218,41 @@ function deregisterToken(string calldata _tokenId) external onlyRole(APP_ADMIN_R
 |`_tokenId`|`string`|The token id(may be NFT or ERC20)|
 
 
-### _removeAddress
+### _removeAddressWithMapping
 
 also remove its handler from the registration
-
-This function should only be called with arrays that are free of duplicates.
 
 *This function removes an address from a dynamic address array by putting the last element in the one to remove and then removing last element.*
 
 
 ```solidity
-function _removeAddress(address[] storage _addressArray, address _address) private returns (bool _removed);
+function _removeAddressWithMapping(
+    address[] storage _addressArray,
+    mapping(address => uint256) storage _addressToIndex,
+    mapping(address => bool) storage _registerFlag,
+    address _address
+) private;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_addressArray`|`address[]`|The array to have an address removed|
+|`_addressToIndex`|`mapping(address => uint256)`|mapping that keeps track of the indexes in the list by address|
+|`_registerFlag`|`mapping(address => bool)`|mapping that keeps track of the addresses that are members of the list|
 |`_address`|`address`|The address to remove|
 
 
 ### registerAMM
+
+we store the last address in the array on a local variable to avoid unnecessary costly memory reads
+we check if we're trying to remove the last address in the array since this means we can skip some steps
+if it is not the last address in the array, then we store the index of the address to remove
+we remove the address by replacing it in the array with the last address of the array (now duplicated)
+we update the last address index to its new position (the removed-address index)
+we remove the last element of the _addressArray since it is now duplicated
+we set to false the membership mapping for this address in _addressArray
+we set the index to zero for this address in _addressArray
 
 *This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions*
 
@@ -1269,21 +1360,6 @@ function registerStaking(address _stakingAddress) external onlyRole(APP_ADMIN_RO
 |`_stakingAddress`|`address`|Address for the AMM|
 
 
-### isRegisteredStaking
-
-*This function allows the devs to register their Staking contract addresses.*
-
-
-```solidity
-function isRegisteredStaking(address _stakingAddress) external view returns (bool);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_stakingAddress`|`address`|Address for the Staking Contract|
-
-
 ### deRegisterStaking
 
 *This function allows the devs to deregister a Staking contract address.*
@@ -1297,6 +1373,21 @@ function deRegisterStaking(address _stakingAddress) external onlyRole(APP_ADMIN_
 |Name|Type|Description|
 |----|----|-----------|
 |`_stakingAddress`|`address`|The of the Staking contract to be de-registered|
+
+
+### isStaking
+
+*This function allows the devs to register their staking addresses. This will allow for token level rule exemptions*
+
+
+```solidity
+function isStaking(address _stakingAddress) public view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_stakingAddress`|`address`|Address for the staking|
 
 
 ### getAccessLevelDataAddress

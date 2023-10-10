@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import "../src/example/ApplicationERC20.sol";
-import {ApplicationERC721} from "../src/example/ApplicationERC721.sol";
+import {ApplicationERC721} from "../src/example/ERC721/not-upgradeable/ApplicationERC721FreeMint.sol";
 import "../src/example/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
 import "./DiamondTestUtil.sol";
@@ -275,7 +275,6 @@ contract ERC721StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         applicationNFT.approve(address(stakingContract), 5);
         applicationNFTA.approve(address(stakingContract), 2);
     }
-
 
     function testAdminFunction() public {
         stakingContract.addNewStakingCollectionAddress(address(testNFT), ruleAArray);

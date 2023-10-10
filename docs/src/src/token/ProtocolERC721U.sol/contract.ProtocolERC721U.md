@@ -1,5 +1,5 @@
 # ProtocolERC721U
-[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/token/ProtocolERC721U.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/token/ProtocolERC721U.sol)
 
 **Inherits:**
 Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable, [ProtocolTokenCommonU](/src/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md), PausableUpgradeable
@@ -41,6 +41,15 @@ string public baseUri;
 ```
 
 
+### __gap
+memory placeholders to allow variable addition without affecting client upgradeability
+
+
+```solidity
+uint256[49] __gap;
+```
+
+
 ## Functions
 ### initialize
 
@@ -48,8 +57,8 @@ string public baseUri;
 
 
 ```solidity
-function initialize(string memory _name, string memory _symbol, address _appManagerAddress)
-    external
+function initialize(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri)
+    public
     virtual
     appAdministratorOnly(_appManagerAddress)
     initializer;
@@ -61,6 +70,7 @@ function initialize(string memory _name, string memory _symbol, address _appMana
 |`_name`|`string`|Name of NFT|
 |`_symbol`|`string`|Symbol for the NFT|
 |`_appManagerAddress`|`address`|Address of App Manager|
+|`_baseUri`|`string`||
 
 
 ### _initializeProtocol
@@ -171,7 +181,7 @@ Add appAdministratorOnly modifier to restrict minting privilages
 
 
 ```solidity
-function safeMint(address to) public payable virtual;
+function safeMint(address to) public payable virtual appAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 

@@ -33,6 +33,10 @@ contract ApplicationAMMTest is TestCommon {
 
     address rich_user = address(44);
     address treasuryAddress = address(55);
+    address user1 = address(0x111);
+    address user2 = address(0x222);
+    address user3 = address(0x333);
+    address user4 = address(0x444);
     address[] badBoys;
     address[] goodBoys;
     address[] addresses = [user1, user2, user3, rich_user];

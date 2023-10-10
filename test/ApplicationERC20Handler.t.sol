@@ -19,6 +19,10 @@ import "test/helpers/TestCommon.sol";
 contract ApplicationERC20HandlerTest is TestCommon {
     address[] badBoys;
     address[] goodBoys;
+    address user1 = address(0x111);
+    address user2 = address(0x222);
+    address user3 = address(0x333);
+    address user4 = address(0x444);
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationERC20Handler applicationCoinHandlerSpecialOwner;
@@ -85,7 +89,7 @@ contract ApplicationERC20HandlerTest is TestCommon {
         tag1 = "expensive";
         applicationCoinHandlerSpecialOwner.removeFee(tag1);
         fee = applicationCoinHandlerSpecialOwner.getFee(tag1);
-        assertFalse(fee.isValue);
+        assertFalse(fee.feePercentage > 0);
         assertEq(1, applicationCoinHandlerSpecialOwner.getFeeTotal());
 
         // test the validations

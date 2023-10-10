@@ -1,5 +1,5 @@
 # RuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/economic/ruleStorage/RuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/economic/ruleStorage/RuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/interfaces/IErrors.sol/interface.ITagInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [IAppRuleInputErrors](/src/interfaces/IErrors.sol/interface.IAppRuleInputErrors.md)
@@ -10,6 +10,28 @@ Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contrac
 This contract sets and gets the Rules for the protocol
 
 *setters and getters for non tagged token specific rules*
+
+
+## State Variables
+### MAX_TOKEN_PERCENTAGE
+
+```solidity
+uint16 constant MAX_TOKEN_PERCENTAGE = 9999;
+```
+
+
+### MAX_PERCENTAGE
+
+```solidity
+uint16 constant MAX_PERCENTAGE = 10000;
+```
+
+
+### MAX_VOLUME_PERCENTAGE
+
+```solidity
+uint24 constant MAX_VOLUME_PERCENTAGE = 100000;
+```
 
 
 ## Functions

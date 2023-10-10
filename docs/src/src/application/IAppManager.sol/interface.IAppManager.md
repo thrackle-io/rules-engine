@@ -1,5 +1,5 @@
 # IAppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/application/IAppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/application/IAppManager.sol)
 
 **Inherits:**
 [IAppManagerErrors](/src/interfaces/IErrors.sol/interface.IAppManagerErrors.md), [IPermissionModifierErrors](/src/interfaces/IErrors.sol/interface.IPermissionModifierErrors.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/interfaces/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/interfaces/IErrors.sol/interface.IOwnershipErrors.md)
@@ -361,19 +361,19 @@ function registerStaking(address _stakingAddress) external;
 |`_stakingAddress`|`address`|Address for the AMM|
 
 
-### isRegisteredStaking
+### isStaking
 
-*This function checks if the Staking contract address is registered.*
+*This function allows the devs to register their staking addresses. This will allow for token level rule exemptions*
 
 
 ```solidity
-function isRegisteredStaking(address _stakingAddress) external view returns (bool);
+function isStaking(address _stakingAddress) external view returns (bool);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_stakingAddress`|`address`|Address of the Staking contract that is checked.|
+|`_stakingAddress`|`address`|Address for the treasury|
 
 
 ### deRegisterStaking

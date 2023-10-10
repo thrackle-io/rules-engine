@@ -28,7 +28,7 @@ import "../token/ProtocolTokenCommon.sol";
  * @notice This contract is the permissions contract
  */
 contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
-    string private constant VERSION = "1.0.1";
+    string private constant VERSION = "1.1.0";
     using ERC165Checker for address;
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     bytes32 constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
@@ -60,12 +60,20 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     mapping(address => bool) registeredHandlers;
     /// Token array (for balance tallying)
     address[] tokenList;
+    mapping(address => uint) tokenToIndex;
+    mapping(address => bool) isTokenRegistered;
     /// AMM List (for token level rule exemptions)
     address[] ammList;
+    mapping(address => uint) ammToIndex;
+    mapping(address => bool) isAMMRegistered;
     /// Treasury List (for token level rule exemptions)
     address[] treasuryList;
+    mapping(address => uint) treasuryToIndex;
+    mapping(address => bool) isTreasuryRegistered;
     /// Staking Contracts List (for token level rule exemptions)
     address[] stakingList;
+    mapping(address => uint) stakingToIndex;
+    mapping(address => bool) isStakingRegistered;
 
     /// Application name string
     string appName;
@@ -87,9 +95,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         appName = _appName;
         if (!upgradeMode) {
             deployDataContracts();
-            emit AppManagerDeployed(address(this));
+            emit AppManagerDeployed(root, _appName);
         } else {
-            emit AppManagerDeployedForUpgrade(address(this));
+            emit AppManagerDeployedForUpgrade(root, _appName);
         }
     }
 
@@ -121,7 +129,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addAppAdministrator(address account) external onlyRole(SUPER_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(APP_ADMIN_ROLE, account);
-        emit AddAppAdministrator(account);
+        emit AppAdministrator(account, true);
     }
 
     /**
@@ -131,7 +139,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleAppAdministrator(address[] memory _accounts) external onlyRole(SUPER_ADMIN_ROLE) {
         for (uint256 i; i < _accounts.length; ) {
             grantRole(APP_ADMIN_ROLE, _accounts[i]);
-            emit AddAppAdministrator(_accounts[i]);
+            emit AppAdministrator(_accounts[i], true);
             unchecked {
                 ++i;
             }
@@ -145,7 +153,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         /// If the AdminWithdrawal rule is active, App Admins are not allowed to renounce their role to prevent manipulation of the rule
         checkForAdminWithdrawal();
         renounceRole(APP_ADMIN_ROLE, msg.sender);
-        emit RemoveAppAdministrator(address(msg.sender));
+        emit AppAdministrator(address(msg.sender), false);
     }
 
     /**
@@ -183,7 +191,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addRuleAdministrator(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(RULE_ADMIN_ROLE, account);
-        emit RuleAdminAdded(account);
+        emit RuleAdmin(account, true);
     }
 
     /**
@@ -193,7 +201,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleRuleAdministrator(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             grantRole(RULE_ADMIN_ROLE, account[i]);
-            emit RuleAdminAdded(account[i]);
+            emit RuleAdmin(account[i], true);
             unchecked {
                 ++i;
             }
@@ -205,7 +213,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function renounceRuleAdministrator() external {
         renounceRole(RULE_ADMIN_ROLE, msg.sender);
-        emit RuleAdminRemoved(address(msg.sender));
+        emit RuleAdmin(msg.sender, false);
     }
 
     /// -------------ACCESS TIER---------------
@@ -233,7 +241,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addAccessTier(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(ACCESS_TIER_ADMIN_ROLE, account);
-        emit AccessTierAdded(account);
+        emit AccessTierAdmin(account, true);
     }
 
     /**
@@ -243,7 +251,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleAccessTier(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             grantRole(ACCESS_TIER_ADMIN_ROLE, account[i]);
-            emit AccessTierAdded(account[i]);
+            emit AccessTierAdmin(account[i], true);
             unchecked {
                 ++i;
             }
@@ -255,7 +263,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function renounceAccessTier() external {
         renounceRole(ACCESS_TIER_ADMIN_ROLE, msg.sender);
-        emit AccessTierRemoved(address(msg.sender));
+        emit AccessTierAdmin(address(msg.sender), false);
     }
 
     /// -------------RISK ADMIN---------------
@@ -276,7 +284,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addRiskAdmin(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         grantRole(RISK_ADMIN_ROLE, account);
-        emit RiskAdminAdded(account);
+        emit RiskAdmin(account, true);
     }
 
     /**
@@ -286,7 +294,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             grantRole(RISK_ADMIN_ROLE, account[i]);
-            emit RiskAdminAdded(account[i]);
+            emit RiskAdmin(account[i], true);
             unchecked {
                 ++i;
             }
@@ -298,7 +306,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function renounceRiskAdmin() external {
         renounceRole(RISK_ADMIN_ROLE, msg.sender);
-        emit RiskAdminRemoved(address(msg.sender));
+        emit RiskAdmin(address(msg.sender), false);
     }
 
     /// -------------MAINTAIN ACCESS LEVELS---------------
@@ -393,7 +401,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Add a pause rule. Restricted to Application Administrators
-     * @notice Adding a pause rule will change the bool to true in the hanlder contract and pause rules will be checked. 
+     * @notice Adding a pause rule will change the bool to true in the hanlder contract and pause rules will be checked.
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
@@ -404,14 +412,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Remove a pause rule. Restricted to Application Administrators
-     * @notice If no pause rules exist after removal bool is set to false in handler and pause rules will not be checked until new rule is added. 
+     * @notice If no pause rules exist after removal bool is set to false in handler and pause rules will not be checked until new rule is added.
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
     function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
         pauseRules.removePauseRule(_pauseStart, _pauseStop);
         /// if length is 0 no pause rules exist
-        if (pauseRules.isPauseRulesEmpty()){
+        if (pauseRules.isPauseRulesEmpty()) {
             /// set handler bool to false to save gas and prevent pause rule checks when non exist
             applicationHandler.activatePauseRule(false);
         }
@@ -419,12 +427,12 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * This function calls the appHandler contract to enable/disable this check.  
+     * This function calls the appHandler contract to enable/disable this check.
      * @param _on boolean representing if a rule must be checked or not.
      */
 
     function activatePauseRuleCheck(bool _on) external onlyRole(RULE_ADMIN_ROLE) {
-        applicationHandler.activatePauseRule(_on); 
+        applicationHandler.activatePauseRule(_on);
     }
 
     /**
@@ -643,24 +651,15 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function registerToken(string calldata _token, address _tokenAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_tokenAddress == address(0)) revert ZeroAddress();
-        bool skip;
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
-        for (uint256 i = 0; i < tokenList.length; ) {
-            if (tokenList[i] == _tokenAddress) {
-                skip = true;
-                break;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        if (!skip) {
+        if (!isTokenRegistered[_tokenAddress]) {
+            tokenToIndex[_tokenAddress] = tokenList.length;
             tokenList.push(_tokenAddress);
-            /// Also add their handler to the registry
+            isTokenRegistered[_tokenAddress] = true;
             registeredHandlers[ProtocolTokenCommon(_tokenAddress).getHandlerAddress()] = true;
             emit TokenRegistered(_token, _tokenAddress);
-        }
+        } else emit TokenNameUpdated(_token, _tokenAddress);
     }
 
     /**
@@ -687,46 +686,41 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
 
     function deregisterToken(string calldata _tokenId) external onlyRole(APP_ADMIN_ROLE) {
-        bool exists = _removeAddress(tokenList, tokenToAddress[_tokenId]);
         address tokenAddress = tokenToAddress[_tokenId];
+        if (!isTokenRegistered[tokenAddress]) revert NoAddressToRemove();
+        _removeAddressWithMapping(tokenList, tokenToIndex, isTokenRegistered, tokenAddress);
         delete tokenToAddress[_tokenId];
         delete addressToToken[tokenAddress];
         /// also remove its handler from the registration
-        if (exists) {
-            registeredHandlers[ProtocolTokenCommon(tokenAddress).getHandlerAddress()] = false;
-        }
+        delete registeredHandlers[ProtocolTokenCommon(tokenAddress).getHandlerAddress()];
         emit RemoveFromRegistry(_tokenId, tokenAddress);
     }
 
     /**
      * @dev This function removes an address from a dynamic address array by putting the last element in the one to remove and then removing last element.
-     * @notice This function should only be called with arrays that are free of duplicates.
      * @param _addressArray The array to have an address removed
+     * @param _addressToIndex mapping that keeps track of the indexes in the list by address
+     * @param _registerFlag mapping that keeps track of the addresses that are members of the list
      * @param _address The address to remove
-     * @param _removed true if one was removed
      */
-    function _removeAddress(address[] storage _addressArray, address _address) private returns (bool _removed) {
-        if (_addressArray.length > 0) {
-            if (_addressArray.length == 1) {
-                if (_addressArray[0] == _address) {
-                    _addressArray.pop();
-                }
-            }
-            if (_addressArray.length > 1) {
-                for (uint256 i = 0; i < _addressArray.length; ) {
-                    if (_addressArray[i] == _address) {
-                        _addressArray[i] = _addressArray[_addressArray.length - 1];
-                        _addressArray.pop();
-                        _removed = true;
-                        break;
-                    }
-                    unchecked {
-                        ++i;
-                    }
-                }
-            }
+    function _removeAddressWithMapping(address[] storage _addressArray, mapping(address => uint) storage _addressToIndex, mapping(address => bool) storage _registerFlag, address _address) private {
+        /// we store the last address in the array on a local variable to avoid unnecessary costly memory reads
+        address LastAddress = _addressArray[_addressArray.length - 1];
+        /// we check if we're trying to remove the last address in the array since this means we can skip some steps
+        if (_address != LastAddress) {
+            /// if it is not the last address in the array, then we store the index of the address to remove
+            uint index = _addressToIndex[_address];
+            /// we remove the address by replacing it in the array with the last address of the array (now duplicated)
+            _addressArray[index] = LastAddress;
+            /// we update the last address index to its new position (the removed-address index)
+            _addressToIndex[LastAddress] = index;
         }
-        return _removed;
+        /// we remove the last element of the _addressArray since it is now duplicated
+        _addressArray.pop();
+        /// we set to false the membership mapping for this address in _addressArray
+        delete _registerFlag[_address];
+        /// we set the index to zero for this address in _addressArray
+        delete _addressToIndex[_address];
     }
 
     /**
@@ -736,9 +730,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function registerAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_AMMAddress == address(0)) revert ZeroAddress();
         if (isRegisteredAMM(_AMMAddress)) revert AddressAlreadyRegistered();
+        ammToIndex[_AMMAddress] = ammList.length;
         ammList.push(_AMMAddress);
         /// Also add their handler to the registry
         registeredHandlers[ProtocolTokenCommon(_AMMAddress).getHandlerAddress()] = true;
+        isAMMRegistered[_AMMAddress] = true;
         emit AMMRegistered(_AMMAddress);
     }
 
@@ -747,15 +743,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _AMMAddress Address for the AMM
      */
     function isRegisteredAMM(address _AMMAddress) public view returns (bool) {
-        for (uint256 i = 0; i < ammList.length; ) {
-            if (ammList[i] == _AMMAddress) {
-                return true;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        return false;
+        return isAMMRegistered[_AMMAddress];
     }
 
     /**
@@ -763,7 +751,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _AMMAddress The of the AMM to be de-registered
      */
     function deRegisterAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE) {
-        _removeAddress(ammList, _AMMAddress);
+        if (!isRegisteredAMM(_AMMAddress)) revert NoAddressToRemove();
+        _removeAddressWithMapping(ammList, ammToIndex, isAMMRegistered, _AMMAddress);
     }
 
     /**
@@ -771,15 +760,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _treasuryAddress Address for the treasury
      */
     function isTreasury(address _treasuryAddress) public view returns (bool) {
-        for (uint256 i = 0; i < treasuryList.length; ) {
-            if (treasuryList[i] == _treasuryAddress) {
-                return true;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        return false;
+        return isTreasuryRegistered[_treasuryAddress];
     }
 
     /**
@@ -789,7 +770,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function registerTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_treasuryAddress == address(0)) revert ZeroAddress();
         if (isTreasury(_treasuryAddress)) revert AddressAlreadyRegistered();
+        treasuryToIndex[_treasuryAddress] = treasuryList.length;
         treasuryList.push(_treasuryAddress);
+        isTreasuryRegistered[_treasuryAddress] = true;
         emit TreasuryRegistered(_treasuryAddress);
     }
 
@@ -798,7 +781,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _treasuryAddress The of the AMM to be de-registered
      */
     function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
-        _removeAddress(treasuryList, _treasuryAddress);
+        if (!isTreasury(_treasuryAddress)) revert NoAddressToRemove();
+        _removeAddressWithMapping(treasuryList, treasuryToIndex, isTreasuryRegistered, _treasuryAddress);
     }
 
     /**
@@ -808,23 +792,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function registerStaking(address _stakingAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_stakingAddress == address(0)) revert ZeroAddress();
+        if (isStaking(_stakingAddress)) revert AddressAlreadyRegistered();
+        stakingToIndex[_stakingAddress] = stakingList.length;
         stakingList.push(_stakingAddress);
-    }
-
-    /**
-     * @dev This function allows the devs to register their Staking contract addresses.
-     * @param _stakingAddress Address for the Staking Contract
-     */
-    function isRegisteredStaking(address _stakingAddress) external view returns (bool) {
-        for (uint256 i = 0; i < stakingList.length; ) {
-            if (stakingList[i] == _stakingAddress) {
-                return true;
-            }
-            unchecked {
-                ++i;
-            }
-        }
-        return false;
+        isStakingRegistered[_stakingAddress] = true;
+        emit StakingRegistered(_stakingAddress);
     }
 
     /**
@@ -832,7 +804,16 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _stakingAddress The of the Staking contract to be de-registered
      */
     function deRegisterStaking(address _stakingAddress) external onlyRole(APP_ADMIN_ROLE) {
-        _removeAddress(stakingList, _stakingAddress);
+        if (!isStaking(_stakingAddress)) revert NoAddressToRemove();
+        _removeAddressWithMapping(stakingList, stakingToIndex, isStakingRegistered, _stakingAddress);
+    }
+
+    /**
+     * @dev This function allows the devs to register their staking addresses. This will allow for token level rule exemptions
+     * @param _stakingAddress Address for the staking
+     */
+    function isStaking(address _stakingAddress) public view returns (bool) {
+        return isStakingRegistered[_stakingAddress];
     }
 
     /**

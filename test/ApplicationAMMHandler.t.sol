@@ -18,6 +18,10 @@ import "test/helpers/TestCommon.sol";
  */
 contract ApplicationAMMHandlerTest is TestCommon {
     address rich_user = address(44);
+    address user1 = address(0x111);
+    address user2 = address(0x222);
+    address user3 = address(0x333);
+    address user4 = address(0x444);
     address[] badBoys;
     address[] goodBoys;
     ApplicationERC20 applicationCoin2;

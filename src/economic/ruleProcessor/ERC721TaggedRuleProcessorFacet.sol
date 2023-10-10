@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {TaggedRuleDataFacet} from "../ruleStorage/TaggedRuleDataFacet.sol";
 import {IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";
+import "./RuleProcessorCommonLib.sol";
 
 /**
  * @title NFT Tagged Rule Processor Facet Contract
@@ -12,6 +13,8 @@ import {IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../int
  * @notice Implements Non-Fungible Token Checks on Tagged Accounts.
  */
 contract ERC721TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError {
+    using RuleProcessorCommonLib for bytes32[];
+
     /**
      * @dev Check the minMaxAccoutBalace rule. This rule ensures accounts cannot exceed or drop below specified account balances via account tags.
      * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
@@ -21,7 +24,8 @@ contract ERC721TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors,
      * @param fromTags tags applied via App Manager to sender address
      */
     function checkMinMaxAccountBalanceERC721(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, bytes32[] calldata toTags, bytes32[] calldata fromTags) public view {
-        if (fromTags.length > 10 || toTags.length > 10) revert MaxTagLimitReached();
+        fromTags.checkMaxTags();
+        toTags.checkMaxTags();
         minAccountBalanceERC721(balanceFrom, fromTags, ruleId);
         maxAccountBalanceERC721(balanceTo, toTags, ruleId);
     }
@@ -37,15 +41,13 @@ contract ERC721TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors,
         /// Function will revert if a transaction breaks a single tag-dependent rule
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
         uint256 totalRules = data.getTotalBalanceLimitRules();
-        if (totalRules != 0) {
-            if (totalRules <= ruleId) revert RuleDoesNotExist();
-        }
-        for (uint256 i = 0; i < fromTags.length; ) {
+        if (totalRules <= ruleId) revert RuleDoesNotExist();
+        /// we decrease the balance to check the rule
+        --balanceFrom;
+        for (uint256 i; i < fromTags.length; ) {
             uint256 min = data.getBalanceLimitRule(ruleId, fromTags[i]).minimum;
             /// if a min is 0 then no need to check.
-            if (min > 0) {
-                if (balanceFrom - 1 < min) revert BalanceBelowMin();
-            }
+            if (min > 0 && balanceFrom < min) revert BalanceBelowMin();
             unchecked {
                 ++i;
             }
@@ -63,15 +65,13 @@ contract ERC721TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors,
         // Function will revert if a transaction breaks a single tag-dependent rule
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
         uint256 totalRules = data.getTotalBalanceLimitRules();
-        if (totalRules != 0) {
-            if (totalRules <= ruleId) revert RuleDoesNotExist();
-        }
+        if (totalRules != 0 && totalRules <= ruleId) revert RuleDoesNotExist();
+        /// we increase the balance to check the rule.
+        ++balanceTo;
         for (uint256 i = 0; i < toTags.length; ) {
             uint256 max = data.getBalanceLimitRule(ruleId, toTags[i]).maximum;
             // if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
-            if (max > 0) {
-                if (balanceTo + 1 > max) revert MaxBalanceExceeded();
-            }
+            if (max > 0 && balanceTo > max) revert MaxBalanceExceeded();
             unchecked {
                 ++i;
             }

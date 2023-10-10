@@ -8,7 +8,7 @@ import "src/example/application/ApplicationHandler.sol";
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/ApplicationERC20.sol";
 import "src/example/ApplicationERC20Handler.sol";
-import "src/example/ApplicationERC721.sol";
+import "src/example/ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
 import "src/example/ApplicationERC721Handler.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
@@ -41,10 +41,6 @@ abstract contract TestCommon is Test {
     address accessLevelAdmin = address(0xBBB);
     address riskAdmin = address(0xCCC);
     address user = address(0xAAA);
-    address user1 = address(0x111);
-    address user2 = address(0x222);
-    address user3 = address(0x333);
-    address user4 = address(0x444);
     address priorAddress;
     // shared objects
     ApplicationAppManager public applicationAppManager;

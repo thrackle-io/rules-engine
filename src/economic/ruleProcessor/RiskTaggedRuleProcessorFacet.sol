@@ -45,7 +45,7 @@ contract RiskTaggedRuleProcessorFacet is IRuleProcessorErrors, IRiskErrors {
                     revert TransactionExceedsRiskScoreLimit();
                 } else {
                     ///Jump out of loop once risk score is matched to array index
-                    break;
+                    return;
                 }
             }
             unchecked {

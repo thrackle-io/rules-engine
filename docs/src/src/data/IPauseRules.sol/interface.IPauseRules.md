@@ -1,5 +1,5 @@
 # IPauseRules
-[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/data/IPauseRules.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/data/IPauseRules.sol)
 
 **Inherits:**
 [IDataModule](/src/data/IDataModule.sol/interface.IDataModule.md), [IPauseRuleErrors](/src/interfaces/IErrors.sol/interface.IPauseRuleErrors.md)
@@ -67,5 +67,22 @@ function getPauseRules() external view returns (PauseRule[] memory);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`PauseRule[]`|pauseRules all the pause rules for the token|
+
+
+### isPauseRulesEmpty
+
+return true if pause rules is empty and return false if array contains rules
+
+*Return a bool for if the PauseRule array is empty*
+
+
+```solidity
+function isPauseRulesEmpty() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|true if empty|
 
 

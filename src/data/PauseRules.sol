@@ -12,6 +12,7 @@ import "./DataModule.sol";
  */
 contract PauseRules is IPauseRules, DataModule {
     PauseRule[] private pauseRules;
+    uint8 constant MAX_RULES = 15;
 
     /**
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
@@ -27,7 +28,7 @@ contract PauseRules is IPauseRules, DataModule {
      * @param _pauseStop pause window stop timestamp
      */
     function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) public virtual onlyOwner {
-        if (pauseRules.length >= 15) revert MaxPauseRulesReached();
+        if (pauseRules.length >= MAX_RULES) revert MaxPauseRulesReached();
 
         cleanOutdatedRules();
         if (_pauseStop <= _pauseStart || _pauseStart <= block.timestamp) {
@@ -35,7 +36,7 @@ contract PauseRules is IPauseRules, DataModule {
         }
         PauseRule memory pauseRule = PauseRule(block.timestamp, _pauseStart, _pauseStop);
         pauseRules.push(pauseRule);
-        emit PauseRuleAdded(_pauseStart, _pauseStop);
+        emit PauseRuleEvent(_pauseStart, _pauseStop, true);
     }
 
     /**
@@ -61,7 +62,7 @@ contract PauseRules is IPauseRules, DataModule {
                 PauseRule memory rule = pauseRules[i];
                 if (rule.pauseStart == _pauseStart && rule.pauseStop == _pauseStop) {
                     _removePauseRule(i);
-                    emit PauseRuleRemoved(_pauseStart, _pauseStop);
+                    emit PauseRuleEvent(_pauseStart, _pauseStop, false);
                 } else {
                     exit = true;
                 }
@@ -79,7 +80,7 @@ contract PauseRules is IPauseRules, DataModule {
         uint256 i;
         while (i < pauseRules.length) {
             while (pauseRules.length > 0 && i < pauseRules.length && pauseRules[i].pauseStop <= block.timestamp) {
-                emit PauseRuleRemoved(pauseRules[i].pauseStart, pauseRules[i].pauseStop);
+                emit PauseRuleEvent(pauseRules[i].pauseStart, pauseRules[i].pauseStop, false);
                 _removePauseRule(uint8(i));
             }
             unchecked {
@@ -98,10 +99,10 @@ contract PauseRules is IPauseRules, DataModule {
 
     /**
      * @dev Return a bool for if the PauseRule array is empty
-     * @notice return true if pause rules is empty and return false if array contains rules 
-     * @return true if empty 
+     * @notice return true if pause rules is empty and return false if array contains rules
+     * @return true if empty
      */
-    function isPauseRulesEmpty() external view virtual onlyOwner returns(bool) {
+    function isPauseRulesEmpty() external view virtual onlyOwner returns (bool) {
         return pauseRules.length == 0;
     }
 

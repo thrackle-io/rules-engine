@@ -36,6 +36,8 @@ contract ProtocolERC721U is
 
     /// Base Contract URI
     string public baseUri;
+    /// memory placeholders to allow variable addition without affecting client upgradeability
+    uint256[49] __gap;
 
     /**
      * @dev Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
@@ -43,7 +45,7 @@ contract ProtocolERC721U is
      * @param _symbol Symbol for the NFT
      * @param _appManagerAddress Address of App Manager
      */
-    function initialize(string memory _name, string memory _symbol, address _appManagerAddress) external virtual appAdministratorOnly(_appManagerAddress) initializer {
+    function initialize(string memory _name, string memory _symbol, address _appManagerAddress,  string memory _baseUri) public virtual appAdministratorOnly(_appManagerAddress) initializer {
         __ERC721_init(_name, _symbol);
         __ERC721Enumerable_init();
         __ERC721URIStorage_init();
@@ -51,6 +53,7 @@ contract ProtocolERC721U is
         __UUPSUpgradeable_init();
         __Pausable_init();
         _initializeProtocol(_appManagerAddress);
+        setBaseURI(_baseUri);
     }
 
     /**
@@ -113,7 +116,7 @@ contract ProtocolERC721U is
      * @notice Add appAdministratorOnly modifier to restrict minting privilages
      * @param to Address of recipient
      */
-    function safeMint(address to) public payable virtual {
+    function safeMint(address to) public payable appAdministratorOnly(appManagerAddress) virtual {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -159,6 +162,6 @@ contract ProtocolERC721U is
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolERC721Handler(handlerAddress);
-        emit HandlerConnectedForUpgrade(_deployedHandlerAddress, address(this));
+        emit HandlerConnected(_deployedHandlerAddress, address(this));
     }
 }

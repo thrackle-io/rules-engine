@@ -14,6 +14,10 @@ contract ApplicationERC20FuzzTest is TestCommon {
     address rich_user = address(44);
     address[] badBoys;
     address[] goodBoys;
+    address user1 = address(0x111);
+    address user2 = address(0x222);
+    address user3 = address(0x333);
+    address user4 = address(0x444);
     event Log(string eventString, uint256 number);
 
     function setUp() public {

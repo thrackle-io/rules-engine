@@ -107,10 +107,10 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         console.log(version);
         assertEq(version, "1,0,0");
         // update version again
-        VersionFacet(address(ruleStorageDiamond)).updateVersion("2.2.2"); // upgrade_version script will replace this version
+        VersionFacet(address(ruleStorageDiamond)).updateVersion("1.1.0"); // upgrade_version script will replace this version
         version = VersionFacet(address(ruleStorageDiamond)).version();
         console.log(version);
-        assertEq(version, "2.2.2");
+        assertEq(version, "1.1.0");
         // test that no other than the owner can update the version
         vm.stopPrank();
         vm.startPrank(appAdministrator);
@@ -119,7 +119,7 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         version = VersionFacet(address(ruleStorageDiamond)).version();
         console.log(version);
         // make sure that the version didn't change
-        assertEq(version, "2.2.2");
+        assertEq(version, "1.1.0");
     }
 
     /***************** Test Setters and Getters *****************/

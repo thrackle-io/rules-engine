@@ -10,7 +10,7 @@ import "src/data/Accounts.sol";
 import "src/data/IDataModule.sol";
 import "src/example/ApplicationERC20.sol";
 import "src/example/ApplicationERC20Handler.sol";
-import "src/example/ApplicationERC721.sol";
+import "src/example/ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
 import "src/example/ApplicationERC721Handler.sol";
 import "src/token/IAdminWithdrawalRuleCapable.sol";
 import "src/example/liquidity/ApplicationAMM.sol";
@@ -52,13 +52,13 @@ contract ApplicationAppManagerTest is TestCommon {
 
     function testAppManagerAndHandlerVersions() public {
         string memory version = applicationAppManager.version();
-        assertEq(version, "1.0.1");
+        assertEq(version, "1.1.0");
         version = applicationHandler.version();
-        assertEq(version, "1.0.1");
+        assertEq(version, "1.1.0");
         version = applicationAppManager2.version();
-        assertEq(version, "1.0.1");
+        assertEq(version, "1.1.0");
         version = applicationHandler2.version();
-        assertEq(version, "1.0.1");
+        assertEq(version, "1.1.0");
     }
 
     ///---------------DEFAULT ADMIN--------------------
@@ -548,7 +548,7 @@ contract ApplicationAppManagerTest is TestCommon {
         PauseRule[] memory removeTest = applicationAppManager.getPauseRules();
         assertTrue(removeTest.length == 0);
         /// test that when all rules are removed the check is skipped in the handler
-        assertTrue(applicationHandler.isPauseRuleActive() == false); 
+        assertTrue(applicationHandler.isPauseRuleActive() == false);
     }
 
     function testAutoCleaningRules() public {
@@ -574,8 +574,8 @@ contract ApplicationAppManagerTest is TestCommon {
         vm.warp(TEST_DATE);
     }
 
-     function testNonAdminAddingOrActivatingPauseRules() public {
-        switchToUser(); 
+    function testNonAdminAddingOrActivatingPauseRules() public {
+        switchToUser();
         vm.expectRevert();
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
@@ -586,22 +586,22 @@ contract ApplicationAppManagerTest is TestCommon {
 
     function testActivatePauseRulesFromAppManager() public {
         switchToRuleAdmin();
-        /// add rule as rule admin 
+        /// add rule as rule admin
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
         assertTrue(applicationHandler.isPauseRuleActive() == true);
-        /// test deactivation of rule while pause rule exists 
+        /// test deactivation of rule while pause rule exists
         applicationAppManager.activatePauseRuleCheck(false);
         assertTrue(applicationHandler.isPauseRuleActive() == false);
-        /// reactivate pause rule 
+        /// reactivate pause rule
         applicationAppManager.activatePauseRuleCheck(true);
         assertTrue(applicationHandler.isPauseRuleActive() == true);
-        /// remove rule and ensure pause rule check is false 
+        /// remove rule and ensure pause rule check is false
         applicationAppManager.removePauseRule(1769924800, 1769984800);
         assertTrue(applicationHandler.isPauseRuleActive() == false);
     }
-    
+
     function testRuleSizeLimit() public {
         switchToRuleAdmin();
         vm.warp(TEST_DATE);
@@ -743,45 +743,145 @@ contract ApplicationAppManagerTest is TestCommon {
         assertFalse(applicationAppManager.hasTag(user, "TAG1"));
     }
 
+    function testOverAllGeneralTags() public {
+        switchToAppAdministrator();
+        /// test adding a singular Tag
+        applicationAppManager.addGeneralTag(user, "TAG1"); //add tag
+        /// add one tag to multiple addresses
+        applicationAppManager.addGeneralTagToMultipleAccounts(ADDRESSES, "TAG2"); //add tags
+        /// add multiple tags to multiple addresses
+        address[] memory addresses = new address[](2);
+        addresses[0] = address(0xBABE);
+        addresses[1] = address(0xDADD);
+        bytes32[] memory tags = new bytes32[](2);
+        tags[0] = bytes32("BABE");
+        tags[1] = bytes32("DADD");
+
+        applicationAppManager.addMultipleGeneralTagToMultipleAccounts(addresses, tags);
+
+        assertTrue(applicationAppManager.hasTag(user, "TAG1"));
+        assertFalse(applicationAppManager.hasTag(user, "TAG2"));
+        assertFalse(applicationAppManager.hasTag(user, "BABE"));
+        assertFalse(applicationAppManager.hasTag(user, "DADD"));
+        applicationAppManager.addGeneralTag(user, "TAG2");
+        applicationAppManager.addGeneralTag(user, "BABE");
+        applicationAppManager.addGeneralTag(user, "DADD");
+        applicationAppManager.addGeneralTag(user, "FIFTH");
+
+        assertTrue(applicationAppManager.hasTag(user, "TAG2"));
+        assertTrue(applicationAppManager.hasTag(user, "BABE"));
+        assertTrue(applicationAppManager.hasTag(user, "DADD"));
+        assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
+
+        assertTrue(applicationAppManager.hasTag(address(0xFF1), "TAG2"));
+        assertFalse(applicationAppManager.hasTag(address(0xFF1), "TAG1"));
+        assertTrue(applicationAppManager.hasTag(address(0xFF2), "TAG2"));
+        assertFalse(applicationAppManager.hasTag(address(0xFF1), "TAG1"));
+        assertTrue(applicationAppManager.hasTag(address(0xFF8), "TAG2"));
+        assertFalse(applicationAppManager.hasTag(address(0xFF1), "TAG1"));
+
+        assertTrue(applicationAppManager.hasTag(address(0xBABE), "BABE"));
+        assertFalse(applicationAppManager.hasTag(address(0xBABE), "DADD"));
+        assertTrue(applicationAppManager.hasTag(address(0xDADD), "DADD"));
+        assertFalse(applicationAppManager.hasTag(address(0xDADD), "BABE"));
+
+        applicationAppManager.removeGeneralTag(user, "TAG1");
+        assertFalse(applicationAppManager.hasTag(user, "TAG1"));
+        assertTrue(applicationAppManager.hasTag(user, "TAG2"));
+        assertTrue(applicationAppManager.hasTag(user, "BABE"));
+        assertTrue(applicationAppManager.hasTag(user, "DADD"));
+        assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
+        applicationAppManager.removeGeneralTag(address(0xFF1), "TAG2");
+        assertFalse(applicationAppManager.hasTag(address(0xFF1), "TAG2"));
+        applicationAppManager.removeGeneralTag(address(0xBABE), "BABE");
+        assertFalse(applicationAppManager.hasTag(address(0xBABE), "BABE"));
+        applicationAppManager.removeGeneralTag(address(0xDADD), "DADD");
+        assertFalse(applicationAppManager.hasTag(address(0xDADD), "DADD"));
+
+        /// remove last tag
+        applicationAppManager.removeGeneralTag(user, "DADD");
+        assertFalse(applicationAppManager.hasTag(user, "DADD"));
+        assertTrue(applicationAppManager.hasTag(user, "TAG2"));
+        assertTrue(applicationAppManager.hasTag(user, "BABE"));
+        assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
+
+        /// remove tag in the middle
+        applicationAppManager.removeGeneralTag(user, "BABE");
+        assertFalse(applicationAppManager.hasTag(user, "BABE"));
+        assertTrue(applicationAppManager.hasTag(user, "TAG2"));
+        assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
+
+        /// remove last tag again
+        applicationAppManager.removeGeneralTag(user, "TAG2");
+        assertFalse(applicationAppManager.hasTag(user, "TAG2"));
+        assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
+
+        /// remove only tag
+        applicationAppManager.removeGeneralTag(user, "FIFTH");
+        assertFalse(applicationAppManager.hasTag(user, "FIFTH"));
+    }
+
     /// Test the register token.
     function testRegisterToken() public {
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
         applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
-        /// register the token
-        applicationAppManager.registerToken("FRANK", address(applicationCoin));
-        assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANK"));
-    }
+        applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
 
-    /// Test the deregister token.
-    function testDeregisterToken() public {
-        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
-        /// register the token
+        ApplicationERC20 applicationCoinA = _createERC20("CoinA", "A", applicationAppManager);
+        ApplicationERC20Handler applicationCoinHandlerA = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoinA);
+        applicationCoinA.connectHandlerToToken(address(applicationCoinHandlerA));
+
+        ApplicationERC20 applicationCoinB = _createERC20("CoinB", "B", applicationAppManager);
+        ApplicationERC20Handler applicationCoinHandlerB = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoinB);
+        applicationCoinB.connectHandlerToToken(address(applicationCoinHandlerB));
+
+        ApplicationERC20 applicationCoinC = _createERC20("coinC", "C", applicationAppManager);
+        ApplicationERC20Handler applicationCoinHandlerC = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoinC);
+        applicationCoinC.connectHandlerToToken(address(applicationCoinHandlerC));
+
+        /// register the tokens
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
         assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANK"));
+
+        applicationAppManager.registerToken("CoinA", address(applicationCoinA));
+        assertEq(address(applicationCoinA), applicationAppManager.getTokenAddress("CoinA"));
+
+        applicationAppManager.registerToken("CoinB", address(applicationCoinB));
+        assertEq(address(applicationCoinB), applicationAppManager.getTokenAddress("CoinB"));
+
+        applicationAppManager.registerToken("CoinC", address(applicationCoinC));
+        assertEq(address(applicationCoinC), applicationAppManager.getTokenAddress("CoinC"));
+
+        // test updating the token's name
+        applicationAppManager.registerToken("FRANCISCOSTEIN", address(applicationCoin));
+        assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANCISCOSTEIN"));
+        // back to black
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANK"));
+
+        // deregister the first coin
         applicationAppManager.deregisterToken("FRANK");
         assertEq(address(0), applicationAppManager.getTokenAddress("FRANK"));
-
-        /// test _removeAddress with multiple tokens
-        ApplicationERC20 testToken1;
-        ApplicationERC20 testToken2;
-        ApplicationERC20 testToken3;
-        testToken1 = _createERC20("TestCoin1", "FRK", applicationAppManager);
-        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, testToken1);
-        testToken2 = _createERC20("TestCoin2", "FRK", applicationAppManager);
-        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, testToken2);
-        testToken3 = _createERC20("TestCoin3", "FRK", applicationAppManager);
-        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, testToken3);
-        /// register multiple tokens
-        applicationAppManager.registerToken("TestCoin1", address(testToken1));
-        applicationAppManager.registerToken("TestCoin2", address(testToken2));
-        applicationAppManager.registerToken("TestCoin3", address(testToken3));
-
-        /// remove token 2
-        applicationAppManager.deregisterToken("TestCoin2");
-        /// call the token list and check the length
         address[] memory list = applicationAppManager.getTokenList();
+        assertEq(list.length, 3);
+
+        // deregister the last coin
+        applicationAppManager.deregisterToken("CoinB");
+        assertEq(address(0), applicationAppManager.getTokenAddress("CoinB"));
+        list = applicationAppManager.getTokenList();
         assertEq(list.length, 2);
+
+        // deregister the first coin again
+        applicationAppManager.deregisterToken("CoinC");
+        assertEq(address(0), applicationAppManager.getTokenAddress("CoinC"));
+        list = applicationAppManager.getTokenList();
+        assertEq(list.length, 1);
+
+        // deregister the only coin
+        applicationAppManager.deregisterToken("CoinA");
+        assertEq(address(0), applicationAppManager.getTokenAddress("CoinA"));
+        list = applicationAppManager.getTokenList();
+        assertEq(list.length, 0);
     }
 
     /// Test the register AMM.
@@ -819,8 +919,34 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationAppManager.registerTreasury(address(0x111));
 
         applicationAppManager.registerTreasury(address(0x222));
+        assertTrue(applicationAppManager.isTreasury(address(0x222)));
         applicationAppManager.registerTreasury(address(0x333));
+        assertTrue(applicationAppManager.isTreasury(address(0x333)));
+        applicationAppManager.registerTreasury(address(0x444));
+        assertTrue(applicationAppManager.isTreasury(address(0x444)));
+        applicationAppManager.registerTreasury(address(0x555));
+        assertTrue(applicationAppManager.isTreasury(address(0x555)));
+
+        /// deregistering the first address
+        assertTrue(applicationAppManager.isTreasury(address(0x111)));
         applicationAppManager.deRegisterTreasury(address(0x111));
+        assertFalse(applicationAppManager.isTreasury(address(0x111)));
+        /// deregistering the last address (it is now the forth one, not the fifth one)
+        assertTrue(applicationAppManager.isTreasury(address(0x444)));
+        applicationAppManager.deRegisterTreasury(address(0x444));
+        assertFalse(applicationAppManager.isTreasury(address(0x444)));
+        /// deregistering the address in the middle
+        assertTrue(applicationAppManager.isTreasury(address(0x222)));
+        applicationAppManager.deRegisterTreasury(address(0x222));
+        assertFalse(applicationAppManager.isTreasury(address(0x222)));
+        /// deregistering the last address again
+        assertTrue(applicationAppManager.isTreasury(address(0x333)));
+        applicationAppManager.deRegisterTreasury(address(0x333));
+        assertFalse(applicationAppManager.isTreasury(address(0x333)));
+        /// deregistering the only address
+        assertTrue(applicationAppManager.isTreasury(address(0x555)));
+        applicationAppManager.deRegisterTreasury(address(0x555));
+        assertFalse(applicationAppManager.isTreasury(address(0x555)));
     }
 
     ///---------------UPGRADEABILITY---------------

@@ -1,8 +1,8 @@
 # OracleRestricted
-[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/example/OracleRestricted.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/example/OracleRestricted.sol)
 
 **Inherits:**
-Ownable
+Ownable, [IOracleEvents](/src/interfaces/IEvents.sol/interface.IOracleEvents.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -131,41 +131,4 @@ function isRestrictedVerbose(address addr) public returns (bool);
 |----|----|-----------|
 |`<none>`|`bool`|restricted returns true if in the restricted list, false if not.|
 
-
-## Events
-### SanctionedAddress
-
-```solidity
-event SanctionedAddress(address indexed addr);
-```
-
-### NonSanctionedAddress
-
-```solidity
-event NonSanctionedAddress(address indexed addr);
-```
-
-### SanctionedAddressesAdded
-
-```solidity
-event SanctionedAddressesAdded(address[] addrs);
-```
-
-### SanctionedAddressAdded
-
-```solidity
-event SanctionedAddressAdded(address addrs);
-```
-
-### SanctionedAddressesRemoved
-
-```solidity
-event SanctionedAddressesRemoved(address[] addrs);
-```
-
-### SanctionedListOracleDeployed
-
-```solidity
-event SanctionedListOracleDeployed();
-```
 

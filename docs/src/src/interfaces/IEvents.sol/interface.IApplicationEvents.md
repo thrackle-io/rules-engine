@@ -1,5 +1,5 @@
 # IApplicationEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/2e0bd455865a1259ae742cba145517a82fc00f5d/src/interfaces/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/interfaces/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -10,15 +10,9 @@ Application Events Library
 
 
 ## Events
-### HandlerConnectedForUpgrade
+### HandlerConnected
 Application Handler
 
-
-```solidity
-event HandlerConnectedForUpgrade(address indexed applicationHandler, address indexed assetAddress);
-```
-
-### HandlerConnected
 
 ```solidity
 event HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
@@ -38,70 +32,6 @@ ProtocolERC721 & ERC721A
 
 ```solidity
 event NewNFTDeployed(address indexed applicationNFT, address indexed appManagerAddress);
-```
-
-### AllowedAddress
-OracleAllowed
-
-
-```solidity
-event AllowedAddress(address indexed addr);
-```
-
-### AllowedAddressesAdded
-
-```solidity
-event AllowedAddressesAdded(address[] addrs);
-```
-
-### AllowedAddressAdded
-
-```solidity
-event AllowedAddressAdded(address addrs);
-```
-
-### AllowedAddressesRemoved
-
-```solidity
-event AllowedAddressesRemoved(address[] addrs);
-```
-
-### NotAllowedAddress
-
-```solidity
-event NotAllowedAddress(address indexed addr);
-```
-
-### SanctionedAddress
-OracleRestricted
-
-
-```solidity
-event SanctionedAddress(address indexed addr);
-```
-
-### NonSanctionedAddress
-
-```solidity
-event NonSanctionedAddress(address indexed addr);
-```
-
-### SanctionedAddressesAdded
-
-```solidity
-event SanctionedAddressesAdded(address[] addrs);
-```
-
-### SanctionedAddressAdded
-
-```solidity
-event SanctionedAddressAdded(address addrs);
-```
-
-### SanctionedAddressesRemoved
-
-```solidity
-event SanctionedAddressesRemoved(address[] addrs);
 ```
 
 ### AMMDeployed
@@ -152,25 +82,19 @@ event SingleTokenPrice(address indexed collection, uint256 indexed tokenID, uint
 event CollectionPrice(address indexed collection, uint256 indexed price);
 ```
 
-### FeeTypeAdded
+### FeeType
 Fees
 
 
 ```solidity
-event FeeTypeAdded(
+event FeeType(
     bytes32 indexed tag,
+    bool indexed add,
     uint256 minBalance,
     uint256 maxBalance,
     int256 feePercentage,
-    address targetAccount,
-    uint256 date
+    address targetAccount
 );
-```
-
-### FeeTypeRemoved
-
-```solidity
-event FeeTypeRemoved(bytes32 indexed tag, uint256 date);
 ```
 
 ### AppManagerAddressSet
