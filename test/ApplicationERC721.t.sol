@@ -8,11 +8,15 @@ import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol
 import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
+import "src/Oracle/SoftStakingOracle.sol";
+import {ApplicationERC721Handler as AssetHandlerWOracle} from "src/example/ApplicationERC721HandlerWStatusOracle.sol";
 import {ApplicationERC721HandlerMod} from "./helpers/ApplicationERC721HandlerMod.sol";
 import "test/helpers/ApplicationERC721WithBatchMintBurn.sol";
 import "test/helpers/TestCommon.sol";
 
 contract ApplicationERC721Test is TestCommon {
+    SoftStakingOracle softStakingOracle;
+    AssetHandlerWOracle assetHandlerWOracle;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationERC721HandlerMod newAssetHandler;
@@ -33,6 +37,7 @@ contract ApplicationERC721Test is TestCommon {
         // create the oracles
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
+
     }
 
     function testERC721AndHandlerVersions() public {
@@ -264,6 +269,10 @@ contract ApplicationERC721Test is TestCommon {
         vm.startPrank(user1);
         vm.expectRevert(0x6bdfffc0);
         applicationNFT.burn(3);
+    }
+
+    function testSoftStakingOracle() public{
+
     }
 
     function testPauseRulesViaAppManager() public {

@@ -5,8 +5,9 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 enum  Status{
-        NOT_STAKED, 
-        STAKED, 
+        NOT_CHECKED,
+        DENIED, 
+        APPROVED, 
         PENDING 
      }
 
@@ -14,21 +15,19 @@ contract SoftStakingOracle is Context, Ownable{
 
     struct Request{
         uint256 balance;
-        uint256 tokenId;
         address tokenAddress;
-        address holder;
-        Status status; 
+        address account;
     }
 
     address public oracleOrigin;
     uint128 public requestId;
-    uint256 public gasDeposit;
-    /// tokenAddress => tokenId => status
-    mapping (address => mapping(uint256 => Status)) public statusPerNFT;
+    uint256 public minGasDeposit;
+    /// account => status
+    mapping (address => Status) private statusPerAccount;
     /// requestId => Request
     mapping (uint128 => Request) public requestById;
-    /// tokenAddress => tokenId => RequestId
-    mapping (address => mapping(uint256 => uint128)) public tokenToRequestId;
+    /// account => RequestId
+    mapping (address =>  uint128) private accountToRequestId;
 
     error NotAuthorized();
     error NotEnoughDeposit(uint256 minDeposit);
@@ -44,55 +43,66 @@ contract SoftStakingOracle is Context, Ownable{
         _;
     }
 
-    event StatusRequest(uint128 indexed requestID, address indexed holder, address indexed tokenAddress, uint256 tokenId);
-    event RequestCompleted(uint128 indexed requestID, bool indexed status);
+    event StatusRequest(uint128 indexed requestID, address indexed account, address indexed tokenAddress);
+    event RequestCompleted(uint128 indexed requestID, bool indexed isApproved);
 
-    constructor(address _oracleOrigin, uint256 _gasDeposit) payable {
+    constructor(address _oracleOrigin, uint256 _minGasDeposit) payable {
             oracleOrigin = _oracleOrigin;
-            gasDeposit = _gasDeposit;
+            minGasDeposit = _minGasDeposit;
     }
 
-    function startSoftStaking(address _holder, address _tokenAddress, uint256 _tokenId) external payable {
-        if (msg.value < gasDeposit) revert NotEnoughDeposit(gasDeposit);
-        if(statusPerNFT[_tokenAddress][_tokenId] != Status.NOT_STAKED) revert CheckAlreadyPlaced();
+    function requestStatus(address account, address tokenAddress) external payable returns(uint8 _status){
+        // if oracle doesn't have a state for the account (NOT_CHECKED), it starts a check
+        if(statusPerAccount[account] == Status.NOT_CHECKED){
+            // it will first see if the account sent enough funds for the offchain check
+            if (msg.value < minGasDeposit) revert NotEnoughDeposit(minGasDeposit);
+            // then we store the requestId locally to avoid expensive read from storage
+            uint128 _requestId = requestId;
+            // we write to storage the relevant data
+            accountToRequestId[account] = _requestId;
+            statusPerAccount[account] = Status.PENDING;
+            Request memory _req = Request(msg.value, tokenAddress, account);
+            requestById[_requestId] = _req;
+            // we notify the offchain part of the oracle to do the check
+            emit StatusRequest(_requestId, account, tokenAddress);
+            // we update the requestId
+            ++requestId;
+            // finally we return the status which should be PENDING in this case
+            _status = _getStatusPerAccount(account);
+        // if not, it will return the state and will return any funds sent
+        }else{
+            _status = _getStatusPerAccount(account);
+            if (msg.value > 0){
+                (bool sent, bytes memory data) = payable(account).call{value: msg.value}("");
+                if(!sent) revert TrasferFailed(data);
+            }
+        }
+    }
 
-        uint128 _requestId = requestId;
-        tokenToRequestId[_tokenAddress][_tokenId] = _requestId;
-        statusPerNFT[_tokenAddress][_tokenId] = Status.PENDING;
-        Request memory _req = Request(msg.value, _tokenId, _tokenAddress, _holder, Status.PENDING);
-        requestById[_requestId] = _req;
-
-        emit StatusRequest(_requestId, _holder, _tokenAddress, _tokenId);
-        ++requestId;
+    function _getStatusPerAccount(address account) internal returns(uint8 _status){
+        unchecked{
+            _status = uint8(statusPerAccount[account]) - 1;
+        }
     }
 
 
-    function updateSoftStakingStatus(uint128 _requestId, bool isStaked, uint256 gasUsed) external onlyOracle{
+    function completeRequest(uint128 _requestId, bool isApproved, uint256 gasUsed) external onlyOracle{
         Request memory _req = requestById[_requestId];
         uint256 balance = _req.balance;
-        // oracle should always check this before sending tx to avoid a malicious attack
+        /// oracle should always check this before sending tx to avoid a malicious attack
         if(balance < gasUsed) revert NotEnoughDeposit(gasUsed);
         balance -= gasUsed;
-        statusPerNFT[_req.tokenAddress][_req.tokenId] = isStaked ? Status.STAKED : Status.NOT_STAKED;
+        statusPerAccount[_req.account] = isApproved ? Status.APPROVED : Status.DENIED;
         /// reentrancy prevention
         delete _req.balance;
-        (bool sent, bytes memory data) = payable(_req.holder).call{value: balance}("");
+        /// return any excess of gas funds
+        (bool sent, bytes memory data) = payable(_req.account).call{value: balance}("");
         if(!sent) revert TrasferFailed(data);
         
     }
 
-    function claimStake(address _holder, address _tokenAddress, uint256 _tokenId) external {
-        uint128 _requestId = tokenToRequestId[_tokenAddress][_tokenId];
-        Request memory _req = requestById[_requestId];
-        if(_holder != _req.holder) revert NotAuthorized();
-        delete statusPerNFT[_req.tokenAddress][_req.tokenId];
-        delete tokenToRequestId[_req.tokenAddress][_req.tokenId];
-        delete requestById[_requestId];
-    }
-
-
     function updateGasDeposit(uint256 newGasDeposit) external onlyOwner{
-        gasDeposit = newGasDeposit;
+        minGasDeposit = newGasDeposit;
     }
 
     function updateOracleOrigin(address newOracleOrigin) external onlyOwner{
