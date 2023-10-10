@@ -18,6 +18,7 @@ import "./RuleProcessorCommonLib.sol";
 contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError {
     using RuleProcessorCommonLib for bytes32[];
 
+
     /**
      * @dev Check the minimum/maximum rule. This rule ensures that both the to and from accounts do not
      * exceed the max balance or go below the min balance.

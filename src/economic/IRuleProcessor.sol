@@ -317,6 +317,12 @@ interface IRuleProcessor {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
+    function validateStatusOracle(uint32 _ruleId) external view;
+
+    /**
+     * @dev Validate the existence of the rule
+     * @param _ruleId Rule Identifier
+     */
     function validatePurchasePercentage(uint32 _ruleId) external view;
 
     /**

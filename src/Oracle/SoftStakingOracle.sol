@@ -12,12 +12,23 @@ enum  Status{
 
 contract SoftStakingOracle is Context, Ownable{
 
+    struct Request{
+        uint256 balance;
+        uint256 tokenId;
+        address tokenAddress;
+        address holder;
+        Status status; 
+    }
+
     address public oracleOrigin;
     uint128 public requestId;
     uint256 public gasDeposit;
-    mapping (address => uint8) public statusPerAddress;
-    mapping (uint128 => address) public requestIdToAddress;
-    mapping (uint128 => uint256) public requestIdToBalance;
+    /// tokenAddress => tokenId => status
+    mapping (address => mapping(uint256 => Status)) public statusPerNFT;
+    /// requestId => Request
+    mapping (uint128 => Request) public requestById;
+    /// tokenAddress => tokenId => RequestId
+    mapping (address => mapping(uint256 => uint128)) public tokenToRequestId;
 
     error NotAuthorized();
     error NotEnoughDeposit(uint256 minDeposit);
@@ -26,60 +37,59 @@ contract SoftStakingOracle is Context, Ownable{
     error OracleOriginNotSet();
     error CannotWithdrawZero();
     error NotEnoughBalance();
+    error CheckAlreadyPlaced();
 
     modifier onlyOracle(){
         if(_msgSender() != oracleOrigin) revert NotAuthorized();
         _;
     }
 
-    event StatusRequest(uint128 indexed requestID, address indexed _address);
-    event RequestCompleted(uint128 indexed requestID, address indexed _address, bool indexed status);
+    event StatusRequest(uint128 indexed requestID, address indexed holder, address indexed tokenAddress, uint256 tokenId);
+    event RequestCompleted(uint128 indexed requestID, bool indexed status);
 
     constructor(address _oracleOrigin, uint256 _gasDeposit) payable {
             oracleOrigin = _oracleOrigin;
             gasDeposit = _gasDeposit;
     }
 
-      
-    function requestStatusCheck(address _address) external payable returns(uint8){
+    function startSoftStaking(address _holder, address _tokenAddress, uint256 _tokenId) external payable {
         if (msg.value < gasDeposit) revert NotEnoughDeposit(gasDeposit);
+        if(statusPerNFT[_tokenAddress][_tokenId] != Status.NOT_STAKED) revert CheckAlreadyPlaced();
+
         uint128 _requestId = requestId;
-        requestIdToBalance[_requestId] = msg.value;
-        uint8 status = statusPerAddress[_address];
-        if(status == 0){
-            requestIdToAddress[_requestId] = _address;
-            emit StatusRequest(_requestId, _address);
-            ++requestId;
-            statusPerAddress[_address] = uint8(Status.PENDING);
-            return uint8(Status.PENDING);
-        }
-        else {
-            (bool sent, bytes memory data) = payable(_address).call{value: msg.value}("");
-            if(!sent) revert TrasferFailed(data);
-            return status;
-        }
+        tokenToRequestId[_tokenAddress][_tokenId] = _requestId;
+        statusPerNFT[_tokenAddress][_tokenId] = Status.PENDING;
+        Request memory _req = Request(msg.value, _tokenId, _tokenAddress, _holder, Status.PENDING);
+        requestById[_requestId] = _req;
+
+        emit StatusRequest(_requestId, _holder, _tokenAddress, _tokenId);
+        ++requestId;
     }
 
-    function updateState(uint128 _requestId, bool isStaked, uint256 gasUsed) external onlyOracle{
-        uint256 balance = requestIdToBalance[_requestId];
+
+    function updateSoftStakingStatus(uint128 _requestId, bool isStaked, uint256 gasUsed) external onlyOracle{
+        Request memory _req = requestById[_requestId];
+        uint256 balance = _req.balance;
         // oracle should always check this before sending tx to avoid a malicious attack
         if(balance < gasUsed) revert NotEnoughDeposit(gasUsed);
         balance -= gasUsed;
-        address _address = requestIdToAddress[_requestId];
-        statusPerAddress[_address] = isStaked ? uint8(Status.STAKED ) : uint8(Status.NOT_STAKED);
-        (bool sent, bytes memory data) = payable(_address).call{value: balance}("");
+        statusPerNFT[_req.tokenAddress][_req.tokenId] = isStaked ? Status.STAKED : Status.NOT_STAKED;
+        /// reentrancy prevention
+        delete _req.balance;
+        (bool sent, bytes memory data) = payable(_req.holder).call{value: balance}("");
         if(!sent) revert TrasferFailed(data);
+        
     }
 
-    function requestStatusUpdate(address _address) external payable {
-        if (msg.value < gasDeposit) revert NotEnoughDeposit(gasDeposit);
-        uint128 _requestId = requestId;
-        requestIdToBalance[_requestId] = msg.value;
-        requestIdToAddress[_requestId] = _address;
-        emit StatusRequest(_requestId, _address);
-        ++requestId;
-        statusPerAddress[_address] = uint8(Status.PENDING);
+    function claimStake(address _holder, address _tokenAddress, uint256 _tokenId) external {
+        uint128 _requestId = tokenToRequestId[_tokenAddress][_tokenId];
+        Request memory _req = requestById[_requestId];
+        if(_holder != _req.holder) revert NotAuthorized();
+        delete statusPerNFT[_req.tokenAddress][_req.tokenId];
+        delete tokenToRequestId[_req.tokenAddress][_req.tokenId];
+        delete requestById[_requestId];
     }
+
 
     function updateGasDeposit(uint256 newGasDeposit) external onlyOwner{
         gasDeposit = newGasDeposit;
