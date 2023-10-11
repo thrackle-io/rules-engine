@@ -29,6 +29,9 @@ contract ApplicationERC721Test is TestCommon {
     address[] badBoys;
     address[] goodBoys;
 
+    event StatusRequest(uint128 indexed requestID, address indexed account, address indexed tokenAddress);
+    event RequestCompleted(uint128 indexed requestID, bool indexed isApproved);
+
     function setUp() public {
         vm.warp(Blocktime);
         vm.startPrank(appAdministrator);
@@ -312,6 +315,9 @@ contract ApplicationERC721Test is TestCommon {
         vm.expectRevert(abi.encodeWithSignature("HandlerFailed(bytes)", abi.encodeWithSignature("OracleCheckFailed(bytes)", abi.encodeWithSignature("NotEnoughDeposit(uint256)",MIN_GAS_DEPOSIT ))));
         softStakingNft.stakeNFT{value: MIN_GAS_DEPOSIT - 1}(1);
         /// now we send the absolute min amount and we should be good
+        /// we should expect the an event to notify the offchain side as well
+        vm.expectEmit(true, true, true, true);
+        emit StatusRequest(0, user1, address(softStakingNft));
         softStakingNft.stakeNFT{value: MIN_GAS_DEPOSIT}(1);
         /// the staking nft now should be in a PENDING status (2)
         assertEq(uint8(softStakingNft.stakingStatusPerNFT(1)), 2);
@@ -327,6 +333,9 @@ contract ApplicationERC721Test is TestCommon {
         /// now let's update the status for user1 in the oracle for real  
         vm.stopPrank();
         vm.startPrank(address(0xDEAD70C1A));
+        /// we should expect an event to notify the offchain side
+        vm.expectEmit(true, true, true, true);
+        emit RequestCompleted(0, true);
         softStakingOracle.completeRequest(0, true, FICTICIOUS_GAS_USED); // requestId, isApproved, gasUsed
         /// we make sure that the user1 got his refund for unused gas
         assertEq(balanceBefUser - user1.balance, FICTICIOUS_GAS_USED);
@@ -361,6 +370,9 @@ contract ApplicationERC721Test is TestCommon {
         vm.expectRevert(abi.encodeWithSignature("HandlerFailed(bytes)", abi.encodeWithSignature("OracleCheckFailed(bytes)", abi.encodeWithSignature("NotEnoughDeposit(uint256)",MIN_GAS_DEPOSIT ))));
         softStakingNft.stakeNFT{value: MIN_GAS_DEPOSIT - 1}(3);
         /// now we send the absolute min amount and we should be good
+         /// we should expect the an event to notify the offchain side as well
+        vm.expectEmit(true, true, true, true);
+        emit StatusRequest(1, user2, address(softStakingNft));
         softStakingNft.stakeNFT{value: MIN_GAS_DEPOSIT}(3);
         /// the staking nft now should be in a PENDING status (2)
         assertEq(uint8(softStakingNft.stakingStatusPerNFT(3)), 2);
@@ -376,6 +388,9 @@ contract ApplicationERC721Test is TestCommon {
         /// now let's update the status for user1 in the oracle for real  
         vm.stopPrank();
         vm.startPrank(address(0xDEAD70C1A));
+        /// we should expect an event to notify the offchain side
+        vm.expectEmit(true, true, true, true);
+        emit RequestCompleted(1, false);
         softStakingOracle.completeRequest(1, false, FICTICIOUS_GAS_USED); // requestId, isApproved, gasUsed
         /// let's make sure the oracle now has the right info if asked
         /// @notice that we didn't send any gas deposit since we know that the address has been already checked
