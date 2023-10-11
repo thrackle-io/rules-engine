@@ -9,7 +9,7 @@ import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDa
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import "src/Oracle/AsyncOracle.sol";
-import {ApplicationERC721 as SoftStakingNFT} from "src/example/ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMintSoftStaking.sol";
+import {ApplicationERC721 as SoftStakingNFT} from "src/example/ERC721/not-upgradeable/ApplicationERC721OwnerMintSoftStaking.sol";
 import {ApplicationERC721Handler as AssetHandlerWOracle} from "src/example/ApplicationERC721HandlerWStatusOracle.sol";
 import {ApplicationERC721HandlerMod} from "./helpers/ApplicationERC721HandlerMod.sol";
 import "test/helpers/ApplicationERC721WithBatchMintBurn.sol";
@@ -281,7 +281,7 @@ contract ApplicationERC721Test is TestCommon {
         uint256 FICTICIOUS_GAS_USED = 10_000_000 gwei;
 
         /// setup the staking NFT and the oracle
-        SoftStakingNFT softStakingNft = new SoftStakingNFT("Soft Stake House", "SST", address(applicationAppManager), "ImHungry.com/uri");
+        SoftStakingNFT softStakingNft = new SoftStakingNFT("Soft Stake House", "SST");
         AssetHandlerWOracle assetHandlerWOracle = new AssetHandlerWOracle(address(ruleProcessor), address(applicationAppManager), address(softStakingNft), false);
         softStakingNft.connectHandlerToToken(address(assetHandlerWOracle));
         applicationAppManager.registerToken("Soft Stake House", address(softStakingNft));

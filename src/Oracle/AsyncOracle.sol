@@ -112,7 +112,7 @@ contract AsyncOracle is Context, Ownable{
      * @dev Function to withdraw a specific amount from this contract to oracleOrigin address.
      * @param _amount the amount to withdraw (WEIs)
      */
-    function withdrawAmount(uint256 _amount) external onlyOwner(){
+    function withdrawAmount(uint256 _amount) external onlyOwner {
         if (oracleOrigin == address(0x00)) revert OracleOriginNotSet();
         if(_amount == 0) revert CannotWithdrawZero();
         if(_amount > address(this).balance) revert NotEnoughBalance();
@@ -123,7 +123,7 @@ contract AsyncOracle is Context, Ownable{
     /**
      * @dev Function to withdraw all fees collected to oracleOrigin address.
      */
-    function withdrawAll() external onlyOwner() {
+    function withdrawAll() external onlyOwner {
         if (oracleOrigin == address(0x00)) revert OracleOriginNotSet();
         uint balance = address(this).balance;
         if(balance == 0) revert CannotWithdrawZero();
