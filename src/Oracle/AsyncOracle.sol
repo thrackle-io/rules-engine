@@ -11,7 +11,7 @@ enum  Status{
         PENDING 
      }
 
-contract SoftStakingOracle is Context, Ownable{
+contract AsyncOracle is Context, Ownable{
 
     struct Request{
         uint256 balance;

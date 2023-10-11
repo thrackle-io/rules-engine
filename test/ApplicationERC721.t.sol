@@ -8,7 +8,7 @@ import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol
 import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
-import "src/Oracle/SoftStakingOracle.sol";
+import "src/Oracle/AsyncOracle.sol";
 import {ApplicationERC721 as SoftStakingNFT} from "src/example/ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMintSoftStaking.sol";
 import {ApplicationERC721Handler as AssetHandlerWOracle} from "src/example/ApplicationERC721HandlerWStatusOracle.sol";
 import {ApplicationERC721HandlerMod} from "./helpers/ApplicationERC721HandlerMod.sol";
@@ -271,7 +271,7 @@ contract ApplicationERC721Test is TestCommon {
         applicationNFT.burn(3);
     }
 
-    function testSoftStakingOracle() public{
+    function testAsyncOracle() public{
         switchToAppAdministrator();
         /// let's get people some money
         vm.deal(user1, 10 ether);
@@ -287,7 +287,7 @@ contract ApplicationERC721Test is TestCommon {
         applicationAppManager.registerToken("Soft Stake House", address(softStakingNft));
 
         /// deploy the oracle 
-        SoftStakingOracle softStakingOracle = new SoftStakingOracle(address(0xDEAD70C1A), MIN_GAS_DEPOSIT);
+        AsyncOracle softStakingOracle = new AsyncOracle(address(0xDEAD70C1A), MIN_GAS_DEPOSIT);
 
         /// create the rule
         switchToRuleAdmin();
