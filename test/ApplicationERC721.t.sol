@@ -9,14 +9,14 @@ import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDa
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import "src/Oracle/SoftStakingOracle.sol";
+import {ApplicationERC721 as SoftStakingNFT} from "src/example/ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMintSoftStaking.sol";
 import {ApplicationERC721Handler as AssetHandlerWOracle} from "src/example/ApplicationERC721HandlerWStatusOracle.sol";
 import {ApplicationERC721HandlerMod} from "./helpers/ApplicationERC721HandlerMod.sol";
 import "test/helpers/ApplicationERC721WithBatchMintBurn.sol";
 import "test/helpers/TestCommon.sol";
 
 contract ApplicationERC721Test is TestCommon {
-    SoftStakingOracle softStakingOracle;
-    AssetHandlerWOracle assetHandlerWOracle;
+    
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationERC721HandlerMod newAssetHandler;
@@ -272,6 +272,139 @@ contract ApplicationERC721Test is TestCommon {
     }
 
     function testSoftStakingOracle() public{
+        switchToAppAdministrator();
+        /// let's get people some money
+        vm.deal(user1, 10 ether);
+        vm.deal(user2, 10 ether);
+        vm.deal(address(0xDEAD70C1A), 10 ether);
+        uint256 MIN_GAS_DEPOSIT = 100_000_000 gwei;
+        uint256 FICTICIOUS_GAS_USED = 10_000_000 gwei;
+
+        /// setup the staking NFT and the oracle
+        SoftStakingNFT softStakingNft = new SoftStakingNFT("Soft Stake House", "SST", address(applicationAppManager), "ImHungry.com/uri");
+        AssetHandlerWOracle assetHandlerWOracle = new AssetHandlerWOracle(address(ruleProcessor), address(applicationAppManager), address(softStakingNft), false);
+        softStakingNft.connectHandlerToToken(address(assetHandlerWOracle));
+        applicationAppManager.registerToken("Soft Stake House", address(softStakingNft));
+
+        /// deploy the oracle 
+        SoftStakingOracle softStakingOracle = new SoftStakingOracle(address(0xDEAD70C1A), MIN_GAS_DEPOSIT);
+
+        /// create the rule
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addStatusOracleRule(address(applicationAppManager), address(softStakingOracle));
+
+        /// apply the rule
+        assetHandlerWOracle.setStatusOracleRuleId(ruleId);
+
+        /// now let's mint some NFTs for user1
+        switchToAppAdministrator();
+        softStakingNft.safeMint(user1);
+        softStakingNft.safeMint(user1);
+        softStakingNft.safeMint(user1);
+
+        /// now let's get this party started
+        vm.stopPrank();
+        vm.startPrank(user1);
+        uint256 balanceBefUser = user1.balance;
+        /// let's make sure first that the staking nft is in the UNLOCKED status (0)
+        assertEq(uint8(softStakingNft.stakingStatusPerNFT(1)), 0);
+        /// we make sure that the staking can't be started if we don't pay the min gas deposit
+        vm.expectRevert(abi.encodeWithSignature("HandlerFailed(bytes)", abi.encodeWithSignature("OracleCheckFailed(bytes)", abi.encodeWithSignature("NotEnoughDeposit(uint256)",MIN_GAS_DEPOSIT ))));
+        softStakingNft.stakeNFT{value: MIN_GAS_DEPOSIT - 1}(1);
+        /// now we send the absolute min amount and we should be good
+        softStakingNft.stakeNFT{value: MIN_GAS_DEPOSIT}(1);
+        /// the staking nft now should be in a PENDING status (2)
+        assertEq(uint8(softStakingNft.stakingStatusPerNFT(1)), 2);
+
+        /// now let's make sure the NFT can't be transferred when status is pending
+        vm.expectRevert("token locked or pending");
+        softStakingNft.safeTransferFrom(user1, user2, 1);
+
+        ///now let's write to the oracle that user1 is approved, but first let's make
+        ///sure only the OracleOrigin address can do this
+        vm.expectRevert(abi.encodeWithSignature("NotAuthorized()"));
+        softStakingOracle.completeRequest(0, true, FICTICIOUS_GAS_USED); // requestId, isApproved, gasUsed
+        /// now let's update the status for user1 in the oracle for real  
+        vm.stopPrank();
+        vm.startPrank(address(0xDEAD70C1A));
+        softStakingOracle.completeRequest(0, true, FICTICIOUS_GAS_USED); // requestId, isApproved, gasUsed
+        /// we make sure that the user1 got his refund for unused gas
+        assertEq(balanceBefUser - user1.balance, FICTICIOUS_GAS_USED);
+        /// let's make sure the oracle now has the right info if asked
+        /// @notice that we didn't send any gas deposit since we know that the address has been already checked
+        (uint8 status, uint128 req) = softStakingOracle.requestStatus(user1, address(0));
+        assertEq(status, 1);
+        req; // to silence warning
+
+        /// now let's update the state of the NFT contract
+        softStakingNft.updateStakingStatus(0, true); // requestId, isApproved
+        /// let's make sure that worked
+        /// the staking nft now should be in a LOCKED status (1)
+        assertEq(uint8(softStakingNft.stakingStatusPerNFT(1)), 1);
+
+        /// now let's make sure the NFT can't be transferred when status is locked
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert("token locked or pending");
+        softStakingNft.safeTransferFrom(user1, user2, 1);
+
+        /// now let's do the same for the case the account is not approved
+
+         /// let's mint an NFTs for user2
+        switchToAppAdministrator();
+        softStakingNft.safeMint(user2); // id = 3
+
+        vm.stopPrank();
+        vm.startPrank(user2);
+         assertEq(uint8(softStakingNft.stakingStatusPerNFT(3)), 0);
+        /// we make sure that the staking can't be started if we don't pay the min gas deposit
+        vm.expectRevert(abi.encodeWithSignature("HandlerFailed(bytes)", abi.encodeWithSignature("OracleCheckFailed(bytes)", abi.encodeWithSignature("NotEnoughDeposit(uint256)",MIN_GAS_DEPOSIT ))));
+        softStakingNft.stakeNFT{value: MIN_GAS_DEPOSIT - 1}(3);
+        /// now we send the absolute min amount and we should be good
+        softStakingNft.stakeNFT{value: MIN_GAS_DEPOSIT}(3);
+        /// the staking nft now should be in a PENDING status (2)
+        assertEq(uint8(softStakingNft.stakingStatusPerNFT(3)), 2);
+
+        /// now let's make sure the NFT can't be transferred when status is pending
+        vm.expectRevert("token locked or pending");
+        softStakingNft.safeTransferFrom(user2, user1, 3);
+
+        ///now let's write to the oracle that user2 is denied, but first let's make
+        ///sure only the OracleOrigin address can do this
+        vm.expectRevert(abi.encodeWithSignature("NotAuthorized()"));
+        softStakingOracle.completeRequest(1, false, FICTICIOUS_GAS_USED); // requestId, isApproved, gasUsed
+        /// now let's update the status for user1 in the oracle for real  
+        vm.stopPrank();
+        vm.startPrank(address(0xDEAD70C1A));
+        softStakingOracle.completeRequest(1, false, FICTICIOUS_GAS_USED); // requestId, isApproved, gasUsed
+        /// let's make sure the oracle now has the right info if asked
+        /// @notice that we didn't send any gas deposit since we know that the address has been already checked
+        ( status,  req) = softStakingOracle.requestStatus(user2, address(0));
+        assertEq(status, 0);
+        req; // to silence warning
+
+        /// now let's update the state of the NFT contract
+        softStakingNft.updateStakingStatus(1, false); // requestId, isApproved
+        /// let's make sure that worked
+        /// the staking nft now should be in a UNLOCKED status (0)
+        assertEq(uint8(softStakingNft.stakingStatusPerNFT(3)), 0);
+
+        /// now let's make sure the NFT can be transferred when status is unlocked
+        vm.stopPrank();
+        vm.startPrank(user2);
+        softStakingNft.safeTransferFrom(user2, user1, 3);
+
+        /// it's time to test our withdrawal methods
+        uint256 dataProviderBalance = address(0xDEAD70C1A).balance;
+        /// now let's withdraw some money
+        switchToAppAdministrator();
+        softStakingOracle.withdrawAmount(1 gwei);
+        assertEq(address(softStakingOracle).balance, FICTICIOUS_GAS_USED * 2 - 1 gwei);
+        assertEq(address(0xDEAD70C1A).balance, dataProviderBalance + 1 gwei);
+        /// and finally let's test the withdrawAll method
+        softStakingOracle.withdrawAll();
+        assertEq(address(softStakingOracle).balance, 0);
+        assertEq(address(0xDEAD70C1A).balance, dataProviderBalance + FICTICIOUS_GAS_USED * 2);
 
     }
 

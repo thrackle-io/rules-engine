@@ -33,17 +33,13 @@ contract ApplicationERC721Handler is ProtocolERC721Handler {
     ) ProtocolERC721Handler(_ruleProcessorProxyAddress, _appManagerAddress, _assetAddress, _upgradeMode) {}
 
 
-    function startSoftStaking(address holder, address tokenAddress, uint256 tokenId) external onlyOwner {
-        if (statusOracleRuleActive) ruleProcessor.checkStatusOraclePasses(oracleRuleId, holder, tokenAddress, tokenId, OracleAction.START_STAKING);
+    function checkStatusOracle(address account) external payable onlyOwner returns (uint8 status, uint128 _requestId){
+        if (statusOracleRuleActive){ 
+            // this should return either 1: approved or 2: pending. A 0 would cause a revert in
+            // the transaction which means 0 will never make it until here.
+            (status, _requestId) = ruleProcessor.checkStatusOraclePasses{value: msg.value}(statusOracleRuleId, account, msg.sender);
+        }
     }
-
-    function checkStakingStatus(address holder, address tokenAddress, uint256 tokenId) external onlyOwner {
-        if (statusOracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, holder, tokenAddress, tokenId,  OracleAction.CHECK_STATUS);
-    }
-
-    function claimStaking(address holder, address tokenAddress, uint256 tokenId) external onlyOwner {
-        if (statusOracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, holder, tokenAddress, tokenId,  OracleAction.CLAIM_STAKING);
-    } 
 
     /**
      * @dev Set the minMaxBalanceRuleId. Restricted to app administrators only.

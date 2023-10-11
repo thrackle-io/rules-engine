@@ -48,6 +48,14 @@ interface IRuleProcessor {
     function checkOraclePasses(uint32 _ruleId, address _address) external view;
 
     /**
+     * @dev This function receives a rule id, which it uses to get the status oracle details, then calls the oracle to determine permissions.
+     * @param _ruleId Rule Id
+     * @param account user address to be checked
+     * @param tokenAddress address of the token originating the check
+     */
+    function checkStatusOraclePasses(uint32 _ruleId, address account, address tokenAddress) external payable returns(uint8, uint128);
+
+    /**
      * @dev Check if transaction passes Balance by AccessLevel rule.
      * @param _ruleId Rule Identifier for rule arguments
      * @param _accessLevel the Access Level of the account

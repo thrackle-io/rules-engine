@@ -73,34 +73,20 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
     /**
      * @dev This function receives a rule id, which it uses to get the status oracle details, then calls the oracle to determine permissions.
      * @param _ruleId Rule Id
-     * @param holder user address to be checked
+     * @param account user address to be checked
      * @param tokenAddress address of the NFT contract
-     * @param tokenId token Id being staked
-     * @param action 0=startStaking; 1=checkStatus; 2=claimStake
      */
-    function checkStatusOraclePasses(uint32 _ruleId, address holder, address tokenAddress, uint256 tokenId, uint256 action) external {
+    function checkStatusOraclePasses(uint32 _ruleId, address account, address tokenAddress) external payable returns(uint8 status, uint128 _requestId) {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        //uint256 totalRules = data.getTotalStatusOracleRules();
         if ( data.getTotalStatusOracleRules() <= _ruleId ) revert RuleDoesNotExist();
         NonTaggedRules.StatusOracleRule memory statusOracleRule = data.getStatusOracleRule(_ruleId);
         address oracleAddress = statusOracleRule.oracleAddress;
-        if ( action == 0){
-            /// bytes4(keccak256(bytes('startSoftStaking(address,address,uint256)')));= 0xe30fb736
-            (bool success, bytes memory res) = oracleAddress.call(abi.encodeWithSelector(0xe30fb736, holder, tokenAddress, tokenId));
-            if(! success) revert OracleCheckFailed(res);
-        }else if (action == 1){
-            /// bytes4(keccak256(bytes('statusPerNFT(address,uint256)')));= 0x93ab998e
-            (bool success, bytes memory res) = oracleAddress.staticcall(abi.encodeWithSelector(0x93ab998e, tokenAddress, tokenId));
-            if(! success ) revert OracleCheckFailed(res);
-            if(uint(bytes32(res)) != 1) revert  OracleCheckFailed("Not Staked");
-        }else if(action == 2){
-            /// bytes4(keccak256(bytes('claimStake(address,address,uint256)')));= 0xd94531cf
-            (bool success, bytes memory res) = oracleAddress.call(abi.encodeWithSelector(0xd94531cf, holder, tokenAddress, tokenId));
-            if(! success) revert OracleCheckFailed(res);
-        }else{
-            revert OracleCheckFailed("wrong action");
-        }   
-            
+        /// bytes4(keccak256(bytes('requestStatus(address,address)'))) = 0x7c44325c
+        (bool success, bytes memory res) = oracleAddress.call{value: msg.value}(abi.encodeWithSelector(0x7c44325c, account, tokenAddress));
+        if(! success) revert OracleCheckFailed(res);
+        /// improve following line with Yul
+        (status, _requestId) = abi.decode(res, (uint8, uint128));
+        if (status == 0) revert OracleCheckFailed("ACCOUNT DENIED");
     }
 
     /**

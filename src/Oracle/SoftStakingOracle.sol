@@ -51,13 +51,13 @@ contract SoftStakingOracle is Context, Ownable{
             minGasDeposit = _minGasDeposit;
     }
 
-    function requestStatus(address account, address tokenAddress) external payable returns(uint8 _status){
+    function requestStatus(address account, address tokenAddress) external payable returns(uint8 _status, uint128 _requestId){
         // if oracle doesn't have a state for the account (NOT_CHECKED), it starts a check
         if(statusPerAccount[account] == Status.NOT_CHECKED){
             // it will first see if the account sent enough funds for the offchain check
             if (msg.value < minGasDeposit) revert NotEnoughDeposit(minGasDeposit);
             // then we store the requestId locally to avoid expensive read from storage
-            uint128 _requestId = requestId;
+            _requestId = requestId;
             // we write to storage the relevant data
             accountToRequestId[account] = _requestId;
             statusPerAccount[account] = Status.PENDING;
@@ -79,12 +79,11 @@ contract SoftStakingOracle is Context, Ownable{
         }
     }
 
-    function _getStatusPerAccount(address account) internal returns(uint8 _status){
+    function _getStatusPerAccount(address account) internal view returns(uint8 _status){
         unchecked{
             _status = uint8(statusPerAccount[account]) - 1;
         }
     }
-
 
     function completeRequest(uint128 _requestId, bool isApproved, uint256 gasUsed) external onlyOracle{
         Request memory _req = requestById[_requestId];
@@ -97,8 +96,8 @@ contract SoftStakingOracle is Context, Ownable{
         delete _req.balance;
         /// return any excess of gas funds
         (bool sent, bytes memory data) = payable(_req.account).call{value: balance}("");
-        if(!sent) revert TrasferFailed(data);
-        
+        if(!sent) revert TrasferFailed(data); 
+        emit RequestCompleted(_requestId, isApproved);
     }
 
     function updateGasDeposit(uint256 newGasDeposit) external onlyOwner{
