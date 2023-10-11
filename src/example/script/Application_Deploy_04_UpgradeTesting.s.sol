@@ -14,22 +14,26 @@ import "../application/ApplicationHandler.sol";
  * @notice Deploys a new application App Manager and ERC20 handler. This is for upgrade testing only.  
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
  * Deploy Scripts:
- * forge script src/example/script/Application_Deploy_01_AppMangerAndAssets.s.sol --ffi --broadcast -vvvv
- * forge script src/example/script/Application_Deploy_02_OracleAndPricing.s.sol --ffi --broadcast -vvvv
- * forge script src/example/script/Application_Deploy_03_ApplicationAdminRoles.s.sol --ffi --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_01_AppMangerAndAssets.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_02_OracleAndPricing.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_03_ApplicationAdminRoles.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  * <<<OPTIONAL>>>
- * forge script src/example/script/Application_Deploy_04_UpgradeTesting.s.sol --ffi --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_04_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
 contract ApplicationDeployAppManagerForUpgradeScript is Script {
+    uint256 privateKey;
+    address ownerAddress;
 
     function setUp() public {}
 
     function run() public {
-        vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
+        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
+        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
+        vm.startBroadcast(privateKey);
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         /// This is a new app manager used for upgrade testing
-        new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", true);
+        new ApplicationAppManager(vm.envAddress("DEPLOYMENT_OWNER"), "Castlevania", true);
         new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), vm.envAddress("APPLICATION_ERC20_ADDRESS"), true);
         vm.stopBroadcast();
     }

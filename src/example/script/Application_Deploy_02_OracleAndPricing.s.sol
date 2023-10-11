@@ -19,19 +19,23 @@ import "../pricing/ApplicationERC721Pricing.sol";
  * @notice Deploys the pricing and oracle contracts.
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
  * Deploy Scripts:
- * forge script src/example/script/Application_Deploy_01_AppMangerAndAssets.s.sol --ffi --broadcast -vvvv
- * forge script src/example/script/Application_Deploy_02_OracleAndPricing.s.sol --ffi --broadcast -vvvv
- * forge script src/example/script/Application_Deploy_03_ApplicationAdminRoles.s.sol --ffi --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_01_AppMangerAndAssets.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_02_OracleAndPricing.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_03_ApplicationAdminRoles.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  * <<<OPTIONAL>>>
- * forge script src/example/script/Application_Deploy_04_UpgradeTesting.s.sol --ffi --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_04_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
 contract ApplicationDeployOracleAndPricingScript is Script {
+    uint256 privateKey;
+    address ownerAddress;
 
     function setUp() public {}
 
     function run() public {
-        vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
+        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
+        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
+        vm.startBroadcast(privateKey);
         /// Retrieve App Manager deployed from previous script 
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         ApplicationERC20Handler applicationCoinHandler = ApplicationERC20Handler(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS"));
@@ -42,10 +46,6 @@ contract ApplicationDeployOracleAndPricingScript is Script {
         new OracleAllowed();
         new OracleRestricted();
 
-        /// Register the tokens with the application's app manager
-        applicationAppManager.registerToken("Frankenstein Coin", vm.envAddress("APPLICATION_ERC20_ADDRESS"));
-        applicationAppManager.registerToken("Dracula Coin", vm.envAddress("APPLICATION_ERC20_ADDRESS_2"));
-        applicationAppManager.registerToken("Frankenstein Picture", vm.envAddress("APPLICATION_ERC721_ADDRESS_1"));
         /// Set the token's prices
         ApplicationERC721Pricing openOcean = new ApplicationERC721Pricing();
         ApplicationERC20Pricing exchange = new ApplicationERC20Pricing();
