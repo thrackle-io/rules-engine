@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 /**
- * @title Application NFT Handler Contract
+ * @title Application NFT Handler Contract With Status Oracle Capabilities
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev This contract is an example for how to implement the ProtocolERC721Handler. All ERC721 rules are set up through this contract
  * @notice This contract is the interaction point for the application ecosystem to the protocol
@@ -10,8 +10,6 @@ pragma solidity ^0.8.17;
 import "../token/ProtocolERC721Handler.sol";
 
 contract ApplicationERC721Handler is ProtocolERC721Handler {
-
-    enum OracleAction{ START_STAKING, CHECK_STATUS, CLAIM_STAKING}
 
     /// RuleIds for implemented tagged rules of the ERC721
     uint32 private statusOracleRuleId;
@@ -42,7 +40,7 @@ contract ApplicationERC721Handler is ProtocolERC721Handler {
     }
 
     /**
-     * @dev Set the minMaxBalanceRuleId. Restricted to app administrators only.
+     * @dev Set the statusOracleRuleId. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
@@ -67,15 +65,15 @@ contract ApplicationERC721Handler is ProtocolERC721Handler {
     }
 
     /**
-     * Get the minMaxBalanceRuleId.
-     * @return minMaxBalance rule id.
+     * Get the statusOracleRuleId.
+     * @return statusOracleRuleId rule id.
      */
     function getStatusOracleRuleId() external view returns (uint32) {
         return statusOracleRuleId;
     }
 
     /**
-     * @dev Tells you if the MinMaxBalanceRule is active or not.
+     * @dev Tells you if the statusOracleRule is active or not.
      * @return boolean representing if the rule is active
      */
     function isStatusOracleActive() external view returns (bool) {

@@ -31,7 +31,7 @@ contract SoftStakingOracle is Context, Ownable{
 
     error NotAuthorized();
     error NotEnoughDeposit(uint256 minDeposit);
-    error TrasferFailed(bytes reason);
+    error TransferFailed(bytes reason);
     error FunctionDoesNotExist();
     error OracleOriginNotSet();
     error CannotWithdrawZero();
@@ -69,12 +69,12 @@ contract SoftStakingOracle is Context, Ownable{
             ++requestId;
             // finally we return the status which should be PENDING in this case
             _status = _getStatusPerAccount(account);
-        // if not, it will return the state and will return any funds sent
         }else{
+            // if not, it will return the state and will return any funds sent
             _status = _getStatusPerAccount(account);
             if (msg.value > 0){
                 (bool sent, bytes memory data) = payable(account).call{value: msg.value}("");
-                if(!sent) revert TrasferFailed(data);
+                if(!sent) revert TransferFailed(data);
             }
         }
     }
@@ -96,7 +96,7 @@ contract SoftStakingOracle is Context, Ownable{
         delete _req.balance;
         /// return any excess of gas funds
         (bool sent, bytes memory data) = payable(_req.account).call{value: balance}("");
-        if(!sent) revert TrasferFailed(data); 
+        if(!sent) revert TransferFailed(data); 
         emit RequestCompleted(_requestId, isApproved);
     }
 
@@ -117,7 +117,7 @@ contract SoftStakingOracle is Context, Ownable{
         if(_amount == 0) revert CannotWithdrawZero();
         if(_amount > address(this).balance) revert NotEnoughBalance();
         (bool sent, bytes memory data) = oracleOrigin.call{value: _amount}("");
-        if(!sent) revert TrasferFailed(data);  
+        if(!sent) revert TransferFailed(data);  
     }
 
     /**
@@ -128,7 +128,7 @@ contract SoftStakingOracle is Context, Ownable{
         uint balance = address(this).balance;
         if(balance == 0) revert CannotWithdrawZero();
         (bool sent, bytes memory data) = oracleOrigin.call{value: balance}("");
-        if(!sent) revert TrasferFailed(data);
+        if(!sent) revert TransferFailed(data);
     }
 
      /// Receive function for contract to receive chain native tokens in unordinary ways

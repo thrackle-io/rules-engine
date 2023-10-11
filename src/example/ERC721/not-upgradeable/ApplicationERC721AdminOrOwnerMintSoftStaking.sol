@@ -5,7 +5,7 @@ import "../../../token/ProtocolERC721WSoftStaking.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @title ApplicationERC721
+ * @title ApplicationERC721 For Status Oracle Integreation
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This is an example implementation of the protocol ERC721 where minting is only available for app administrators or contract owners.
  */
