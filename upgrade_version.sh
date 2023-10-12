@@ -39,7 +39,7 @@ replace_version_in_package_json() {
     local file="$1"
     local new_version="$2"
     
-    sed -i "" "s/\(https:\/\/img\.shields\.io\/badge\/Version-\)[0-9]*\.[0-9]*\.[0-9]*\(\w*\)/\1$new_version\2/" "$file"
+    sed -i "" "s/\(.*version-image.*-\)[0-9]*\.[0-9]*\.[0-9]*\(\w*\)/\1$new_version\2/" "$file"
  }
 
 main() {
