@@ -14,19 +14,23 @@ import "../pricing/ApplicationERC20Pricing.sol";
 import "../pricing/ApplicationERC721Pricing.sol";
 
 /**
- * @title Application Deploy All Script
- * @dev This script will deploy all application contracts needed to test the protocol interactions.
- * @notice Deploys the pricing and oracle contracts.
+ * @title Application Deploy 06 Pricing Script
+ * @dev This script will deploy the pricing contracts and set dollar valuations for each deployed token.
+ * @notice Deploys the pricing contracts.
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
  * Deploy Scripts:
- * forge script src/example/script/Application_Deploy_01_AppMangerAndAssets.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
- * forge script src/example/script/Application_Deploy_02_OracleAndPricing.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
- * forge script src/example/script/Application_Deploy_03_ApplicationAdminRoles.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_01_AppManger.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_02_ApplicationFT1.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_03_ApplicationFT2.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_04_ApplicationNFT.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_05_Oracle.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_06_Pricing.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  * <<<OPTIONAL>>>
- * forge script src/example/script/Application_Deploy_04_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script src/example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract ApplicationDeployOracleAndPricingScript is Script {
+contract ApplicationDeployPricingScript is Script {
     uint256 privateKey;
     address ownerAddress;
 
@@ -42,10 +46,6 @@ contract ApplicationDeployOracleAndPricingScript is Script {
         ApplicationERC20Handler applicationCoinHandler2 = ApplicationERC20Handler(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS_2"));
         ApplicationERC721Handler applicationNFTHandler = ApplicationERC721Handler(vm.envAddress("APPLICATION_ERC721_HANDLER"));
         
-        /// Deploy Oracle Contracts 
-        new OracleAllowed();
-        new OracleRestricted();
-
         /// Set the token's prices
         ApplicationERC721Pricing openOcean = new ApplicationERC721Pricing();
         ApplicationERC20Pricing exchange = new ApplicationERC20Pricing();
