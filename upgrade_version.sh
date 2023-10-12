@@ -7,7 +7,7 @@
 # Usage:                                                                                                       #
 #           ./upgrade_version.sh <MAJOR.MINOR.MICRO>                                                           #
 #                                                                                                              #
-# Notice that there are no quotation marks in the version.                                                         #
+# Notice that there are no quotation marks in the version.                                                     #
 ################################################################################################################
 
 # since all the files in source will have the same declaration pattern, we can use it to accurately change versions
@@ -23,8 +23,8 @@ replace_version_in_test() {
     local file="$1"
     local new_version="$2"
     
-    sed -i "" "s/\(\w*([[:space:]]*[^\"]*[[:space:]]*[^\()]*[[:space:]]*\"\)[^\D]*\.[^\D]*\.[^\D]*\(\"[[:space:]]*)\)/\1$new_version\2/" "$file"
-    sed -i "" "s/\(\w*([[:space:]]*\"\)[^\D]*\.[^\D]*\.[^\D]*\(\"[[:space:]]*[^\()]*[[:space:]]*[^\"]*[[:space:]]*)\)/\1$new_version\2/" "$file"
+    sed -i "" "s/\(\w*([[:space:]]*[^\"]*[[:space:]]*[^\()]*[[:space:]]*\"\)[0-9]*\.[0-9]*\.[0-9]*\(\"[[:space:]]*)\)/\1$new_version\2/" "$file"
+    sed -i "" "s/\(\w*([[:space:]]*\"\)[0-9]*\.[0-9]*\.[0-9]*\(\"[[:space:]]*[^\()]*[[:space:]]*[^\"]*[[:space:]]*)\)/\1$new_version\2/" "$file"
 }
 
 # we change the package.json file following the regular pattern of this file
