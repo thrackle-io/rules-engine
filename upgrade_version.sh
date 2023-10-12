@@ -31,10 +31,15 @@ replace_version_in_test() {
 replace_version_in_package_json() {
     local file="$1"
     local new_version="$2"
-
-    echo "$file"
     
     sed -i "" "s/\(\"version\":[[:space:]]*\"\)[^\"]*\(\",\)/\1$new_version\2/" "$file"
+ }
+
+ replace_version_in_readme(){
+    local file="$1"
+    local new_version="$2"
+    
+    sed -i "" "s/\(https:\/\/img\.shields\.io\/badge\/Version-\)[0-9]*\.[0-9]*\.[0-9]*\(\w*\)/\1$new_version\2/" "$file"
  }
 
 main() {
@@ -58,6 +63,9 @@ main() {
 
     # replace in package.json
     replace_version_in_package_json "./package.json"  "$new_version"
+
+    # replace in package.json
+    replace_version_in_readme "./README.md"  "$new_version"
     
 }
 
