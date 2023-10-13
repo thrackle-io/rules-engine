@@ -17,9 +17,9 @@ import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
 import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
-contract ApplicationERC721FuzzTest is TestCommon {
+contract ApplicationERC721FuzzTest is TestCommonFoundry {
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     address[] badBoys;

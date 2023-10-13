@@ -10,9 +10,9 @@ import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import {ApplicationERC721HandlerMod} from "./helpers/ApplicationERC721HandlerMod.sol";
 import "test/helpers/ApplicationERC721WithBatchMintBurn.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
-contract ApplicationERC721Test is TestCommon {
+contract ApplicationERC721Test is TestCommonFoundry {
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationERC721HandlerMod newAssetHandler;

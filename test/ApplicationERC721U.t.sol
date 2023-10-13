@@ -12,9 +12,9 @@ import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDa
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import {ApplicationERC721HandlerMod} from "./helpers/ApplicationERC721HandlerMod.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
-contract ApplicationERC721UTest is TestCommon {
+contract ApplicationERC721UTest is TestCommonFoundry {
     ApplicationERC721Upgradeable applicationNFTU;
     ApplicationERC721Upgradeable applicationNFT2;
     ApplicationERC721UExtra applicationNFTExtra;
@@ -44,7 +44,7 @@ contract ApplicationERC721UTest is TestCommon {
 
         applicationNFTU = new ApplicationERC721Upgradeable();
         applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFTU), proxyOwner, "");
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Prime Eternal", "CHAMP", address(applicationAppManager),"dummy.uri.io");
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Prime Eternal", "CHAMP", address(applicationAppManager), "dummy.uri.io");
         applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), false);
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
         /// register the token
@@ -76,19 +76,19 @@ contract ApplicationERC721UTest is TestCommon {
         /// since this is the default implementation, we only need to test the negative case
         switchToUser();
         vm.expectRevert(abi.encodeWithSignature("NotAppAdministrator()"));
-        nft.safeMint(appAdministrator); 
+        nft.safeMint(appAdministrator);
 
         switchToAccessLevelAdmin();
         vm.expectRevert(abi.encodeWithSignature("NotAppAdministrator()"));
-        nft.safeMint(appAdministrator);    
+        nft.safeMint(appAdministrator);
 
         switchToRuleAdmin();
         vm.expectRevert(abi.encodeWithSignature("NotAppAdministrator()"));
-        nft.safeMint(appAdministrator); 
+        nft.safeMint(appAdministrator);
 
         switchToRiskAdmin();
         vm.expectRevert(abi.encodeWithSignature("NotAppAdministrator()"));
-        nft.safeMint(appAdministrator);  
+        nft.safeMint(appAdministrator);
     }
 
     function testTransferUpgradeable() public {
@@ -191,7 +191,6 @@ contract ApplicationERC721UTest is TestCommon {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); /// Id 8
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); /// Id 9
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); /// Id 10
-
 
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user2);
         // transfer to user1 to exceed limit
@@ -999,7 +998,7 @@ contract ApplicationERC721UTest is TestCommon {
         // Create the upgradeable nft that has extra variables but points to the original ProtocolERC721U
         applicationNFTExtra = new ApplicationERC721UExtra();
         applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFTExtra), proxyOwner, "");
-        ApplicationERC721UExtra(address(applicationNFTProxy)).initialize("Extra", "CHAMP", address(applicationAppManager),"dummy.uri.io");
+        ApplicationERC721UExtra(address(applicationNFTProxy)).initialize("Extra", "CHAMP", address(applicationAppManager), "dummy.uri.io");
         applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), false);
         ApplicationERC721UExtra(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
         /// register the token

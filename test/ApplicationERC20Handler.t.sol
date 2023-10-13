@@ -11,7 +11,7 @@ import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import "src/token/data/Fees.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
 /**
  * @title Application Coin Handler Test
@@ -20,7 +20,7 @@ import "test/helpers/TestCommon.sol";
  *      contains all the rule checks for the particular ERC20.
  * @notice It simulates the input from a token contract
  */
-contract ApplicationERC20HandlerTest is TestCommon {
+contract ApplicationERC20HandlerTest is TestCommonFoundry {
     address user1 = address(1);
     address user2 = address(2);
     address accessTier = address(3);

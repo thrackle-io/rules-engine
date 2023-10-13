@@ -16,9 +16,9 @@ import "src/example/ApplicationERC20Handler.sol";
 import "src/example/ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
 import "src/example/ApplicationERC721Handler.sol";
 import "src/token/IAdminWithdrawalRuleCapable.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
-contract ApplicationAppManagerTest is TestCommon {
+contract ApplicationAppManagerTest is TestCommonFoundry {
     ApplicationAppManager public applicationAppManager2;
 
     ApplicationHandler public applicationHandler2;
@@ -53,13 +53,13 @@ contract ApplicationAppManagerTest is TestCommon {
 
     function testAppManagerAndHandlerVersions() public {
         string memory version = applicationAppManager.version();
-        assertEq(version,"1.1.0");
+        assertEq(version, "1.1.0");
         version = applicationHandler.version();
-        assertEq(version,"1.1.0");
+        assertEq(version, "1.1.0");
         version = applicationAppManager2.version();
-        assertEq(version,"1.1.0");
+        assertEq(version, "1.1.0");
         version = applicationHandler2.version();
-        assertEq(version,"1.1.0");
+        assertEq(version, "1.1.0");
     }
 
     ///---------------DEFAULT ADMIN--------------------
@@ -549,7 +549,7 @@ contract ApplicationAppManagerTest is TestCommon {
         PauseRule[] memory removeTest = applicationAppManager.getPauseRules();
         assertTrue(removeTest.length == 0);
         /// test that when all rules are removed the check is skipped in the handler
-        assertTrue(applicationHandler.isPauseRuleActive() == false); 
+        assertTrue(applicationHandler.isPauseRuleActive() == false);
     }
 
     function testAutoCleaningRules() public {
@@ -576,7 +576,7 @@ contract ApplicationAppManagerTest is TestCommon {
     }
 
     function testNonAdminAddingOrActivatingPauseRules() public {
-        switchToUser(); 
+        switchToUser();
         vm.expectRevert();
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
@@ -587,18 +587,18 @@ contract ApplicationAppManagerTest is TestCommon {
 
     function testActivatePauseRulesFromAppManager() public {
         switchToRuleAdmin();
-        /// add rule as rule admin 
+        /// add rule as rule admin
         applicationAppManager.addPauseRule(1769924800, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
         assertTrue(applicationHandler.isPauseRuleActive() == true);
-        /// test deactivation of rule while pause rule exists 
+        /// test deactivation of rule while pause rule exists
         applicationAppManager.activatePauseRuleCheck(false);
         assertTrue(applicationHandler.isPauseRuleActive() == false);
-        /// reactivate pause rule 
+        /// reactivate pause rule
         applicationAppManager.activatePauseRuleCheck(true);
         assertTrue(applicationHandler.isPauseRuleActive() == true);
-        /// remove rule and ensure pause rule check is false 
+        /// remove rule and ensure pause rule check is false
         applicationAppManager.removePauseRule(1769924800, 1769984800);
         assertTrue(applicationHandler.isPauseRuleActive() == false);
     }
@@ -745,8 +745,7 @@ contract ApplicationAppManagerTest is TestCommon {
     }
 
     function testOverAllGeneralTags() public {
-
-        switchToAppAdministrator(); 
+        switchToAppAdministrator();
         /// test adding a singular Tag
         applicationAppManager.addGeneralTag(user, "TAG1"); //add tag
         /// add one tag to multiple addresses
@@ -765,10 +764,10 @@ contract ApplicationAppManagerTest is TestCommon {
         assertFalse(applicationAppManager.hasTag(user, "TAG2"));
         assertFalse(applicationAppManager.hasTag(user, "BABE"));
         assertFalse(applicationAppManager.hasTag(user, "DADD"));
-        applicationAppManager.addGeneralTag(user, "TAG2"); 
-        applicationAppManager.addGeneralTag(user, "BABE"); 
-        applicationAppManager.addGeneralTag(user, "DADD"); 
-        applicationAppManager.addGeneralTag(user, "FIFTH"); 
+        applicationAppManager.addGeneralTag(user, "TAG2");
+        applicationAppManager.addGeneralTag(user, "BABE");
+        applicationAppManager.addGeneralTag(user, "DADD");
+        applicationAppManager.addGeneralTag(user, "FIFTH");
 
         assertTrue(applicationAppManager.hasTag(user, "TAG2"));
         assertTrue(applicationAppManager.hasTag(user, "BABE"));
@@ -821,7 +820,6 @@ contract ApplicationAppManagerTest is TestCommon {
         /// remove only tag
         applicationAppManager.removeGeneralTag(user, "FIFTH");
         assertFalse(applicationAppManager.hasTag(user, "FIFTH"));
-
     }
 
     /// Test the register token.
@@ -854,7 +852,7 @@ contract ApplicationAppManagerTest is TestCommon {
 
         applicationAppManager.registerToken("CoinC", address(applicationCoinC));
         assertEq(address(applicationCoinC), applicationAppManager.getTokenAddress("CoinC"));
-    
+
         // test updating the token's name
         applicationAppManager.registerToken("FRANCISCOSTEIN", address(applicationCoin));
         assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANCISCOSTEIN"));
@@ -880,31 +878,30 @@ contract ApplicationAppManagerTest is TestCommon {
         list = applicationAppManager.getTokenList();
         assertEq(list.length, 1);
 
-        // deregister the only coin 
+        // deregister the only coin
         applicationAppManager.deregisterToken("CoinA");
         assertEq(address(0), applicationAppManager.getTokenAddress("CoinA"));
         list = applicationAppManager.getTokenList();
         assertEq(list.length, 0);
-        
     }
 
     /// Test the register AMM.
     function testRegisterAMM() public {
         applicationAppManager.registerAMM(address(0xaaa));
         assertTrue(applicationAppManager.isRegisteredAMM(address(0xaaa)));
-         applicationAppManager.registerAMM(address(0xbbb));
+        applicationAppManager.registerAMM(address(0xbbb));
         assertTrue(applicationAppManager.isRegisteredAMM(address(0xbbb)));
-         applicationAppManager.registerAMM(address(0xccc));
+        applicationAppManager.registerAMM(address(0xccc));
         assertTrue(applicationAppManager.isRegisteredAMM(address(0xccc)));
-         applicationAppManager.registerAMM(address(0xddd));
+        applicationAppManager.registerAMM(address(0xddd));
         assertTrue(applicationAppManager.isRegisteredAMM(address(0xddd)));
-         applicationAppManager.registerAMM(address(0xeee));
+        applicationAppManager.registerAMM(address(0xeee));
         assertTrue(applicationAppManager.isRegisteredAMM(address(0xeee)));
         /// this is expected to fail because you cannot register same address more than once
         vm.expectRevert();
         applicationAppManager.registerAMM(address(0xaaa));
 
-         /// deregistering the first address
+        /// deregistering the first address
         assertTrue(applicationAppManager.isRegisteredAMM(address(0xaaa)));
         applicationAppManager.deRegisterAMM(address(0xaaa));
         assertFalse(applicationAppManager.isRegisteredAMM(address(0xaaa)));
@@ -932,7 +929,6 @@ contract ApplicationAppManagerTest is TestCommon {
         assertTrue(applicationAppManager.isRegisteredAMM(address(77)));
         applicationAppManager.deRegisterAMM(address(77));
         assertFalse(applicationAppManager.isRegisteredAMM(address(77)));
-
     }
 
     function testRegisterAddresses() public {
@@ -971,7 +967,6 @@ contract ApplicationAppManagerTest is TestCommon {
         assertTrue(applicationAppManager.isTreasury(address(0x555)));
         applicationAppManager.deRegisterTreasury(address(0x555));
         assertFalse(applicationAppManager.isTreasury(address(0x555)));
-
     }
 
     ///---------------UPGRADEABILITY---------------
