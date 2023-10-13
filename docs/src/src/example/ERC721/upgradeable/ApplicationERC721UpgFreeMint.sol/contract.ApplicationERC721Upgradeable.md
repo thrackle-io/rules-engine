@@ -2,7 +2,7 @@
 [Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/example/ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol)
 
 **Inherits:**
-[ProtocolERC721U](/src/token/ProtocolERC721U.sol/contract.ProtocolERC721U.md)
+[ProtocolERC721U](/src/token/ERC721/upgradeable/ProtocolERC721U.sol/contract.ProtocolERC721U.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett

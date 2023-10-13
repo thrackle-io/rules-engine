@@ -3,10 +3,10 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "../application/ApplicationHandler.sol";
-import "../ApplicationERC20Handler.sol";
-import "../ApplicationERC20.sol";
-import {ApplicationERC721Handler} from "../ApplicationERC721Handler.sol";
-import {ApplicationERC721} from "../ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
+import "../ERC20/ApplicationERC20Handler.sol";
+import "../ERC20/ApplicationERC20.sol";
+import {ApplicationERC721Handler} from "../ERC721/ApplicationERC721Handler.sol";
+import {ApplicationERC721} from "../ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import {ApplicationAppManager} from "../ApplicationAppManager.sol";
 import "../OracleRestricted.sol";
 import "../OracleAllowed.sol";
@@ -40,12 +40,12 @@ contract ApplicationDeployPricingScript is Script {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
-        /// Retrieve App Manager deployed from previous script 
+        /// Retrieve App Manager deployed from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         ApplicationERC20Handler applicationCoinHandler = ApplicationERC20Handler(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS"));
         ApplicationERC20Handler applicationCoinHandler2 = ApplicationERC20Handler(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS_2"));
         ApplicationERC721Handler applicationNFTHandler = ApplicationERC721Handler(vm.envAddress("APPLICATION_ERC721_HANDLER"));
-        
+
         /// Set the token's prices
         ApplicationERC721Pricing openOcean = new ApplicationERC721Pricing();
         ApplicationERC20Pricing exchange = new ApplicationERC20Pricing();

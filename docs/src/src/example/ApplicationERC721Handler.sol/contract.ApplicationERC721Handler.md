@@ -1,8 +1,8 @@
 # ApplicationERC721Handler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/example/ApplicationERC721Handler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/example/ERC721/ApplicationERC721Handler.sol)
 
 **Inherits:**
-[ProtocolERC721Handler](/src/token/ProtocolERC721Handler.sol/contract.ProtocolERC721Handler.md)
+[ProtocolERC721Handler](/src/token/ERC721/ProtocolERC721Handler.sol/contract.ProtocolERC721Handler.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett

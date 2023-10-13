@@ -1,8 +1,8 @@
 # ApplicationERC20Handler
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/example/ApplicationERC20Handler.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/example/ERC20/ApplicationERC20Handler.sol)
 
 **Inherits:**
-[ProtocolERC20Handler](/src/token/ProtocolERC20Handler.sol/contract.ProtocolERC20Handler.md)
+[ProtocolERC20Handler](/src/token/ERC20/ProtocolERC20Handler.sol/contract.ProtocolERC20Handler.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett

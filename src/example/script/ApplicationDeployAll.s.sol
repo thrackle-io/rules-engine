@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "../ApplicationERC20Handler.sol";
-import {ApplicationERC721Handler} from "../ApplicationERC721Handler.sol";
-import "../ApplicationERC20.sol";
-import {ApplicationERC721} from "../ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
+import "../ERC20/ApplicationERC20Handler.sol";
+import {ApplicationERC721Handler} from "../ERC721/ApplicationERC721Handler.sol";
+import "../ERC20/ApplicationERC20.sol";
+import {ApplicationERC721} from "../ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import {ApplicationAppManager} from "../ApplicationAppManager.sol";
 import "../application/ApplicationHandler.sol";
 import "../OracleRestricted.sol";
@@ -73,15 +73,15 @@ contract ApplicationDeployAllScript is Script {
         new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", true);
         new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), true);
         /// Admin set up:
-        /// Quorra sets Kevin as app admin 
+        /// Quorra sets Kevin as app admin
         applicationAppManager.addAppAdministrator(vm.envAddress("KEVIN"));
-         
-        /** 
-        * Kevin as App admin sets:
-        * Clu = Rule admin 
-        * Gem = Access Tier admin 
-        * Sam = Risk admin 
-        */ 
+
+        /**
+         * Kevin as App admin sets:
+         * Clu = Rule admin
+         * Gem = Access Tier admin
+         * Sam = Risk admin
+         */
         vm.stopBroadcast();
         vm.startBroadcast(vm.envUint("KEVIN_PRIVATE_KEY"));
         applicationAppManager.addRuleAdministrator(vm.envAddress("CLU"));

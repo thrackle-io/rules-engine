@@ -1,5 +1,5 @@
 # ApplicationERC721
-[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/example/ERC721/not-upgradeable/ApplicationERC721MintForAFee.sol)
+[Git Source](https://github.com/thrackle-io/rules-protocol/blob/108c58e2bb8e5c2e5062cebb48a41dcaadcbfcd8/src/example/ERC721/ApplicationERC721MintForAFee.sol)
 
 **Inherits:**
 [ProtocolERC721](/src/token/ProtocolERC721.sol/contract.ProtocolERC721.md)

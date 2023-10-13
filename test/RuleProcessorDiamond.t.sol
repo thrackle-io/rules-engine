@@ -15,8 +15,8 @@ import {RuleDataFacet as Facet} from "../src/economic/ruleStorage/RuleDataFacet.
 import {VersionFacet} from "../src/diamond/VersionFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 
-import "../src/example/ApplicationERC20Handler.sol";
-import {ApplicationERC20} from "../src/example/ApplicationERC20.sol";
+import "../src/example/ERC20/ApplicationERC20Handler.sol";
+import {ApplicationERC20} from "../src/example/ERC20/ApplicationERC20.sol";
 
 contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     // Store the FacetCut struct for each facet that is being deployed.
@@ -125,7 +125,7 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         console.log(version);
         assertEq(version, "1,0,0");
         // update version again
-        VersionFacet(address(ruleProcessor)).updateVersion("1.1.0");// upgrade_version script will replace this version
+        VersionFacet(address(ruleProcessor)).updateVersion("1.1.0"); // upgrade_version script will replace this version
         version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
         assertEq(version, "1.1.0");

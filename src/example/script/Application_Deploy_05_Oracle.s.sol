@@ -3,10 +3,10 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "../application/ApplicationHandler.sol";
-import "../ApplicationERC20Handler.sol";
-import "../ApplicationERC20.sol";
-import {ApplicationERC721Handler} from "../ApplicationERC721Handler.sol";
-import {ApplicationERC721} from "../ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
+import "../ERC20/ApplicationERC20Handler.sol";
+import "../ERC20/ApplicationERC20.sol";
+import {ApplicationERC721Handler} from "../ERC721/ApplicationERC721Handler.sol";
+import {ApplicationERC721} from "../ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import {ApplicationAppManager} from "../ApplicationAppManager.sol";
 import "../OracleRestricted.sol";
 import "../OracleAllowed.sol";
@@ -36,8 +36,8 @@ contract ApplicationDeployOracleScript is Script {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
-        
-        /// Deploy Oracle Contracts 
+
+        /// Deploy Oracle Contracts
         new OracleAllowed();
         new OracleRestricted();
 
