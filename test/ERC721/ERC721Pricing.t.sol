@@ -2,11 +2,11 @@
 pragma solidity ^0.8.17;
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import "src/example/ApplicationAppManager.sol";
+import "src/example/application/ApplicationAppManager.sol";
 import "src/example/application/ApplicationHandler.sol";
-import "../DiamondTestUtil.sol";
+import "../diamond/DiamondTestUtil.sol";
 import "src/example/ERC721/ApplicationERC721Handler.sol";
-import "../RuleProcessorDiamondTestUtil.sol";
+import "../diamond/RuleProcessorDiamondTestUtil.sol";
 import {TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 
 /**

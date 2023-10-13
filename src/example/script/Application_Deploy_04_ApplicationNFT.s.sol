@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "../application/ApplicationHandler.sol";
 import {ApplicationERC721Handler} from "../ERC721/ApplicationERC721Handler.sol";
 import {ApplicationERC721} from "../ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import {ApplicationAppManager} from "../ApplicationAppManager.sol";
+import {ApplicationAppManager} from "../application/ApplicationAppManager.sol";
 
 /**
  * @title Application Deploy 04 Application Non-Fungible Token  Script

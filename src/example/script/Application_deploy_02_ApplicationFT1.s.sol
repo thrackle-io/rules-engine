@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "../application/ApplicationHandler.sol";
 import "../ERC20/ApplicationERC20Handler.sol";
 import "../ERC20/ApplicationERC20.sol";
-import {ApplicationAppManager} from "../ApplicationAppManager.sol";
+import {ApplicationAppManager} from "../application/ApplicationAppManager.sol";
 
 /**
  * @title Application Deploy 02 Application Fungible Token 1 Script
