@@ -144,8 +144,9 @@ contract ApplicationAppManagerTest is TestCommon {
     }
 
     /// Test failed revoke Application Administrators role
-    function testFailRevokeAppAdministrator() public {
-        applicationAppManager.addAppAdministrator(appAdministrator); //set a app administrator
+    function testNegativeRevokeAppAdministrator() public {
+        switchToSuperAdmin();
+        applicationAppManager.addAppAdministrator(appAdministrator); //set an app administrator
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
         assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
 
@@ -155,13 +156,20 @@ contract ApplicationAppManagerTest is TestCommon {
 
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(user); //interact as a user
-
+        vm.expectRevert();
         applicationAppManager.revokeRole(APP_ADMIN_ROLE, address(77)); // try to revoke other app administrator
     }
 
     /// Test renounce Application Administrators role
     function testRenounceAppAdministrator() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        switchToSuperAdmin(); 
+        applicationAppManager.revokeRole(APP_ADMIN_ROLE,superAdmin);
+        switchToAppAdministrator(); 
+        vm.expectRevert();
+        applicationAppManager.renounceAppAdministrator();
+        switchToSuperAdmin();
+        applicationAppManager.addAppAdministrator(address(77));
+        switchToAppAdministrator(); 
         applicationAppManager.renounceAppAdministrator();
     }
 
@@ -298,16 +306,25 @@ contract ApplicationAppManagerTest is TestCommon {
         assertEq(applicationAppManager.isRiskAdmin(address(88)), false);
         vm.stopPrank(); //stop interacting as the app administrator
         vm.startPrank(riskAdmin); //interact as the created risk admin
+        vm.expectRevert(abi.encodeWithSignature("CannotRenounceIfOnlyOneAdmin()"));
+        applicationAppManager.renounceRiskAdmin();
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        applicationAppManager.addRiskAdmin(address(0xB0B)); //add risk admin
+        vm.stopPrank(); //stop interacting as the app administrator
+        vm.startPrank(riskAdmin); //interact as the created risk admin
         applicationAppManager.renounceRiskAdmin();
     }
 
     /// Test revoke risk Admin role
-    function testRevokeRiskAdmin() public {
+    function testRevokeRiskAdminA() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
         applicationAppManager.addRiskAdmin(riskAdmin); //add risk admin
         assertEq(applicationAppManager.isRiskAdmin(riskAdmin), true);
         assertEq(applicationAppManager.isRiskAdmin(address(88)), false);
-
+        vm.expectRevert(abi.encodeWithSignature("CannotRenounceIfOnlyOneAdmin()"));
+        applicationAppManager.revokeRole(RISK_ADMIN_ROLE, riskAdmin);
+        assertEq(applicationAppManager.isRiskAdmin(riskAdmin), true);
+        applicationAppManager.addRiskAdmin(address(0xB0B)); //add risk admin
         applicationAppManager.revokeRole(RISK_ADMIN_ROLE, riskAdmin);
         assertEq(applicationAppManager.isRiskAdmin(riskAdmin), false);
     }
@@ -315,8 +332,10 @@ contract ApplicationAppManagerTest is TestCommon {
     /// Test attempt to revoke risk Admin role from non app administrator
     function testFailRevokeRiskAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
+        applicationAppManager.addRiskAdmin(address(0xB0B)); //add risk admin
         applicationAppManager.addRiskAdmin(riskAdmin); //add risk admin
         assertEq(applicationAppManager.isRiskAdmin(riskAdmin), true);
+        assertEq(applicationAppManager.isRiskAdmin(address(0xB0B)), true);
         assertEq(applicationAppManager.isRiskAdmin(address(88)), false);
 
         vm.stopPrank(); //stop interacting as the app administrator
@@ -368,6 +387,12 @@ contract ApplicationAppManagerTest is TestCommon {
         assertEq(applicationAppManager.isAccessTier(address(88)), false);
         vm.stopPrank(); //stop interacting as the app administrator
         vm.startPrank(accessLevelAdmin); //interact as the created AccessLevel admin
+        vm.expectRevert(abi.encodeWithSignature("CannotRenounceIfOnlyOneAdmin()"));
+        applicationAppManager.renounceAccessTier();
+        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        applicationAppManager.addAccessTier(address(0xB0B)); //add AccessLevel admin
+        vm.stopPrank(); //stop interacting as the app administrator
+        vm.startPrank(accessLevelAdmin); //interact as the created AccessLevel admin
         applicationAppManager.renounceAccessTier();
     }
 
@@ -377,7 +402,9 @@ contract ApplicationAppManagerTest is TestCommon {
         applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
         assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);
         assertEq(applicationAppManager.isAccessTier(address(88)), false);
-
+        vm.expectRevert(abi.encodeWithSignature("CannotRenounceIfOnlyOneAdmin()"));
+        applicationAppManager.revokeRole(ACCESS_TIER_ADMIN_ROLE, accessLevelAdmin);
+        applicationAppManager.addAccessTier(address(0xB0B)); //add AccessLevel admin
         applicationAppManager.revokeRole(ACCESS_TIER_ADMIN_ROLE, accessLevelAdmin);
         assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), false);
     }
@@ -386,6 +413,7 @@ contract ApplicationAppManagerTest is TestCommon {
     function testFailRevokeaccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
         applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
+        applicationAppManager.addAccessTier(address(0xB0B)); //add AccessLevel admin
         assertEq(applicationAppManager.isAccessTier(accessLevelAdmin), true);
         assertEq(applicationAppManager.isAccessTier(address(88)), false);
 

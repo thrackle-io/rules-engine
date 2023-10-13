@@ -114,7 +114,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// admins could bypass the requirement of at least 1 admin thorugh this back door. So we are shutting it here
         require(account == _msgSender(), "AccessControl: can only renounce roles for self");
-        if(getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
+        if(role != PROPOSED_SUPER_ADMIN_ROLE && getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
         _revokeRole(role, account);
     }
 
@@ -122,7 +122,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// admins could bypass the requirement of at least 1 admin thorugh this back door. So we are shutting it here
         if(getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
-        _revokeRole(role, account);
+        AccessControl.revokeRole(role, account);
     }
     // /// -------------ADMIN---------------
     /**
@@ -182,7 +182,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         revokeRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
         /// we delete the newSuperAdmin value
         delete newSuperAdmin;
-        super.renounceRole(PROPOSED_SUPER_ADMIN_ROLE, _msgSender());
+        renounceRole(PROPOSED_SUPER_ADMIN_ROLE, _msgSender());
         /// we emit the events
         emit SuperAdministrator(_msgSender(), true);
         emit SuperAdministrator(oldSuperAdmin, false);
@@ -208,8 +208,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function renounceAppAdministrator() external {
         /// If the AdminWithdrawal rule is active, App Admins are not allowed to renounce their role to prevent manipulation of the rule
         checkForAdminWithdrawal();
-        if(getRoleMemberCount(APP_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
-        super.renounceRole(APP_ADMIN_ROLE, _msgSender());
+        renounceRole(APP_ADMIN_ROLE, _msgSender());
         emit AppAdministrator(_msgSender(), false);
     }
 
@@ -269,8 +268,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the rule admin role.
      */
     function renounceRuleAdministrator() external {
-        if(getRoleMemberCount(RULE_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
-        super.renounceRole(RULE_ADMIN_ROLE, _msgSender());
+        renounceRole(RULE_ADMIN_ROLE, _msgSender());
         emit RuleAdmin(_msgSender(), false);
     }
 
@@ -312,8 +310,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the access tier role.
      */
     function renounceAccessTier() external {
-        if(getRoleMemberCount(ACCESS_TIER_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
-        super.renounceRole(ACCESS_TIER_ADMIN_ROLE, _msgSender());
+        renounceRole(ACCESS_TIER_ADMIN_ROLE, _msgSender());
         emit AccessTierAdmin(_msgSender(), false);
     }
 
@@ -356,8 +353,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the risk admin role.
      */
     function renounceRiskAdmin() external {
-        if(getRoleMemberCount(RISK_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
-        super.renounceRole(RISK_ADMIN_ROLE, _msgSender());
+        renounceRole(RISK_ADMIN_ROLE, _msgSender());
         emit RiskAdmin(_msgSender(), false);
     }
 
