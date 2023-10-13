@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "../data/Accounts.sol";
 import "../data/IAccounts.sol";
 import "../data/IAccessLevels.sol";
@@ -27,7 +28,7 @@ import "../token/ProtocolTokenCommon.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is the permissions contract
  */
-contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
+contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelEvents {
     string private constant VERSION = "1.1.0";
     using ERC165Checker for address;
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
@@ -49,6 +50,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     address newGeneralTagsProviderAddress;
     address newPauseRulesProviderAddress;
     address newRiskScoresProviderAddress;
+
+    // SuperAppAdmin proposed
+    address newSuperAdmin;
 
     /// Application Handler Contract
     ProtocolApplicationHandler public applicationHandler;
@@ -129,6 +133,35 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
+     * @dev Add an account to the app administrator role. Restricted to super admins.
+     * @param account address to be added
+     * @notice it doesn't check for zero address since that is the default value of the
+     * newSuperAdmin. Since it has been proven that nobody can sign from address(0),
+     * the check is not necessary in this case.
+     */
+    function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROLE) {
+        newSuperAdmin = account;
+    }
+
+    /**
+     * @dev Add an account to the app administrator role. Restricted to super admins.
+     * @param account address to be added
+     */
+    function confirmSuperAdmin() external {
+        /// We first check that only the proposed superAdmin can confirm
+        if (_msgSender() != newSuperAdmin) revert ConfirmerDoesNotMatchProposedAddress();
+        /// then we transfer the role
+        address oldSuperAdmin = getRoleMember(SUPER_ADMIN_ROLE, 0);
+        renounceRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
+        grantRole(SUPER_ADMIN_ROLE, newSuperAdmin);
+        /// we delete the newSuperAdmin value
+        delete newSuperAdmin;
+        /// we emit the events
+        emit SuperAdministrator(_msgSender(), true);
+        emit SuperAdministrator(oldSuperAdmin, false);
+    }
+
+    /**
      * @dev Add an array of accounts to the app administrator role. Restricted to admins.
      * @param _accounts address array to be added
      */
@@ -148,8 +181,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function renounceAppAdministrator() external {
         /// If the AdminWithdrawal rule is active, App Admins are not allowed to renounce their role to prevent manipulation of the rule
         checkForAdminWithdrawal();
-        renounceRole(APP_ADMIN_ROLE, msg.sender);
-        emit AppAdministrator(address(msg.sender), false);
+        if(getRoleMemberCount(APP_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
+        renounceRole(APP_ADMIN_ROLE, _msgSender());
+        emit AppAdministrator(_msgSender(), false);
     }
 
     /**
@@ -208,8 +242,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the rule admin role.
      */
     function renounceRuleAdministrator() external {
-        renounceRole(RULE_ADMIN_ROLE, msg.sender);
-        emit RuleAdmin(msg.sender, false);
+        if(getRoleMemberCount(RULE_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
+        renounceRole(RULE_ADMIN_ROLE, _msgSender());
+        emit RuleAdmin(_msgSender(), false);
     }
 
     /// -------------ACCESS TIER---------------
@@ -250,8 +285,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the access tier role.
      */
     function renounceAccessTier() external {
-        renounceRole(ACCESS_TIER_ADMIN_ROLE, msg.sender);
-        emit AccessTierAdmin(address(msg.sender), false);
+        if(getRoleMemberCount(ACCESS_TIER_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
+        renounceRole(ACCESS_TIER_ADMIN_ROLE, _msgSender());
+        emit AccessTierAdmin(_msgSender(), false);
     }
 
     /// -------------RISK ADMIN---------------
@@ -293,8 +329,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the risk admin role.
      */
     function renounceRiskAdmin() external {
-        renounceRole(RISK_ADMIN_ROLE, msg.sender);
-        emit RiskAdmin(address(msg.sender), false);
+        if(getRoleMemberCount(RISK_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
+        renounceRole(RISK_ADMIN_ROLE, _msgSender());
+        emit RiskAdmin(_msgSender(), false);
     }
 
     /// -------------MAINTAIN ACCESS LEVELS---------------
@@ -625,10 +662,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev Checks if msg.sender is a registered handler
+     * @dev Checks if _msgSender() is a registered handler
      */
     modifier onlyHandler() {
-        if (!isRegisteredHandler(msg.sender)) revert NotRegisteredHandler(msg.sender);
+        if (!isRegisteredHandler(_msgSender())) revert NotRegisteredHandler(_msgSender());
         _;
     }
 
@@ -920,31 +957,31 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function confirmNewDataProvider(IDataModule.ProviderType _providerType) external {
         if (_providerType == IDataModule.ProviderType.GENERAL_TAG) {
             if (newGeneralTagsProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (msg.sender != newGeneralTagsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            if (_msgSender() != newGeneralTagsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             generalTags = IGeneralTags(newGeneralTagsProviderAddress);
             emit GeneralTagProviderSet(newGeneralTagsProviderAddress);
             delete newGeneralTagsProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.RISK_SCORE) {
             if (newRiskScoresProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (msg.sender != newRiskScoresProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            if (_msgSender() != newRiskScoresProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             riskScores = IRiskScores(newRiskScoresProviderAddress);
             emit RiskProviderSet(newRiskScoresProviderAddress);
             delete newRiskScoresProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.ACCESS_LEVEL) {
             if (newAccessLevelsProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (msg.sender != newAccessLevelsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            if (_msgSender() != newAccessLevelsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             accessLevels = IAccessLevels(newAccessLevelsProviderAddress);
             emit AccessLevelProviderSet(newAccessLevelsProviderAddress);
             delete newAccessLevelsProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.ACCOUNT) {
             if (newAccountsProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (msg.sender != newAccountsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            if (_msgSender() != newAccountsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             accounts = IAccounts(newAccountsProviderAddress);
             emit AccountProviderSet(newAccountsProviderAddress);
             delete newAccountsProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.PAUSE_RULE) {
             if (newPauseRulesProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (msg.sender != newPauseRulesProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            if (_msgSender() != newPauseRulesProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             pauseRules = IPauseRules(newPauseRulesProviderAddress);
             emit PauseRuleProviderSet(newPauseRulesProviderAddress);
             delete newPauseRulesProviderAddress;
