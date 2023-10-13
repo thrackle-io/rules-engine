@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
 import "../data/Accounts.sol";
 import "../data/IAccounts.sol";
 import "../data/IAccessLevels.sol";
@@ -28,7 +27,7 @@ import "../token/ProtocolTokenCommon.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is the permissions contract
  */
-contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelEvents {
+contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     string private constant VERSION = "1.1.0";
     using ERC165Checker for address;
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
@@ -36,6 +35,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
     bytes32 constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
     bytes32 constant RULE_ADMIN_ROLE = keccak256("RULE_ADMIN_ROLE");
     bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
+    bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
 
     /// Data contracts
     IAccounts accounts;
@@ -92,6 +92,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
         _setRoleAdmin(ACCESS_TIER_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RISK_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RULE_ADMIN_ROLE, APP_ADMIN_ROLE);
+        _setRoleAdmin(SUPER_ADMIN_ROLE, PROPOSED_SUPER_ADMIN_ROLE);
+        _setRoleAdmin(PROPOSED_SUPER_ADMIN_ROLE, SUPER_ADMIN_ROLE);
         appName = _appName;
         if (!upgradeMode) {
             deployDataContracts();
@@ -101,6 +103,27 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
         }
     }
 
+     function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
+        /// this is done to funnel all the role granting functions through the app manager functions since
+        /// the superAdmins could add other superAdmins through this back door
+        role;
+        account;
+        revert("Not Allowed");
+    }
+
+    function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
+        /// admins could bypass the requirement of at least 1 admin thorugh this back door. So we are shutting it here
+        require(account == _msgSender(), "AccessControl: can only renounce roles for self");
+        if(getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
+        _revokeRole(role, account);
+    }
+
+
+    function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
+        /// admins could bypass the requirement of at least 1 admin thorugh this back door. So we are shutting it here
+        if(getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
+        _revokeRole(role, account);
+    }
     // /// -------------ADMIN---------------
     /**
      * @dev This function is where the Super admin role is actually checked
@@ -128,34 +151,38 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
      */
     function addAppAdministrator(address account) external onlyRole(SUPER_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
-        grantRole(APP_ADMIN_ROLE, account);
+        super.grantRole(APP_ADMIN_ROLE, account);
         emit AppAdministrator(account, true);
     }
 
     /**
-     * @dev Add an account to the app administrator role. Restricted to super admins.
+     * @dev Propose a new superAdmin. Restricted to super admins.
      * @param account address to be added
-     * @notice it doesn't check for zero address since that is the default value of the
-     * newSuperAdmin. Since it has been proven that nobody can sign from address(0),
-     * the check is not necessary in this case.
      */
     function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROLE) {
+        if(account == address(0)) revert ZeroAddress();
         newSuperAdmin = account;
+        if(getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE) > 0){
+            revokeRole(PROPOSED_SUPER_ADMIN_ROLE, getRoleMember(PROPOSED_SUPER_ADMIN_ROLE, 0));
+        }
+        super.grantRole(PROPOSED_SUPER_ADMIN_ROLE, account);
     }
 
     /**
-     * @dev Add an account to the app administrator role. Restricted to super admins.
-     * @param account address to be added
+     * @dev confirm the superAdmin role. 
+     * @notice only the proposed account can accept this role.
      */
     function confirmSuperAdmin() external {
         /// We first check that only the proposed superAdmin can confirm
         if (_msgSender() != newSuperAdmin) revert ConfirmerDoesNotMatchProposedAddress();
         /// then we transfer the role
         address oldSuperAdmin = getRoleMember(SUPER_ADMIN_ROLE, 0);
-        renounceRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
-        grantRole(SUPER_ADMIN_ROLE, newSuperAdmin);
+
+        super.grantRole(SUPER_ADMIN_ROLE, newSuperAdmin);
+        revokeRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
         /// we delete the newSuperAdmin value
         delete newSuperAdmin;
+        super.renounceRole(PROPOSED_SUPER_ADMIN_ROLE, _msgSender());
         /// we emit the events
         emit SuperAdministrator(_msgSender(), true);
         emit SuperAdministrator(oldSuperAdmin, false);
@@ -167,7 +194,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
      */
     function addMultipleAppAdministrator(address[] memory _accounts) external onlyRole(SUPER_ADMIN_ROLE) {
         for (uint256 i; i < _accounts.length; ) {
-            grantRole(APP_ADMIN_ROLE, _accounts[i]);
+            super.grantRole(APP_ADMIN_ROLE, _accounts[i]);
             emit AppAdministrator(_accounts[i], true);
             unchecked {
                 ++i;
@@ -182,7 +209,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
         /// If the AdminWithdrawal rule is active, App Admins are not allowed to renounce their role to prevent manipulation of the rule
         checkForAdminWithdrawal();
         if(getRoleMemberCount(APP_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
-        renounceRole(APP_ADMIN_ROLE, _msgSender());
+        super.renounceRole(APP_ADMIN_ROLE, _msgSender());
         emit AppAdministrator(_msgSender(), false);
     }
 
@@ -220,7 +247,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
      */
     function addRuleAdministrator(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
-        grantRole(RULE_ADMIN_ROLE, account);
+        super.grantRole(RULE_ADMIN_ROLE, account);
         emit RuleAdmin(account, true);
     }
 
@@ -230,7 +257,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
      */
     function addMultipleRuleAdministrator(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            grantRole(RULE_ADMIN_ROLE, account[i]);
+            super.grantRole(RULE_ADMIN_ROLE, account[i]);
             emit RuleAdmin(account[i], true);
             unchecked {
                 ++i;
@@ -243,7 +270,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
      */
     function renounceRuleAdministrator() external {
         if(getRoleMemberCount(RULE_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
-        renounceRole(RULE_ADMIN_ROLE, _msgSender());
+        super.renounceRole(RULE_ADMIN_ROLE, _msgSender());
         emit RuleAdmin(_msgSender(), false);
     }
 
@@ -263,7 +290,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
      */
     function addAccessTier(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
-        grantRole(ACCESS_TIER_ADMIN_ROLE, account);
+        super.grantRole(ACCESS_TIER_ADMIN_ROLE, account);
         emit AccessTierAdmin(account, true);
     }
 
@@ -273,7 +300,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
      */
     function addMultipleAccessTier(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            grantRole(ACCESS_TIER_ADMIN_ROLE, account[i]);
+            super.grantRole(ACCESS_TIER_ADMIN_ROLE, account[i]);
             emit AccessTierAdmin(account[i], true);
             unchecked {
                 ++i;
@@ -286,7 +313,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
      */
     function renounceAccessTier() external {
         if(getRoleMemberCount(ACCESS_TIER_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
-        renounceRole(ACCESS_TIER_ADMIN_ROLE, _msgSender());
+        super.renounceRole(ACCESS_TIER_ADMIN_ROLE, _msgSender());
         emit AccessTierAdmin(_msgSender(), false);
     }
 
@@ -307,7 +334,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
      */
     function addRiskAdmin(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
-        grantRole(RISK_ADMIN_ROLE, account);
+        super.grantRole(RISK_ADMIN_ROLE, account);
         emit RiskAdmin(account, true);
     }
 
@@ -317,7 +344,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
      */
     function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            grantRole(RISK_ADMIN_ROLE, account[i]);
+            super.grantRole(RISK_ADMIN_ROLE, account[i]);
             emit RiskAdmin(account[i], true);
             unchecked {
                 ++i;
@@ -330,7 +357,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, Context, IAppLevelE
      */
     function renounceRiskAdmin() external {
         if(getRoleMemberCount(RISK_ADMIN_ROLE) < 2) revert CannotRenounceIfOnlyOneAdmin();
-        renounceRole(RISK_ADMIN_ROLE, _msgSender());
+        super.renounceRole(RISK_ADMIN_ROLE, _msgSender());
         emit RiskAdmin(_msgSender(), false);
     }
 

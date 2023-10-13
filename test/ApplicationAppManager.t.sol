@@ -74,9 +74,32 @@ contract ApplicationAppManagerTest is TestCommon {
         assertEq(applicationAppManager.isAppAdministrator(superAdmin), true);
     }
 
-    function testRenounceSuperAdmin() public {
+    function testMigratingSuperAdmin() public {
+        address newSuperAdmin = address(0xACE);
+        switchToRiskAdmin();
+        /// first let's check that a non superAdmin can't propose a newSuperAdmin
+        vm.expectRevert();
+        applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
+        /// now let's porpose the SuperAdin
         switchToSuperAdmin();
-        applicationAppManager.renounceRole(SUPER_ADMIN_ROLE, superAdmin);
+        applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
+        /// now let's confirm it, but let's make sure only the porposed
+        /// address can accept the role
+        vm.stopPrank();
+        vm.startPrank(address(0xB0B));
+        vm.expectRevert(abi.encodeWithSignature("ConfirmerDoesNotMatchProposedAddress()"));
+        applicationAppManager.confirmSuperAdmin();
+        /// ok, now let's actually accept the role through newSuperAdmin
+        vm.stopPrank();
+        vm.startPrank(newSuperAdmin);
+        applicationAppManager.confirmSuperAdmin();
+        /// let's make sure that it went as planned
+        assertFalse(applicationAppManager.isSuperAdmin(superAdmin));
+        assertTrue(applicationAppManager.isSuperAdmin(newSuperAdmin));
+
+        vm.expectRevert("Not Allowed");
+        applicationAppManager.grantRole("Oscar", address(0x123));
+
     }
 
     ///---------------APP ADMIN--------------------
@@ -111,6 +134,11 @@ contract ApplicationAppManagerTest is TestCommon {
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
         assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
 
+        /// we renounce so there can be only one appAdmin
+        applicationAppManager.renounceAppAdministrator();
+        vm.expectRevert();
+        applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
+        applicationAppManager.addAppAdministrator(address(0xB0B)); //add another admin so we can revoke the first one
         applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), false);
     }
