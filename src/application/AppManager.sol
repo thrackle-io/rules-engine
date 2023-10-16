@@ -51,9 +51,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     address newPauseRulesProviderAddress;
     address newRiskScoresProviderAddress;
 
-    // SuperAppAdmin proposed
-    address newSuperAdmin;
-
     /// Application Handler Contract
     ProtocolApplicationHandler public applicationHandler;
     address applicationHandlerAddress;
@@ -112,15 +109,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
-        /// admins could bypass the requirement of at least 1 admin thorugh this back door. So we are shutting it here
-        require(account == _msgSender(), "AccessControl: can only renounce roles for self");
+        /// enforcing the min-1-admin requirement. Only PROPOSED_SUPER_ADMIN_ROLE should be able to bypass this rule
         if(role != PROPOSED_SUPER_ADMIN_ROLE && getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
-        _revokeRole(role, account);
+        AccessControl.renounceRole(role, account);
     }
 
 
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
-        /// admins could bypass the requirement of at least 1 admin thorugh this back door. So we are shutting it here
+        /// enforcing the min-1-admin requirement.
         if(getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
         AccessControl.revokeRole(role, account);
     }
@@ -161,7 +157,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROLE) {
         if(account == address(0)) revert ZeroAddress();
-        newSuperAdmin = account;
         if(getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE) > 0){
             revokeRole(PROPOSED_SUPER_ADMIN_ROLE, getRoleMember(PROPOSED_SUPER_ADMIN_ROLE, 0));
         }
@@ -173,6 +168,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @notice only the proposed account can accept this role.
      */
     function confirmSuperAdmin() external {
+        address newSuperAdmin = getRoleMember(PROPOSED_SUPER_ADMIN_ROLE, 0);
         /// We first check that only the proposed superAdmin can confirm
         if (_msgSender() != newSuperAdmin) revert ConfirmerDoesNotMatchProposedAddress();
         /// then we transfer the role
@@ -180,8 +176,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
         super.grantRole(SUPER_ADMIN_ROLE, newSuperAdmin);
         revokeRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
-        /// we delete the newSuperAdmin value
-        delete newSuperAdmin;
         renounceRole(PROPOSED_SUPER_ADMIN_ROLE, _msgSender());
         /// we emit the events
         emit SuperAdministrator(_msgSender(), true);
