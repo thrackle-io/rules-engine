@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
-
+import "test/helpers/TestCommon.sol";
 import "src/example/application/ApplicationAppManager.sol";
 
 abstract contract TestCommonEchidna is TestCommon {
