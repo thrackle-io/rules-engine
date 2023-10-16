@@ -51,6 +51,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     address newPauseRulesProviderAddress;
     address newRiskScoresProviderAddress;
 
+    /// Minimum amount of admins allowed
+    /// @notice default value is 1
+    uint256 public minAmountOfAdmins = 1;
+
     /// Application Handler Contract
     ProtocolApplicationHandler public applicationHandler;
     address applicationHandlerAddress;
@@ -125,21 +129,21 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// enforcing the min-1-admin requirement. Only PROPOSED_SUPER_ADMIN_ROLE should be able to bypass this rule
-        if(role != PROPOSED_SUPER_ADMIN_ROLE && getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
+        if(role != PROPOSED_SUPER_ADMIN_ROLE && getRoleMemberCount(role) <= minAmountOfAdmins) revert BelowMinAdminThreshold();
         AccessControl.renounceRole(role, account);
     }
 
     /**
      * @dev This function overrides the parent's grantRole function. Its purpose is to enforce an at-least-one-admin policy.
      * @param role the role to revoke.
-     * @param account address losing to the role.
+     * @param account address of revoked role.
      * @notice you can't revoke a role if that means that nobody would have that role. At least one account has to have it except
      * for PROPOSED_SUPER_ADMIN_ROLEs which is a transitionary one. Make sure there will be at least one account for all 
      * the other roles.
      */
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// enforcing the min-1-admin requirement.
-        if(role != PROPOSED_SUPER_ADMIN_ROLE && getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
+        if(role != PROPOSED_SUPER_ADMIN_ROLE && getRoleMemberCount(role) <= minAmountOfAdmins) revert BelowMinAdminThreshold();
         AccessControl.revokeRole(role, account);
     }
     // /// -------------ADMIN---------------
@@ -939,6 +943,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function setAppName(string calldata _appName) external onlyRole(APP_ADMIN_ROLE) {
         appName = _appName;
+    }
+
+    /**
+     * @dev Setter for minAmountOfAdmins
+     * @param newMinAmountAdmins the new value for minAmountOfAdmins
+     */
+    function setMinAmountAdmins(uint256 newMinAmountAdmins) external onlyRole(APP_ADMIN_ROLE) {
+        minAmountOfAdmins = newMinAmountAdmins;
     }
 
     /**

@@ -80,7 +80,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
     }
 
     /**
-     * @dev Function to porpose the Treasury address for Mint Fees to be sent upon withdrawal
+     * @dev Function to propose the Treasury address for Mint Fees to be sent upon withdrawal
      * @param _treasury address of the treasury for mint fees to be sent upon withdrawal.
      */
     function proposeTreasuryAddress(address payable _treasury) external appAdministratorOnly(appManagerAddress) {

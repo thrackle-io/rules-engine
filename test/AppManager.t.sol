@@ -41,18 +41,18 @@ contract AppManagerBaseTest is TestCommon {
         address newSuperAdmin = address(0xACE);
         switchToRiskAdmin();
         /// first let's check that a non superAdmin can't propose a newSuperAdmin
-        vm.expectRevert();
+        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ccc is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
-        /// now let's porpose some superAdmins to make sure that only one will ever be in the app
+        /// now let's propose some superAdmins to make sure that only one will ever be in the app
         switchToSuperAdmin();
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 0);
         applicationAppManager.proposeNewSuperAdmin(address(0x666));
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
-        applicationAppManager.proposeNewSuperAdmin(address(0x420));
+        applicationAppManager.proposeNewSuperAdmin(address(0xABC));
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
-        /// now let's confirm it, but let's make sure only the porposed
+        /// now let's confirm it, but let's make sure only the proposed
         /// address can accept the role
         vm.stopPrank();
         vm.startPrank(address(0xB0B));
@@ -93,21 +93,26 @@ contract AppManagerBaseTest is TestCommon {
         assertFalse(applicationAppManager.isAppAdministrator(address(77)));
     }
 
-    /// Test revoke Application Administrators role
-    function testRevokeAppAdministrator() public {
+     /// Test revoke Application Administrators role
+    function testRevokeAppAdministratorApp() public {
         switchToSuperAdmin();
         applicationAppManager.addAppAdministrator(appAdministrator); //set a app administrator
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
         assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
 
+        /// we renounce so there can be only one appAdmin
+        applicationAppManager.renounceAppAdministrator();
+        vm.expectRevert(abi.encodeWithSignature("BelowMinAdminThreshold()"));
+        applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
+        applicationAppManager.addAppAdministrator(address(0xB0B)); //add another admin so we can revoke the first one
         applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), false);
     }
 
-    /// Test failed revoke Application Administrators role
-    function testFailRevokeAppAdministrator() public {
+     /// Test failed revoke Application Administrators role
+    function testNegativeRevokeAppAdministrator() public {
         switchToSuperAdmin();
-        applicationAppManager.addAppAdministrator(appAdministrator); //set a app administrator
+        applicationAppManager.addAppAdministrator(appAdministrator); //set an app administrator
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
         assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, appAdministrator), true); // verify it was added as a app administrator
 
@@ -116,14 +121,21 @@ contract AppManagerBaseTest is TestCommon {
         assertEq(applicationAppManager.hasRole(APP_ADMIN_ROLE, address(77)), true); // verify it was added as a app administrator
 
         vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(user); //interact as a normal user
-
+        vm.startPrank(user); //interact as a user
+        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
         applicationAppManager.revokeRole(APP_ADMIN_ROLE, address(77)); // try to revoke other app administrator
     }
 
     /// Test renounce Application Administrators role
     function testRenounceAppAdministrator() public {
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        switchToSuperAdmin(); 
+        applicationAppManager.revokeRole(APP_ADMIN_ROLE,superAdmin);
+        switchToAppAdministrator(); 
+        vm.expectRevert( abi.encodeWithSignature("BelowMinAdminThreshold()"));
+        applicationAppManager.renounceAppAdministrator();
+        switchToSuperAdmin();
+        applicationAppManager.addAppAdministrator(address(77));
+        switchToAppAdministrator(); 
         applicationAppManager.renounceAppAdministrator();
     }
 
