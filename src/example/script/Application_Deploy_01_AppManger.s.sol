@@ -3,13 +3,12 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "../application/ApplicationHandler.sol";
-import {ApplicationAppManager} from "../ApplicationAppManager.sol";
-
+import {ApplicationAppManager} from "../application/ApplicationAppManager.sol";
 
 /**
  * @title Application Deploy 01 AppManger Script
  * @dev This script will deploy the App Manager, App Handler an ERC20 token and Handler and an ERC721 token and Handler Contract.
- * @notice Deploys the application App Manager, AppHandler, ERC20, ERC721, and associated handlers. 
+ * @notice Deploys the application App Manager, AppHandler, ERC20, ERC721, and associated handlers.
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
  * Deploy Scripts:
  * forge script src/example/script/Application_Deploy_01_AppManger.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
@@ -35,7 +34,7 @@ contract ApplicationDeployAppManagerAndAssetsScript is Script {
         vm.startBroadcast(privateKey);
         ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("DEPLOYMENT_OWNER"), "Castlevania", false);
         ApplicationHandler applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
-        applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler)); 
+        applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
         vm.stopBroadcast();
     }
 }

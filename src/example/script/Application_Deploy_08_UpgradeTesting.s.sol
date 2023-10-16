@@ -2,16 +2,15 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "../ApplicationERC20Handler.sol";
-import "../ApplicationERC20.sol";
-import {ApplicationAppManager} from "../ApplicationAppManager.sol";
+import "../ERC20/ApplicationERC20Handler.sol";
+import "../ERC20/ApplicationERC20.sol";
+import {ApplicationAppManager} from "../application/ApplicationAppManager.sol";
 import "../application/ApplicationHandler.sol";
-
 
 /**
  * @title Application Deploy 08 App Manager For Upgrade Script
  * @dev This script will deploy the App Manager and an ERC20 token Handler.
- * @notice Deploys a new application App Manager and ERC20 handler. This is for upgrade testing only.  
+ * @notice Deploys a new application App Manager and ERC20 handler. This is for upgrade testing only.
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
  * Deploy Scripts:
  * forge script src/example/script/Application_Deploy_01_AppManger.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv

@@ -3,13 +3,13 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
-import "src/example/ApplicationAppManager.sol";
+import "src/example/application/ApplicationAppManager.sol";
 import "src/example/application/ApplicationHandler.sol";
 import "src/example/pricing/ApplicationERC20Pricing.sol";
-import "src/example/ApplicationERC20.sol";
-import "src/example/ApplicationERC20Handler.sol";
-import "src/example/ERC721/not-upgradeable/ApplicationERC721AdminOrOwnerMint.sol";
-import "src/example/ApplicationERC721Handler.sol";
+import "src/example/ERC20/ApplicationERC20.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
+import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import "src/example/ERC721/ApplicationERC721Handler.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/economic/ruleProcessor/RuleProcessorDiamond.sol";
 import {RuleStorageDiamond, RuleStorageDiamondArgs} from "src/economic/ruleStorage/RuleStorageDiamond.sol";

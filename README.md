@@ -67,7 +67,7 @@ To use the package simply import the files you are interested in. Here is an exa
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "@thrackle-io/rules-protocol-client/token/ProtocolERC20.sol";
+import "@thrackle-io/rules-protocol-client/token/ERC20/ProtocolERC20.sol";
 
 /**
  * @title Example ERC20 ApplicationERC20
@@ -94,7 +94,7 @@ contract ApplicationERC20 is ProtocolERC20 {
 As you can see, everything is already encapsulated inside the:
 
 ```c
-import "@thrackle-io/rules-protocol-client/token/ProtocolERC20.sol";
+import "@thrackle-io/rules-protocol-client/token/ERC20/ProtocolERC20.sol";
 ```
 
 All you need to do is to inherit the right contract and implement any necessary function. In this case, the `mint` function.
