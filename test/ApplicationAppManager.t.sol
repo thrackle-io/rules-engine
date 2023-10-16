@@ -97,7 +97,7 @@ contract ApplicationAppManagerTest is TestCommon {
         assertFalse(applicationAppManager.isSuperAdmin(superAdmin));
         assertTrue(applicationAppManager.isSuperAdmin(newSuperAdmin));
 
-        vm.expectRevert("Not Allowed");
+        vm.expectRevert("Function disabled");
         applicationAppManager.grantRole("Oscar", address(0x123));
 
     }

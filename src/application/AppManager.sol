@@ -100,24 +100,46 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         }
     }
 
+    /**
+     * @dev This function overrides the parent's grantRole function. This basically disables its public nature to make it private.
+     * @param role the role to grant to an acount.
+     * @param account address being granted the role.
+     * @notice this is purposely going to fail every time it will be invoked in order to force users to only use the appropiate 
+     * channels to grant roles, and therefore enforce the special rules in an app.
+     */
      function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// this is done to funnel all the role granting functions through the app manager functions since
         /// the superAdmins could add other superAdmins through this back door
         role;
         account;
-        revert("Not Allowed");
+        revert("Function disabled");
     }
 
+    /**
+     * @dev This function overrides the parent's grantRole function. Its purpose is to enforce the at-least-one-admin rule.
+     * @param role the role to renounce.
+     * @param account address renouncing to the role.
+     * @notice you can't renounce a role if that means that nobody would have that role. At least one account has to have it except
+     * for PROPOSED_SUPER_ADMIN_ROLEs which is a transitionary one. Make sure there will be at least one account for all 
+     * the other roles.
+     */
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// enforcing the min-1-admin requirement. Only PROPOSED_SUPER_ADMIN_ROLE should be able to bypass this rule
         if(role != PROPOSED_SUPER_ADMIN_ROLE && getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
         AccessControl.renounceRole(role, account);
     }
 
-
+    /**
+     * @dev This function overrides the parent's grantRole function. Its purpose is to enforce an at-least-one-admin policy.
+     * @param role the role to revoke.
+     * @param account address losing to the role.
+     * @notice you can't revoke a role if that means that nobody would have that role. At least one account has to have it except
+     * for PROPOSED_SUPER_ADMIN_ROLEs which is a transitionary one. Make sure there will be at least one account for all 
+     * the other roles.
+     */
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// enforcing the min-1-admin requirement.
-        if(getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
+        if(role != PROPOSED_SUPER_ADMIN_ROLE && getRoleMemberCount(role) < 2) revert CannotRenounceIfOnlyOneAdmin();
         AccessControl.revokeRole(role, account);
     }
     // /// -------------ADMIN---------------
@@ -130,33 +152,15 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         return hasRole(SUPER_ADMIN_ROLE, account);
     }
 
-    /// -------------APP ADMIN---------------
+    /// -------------- PROPOSE NEW SUPER ADMIN ------------------
 
     /**
-     * @dev This function is where the app administrator role is actually checked
-     * @param account address to be checked
-     * @return success true if app administrator, false if not
-     */
-    function isAppAdministrator(address account) public view returns (bool) {
-        return hasRole(APP_ADMIN_ROLE, account);
-    }
-
-    /**
-     * @dev Add an account to the app administrator role. Restricted to super admins.
-     * @param account address to be added
-     */
-    function addAppAdministrator(address account) external onlyRole(SUPER_ADMIN_ROLE) {
-        if (account == address(0)) revert ZeroAddress();
-        super.grantRole(APP_ADMIN_ROLE, account);
-        emit AppAdministrator(account, true);
-    }
-
-    /**
-     * @dev Propose a new superAdmin. Restricted to super admins.
+     * @dev Propose a new super admin. Restricted to super admins.
      * @param account address to be added
      */
     function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROLE) {
         if(account == address(0)) revert ZeroAddress();
+        /// we should only have 1 proposed superAdmin. If there is one already in this role, we should remove it to replace it.
         if(getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE) > 0){
             revokeRole(PROPOSED_SUPER_ADMIN_ROLE, getRoleMember(PROPOSED_SUPER_ADMIN_ROLE, 0));
         }
@@ -180,6 +184,27 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         /// we emit the events
         emit SuperAdministrator(_msgSender(), true);
         emit SuperAdministrator(oldSuperAdmin, false);
+    }
+
+    /// -------------APP ADMIN---------------
+
+    /**
+     * @dev This function is where the app administrator role is actually checked
+     * @param account address to be checked
+     * @return success true if app administrator, false if not
+     */
+    function isAppAdministrator(address account) public view returns (bool) {
+        return hasRole(APP_ADMIN_ROLE, account);
+    }
+
+    /**
+     * @dev Add an account to the app administrator role. Restricted to super admins.
+     * @param account address to be added
+     */
+    function addAppAdministrator(address account) external onlyRole(SUPER_ADMIN_ROLE) {
+        if (account == address(0)) revert ZeroAddress();
+        super.grantRole(APP_ADMIN_ROLE, account);
+        emit AppAdministrator(account, true);
     }
 
     /**
