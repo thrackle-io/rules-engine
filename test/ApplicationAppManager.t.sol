@@ -27,6 +27,7 @@ contract ApplicationAppManagerTest is TestCommon {
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     bytes32 public constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
     bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
+    bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
     uint256 public constant TEST_DATE = 1666706998;
     uint8[] RISKSCORES = [10, 20, 30, 40, 50, 60, 70, 80];
     uint8[] ACCESSTIERS = [1, 1, 1, 2, 2, 2, 3, 4];
@@ -75,14 +76,20 @@ contract ApplicationAppManagerTest is TestCommon {
     }
 
     function testMigratingSuperAdmin() public {
-        address newSuperAdmin = address(0xACE);
+       address newSuperAdmin = address(0xACE);
         switchToRiskAdmin();
         /// first let's check that a non superAdmin can't propose a newSuperAdmin
         vm.expectRevert();
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
-        /// now let's porpose the SuperAdin
+        /// now let's porpose some superAdmins to make sure that only one will ever be in the app
         switchToSuperAdmin();
+        assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 0);
+        applicationAppManager.proposeNewSuperAdmin(address(0x666));
+        assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
+        applicationAppManager.proposeNewSuperAdmin(address(0x420));
+        assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
+        assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
         /// now let's confirm it, but let's make sure only the porposed
         /// address can accept the role
         vm.stopPrank();
@@ -100,6 +107,9 @@ contract ApplicationAppManagerTest is TestCommon {
         vm.expectRevert("Function disabled");
         applicationAppManager.grantRole("Oscar", address(0x123));
 
+        // let's check that newSuperAdmin can in fact do superAdmin stuff
+        applicationAppManager.addAppAdministrator(address(0xB0b));
+        applicationAppManager.revokeRole(APP_ADMIN_ROLE,address(0xB0b));
     }
 
     ///---------------APP ADMIN--------------------

@@ -27,7 +27,7 @@ contract ApplicationAppManagerFuzzTest is TestCommon {
      */
 
     /// testing renouncing admin role
-    function testRenounceSuperAdmin(uint8 addressIndex) public {
+    function testRenounceAppAdmin(uint8 addressIndex) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
