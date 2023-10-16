@@ -65,6 +65,7 @@ contract AppManagerBaseTest is TestCommon {
         /// let's make sure that it went as planned
         assertFalse(applicationAppManager.isSuperAdmin(superAdmin));
         assertTrue(applicationAppManager.isSuperAdmin(newSuperAdmin));
+        assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 0);
 
         vm.expectRevert("Function disabled");
         applicationAppManager.grantRole("Oscar", address(0x123));
