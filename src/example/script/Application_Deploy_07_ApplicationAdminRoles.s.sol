@@ -3,13 +3,12 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "../application/ApplicationHandler.sol";
-import {ApplicationAppManager} from "../ApplicationAppManager.sol";
-
+import {ApplicationAppManager} from "../application/ApplicationAppManager.sol";
 
 /**
  * @title Application Deploy 07 Admin Roles Script
- * @dev This Script sets the admin roles for Application. 
- * @notice This Script sets the admin roles for Application. 
+ * @dev This Script sets the admin roles for Application.
+ * @notice This Script sets the admin roles for Application.
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
  * Deploy Scripts:
  * forge script src/example/script/Application_Deploy_01_AppManger.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
@@ -34,14 +33,14 @@ contract ApplicationAdminRolesScript is Script {
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
-        /** 
-        * Admin set up: 
-        * SuperAdmin sets app admin
-        * AppAdmin sets:
-        * RULE_ADMIN = Rule admin 
-        * ACCESS_TIER_ADMIN = Access Tier admin 
-        * RISK_ADMIN = Risk admin 
-        */ 
+        /**
+         * Admin set up:
+         * SuperAdmin sets app admin
+         * AppAdmin sets:
+         * RULE_ADMIN = Rule admin
+         * ACCESS_TIER_ADMIN = Access Tier admin
+         * RISK_ADMIN = Risk admin
+         */
         applicationAppManager.addAppAdministrator(vm.envAddress("APP_ADMIN"));
         vm.stopBroadcast();
         vm.startBroadcast(vm.envUint("APP_ADMIN_PRIVATE_KEY"));

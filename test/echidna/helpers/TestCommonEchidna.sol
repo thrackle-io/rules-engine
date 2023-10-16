@@ -1,31 +1,38 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
+import "test/helpers/TestCommon.sol";
+import "src/example/application/ApplicationAppManager.sol";
 
-import "src/example/ApplicationAppManager.sol";
-
-abstract contract TestCommonEchidna {
-    // common addresses
-    address superAdmin = address(0xDaBEEF);
-    address appAdministrator = address(0xDEAD);
-    address ruleAdmin = address(0xACDC);
-    address accessLevelAdmin = address(0xBBB);
-    address riskAdmin = address(0xCCC);
-    address user = address(0xDDD);
-    address priorAddress;
-
-    // common block time
-    uint64 Blocktime = 1769924800;
-
-    // shared objects
-    ApplicationAppManager applicationAppManager;
+abstract contract TestCommonEchidna is TestCommon {
+    string[] inputs = ["python3", "script/python/get_selectors.py", ""];
 
     /**
      * @dev Deploy and set up an AppManager
-     * @param _owner _owner the address to own the app manager
      * @return _appManager fully configured app manager
      */
-    function _createAppManager(address _owner) public returns (ApplicationAppManager _appManager) {
-        _appManager = new ApplicationAppManager(_owner, "Castlevania", false);
+    function _createAppManager() public override returns (ApplicationAppManager _appManager) {
+        _appManager = new ApplicationAppManager(msg.sender, "Castlevania", false);
         return _appManager;
+    }
+
+    /**
+     * @dev Deploy and set up an AppManager
+     * @param _address address to be super user
+     * @return _appManager fully configured app manager
+     */
+    function _createAppManager2(address _address) public returns (ApplicationAppManager _appManager) {
+        _appManager = new ApplicationAppManager(_address, "Castlevania", false);
+        return _appManager;
+    }
+
+    /**
+     * @dev Deploy and set up an AppManager
+     * @param _ruleProcessor rule processor
+     * @return _appManager fully configured app manager
+     */
+    function createAppManager(RuleProcessorDiamond _ruleProcessor) public returns (ApplicationAppManager _appManager) {
+        ApplicationAppManager a = _createAppManager();
+        a.setNewApplicationHandlerAddress(address(_createAppHandler(_ruleProcessor, a)));
+        return a;
     }
 }
