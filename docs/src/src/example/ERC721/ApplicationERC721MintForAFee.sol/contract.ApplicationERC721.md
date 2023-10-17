@@ -97,7 +97,7 @@ function setMintPrice(uint256 _mintPrice) external appAdministratorOnly(appManag
 
 ### proposeTreasuryAddress
 
-*Function to porpose the Treasury address for Mint Fees to be sent upon withdrawal*
+*Function to propose the Treasury address for Mint Fees to be sent upon withdrawal*
 
 
 ```solidity
