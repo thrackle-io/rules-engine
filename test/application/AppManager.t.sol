@@ -45,6 +45,10 @@ contract AppManagerBaseTest is TestCommonFoundry {
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
         /// now let's propose some superAdmins to make sure that only one will ever be in the app
         switchToSuperAdmin();
+        /// let's test that superAdmin can't just renounce to his/her role
+        vm.expectRevert(abi.encodeWithSignature("BelowMinAdminThreshold()"));
+        applicationAppManager.renounceRole(SUPER_ADMIN_ROLE, superAdmin);
+        /// now let's keep track of the Proposed Admin role
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 0);
         applicationAppManager.proposeNewSuperAdmin(address(0x666));
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
@@ -52,6 +56,11 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
+        /// no let's test that the proposed super admin can't just revoke the super admin role.
+        vm.stopPrank();
+        vm.startPrank(newSuperAdmin);
+        vm.expectRevert(abi.encodeWithSignature("BelowMinAdminThreshold()"));
+        applicationAppManager.revokeRole(SUPER_ADMIN_ROLE, superAdmin);
         /// now let's confirm it, but let's make sure only the proposed
         /// address can accept the role
         vm.stopPrank();

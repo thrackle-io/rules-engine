@@ -76,13 +76,17 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
     }
 
     function testMigratingSuperAdmin() public {
-       address newSuperAdmin = address(0xACE);
+        address newSuperAdmin = address(0xACE);
         switchToRiskAdmin();
         /// first let's check that a non superAdmin can't propose a newSuperAdmin
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ccc is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
         /// now let's propose some superAdmins to make sure that only one will ever be in the app
         switchToSuperAdmin();
+        /// let's test that superAdmin can't just renounce to his/her role
+        vm.expectRevert(abi.encodeWithSignature("BelowMinAdminThreshold()"));
+        applicationAppManager.renounceRole(SUPER_ADMIN_ROLE, superAdmin);
+        /// now let's keep track of the Proposed Admin role
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 0);
         applicationAppManager.proposeNewSuperAdmin(address(0x666));
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
@@ -90,6 +94,11 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
+        /// no let's test that the proposed super admin can't just revoke the super admin role.
+        vm.stopPrank();
+        vm.startPrank(newSuperAdmin);
+        vm.expectRevert(abi.encodeWithSignature("BelowMinAdminThreshold()"));
+        applicationAppManager.revokeRole(SUPER_ADMIN_ROLE, superAdmin);
         /// now let's confirm it, but let's make sure only the proposed
         /// address can accept the role
         vm.stopPrank();
@@ -111,6 +120,8 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         // let's check that newSuperAdmin can in fact do superAdmin stuff
         applicationAppManager.addAppAdministrator(address(0xB0b));
         applicationAppManager.revokeRole(APP_ADMIN_ROLE,address(0xB0b));
+
+
     }
 
     ///---------------APP ADMIN--------------------
