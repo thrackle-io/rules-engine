@@ -102,9 +102,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
 
         /// we renounce so there can be only one appAdmin
         applicationAppManager.renounceAppAdministrator();
-        vm.expectRevert(abi.encodeWithSignature("BelowMinAdminThreshold()"));
-        applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
-        applicationAppManager.addAppAdministrator(address(0xB0B)); //add another admin so we can revoke the first one
         applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), false);
     }
@@ -130,11 +127,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
     function testRenounceAppAdministrator() public {
         switchToSuperAdmin(); 
         applicationAppManager.revokeRole(APP_ADMIN_ROLE,superAdmin);
-        switchToAppAdministrator(); 
-        vm.expectRevert( abi.encodeWithSignature("BelowMinAdminThreshold()"));
-        applicationAppManager.renounceAppAdministrator();
-        switchToSuperAdmin();
-        applicationAppManager.addAppAdministrator(address(77));
         switchToAppAdministrator(); 
         applicationAppManager.renounceAppAdministrator();
     }

@@ -51,9 +51,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     address newPauseRulesProviderAddress;
     address newRiskScoresProviderAddress;
 
-    /// Minimum amount of admins allowed
-    /// @notice default value is 1
-    uint256 public minAmountOfAdmins = 1;
+    /// Application name string
+    string appName;
 
     /// Application Handler Contract
     ProtocolApplicationHandler public applicationHandler;
@@ -75,9 +74,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     address[] treasuryList;
     mapping(address => uint) treasuryToIndex;
     mapping(address => bool) isTreasuryRegistered;
-
-    /// Application name string
-    string appName;
 
     /**
      * @dev This constructor sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.
@@ -120,30 +116,26 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev This function overrides the parent's grantRole function. Its purpose is to enforce the at-least-one-admin rule.
+     * @dev This function overrides the parent's renounceRole function. Its purpose is to prevent superAdmins from renouncing through
+     * this "backdoor", so they are forced to find another superAdmin through the function proposeNewSuperAdmin.
      * @param role the role to renounce.
      * @param account address renouncing to the role.
-     * @notice you can't renounce a role if that means that nobody would have that role. At least one account has to have it except
-     * for PROPOSED_SUPER_ADMIN_ROLEs which is a transitionary one. Make sure there will be at least one account for all 
-     * the other roles.
      */
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// enforcing the min-1-admin requirement. Only PROPOSED_SUPER_ADMIN_ROLE should be able to bypass this rule
-        if(role != PROPOSED_SUPER_ADMIN_ROLE && getRoleMemberCount(role) <= minAmountOfAdmins) revert BelowMinAdminThreshold();
+        if(role == SUPER_ADMIN_ROLE ) revert BelowMinAdminThreshold();
         AccessControl.renounceRole(role, account);
     }
 
     /**
-     * @dev This function overrides the parent's grantRole function. Its purpose is to enforce an at-least-one-admin policy.
+     * @dev This function overrides the parent's revokeRole function. Its purpose is to prevent superAdmins from being revoked through
+     * this "backdoor" which would effectively leave the app in a superAdmin-orphan state.
      * @param role the role to revoke.
      * @param account address of revoked role.
-     * @notice you can't revoke a role if that means that nobody would have that role. At least one account has to have it except
-     * for PROPOSED_SUPER_ADMIN_ROLEs which is a transitionary one. Make sure there will be at least one account for all 
-     * the other roles.
      */
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// enforcing the min-1-admin requirement.
-        if(role != PROPOSED_SUPER_ADMIN_ROLE && getRoleMemberCount(role) <= minAmountOfAdmins) revert BelowMinAdminThreshold();
+        if(role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
         AccessControl.revokeRole(role, account);
     }
     // /// -------------ADMIN---------------
@@ -183,7 +175,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         address oldSuperAdmin = getRoleMember(SUPER_ADMIN_ROLE, 0);
 
         super.grantRole(SUPER_ADMIN_ROLE, newSuperAdmin);
-        revokeRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
+        super.revokeRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
         renounceRole(PROPOSED_SUPER_ADMIN_ROLE, _msgSender());
         /// we emit the events
         emit SuperAdministrator(_msgSender(), true);
@@ -943,14 +935,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function setAppName(string calldata _appName) external onlyRole(APP_ADMIN_ROLE) {
         appName = _appName;
-    }
-
-    /**
-     * @dev Setter for minAmountOfAdmins
-     * @param newMinAmountAdmins the new value for minAmountOfAdmins
-     */
-    function setMinAmountAdmins(uint256 newMinAmountAdmins) external onlyRole(APP_ADMIN_ROLE) {
-        minAmountOfAdmins = newMinAmountAdmins;
     }
 
     /**
