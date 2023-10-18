@@ -392,18 +392,17 @@ contract ApplicationERC721UTest is TestCommonFoundry {
     function testTransactionLimitByRiskScoreNFTUpgradeable() public {
         ///Set transaction limit rule params
         uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory txnLimits = new uint48[](6);
+        uint48[] memory txnLimits = new uint48[](5);
         riskScores[0] = 1;
         riskScores[1] = 10;
         riskScores[2] = 40;
         riskScores[3] = 80;
         riskScores[4] = 99;
-        txnLimits[0] = 20;
-        txnLimits[1] = 17;
-        txnLimits[2] = 15;
-        txnLimits[3] = 12;
-        txnLimits[4] = 11;
-        txnLimits[5] = 10;
+        txnLimits[0] = 17;
+        txnLimits[1] = 15;
+        txnLimits[2] = 12;
+        txnLimits[3] = 11;
+        txnLimits[4] = 10;
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
@@ -762,18 +761,17 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         ///Set transaction limit rule params
         uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory txnLimits = new uint48[](6);
+        uint48[] memory txnLimits = new uint48[](5);
         riskScores[0] = 1;
         riskScores[1] = 10;
         riskScores[2] = 40;
         riskScores[3] = 80;
         riskScores[4] = 99;
-        txnLimits[0] = 20;
-        txnLimits[1] = 17;
-        txnLimits[2] = 15;
-        txnLimits[3] = 12;
-        txnLimits[4] = 11;
-        txnLimits[5] = 10;
+        txnLimits[0] = 17;
+        txnLimits[1] = 15;
+        txnLimits[2] = 12;
+        txnLimits[3] = 11;
+        txnLimits[4] = 10;
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
@@ -890,18 +888,17 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         ///Set transaction limit rule params
         uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory txnLimits = new uint48[](6);
+        uint48[] memory txnLimits = new uint48[](5);
         riskScores[0] = 1;
         riskScores[1] = 10;
         riskScores[2] = 40;
         riskScores[3] = 80;
         riskScores[4] = 99;
-        txnLimits[0] = 20;
-        txnLimits[1] = 17;
-        txnLimits[2] = 15;
-        txnLimits[3] = 12;
-        txnLimits[4] = 11;
-        txnLimits[5] = 10;
+        txnLimits[0] = 17;
+        txnLimits[1] = 15;
+        txnLimits[2] = 12;
+        txnLimits[3] = 11;
+        txnLimits[4] = 10;
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();

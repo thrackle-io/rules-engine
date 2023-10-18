@@ -176,13 +176,12 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
     ///Test risk score max size of 99 when adding risk rules
     function testRiskScoreRiskLevelMaxSize() public {
         ///add txnLimit passing (less than 100)
-        uint48[] memory _maxSize = new uint48[](4);
+        uint48[] memory _maxSize = new uint48[](3);
         uint8[] memory _riskLevel = new uint8[](3);
 
-        _maxSize[0] = 100000000;
-        _maxSize[1] = 1000000;
-        _maxSize[2] = 10000;
-        _maxSize[3] = 10;
+        _maxSize[0] = 1000000;
+        _maxSize[1] = 10000;
+        _maxSize[2] = 10;
         _riskLevel[0] = 25;
         _riskLevel[1] = 50;
         _riskLevel[2] = 75;
@@ -191,13 +190,12 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         ///Activate rule
         applicationCoinHandlerSpecialOwner.setTransactionLimitByRiskRuleId(ruleId);
         ///add txnLimit failing (risk level 100)
-        uint48[] memory maxSize = new uint48[](4);
+        uint48[] memory maxSize = new uint48[](3);
         uint8[] memory riskLevel = new uint8[](3);
 
-        maxSize[0] = 100000000;
-        maxSize[1] = 1000000;
-        maxSize[2] = 10000;
-        maxSize[3] = 10;
+        maxSize[0] = 1000000;
+        maxSize[1] = 10000;
+        maxSize[2] = 10;
         riskLevel[0] = 25;
         riskLevel[1] = 75;
         riskLevel[2] = 100;
@@ -206,35 +204,33 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         ///add balanceLimit passing (less than 100)
         uint8[] memory _riskScores = new uint8[](5);
-        uint48[] memory _balanceLimits = new uint48[](6);
+        uint48[] memory _balanceLimits = new uint48[](5);
         _riskScores[0] = 0;
         _riskScores[1] = 10;
         _riskScores[2] = 40;
         _riskScores[3] = 80;
         _riskScores[4] = 99;
-        _balanceLimits[0] = 1000000;
-        _balanceLimits[1] = 100000;
-        _balanceLimits[2] = 10000;
-        _balanceLimits[3] = 1000;
-        _balanceLimits[4] = 100;
-        _balanceLimits[5] = 1;
+        _balanceLimits[0] = 100000;
+        _balanceLimits[1] = 10000;
+        _balanceLimits[2] = 1000;
+        _balanceLimits[3] = 100;
+        _balanceLimits[4] = 1;
 
         AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), _riskScores, _balanceLimits);
 
         ///add balanceLimit failing (risk level 100)
         uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory balanceLimits = new uint48[](6);
+        uint48[] memory balanceLimits = new uint48[](5);
         riskScores[0] = 0;
         riskScores[1] = 10;
         riskScores[2] = 40;
         riskScores[3] = 80;
         riskScores[4] = 100;
-        balanceLimits[0] = 1000000;
-        balanceLimits[1] = 100000;
-        balanceLimits[2] = 10000;
-        balanceLimits[3] = 1000;
-        balanceLimits[4] = 100;
-        balanceLimits[5] = 1;
+        balanceLimits[0] = 100000;
+        balanceLimits[1] = 10000;
+        balanceLimits[2] = 1000;
+        balanceLimits[3] = 100;
+        balanceLimits[4] = 1;
 
         vm.expectRevert();
         AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);

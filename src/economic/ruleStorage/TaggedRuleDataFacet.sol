@@ -19,6 +19,7 @@ import "./RuleStorageCommonLib.sol";
 contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError {
     using RuleStorageCommonLib for uint64;
     using RuleStorageCommonLib for uint32;
+    using RuleStorageCommonLib for uint8; 
 
     /**
      * Note that no update method is implemented. Since reutilization of
@@ -366,16 +367,14 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _txnLimits Transaction Limit in whole USD for each score range. It corresponds to the _riskScores array and is +1 longer than _riskScores.
      * A value of 1000 in this arrays will be interpreted as $1000.00 USD.
      * @return position of new rule in array
-     * @notice _maxSize size must be equal to _riskLevel + 1 since the _maxSize must
-     * specify the maximum tx size for anything between the highest risk score and 100
-     * which should be specified in the last position of the _riskLevel. This also
-     * means that the positioning of the arrays is ascendant in terms of risk levels, and
-     * descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+     * @notice _txnLimits size must be equal to _riskLevel The positioning of the arrays is ascendant in terms of risk levels, 
+     * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      */
     function addTransactionLimitByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _txnLimits) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_riskScores.length == 0 || _txnLimits.length == 0) revert InvalidRuleInput();
-        if (_txnLimits.length != _riskScores.length + 1) revert InputArraysSizesNotValid();
+        // since the arrays are compared, it is only necessary to check for one of them being empty.
+        if (_riskScores.length == 0) revert InvalidRuleInput();
+        if (_txnLimits.length != _riskScores.length) revert InputArraysSizesNotValid();
         if (_riskScores[_riskScores.length - 1] > 99) revert RiskLevelCannotExceed99();
         for (uint i = 1; i < _riskScores.length; ) {
             if (_riskScores[i] <= _riskScores[i - 1]) revert WrongArrayOrder();

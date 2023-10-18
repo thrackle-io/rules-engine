@@ -363,16 +363,15 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFT.safeTransferFrom(appAdministrator, _user3, 19);
         assertEq(applicationNFT.balanceOf(_user3), 2);
 
-        uint48[] memory _maxSize = new uint48[](6);
+        uint48[] memory _maxSize = new uint48[](5);
         uint8[] memory _riskLevel = new uint8[](5);
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
 
-        _maxSize[0] = 120;
-        _maxSize[1] = 70;
-        _maxSize[2] = 50;
-        _maxSize[3] = 40;
-        _maxSize[4] = 30;
-        _maxSize[5] = 20;
+        _maxSize[0] = 70;
+        _maxSize[1] = 50;
+        _maxSize[2] = 40;
+        _maxSize[3] = 30;
+        _maxSize[4] = 20;
         _riskLevel[0] = 20;
         _riskLevel[1] = 40;
         _riskLevel[2] = 60;
@@ -408,7 +407,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
 
         vm.stopPrank();
         vm.startPrank(_user3);
-        vm.expectRevert();
+        if (risk >= _riskLevel[0]) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user3, _user4, 19); // a 200-dollar NFT
     }
 
@@ -758,7 +757,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
     function testMaxTxSizePerPeriodByRiskRuleNFT(uint8 _risk, uint8 _period) public {
         vm.warp(Blocktime);
         /// we create the rule
-        uint48[] memory _maxSize = new uint48[](4);
+        uint48[] memory _maxSize = new uint48[](3);
         uint8[] memory _riskLevel = new uint8[](3);
         uint8 period = _period > 6 ? _period / 6 + 1 : 1;
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
@@ -766,10 +765,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         address user1 = address(0xaa);
         address user2 = address(0x22);
 
-        _maxSize[0] = 1_000_000_000_000;
-        _maxSize[1] = 100_000_000;
-        _maxSize[2] = 10_000;
-        _maxSize[3] = 1;
+        _maxSize[0] = 100_000_000;
+        _maxSize[1] = 10_000;
+        _maxSize[2] = 1;
         _riskLevel[0] = 25;
         _riskLevel[1] = 50;
         _riskLevel[2] = 75;
@@ -829,8 +827,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         console.log(risk);
         applicationNFT.safeTransferFrom(user1, user2, 3);
         /// 100_000_000 - 10_000 + 10_001 = 100_000_000 + 1 = 100_000_001
-        /// even if the user's risk profile is 0, this transfer should revert according to how the rule was built
-        vm.expectRevert();
+        if (risk >= _riskLevel[0]) vm.expectRevert();
         console.log(risk);
         applicationNFT.safeTransferFrom(user1, user2, 4);
         /// if passed: 1_000_000_000_000 - 100_000_000 + 100_000_001 = 1_000_000_000_000 + 1 = 1_000_000_000_001
@@ -843,10 +840,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         vm.warp(block.timestamp + (9 * (uint256(period) * 1 hours)) / 2);
 
         /// TEST RULE ON RECIPIENT
-        _maxSize[0] = 9_000_000_000_000;
-        _maxSize[1] = 900_000_000;
-        _maxSize[2] = 90_000;
-        _maxSize[3] = 1;
+        _maxSize[0] = 900_000_000;
+        _maxSize[1] = 90_000;
+        _maxSize[2] = 1;
         _riskLevel[0] = 1;
         _riskLevel[1] = 40;
         _riskLevel[2] = 90;
@@ -882,8 +878,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         console.log(risk);
         applicationNFT.safeTransferFrom(user2, user1, 9);
         /// 900_000_000 - 90_000 + 90_001 = 900_000_000 + 1 = 900_000_001
-        /// even if the user's risk profile is 0, this transfer should revert according to how the rule was built
-        vm.expectRevert();
+        if (risk >= _riskLevel[0]) vm.expectRevert();
         console.log(risk);
         applicationNFT.safeTransferFrom(user2, user1, 10);
         /// if passed: 9_000_000_000_000 - 900_000_000 + 900_000_001  = 9_000_000_000_000 + 1 = 9_000_000_000_001
@@ -907,7 +902,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         vm.assume(priceA > 0 && priceB > 0 && priceC > 0);
         uint8 riskScore = uint8((uint16(_riskScore) * 100) / 254);
         uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory balanceLimits = new uint48[](6);
+        uint48[] memory balanceLimits = new uint48[](5);
         //address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
         address _user1 = address(0xff11);
         address _user2 = address(0xaa22);
@@ -916,12 +911,11 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         riskScores[2] = 40;
         riskScores[3] = 80;
         riskScores[4] = 99;
-        balanceLimits[0] = 1_000_000_000;
-        balanceLimits[1] = 10_000_000;
-        balanceLimits[2] = 100_000;
-        balanceLimits[3] = 1_000;
-        balanceLimits[4] = 500;
-        balanceLimits[5] = 0;
+        balanceLimits[0] = 10_000_000;
+        balanceLimits[1] = 100_000;
+        balanceLimits[2] = 1_000;
+        balanceLimits[3] = 500;
+        balanceLimits[4] = 10;
 
         switchToAppAdministrator();
         applicationNFT.safeMint(_user1);
@@ -938,10 +932,15 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         // we find the max balance user2
         uint32 maxBalanceForUser2;
         for (uint i; i < balanceLimits.length - 1; ) {
-            if (riskScore < riskScores[i]) maxBalanceForUser2 = uint32(balanceLimits[i]);
+            if (riskScore < riskScores[i]) {
+                maxBalanceForUser2 = uint32(balanceLimits[i]);
+            } else {
+                maxBalanceForUser2 = uint32(balanceLimits[3]);
+            }
             unchecked {
                 ++i;
             }
+
         }
 
         ///Switch to Default admin and activate AccountBalanceByRiskScore Rule
@@ -1175,21 +1174,24 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             }
             switchToAppAdministrator();
             uint8[] memory riskScores = new uint8[](5);
-            uint48[] memory balanceLimits = new uint48[](6);
+            uint48[] memory balanceLimits = new uint48[](5);
             riskScores[0] = 0;
             riskScores[1] = 10;
             riskScores[2] = 40;
             riskScores[3] = 80;
             riskScores[4] = 99;
-            balanceLimits[0] = 1_000_000_000;
-            balanceLimits[1] = 10_000_000;
-            balanceLimits[2] = 100_000;
-            balanceLimits[3] = 1_000;
-            balanceLimits[4] = 500;
-            balanceLimits[5] = 0;
-            // we find the mas balance user2
+            balanceLimits[0] = 10_000_000;
+            balanceLimits[1] = 100_000;
+            balanceLimits[2] = 1_000;
+            balanceLimits[3] = 500;
+            balanceLimits[4] = 10;
+            // we find the max balance user2
             for (uint i; i < balanceLimits.length - 1; ) {
-                if (riskScore < riskScores[i]) maxBalanceForUser2 = uint32(balanceLimits[i]);
+                if (riskScore < riskScores[i]) { 
+                    maxBalanceForUser2 = uint32(balanceLimits[i]); 
+                } else { 
+                    maxBalanceForUser2 = uint32(balanceLimits[4]); 
+                }
                 unchecked {
                     ++i;
                 }
@@ -1236,15 +1238,14 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             applicationNFTHandler.setTradeCounterRuleId(tradeRuleId);
         }
         {
-            uint48[] memory _maxSize = new uint48[](6);
+            uint48[] memory _maxSize = new uint48[](5);
             uint8[] memory _riskLevel = new uint8[](5);
 
-            _maxSize[0] = 750_000_000;
-            _maxSize[1] = 7_500_000;
-            _maxSize[2] = 75_000;
-            _maxSize[3] = 750;
-            _maxSize[4] = 350;
-            _maxSize[5] = 0;
+            _maxSize[0] = 7_500_000;
+            _maxSize[1] = 75_000;
+            _maxSize[2] = 750;
+            _maxSize[3] = 350;
+            _maxSize[4] = 10;
             _riskLevel[0] = 0;
             _riskLevel[1] = 10;
             _riskLevel[2] = 40;
@@ -1267,7 +1268,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFT.safeTransferFrom(_user1, _user4, 7);
 
         /// test risk rules
-        if (priceA > (uint112(maxBalanceForUser2) * 3 * (10 ** 18)) / 4 || priceA > uint112(maxBalanceForUser2) * (10 ** 18)) vm.expectRevert();
+        if (priceA > uint112(maxBalanceForUser2) * (10 ** 18)) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user1, _user2, 0);
 
         if (priceA <= (uint112(maxBalanceForUser2) * 3 * (10 ** 18)) / 4 && priceA <= uint112(maxBalanceForUser2) * (10 ** 18)) {

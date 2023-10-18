@@ -16,6 +16,7 @@ import "./RuleProcessorCommonLib.sol";
  */
 contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
     using RuleProcessorCommonLib for uint64;
+    using RuleProcessorCommonLib for uint8; 
     /**
      * @dev Account balance by Risk Score
      * @param _ruleId Rule Identifier for rule arguments
@@ -23,18 +24,17 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
      * @param _riskScore the Risk Score of the recepient account
      * @param _totalValuationTo recipient account's beginning balance in USD with 18 decimals of precision
      * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
-     * @notice _balanceLimits size must be equal to _riskLevel + 1 since the _balanceLimits must
-     * specify the maximum tx size for anything below the first level and between the highest risk score and 100. This also
-     * means that the positioning of the arrays is ascendant in terms of risk levels, and
-     * descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+     * @notice _balanceLimits size must be equal to _riskLevel.
+     * The positioning of the arrays is ascendant in terms of risk levels,
+     * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      * eg.
      * risk scores      balances         resultant logic
      * -----------      --------         ---------------
-     *    25             1000            0-24  =  1000
-     *    50              500            25-49 =   500
-     *    75              250            50-74 =   250
-     *                    100            75-99 =   100
+     *                                   0-24  =   NO LIMIT 
+     *    25              500            25-49 =   500
+     *    50              250            50-74 =   250
+     *    75              100            75-99 =   100
      */
     function checkAccBalanceByRisk(uint32 _ruleId, address _toAddress, uint8 _riskScore, uint128 _totalValuationTo, uint128 _amountToTransfer) external view {
         /// create the 'data' variable which is simply a connection to the rule diamond
@@ -43,28 +43,16 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
         if (totalRules <= _ruleId) revert RuleDoesNotExist();
         /// retrieve the rule
         ApplicationRuleStorage.AccountBalanceToRiskRule memory rule = data.getAccountBalanceByRiskScore(_ruleId);
-        uint total = _totalValuationTo + _amountToTransfer;
+        uint256 ruleMaxSize;
+        uint256 total = _totalValuationTo + _amountToTransfer;
         /// perform the rule check
         /// If recipient address being checked is zero address the rule passes (This allows for burning)
         if (_toAddress != address(0)) {
-            for (uint256 i; i < rule.riskLevel.length; ) {
-                ///If risk score is within the rule riskLevel array, find the maxBalance for that risk Score
-                if (_riskScore < rule.riskLevel[i]) {
-                    /// maxBalance must be multiplied by 10 ** 18 to account for decimals in token pricing in USD
-                    if (total > uint(rule.maxBalance[i]) * (10 ** 18)) {
-                        revert BalanceExceedsRiskScoreLimit();
-                    } else {
-                        ///Jump out of loop once risk score is matched to array index
-                        return;
-                    }
-                }
-                unchecked {
-                    ++i;
-                }
-            }
-            ///Check if Risk Score is higher than highest riskLevel for rule
-            if (_riskScore >= rule.riskLevel[rule.riskLevel.length - 1]) {
-                if (total > uint256(rule.maxBalance[rule.maxBalance.length - 1]) * (10 ** 18)) revert BalanceExceedsRiskScoreLimit();
+            /// If risk score is less than the first risk score of the rule, there is no limit.
+            /// Skips the loop for gas efficiency on low risk scored users 
+            if (_riskScore >= rule.riskLevel[0]) {
+                ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskLevel, rule.maxBalance);
+                if (total > ruleMaxSize) revert BalanceExceedsRiskScoreLimit();
             }
         }
     }
@@ -77,51 +65,43 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
      * @param _usdValueTransactedInPeriod the cumulative amount of tokens recorded in the last period.
      * @param amount in USD of the current transaction with 18 decimals of precision.
      * @param lastTxDate timestamp of the last transfer of this token by this address.
-     * @param riskScore of the address (0 -> 100)
+     * @param _riskScore of the address (0 -> 100)
      * @return updated value for the _usdValueTransactedInPeriod. If _usdValueTransactedInPeriod are
      * inside the current period, then this value is accumulated. If not, it is reset to current amount.
      * @dev this check will cause a revert if the new value of _usdValueTransactedInPeriod in USD exceeds
      * the limit for the address risk profile.
-     * @notice _balanceLimits size must be equal to _riskLevel + 1 since the _balanceLimits must
-     * specify the maximum tx size for anything below the first level and between the highest risk score and 100. This also
-     * means that the positioning of the arrays is ascendant in terms of risk levels, and
-     * descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+     * @notice _balanceLimits size must be equal to _riskLevel 
+     * The positioning of the arrays is ascendant in terms of risk levels, 
+     * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      * eg.
      * risk scores      balances         resultant logic
      * -----------      --------         ---------------
-     *    25             1000            0-24  =  1000
-     *    50              500            25-49 =   500
-     *    75              250            50-74 =   250
-     *                    100            75-99 =   100
+     *                                   0-24  =   NO LIMIT 
+     *    25              500            25-49 =   500
+     *    50              250            50-74 =   250
+     *    75              100            75-99 =   100
      */
-    function checkMaxTxSizePerPeriodByRisk(uint32 ruleId, uint128 _usdValueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 riskScore) external view returns (uint128) {
+    function checkMaxTxSizePerPeriodByRisk(uint32 ruleId, uint128 _usdValueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 _riskScore) external view returns (uint128) {
         /// we create the 'data' variable which is simply a connection to the rule diamond
         AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().rules);
         /// validation block
         uint256 totalRules = data.getTotalMaxTxSizePerPeriodRules();
+        uint256 ruleMaxSize;
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
         /// we retrieve the rule
         ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory rule = data.getMaxTxSizePerPeriodRule(ruleId);
         /// resetting the "tradesWithinPeriod", unless we have been in current period for longer than the last update
         uint128 amountTransactedInPeriod = rule.startingTime.isWithinPeriod(rule.period, lastTxDate) ? 
         amount + _usdValueTransactedInPeriod: amount;
-        
-        for (uint256 i; i < rule.riskLevel.length; ) {
-            if (riskScore < rule.riskLevel[i]) {
-                /// we found our range. Now we check...
-                if (amountTransactedInPeriod > uint256(rule.maxSize[i]) * (10 ** 18)) revert MaxTxSizePerPeriodReached(riskScore, rule.maxSize[i], rule.period);
-                /// since we found our range, and it didn't revert, we can leave and update
-                /// tradesWithinPeriod value
-                return amountTransactedInPeriod;
-            }
-            unchecked {
-                ++i;
-            }
+        /// If risk score is less than the first risk score of the rule, there is no limit.
+        /// Skips the loop for gas efficiency on low risk scored users 
+        if (_riskScore >= rule.riskLevel[0]) {
+            ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskLevel, rule.maxSize);
+            if (amountTransactedInPeriod > ruleMaxSize) revert MaxTxSizePerPeriodReached(_riskScore, ruleMaxSize, rule.period);
+            return amountTransactedInPeriod;
+        } else {
+            return amountTransactedInPeriod;
         }
-        /// but if none of the risk levels were greater than the risk profile of the address,
-        /// then we check against the last value of the maxSize array.
-        if (amountTransactedInPeriod > (uint256(rule.maxSize[rule.maxSize.length - 1]) * (10 ** 18))) revert MaxTxSizePerPeriodReached(riskScore, rule.maxSize[rule.maxSize.length - 1], rule.period);
-        return amountTransactedInPeriod;
     }
 }
