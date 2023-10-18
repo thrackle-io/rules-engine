@@ -365,18 +365,18 @@ contract ApplicationERC721Test is TestCommon {
     function testTransactionLimitByRiskScoreNFT() public {
         ///Set transaction limit rule params
         uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory txnLimits = new uint48[](6);
+        uint48[] memory txnLimits = new uint48[](5);
         riskScores[0] = 1;
         riskScores[1] = 10;
         riskScores[2] = 40;
         riskScores[3] = 80;
         riskScores[4] = 99;
-        txnLimits[0] = 20;
-        txnLimits[1] = 17;
-        txnLimits[2] = 15;
-        txnLimits[3] = 12;
-        txnLimits[4] = 11;
-        txnLimits[5] = 10;
+
+        txnLimits[0] = 17;
+        txnLimits[1] = 15;
+        txnLimits[2] = 12;
+        txnLimits[3] = 11;
+        txnLimits[4] = 10;
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
@@ -404,8 +404,8 @@ contract ApplicationERC721Test is TestCommon {
 
         ///Set Pricing for NFTs 0-7
         switchToAppAdministrator();
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 1, 11 * (10 ** 18));
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 0, 10 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 1, 11 * (10 ** 18));
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 2, 12 * (10 ** 18));
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, 13 * (10 ** 18));
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 15 * (10 ** 18));
@@ -973,18 +973,17 @@ contract ApplicationERC721Test is TestCommon {
 
         ///Set transaction limit rule params
         uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory txnLimits = new uint48[](6);
+        uint48[] memory txnLimits = new uint48[](5);
         riskScores[0] = 1;
         riskScores[1] = 10;
         riskScores[2] = 40;
         riskScores[3] = 80;
         riskScores[4] = 99;
-        txnLimits[0] = 20;
-        txnLimits[1] = 17;
-        txnLimits[2] = 15;
-        txnLimits[3] = 12;
-        txnLimits[4] = 11;
-        txnLimits[5] = 10;
+        txnLimits[0] = 17;
+        txnLimits[1] = 15;
+        txnLimits[2] = 12;
+        txnLimits[3] = 11;
+        txnLimits[4] = 10;
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();

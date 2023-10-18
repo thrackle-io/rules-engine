@@ -20,6 +20,7 @@ import "./RuleStorageCommonLib.sol";
 contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, IAppRuleInputErrors, IRiskInputErrors {
     using RuleStorageCommonLib for uint64;
     using RuleStorageCommonLib for uint32;
+    using RuleStorageCommonLib for uint8; 
     uint8 constant MAX_ACCESSLEVELS = 5;
     uint8 constant MAX_RISKSCORE = 99;
 
@@ -143,18 +144,17 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      * @param _period amount of hours that each period lasts for.
      * @param _startTimestamp start timestamp for the rule
      * @return position of new rule in array
-     * @notice _maxSize size must be equal to _riskLevel + 1 since the _balanceLimits must
-     * specifies the maximum tx size for anything below the first level and between the highest risk score and 100. This also
-     * means that the positioning of the arrays is ascendant in terms of risk levels, and
-     * descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+     * @notice _maxSize size must be equal to _riskLevel.
+     * This means that the positioning of the arrays is ascendant in terms of risk levels,
+     * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      * eg.
      * risk scores      balances         resultant logic
      * -----------      --------         ---------------
-     *    25             1000            0-24  =  1000
-     *    50              500            25-49 =   500
-     *    75              250            50-74 =   250
-     *                    100            75-99 =   100
+     *                                   0-24  =   NO LIMIT 
+     *    25              500            25-49 =   500
+     *    50              250            50-74 =   250
+     *    75              100            75-99 =   100
      */
     function addMaxTxSizePerPeriodByRiskRule(
         address _appManagerAddr,
@@ -164,7 +164,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         uint64 _startTimestamp
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         /// Validation block
-        if (_maxSize.length != _riskLevel.length + 1) revert InputArraysSizesNotValid();
+        if (_maxSize.length != _riskLevel.length) revert InputArraysSizesNotValid();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_maxSize.length == 0) revert InvalidRuleInput();
         if (_riskLevel[_riskLevel.length - 1] > MAX_RISKSCORE) revert RiskLevelCannotExceed99();
@@ -222,10 +222,9 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      * @param _balanceLimits Account Balance Limit in whole USD for each score range. It corresponds to the _riskScores
      * array and is +1 longer than _riskScores. A value of 1000 in this arrays will be interpreted as $1000.00 USD.
      * @return position of new rule in array
-     * @notice _balanceLimits size must be equal to _riskLevel + 1 since the _balanceLimits must
-     * specifies the maximum tx size for anything below the first level and between the highest risk score and 100. This also
-     * means that the positioning of the arrays is ascendant in terms of risk levels, and
-     * descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+     * @notice _balanceLimits size must be equal to _riskLevel.
+     * This means that the positioning of the arrays is ascendant in terms of risk levels,
+     * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      * eg.
      * risk scores      balances         resultant logic
@@ -236,7 +235,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      *                    100            75-99 =   100
      */
     function addAccountBalanceByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _balanceLimits) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_balanceLimits.length != _riskScores.length + 1) revert InputArraysSizesNotValid();
+        if (_balanceLimits.length != _riskScores.length) revert InputArraysSizesNotValid();
         // since the arrays are compared, it is only necessary to check for one of them being empty.
         if (_balanceLimits.length == 0) revert InvalidRuleInput();
         if (_riskScores[_riskScores.length - 1] > MAX_RISKSCORE) revert RiskLevelCannotExceed99();

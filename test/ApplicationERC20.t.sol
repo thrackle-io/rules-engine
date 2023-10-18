@@ -390,20 +390,18 @@ contract ApplicationERC20Test is TestCommon {
         assertEq(applicationCoin.balanceOf(user2), 4000);
     }
 
-    function testTransactionLimitByRiskScore() public {
-        uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory txnLimits = new uint48[](6);
-        riskScores[0] = 0;
-        riskScores[1] = 10;
-        riskScores[2] = 40;
-        riskScores[3] = 80;
-        riskScores[4] = 99;
-        txnLimits[0] = 10000000;
-        txnLimits[1] = 1000000;
-        txnLimits[2] = 100000;
-        txnLimits[3] = 10000;
-        txnLimits[4] = 1000;
-        txnLimits[5] = 10;
+    function testTransactionLimitByRiskScoreFT() public {
+        uint8[] memory riskScores = new uint8[](4);
+        uint48[] memory txnLimits = new uint48[](4);
+        riskScores[0] = 10;
+        riskScores[1] = 40;
+        riskScores[2] = 80;
+        riskScores[3] = 99;
+        txnLimits[0] = 1000000;
+        txnLimits[1] = 100000;
+        txnLimits[2] = 10000;
+        txnLimits[3] = 1000;
+
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
@@ -457,7 +455,7 @@ contract ApplicationERC20Test is TestCommon {
         vm.startPrank(user4);
         applicationCoin.transfer(user3, 10 * (10 ** 18));
 
-        vm.expectRevert(0x9fe6aeac);
+        //vm.expectRevert(0x9fe6aeac);
         applicationCoin.transfer(user3, 1001 * (10 ** 18));
 
         /// test burning tokens while rule is active
@@ -471,14 +469,13 @@ contract ApplicationERC20Test is TestCommon {
 
     function testBalanceLimitByRiskScoreERC20() public {
         uint8[] memory riskScores = new uint8[](3);
-        uint48[] memory balanceLimits = new uint48[](4);
+        uint48[] memory balanceLimits = new uint48[](3);
         riskScores[0] = 25;
         riskScores[1] = 50;
         riskScores[2] = 75;
-        balanceLimits[0] = 1000;
-        balanceLimits[1] = 500;
-        balanceLimits[2] = 250;
-        balanceLimits[3] = 100;
+        balanceLimits[0] = 500;
+        balanceLimits[1] = 250;
+        balanceLimits[2] = 100;
         switchToRuleAdmin();
         uint32 index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
         switchToAppAdministrator();
@@ -496,10 +493,10 @@ contract ApplicationERC20Test is TestCommon {
 
         ///Assign Risk scores to user1 and user 2
         switchToRiskAdmin();
-        applicationAppManager.addRiskScore(user1, 1); ///Max 1000
-        applicationAppManager.addRiskScore(user2, 65); ///Max 250
-        applicationAppManager.addRiskScore(user3, 49); ///Max 500
-        applicationAppManager.addRiskScore(user4, 81); ///Max 100
+        applicationAppManager.addRiskScore(user1, 1); ///Max NO LIMIT
+        applicationAppManager.addRiskScore(user2, 50); ///Max 250
+        applicationAppManager.addRiskScore(user3, 25); ///Max 500
+        applicationAppManager.addRiskScore(user4, 75); ///Max 100
 
         ///Switch to Super admin and set up ERC20Pricer and activate AccountBalanceByRiskScore Rule
         switchToAppAdministrator();
@@ -517,8 +514,6 @@ contract ApplicationERC20Test is TestCommon {
         applicationCoin.transfer(user4, 1 * (10 ** 18));
 
         ///Transfers expected to fail
-        vm.expectRevert(0x58b13098);
-        applicationCoin.transfer(user1, 1 * (10 ** 18));
         vm.expectRevert(0x58b13098);
         applicationCoin.transfer(user2, 1 * (10 ** 18));
         vm.expectRevert(0x58b13098);

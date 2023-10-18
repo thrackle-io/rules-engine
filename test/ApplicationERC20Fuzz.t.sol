@@ -227,18 +227,17 @@ contract ApplicationERC20FuzzTest is TestCommon {
         applicationCoin.transfer(_user5, 10);
     }
 
-    function testMaxTxSizePerPeriodByRiskRule(uint8 _risk, uint8 _period) public {
+    function testMaxTxSizePerPeriodByRiskRuleERC20(uint8 _risk, uint8 _period) public {
         vm.warp(Blocktime);
         /// we create the rule
-        uint48[] memory _maxSize = new uint48[](4);
+        uint48[] memory _maxSize = new uint48[](3);
         uint8[] memory _riskLevel = new uint8[](3);
         uint8 period = _period > 6 ? _period / 6 + 1 : 1;
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
 
-        _maxSize[0] = 1_000_000_000_000;
-        _maxSize[1] = 100_000_000;
-        _maxSize[2] = 10_000;
-        _maxSize[3] = 1;
+        _maxSize[0] = 100_000_000;
+        _maxSize[1] = 10_000;
+        _maxSize[2] = 1;
         _riskLevel[0] = 25;
         _riskLevel[1] = 50;
         _riskLevel[2] = 75;
@@ -283,12 +282,11 @@ contract ApplicationERC20FuzzTest is TestCommon {
         console.log(risk);
         applicationCoin.transfer(user2, 100_000_000 * (10 ** 18) - 10_000 * (10 ** 18));
         /// 100_000_000 - 10_000 + 10_001 = 100_000_000 + 1 = 100_000_001
-        /// even if the user's risk profile is 0, this transfer should revert according to how the rule was built
-        vm.expectRevert();
+        if (risk >= _riskLevel[0]) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user2, 1_000_000_000_000 * (10 ** 18) - 100_000_000 * (10 ** 18));
         /// if passed: 1_000_000_000_000 - 100_000_000 + 100_000_001 = 1_000_000_000_000 + 1 = 1_000_000_000_001
-
+        
         /// we jump to the next period and make sure it still works.
         vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
         applicationCoin.transfer(user2, 1 * (10 ** 18));
@@ -297,11 +295,10 @@ contract ApplicationERC20FuzzTest is TestCommon {
         vm.warp(block.timestamp + (9 * (uint256(period) * 1 hours)) / 2);
 
         /// TEST RULE ON RECIPIENT
-        _maxSize[0] = 9_000_000_000_000;
-        _maxSize[1] = 900_000_000;
-        _maxSize[2] = 90_000;
-        _maxSize[3] = 1;
-        _riskLevel[0] = 1;
+        _maxSize[0] = 900_000_000;
+        _maxSize[1] = 90_000;
+        _maxSize[2] = 1;
+        _riskLevel[0] = 10;
         _riskLevel[1] = 40;
         _riskLevel[2] = 90;
 
@@ -341,8 +338,7 @@ contract ApplicationERC20FuzzTest is TestCommon {
         console.log(risk);
         applicationCoin.transfer(user1, 900_000_000 * (10 ** 18) - 90_000 * (10 ** 18));
         /// 900_000_000 - 90_000 + 90_001 = 900_000_000 + 1 = 900_000_001
-        /// even if the user's risk profile is 0, this transfer should revert according to how the rule was built
-        vm.expectRevert();
+        if (risk >= _riskLevel[0]) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user1, 9_000_000_000_000 * (10 ** 18) - 900_000_000 * (10 ** 18));
         /// if passed: 9_000_000_000_000 - 900_000_000 + 900_000_001  = 9_000_000_000_000 + 1 = 9_000_000_000_001
@@ -352,15 +348,14 @@ contract ApplicationERC20FuzzTest is TestCommon {
         applicationCoin.transfer(user1, 1 * (10 ** 18));
     }
 
-    function testTransactionLimitByRiskScore(uint8 _risk) public {
-        uint48[] memory _maxSize = new uint48[](4);
+    function testTransactionLimitByRiskScoreERC20Fuzz(uint8 _risk) public {
+        uint48[] memory _maxSize = new uint48[](3);
         uint8[] memory _riskLevel = new uint8[](3);
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
 
-        _maxSize[0] = 100000000;
-        _maxSize[1] = 1000000;
-        _maxSize[2] = 10000;
-        _maxSize[3] = 10;
+        _maxSize[0] = 1000000;
+        _maxSize[1] = 10000;
+        _maxSize[2] = 10;
         _riskLevel[0] = 25;
         _riskLevel[1] = 50;
         _riskLevel[2] = 75;
@@ -412,7 +407,7 @@ contract ApplicationERC20FuzzTest is TestCommon {
         }
         // add the rule.
         uint8[] memory _riskLevel = new uint8[](4);
-        uint48[] memory balanceAmounts = new uint48[](5);
+        uint48[] memory balanceAmounts = new uint48[](4);
         _riskLevel[0] = 25;
         _riskLevel[1] = 50;
         _riskLevel[2] = 75;
@@ -425,8 +420,7 @@ contract ApplicationERC20FuzzTest is TestCommon {
         balanceAmounts[0] = riskBalance1;
         balanceAmounts[1] = riskBalance2;
         balanceAmounts[2] = riskBalance3;
-        balanceAmounts[3] = riskBalance4;
-        balanceAmounts[4] = 1;
+        balanceAmounts[3] = 1;
 
         ///Register rule with application handler
         switchToRuleAdmin();

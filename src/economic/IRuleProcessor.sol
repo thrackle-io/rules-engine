@@ -112,14 +112,6 @@ interface IRuleProcessor {
      */
     function checkTransactionLimitByRiskScore(uint32 _ruleId, uint8 _riskScore, uint256 _amountToTransfer) external view;
 
-    /**
-     * @dev Check Account balance for Risk Score
-     * @param _ruleId Rule Identifier for rule arguments
-     * @param _riskScore the Risk Score of the account
-     * @param _balance account's beginning balance
-     * @param _amountToTransfer total dollar amount to be transferred
-     */
-    function checkAccountBalanceByRiskScore(uint32 _ruleId, uint8 _riskScore, uint256 _balance, uint256 _amountToTransfer) external view;
 
     /**
      * @dev Assess the fee associated with the AMM Fee Rule
