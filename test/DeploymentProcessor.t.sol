@@ -16,16 +16,14 @@ import {VersionFacet} from "../src/diamond/VersionFacet.sol";
 import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
-
-
-contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
+contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry {
     // Store the FacetCut struct for each facet that is being deployed.
     // NOTE: using storage array to easily "push" new FacetCut as we
     // process the facets,
     address ruleStorageDiamondAddress;
-    address ruleProcessorDiamondAddress; 
+    address ruleProcessorDiamondAddress;
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     address user1 = address(11);
     address user2 = address(22);
@@ -39,10 +37,9 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
 
-
     function setUp() public {
         if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
-            /// grab the deployed diamond addresses and set superAdmin and forkTest bool 
+            /// grab the deployed diamond addresses and set superAdmin and forkTest bool
             superAdmin = vm.envAddress("DEPLOYMENT_OWNER");
             ruleStorageDiamond = RuleStorageDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_STORAGE_DIAMOND")));
             ruleStorageDiamondAddress = vm.envAddress("DEPLOYMENT_RULE_STORAGE_DIAMOND");
@@ -51,7 +48,6 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
             ruleProcessorDiamondAddress = vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND");
             assertEq(ruleProcessorDiamondAddress, vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND"));
             forkTest = true;
-
         } else {
             vm.warp(Blocktime);
             vm.startPrank(appAdministrator);
@@ -136,7 +132,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         console.log(version);
         assertEq(version, "1,0,0");
         // update version again
-        VersionFacet(address(ruleProcessor)).updateVersion("1.1.0");// upgrade_version script will replace this version
+        VersionFacet(address(ruleProcessor)).updateVersion("1.1.0"); // upgrade_version script will replace this version
         version = VersionFacet(address(ruleProcessor)).version();
         console.log(version);
         assertEq(version, "1.1.0");
@@ -318,7 +314,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         vm.startPrank(appAdministrator);
         applicationAppManager.addGeneralTag(user1, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
-        switchToSuperAdmin(); 
+        switchToSuperAdmin();
         applicationCoin.mint(user1, 10000000000000000000000000);
         uint256 amount = 10000000000000000000000;
         assertEq(applicationCoin.balanceOf(user1), 10000000000000000000000000);
@@ -329,7 +325,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(balance, tags, amount, ruleId);
     }
 
-    function testMinMaxAccountBalanceRuleNFT() public { 
+    function testMinMaxAccountBalanceRuleNFT() public {
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         /// mint 6 NFTs to appAdministrator for transfer
@@ -409,7 +405,6 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         applicationNFT.burn(3);
         vm.expectRevert(0xf1737570);
         applicationNFT.burn(11);
-        
     }
 
     function testNFTOracle() public {
@@ -494,7 +489,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommon {
         applicationNFT.burn(3);
     }
 
-        function testNFTTradeRuleInNFT() public {
+    function testNFTTradeRuleInNFT() public {
         vm.warp(Blocktime);
         vm.stopPrank();
         vm.startPrank(appAdministrator);

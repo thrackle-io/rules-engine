@@ -20,7 +20,7 @@ def get_selectors(args):
         selectors.append(bytes.fromhex(selector))
 
     enc = encode(["bytes4[]"], [selectors])
-    print("0x" + enc.hex())
+    print("0x" + enc.hex(), end="")
 
 
 def parse_args():

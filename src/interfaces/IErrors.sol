@@ -97,6 +97,7 @@ interface IPermissionModifierErrors {
     error NotAppAdministratorOrOwner();
     error NotSuperAdmin(address);
     error NotRuleAdministrator();
+    error BelowMinAdminThreshold();
 }
 
 interface INoAddressToRemove{

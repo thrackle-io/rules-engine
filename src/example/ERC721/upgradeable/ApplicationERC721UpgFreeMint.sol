@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "../../../token/ProtocolERC721U.sol";
+import "../../../token/ERC721/upgradeable/ProtocolERC721U.sol";
 
 /**
  * @title ApplicationERC721UpgAdminOrOwnerMint
@@ -12,15 +12,14 @@ import "../../../token/ProtocolERC721U.sol";
  */
 
 contract ApplicationERC721Upgradeable is ProtocolERC721U {
-
     using CountersUpgradeable for CountersUpgradeable.Counter;
     CountersUpgradeable.Counter private _tokenIdCounter;
 
     /**
-    * @dev these storage slots are saved for future upgrades. Please be aware of common constraints for upgradeable contracts regarding storage slots,
-    * like maintaining the order of the variables to avoid mislabeling of storage slots, and to keep some reserved slots to avoid storage collisions.
-    * @notice the length of this array must be shrunk by the same amount of new variables added in an upgrade. This is to keep track of the remaining 
-    * storage slots available for variables in future upgrades and avoid storage collisions.
+     * @dev these storage slots are saved for future upgrades. Please be aware of common constraints for upgradeable contracts regarding storage slots,
+     * like maintaining the order of the variables to avoid mislabeling of storage slots, and to keep some reserved slots to avoid storage collisions.
+     * @notice the length of this array must be shrunk by the same amount of new variables added in an upgrade. This is to keep track of the remaining
+     * storage slots available for variables in future upgrades and avoid storage collisions.
      */
     uint256[50] reservedStorage;
 
@@ -29,7 +28,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
      * @notice This allows EVERYBODY TO MINT FOR FREE.
      * @param to Address of recipient
      */
-    function safeMint(address to) public payable override whenNotPaused{
+    function safeMint(address to) public payable override whenNotPaused {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
