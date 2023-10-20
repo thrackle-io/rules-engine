@@ -12,6 +12,9 @@ import "../OracleRestricted.sol";
 import "../OracleAllowed.sol";
 import "../pricing/ApplicationERC20Pricing.sol";
 import "../pricing/ApplicationERC721Pricing.sol";
+import "src/Oracle/AsyncOracle.sol";
+import {ApplicationERC721 as SoftStakingNFT} from "src/example/ERC721/not-upgradeable/ApplicationERC721OwnerMintSoftStaking.sol";
+import {ApplicationERC721Handler as AssetHandlerWOracle} from "src/example/ApplicationERC721HandlerWStatusOracle.sol";
 
 /**
  * @title Application Deploy All Script
@@ -25,6 +28,7 @@ contract ApplicationDeployAllScript is Script {
     uint128[7] yieldPerTimeUnitArray = [1, 60, 3_600, 86_400, 604_800, 2_592_000, 31_536_000];
     uint128[7] yieldPerTimeUnitArray2 = [2, 120, 7_200, 172_800, 1_209_600, 5_184_000, 63_072_000];
     address[] applicationNFTAddresses;
+    uint256 MIN_GAS_DEPOSIT = 100_000_000 gwei;
 
     function setUp() public {}
 
@@ -44,10 +48,19 @@ contract ApplicationDeployAllScript is Script {
         /// oracle
         new OracleAllowed();
         new OracleRestricted();
+        
+        /// deploy the oracle and make GEM the oracle writer
+        AsyncOracle softStakingOracle = new AsyncOracle(vm.envAddress("GEM"), MIN_GAS_DEPOSIT);
         /// create NFT
         ApplicationERC721 nft1 = new ApplicationERC721("Frankenstein", "FRANKPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
         applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1), false);
         nft1.connectHandlerToToken(address(applicationNFTHandler));
+
+        /// create soft staking NFT
+        SoftStakingNFT softStakingNft = new SoftStakingNFT("Soft Stake House", "SST");
+        AssetHandlerWOracle assetHandlerWOracle = new AssetHandlerWOracle(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(softStakingNft), false);
+        softStakingNft.connectHandlerToToken(address(assetHandlerWOracle));
+        applicationAppManager.registerToken("Soft Stake House", address(softStakingNft));
 
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("Frankenstein Coin", address(coin1));

@@ -279,7 +279,7 @@ contract ApplicationERC721Test is TestCommon {
         /// let's get people some money
         vm.deal(user1, 10 ether);
         vm.deal(user2, 10 ether);
-        vm.deal(address(0xDEAD70C1A), 10 ether);
+        vm.deal(address(0xDEA), 10 ether);
         uint256 MIN_GAS_DEPOSIT = 100_000_000 gwei;
         uint256 FICTICIOUS_GAS_USED = 10_000_000 gwei;
 
@@ -290,7 +290,7 @@ contract ApplicationERC721Test is TestCommon {
         applicationAppManager.registerToken("Soft Stake House", address(softStakingNft));
 
         /// deploy the oracle 
-        AsyncOracle softStakingOracle = new AsyncOracle(address(0xDEAD70C1A), MIN_GAS_DEPOSIT);
+        AsyncOracle softStakingOracle = new AsyncOracle(address(0xDEA), MIN_GAS_DEPOSIT);
 
         /// create the rule
         switchToRuleAdmin();
@@ -305,6 +305,7 @@ contract ApplicationERC721Test is TestCommon {
         softStakingNft.safeMint(user1);
         softStakingNft.safeMint(user1);
 
+        /// ##############################
         /// now let's get this party started
         vm.stopPrank();
         vm.startPrank(user1);
@@ -332,7 +333,7 @@ contract ApplicationERC721Test is TestCommon {
         softStakingOracle.completeRequest(0, true, FICTICIOUS_GAS_USED); // requestId, isApproved, gasUsed
         /// now let's update the status for user1 in the oracle for real  
         vm.stopPrank();
-        vm.startPrank(address(0xDEAD70C1A));
+        vm.startPrank(address(0xDEA));
         /// we should expect an event to notify the offchain side
         vm.expectEmit(true, true, true, true);
         emit RequestCompleted(0, true);
@@ -387,7 +388,7 @@ contract ApplicationERC721Test is TestCommon {
         softStakingOracle.completeRequest(1, false, FICTICIOUS_GAS_USED); // requestId, isApproved, gasUsed
         /// now let's update the status for user1 in the oracle for real  
         vm.stopPrank();
-        vm.startPrank(address(0xDEAD70C1A));
+        vm.startPrank(address(0xDEA));
         /// we should expect an event to notify the offchain side
         vm.expectEmit(true, true, true, true);
         emit RequestCompleted(1, false);
@@ -410,16 +411,16 @@ contract ApplicationERC721Test is TestCommon {
         softStakingNft.safeTransferFrom(user2, user1, 3);
 
         /// it's time to test our withdrawal methods
-        uint256 dataProviderBalance = address(0xDEAD70C1A).balance;
+        uint256 dataProviderBalance = address(0xDEA).balance;
         /// now let's withdraw some money
         switchToAppAdministrator();
         softStakingOracle.withdrawAmount(1 gwei);
         assertEq(address(softStakingOracle).balance, FICTICIOUS_GAS_USED * 2 - 1 gwei);
-        assertEq(address(0xDEAD70C1A).balance, dataProviderBalance + 1 gwei);
+        assertEq(address(0xDEA).balance, dataProviderBalance + 1 gwei);
         /// and finally let's test the withdrawAll method
         softStakingOracle.withdrawAll();
         assertEq(address(softStakingOracle).balance, 0);
-        assertEq(address(0xDEAD70C1A).balance, dataProviderBalance + FICTICIOUS_GAS_USED * 2);
+        assertEq(address(0xDEA).balance, dataProviderBalance + FICTICIOUS_GAS_USED * 2);
 
     }
 

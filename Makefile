@@ -495,3 +495,13 @@ setup-yarn:
 
 ##local-node: setup-yarn 
 ##	yarn hardhat node 
+
+
+
+# ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ ASYNC ORACLE ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+
+addAsyncOracleRule:; cast send "0xB35D3C9b9f2Fd72FAAb282E8Dd56da31FAA30E3d" "addStatusOracleRule(address,address)(uint)" "0x0116686E2291dbd5e317F47faDBFb43B599786Ef" "0xEfDC2a236Dba7a8f60726b49abC79Ee6b22Ed445" --private-key ${CLU_PRIVATE_KEY} 
+setAsyncOracleRule:; cast send "0x160B859fdDE5732808801ECA6B5630Ca5386Faca" "setStatusOracleRuleId(uint32)" 0 --private-key ${CLU_PRIVATE_KEY} 
+mintASoftStakingNFTForKevin:; cast send "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "safeMint(address)" ${KEVIN} --private-key ${QUORRA_PRIVATE_KEY}
+stakingStatusOf0:; cast call "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "stakingStatusPerNFT(uint256)(uint256)" 0 
+stakeNFT0:; cast send "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "stakeNFT(uint256)" 0 --value 1ether --private-key ${KEVIN_PRIVATE_KEY}
