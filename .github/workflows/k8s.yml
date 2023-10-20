@@ -56,19 +56,3 @@ jobs:
           docker build -t ${{ env.TRON_IMAGE_TAG }} -f Dockerfile.tron .
           docker push ${{ env.ANVIL_IMAGE_TAG }}
           docker push ${{ env.TRON_IMAGE_TAG }}
-
-      - name: Update Deployment Files
-        run: |
-          sed -i "s|{{ECR_REPOSITORY}}|${{ env.ANVIL_IMAGE_TAG }}|g" ${{ env.ANVIL_DEPLOYMENT_FILE }}
-          sed -i "s|{{ECR_REPOSITORY}}|${{ env.TRON_IMAGE_TAG }}|g" ${{ env.TRON_DEPLOYMENT_FILE }}
-          sed -i "s|{{NAMESPACE}}|${{ vars.NAMESPACE }}|g" k8s/{anvil,tron}/deployment.yaml
-          sed -i "s|{{NAMESPACE}}|${{ vars.NAMESPACE }}|g" k8s/anvil/service.yaml
-          sed -i "s|{{NAMESPACE}}|${{ vars.NAMESPACE }}|g" k8s/tron/configmap.yaml
-          sed -i "s|{{CHAIN_ID}}|${{ vars.CHAIN_ID }}|g" k8s/tron/configmap.yaml
-          sed -i "s|{{CHAIN_ID}}|${{ vars.CHAIN_ID }}|g" k8s/anvil/deployment.yaml
-
-      - name: Apply Kubernetes Deployments
-        run: |
-          kubectl apply -f ${{ env.ANVIL_DEPLOYMENT_FILE }} -n ${{ vars.NAMESPACE }}
-          kubectl apply -f k8s/tron/configmap.yaml -n ${{ vars.NAMESPACE }}
-          kubectl set-image deployment/tron tron=${{ env.TRON_IMAGE_TAG }} -n ${{ vars.NAMESPACE }}
