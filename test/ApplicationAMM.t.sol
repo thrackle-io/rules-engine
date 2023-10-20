@@ -6,6 +6,8 @@ import "src/example/liquidity/ApplicationAMM.sol";
 import "src/example/liquidity/ApplicationAMMCalcLinear.sol";
 import "src/example/liquidity/ApplicationAMMCalcCP.sol";
 import "src/example/liquidity/ApplicationAMMCalcSample01.sol";
+import "src/liquidity/ProtocolAMMCalculatorFactory.sol";
+import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import {ApplicationAMMHandler} from "../src/example/liquidity/ApplicationAMMHandler.sol";
@@ -30,6 +32,7 @@ contract ApplicationAMMTest is TestCommon {
     OracleAllowed oracleAllowed;
     ApplicationAMMHandler applicationAMMHandler;
     ApplicationAMMHandlerMod newAssetHandler;
+    ProtocolAMMCalculatorFactory factory;
 
     address rich_user = address(44);
     address treasuryAddress = address(55);
@@ -1139,5 +1142,39 @@ contract ApplicationAMMTest is TestCommon {
         if (amountA > amountB) vm.expectRevert();
         applicationAMM.swap(address(applicationCoin), amountA);
         applicationAMM.swap(address(applicationCoin2), amountA);
+    }
+
+    /// Test constant product swaps that use a factory created calculator
+    function testSwapCPToken0ThroughFactory() public {
+        factory = new ProtocolAMMCalculatorFactory(address(applicationAppManager));
+        address calcAddress = factory.createConstantProduct(address(applicationAppManager));
+        /// change AMM to use the CP calculator
+        applicationAMM.setCalculatorAddress(calcAddress);
+        /// Approve the transfer of tokens into AMM(1B)
+        applicationCoin.approve(address(applicationAMM), 1000000000);
+        applicationCoin2.approve(address(applicationAMM), 1000000000);
+        /// Transfer the tokens into the AMM
+        applicationAMM.addLiquidity(1000000000, 1000000000);
+        /// Make sure the tokens made it
+        assertEq(applicationAMM.getReserve0(), 1000000000);
+        assertEq(applicationAMM.getReserve1(), 1000000000);
+        /// Set up a regular user with some tokens
+        applicationCoin.transfer(user, 50000);
+        vm.stopPrank();
+        vm.startPrank(user);
+        /// Approve transfer(1M)
+        applicationCoin.approve(address(applicationAMM), 50000);
+        uint256 rValue = applicationAMM.swap(address(applicationCoin), 50000);
+        /// make sure swap returns correct value
+        assertEq(rValue, 49997);
+        /// Make sure AMM balances show change
+        assertEq(applicationAMM.getReserve0(), 1000050000);
+        assertEq(applicationAMM.getReserve1(), 999950003);
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+
+        /// Make sure user's wallet shows change
+        assertEq(applicationCoin.balanceOf(user), 0);
+        assertEq(applicationCoin2.balanceOf(user), 49997);
     }
 }

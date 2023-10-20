@@ -99,11 +99,11 @@ interface IPermissionModifierErrors {
     error NotRuleAdministrator();
 }
 
-interface INoAddressToRemove{
+interface INoAddressToRemove {
     error NoAddressToRemove();
 }
 
-interface IAppManagerErrors is INoAddressToRemove{
+interface IAppManagerErrors is INoAddressToRemove {
     error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
     error NotAccessTierAdministrator(address _address);
     error NotRiskAdmin(address _address);
@@ -115,6 +115,7 @@ interface IAppManagerErrors is INoAddressToRemove{
 
 interface AMMCalculatorErrors {
     error AmountsAreZero();
+    error OutOfRange();
     error InsufficientPoolDepth(uint256 pool, int256 attemptedWithdrawal);
 }
 
