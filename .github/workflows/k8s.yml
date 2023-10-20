@@ -70,4 +70,5 @@ jobs:
       - name: Apply Kubernetes Deployments
         run: |
           kubectl apply -f ${{ env.ANVIL_DEPLOYMENT_FILE }} -n ${{ vars.NAMESPACE }}
-          kubectl apply -f ${{ env.TRON_DEPLOYMENT_FILE }} -n ${{ vars.NAMESPACE }}
+          kubectl apply -f k8s/tron/configmap.yaml -n ${{ vars.NAMESPACE }}
+          kubectl set-image deployment/tron tron=${{ env.TRON_IMAGE_TAG }} -n ${{ vars.NAMESPACE }}
