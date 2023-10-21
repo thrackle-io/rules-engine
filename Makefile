@@ -500,8 +500,21 @@ setup-yarn:
 
 # ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ ASYNC ORACLE ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
 
+# rule setup
 addAsyncOracleRule:; cast send "0xB35D3C9b9f2Fd72FAAb282E8Dd56da31FAA30E3d" "addStatusOracleRule(address,address)(uint)" "0x0116686E2291dbd5e317F47faDBFb43B599786Ef" "0xEfDC2a236Dba7a8f60726b49abC79Ee6b22Ed445" --private-key ${CLU_PRIVATE_KEY} 
 setAsyncOracleRule:; cast send "0x160B859fdDE5732808801ECA6B5630Ca5386Faca" "setStatusOracleRuleId(uint32)" 0 --private-key ${CLU_PRIVATE_KEY} 
-mintASoftStakingNFTForKevin:; cast send "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "safeMint(address)" ${KEVIN} --private-key ${QUORRA_PRIVATE_KEY}
-stakingStatusOf0:; cast call "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "stakingStatusPerNFT(uint256)(uint256)" 0 
+# for Kevin
+mintASoftStakingNFTForKevin:; cast send "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "safeMint(address)" "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65" --private-key ${QUORRA_PRIVATE_KEY}
+stakingStatusOf0:; cast call "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "stakingStatusPerNFT(uint256)(uint256)" 0
 stakeNFT0:; cast send "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "stakeNFT(uint256)" 0 --value 1ether --private-key ${KEVIN_PRIVATE_KEY}
+checkStatusKevinInOracle:; cast send "0xEfDC2a236Dba7a8f60726b49abC79Ee6b22Ed445" "requestStatus(address,address)" "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65" "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65" --private-key ${KEVIN_PRIVATE_KEY}
+# for Sam
+mintASoftStakingNFTForSam:; cast send "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "safeMint(address)" "0x976ea74026e726554db657fa54763abd0c3a0aa9" --private-key ${QUORRA_PRIVATE_KEY}
+stakingStatusOf1:; cast call "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "stakingStatusPerNFT(uint256)(uint256)" 1
+stakeNFT1:; cast send "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "stakeNFT(uint256)" 1 --value 1ether --private-key ${SAM_PRIVATE_KEY}
+checkStatusSamInOracle:; cast send "0xEfDC2a236Dba7a8f60726b49abC79Ee6b22Ed445" "requestStatus(address,address)" "0x976ea74026e726554db657fa54763abd0c3a0aa9" "0x976ea74026e726554db657fa54763abd0c3a0aa9" --private-key ${SAM_PRIVATE_KEY}
+# for Clu
+mintASoftStakingNFTForClu:; cast send "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "safeMint(address)" "0x14dc79964da2c08b23698b3d3cc7ca32193d9955" --private-key ${QUORRA_PRIVATE_KEY}
+stakingStatusOf2:; cast call "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "stakingStatusPerNFT(uint256)(uint256)" 2
+stakeNFT2:; cast send "0x75afe612b0b6963f407aaBFbBc1096c1587456d9" "stakeNFT(uint256)" 2 --value 1ether --private-key ${CLU_PRIVATE_KEY}
+checkStatusCluInOracle:; cast send "0xEfDC2a236Dba7a8f60726b49abC79Ee6b22Ed445" "requestStatus(address,address)" "0x14dc79964da2c08b23698b3d3cc7ca32193d9955" "0x14dc79964da2c08b23698b3d3cc7ca32193d9955" --private-key ${SAM_PRIVATE_KEY}

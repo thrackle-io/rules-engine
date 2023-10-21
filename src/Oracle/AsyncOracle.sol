@@ -95,8 +95,11 @@ contract AsyncOracle is Context, Ownable{
         /// reentrancy prevention
         delete _req.balance;
         /// return any excess of gas funds
-        (bool sent, bytes memory data) = payable(_req.account).call{value: balance}("");
-        if(!sent) revert TransferFailed(data); 
+        if(balance >0){
+            (bool sent, bytes memory data) = payable(_req.account).call{value: balance}("");
+            if(!sent) revert TransferFailed(data); 
+        }
+        
         emit RequestCompleted(_requestId, isApproved);
     }
 

@@ -23,6 +23,8 @@ contract ProtocolERC721 is IProtocolERC721Min, ERC721Enumerable, ProtocolTokenCo
     error NotAuthorized();
     error HandlerFailed(bytes);
 
+    event StakingStatusUpdated(uint256 indexed tokenId, bool indexed isApproved);
+
     enum StakingStatus{
         UNLOCKED,
         LOCKED,
@@ -52,9 +54,11 @@ contract ProtocolERC721 is IProtocolERC721Min, ERC721Enumerable, ProtocolTokenCo
     }
 
     function updateStakingStatus(uint128 requestId, bool isApproved) external {
-        stakingStatusPerNFT[requestIdToNFT[requestId]] = isApproved ? StakingStatus.LOCKED : StakingStatus.UNLOCKED;
+        uint256 _tokenId = requestIdToNFT[requestId];
+        stakingStatusPerNFT[_tokenId] = isApproved ? StakingStatus.LOCKED : StakingStatus.UNLOCKED;
         // we free memory when not needed any more
         delete requestIdToNFT[requestId];
+        emit StakingStatusUpdated(_tokenId, isApproved);
     }
 
 

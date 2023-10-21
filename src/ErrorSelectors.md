@@ -88,6 +88,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x58b13098 | BalanceExceedsRiskScoreLimit()                                   |
 | 0x2b3f1e6e | InvalidTimeUnit()                                                |
 | 0x90b8ec18 | TransferFailed()                                                 |
+| 0x9a367e17 | TransferFailed(bytes data)                                       |
 | 0xfe5d1090 | RiskLevelCannotExceed99()                                        |
 | 0x06b5c782 | TokenNotAvailableToWithdraw()                                    |
 | 0x3fac082d | NotAllowedForAccessLevel()                                       |
