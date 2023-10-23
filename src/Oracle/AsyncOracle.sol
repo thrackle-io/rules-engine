@@ -96,6 +96,13 @@ contract AsyncOracle is Context, Ownable{
         delete _req.balance;
         /// return any excess of gas funds
         if(balance >0){
+            /// WARNING:
+            /// A malicious receiver contract might have a gas consumer function in the receive or fallback function
+            /// which could eat more gas than anticipated. A full test on the offchain side of the oracle must be
+            /// conducted to see if it is capable of forseeing these possible attacks, or we might need to limit the
+            /// amount of gas available to transfer the ETH by either setting a manual gas limit in the "call" function,
+            /// or by using either "send" or "transfer" instead of "call" although this might limit the transfers to
+            /// only EOAs or very simple receiving contracts.
             (bool sent, bytes memory data) = payable(_req.account).call{value: balance}("");
             if(!sent) revert TransferFailed(data); 
         }

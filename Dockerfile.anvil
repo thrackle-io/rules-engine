@@ -13,4 +13,4 @@ ENV CHAIN_ID 31337
 
 RUN pip install -r requirements.txt
 
-ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID
+ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID --base-fee 20000000000 
