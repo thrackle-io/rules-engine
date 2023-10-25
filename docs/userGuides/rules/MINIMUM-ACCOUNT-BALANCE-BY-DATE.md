@@ -73,6 +73,16 @@ The function will return the protocol id of the rule.
 
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
 
+### Role Applicability
+
+- **Evaluation Exceptions**: 
+    - This rule doesn't apply when the **app administrator** address is in either the *from* or *to* side of the transaction. This doesn't mean that if the app administrator is the one executing the transaction it will bypass the rule.
+    - This rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+
+- **Enabling/disabling**:
+    - This rule can only be configured in the protocol by the **rule administrator**.
+    - This rule can only be set in the asset handler by the **rule administrator**.
+
 ## Rule Processing
 
 The rule will be evaluated in the following way:
