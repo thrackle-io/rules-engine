@@ -51,11 +51,29 @@ The collection of these tagged sub-rules composes a minumum-account-balance-by-d
 ```
 ###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
 
-There is no limit in the amount of sub-rules that a rule can have other than at least one rule.
+There is no limit in the amount of sub-rules that a rule can have other than at least one sub-rule.
+
+### Rule Registering
+
+Registering a minimum-balance-by-date rule is done through the function:
+
+```c
+function addMinBalByDateRule(
+        address _appManagerAddr,
+        bytes32[] calldata _accountTags,
+        uint256[] calldata _holdAmounts,
+        uint16[] calldata _holdPeriods,
+        uint64[] calldata _startTimestamps
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
+```
+
+The registering function in the protocol needs to receive the appManager address of the application in order to verify that the caller has Rule administrator privileges. 
+
+The function will return the protocol id of the rule.
+
+###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
 
 ## Rule Processing
-
-### Evaluation
 
 The rule will be evaluated in the following way:
 
