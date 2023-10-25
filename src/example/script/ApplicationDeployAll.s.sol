@@ -41,6 +41,7 @@ contract ApplicationDeployAllScript is Script {
         ApplicationERC20 coin2 = new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager));
         applicationCoinHandler2 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2), false);
         coin2.connectHandlerToToken(address(applicationCoinHandler2));
+        vm.sleep(10000);
         /// oracle
         new OracleAllowed();
         new OracleRestricted();
