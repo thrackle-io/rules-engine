@@ -39,7 +39,6 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
-        _setNameAndSymbol(_name, _symbol);
         setBaseURI(_baseUri);
         emit NewNFTDeployed(address(this), _appManagerAddress);
     }
@@ -188,10 +187,6 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
         return _contractSymbol;
     }
 
-    function _setNameAndSymbol(string memory name_, string memory symbol_) internal virtual override {
-        _contractName = name_;
-        _contractSymbol = symbol_;
-    }
 
     function _requireCallerIsContractOwner() internal view virtual override {}
 
