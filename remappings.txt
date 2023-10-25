@@ -3,3 +3,4 @@ ds-test/=lib/forge-std/lib/ds-test/src/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 @openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
 diamond-std/=lib/diamond-std/
+@limitbreak/creator-token-contracts/=lib/creator-token-contracts/
