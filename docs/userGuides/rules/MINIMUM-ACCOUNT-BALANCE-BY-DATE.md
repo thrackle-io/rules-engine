@@ -65,6 +65,20 @@ A minimum-balance-by-date rule must have at least one sub-rule. There is no maxi
     - This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
     - This rule can only be updated in the asset handler by a **rule administrator**.
 
+
+## Rule Evaluation
+
+The rule will be evaluated with the following logic:
+
+1. The account being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
+2. The processor will receive these tags along with the ID of the minimum-balance-by-date rule set in the token handler. 
+3. The processor will then try to retrieve the sub-rule associated with each tag.
+4. The processor will evaluate whether each sub-rule's hold period is still active (if the current time is within `hold period` from the `starting timestamp`). If it is, the processor will then evaluate if the final balance of the account would be less than the `hold amount` in the case of the transaction succeeding. If yes, then the transaction will revert.
+5. Step 4 is repeated for each of the account's tags. 
+
+###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
+
+
 ## Create Function
 
 Registering a minimum-balance-by-date rule is done through the function:
@@ -84,20 +98,6 @@ The registering function in the protocol needs to receive the appManager address
 The registering function will return the protocol ID of the rule.
 
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
-
-## Rule Processing
-
-The rule will be evaluated in the following way:
-
-1. The account being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
-2. The processor will receive these tags along with the ID of the minimum-balance-by-date rule set in the token handler. 
-3. The processor then will try to retrieve the sub-rule associated with each tag of the account.
-4. The processor will evaluate whether each sub-rule's hold period is still active (if the current time is within `hold period` from the `starting timestamp`). If it is, the processor will then evaluate if the final balance of the account would be less than the `hold amount` in the case of the transaction succeeding. If yes, then the transaction will revert.
-5. Step 4 is repeated for each of the account's tags. 
-
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
-
-
 
 ### Return Data
 
