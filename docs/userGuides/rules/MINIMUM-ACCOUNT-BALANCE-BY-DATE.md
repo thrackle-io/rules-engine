@@ -81,7 +81,7 @@ The rule will be evaluated with the following logic:
 
 ## Create Function
 
-Registering a minimum-balance-by-date rule is done through the function:
+Adding a minimum-balance-by-date rule is done through the function:
 
 ```javascript
 function addMinBalByDateRule(
@@ -93,9 +93,9 @@ function addMinBalByDateRule(
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 
-The registering function in the protocol needs to receive the appManager address of the application in order to verify that the caller has Rule administrator privileges. 
+The create function in the protocol needs to receive the appManager address of the application in order to verify that the caller has Rule administrator privileges. 
 
-The registering function will return the protocol ID of the rule.
+The create function will return the protocol ID of the rule.
 
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
 
