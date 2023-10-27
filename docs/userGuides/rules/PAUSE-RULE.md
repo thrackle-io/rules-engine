@@ -34,7 +34,7 @@ struct PauseRule {
 
 - **Evaluation Exceptions**: 
     - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-    - This rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+    - In the case of the ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 - **Configuration and Enabling/Disabling**:
     - This rule can only be configured in the protocol by a **rule administrator**.
@@ -57,9 +57,9 @@ Adding a pause rule is done through the function:
 ```javascript
 function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE);
 ```
-###### *see [ProtocolApplicationHandler](../../../src/application/ProtocolApplicationHandler.sol)*
+###### *see [AppManager](../../../src/application/AppManager.sol)*
 
-The create function in the applicationAppHandler needs to receive the start timestamp (_pauseStart) and the ending timestamp (_pauseStop).
+The create function in the AppManager needs to receive the start timestamp (_pauseStart) and the ending timestamp (_pauseStop).
 
 This create function will also delete automatically any pause rule where the `pauseStop` timestamp is less than current timestamp  since this means that the rule has *expired*. 
 
@@ -68,27 +68,62 @@ There is a default limit of 15 pause rules per application to avoid too much gas
 ```
 uint8 constant MAX_RULES = 15;
 ```
+
+### Parameter Validation:
+
+The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
+
+- The amount of rules won't be greater than `MAX_RULES`.
+- `pauseStop` timestamp is greater than `pauseStart`.
+- `pauseStart` timestamp is greater than current timestamp.
+
+
 ###### *see [PauseRules](../../../src/data/PauseRules.sol)*
 
-It is worth noting that this rule is special in the sense that it is not stored in the protocol but in the AppManager data contracts. Therefore, this rule doesn't have an ID like the other rules.
+It is worth noting that this rule is special in the sense that it is not stored in the protocol but in the AppManager data contracts. Therefore, this rule doesn't have an ID like the other rules. This fact also makes this rule unreachable by other applications.
 
 ###### *see [ProtocolApplicationHandler](../../../src/application/ProtocolApplicationHandler.sol)*
 
-### Return Data
+## Other Functions:
+
+- In [AppManager](../../../src/application/AppManager.sol):
+    -  Function to remove a rule:
+        ```javascript
+        function removePauseRule(
+                        uint256 _pauseStart, 
+                        uint256 _pauseStop
+                    ) 
+                    external 
+                    onlyRole(RULE_ADMIN_ROLE);
+        ```
+    - Function to activate/deactivate the rule:
+        ```javascript
+        function activatePauseRuleCheck(bool _on) external onlyRole(RULE_ADMIN_ROLE);
+        ```
+    - Function to get all rules:
+        ```javascript
+        function getPauseRules() external view returns (PauseRule[] memory);
+        ```
+    - Function to clean expired rules:
+        ```javascript
+        function cleanOutdatedRules() external;
+        ```
+
+## Return Data
 
 This rule doesn't return any data.
 
-### Data Recorded
+## Data Recorded
 
 This rule doesn't require of any data to be recorded.
 
-### Events
+## Events
 
 - **PauseRuleEvent(uint256 indexed pauseStart, uint256 indexed pauseStop, bool indexed add)**: emitted when:
     - A pause rule has been added. In this case, the `add` field of the event will be *true*.
     - A pause rule has been removed. In this case, the `add` field of the event will be *false*.
 
-### Dependencies
+## Dependencies
 
 This rule has no dependencies.
 
