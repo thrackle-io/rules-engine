@@ -106,7 +106,7 @@ The following validation will be carried out by the create function in order to 
 - If a `startTimestamp` is 0, then the contract will make it current timestamp.
 - `_appManagerAddr` is not the zero address.
 - All the parameter arrays have at least one element.
-- All the patameter arrays are the exact same length.
+- All the patameter arrays have the exact same length.
 - Not one `tag` can be a blank tag.
 - Not one `holdAmount` nor `holdPeriod` can have a value of 0.
 
@@ -127,9 +127,9 @@ The following validation will be carried out by the create function in order to 
                 returns 
                 (TaggedRules.MinBalByDateRule memory);
         ```
-    - Function to get current amount of rules:
+    - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalMinBalByDateRule() public view returns (uint32)
+        function getTotalMinBalByDateRule() public view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     - Function that evaluates the rule:
@@ -144,11 +144,11 @@ The following validation will be carried out by the create function in order to 
                 view;
         ```
 - in Asset Handler:
-    - Function to set and activate at the same time a rule in an asset handler:
+    - Function to set and activate at the same time the rule in an asset handler:
         ```c
         function setMinBalByDateRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate a rule in an asset handler:
+    - Function to activate/deactivate the rule in an asset handler:
         ```c
         function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
@@ -156,7 +156,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function isMinBalByDateActive() external view returns (bool);
         ```
-    - Function to get the rule Id in an asset handler:
+    - Function to get the rule Id from an asset handler:
         ```c
         function getMinBalByDateRule() external view returns (uint32);
         ```
