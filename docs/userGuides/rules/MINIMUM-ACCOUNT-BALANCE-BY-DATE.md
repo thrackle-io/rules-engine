@@ -21,7 +21,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
 - **Hold period** (uint16): The amount of hours to hold the tokens.
 - **Starting timestamp** (uint64): The timestamp of the date when the *hold period* starts counting.
 
-```javascript
+```c
 /// ******** Minimum Balance By Date Rules ********
     struct MinBalByDateRule {
         uint256 holdAmount; /// token units
@@ -35,7 +35,7 @@ Additionally, each one of these data structures will be under a tag (bytes32):
 
  tag -> sub-rule.
 
- ```javascript
+ ```c
     //      tag     =>   sub-rule
     mapping(bytes32 => ITaggedRules.MinBalByDateRule)
 ```
@@ -43,7 +43,7 @@ Additionally, each one of these data structures will be under a tag (bytes32):
 
 The collection of these tagged sub-rules composes a minumum-account-balance-by-date rule.
 
- ```javascript
+ ```c
     /// ******** Minimum Balance By Date ********
     struct MinBalByDateRuleS {
         /// ruleIndex => userTag => rules
@@ -85,14 +85,14 @@ The rule will be evaluated with the following logic:
 
 Adding a minimum-balance-by-date rule is done through the function:
 
-```javascript
+```c
 function addMinBalByDateRule(
-        address _appManagerAddr,
-        bytes32[] calldata _accountTags,
-        uint256[] calldata _holdAmounts,
-        uint16[] calldata _holdPeriods,
-        uint64[] calldata _startTimestamps
-    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
+            address _appManagerAddr,
+            bytes32[] calldata _accountTags,
+            uint256[] calldata _holdAmounts,
+            uint16[] calldata _holdPeriods,
+            uint64[] calldata _startTimestamps
+        ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 
 The create function in the protocol needs to receive the appManager address of the application in order to verify that the caller has Rule administrator privileges. 
@@ -117,23 +117,23 @@ The following validation will be carried out by the create function in order to 
 
 - In Protocol [Storage Diamond]((../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)):
     -  Function to get a rule by its ID:
-        ```javascript
+        ```c
         function getMinBalByDateRule(
-                        uint32 _index, 
-                        bytes32 _accountTag
-                    ) 
-                    external 
-                    view 
-                    returns 
-                    (TaggedRules.MinBalByDateRule memory);
+                    uint32 _index, 
+                    bytes32 _accountTag
+                ) 
+                external 
+                view 
+                returns 
+                (TaggedRules.MinBalByDateRule memory);
         ```
     - Function to get current amount of rules:
-        ```javascript
+        ```c
         function getTotalMinBalByDateRule() public view returns (uint32)
         ```
 - In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     - Function that evaluates the rule:
-        ```javascript
+        ```c
         function checkMinBalByDatePasses(
                     uint32 ruleId, 
                     uint256 balance, 
@@ -145,19 +145,19 @@ The following validation will be carried out by the create function in order to 
         ```
 - in Asset Handler:
     - Function to set and activate at the same time a rule in an asset handler:
-        ```javascript
+        ```c
         function setMinBalByDateRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate a rule in an asset handler:
-        ```javascript
+        ```c
         function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule in an asset handler:
-        ```javascript
+        ```c
         function isMinBalByDateActive() external view returns (bool);
         ```
     - Function to get the rule Id in an asset handler:
-        ```javascript
+        ```c
         function getMinBalByDateRule() external view returns (uint32);
         ```
 ## Return Data
