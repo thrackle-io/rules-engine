@@ -69,7 +69,7 @@ The rule will be evaluated in the following way:
 1. The collection being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
 2. The processor will receive these tags along with the ID of the transfer-counter rule set in the token handler.
 3. The processor will then try to retrieve the sub-rule associated with each tag.
-4. The processor will evaluate whether the last transaction time for the tokenId is within the rule period from the starting timestamp. If yes, the rule will continue to the trades per day check (step 5). If no, the rule will return the new trades per day value for the token Id. 
+4. The processor will evaluate whether the trade is within a new period. If no, the rule will continue to the trades per day check (step 5). If yes, the rule will return `tradesInPeriod` of 1 (current trade) for the token Id. 
 5. The processor will evaluate if the total number of trades within the period plus the current trade would be more than the amount of trades allowed per day by the rule in the case of the transaction succeeding. If yes (trades will exceed allowable trades per day), then the transaction will revert.
 
 ###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkNFTTransferCounter*
