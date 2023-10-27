@@ -75,7 +75,7 @@ The rule will be evaluated in the following way:
 
 ### Create Function
 
-Addimg a transfer-counter rule is done through the function:
+Adding a transfer-counter rule is done through the function:
 
 ```c
 function addNFTTransferCounterRule(
@@ -90,7 +90,7 @@ The registering function in the protocol needs to receive the appManager address
 
 The function will return the protocol id of the rule.
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)*
 
 ### Return Data
 
