@@ -54,7 +54,7 @@ The rule will be evaluated with the following logic:
 
 Adding a pause rule is done through the function:
 
-```javascript
+```c
 function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE);
 ```
 ###### *see [AppManager](../../../src/application/AppManager.sol)*
@@ -88,7 +88,7 @@ It is worth noting that this rule is special in the sense that it is not stored 
 
 - In [AppManager](../../../src/application/AppManager.sol):
     -  Function to remove a rule:
-        ```javascript
+        ```c
         function removePauseRule(
                         uint256 _pauseStart, 
                         uint256 _pauseStop
@@ -97,15 +97,15 @@ It is worth noting that this rule is special in the sense that it is not stored 
                     onlyRole(RULE_ADMIN_ROLE);
         ```
     - Function to activate/deactivate the rule:
-        ```javascript
+        ```c
         function activatePauseRuleCheck(bool _on) external onlyRole(RULE_ADMIN_ROLE);
         ```
     - Function to get all rules:
-        ```javascript
+        ```c
         function getPauseRules() external view returns (PauseRule[] memory);
         ```
     - Function to clean expired rules:
-        ```javascript
+        ```c
         function cleanOutdatedRules() external;
         ```
 
