@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The transfer-counter rule enforces a daily limit on number of trades for each token within a collection. In the context of this rule, a "trade" is a transfer of a token from one address to another. This rule has two potential purposes: to reduce volatility of token price in the collection and the prevention of malfeasance for holders who transfer a token between addresses repeatedly. Trades are considered a transfer from one address to another for this rule. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a psuedo "soulBound" token, preventing all transfers of tokens in the collection. 
+The transfer-counter rule enforces a daily limit on number of trades for each token within a collection. In the context of this rule, a "trade" is a transfer of a token from one address to another. This rule has two potential purposes: to reduce volatility of token price in the collection and the prevention of malfeasance for holders who transfer a token between addresses repeatedly. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a pseudo "soulBound" token, preventing all transfers of tokens in the collection.  
 
 ## Tokens Supported
 
