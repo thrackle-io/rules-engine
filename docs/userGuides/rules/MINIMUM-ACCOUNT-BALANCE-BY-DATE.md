@@ -2,11 +2,12 @@
 
 ## Purpose
 
-The purpose of the minimum-balance-by-date rule is to prevent ERC20 token holders from rapidly flooding the market with newly acquired tokens since a dramatic increase in supply over a short time frame can cause a token price crash. This rule attempts to mitigates this scenario by making holders wait some period of time before they can sell their tokens. The length of time depends on the account's tags. Different accounts may need to wait different periods of time depending on their tags, or even no time at all.
+The purpose of the minimum-balance-by-date rule is to prevent token holders from rapidly flooding the market with newly acquired tokens since a dramatic increase in supply over a short time frame can cause a token price crash. This rule attempts to mitigate this scenario by making holders wait some period of time before they can transfer their tokens. The length of time depends on the account's tags. Different accounts may need to wait different periods of time depending on their tags, or even no time at all.
 
 ## Tokens Supported
 
 - ERC20
+- ERC721
 
 ## Scope 
 
@@ -20,7 +21,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
 - **Hold period** (uint16): The amount of hours to hold the tokens.
 - **Starting timestamp** (uint64): The timestamp of the date when the *hold period* starts counting.
 
-```c
+```javascript
 /// ******** Minimum Balance By Date Rules ********
     struct MinBalByDateRule {
         uint256 holdAmount; /// token units
@@ -35,13 +36,14 @@ Additionally, each one of these data structures will be under a tag (bytes32):
  tag -> sub-rule.
 
  ```javascript
+    //      tag     =>   sub-rule
     mapping(bytes32 => ITaggedRules.MinBalByDateRule)
 ```
 ###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
 
 The collection of these tagged sub-rules composes a minumum-account-balance-by-date rule.
 
- ```c
+ ```javascript
     /// ******** Minimum Balance By Date ********
     struct MinBalByDateRuleS {
         /// ruleIndex => userTag => rules
@@ -57,7 +59,7 @@ A minimum-balance-by-date rule must have at least one sub-rule. There is no maxi
 
 - **Evaluation Exceptions**: 
     - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-    - This rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+    - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 - **Configuration and Enabling/Disabling**:
     - This rule can only be configured in the protocol by a **rule administrator**.
@@ -97,21 +99,92 @@ The create function in the protocol needs to receive the appManager address of t
 
 The create function will return the protocol ID of the rule.
 
+### Parameter Validation:
+
+The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
+
+- If a `startTimestamp` is 0, then the contract will make it current timestamp.
+- `_appManagerAddr` is not the zero address.
+- All the parameter arrays have at least one element.
+- All the patameter arrays are the exact same length.
+- Not one `tag` can be a blank tag.
+- Not one `holdAmount` nor `holdPeriod` can have a value of 0.
+
+
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
 
-### Return Data
+## Other Functions:
+
+- In Protocol [Storage Diamond]((../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)):
+    -  Function to get a rule by its ID:
+        ```javascript
+        function getMinBalByDateRule(
+                        uint32 _index, 
+                        bytes32 _accountTag
+                    ) 
+                    external 
+                    view 
+                    returns 
+                    (TaggedRules.MinBalByDateRule memory);
+        ```
+    - Function to get current amount of rules:
+        ```javascript
+        function getTotalMinBalByDateRule() public view returns (uint32)
+        ```
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+    - Function that evaluates the rule:
+        ```javascript
+        function checkMinBalByDatePasses(
+                    uint32 ruleId, 
+                    uint256 balance, 
+                    uint256 amount, 
+                    bytes32[] calldata toTags
+                ) 
+                external 
+                view;
+        ```
+- in Asset Handler:
+    - Function to set and activate at the same time a rule in an asset handler:
+        ```javascript
+        function setMinBalByDateRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        ```
+    - Function to activate/deactivate a rule in an asset handler:
+        ```javascript
+        function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        ```
+    - Function to know the activation state of the rule in an asset handler:
+        ```javascript
+        function isMinBalByDateActive() external view returns (bool);
+        ```
+    - Function to get the rule Id in an asset handler:
+        ```javascript
+        function getMinBalByDateRule() external view returns (uint32);
+        ```
+## Return Data
 
 This rule doesn't return any data.
 
-### Data Recorded
+## Data Recorded
 
 This rule doesn't require of any data to be recorded.
 
-### Events
+## Events
 
-No events are emitted in this rule.
+- **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
+    - Emitted when: the rule has been created in the protocol.
+    - Parameters:
+        - ruleType: "MIN_ACCT_BAL_BY_DATE".
+        - ruleId: the index of the rule created in the protocol by rule type.
+        - extraTags: the tags for each sub-rule.
 
-### Dependencies
+- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+    - Emitted when: rule has been applied in an asset handler.
+    - parameters: 
+        - ruleType: "MIN_ACCT_BAL_BY_DATE".
+        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - ruleId: the index of the rule created in the protocol by rule type.
+
+## Dependencies
 
 - **Tags**: This rules relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
 
