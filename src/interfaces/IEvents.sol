@@ -21,8 +21,8 @@ interface IAppLevelEvents {
     event RuleAdmin(address indexed admin, bool indexed add);
     event RiskAdmin(address indexed admin, bool indexed add);
     event AccessTierAdmin(address indexed admin, bool indexed add);
-    event AppAdministrator(address indexed admin, bool indexed add); 
-    event SuperAdministrator(address indexed admin, bool indexed add); 
+    event AppAdministrator(address indexed admin, bool indexed add);
+    event SuperAdministrator(address indexed admin, bool indexed add);
     ///Registrations
     event TokenRegistered(string indexed _token, address indexed _address);
     event TokenNameUpdated(string indexed _token, address indexed _address);
@@ -49,16 +49,15 @@ interface IAppLevelEvents {
     event RiskScoreRemoved(address indexed _address);
 }
 
-interface IOracleEvents{
+interface IOracleEvents {
     event AllowedAddress(address indexed addr);
     event NotAllowedAddress(address indexed addr);
     event AllowListOracleDeployed();
-     event SanctionedAddress(address indexed addr);
+    event SanctionedAddress(address indexed addr);
     event NonSanctionedAddress(address indexed addr);
     event SanctionedListOracleDeployed();
     event OracleListChanged(bool indexed add, address[] addresses); // new event
 }
-
 
 /**
  * @title Application Handler Events Interface
@@ -110,11 +109,14 @@ interface ITokenHandlerEvents {
     /// Rule applied
     event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId);
     event ApplicationHandlerSimpleApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint256 indexed param1);
+    event ApplicationHandlerTokenApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint256 tokenId, uint32 indexed ruleId);
 
     /// Rule deactivated
     event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
+    event ApplicationHandlerTokenDeactivated(bytes32 indexed ruleType, uint256 tokenId, address indexed handlerAddress);
     /// Rule activated
     event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
+    event ApplicationHandlerTokenActivated(bytes32 indexed ruleType, uint256 tokenId, address indexed handlerAddress);
     /// NFT Valuation Limit Updated
     event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit, address indexed handlerAddress);
     event AppManagerAddressSet(address indexed _address);
