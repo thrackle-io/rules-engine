@@ -13,8 +13,8 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 /**
  * @title Example ApplicationERC1155Handler Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
- * @dev This contract performs all rule checks related to the the ERC1155 that implements it.
- * @notice Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
+ * @dev This contract performs all rule checks related to the ERC1155 that implements it.
+ * @notice Any rules may be added by modifying this contract, redeploying, and pointing the ERC1155 to the new version.
  */
 contract ProtocolERC1155Handler is Ownable, ProtocolHandlerCommon, AppAdministratorOnly, RuleAdministratorOnly, ERC165 {
     using ERC165Checker for address;

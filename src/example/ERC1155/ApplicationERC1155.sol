@@ -22,7 +22,7 @@ contract ApplicationERC1155 is ProtocolERC1155 {
      * @param to recipient of mint
      * @param id asset's tokenID
      * @param amount amount to mint
-     * @param data adata
+     * @param data data
      */
     function mint(address to, uint256 id, uint256 amount, bytes memory data) public virtual {
         _mint(to, id, amount, data);

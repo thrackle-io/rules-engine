@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-// import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import {IApplicationEvents} from "../../interfaces/IEvents.sol";
 import {IZeroAddressError} from "../../interfaces/IErrors.sol";
@@ -15,7 +14,6 @@ import "../../economic/AppAdministratorOnly.sol";
  * @title ERC1155 Base Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This is the base contract for all protocol ERC1155's
- * @dev The only thing to recognize is that flash minting is added but not allowed...yet
  */
 contract ProtocolERC1155 is ERC1155Burnable, Pausable, ProtocolTokenCommon {
     // address of the Handler
@@ -85,7 +83,7 @@ contract ProtocolERC1155 is ERC1155Burnable, Pausable, ProtocolTokenCommon {
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC20).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC1155).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
