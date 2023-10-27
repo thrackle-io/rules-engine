@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of th transfer-counter rule is to set and maintain a daily "trades" limit for all tokenId's within a collection. This allows for the reduction in volitility of tokens within the collection or prevent malfeasance for holders who transfer a token between addresses repeatedly. Trades are considered a transfer from one address to another for this rule. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a psuedo "soulBound" token, preventing all transfers of tokens in the collection. 
+The purpose of the transfer-counter rule is to set and maintain a daily "trades" limit for all tokenId's within a collection. This allows for the reduction in volitility of tokens within the collection or prevent malfeasance for holders who transfer a token between addresses repeatedly. Trades are considered a transfer from one address to another for this rule. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a psuedo "soulBound" token, preventing all transfers of tokens in the collection. 
 
 ## Tokens Supported
 
@@ -66,9 +66,10 @@ There is no limit in the amount of sub-rules that a rule can have other than at 
 The rule will be evaluated in the following way:
 
 1. The collection being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
-2. The processor will receive these tags along with the ID of the trasnfer-counter rule set in the token handler.
+2. The processor will receive these tags along with the ID of the transfer-counter rule set in the token handler.
 3. The processor will then try to retrieve the sub-rule associated with each tag.
-4. The processor will evaluate whether the current time is within the rule period from the starting timestamp. If it is, the processor will then evaluate if the total number of trades within the period plus the current trade would be less than the amount of trades allowed per day by the rule in the case of the transaction succeeding. If yes (trades will exceed allowable trades per day), then the transaction will revert.
+4. The processor will evaluate whether the last transaction time for the tokenId is within the rule period from the starting timestamp. If yes, the rule will continue to the trades per day check. If no, the rule will return the new trades per day value for the token Id. 
+5. The processor will evaluate if the total number of trades within the period plus the current trade would be more than the amount of trades allowed per day by the rule in the case of the transaction succeeding. If yes (trades will exceed allowable trades per day), then the transaction will revert.
 
 ###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkNFTTransferCounter*
 
@@ -96,14 +97,12 @@ The function will return the protocol id of the rule.
 This rule returns a new tradesInPeriod(uint256) to the token handler on success.
 
 ```
-// map the tokenId of this NFT to the number of trades in the period
 mapping(uint256 => uint256) tradesInPeriod;
 ```
 ### Data Recorded
 
-This rule requires that the handler to record the timestamp for each tokenId's last trade.
+This rule requires that the handler record the timestamp for each tokenId's last trade. This is recorded only after the rule is activated and after each successfull transfer. 
 ```
-// map the tokenId of this NFT to the last transaction timestamp
 mapping(uint256 => uint64) lastTxDate;
 ```
 ### Events
