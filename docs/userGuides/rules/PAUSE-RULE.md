@@ -57,10 +57,18 @@ Adding a pause rule is done through the function:
 ```javascript
 function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE);
 ```
+###### *see [ProtocolApplicationHandler](../../../src/application/ProtocolApplicationHandler.sol)*
 
 The create function in the applicationAppHandler needs to receive the start timestamp (_pauseStart) and the ending timestamp (_pauseStop).
 
 This create function will also delete automatically any pause rule where the `pauseStop` timestamp is less than current timestamp  since this means that the rule has *expired*. 
+
+There is a default limit of 15 pause rules per application to avoid too much gas consumption during transactions.
+
+```
+uint8 constant MAX_RULES = 15;
+```
+###### *see [PauseRules](../../../src/data/PauseRules.sol)*
 
 It is worth noting that this rule is special in the sense that it is not stored in the protocol but in the AppManager data contracts. Therefore, this rule doesn't have an ID like the other rules.
 
