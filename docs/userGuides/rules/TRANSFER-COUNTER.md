@@ -107,7 +107,10 @@ mapping(uint256 => uint64) lastTxDate;
 ```
 ### Events
 
-No events are emitted in this rule.
+- **ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** emitted when a Transfer counter rule has been added. For this rule:
+    - ruleType is NFT_TRANSFER
+    - index is the rule index set by the Protocol
+    - extraTags is an empty array.
 
 ### Dependencies
 
