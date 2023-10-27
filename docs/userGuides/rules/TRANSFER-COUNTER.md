@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the transfer-counter rule is to set and maintain a daily "trades" limit for all tokenId's within a collection. This allows for the reduction in volitility of tokens within the collection or prevent malfeasance for holders who transfer a token between addresses repeatedly. Trades are considered a transfer from one address to another for this rule. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a psuedo "soulBound" token, preventing all transfers of tokens in the collection. 
+The purpose of the transfer-counter rule is to set and maintain a daily "trades" limit for all tokenId's within a collection. This allows for the reduction in volitility of tokens within the collection and the prevention of malfeasance for holders who transfer a token between addresses repeatedly. Trades are considered a transfer from one address to another for this rule. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a psuedo "soulBound" token, preventing all transfers of tokens in the collection. 
 
 ## Tokens Supported
 
@@ -48,7 +48,7 @@ The tagged token collections then compose a transfer-counter rule.
 ```
 ###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
 
-There is no limit in the amount of sub-rules that a rule can have other than at least one sub-rule.
+There is no limit to the amount of sub-rules that a rule can have other than at least one sub-rule.
 
 ### Role Applicability
 
@@ -85,6 +85,7 @@ function addNFTTransferCounterRule(
         uint64 _startTs
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32)
 ```
+bytes32 _nftTypes are the same as [tags](../GLOSSARY.md) and are applied to the ERC721 contract address in the App Manager. 
 
 The registering function in the protocol needs to receive the appManager address of the application in order to verify that the caller has Rule administrator privileges. 
 

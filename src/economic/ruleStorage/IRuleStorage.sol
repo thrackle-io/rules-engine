@@ -125,7 +125,7 @@ interface IRuleStorage {
     /*****************************************/
     struct NFTTransferCounterRuleS {
         /// ruleIndex => taggedNFT => tradesAllowed
-        mapping(uint32 => mapping(bytes32 => INonTaggedRules.NFTTradeCounterRule)) NFTTransferCounterRule;
+        mapping(uint32 => mapping(bytes32 => ITaggedRules.NFTTradeCounterRule)) NFTTransferCounterRule;
         uint32 NFTTransferCounterRuleIndex; /// increments every time someone adds a rule
     }
     /*****************************************

@@ -3,7 +3,8 @@ pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
 import {TaggedRuleDataFacet} from "../ruleStorage/TaggedRuleDataFacet.sol";
-import {IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";
+import {ITaggedRules as TaggedRules} from "../ruleStorage/RuleDataInterfaces.sol";
+import {IERC721Errors, IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";
 import "./RuleProcessorCommonLib.sol";
 
 /**
@@ -12,8 +13,9 @@ import "./RuleProcessorCommonLib.sol";
  * @dev This contract implements rules to be checked by Handler.
  * @notice Implements Non-Fungible Token Checks on Tagged Accounts.
  */
-contract ERC721TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError {
+contract ERC721TaggedRuleProcessorFacet is IERC721Errors, IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError {
     using RuleProcessorCommonLib for bytes32[];
+    using RuleProcessorCommonLib for uint64;
 
     /**
      * @dev Check the minMaxAccoutBalace rule. This rule ensures accounts cannot exceed or drop below specified account balances via account tags.
@@ -77,4 +79,40 @@ contract ERC721TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors,
             }
         }
     }
+
+    /**
+     * @dev This function receives a rule id, which it uses to get the NFT Trade Counter rule to check if the transfer is valid.
+     * @param ruleId Rule identifier for rule arguments
+     * @param transfersWithinPeriod Number of transfers within the time period
+     * @param nftTags NFT tags
+     * @param lastTransferTime block.timestamp of most recent transaction from sender.
+     */
+    function checkNFTTransferCounter(uint32 ruleId, uint256 transfersWithinPeriod, bytes32[] calldata nftTags, uint64 lastTransferTime) public view returns (uint256) {
+        nftTags.checkMaxTags();
+        uint256 cumulativeTotal;
+        TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
+        uint totalRules = data.getTotalNFTTransferCounterRules();
+        for (uint i = 0; i < nftTags.length; ) {
+            // if the tag is blank, then ignore
+            if (bytes32(nftTags[i]).length != 0) {
+                cumulativeTotal = 0;
+                if (totalRules > ruleId) {
+                    TaggedRules.NFTTradeCounterRule memory rule = data.getNFTTransferCounterRule(ruleId, nftTags[i]);
+                    uint32 period = 24; // set purchase period to one day(24 hours)
+                    uint256 tradesAllowedPerDay = rule.tradesAllowedPerDay;
+                    // if within time period, add to cumulative
+                    cumulativeTotal = rule.startTs.isWithinPeriod(period, lastTransferTime) ? 
+                    transfersWithinPeriod + 1 : 1;
+                    if (cumulativeTotal > tradesAllowedPerDay) revert MaxNFTTransferReached();
+                    unchecked {
+                        ++i;
+                    }
+                } else {
+                    revert RuleDoesNotExist();
+                }
+            }
+        }
+        return cumulativeTotal;
+    }
+
 }
