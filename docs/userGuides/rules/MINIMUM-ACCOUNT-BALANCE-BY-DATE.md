@@ -94,16 +94,23 @@ function addMinBalByDateRule(
             uint64[] calldata _startTimestamps
         ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
+###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+
 
 The create function in the protocol needs to receive the appManager address of the application in order to verify that the caller has Rule administrator privileges. 
 
 The create function will return the protocol ID of the rule.
 
+
+### Parameter Optionality:
+
+The parameters where developers have the options are:
+- **_startTimestamps**: developers can pass Unix timestamps or simply 0s. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation. The `_startTimestamps` array can have mixed options.
+
 ### Parameter Validation:
 
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
-- If a `startTimestamp` is 0, then the contract will make it current timestamp.
 - `_appManagerAddr` is not the zero address.
 - All the parameter arrays have at least one element.
 - All the patameter arrays have the exact same length.
