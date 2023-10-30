@@ -14,7 +14,7 @@ import "../diamond/RuleProcessorDiamondTestUtil.sol";
 import {TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
+import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import "test/helpers/TestCommonFoundry.sol";
@@ -276,9 +276,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         tradesAllowed[0] = 1;
         tradesAllowed[1] = 5;
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
-        NonTaggedRules.NFTTradeCounterRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
+        TaggedRules.NFTTradeCounterRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
         assertEq(rule.startTs, Blocktime);
         // tag the NFT collection
@@ -1231,7 +1231,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             nftTags[0] = bytes32("BoredGrape");
             uint8[] memory tradesAllowed = new uint8[](1);
             tradesAllowed[0] = 3;
-            uint32 tradeRuleId = RuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+            uint32 tradeRuleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
             switchToAppAdministrator();
             applicationAppManager.addGeneralTag(address(applicationNFT), "BoredGrape"); ///add tag
             switchToRuleAdmin();
