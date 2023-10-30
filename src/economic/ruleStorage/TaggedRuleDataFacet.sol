@@ -508,4 +508,73 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         return data.minBalByDateRulesIndex;
     }
+
+    /************ NFT Getters/Setters ***********/
+    /**
+     * @dev Function adds Balance Limit Rule
+     * @param _appManagerAddr App Manager Address
+     * @param _nftTypes Types of NFTs
+     * @param _tradesAllowed Maximum trades allowed within 24 hours
+     * @param _startTs starting timestamp for the rule
+     * @return _nftTransferCounterRules which returns location of rule in array
+     */
+    function addNFTTransferCounterRule(
+        address _appManagerAddr,
+        bytes32[] calldata _nftTypes,
+        uint8[] calldata _tradesAllowed,
+        uint64 _startTs
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress();
+        if (_nftTypes.length == 0 || _startTs == 0) revert ZeroValueNotPermited();
+        if (_nftTypes.length != _tradesAllowed.length) revert InputArraysMustHaveSameLength();
+        _startTs.validateTimestamp();
+
+        return _addNFTTransferCounterRule(_nftTypes, _tradesAllowed, _startTs);
+    }
+
+    /**
+     * @dev internal Function to avoid stack too deep error
+     * @param _nftTypes Types of NFTs
+     * @param _tradesAllowed Maximum trades allowed within 24 hours
+     * @param _startTs starting timestamp for the rule
+     * @return position of new rule in array
+     */
+    function _addNFTTransferCounterRule(bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed, uint64 _startTs) internal returns (uint32) {
+        RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
+        uint32 index = data.NFTTransferCounterRuleIndex;
+        for (uint256 i; i < _nftTypes.length; ) {
+            if (_nftTypes[i] == bytes32("")) revert BlankTag();
+            TaggedRules.NFTTradeCounterRule memory rule = TaggedRules.NFTTradeCounterRule(_tradesAllowed[i], _startTs);
+            data.NFTTransferCounterRule[index][_nftTypes[i]] = rule;
+            unchecked {
+                ++i;
+            }
+        }
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(NFT_TRANSFER, index, empty);
+        ++data.NFTTransferCounterRuleIndex;
+        return index;
+    }
+
+    /**
+     * @dev Function get the NFT Transfer Counter rule in the rule set that belongs to an NFT type
+     * @param _index position of rule in array
+     * @param _nftType Type of NFT
+     * @return NftTradeCounterRule at index location in array
+     */
+    function getNFTTransferCounterRule(uint32 _index, bytes32 _nftType) external view returns (TaggedRules.NFTTradeCounterRule memory) {
+        RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalNFTTransferCounterRules());
+        return data.NFTTransferCounterRule[_index][_nftType];
+    }
+
+    /**
+     * @dev Function gets total NFT Trade Counter rules
+     * @return Total length of array
+     */
+    function getTotalNFTTransferCounterRules() public view returns (uint32) {
+        RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
+        return data.NFTTransferCounterRuleIndex;
+    }
 }
