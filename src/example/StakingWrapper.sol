@@ -5,9 +5,9 @@ import ".././token/ERC721/ProtocolERC721.sol";
 import ".././token/ProtocolTokenCommon.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@limitbreak/creator-token-contracts/contracts/erc721c/extensions/ERC721CW.sol";
+import "@limitbreak/creator-token-contracts/contracts/programmable-royalties/BasicRoyalties.sol";
 
-
-contract StakingWrapper is ERC721CW, ProtocolTokenCommon {
+contract StakingWrapper is ERC721CW, ProtocolTokenCommon, BasicRoyalties {
 
 /// @dev Points to an external ERC721 contract that will be wrapped via staking.
 IERC721 private immutable wrappedCollectionImmutable;
@@ -15,13 +15,18 @@ using Counters for Counters.Counter;
 address public handlerAddress;
 IProtocolERC721Handler handler;
 Counters.Counter private _tokenIdCounter;
+uint96 royaltyFee; 
+address royaltyRecipient; 
+uint256 royaltyPayment;
 
-constructor(address collectionToWrap, string memory _name, string memory _symbol) 
+constructor(address collectionToWrap, string memory _name, string memory _symbol, address receiver, uint96 feeNumerator) 
     ERC721C() 
     ERC721CW(collectionToWrap) 
-    ERC721OpenZeppelin(_name, _symbol) {
+    ERC721OpenZeppelin(_name, _symbol)
+    BasicRoyalties(receiver, feeNumerator) {
         wrappedCollectionImmutable = IERC721(collectionToWrap);
         _setNameAndSymbol(_name, _symbol);
+        _setDefaultRoyalty(receiver, feeNumerator); 
 } 
 
     /**
@@ -30,7 +35,7 @@ constructor(address collectionToWrap, string memory _name, string memory _symbol
      * @param interfaceId The interface id
      * @return true if the contract implements the specified interface, false otherwise
      */
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721CW) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721CW, ERC2981) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
@@ -65,6 +70,12 @@ constructor(address collectionToWrap, string memory _name, string memory _symbol
 
     function _requireCallerIsContractOwner() internal view virtual override {}
 
+    /// simulate payable marketplace transfer to allow msg.value 
+    function _safeTransferFrom(address from, address to, uint256 tokenId) public payable {
+        require(msg.value > 0, "Msg.Value must be greater than 0"); 
+        safeTransferFrom(from, to, tokenId, "");
+    }
+
 
     ///////////////////////PROTOCOL HOOKS\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -83,6 +94,39 @@ constructor(address collectionToWrap, string memory _name, string memory _symbol
         }
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
+
+    /// @dev Ties the open-zeppelin _afterTokenTransfer hook to more granular transfer validation logic
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 firstTokenId,
+        uint256 batchSize) internal virtual override {
+        bool isFromAdmin = appManager.isAppAdministrator(from);
+        bool isToAdmin = appManager.isAppAdministrator(to);
+        /// Check To and From addresses are not: Collection address (staking/unstaking) or App Admins 
+        if (to != address(this) || from != address(this) || !isFromAdmin && !isToAdmin) {
+            for (uint256 i = 0; i < batchSize;) {
+                _validateAfterTransfer(from, to, firstTokenId + i); 
+                sendRoyaltyPayment(firstTokenId + i);
+                unchecked {
+                    ++i;
+                }
+            }
+        }
+    }
+
+    function sendRoyaltyPayment(uint256 tokenId) public payable {
+        /// calculate the royalty payment from msg. value 
+        address recipient;
+        (recipient, royaltyPayment) = royaltyInfo(tokenId, msg.value);
+
+        /// transfer msg.value to contract to simulate sale 
+        payable(address(this)).transfer(msg.value);
+
+        /// send royalty to royalty recipient 
+        payable(recipient).transfer(royaltyPayment); 
+    }
+
     function setAppManagerAddress(address newAppManager) external  {
         appManagerAddress = newAppManager;
         appManager = IAppManager(newAppManager);
@@ -101,4 +145,10 @@ constructor(address collectionToWrap, string memory _name, string memory _symbol
     function getHandlerAddress() external view virtual override(ProtocolTokenCommon) returns (address){
         return handlerAddress;
     }
+
+    /// Receive function for contract to receive chain native tokens in unordinary ways
+    receive() external payable {}
+
+    /// function to handle wrong data sent to this contract
+    fallback() external payable {}
 }
