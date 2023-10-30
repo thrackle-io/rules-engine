@@ -84,11 +84,11 @@ function addSupplyVolatilityRule(
 
 ### Parameters:
 
-**_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
-**_maxVolumePercentage** (uint16): Maximum percentual change of supply allowed expressed in basic points (1 -> 0.01%; 100 -> 1.0%). 
-**_period** (uint16): amount of hours that defines a period.
-**_startTimestamp** (uint64): Unix timestamp for the *_period*s to start counting.
-**_totalSupply** (uint256): (optiona) if not 0, then this means that this value is going to be the locked value for totalSupply instead of the live token's totalSupply value at rule processing time.
+- **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
+- **_maxVolumePercentage** (uint16): Maximum percentual change of supply allowed expressed in basic points (1 -> 0.01%; 100 -> 1.0%). 
+- **_period** (uint16): amount of hours that defines a period.
+- **_startTimestamp** (uint64): Unix timestamp for the *_period*s to start counting.
+- **_totalSupply** (uint256): (optiona) if not 0, then this means that this value is going to be the locked value for totalSupply instead of the live token's totalSupply value at rule processing time.
 
 The create function will return the protocol ID of the rule.
 
