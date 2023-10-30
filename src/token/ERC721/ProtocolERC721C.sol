@@ -11,6 +11,7 @@ import "../ProtocolTokenCommon.sol";
 import "../../economic/AppAdministratorOnly.sol";
 import "../../economic/AppAdministratorOrOwnerOnly.sol";
 import "./IProtocolERC721Handler.sol";
+import "@limitbreak/creator-token-contracts/contracts/erc721c/ERC721C.sol";
 
 /**
  * @title ERC721 Base Contract
@@ -18,7 +19,7 @@ import "./IProtocolERC721Handler.sol";
  * @notice This is the base contract for all protocol ERC721s
  */
 
-contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly {
+contract ProtocolERC721C is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly, ERC721C {
     using Counters for Counters.Counter;
     address public handlerAddress;
     IProtocolERC721Handler handler;
@@ -34,7 +35,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @param _appManagerAddress Address of App Manager
      * @param _baseUri URI for the base token
      */
-    constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ERC721(_name, _symbol) {
+    constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ERC721C() ERC721OpenZeppelin(_name, _symbol) {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
@@ -106,7 +107,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @param batchSize the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will
      * represent the first id to start the batch.
      */
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) whenNotPaused {
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721C, ERC721Enumerable) whenNotPaused {
         // Rule Processor Module Check
         require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, batchSize, tokenId, ActionTypes.TRADE));
 
@@ -139,8 +140,11 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      *
      * This function call must use less than 30 000 gas.
      */
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable, ERC721URIStorage) returns (bool) {
-        return ERC721Enumerable.supportsInterface(interfaceId) || ERC721URIStorage.supportsInterface(interfaceId) || super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721C, ERC721Enumerable, ERC721URIStorage) returns (bool) {
+        return ERC721C.supportsInterface(interfaceId) || 
+        ERC721Enumerable.supportsInterface(interfaceId) || 
+        ERC721URIStorage.supportsInterface(interfaceId) || 
+        super.supportsInterface(interfaceId);
     }
 
     /**
@@ -161,4 +165,30 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     function getHandlerAddress() external view override returns (address) {
         return handlerAddress;
     }
+
+    /// @dev Ties the open-zeppelin _afterTokenTransfer hook to more granular transfer validation logic
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 firstTokenId,
+        uint256 batchSize) internal virtual override(ERC721, ERC721C) {
+        for (uint256 i = 0; i < batchSize;) {
+            _validateAfterTransfer(from, to, firstTokenId + i);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+    function name() public view virtual override(ERC721, ERC721OpenZeppelinBase) returns (string memory) {
+        return _contractName;
+    }
+
+    function symbol() public view virtual override(ERC721, ERC721OpenZeppelinBase) returns (string memory) {
+        return _contractSymbol;
+    }
+
+
+    function _requireCallerIsContractOwner() internal view virtual override {}
+
+
 }

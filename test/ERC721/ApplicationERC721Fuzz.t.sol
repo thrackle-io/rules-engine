@@ -481,9 +481,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(_user1);
         /// this one is over the limit and should fail
-        if (accessBalance3 < 110) vm.expectRevert();
+        if (accessBalance3 < 210) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user1, _user3, 0);
-        if (accessBalance3 >= 110) {
+        if (accessBalance3 >= 210) {
             vm.stopPrank();
             vm.startPrank(_user3);
             applicationNFT.safeTransferFrom(_user3, _user1, 0);
@@ -499,9 +499,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(_user1);
         /// this one is over the limit and should fail
-        if (accessBalance2 < 60) vm.expectRevert();
+        if (accessBalance2 < 110) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user1, _user2, 0);
-        if (accessBalance2 >= 60) {
+        if (accessBalance2 >= 110) {
             vm.stopPrank();
             vm.startPrank(_user2);
             applicationNFT.safeTransferFrom(_user2, _user1, 0);
@@ -662,7 +662,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         vm.startPrank(_user2);
         if (!applicationAppManager.isAppAdministrator(_user1) && !applicationAppManager.isAppAdministrator(_user2)) {
             if (_valuationLimit > 49) {
-                //vm.expectRevert(0xdd76c810);
+                vm.expectRevert(0xdd76c810);
                 applicationNFT.transferFrom(_user2, _user1, 9);
             }
         }
@@ -1074,7 +1074,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         vm.warp(Blocktime);
         uint8 rulePeriod = 24; /// 24 hours
         uint64 startingTime = Blocktime; /// default timestamp
-        uint256 tokenSupply = 10; /// calls totalSupply() for the token
+        uint256 tokenSupply = 0; /// calls totalSupply() for the token
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         address rich_user = addressList[0];
         /// mint initial supply
@@ -1109,7 +1109,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         /// at vol limit
         vm.stopPrank();
         vm.startPrank(rich_user);
-        if ((10000 / tokenSupply) > volLimit) {
+        if ((10000 / applicationNFT.totalSupply()) > volLimit) {
             vm.expectRevert();
             applicationNFT.burn(9);
         } else {
@@ -1474,7 +1474,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         address rich_user = addressList[0];
         address _user1 = addressList[1];
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(applicationAppManager), _maxPercent, _period, Blocktime, 10);
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(applicationAppManager), _maxPercent, _period, Blocktime, 0);
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, _maxPercent);

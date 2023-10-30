@@ -4,10 +4,10 @@ pragma solidity ^0.8.17;
 import ".././token/ERC721/ProtocolERC721.sol";
 import ".././token/ProtocolTokenCommon.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@limitbreak/creator-token-contracts/contracts/erc721c/extensions/AdventureERC721CW.sol";
+import "@limitbreak/creator-token-contracts/contracts/erc721c/extensions/ERC721CW.sol";
 
 
-contract StakingWrapper is AdventureERC721CW, ProtocolTokenCommon {
+contract StakingWrapper is ERC721CW, ProtocolTokenCommon {
 
 
 /// @dev Points to an external ERC721 contract that will be wrapped via staking.
@@ -19,14 +19,12 @@ Counters.Counter private _tokenIdCounter;
 
 
 
-constructor(address collectionToWrap, uint256 maxSimultaneousQuests_, string memory _name, string memory _symbol) 
-    AdventureERC721C() 
-    AdventureERC721CW(collectionToWrap) 
-    AdventureERC721(maxSimultaneousQuests_) 
+constructor(address collectionToWrap, string memory _name, string memory _symbol) 
+    ERC721C() 
+    ERC721CW(collectionToWrap) 
     ERC721OpenZeppelin(_name, _symbol) {
         wrappedCollectionImmutable = IERC721(collectionToWrap);
         _setNameAndSymbol(_name, _symbol);
-        _setMaxSimultaneousQuestsAndInitializeTransferType(maxSimultaneousQuests_);
 } 
 
     /**
@@ -35,15 +33,15 @@ constructor(address collectionToWrap, uint256 maxSimultaneousQuests_, string mem
      * @param interfaceId The interface id
      * @return true if the contract implements the specified interface, false otherwise
      */
-    function supportsInterface(bytes4 interfaceId) public view override(AdventureERC721CW) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721CW) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
-    function getWrappedCollectionAddress() public view override(AdventureERC721CW) returns (address) {
+    function getWrappedCollectionAddress() public view override(ERC721CW) returns (address) {
         return address(wrappedCollectionImmutable);
     }
 
-    function _requireCallerIsVerifiedEOA() internal view override(AdventureERC721CW) {
+    function _requireCallerIsVerifiedEOA() internal view override(ERC721CW) {
         ICreatorTokenTransferValidator transferValidator_ = getTransferValidator();
         if (address(transferValidator_) != address(0)) {
             if (!transferValidator_.isVerifiedEOA(_msgSender())) {
@@ -52,19 +50,19 @@ constructor(address collectionToWrap, uint256 maxSimultaneousQuests_, string mem
         }
     }
 
-    function _doTokenMint(address to, uint256 tokenId) internal virtual override(AdventureERC721CW) {
+    function _doTokenMint(address to, uint256 tokenId) internal virtual override(ERC721CW) {
         _mint(to, tokenId);
     }
 
-    function _doTokenBurn(uint256 tokenId) internal virtual override(AdventureERC721CW) {
+    function _doTokenBurn(uint256 tokenId) internal virtual override(ERC721CW) {
         _burn(tokenId);
     }
 
-    function _getOwnerOfToken(uint256 tokenId) internal view virtual override(AdventureERC721CW) returns (address) {
+    function _getOwnerOfToken(uint256 tokenId) internal view virtual override(ERC721CW) returns (address) {
         return ownerOf(tokenId);
     }
 
-    function _tokenExists(uint256 tokenId) internal view virtual override(AdventureERC721CW) returns (bool) {
+    function _tokenExists(uint256 tokenId) internal view virtual override(ERC721CW) returns (bool) {
         return _exists(tokenId);
     }
 

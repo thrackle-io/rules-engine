@@ -41,10 +41,10 @@ contract ApplicationERC721Test is TestCommonFoundry {
         oracleRestricted = new OracleRestricted();
 
         /// deploy nonProtocol Collection and mint 
-        nonProtoNFT = new NonProtocolERC721("NonProto","NPRT","https://SampleApp.io"); 
+        nonProtoNFT = new NonProtocolERC721("NonProto","NPRT"); 
         nonProtoNFTAddress = address(nonProtoNFT);
         /// deploy wrapper contract with nonProtocol NFT set as collection to wrap 
-        stakingWrapper = new StakingWrapper(nonProtoNFTAddress, 10, "wrappedToken", "WTKN"); 
+        stakingWrapper = new StakingWrapper(nonProtoNFTAddress, "wrappedToken", "WTKN"); 
         /// set wrapped tokens as applicationNFT + set tokenHandler and appManager addresses in wrapper contract 
         nonProtoNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(stakingWrapper), false); 
         applicationNFTHandler = nonProtoNFTHandler;

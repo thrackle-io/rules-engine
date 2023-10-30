@@ -19,35 +19,12 @@ contract NonProtocolERC721 is ERC721, ERC721Burnable, ERC721URIStorage, ERC721En
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
 
-    /// Mint Fee
-    uint256 public mintPrice;
-
-    /// Base Contract URI
-    string public baseUri;
-
-    /// Treasury Address
-    address private proposedTreasury;
-    address payable private treasury;
-
-    /// errors
-    error MintFeeNotReached();
-    error PriceNotSet();
-    error CannotWithdrawZero();
-    error TreasuryAddressCannotBeTokenContract();
-    error TreasuryAddressNotSet();
-    error FunctionDoesNotExist();
-    error NotEnoughBalance();
-    error ZeroValueNotPermited();
-    error NotProposedTreasury(address proposedTreasury);
-    error TrasferFailed(bytes reason);
-
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
      * @param _name Name of NFT
      * @param _symbol Symbol for the NFT
-     * @param _baseUri URI for the base token
      */
-    constructor(string memory _name, string memory _symbol, string memory _baseUri) ERC721(_name, _symbol) {}
+    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {}
 
     /**
      * @dev Function mints a new token to anybody. Don't enabled this function if you are not sure about what you're doing.
@@ -58,15 +35,6 @@ contract NonProtocolERC721 is ERC721, ERC721Burnable, ERC721URIStorage, ERC721En
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
-    }
-
-
-    /**
-     * @dev Function to return baseUri for contract
-     * @return baseUri URI link to NFT metadata
-     */
-    function _baseURI() internal view override returns (string memory) {
-        return baseUri;
     }
 
     /**

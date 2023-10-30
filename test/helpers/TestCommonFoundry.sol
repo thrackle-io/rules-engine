@@ -214,6 +214,50 @@ abstract contract TestCommonFoundry is TestCommon {
     }
 
     /**
+     * @dev Deploy and set up the main protocol contracts for an ERC721C. This includes:
+     * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond, 4. AppManager with its handler connected, 5. ApplicationERC20 with its handler, and default price
+     */
+    function setUpProtocolAndAppManagerAndERC721CTokens() public {
+        switchToSuperAdminWithSave();
+        // create the rule storage diamond
+        ruleStorageDiamond = _createRuleStorageDiamond();
+        // create the rule processor diamond
+        ruleProcessor = _createRulesProcessorDiamond(ruleStorageDiamond);
+        // create the app manager
+        applicationAppManager = _createAppManager();
+        switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
+        // create the app handler and connect it to the appManager
+        applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
+        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
+
+        // create the ERC20 and connect it to its handler
+        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
+        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
+        /// register the token
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        /// set up the pricer for erc20
+        erc20Pricer = _createERC20Pricing();
+
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
+
+        /// create an ERC721C
+        applicationNFTC = _createERC721C("FRANKENSTEIN", "FRK", applicationAppManager);
+        applicationNFTHandler = _createERC721CHandler(ruleProcessor, applicationAppManager, applicationNFTC);
+        /// register the token
+        applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFTC));
+        /// set up the pricer for erc20
+        erc721Pricer = _createERC721Pricing();
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFTC), 1 * (10 ** 18)); //setting at $1
+        /// connect the pricers to both handlers
+        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
+        applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
+        applicationCoinHandler.setNFTPricingAddress(address(erc721Pricer));
+        /// reset the user to the original
+        switchToOriginalUser();
+    }
+
+    /**
      * @dev Deploy and set up a protocol supported ERC721
      */
 

@@ -9,6 +9,7 @@ import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
 import "src/example/ERC20/ApplicationERC20Handler.sol";
 import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import "src/example/ERC721/ApplicationERC721C.sol";
 import "src/example/ERC721/ApplicationERC721Handler.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/economic/ruleProcessor/RuleProcessorDiamond.sol";
@@ -46,6 +47,7 @@ abstract contract TestCommon is Test {
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationERC20Pricing erc20Pricer;
     ApplicationERC721 applicationNFT;
+    ApplicationERC721C applicationNFTC;
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationERC721Pricing erc721Pricer;
     // common block time
@@ -113,6 +115,29 @@ abstract contract TestCommon is Test {
      */
     function _createERC721(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC721 _token) {
         return new ApplicationERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
+    }
+    /**
+     * @dev Deploy and set up an ERC721C
+     * @param _name token name
+     * @param _symbol token symbol
+     * @param _appManager previously created appManager
+     * @return _token token
+     */
+    function _createERC721C(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC721C _token) {
+        return new ApplicationERC721C(_name, _symbol, address(_appManager), "https://SampleApp.io");
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721CHandler
+     * @param _ruleProcessor rule processor
+     * @param _appManager previously created appManager
+     * @param _token ERC721
+     * @return _handler ERC721 handler
+     */
+    function _createERC721CHandler(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, ApplicationERC721C _token) public returns (ApplicationERC721Handler _handler) {
+        _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
+        _token.connectHandlerToToken(address(_handler));
+        return _handler;
     }
 
     /**
