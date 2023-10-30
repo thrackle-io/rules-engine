@@ -9,15 +9,12 @@ import "@limitbreak/creator-token-contracts/contracts/erc721c/extensions/ERC721C
 
 contract StakingWrapper is ERC721CW, ProtocolTokenCommon {
 
-
 /// @dev Points to an external ERC721 contract that will be wrapped via staking.
 IERC721 private immutable wrappedCollectionImmutable;
 using Counters for Counters.Counter;
 address public handlerAddress;
 IProtocolERC721Handler handler;
 Counters.Counter private _tokenIdCounter;
-
-
 
 constructor(address collectionToWrap, string memory _name, string memory _symbol) 
     ERC721C() 
