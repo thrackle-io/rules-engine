@@ -24,7 +24,7 @@ contract ApplicationERC721 is ProtocolERC721 {
     constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {}
 
     /**
-     * @dev Function mints a new token to anybody. Don't enabled this function if you are not sure about what you're doing.
+     * @dev Function mints a new token freely without restriction. This function should only be enabled if you are certain you want a free mint with no restrictions.
      * @notice This allows EVERYBODY TO MINT FOR FREE.
      * @param to Address of recipient
      */

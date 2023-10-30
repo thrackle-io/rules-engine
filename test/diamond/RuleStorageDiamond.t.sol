@@ -821,11 +821,11 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         uint8[] memory tradesAllowed = new uint8[](2);
         tradesAllowed[0] = 1;
         tradesAllowed[1] = 5;
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
-        NonTaggedRules.NFTTradeCounterRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
+        TaggedRules.NFTTradeCounterRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
-        rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[1]);
+        rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[1]);
         assertEq(rule.tradesAllowedPerDay, 5);
     }
 
@@ -840,18 +840,18 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
 
-        _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
+        _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 1);
     }
 
@@ -868,9 +868,9 @@ contract RuleStorageDiamondTest is Test, RuleStorageDiamondTestUtil {
         tradesAllowed[1] = 5;
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
-            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
+            _indexes[i] = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(ac, nftTags, tradesAllowed, Blocktime);
         }
-        assertEq(NonTaggedRuleFacet(address(ruleStorageDiamond)).getTotalNFTTransferCounterRules(), _indexes.length);
+        assertEq(TaggedRuleDataFacet(address(ruleStorageDiamond)).getTotalNFTTransferCounterRules(), _indexes.length);
     }
 
     /**************** Tagged Withdrawal Rule Testing  ****************/

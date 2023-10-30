@@ -17,40 +17,6 @@ contract ERC721RuleProcessorFacet is IERC721Errors, IRuleProcessorErrors, IMaxTa
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for bytes32[];
 
-    /**
-     * @dev This function receives a rule id, which it uses to get the NFT Trade Counter rule to check if the transfer is valid.
-     * @param ruleId Rule identifier for rule arguments
-     * @param transfersWithinPeriod Number of transfers within the time period
-     * @param nftTags NFT tags
-     * @param lastTransferTime block.timestamp of most recent transaction from sender.
-     */
-    function checkNFTTransferCounter(uint32 ruleId, uint256 transfersWithinPeriod, bytes32[] calldata nftTags, uint64 lastTransferTime) public view returns (uint256) {
-        nftTags.checkMaxTags();
-        uint256 cumulativeTotal;
-        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        uint totalRules = data.getTotalNFTTransferCounterRules();
-        for (uint i = 0; i < nftTags.length; ) {
-            // if the tag is blank, then ignore
-            if (bytes32(nftTags[i]).length != 0) {
-                cumulativeTotal = 0;
-                if (totalRules > ruleId) {
-                    NonTaggedRules.NFTTradeCounterRule memory rule = data.getNFTTransferCounterRule(ruleId, nftTags[i]);
-                    uint32 period = 24; // set purchase period to one day(24 hours)
-                    uint256 tradesAllowedPerDay = rule.tradesAllowedPerDay;
-                    // if within time period, add to cumulative
-                    cumulativeTotal = rule.startTs.isWithinPeriod(period, lastTransferTime) ? 
-                    transfersWithinPeriod + 1 : 1;
-                    if (cumulativeTotal > tradesAllowedPerDay) revert MaxNFTTransferReached();
-                    unchecked {
-                        ++i;
-                    }
-                } else {
-                    revert RuleDoesNotExist();
-                }
-            }
-        }
-        return cumulativeTotal;
-    }
 
     /**
      * @dev This function receives data needed to check Minimum hold time rule. This a simple rule and thus is not stored in the rule storage diamond.

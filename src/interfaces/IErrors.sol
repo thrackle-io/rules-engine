@@ -25,7 +25,7 @@ interface IAccessLevelErrors {
 }
 
 interface IPauseRuleErrors {
-    error ApplicationPaused(uint started, uint ends);
+    error ApplicationPaused(uint256 started, uint256 ends);
     error InvalidDateWindow(uint256 startDate, uint256 endDate);
     error MaxPauseRulesReached();
 }
