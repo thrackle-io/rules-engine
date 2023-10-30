@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The transfer-counter rule enforces a daily limit on number of trades for each token within a collection. In the context of this rule, a "trade" is a transfer of a token from one address to another. This rule has two potential purposes: to reduce volatility of token price in the collection and the prevention of malfeasance for holders who transfer a token between addresses repeatedly. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a pseudo "soulBound" token, preventing all transfers of tokens in the collection.  
+The transfer-counter rule enforces a daily limit on the number of trades for each token within a collection. In the context of this rule, a "trade" is a transfer of a token from one address to another. Example uses of this rule: to reduce price volatility of tokens in the collection via the limitation of wash trading or the prevention of malfeasance for holders who transfer a token between addresses repeatedly. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a pseudo "soulBound" token, preventing all transfers of tokens in the collection.  
 
 ## Tokens Supported
 
@@ -14,7 +14,7 @@ This rule works at a token level. It must be activated and configured for each d
 
 ## Data Structure
 
-This is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection of rules, where all "sub-rules" are independent from each other, and where each "sub-rule" is indexed by its tag. In this case, the tag is applied to the NFT collection address. The tranfer counter rule is composed of two components:
+This is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection of rules, where all "sub-rules" are independent from each other, and where each "sub-rule" is indexed by its tag. In this case, the tag is applied to the NFT collection address. The transfer counter rule is composed of two components:
 
 - **Trades allowed per day** (uint8): The number of trades allowed per tokenId of the collection while the rule is active 
 - **Start timestamp** (uint64): The unix timestamp for the time that the rule starts. 
@@ -94,6 +94,81 @@ The function will return the protocol id of the rule.
 
 ###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)*
 
+### Revert Message
+
+The rule processor will revert with the following error if the rule check fails: 
+
+```
+error MaxNFTTransferReached();
+```
+
+The selector for this error is `0x00b223e3`.
+
+### Parameter Optionality:
+
+The parameters where developers have the options are:
+- **_startTimestamps**: developers can pass Unix timestamps or simply 0s. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation. 
+- **_tradesAllowed**: developers can pass the amount of trades allowed for each tag `_nftTypes` given at creation. The protocol will validate each allowable trade limit based on the tag(s) added to the collection address. 
+
+### Parameter Validation:
+
+The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
+
+- `_appManagerAddr` is not the zero address.
+- All the parameter arrays have at least one element.
+- All the parameter arrays have the exact same length.
+- Not one `tag` can be a blank tag.
+
+
+###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+
+## Other Functions:
+
+- In Protocol [Storage Diamond]((../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)):
+    -  Function to get a rule by its ID:
+        ```c
+        function getNFTTransferCounterRule(
+                    uint32 _index, 
+                    bytes32 _nftType
+                ) 
+                external 
+                view 
+                returns 
+                (TaggedRules.NFTTradeCounterRule memory);
+        ```
+    - Function to get current amount of rules in the protocol:
+        ```c
+        function getTotalNFTTransferCounterRules() public view returns (uint32);
+        ```
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol):
+    - Function that evaluates the rule:
+        ```c
+        function checkNFTTransferCounter(
+                    uint32 ruleId, 
+                    uint256 transfersWithinPeriod, 
+                    bytes32[] calldata nftTags
+                ) 
+                external 
+                view;
+        ```
+- in Asset Handler:
+    - Function to set and activate at the same time the rule in an asset handler:
+        ```c
+        function setTradeCounterRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        ```
+    - Function to activate/deactivate the rule in an asset handler:
+        ```c
+        function activateTradeCounterRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        ```
+    - Function to know the activation state of the rule in an asset handler:
+        ```c
+        function isTradeCounterRuleActive() external view returns (bool);
+        ```
+    - Function to get the rule Id from an asset handler:
+        ```c
+        function getTradeCounterRuleId() external view returns (uint32);
+        ```
+
 ### Return Data
 
 This rule returns a new tradesInPeriod(uint256) to the token handler on success.
@@ -104,7 +179,7 @@ mapping(uint256 => uint256) tradesInPeriod;
 ###### *see [ERC721Handler](../../../src/token/ERC721/ProtocolERC721Handler.sol)*
 ### Data Recorded
 
-This rule requires that the handler record the timestamp for each tokenId's last trade. This is recorded only after the rule is activated and after each successfull transfer. 
+This rule requires that the handler record the timestamp for each tokenId's last trade. This is recorded only after the rule is activated and after each successful transfer. 
 ```c
 mapping(uint256 => uint64) lastTxDate;
 ```
@@ -112,10 +187,17 @@ mapping(uint256 => uint64) lastTxDate;
 ### Events
 
 - **ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** emitted when a Transfer counter rule has been added. For this rule:
-    - ruleType is NFT_TRANSFER
-    - index is the rule index set by the Protocol
-    - extraTags is an empty array.
+    - ruleType: NFT_TRANSFER
+    - index: the rule index set by the Protocol
+    - extraTags: an empty array.
+- **ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 ruleId)** emitted when a Transfer counter rule has been added. For this rule:
+    - ruleType: NFT_TRANSFER
+    - handlerAddress: the address of the asset handler where the rule has been applied
+    - ruleId: the index of the rule created in the protocol by rule type 
+- **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
+    - ruleType: NFT_TRANSFER
+    - handlerAddress: the address of the asset handler where the rule has been activated
 
 ### Dependencies
 
-- **Tags**: This rules relies on NFT Collections having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they must match the tag in the rule for it to have any effect.
+- **Tags**: This rule relies on NFT Collections having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they must match the tag in the rule for it to have any effect.
