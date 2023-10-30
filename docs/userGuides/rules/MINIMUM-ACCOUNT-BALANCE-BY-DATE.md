@@ -80,6 +80,15 @@ The rule will be evaluated with the following logic:
 
 ###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
 
+### Revert Message
+
+The rule processor will revert with the following error if the rule check fails: 
+
+```
+error TxnInFreezeWindow();
+```
+
+The selector for this error is `0xa7fb7b4b`.
 
 ## Create Function
 
