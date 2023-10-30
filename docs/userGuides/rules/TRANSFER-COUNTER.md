@@ -51,7 +51,7 @@ The tagged token collections then compose a transfer-counter rule.
 
 A transfer-counter rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
-### Role Applicability
+## Role Applicability
 
 - **Evaluation Exceptions**: 
     - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction.
@@ -73,8 +73,16 @@ The rule will be evaluated in the following way:
 5. The processor will evaluate if the total number of trades within the period plus the current trade would be more than the amount of trades allowed per day by the rule in the case of the transaction succeeding. If yes (trades will exceed allowable trades per day), then the transaction will revert.
 
 ###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkNFTTransferCounter*
+### Revert Message
 
-### Create Function
+The rule processor will revert with the following error if the rule check fails: 
+
+```
+error MaxNFTTransferReached();
+```
+
+The selector for this error is `0x00b223e3`.
+## Create Function
 
 Adding a transfer-counter rule is done through the function:
 
@@ -94,21 +102,10 @@ The function will return the protocol id of the rule.
 
 ###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)*
 
-### Revert Message
-
-The rule processor will revert with the following error if the rule check fails: 
-
-```
-error MaxNFTTransferReached();
-```
-
-The selector for this error is `0x00b223e3`.
-
 ### Parameter Optionality:
 
 The parameters where developers have the options are:
-- **_startTimestamps**: developers can pass Unix timestamps or simply 0s. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation. 
-- **_tradesAllowed**: developers can pass the amount of trades allowed for each tag `_nftTypes` given at creation. The protocol will validate each allowable trade limit based on the tag(s) added to the collection address. 
+- **_startTimestamps**: developers can pass Unix timestamps or simply 0s. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation.  
 
 ### Parameter Validation:
 
