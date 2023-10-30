@@ -50,6 +50,19 @@ The rule will be evaluated with the following logic:
 1. The protocol's rule processor will retrieve all the pause rules stored in the data contract of the appManager. 
 2. Then, it will loop through all these pause rules, and will evaluate if current timestamp is greater or equal to `pauseStart` and less than `pauseStop`. If the condition is true for at least one rule, then the transaction will revert.
 
+###### *see [ApplicationPauseProcessorFacet](../../../src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol) -> checkPauseRules*
+
+### Revert Message
+
+The rule processor will revert with the following error if the rule check fails: 
+
+```
+error ApplicationPaused(uint256 started, uint256 ends);
+```
+
+The selector for this error is `0x33385551`.
+
+
 ## Create Function
 
 Adding a pause rule is done through the function:
@@ -68,6 +81,10 @@ There is a default limit of 15 pause rules per application to avoid too much gas
 ```
 uint8 constant MAX_RULES = 15;
 ```
+
+### Parameter Optionality:
+
+There are no options for the parameters of this rule.
 
 ### Parameter Validation:
 
