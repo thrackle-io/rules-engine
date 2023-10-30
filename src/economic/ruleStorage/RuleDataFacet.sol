@@ -422,3 +422,4 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         RuleS.OracleRuleS storage data = Storage.oracleStorage();
         return data.oracleRuleIndex;
     }
+}
