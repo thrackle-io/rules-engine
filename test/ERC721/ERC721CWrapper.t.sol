@@ -132,7 +132,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         stakingWrapper.transferFrom(appAdministrator, user1, 9);
         stakingWrapper.transferFrom(appAdministrator, user1, 10);
 
-        stakingWrapper.safeTransferFrom(appAdministrator, user2, 11);
+        stakingWrapper.transferFrom(appAdministrator, user2, 11);
         // transfer to user1 to exceed limit
         vm.stopPrank();
         vm.startPrank(user2);
@@ -211,11 +211,11 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
     function testPauseRulesViaAppManager() public {
         /// set up a non admin user an nft
-        stakingWrapper.safeTransferFrom(appAdministrator, user1, 0);
-        stakingWrapper.safeTransferFrom(appAdministrator, user1, 1);
-        stakingWrapper.safeTransferFrom(appAdministrator, user1, 2);
-        stakingWrapper.safeTransferFrom(appAdministrator, user1, 3);
-        stakingWrapper.safeTransferFrom(appAdministrator, user1, 4);
+        stakingWrapper.transferFrom(appAdministrator, user1, 0);
+        stakingWrapper.transferFrom(appAdministrator, user1, 1);
+        stakingWrapper.transferFrom(appAdministrator, user1, 2);
+        stakingWrapper.transferFrom(appAdministrator, user1, 3);
+        stakingWrapper.transferFrom(appAdministrator, user1, 4);
 
         assertEq(stakingWrapper.balanceOf(user1), 5);
         ///set pause rule and check check that the transaction reverts
@@ -235,32 +235,32 @@ contract ApplicationERC721Test is TestCommonFoundry {
         assertEq(user1.balance, 10 ether); 
         assertEq(appAdministrator.balance, 10 ether); 
         /// set up a non admin user an nft
-        stakingWrapper.safeTransferFrom(appAdministrator, user1, 0);
-        stakingWrapper.safeTransferFrom(appAdministrator, user1, 1);
-        stakingWrapper.safeTransferFrom(appAdministrator, user1, 2);
-        stakingWrapper.safeTransferFrom(appAdministrator, user1, 3);
-        stakingWrapper.safeTransferFrom(appAdministrator, user1, 4);
+        stakingWrapper.transferFrom(appAdministrator, user1, 0);
+        stakingWrapper.transferFrom(appAdministrator, user1, 1);
+        stakingWrapper.transferFrom(appAdministrator, user1, 2);
+        stakingWrapper.transferFrom(appAdministrator, user1, 3);
+        stakingWrapper.transferFrom(appAdministrator, user1, 4);
 
         vm.stopPrank();
         vm.startPrank(user1);
         /// user 1 sends tokens to user 2 with value 
         /// we expect the balance of app admin to increase 
-        stakingWrapper._safeTransferFrom{value: 1 ether}(user1, user2, 0); 
+        stakingWrapper.simulateMarketplaceTransfer{value: 1 ether}(user1, user2, 0); 
         console.log("Royalty Recipient Balance", appAdministrator.balance);
         console.log("Wrapping Contract Balance",address(stakingWrapper).balance);
         assertGt(appAdministrator.balance, 10 ether);
         assertEq(user2.balance, 0); 
         assertGt(address(stakingWrapper).balance, 1); 
-        stakingWrapper._safeTransferFrom{value: 1 ether}(user1, user2, 1);
+        stakingWrapper.simulateMarketplaceTransfer{value: 1 ether}(user1, user2, 1);
         console.log("Royalty Recipient Balance", appAdministrator.balance);
         console.log("Wrapping Contract Balance",address(stakingWrapper).balance);
-        stakingWrapper._safeTransferFrom{value: 1 ether}(user1, user2, 2);
+        stakingWrapper.simulateMarketplaceTransfer{value: 1 ether}(user1, user2, 2);
         console.log("Royalty Recipient Balance", appAdministrator.balance);
         console.log("Wrapping Contract Balance",address(stakingWrapper).balance);
-        stakingWrapper._safeTransferFrom{value: 1 ether}(user1, user2, 3);
+        stakingWrapper.simulateMarketplaceTransfer{value: 1 ether}(user1, user2, 3);
         console.log("Royalty Recipient Balance", appAdministrator.balance);
         console.log("Wrapping Contract Balance",address(stakingWrapper).balance);
-        stakingWrapper._safeTransferFrom{value: 1 ether}(user1, user2, 4);
+        stakingWrapper.simulateMarketplaceTransfer{value: 1 ether}(user1, user2, 4);
         assertEq(appAdministrator.balance, 10.05 ether);
         assertEq(user2.balance, 0);
         console.log("Wrapping Contract Balance",address(stakingWrapper).balance); 
@@ -270,7 +270,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(user2);
         vm.expectRevert("Msg.Value must be greater than 0");
-        stakingWrapper._safeTransferFrom(user2, user1, 3);
+        stakingWrapper.simulateMarketplaceTransfer(user2, user1, 3);
     }
 
 }

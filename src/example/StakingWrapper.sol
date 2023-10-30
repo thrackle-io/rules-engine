@@ -70,8 +70,11 @@ constructor(address collectionToWrap, string memory _name, string memory _symbol
 
     function _requireCallerIsContractOwner() internal view virtual override {}
 
+    function safeTransferFrom(address from, address to, uint256 tokenId) public virtual override {
+        simulateMarketplaceTransfer(from, to, tokenId);
+    }
     /// simulate payable marketplace transfer to allow msg.value 
-    function _safeTransferFrom(address from, address to, uint256 tokenId) public payable {
+    function simulateMarketplaceTransfer(address from, address to, uint256 tokenId) public payable {
         require(msg.value > 0, "Msg.Value must be greater than 0"); 
         safeTransferFrom(from, to, tokenId, "");
     }
