@@ -335,6 +335,8 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
      * Since there is no cap for _maxVolumePercentage this could allow burning of full totalSupply() if over 100% (10000).
      * @param _period Allowed hours per period
      * @param _startTimestamp Hours that transactions are frozen
+     * @param _totalSupply this is an optional parameter. If 0, the toalSupply will be calculated dyamically. If not zero, this is  
+     * going to be the locked value to calculate the rule 
      * @return ruleId position of new rule in array
      */
     function addSupplyVolatilityRule(

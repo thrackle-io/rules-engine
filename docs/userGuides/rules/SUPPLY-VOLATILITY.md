@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The prupose of this rule is to control high volitile market conditions 
+The prupose of this rule is to control a sudden increase or decrease in the supply of a token. This can help to prevent a sudden crash or spike in the price of a token due to sharp changes in the supply side, which can lead to severe damages to the health of the economy in the long run. 
 
 ## Tokens Supported
 
@@ -15,45 +15,23 @@ This rule works at a token level. It must be activated and configured for each d
 
 ## Data Structure
 
-As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection of rules, where all "sub-rules" are independent from each other, and where each "sub-rule" is indexed by its tag. A minumum-balance-by-date "sub-rule" is specified by 3 variables:
+A total-supply-volatility rule is composed of 4 variables:
 
-- **Hold amount** (uint256): The minimum amount of tokens to be held by the account for the *hold-period* time.
-- **Hold period** (uint16): The amount of hours to hold the tokens.
-- **Starting timestamp** (uint64): The timestamp of the date when the *hold period* starts counting.
+- **Max Change** (uint16): The maximum percentual change allowed in the supply during a *period* of time.
+- **Period** (uint16): The amount of hours that defines a period.
+- **Starting timestamp** (uint64): The timestamp of the date when the rule starts the first *period*.
+- **Total Supply** (uint256): The token's total supply.
 
 ```c
-/// ******** Minimum Balance By Date Rules ********
-    struct MinBalByDateRule {
-        uint256 holdAmount; /// token units
-        uint16 holdPeriod; /// hours
-        uint256 startTimeStamp; /// start
+/// ******** Supply Volatility ********
+    struct SupplyVolatilityRule {
+        uint16 maxChange; /// from 0000 to 10000 => 0.00% to 100.00%.
+        uint16 period; // hours
+        uint64 startingTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
+        uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to token's totalSupply.
     }
 ```
 ###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
-
-Additionally, each one of these data structures will be under a tag (bytes32):
-
- tag -> sub-rule.
-
- ```c
-    //      tag     =>   sub-rule
-    mapping(bytes32 => ITaggedRules.MinBalByDateRule)
-```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
-
-The collection of these tagged sub-rules composes a minumum-account-balance-by-date rule.
-
- ```c
-    /// ******** Minimum Balance By Date ********
-    struct MinBalByDateRuleS {
-        /// ruleIndex => userTag => rules
-        mapping(uint32 => mapping(bytes32 => ITaggedRules.MinBalByDateRule)) minBalByDateRulesPerUser;
-        uint32 minBalByDateRulesIndex; /// increments every time someone adds a rule
-    }
-```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
-
-A minimum-balance-by-date rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
 ## Role Applicability
 
@@ -72,50 +50,62 @@ A minimum-balance-by-date rule must have at least one sub-rule. There is no maxi
 
 The rule will be evaluated with the following logic:
 
-1. The account being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
-2. The processor will receive these tags along with the ID of the minimum-balance-by-date rule set in the token handler. 
-3. The processor will then try to retrieve the sub-rule associated with each tag.
-4. The processor will evaluate whether each sub-rule's hold period is still active (if the current time is within `hold period` from the `starting timestamp`). If it is, the processor will then evaluate if the final balance of the account would be less than the `hold amount` in the case of the transaction succeeding. If yes, then the transaction will revert.
-5. Step 4 is repeated for each of the account's tags. 
+1. The asset handler keeps track of the total supply per period, the net supply increase/decrease per period, and the date of the last mint/burn transaction.
+2. The asset handler will first check if the transaction is a *minting* or *burning* operation. If it is, then it sends the aforementioned data to the rule processor with the rule Id, the amount of tokens being minted/burned in the transaction.
+3. The rule processor will evaluate if the current transaction is in a new period or part of the same period as the last burning/minting transactions. If it is a new period, the net supply change for the period will be equal to the amount of tokens minted/burned in current transaction. Also, the totalSupply for the current period will be set to current value. If it is not a new period, then the net supply change for the period will accumulate the amount of tokens minted/burned in current transaction. The totalSupply for the current period will remain fixed. 
+4. After current period's net supply change and totalSupply have been defined, the rule processor will calculate the change in supply. If the change is greater than the rule's maximum, it will revert.
 
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
+###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkTotalSupplyVolatilityPasses*
 
+### Revert Message
+
+The rule processor will revert with the following error if the rule check fails: 
+
+```
+error TotalSupplyVolatilityLimitReached();
+```
+
+The selector for this error is `0x81af27fa`.
 
 ## Create Function
 
-Adding a minimum-balance-by-date rule is done through the function:
+Adding a supply-volatility rule is done through the function:
 
 ```c
-function addMinBalByDateRule(
-            address _appManagerAddr,
-            bytes32[] calldata _accountTags,
-            uint256[] calldata _holdAmounts,
-            uint16[] calldata _holdPeriods,
-            uint64[] calldata _startTimestamps
-        ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
+function addSupplyVolatilityRule(
+        address _appManagerAddr,
+        uint16 _maxVolumePercentage,
+        uint16 _period,
+        uint64 _startTimestamp,
+        uint256 _totalSupply
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)*
 
+### Parameters:
 
-The create function in the protocol needs to receive the appManager address of the application in order to verify that the caller has Rule administrator privileges. 
+**_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
+**_maxVolumePercentage** (uint16): Maximum percentual change of supply allowed expressed in basic points (1 -> 0.01%; 100 -> 1.0%). 
+**_period** (uint16): amount of hours that defines a period.
+**_startTimestamp** (uint64): Unix timestamp for the *_period*s to start counting.
+**_totalSupply** (uint256): (optiona) if not 0, then this means that this value is going to be the locked value for totalSupply instead of the live token's totalSupply value at rule processing time.
 
 The create function will return the protocol ID of the rule.
-
 
 ### Parameter Optionality:
 
 The parameters where developers have the options are:
-- **_startTimestamps**: developers can pass Unix timestamps or simply 0s. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation. The `_startTimestamps` array can have mixed options.
+
+- **_totalSupply**: developers can pass a non-zero value here which will mean that the rule will always check against this fix total supply value. If this value is set as zero, it will mean that the processor will expect a dynamic totalSupply value from the asset handler.
 
 ### Parameter Validation:
 
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
 - `_appManagerAddr` is not the zero address.
-- All the parameter arrays have at least one element.
-- All the patameter arrays have the exact same length.
-- Not one `tag` can be a blank tag.
-- Not one `holdAmount` nor `holdPeriod` can have a value of 0.
+- `_maxVolumePercentage` is not zero.
+- `_period` is not zero.
+- `_startTimestamp` is not zero and is not more than 52 weeks in the future.
 
 
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
@@ -125,73 +115,87 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Storage Diamond]((../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)):
     -  Function to get a rule by its ID:
         ```c
-        function getMinBalByDateRule(
-                    uint32 _index, 
-                    bytes32 _accountTag
-                ) 
-                external 
-                view 
-                returns 
-                (TaggedRules.MinBalByDateRule memory);
+        function getSupplyVolatilityRule(uint32 _index) external view returns (NonTaggedRules.SupplyVolatilityRule memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalMinBalByDateRule() public view returns (uint32);
+        function getTotalSupplyVolatilityRules() public view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
-        function checkMinBalByDatePasses(
-                    uint32 ruleId, 
-                    uint256 balance, 
-                    uint256 amount, 
-                    bytes32[] calldata toTags
-                ) 
-                external 
-                view;
+        function checkTotalSupplyVolatilityPasses(
+                uint32 _ruleId,
+                int256 _volumeTotalForPeriod,
+                uint256 _tokenTotalSupply,
+                uint256 _supply,
+                int256 _amount,
+                uint64 _lastSupplyUpdateTime
+            ) external view returns (int256, uint256);
         ```
 - in Asset Handler:
     - Function to set and activate at the same time the rule in an asset handler:
         ```c
-        function setMinBalByDateRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule in an asset handler:
         ```c
-        function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateTotalSupplyVolatilityRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule in an asset handler:
         ```c
-        function isMinBalByDateActive() external view returns (bool);
+        function isTotalSupplyVolatilityActive() external view returns (bool);
         ```
     - Function to get the rule Id from an asset handler:
         ```c
-        function getMinBalByDateRule() external view returns (uint32);
+        function getTotalSupplyVolatilityRule() external view returns (uint32);
         ```
 ## Return Data
 
-This rule doesn't return any data.
+This rule returns 2 values:
+1. **Volume Total For Period** (int256): the updated value for the total volume during the period. 
+2. **Total Supply For Period** (uint256): the updated value of the total supply for the period in the case of the first transaction in a period, or the fixed initial total supply for the period in the rest of the transactions.
+
+```c
+int256 private volumeTotalForPeriod;
+uint256 private totalSupplyForPeriod;
+```
+
+*see [ERC721Handler](../../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/token/ERC20/ProtocolERC20Handler.sol)*
 
 ## Data Recorded
 
-This rule doesn't require of any data to be recorded.
+This rule requires the record of the following information in the asset handler:
+
+- **Volume Total For Period** (int256): the updated value for the total volume during the period. 
+- **Total Supply For Period** (uint256): the updated value of the total supply for the period in the case of the first transaction in a period, or the fixed initial total supply for the period in the rest of the transactions.
+- **Last Supply Update Time** (uint64): the Unix timestamp of the last update in the Total-Supply-For-Period variable
+
+```c
+uint64 private lastSupplyUpdateTime;
+int256 private volumeTotalForPeriod;
+uint256 private totalSupplyForPeriod;
+```
+
+*see [ERC721Handler](../../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/token/ERC20/ProtocolERC20Handler.sol)*
 
 ## Events
 
 - **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "MIN_ACCT_BAL_BY_DATE".
+        - ruleType: "SUPPLY_VOLATILITY".
         - ruleId: the index of the rule created in the protocol by rule type.
-        - extraTags: the tags for each sub-rule.
+        - extraTags: an empty array.
 
 - **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - parameters: 
-        - ruleType: "MIN_ACCT_BAL_BY_DATE".
+        - ruleType: "SUPPLY_VOLATILITY".
         - handlerAddress: the address of the asset handler where the rule has been applied.
         - ruleId: the index of the rule created in the protocol by rule type.
 
 ## Dependencies
 
-- **Tags**: This rules relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
+- This rule has no dependencies.
 
