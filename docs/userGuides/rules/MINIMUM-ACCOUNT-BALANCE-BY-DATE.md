@@ -122,7 +122,7 @@ The following validation will be carried out by the create function in order to 
 
 - `_appManagerAddr` is not the zero address.
 - All the parameter arrays have at least one element.
-- All the patameter arrays have the exact same length.
+- All the parameter arrays have the exact same length.
 - Not one `tag` can be a blank tag.
 - Not one `holdAmount` nor `holdPeriod` can have a value of 0.
 
