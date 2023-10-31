@@ -107,7 +107,7 @@ The function will return the protocol id of the rule.
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
 - **_nftTypes** (bytes32[]): array of types (tags) that the NFT contract has registered in the application manager.
 - **_tradesAllowed** (uint8[]): the amount of trades allowed in a day.
-- **_startTs** (uint64): starting timestamp of the rule. This timestamp will determin the time that a day starts and ends for the rule processing. For example, *the amount of trades will reset to 0 very day at 2:30 pm.*
+- **_startTs** (uint64): starting timestamp of the rule. This timestamp will determine the time that a day starts and ends for the rule processing. For example, *the amount of trades will reset to 0 very day at 2:30 pm.*
 
 ### Parameter Optionality:
 
