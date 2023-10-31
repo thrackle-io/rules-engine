@@ -27,7 +27,7 @@ contract NonProtocolERC721 is ERC721, ERC721Burnable, ERC721URIStorage, ERC721En
     constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {}
 
     /**
-     * @dev Function mints a new token to anybody. Don't enabled this function if you are not sure about what you're doing.
+     * @dev Function mints a new token freely without restriction. This function should only be enabled if you are certain you want a free mint with no restrictions.
      * @notice This allows EVERYBODY TO MINT FOR FREE.
      * @param to Address of recipient
      */
