@@ -20,7 +20,7 @@ A total-supply-volatility rule is composed of 4 variables:
 - **Max Change** (uint16): the maximum percentage change allowed in the supply during a *period* of time (expressed in basis points).
 - **Period** (uint16): the amount of hours that defines a period.
 - **Starting timestamp** (uint64): the timestamp of the date when the rule starts the first *period*.
-- **Total Supply** (uint256): if not zero, this will represent always the token's total supply.
+- **Total Supply** (uint256): if not zero, this value will always be used as the token's total supply for rule evaluation. This can be used when the amount of circulating supply is much smaller than the amount of the token totalSupply due to some tokens being locked in a dev account or a vesting contract, etc. Only use this value in such cases.
 
 ```c
 /// ******** Supply Volatility ********
@@ -65,7 +65,7 @@ The rule will be evaluated with the following logic:
 2. The asset handler will first check if the transaction is a *minting* or *burning* operation. If it is, then it sends the aforementioned data to the rule processor with the rule Id, and the amount of tokens being minted/burned in the transaction.
 3. The rule processor will evaluate if the current transaction is in a new period or part of the same period as the last burning/minting transactions. 
     - **If it is a new period**, the absolute net supply change for the period will be equal to the amount of tokens minted/burned in current transaction. Also, the totalSupply for the current period will be set to current value. 
-    - **If it is not a new period**, then the absolute net supply change for the period will accumulate the amount of tokens minted/burned in current transaction. The totalSupply for the current period will remain fixed. 
+    - **If it is not a new period**, then the absolute net supply change for the period will accumulate the amount of tokens minted/burned in current transaction. The totalSupply for the current period will remain fixed to the value set in the first transaction of the period. 
 4. After current period's net supply change and totalSupply have been defined, the rule processor will calculate the change in supply. If the change is greater than the rule's maximum, it will revert.
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkTotalSupplyVolatilityPasses*
