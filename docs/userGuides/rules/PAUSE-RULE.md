@@ -72,7 +72,12 @@ function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole
 ```
 ###### *see [AppManager](../../../src/application/AppManager.sol)*
 
-The create function in the AppManager needs to receive the start timestamp (_pauseStart) and the ending timestamp (_pauseStop).
+### Parameters:
+
+- **_pauseStart** (uint256): the Unix timestamp for the start of the paused period.
+- **_pauseStop** (uint256): the Unix timestamp for the end of the paused period.
+
+The create function will return the protocol ID of the rule.
 
 This create function will also delete automatically any pause rule where the `pauseStop` timestamp is less than current timestamp  since this means that the rule has *expired*. 
 
