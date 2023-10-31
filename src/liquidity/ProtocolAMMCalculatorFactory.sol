@@ -4,7 +4,6 @@ pragma solidity ^0.8.17;
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
-import "src/liquidity/calculators/ProtocolAMMCalcSigmoid.sol";
 import "src/economic/AppAdministratorOnly.sol";
 import {IZeroAddressError} from "src/interfaces/IErrors.sol";
 
@@ -35,15 +34,15 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
         return address(protocolAMMCalcLinear);
     }
 
-    /**
-     * @dev This creates a sigmoid calculation module.
-     * @param _appManagerAddress address of the application's appManager
-     * @return _calculatorAddress
-     */
-    function createSigmoid(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) returns (address) {
-        ProtocolAMMCalcSigmoid protocolAMMCalcSigmoid = new ProtocolAMMCalcSigmoid(_appManagerAddress);
-        return address(protocolAMMCalcSigmoid);
-    }
+    // /**
+    //  * @dev This creates a sigmoid calculation module.
+    //  * @param _appManagerAddress address of the application's appManager
+    //  * @return _calculatorAddress
+    //  */
+    // function createSigmoid(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) returns (address) {
+    //     ProtocolAMMCalcSigmoid protocolAMMCalcSigmoid = new ProtocolAMMCalcSigmoid(_appManagerAddress);
+    //     return address(protocolAMMCalcSigmoid);
+    // }
 
     /**
      * @dev This creates a linear calculation module.
