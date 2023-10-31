@@ -130,3 +130,4 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x202409e9 | NoMintsAvailable()                                               |
 | 0x2a79d188 | NotAppAdministratorOrOwner()                                     |
 | 0x7db3aba7 | OutOfRange()                                                     |
+| 0x15bd01b6 | ValueOutOfRange(uint256)                                         |

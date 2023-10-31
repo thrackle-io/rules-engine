@@ -27,6 +27,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommon {
 
     /**
      * Test the the creation of Constant calculation module
+     * TODO: This must be replaced by python script to check the math
      */
     function testFactoryFuzzConstantToken0(uint32 _x, uint32 _y, uint128 _amount) public {
         // create a constant calculator with random ratio token0 to token1
@@ -43,6 +44,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommon {
 
     /**
      * Test the the creation of Constant calculation module
+     * TODO: This must be replaced by python script to check the math
      */
     function testFactoryFuzzConstantToken1(uint32 _x, uint32 _y, uint128 _amount) public {
         // create a constant calculator with random ratio token0 to token1
@@ -119,6 +121,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommon {
 
     /**
      * Test the the creation of Constant Product calculation module
+     * TODO: This must be replaced by python script to check the math
      */
     function testFactoryFuzzConstantProductToken0(uint128 _reserve0, uint128 _reserve1, uint128 _amount) public {
         uint256 reserve0 = bound(_reserve0, 100, type(uint32).max);
@@ -138,6 +141,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommon {
 
     /**
      * Test the the creation of Constant Product calculation module
+     * TODO: This must be replaced by python script to check the math
      */
     function testFactoryFuzzConstantProductToken1(uint128 _reserve0, uint128 _reserve1, uint128 _amount) public {
         uint256 reserve0 = bound(_reserve0, 100, type(uint32).max);
@@ -156,27 +160,128 @@ contract ProtocolAMMCalcFactoryTest is TestCommon {
     }
 
     /**
-     * Test the the creation of Linear calculation module
+     * Test the the creation of Linear X calculation module. All of the results are matched up to a desmos file
      */
-    function testFactoryLinear() public {
+    function testFactoryLinearX() public {
         // create a linear calculator (y=mx+b))
         // m = .00006(this is set as 8 digits)
         // b = 1.5
-        address calcAddress = factory.createLinear(600, 15 * 10 ** 17, 2_000_000 * 10 ** 18, address(applicationAppManager));
+        address calcAddress = factory.createLinear(6000, 15 * 10 ** 17, 2_000_000 * 10 ** 18, address(applicationAppManager));
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
         uint256 reserve0 = 1_000_000 * 10 ** 18;
         uint256 reserve1 = 1_000_000 * 10 ** 18;
         uint256 amount0 = 2 * 10 ** 18;
         uint256 amount1 = 0;
         uint256 returnVal;
-        // swap 2*10**18 token0 for 2999880000000000060 token1
+        // swap 2*10**18 token0 for 123000120000000000000 token1
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 2999880000000000060);
+        assertEq(returnVal, 123000120000000000000);
 
-        // swap 1*10**18 token1 for 1207550000000000000000 token0)
-        amount0 = 0;
+        amount0 = 4 * 10 ** 18;
+        // swap 4*10**18 token0 for 246000480000000000000 token1
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 246000480000000000000);
+
+        amount0 = 50_000 * 10 ** 18;
+        // swap 50,000 *10**18 token0 for 3150000000000000000000000 token1
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 3150000000000000000000000);
+
+        amount0 = 1 * 10 ** 18;
+        // swap 1 *10**18 token0 for 61500030000000000000 token1
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 61500030000000000000);
+
+        // work with another slope
+        // m = .00005(this is set as 8 digits)
+        calc.setVariables(5000, 15 * 10 ** 17, 2_000_000 * 10 ** 18);
+        // swap 1 *10**10 token0 for 51500025000000000000 token1
+        amount0 = 1 * 10 ** 18;
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 51500025000000000000);
+
+        // work with another slope
+        // m = .00001(this is set as 8 digits)
+        calc.setVariables(1000, 15 * 10 ** 17, 2_000_000 * 10 ** 18);
+        // swap 1 *10**10 token0 for 11500005000000000000 token1
+        amount0 = 1 * 10 ** 18;
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 11500005000000000000);
+    }
+
+    /**
+     * Test the the creation of Linear Y calculation module. All of the results are matched up to a desmos file
+     */
+    function testFactoryLinearY() public {
+        // create a linear calculator (y=mx+b))
+        // m = .00006(this is set as 8 digits) = 6000
+        // b = 1.5
+        address calcAddress = factory.createLinear(6000, 15 * 10 ** 17, 2_000_000 * 10 ** 18, address(applicationAppManager));
+        ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
+        uint256 reserve0 = 1_000_000 * 10 ** 18;
+        uint256 reserve1 = 1_000_000 * 10 ** 18;
+        uint256 amount0 = 0;
+        uint256 amount1 = 2 * 10 ** 18;
+        uint256 returnVal;
+        // swap 2 token1 for 180886341437069888 token0)
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 180886341437069888);
+        // swap 50 token1 for 4522211804403591519 token0)
+        amount1 = 50 * 10 ** 18;
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 4522211804403591519);
+        // swap 100 token1 for 9 token0)
+        amount1 = 100;
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 9);
+        // swap 10 token1 for 0 token0)
+        amount1 = 10;
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 0);
+
+        // work with another slope
+        // m = .00005(this is set as 8 digits)
+        calc.setVariables(5000, 15 * 10 ** 17, 2_000_000 * 10 ** 18);
+        // swap 1 *10**18 token1 for 98893659466214506 token0
         amount1 = 1 * 10 ** 18;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 1);
+        assertEq(returnVal, 98893659466214506);
+
+        // work with another y-intercept
+        // m = .00005(this is set as 8 digits)
+        calc.setVariables(5000, 2 * 10 ** 18, 2_000_000 * 10 ** 18);
+        // swap 1 *10**18 token1 for 98058091140754206 token0
+        amount1 = 1 * 10 ** 18;
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 98058091140754206);
+        // swap 1_000_000 *10**18 token1 for 163960780543711393201128 token0
+        amount1 = 1_000_000 * 10 ** 18;
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 163960780543711393201128);
+    }
+
+    /**
+     * Test the the validation of entry parametes for Linear calc
+     */
+    function testParameterValidationFactoryLinear() public {
+        address calcAddress;
+        // validate parameters at constructor level
+        bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, 101 * 10 ** 8));
+        factory.createLinear(101 * 10 ** 8, 15 * 10 ** 17, 2_000_000 * 10 ** 18, address(applicationAppManager));
+        vm.expectRevert(abi.encodeWithSelector(selector, 100_001 * 10 ** 18));
+        factory.createLinear(600, 100_001 * 10 ** 18, 2_000_000 * 10 ** 18, address(applicationAppManager));
+        calcAddress = factory.createLinear(100 * 10 ** 8, 100_000 * 10 ** 18, 2_000_000 * 10 ** 18, address(applicationAppManager));
+        // validate parameters at setter level
+        ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
+        vm.expectRevert(abi.encodeWithSelector(selector, 101 * 10 ** 8));
+        calc.setVariables(101 * 10 ** 8, 100_000 * 10 ** 18, 200_000_000_000 * 10 ** 18);
+        vm.expectRevert(abi.encodeWithSelector(selector, 101_000 * 10 ** 18));
+        calc.setVariables(100 * 10 ** 8, 101_000 * 10 ** 18, 200_000_000_000 * 10 ** 18);
+        // Make sure zeros are allowed for m and y
+        calc.setVariables(0, 0, 200_000_000_000 * 10 ** 18);
+        // zero not allowed for range
+        vm.expectRevert(0x454f1bd4);
+        calc.setVariables(0, 0, 0);
     }
 }

@@ -116,6 +116,8 @@ interface IAppManagerErrors is INoAddressToRemove {
 interface AMMCalculatorErrors {
     error AmountsAreZero();
     error OutOfRange();
+    error ValueOutOfRange(uint256 value);
+    error ZeroValueNotPermited();
     error InsufficientPoolDepth(uint256 pool, int256 attemptedWithdrawal);
 }
 
