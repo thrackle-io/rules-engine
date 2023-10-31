@@ -57,7 +57,7 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
     /**
      * @dev This creates a constant calculation module.
      * @param _x x value of the ratio
-     * @param _y y value of the ration
+     * @param _y y value of the ratio
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
