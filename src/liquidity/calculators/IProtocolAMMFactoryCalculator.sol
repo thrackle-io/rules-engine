@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import {AMMCalculatorErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
+import {AMMCalculatorErrors, IZeroAddressError} from "src/interfaces/IErrors.sol";
+import "src/economic/AppAdministratorOnly.sol";
 
 /**
  * @title Automated Market Maker Swap Calculator Interface
@@ -10,7 +11,9 @@ import {AMMCalculatorErrors, IZeroAddressError} from "../interfaces/IErrors.sol"
  *      as needed.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-interface IProtocolAMMCalculator is AMMCalculatorErrors, IZeroAddressError {
+abstract contract IProtocolAMMFactoryCalculator is AppAdministratorOnly, AMMCalculatorErrors, IZeroAddressError {
+    address appManagerAddress;
+
     /**
      * @dev This performs the swap from token0 to token1
      * @param _reserve0 total amount of token0 in reserve
@@ -19,5 +22,5 @@ interface IProtocolAMMCalculator is AMMCalculatorErrors, IZeroAddressError {
      * @param _amount1 amount of token1 possibly coming into the pool
      * @return _amountOut amount of alternate coming out of the pool
      */
-    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external returns (uint256 _amountOut);
+    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external virtual returns (uint256 _amountOut);
 }

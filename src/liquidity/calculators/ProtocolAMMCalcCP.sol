@@ -1,16 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "../../liquidity/IProtocolAMMCalculator.sol";
+import "./IProtocolAMMFactoryCalculator.sol";
 
 /**
  * @title Automated Market Maker Swap Constant Product Calculator
  * @notice This contains the calculations for AMM swap.
  * @dev This is external and used by the ProtocolAMM. The intention is to be able to change the calculations
- *      as needed. It contains an example Constant Product xy = k
+ *      as needed. It contains an example Constant Product xy = k. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ApplicationAMMCalcCP is IProtocolAMMCalculator {
+contract ProtocolAMMCalcCP is IProtocolAMMFactoryCalculator {
+    /**
+     * @dev Set up the calculator and appManager for permissions
+     * @param _appManagerAddress appManager address
+     */
+    constructor(address _appManagerAddress) {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
+        appManagerAddress = _appManagerAddress;
+    }
+
     /**
      * @dev This performs the swap from token0 to token1.
      *      Based on (x + a) * (y - b) = x * y
@@ -27,14 +36,14 @@ contract ApplicationAMMCalcCP is IProtocolAMMCalculator {
      * @param _amount1 amount of token1 possibly coming into the pool
      * @return _amountOut amount of alternate coming out of the pool
      */
-    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external pure returns (uint256) {
+    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external pure override returns (uint256) {
         if (_amount0 == 0 && _amount1 == 0) {
             revert AmountsAreZero();
         }
         if (_amount0 == 0) {
-            return (_amount1 * _reserve0) / (_reserve1 + _amount1); // swap token1 for token0
+            return (_amount1 * _reserve0) / (_reserve1 + _amount1);
         } else {
-            return (_amount0 * _reserve1) / (_reserve0 + _amount0); // swap token0 for token1
+            return (_amount0 * _reserve1) / (_reserve0 + _amount0);
         }
     }
 }
