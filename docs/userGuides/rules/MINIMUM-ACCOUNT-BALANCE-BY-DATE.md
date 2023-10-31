@@ -110,6 +110,15 @@ The create function in the protocol needs to receive the appManager address of t
 
 The create function will return the protocol ID of the rule.
 
+### Parameters:
+
+- **_appManagerAddr** (address): the address of the application manager to verify that the caller has Rule administrator privileges.
+- **_accountTags** (bytes32[]): array of tags that will contain each sub-rule.
+- **_holdAmounts** (uint256[]): array of *hold amounts* for each sub-rule.
+- **_holdPeriods** (uint16[]): array of *hold periods* for each sub-rule.
+- **_startTimestamps** (uint64[]): array of *timestamps* for each sub-rule.
+
+It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_holdAmounts`, `_holdPeriods` and `_startTimestamps`. Same with tag in posotion *n*.
 
 ### Parameter Optionality:
 
