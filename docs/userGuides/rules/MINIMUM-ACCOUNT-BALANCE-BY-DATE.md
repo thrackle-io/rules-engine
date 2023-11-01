@@ -207,7 +207,8 @@ This rule doesn't require of any data to be recorded.
     - parameters: 
         - ruleType: "MIN_ACCT_BAL_BY_DATE".
         - handlerAddress: the address of the asset handler where the rule has been applied.
-        - ruleId: the index of the rule created in the protocol by rule type.
+        - ruleId: the ruleId set for this rule in the handler.
+
 
 ## Dependencies
 

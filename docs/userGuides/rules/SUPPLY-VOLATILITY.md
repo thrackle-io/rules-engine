@@ -206,7 +206,10 @@ uint256 private totalSupplyForPeriod;
     - parameters: 
         - ruleType: "SUPPLY_VOLATILITY".
         - handlerAddress: the address of the asset handler where the rule has been applied.
-        - ruleId: the index of the rule created in the protocol by rule type.
+        - ruleId: the ruleId set for this rule in the handler.
+- **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
+    - ruleType: "SUPPLY_VOLATILITY"
+    - handlerAddress: the address of the asset handler where the rule has been activated
 
 ## Dependencies
 

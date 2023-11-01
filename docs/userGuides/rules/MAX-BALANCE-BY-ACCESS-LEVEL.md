@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of this rule is to provide control over the balance limits for accounts at the application-economy level. The limits will depend on the *access level* of the accounts. This control is mostly thought as a way of compliancy with possible government regulatory laws around crypto and KYC. For example, KYC could be used as the access level indicator where KYC 0 means no KYC at all which means the account is only allowed to manage 10 dollars worth of application assets, or even no assets at all, whereas KYC 4 means a very thorough KYC process carried out and therefore a trusted party which is allowed to manage millions of dollars within the application economy assets. 
+The purpose of this rule is to provide control over the balance limits for accounts at the application level. The limits will depend on the *access level* of the accounts. This control is mostly thought as a way of compliancy with possible government regulatory laws around crypto and KYC. For example, KYC could be used as the access level indicator where KYC 0 means no KYC at all, which means the account is only allowed to manage -for instance- 10 dollars worth of application assets, or even no assets at all, whereas KYC 4 means a very thorough KYC process carried out and therefore a trusted party which is allowed to manage millions of dollars within the application economy assets. 
 
 ## Tokens Supported
 
@@ -20,7 +20,7 @@ A max-balance-by-access-level rule is composed of a single variable:
 - **maxBalance** (mapping(uint8 =>uint48)): the maximum amount of dollars that accounts can have per acces level.
 
 ```c
-mapping(uint32 => mapping(uint8 => uint48)) accessRulesPerToken;
+ mapping(uint8 => uint48);
 ```
 
 ###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
@@ -91,7 +91,7 @@ function addAccessLevelBalanceRule(
 ### Parameters:
 
 - **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
-- **_balanceAmounts** (uint48[]): array of balance limits for each 5 levels (levels 0 to 4) in whole USD amounts (1 -> 1 USD; 1000 -> 1000 USD). Note that positions within the array matters. Posotion 0 represents access level 0, and position 4 represents level 4.
+- **_balanceAmounts** (uint48[]): array of balance limits for each 5 levels (levels 0 to 4) in whole USD amounts (1 -> 1 USD; 1000 -> 1000 USD). Note that the position within the array matters. Posotion 0 represents access level 0, and position 4 represents level 4.
 
 The create function will return the protocol ID of the rule.
 
@@ -170,7 +170,7 @@ This rule doesn't require of any data to be recorded.
     - Emitted when: rule has been applied in an application manager handler.
     - parameters: 
         - ruleType: "BALANCE_BY_ACCESSLEVEL".
-        - ruleId: the index of the rule created in the protocol by rule type.
+        - ruleId: the ruleId set for this rule in the handler.
 
 
 ## Dependencies
