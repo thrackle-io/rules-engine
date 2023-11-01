@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The account-balance-by-risk rule enforces accumulated balance limits in $USD for user accounts based on a risk score assigned to that account. Risk scores are ranged between 0-99. Balance limits are set by range based on the risk scores given at rule creation. For example, if risk scores given in the array are: 25,50,75 and balance limits are: 1000,500,250. The balance limits ranges are as follows: 0-24 = NO LIMIT, 25-49 = 500, 50-74 = 250, 75-99 = 100. 
+The account-balance-by-risk rule enforces accumulated balance limits in $USD for user accounts based on a protocol based risk score assigned to that account via the application manager. Risk scores are ranged between 0-99. Balance limits are set by range based on the risk scores given at rule creation. For example, if risk scores given in the array are: 25,50,75 and balance limits are: 1000,500,250. The balance limit ranges are as follows: 0-24 = NO LIMIT, 25-49 = 500, 50-74 = 250, 75-99 = 100. 
 ```c
 risk scores      balances         resultant logic
 -----------      --------         ---------------
@@ -19,11 +19,11 @@ risk scores      balances         resultant logic
 
 ## Scope 
 
-This rule works at the application level. It must be activated and configured in the application handler. Each token in the application ecosystem will be valued and contribute to the rule balance calculation. 
+This rule works at the application level. It must be activated and configured in the application handler. Each token in the application ecosystem will be valued and contribute to the rule balance calculation. This rule, when active, will apply to each token within the application.
 
 ## Data Structure
 
-A token-transfer-volume rule is composed of 4 components:
+An account-balance-by-risk rule is composed of 2 components:
 
 - **Risk Level** (uint8[]): The array of risk scores.
 - **Max Balance** (uint48[]): The array of maximum whole dollar limits for risk score range.
@@ -68,7 +68,8 @@ The rule will be evaluated with the following logic:
 1. The processor will receive the ID of the account-balance-by-risk rule set in the application handler. 
 2. The processor will receive the risk score of the user set in the app manager.
 3. The processor will receive the $USD value of all protocol supported tokens owned by the to address and the $USD value of the transaction. 
-4. The processor will loop through the risk scores within the rule ID provided to find the range that the user is within. The processor loops until the risk score in the rule is greater than the risk score of the to address and uses the previous range.
+4. The processor will loop through the risk scores within the rule ID provided to find the range that the user is within. The processor loops until a risk score within the rule is greater than the risk score of the to address and uses the previous range.
+    - If the risk score of the to address is greater than or equal to the last risk score in the `risk scores` array, the processor will use the last `max balance` limit of the array. 
 5. The processor will then check if the transaction value + current balance total is less than the risk score `max balance`. If total is greater than `max balance`, the rule will revert. 
 
 ###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
