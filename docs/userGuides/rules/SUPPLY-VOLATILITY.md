@@ -33,7 +33,7 @@ A total-supply-volatility rule is composed of 4 variables:
 ```
 ###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
 
-These rules are stored in a mapping indexed in order of creation:
+These rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
 ```c
 /// ******** Supply Volatility ********
@@ -97,7 +97,7 @@ function addSupplyVolatilityRule(
 
 ### Parameters:
 
-- **_appManagerAddr** (address): the address of the application manager to verify that the caller has Rule administrator privileges.
+- **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
 - **_maxVolumePercentage** (uint16): Maximum percentage change of supply allowed expressed in basis points (1 -> 0.01%; 100 -> 1.0%). 
 - **_period** (uint16): amount of hours that defines a period.
 - **_startTimestamp** (uint64): Unix timestamp for the *_period*s to start counting.

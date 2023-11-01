@@ -78,7 +78,7 @@ The rule will be evaluated with the following logic:
 4. The processor will evaluate whether each sub-rule's hold period is still active (if the current time is within `hold period` from the `starting timestamp`). If it is, the processor will then evaluate if the final balance of the account would be less than the `hold amount` in the case of the transaction succeeding. If yes, then the transaction will revert.
 5. Step 4 is repeated for each of the account's tags. 
 
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
+###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
 
 ### Revert Message
 
