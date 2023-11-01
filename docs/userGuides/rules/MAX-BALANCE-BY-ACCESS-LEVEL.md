@@ -17,7 +17,7 @@ This rule works at the application level which means that all tokens in the app 
 
 A max-balance-by-access-level rule is composed of a single variable:
 
-- **maxBalance** (mapping(uint8 =>uint48)): the maximum USD worth of application assets that accounts can have per acces level.
+- **maxBalance** (mapping(uint8 =>uint48)): the maximum USD worth of application assets that accounts can have per access level.
 
 ```c
  mapping(uint8 => uint48);
@@ -58,7 +58,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 The rule will be evaluated with the following logic:
 
-1. The application manager will send to the protocol's rule processor the sum of the balances of every application asset of the account, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
+1. The application manager will send to the protocol's rule processor the dollar value sum of all application assets the account holds, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
 2. Then, the rule processor will retrieve the maximum balance allowed for the rule with the ruleId passed, and for the access level of the account. If the balance will exceed the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
 
 ###### *see [ApplicationAccessLevelProcessorFacet](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkAccBalanceByAccessLevel*

@@ -11,7 +11,7 @@ The purpose of the minimum-balance-by-date rule is to prevent token holders from
 
 ## Scope 
 
-This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.
+This rule works at the application level which means that all tokens in the app will comply with this rule when the rule is active.
 
 ## Data Structure
 
