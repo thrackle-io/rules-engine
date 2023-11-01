@@ -17,7 +17,7 @@ This rule works at the application level which means that all tokens in the app 
 
 A max-balance-by-access-level rule is composed of a single variable:
 
-- **maxBalance** (mapping(uint8 =>uint48)): the maximum amount of dollars that accounts can have per acces level.
+- **maxBalance** (mapping(uint8 =>uint48)): the maximum USD worth of application assets that accounts can have per acces level.
 
 ```c
  mapping(uint8 => uint48);
