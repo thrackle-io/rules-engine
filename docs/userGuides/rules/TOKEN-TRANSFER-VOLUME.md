@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the token-transfer-volume rule is to reduce high trading volatility periods by allowing developers to set a volume percentage of the token's total supply that can be traded within a period. When the total traded percentage limit is reached, transfers are suspended until the next period begins. 
+The purpose of the token-transfer-volume rule is to reduce high trading volatility periods by allowing developers to set a maximum volume (as a percentage of the token's total supply) that can be traded within a period of time. When the trading volume maximum is reached, transfers are suspended until the next period begins. 
 
 ## Tokens Supported
 
@@ -18,14 +18,14 @@ This rule works at a token level. It must be activated and configured for each d
 A token-transfer-volume rule is composed of 4 components:
 
 - **Max Volume** (uint24): The maximum percent in basis uints of total supply to be traded during the *period*.
-- **Period** (uint16): The amount of hours that defines a period..
+- **Period** (uint16): The amount of hours that defines a period.
 - **Starting Timestamp** (uint64): The timestamp of the date when the *period* starts counting.
 - **Total Supply** (uint256): if not zero, this value will always be used as the token's total supply for rule evaluation. This can be used when the amount of circulating supply is much smaller than the amount of the token totalSupply due to some tokens being locked in a dev account or a vesting contract, etc. Only use this value in such cases.
 
 ```c
 /// ******** Token Transfer Volume ********
     struct TokenTransferVolumeRule {
-        uint24 maxVolume; // this is a percentage with 2 decimals of precision(2500 = 25%)
+        uint24 maxVolume; // this is a percentage with 2 decimals of precision (2500 = 25%)
         uint16 period; // hours
         uint64 startTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024
         uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to token's totalSupply.
