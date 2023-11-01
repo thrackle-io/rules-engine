@@ -72,7 +72,7 @@ The rule will be evaluated with the following logic:
     - If the risk score of the to address is greater than or equal to the last risk score in the `risk scores` array, the processor will use the last `max balance` limit of the array. 
 5. The processor will then check if the transaction value + current balance total is less than the risk score `max balance`. If total is greater than `max balance`, the rule will revert. 
 
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
+###### *see [ApplicationRiskProcessorFacet](../../../src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccBalanceByRisk*
 
 ### Revert Message
 
@@ -86,7 +86,7 @@ The selector for this error is `0x58b13098`.
 
 ## Create Function
 
-Adding a token-transfer-volume rule is done through the function:
+Adding an account-balance-by-risk rule is done through the function:
 
 ```c
 function addAccountBalanceByRiskScore(
@@ -95,7 +95,7 @@ function addAccountBalanceByRiskScore(
     uint48[] calldata _balanceLimits
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
 
 
 The create function in the protocol needs to receive the appManager address of the application in order to verify that the caller has Rule administrator privileges. 
@@ -137,7 +137,7 @@ The following validation will be carried out by the create function in order to 
                 external 
                 view 
                 returns 
-                (NonTaggedRules.TokenTransferVolumeRule memory);
+                (ppRules.AccountBalanceToRiskRule memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
