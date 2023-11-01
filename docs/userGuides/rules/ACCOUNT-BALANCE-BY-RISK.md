@@ -19,7 +19,7 @@ risk scores      balances         resultant logic
 
 ## Scope 
 
-This rule works at the application level. It must be activated and configured in the application handler. Each token in the application ecosystem will be valued and contribute to the rule balance calculation. This rule, when active, will apply to each token within the application.
+This rule works at the application level which means that all tokens in the app will comply with this rule when the rule is active. Each token in the application ecosystem will be valued and contribute to the rule balance calculation.
 
 ## Data Structure
 
