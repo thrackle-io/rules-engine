@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The account-balance-by-risk rule enforces accumulated balance limits in $USD for user accounts based on a protocol based risk score assigned to that account via the application manager. Risk scores are ranged between 0-99. Balance limits are set by range based on the risk scores given at rule creation. For example, if risk scores given in the array are: 25,50,75 and balance limits are: 1000,500,250. The balance limit ranges are as follows: 0-24 = NO LIMIT, 25-49 = 500, 50-74 = 250, 75-99 = 100. 
+The account-balance-by-risk rule enforces accumulated balance limits in $USD for user accounts based on a protocol assigned risk score to that account via the application manager. Risk scores are ranged between 0-99. Balance limits are set by range based on the risk scores given at rule creation. For example, if risk scores given in the array are: 25,50,75 and balance limits are: 500,250,100. The balance limit ranges are as follows: 0-24 = NO LIMIT, 25-49 = 500, 50-74 = 250, 75-99 = 100. 
 ```c
 risk scores      balances         resultant logic
 -----------      --------         ---------------
