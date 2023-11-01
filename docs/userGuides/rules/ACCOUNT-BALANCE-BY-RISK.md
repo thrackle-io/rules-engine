@@ -65,15 +65,9 @@ The account-balance-by-risk-score rules are stored in a mapping indexed by ruleI
 
 The rule will be evaluated with the following logic:
 
-1. The processor will receive the ID of the token-transfer-volume rule set in the token handler. 
-2. The processor will receive the current `transfer volume`, `last transfer time` and token's total supply from the handler.
-3. The processor will evaluate whether the rule has a set total supply or use the token's total supply provided by the handler. 
-4. The processor will evaluate whether the rule's period is still active (if the current time is within `period` from the `starting timestamp`).
-    - **If it is not a new period**, the processor will then evaluate the `max volume`. 
-    - **If it is a new period**, the processor will return the `transfer volume` value increased from current trade for the handler to store. 
-5. The processor will then evaluate if the final volume percentage would be greater than the `max volume` in the case of the transaction succeeding. 
-    - If yes, then the transaction will revert. 
-    - If no, the processor will return the `transfer volume` for the current `period`.
+1. The processor will receive the ID of the account-balance-by-risk rule set in the application handler. 
+2. The processor will receive the risk score of the user set in the app manager.
+3. The 
 
 ###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
 
