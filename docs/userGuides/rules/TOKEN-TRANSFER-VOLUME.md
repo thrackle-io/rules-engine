@@ -17,7 +17,7 @@ This rule works at a token level. It must be activated and configured for each d
 
 A token-transfer-volume rule is composed of 4 components:
 
-- **Max Volume** (uint24): The maximum percent of total supply to be traded during the *period*.
+- **Max Volume** (uint24): The maximum percent in basis uints of total supply to be traded during the *period*.
 - **Period** (uint16): The amount of hours that defines a period..
 - **Starting Timestamp** (uint64): The timestamp of the date when the *period* starts counting.
 - **Total Supply** (uint256): if not zero, this value will always be used as the token's total supply for rule evaluation. This can be used when the amount of circulating supply is much smaller than the amount of the token totalSupply due to some tokens being locked in a dev account or a vesting contract, etc. Only use this value in such cases.
@@ -71,7 +71,7 @@ The rule will be evaluated with the following logic:
     - If yes, then the transaction will revert. 
     - If no, the processor will return the `transfer volume` for the current `period`.
 
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
+###### *see [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
 
 ### Revert Message
 
@@ -106,7 +106,7 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
-- **_maxVolumePercentage** (uint24): .
+- **_maxVolumePercentage** (uint24): maximum allowable basis unit percentage of trading volume per period.
 - **_hoursPerPeriod** (uint16): the amount of hours per period.
 - **_startTimestamp** (uint64): starting timestamp of the rule. This timestamp will determine the time that a day starts and ends for the rule processing. For example, *the amount of trades will reset to 0 every day at 2:30 pm.*
 - **_totalSupply** (uint256): (optional) if not 0, then this is the value used for totalSupply instead of the live token's totalSupply value at rule processing time.
