@@ -67,7 +67,9 @@ The rule will be evaluated with the following logic:
 
 1. The processor will receive the ID of the account-balance-by-risk rule set in the application handler. 
 2. The processor will receive the risk score of the user set in the app manager.
-3. The 
+3. The processor will receive the $USD value of all protocol supported tokens owned by the to address and the $USD value of the transaction. 
+4. The processor will loop through the risk scores within the rule ID provided to find the range that the user is within. The processor loops until the risk score in the rule is greater than the risk score of the to address and uses the previous range.
+5. The processor will then check if the transaction value + current balance total is less than the risk score `max balance`. If total is greater than `max balance`, the rule will revert. 
 
 ###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
 
@@ -76,22 +78,20 @@ The rule will be evaluated with the following logic:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error TransferExceedsMaxVolumeAllowed();
+error BalanceExceedsRiskScoreLimit();
 ```
 
-The selector for this error is `0x3627495d`.
+The selector for this error is `0x58b13098`.
 
 ## Create Function
 
 Adding a token-transfer-volume rule is done through the function:
 
 ```c
-function addTransferVolumeRule(
-    address _appManagerAddr,
-    uint24 _maxVolumePercentage,
-    uint16 _hoursPerPeriod,
-    uint64 _startTimestamp,
-    uint256 _totalSupply
+function addAccountBalanceByRiskScore(
+    address _appManagerAddr, 
+    uint8[] calldata _riskScores, 
+    uint48[] calldata _balanceLimits
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 ###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)*
@@ -104,35 +104,33 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
-- **_maxVolumePercentage** (uint24): .
-- **_hoursPerPeriod** (uint16): the amount of hours per period.
-- **_startTimestamp** (uint64): starting timestamp of the rule. This timestamp will determine the time that a day starts and ends for the rule processing. For example, *the amount of trades will reset to 0 every day at 2:30 pm.*
-- **_totalSupply** (uint256): (optional) if not 0, then this is the value used for totalSupply instead of the live token's totalSupply value at rule processing time.
+- **_riskScores** (uint8): The array of risk score ranges (0-99).
+- **_balanceLimits** (uint48): the maximum whole $USD limit for each risk score range.
 
 
 ### Parameter Optionality:
 
-The parameters where developers have the options are:
-- **_totalSupply**: For volatility calculations, when this is zero, the token's totalSupply is used. Otherwise, this value is used as the total supply.
+There is no parameter optionality for this rule. 
 
 ### Parameter Validation:
 
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
 - `_appManagerAddr` is not the zero address.
-- `_maxVolumePercentage_` is not greater than 1000000 (1000%). 
-- `maxVolumePercentage` and `_hoursPerPeriod` are greater than a value of 0.
-- `_startTimestamp` is not zero and is not more than 52 weeks in the future.
+- `_riskScores` and `_balanceLimits` arrays are equal in length. 
+- `_riskScores` array last value is not greater than 99.
+- `_riskScores` array is in ascending order (the next value is always larger than the previous value in the array).
+- `_balanceLimits` array is in descending order (the next value is always smaller than the previous value in the array). 
 
 
-###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
 
 ## Other Functions:
 
 - In Protocol [Storage Diamond]((../../../src/economic/ruleStorage/RuleDataFacet.sol)):
     -  Function to get a rule by its ID:
         ```c
-        function getTransferVolumeRule(
+        function getAccountBalanceByRiskScore(
                     uint32 _index
                 ) 
                 external 
@@ -142,82 +140,61 @@ The following validation will be carried out by the create function in order to 
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalTransferVolumeRules() public view returns (uint32);
+        function getTotalAccountBalanceByRiskScoreRules() public view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
-        function checkTokenTransferVolumePasses(
+        function checkAccBalanceByRisk(
                     uint32 _ruleId, 
-                    uint256 _volume,
-                    uint256 _supply, 
-                    uint256 _amount, 
-                    uint64 _lastTransferTs
+                    address _toAddress, 
+                    uint8 _riskScore, 
+                    uint128 _totalValuationTo, 
+                    uint128 _amountToTransfer
                 ) 
                 external 
                 view;
         ```
-- in Asset Handler:
+- in Application Handler:
     - Function to set and activate at the same time the rule in an asset handler:
         ```c
-        function setTokenTransferVolumeRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setAccountBalanceByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule in an asset handler:
         ```c
-        function activateTokenTransferVolumeRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateAccountBalanceByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule in an asset handler:
         ```c
-        function isTokenTransferVolumeActive() external view returns (bool);
+        function isAccountBalanceByRiskActive() external view returns (bool);
         ```
     - Function to get the rule Id from an asset handler:
         ```c
-        function getTokenTransferVolumeRule() external view returns (uint32);
+        function getAccountBalanceByRiskRule() external view returns (uint32);
         ```
 ## Return Data
 
-This rule returns the value:
-1. **Transfer Volume** (uint256): the updated value for the total traded volume during the period. 
-
-```c
-uint256 private transferVolume;
-```
-
-*see [ERC721Handler](../../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/token/ERC20/ProtocolERC20Handler.sol)*
+This rule does not return any data.
 
 ## Data Recorded
 
-This rule requires recording of the following information in the asset handler:
-
-- **Transfer Volume** (uint256): the updated value for the total traded volume during the period. 
-- **Last Transfer Time** (uint64): the Unix timestamp of the last update in the Last-Transfer-Time variable
-
-```c
-uint64 private lastTransferTs;
-uint256 private transferVolume;
-```
-
-*see [ERC721Handler](../../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/token/ERC20/ProtocolERC20Handler.sol)*
+This rule does not require any data to be recorded. 
 
 ## Events
 
 - **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "TRANSFER_VOLUME".
+        - ruleType: "BALANCE_BY_RISK".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
 - **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - parameters: 
-        - ruleType: "TRANSFER_VOLUME".
+        - ruleType: "BALANCE_BY_RISK".
         - handlerAddress: the address of the asset handler where the rule has been applied.
         - ruleId: the index of the rule created in the protocol by rule type.
-
-- **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
-    - ruleType: "TRANSFER_VOLUME".
-    - handlerAddress: the address of the asset handler where the rule has been activated.
 
 ## Dependencies
 
