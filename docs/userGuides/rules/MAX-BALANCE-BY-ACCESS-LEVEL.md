@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of this rule is to provide control over the balance limits for accounts at the application level. The limits will depend on the *access level* of the accounts. This control is mostly thought as a way of compliancy with possible government regulatory laws around crypto and KYC. For example, KYC could be used as the access level indicator where KYC 0 means no KYC at all, which means the account is only allowed to manage -for instance- 10 dollars worth of application assets, or even no assets at all, whereas KYC 4 means a very thorough KYC process carried out and therefore a trusted party which is allowed to manage millions of dollars within the application economy assets. 
+The purpose of this rule is to provide balance limits for accounts at the application level based on an application defined segment of users. The segments are defined as the access levels of the accounts. This rule may be used to provided gated accumulation of assets to ensure accounts cannot accumulate more assets without performing other actions defined by the application. For example, the application may decide users may not accumulate any assets without performing specific onboarding activities. The application developer may set a maximum balance of $0 for the default access level and $1000 for the next access level. As accounts are introduced to the ecosystem, they may not receive any assets until the application changes their access level to a higher value.
 
 ## Tokens Supported
 
@@ -11,7 +11,7 @@ The purpose of this rule is to provide control over the balance limits for accou
 
 ## Scope 
 
-This rule works at the application level which means that all tokens in the app will have no choise but to comply with this rule when active.
+This rule works at the application level which means that all tokens in the app will have no choice but to comply with this rule when active.
 
 ## Data Structure
 
@@ -45,6 +45,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 - **Evaluation Exceptions**: 
     - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
     - In the case of the ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+    - When the transaction is **burning** of tokens.
 
 - **Configuration and Enabling/Disabling**:
     - This rule can only be configured in the protocol by a **rule administrator**.
@@ -58,7 +59,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 The rule will be evaluated with the following logic:
 
 1. The application manager will send to the protocol's rule processor the sum of the balances of every application asset of the account, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
-2. Then, the rule processor will retrieve the maximum balance allowed for the rule with the ruleId passed, and for the access level of the account. If the balance will exceed the maximum allowed by the rule in the case of a successful  transactions, then the transaction reverts.
+2. Then, the rule processor will retrieve the maximum balance allowed for the rule with the ruleId passed, and for the access level of the account. If the balance will exceed the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
 
 ###### *see [ApplicationAccessLevelProcessorFacet](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkAccBalanceByAccessLevel*
 
@@ -88,12 +89,12 @@ function addAccessLevelBalanceRule(
 ```
 ###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
 
+The create function will return the protocol ID of the rule.
+
 ### Parameters:
 
 - **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
 - **_balanceAmounts** (uint48[]): array of balance limits for each 5 levels (levels 0 to 4) in whole USD amounts (1 -> 1 USD; 1000 -> 1000 USD). Note that the position within the array matters. Posotion 0 represents access level 0, and position 4 represents level 4.
-
-The create function will return the protocol ID of the rule.
 
 ### Parameter Optionality:
 
@@ -131,7 +132,7 @@ The following validation will be carried out by the create function in order to 
                 external 
                 view;
         ```
-- In the [App Manager Handler](../../../src/application/ProtocolApplicationHandler.sol):
+- In the [Application Handler](../../../src/application/ProtocolApplicationHandler.sol):
     - Function to set and activate at the same time the rule in the application handler:
         ```c
         function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
