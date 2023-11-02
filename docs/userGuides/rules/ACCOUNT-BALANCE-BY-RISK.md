@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The account-balance-by-risk rule enforces accumulated balance limits in $USD for user accounts based on a protocol assigned risk score to that account via the application manager. Risk scores are ranged between 0-99. Balance limits are set by range based on the risk scores given at rule creation. For example, if risk scores given in the array are: 25,50,75 and balance limits are: 500,250,100. The balance limit ranges are as follows: 0-24 = NO LIMIT, 25-49 = 500, 50-74 = 250, 75-99 = 100. 
+The account-balance-by-risk rule enforces accumulated balance limits in U.S. Dollars for user accounts based on a protocol assigned risk score to that account via the application manager. Risk scores are ranged between 0-99. Balance limits are set by range based on the risk scores given at rule creation. For example, if risk scores given in the array are: 25,50,75 and balance limits are: 500,250,100. The balance limit ranges are as follows: 0-24 = NO LIMIT, 25-49 = 500, 50-74 = 250, 75-99 = 100. 
 ```c
 risk scores      balances         resultant logic
 -----------      --------         ---------------
@@ -53,6 +53,7 @@ The account-balance-by-risk-score rules are stored in a mapping indexed by ruleI
 - **Evaluation Exceptions**: 
     - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
     - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+    - When the transaction is **burning** of tokens.
 
 - **Configuration and Enabling/Disabling**:
     - This rule can only be configured in the protocol by a **rule administrator**.
@@ -67,7 +68,7 @@ The rule will be evaluated with the following logic:
 
 1. The processor will receive the ID of the account-balance-by-risk rule set in the application handler. 
 2. The processor will receive the risk score of the user set in the app manager.
-3. The processor will receive the $USD value of all protocol supported tokens owned by the to address and the $USD value of the transaction. 
+3. The processor will receive the U.S. Dollars value of all protocol supported tokens owned by the to address and the U.S. Dollars value of the transaction. 
 4. The processor will loop through the risk scores within the rule ID provided to find the range that the user is within. The processor loops until a risk score within the rule is greater than the risk score of the to address and uses the previous `max balance` value.
     - If the risk score of the to address is greater than or equal to the last risk score in the `risk scores` array, the processor will use the last `max balance` limit of the array. 
 5. The processor will then check if the transaction value + current balance total is less than the risk score `max balance`. If total is greater than `max balance`, the rule will revert. 
@@ -106,7 +107,7 @@ The create function will return the protocol ID of the rule.
 
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
 - **_riskScores** (uint8): The array of risk score ranges (0-99).
-- **_balanceLimits** (uint48): the maximum whole $USD limit for each risk score range.
+- **_balanceLimits** (uint48): the maximum whole U.S. Dollars limit for each risk score range.
 
 
 ### Parameter Optionality:
