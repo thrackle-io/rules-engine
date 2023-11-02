@@ -95,6 +95,8 @@ function addSupplyVolatilityRule(
 ```
 ###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)*
 
+The create function will return the protocol ID of the rule.
+
 ### Parameters:
 
 - **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
@@ -103,7 +105,6 @@ function addSupplyVolatilityRule(
 - **_startTimestamp** (uint64): Unix timestamp for the *_period*s to start counting.
 - **_totalSupply** (uint256): (optional) if not 0, then this is the value used for totalSupply instead of the live token's totalSupply value at rule processing time.
 
-The create function will return the protocol ID of the rule.
 
 ### Parameter Optionality:
 

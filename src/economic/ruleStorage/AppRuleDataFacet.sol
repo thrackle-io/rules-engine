@@ -223,16 +223,16 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      * array and is +1 longer than _riskScores. A value of 1000 in this arrays will be interpreted as $1000.00 USD.
      * @return position of new rule in array
      * @notice _balanceLimits size must be equal to _riskLevel.
-     * This means that the positioning of the arrays is ascendant in terms of risk levels,
+     * The positioning of the arrays is ascendant in terms of risk levels,
      * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      * eg.
      * risk scores      balances         resultant logic
      * -----------      --------         ---------------
-     *    25             1000            0-24  =  1000
-     *    50              500            25-49 =   500
-     *    75              250            50-74 =   250
-     *                    100            75-99 =   100
+     *                                   0-24  =   NO LIMIT 
+     *    25              500            25-49 =   500
+     *    50              250            50-74 =   250
+     *    75              100            75-99 =   100
      */
     function addAccountBalanceByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _balanceLimits) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_balanceLimits.length != _riskScores.length) revert InputArraysSizesNotValid();

@@ -105,9 +105,6 @@ function addMinBalByDateRule(
 ```
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
 
-
-The create function in the protocol needs to receive the appManager address of the application in order to verify that the caller has Rule administrator privileges. 
-
 The create function will return the protocol ID of the rule.
 
 ### Parameters:
