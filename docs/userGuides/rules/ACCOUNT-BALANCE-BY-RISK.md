@@ -68,7 +68,7 @@ The rule will be evaluated with the following logic:
 1. The processor will receive the ID of the account-balance-by-risk rule set in the application handler. 
 2. The processor will receive the risk score of the user set in the app manager.
 3. The processor will receive the $USD value of all protocol supported tokens owned by the to address and the $USD value of the transaction. 
-4. The processor will loop through the risk scores within the rule ID provided to find the range that the user is within. The processor loops until a risk score within the rule is greater than the risk score of the to address and uses the previous range.
+4. The processor will loop through the risk scores within the rule ID provided to find the range that the user is within. The processor loops until a risk score within the rule is greater than the risk score of the to address and uses the previous `max balance` value.
     - If the risk score of the to address is greater than or equal to the last risk score in the `risk scores` array, the processor will use the last `max balance` limit of the array. 
 5. The processor will then check if the transaction value + current balance total is less than the risk score `max balance`. If total is greater than `max balance`, the rule will revert. 
 
@@ -137,7 +137,7 @@ The following validation will be carried out by the create function in order to 
                 external 
                 view 
                 returns 
-                (ppRules.AccountBalanceToRiskRule memory);
+                (appRules.AccountBalanceToRiskRule memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
