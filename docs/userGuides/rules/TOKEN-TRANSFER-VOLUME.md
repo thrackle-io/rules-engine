@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the token-transfer-volume rule is to reduce high trading volatility periods by allowing developers to set a maximum volume (as a percentage of the token's total supply) that can be traded within a period of time. When the trading volume maximum is reached, transfers are suspended until the next period begins. Trading volume is the acculated total number of tokens transferred during each period, and reset with each new period by the first transaction of that period. 
+The purpose of the token-transfer-volume rule is to reduce high trading volatility periods by allowing developers to set a maximum volume (as a percentage of the token's total supply) that can be traded within a period of time. When the trading volume maximum is reached, transfers are suspended until the next period begins. Trading volume is the accumulated total number of tokens transferred during each period, and reset with each new period by the first transaction of that period. 
 
 ## Tokens Supported
 
