@@ -11,7 +11,7 @@ The purpose of the pause rule is to allow developers to pause the entirety of an
 
 ## Scope 
 
-This rule works at the application level which means that all tokens in the app will have no choise but to comply with this rule when active.
+This rule works at the application level which means that all tokens in the app will have no choice but to comply with this rule when active.
 
 ## Data Structure
 

@@ -11,7 +11,7 @@ The purpose of this rule is to prevent a sudden increase or decrease in the supp
 
 ## Scope 
 
-This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.
+This rule works at the application level which means that all tokens in the app will comply with this rule when the rule is active.
 
 ## Data Structure
 
@@ -33,7 +33,7 @@ A total-supply-volatility rule is composed of 4 variables:
 ```
 ###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
 
-These rules are stored in a mapping indexed in order of creation:
+These rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
 ```c
 /// ******** Supply Volatility ********
@@ -97,7 +97,7 @@ function addSupplyVolatilityRule(
 
 ### Parameters:
 
-- **_appManagerAddr** (address): the address of the application manager to verify that the caller has Rule administrator privileges.
+- **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
 - **_maxVolumePercentage** (uint16): Maximum percentage change of supply allowed expressed in basis points (1 -> 0.01%; 100 -> 1.0%). 
 - **_period** (uint16): amount of hours that defines a period.
 - **_startTimestamp** (uint64): Unix timestamp for the *_period*s to start counting.
@@ -206,7 +206,10 @@ uint256 private totalSupplyForPeriod;
     - parameters: 
         - ruleType: "SUPPLY_VOLATILITY".
         - handlerAddress: the address of the asset handler where the rule has been applied.
-        - ruleId: the index of the rule created in the protocol by rule type.
+        - ruleId: the ruleId set for this rule in the handler.
+- **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
+    - ruleType: "SUPPLY_VOLATILITY"
+    - handlerAddress: the address of the asset handler where the rule has been activated
 
 ## Dependencies
 
