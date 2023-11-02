@@ -44,17 +44,15 @@ The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32
 ```
 ###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
 
-## Role Applicability
+## Evaluation Exceptions 
+- This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
-- **Evaluation Exceptions**: 
-    - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-    - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
-
-- **Configuration and Enabling/Disabling**:
-    - This rule can only be configured in the protocol by a **rule administrator**.
-    - This rule can only be set in the asset handler by a **rule administrator**.
-    - This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
-    - This rule can only be updated in the asset handler by a **rule administrator**.
+## Configuration and Enabling/Disabling
+- This rule can only be configured in the protocol by a **rule administrator**.
+- This rule can only be set in the asset handler by a **rule administrator**.
+- This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
+- This rule can only be updated in the asset handler by a **rule administrator**.
 
 
 ## Rule Evaluation
@@ -64,11 +62,12 @@ The rule will be evaluated with the following logic:
 1. The processor will receive the ID of the token-transfer-volume rule set in the token handler. 
 2. The processor will receive the current `transfer volume`, `last transfer time`, `amount` and token's total supply from the handler.
 3. The processor will evaluate whether the rule has a set total supply or use the token's total supply provided by the handler. 
-4. The processor will evaluate whether the rule's period is still active (if the current time is within `period` from the `starting timestamp`).
+4. The processor will evaluate whether the rule is active base on `starting timestamp`. 
+5. The processor will evaluate whether the current time is within the `period`.
     - **If it is a new period**, the processor will return the `transfer volume` value from the current transaction for the handler to store.
     - **If it is not a new period**, the processor will then evaluate the `transfer volume` (tokens transferred) against the rule's `max volume` (percent in basis units of total supply).  
-5. The processor will then calculate the final volume percentage, in basis units, of the total supply by adding the `transfer volume` (tokens transferred) for the period and the `amount` to be transferred in the transaction then dividing against the total supply set in step 3. 
-6. The processor will then evaluate if the final volume percentage of total supply would be greater than the `max volume` in the case of the transaction succeeding. 
+6. The processor will then calculate the final volume percentage, in basis units, of the total supply by adding the `transfer volume` (tokens transferred) for the period and the `amount` to be transferred in the transaction then dividing against the total supply set in step 3. 
+7. The processor will then evaluate if the final volume percentage of total supply would be greater than the `max volume` in the case of the transaction succeeding. 
     - If yes, then the transaction will revert. 
     - If no, the processor will return the `transfer volume` (previous total of tokens transferred within period plus current transaction total) for the current `period`.
 
@@ -97,10 +96,7 @@ function addTransferVolumeRule(
     uint256 _totalSupply
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)*
-
-
-The create function in the protocol needs to receive the appManager address of the application in order to verify that the caller has Rule administrator privileges. 
+###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)* 
 
 The create function will return the protocol ID of the rule.
 
