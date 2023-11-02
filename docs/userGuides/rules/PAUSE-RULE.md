@@ -30,17 +30,11 @@ struct PauseRule {
 ```
 ###### *see [PauseRule](../../../src/data/PauseRule.sol)*
 
-## Role Applicability
-
-- **Evaluation Exceptions**: 
-    - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-    - In the case of the ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
-
-- **Configuration and Enabling/Disabling**:
-    - This rule can only be configured in the protocol by a **rule administrator**.
-    - This rule can only be set in the application handler by a **rule administrator**.
-    - This rule can only be activated/deactivated in the application handler by a **rule administrator**.
-    - This rule can only be updated in the application handler by a **rule administrator**.
+## Configuration and Enabling/Disabling
+- This rule can only be configured in the protocol by a **rule administrator**.
+- This rule can only be set in the asset handler by a **rule administrator**.
+- This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
+- This rule can only be updated in the asset handler by a **rule administrator**.
 
 
 ## Rule Evaluation
@@ -51,6 +45,10 @@ The rule will be evaluated with the following logic:
 2. Then, it will loop through all these pause rules, and will evaluate if current timestamp is greater or equal to `pauseStart` and less than `pauseStop`. If the condition is true for at least one rule, then the transaction will revert.
 
 ###### *see [ApplicationPauseProcessorFacet](../../../src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol) -> checkPauseRules*
+
+## Evaluation Exceptions 
+- This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
 

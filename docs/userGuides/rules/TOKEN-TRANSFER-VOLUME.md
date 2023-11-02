@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the token-transfer-volume rule is to reduce high trading volatility periods by allowing developers to set a maximum volume (as a percentage of the token's total supply) that can be traded within a period of time. When the trading volume maximum is reached, transfers are suspended until the next period begins. 
+The purpose of the token-transfer-volume rule is to reduce high trading volatility periods by allowing developers to set a maximum volume (as a percentage of the token's total supply) that can be traded within a period of time. When the trading volume maximum is reached, transfers are suspended until the next period begins. Trading volume is the acculated total number of tokens transferred during each period, and reset with each new period by the first transaction of that period. 
 
 ## Tokens Supported
 
@@ -44,10 +44,6 @@ The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32
 ```
 ###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
 
-## Evaluation Exceptions 
-- This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
-
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
 - This rule can only be set in the asset handler by a **rule administrator**.
@@ -61,17 +57,21 @@ The rule will be evaluated with the following logic:
 
 1. The processor will receive the ID of the token-transfer-volume rule set in the token handler. 
 2. The processor will receive the current `transfer volume`, `last transfer time`, `amount` and token's total supply from the handler.
-3. The processor will evaluate whether the rule has a set total supply or use the token's total supply provided by the handler. 
-4. The processor will evaluate whether the rule is active base on `starting timestamp`. 
-5. The processor will evaluate whether the current time is within the `period`.
-    - **If it is a new period**, the processor will return the `transfer volume` value from the current transaction for the handler to store.
-    - **If it is not a new period**, the processor will then evaluate the `transfer volume` (tokens transferred) against the rule's `max volume` (percent in basis units of total supply).  
-6. The processor will then calculate the final volume percentage, in basis units, of the total supply by adding the `transfer volume` (tokens transferred) for the period and the `amount` to be transferred in the transaction then dividing against the total supply set in step 3. 
+3. The processor will evaluate whether the rule has a set total supply or use the token's total supply provided by the handler set at the beginning of every new `period`. 
+4. The processor will evaluate whether the rule is active based on the `starting timestamp`. 
+5. The processor will evaluate whether the current time is within a new `period`.
+    - **If it is a new period**, the processor will set the `amount` value from the current transaction as the `_volume` value for the volume percent of total supply calculation.
+    - **If it is not a new period**, the processor will then accumulate the `transfer volume` (tokens transferred) and the `amount` of tokens to be transferred as the `_volume` value for the volume percent of total supply calculation. 
+6. The processor will then calculate the final volume percentage, in basis units, from `_volume` and the total supply set in step 3. 
 7. The processor will then evaluate if the final volume percentage of total supply would be greater than the `max volume` in the case of the transaction succeeding. 
     - If yes, then the transaction will revert. 
-    - If no, the processor will return the `transfer volume` (previous total of tokens transferred within period plus current transaction total) for the current `period`.
+    - If no, the processor will return the `_volume` value for the current `period` to the handler.
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
+
+## Evaluation Exceptions 
+- This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
 

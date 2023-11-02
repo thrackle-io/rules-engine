@@ -51,16 +51,15 @@ The tagged token collections then compose a transfer-counter rule.
 
 A transfer-counter rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
-## Role Applicability
+## Evaluation Exceptions 
+- This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
-- **Evaluation Exceptions**: 
-    - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction.
-
-- **Configuration and Enabling/disabling**:
-    - This rule can only be configured in the protocol by a **rule administrator**.
-    - This rule can only be set in the asset handler by a **rule administrator**.
-    - This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
-    - This rule can only be updated in the asset handler by a **rule administrator**.
+## Configuration and Enabling/Disabling
+- This rule can only be configured in the protocol by a **rule administrator**.
+- This rule can only be set in the asset handler by a **rule administrator**.
+- This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
+- This rule can only be updated in the asset handler by a **rule administrator**.
 
 ## Rule Evaluation
 
@@ -94,9 +93,7 @@ function addNFTTransferCounterRule(
         uint64 _startTs
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32)
 ```
-bytes32 _nftTypes are the same as [tags](../GLOSSARY.md) and are applied to the ERC721 contract address in the App Manager. 
-
-The create function in the protocol needs to receive the appManager address of the application in order to verify that the caller has Rule administrator privileges. 
+bytes32 _nftTypes are the same as [tags](../GLOSSARY.md) and are applied to the ERC721 contract address in the App Manager.  
 
 The function will return the protocol id of the rule.
 
