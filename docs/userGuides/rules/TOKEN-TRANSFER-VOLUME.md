@@ -17,7 +17,7 @@ This rule works at a token level. It must be activated and configured for each d
 
 A token-transfer-volume rule is composed of 4 components:
 
-- **Max Volume** (uint24): The maximum percent in basis uints of total supply to be traded during the *period*.
+- **Max Volume** (uint24): The maximum percent in basis units of total supply to be traded during the *period*.
 - **Period** (uint16): The amount of hours that defines a period.
 - **Starting Timestamp** (uint64): The timestamp of the date when the *period* starts counting.
 - **Total Supply** (uint256): if not zero, this value will always be used as the token's total supply for rule evaluation. This can be used when the amount of circulating supply is much smaller than the amount of the token totalSupply due to some tokens being locked in a dev account or a vesting contract, etc. Only use this value in such cases.
@@ -62,14 +62,15 @@ The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32
 The rule will be evaluated with the following logic:
 
 1. The processor will receive the ID of the token-transfer-volume rule set in the token handler. 
-2. The processor will receive the current `transfer volume`, `last transfer time` and token's total supply from the handler.
+2. The processor will receive the current `transfer volume`, `last transfer time`, `amount` and token's total supply from the handler.
 3. The processor will evaluate whether the rule has a set total supply or use the token's total supply provided by the handler. 
 4. The processor will evaluate whether the rule's period is still active (if the current time is within `period` from the `starting timestamp`).
-    - **If it is not a new period**, the processor will then evaluate the `max volume`. 
-    - **If it is a new period**, the processor will return the `transfer volume` value increased from current trade for the handler to store. 
-5. The processor will then evaluate if the final volume percentage would be greater than the `max volume` in the case of the transaction succeeding. 
+    - **If it is a new period**, the processor will return the `transfer volume` value from the current transaction for the handler to store.
+    - **If it is not a new period**, the processor will then evaluate the `transfer volume` (tokens transferred) against the rule's `max volume` (percent in basis units of total supply).  
+5. The processor will then calculate the final volume percentage, in basis units, of the total supply by adding the `transfer volume` (tokens transferred) for the period and the `amount` to be transferred in the transaction then dividing against the total supply set in step 3. 
+6. The processor will then evaluate if the final volume percentage of total supply would be greater than the `max volume` in the case of the transaction succeeding. 
     - If yes, then the transaction will revert. 
-    - If no, the processor will return the `transfer volume` for the current `period`.
+    - If no, the processor will return the `transfer volume` (previous total of tokens transferred within period plus current transaction total) for the current `period`.
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
 
