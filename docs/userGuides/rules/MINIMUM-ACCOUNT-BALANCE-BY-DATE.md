@@ -11,7 +11,7 @@ The purpose of the minimum-balance-by-date rule is to prevent token holders from
 
 ## Scope 
 
-This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.
+This rule works at the application level which means that all tokens in the app will comply with this rule when the rule is active.
 
 ## Data Structure
 
@@ -78,7 +78,7 @@ The rule will be evaluated with the following logic:
 4. The processor will evaluate whether each sub-rule's hold period is still active (if the current time is within `hold period` from the `starting timestamp`). If it is, the processor will then evaluate if the final balance of the account would be less than the `hold amount` in the case of the transaction succeeding. If yes, then the transaction will revert.
 5. Step 4 is repeated for each of the account's tags. 
 
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
+###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
 
 ### Revert Message
 
@@ -207,7 +207,8 @@ This rule doesn't require of any data to be recorded.
     - parameters: 
         - ruleType: "MIN_ACCT_BAL_BY_DATE".
         - handlerAddress: the address of the asset handler where the rule has been applied.
-        - ruleId: the index of the rule created in the protocol by rule type.
+        - ruleId: the ruleId set for this rule in the handler.
+
 
 ## Dependencies
 
