@@ -10,7 +10,7 @@ The transfer-counter rule enforces a daily limit on the number of trades for eac
 
 ## Scope 
 
-This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.
+This rule works at the application level which means that all tokens in the app will comply with this rule when the rule is active.
 
 ## Data Structure
 
@@ -197,7 +197,7 @@ mapping(uint256 => uint64) lastTxDate;
 - **ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 ruleId)** emitted when a Transfer counter rule has been added. For this rule:
     - ruleType: NFT_TRANSFER
     - handlerAddress: the address of the asset handler where the rule has been applied
-    - ruleId: the index of the rule created in the protocol by rule type 
+    - ruleId: the ruleId set for this rule in the handler.
 - **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
     - ruleType: NFT_TRANSFER
     - handlerAddress: the address of the asset handler where the rule has been activated
