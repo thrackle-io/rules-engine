@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the admin-withdrawal rule is to allow developers to show proof to their community that they will hold a certain amount of tokens for certain period of time. This is usually done to prove that a sudden increase of supply flooding the market won't happen as a malicious attempt of the developers to rug pull their community.
+The purpose of the admin-withdrawal rule is to allow developers to prove to their community that they will hold a certain amount of tokens for a certain period of time. Adding this rule prevents developers from flooding the market with their supply and effectively "rug pulling" their community. 
 
 ## Tokens Supported
 
@@ -17,7 +17,7 @@ This rule works at a token level. It must be activated and configured for each d
 
 An admin-withdrawal rule is composed of 2 variables:
 
-- **Amount** (uint256): The minimum amount of tokens to be held by the admin until the *releaseDate* (value in weis).
+- **Amount** (uint256): The minimum amount of tokens to be held by the admin until the *releaseDate* (in wei).
 - **Release Date** (uint256): The Unix timestamp of the date after which the administrator is free to transfer the tokens.
 
 ```c
@@ -47,15 +47,20 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 - This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
 - This rule can only be updated in the asset handler by a **rule administrator**.
 
+In order to prevent the malfunction of this rule, there are some special restrictions:
+
+- This rule can only be deactivated if current rule is outside its active period (post `releaseDate`).
+- This rule prevents app administrators from renouncing their roles when the rule is in its active period (pre `releaseDate`).
+
 ## Rule Evaluation
 
 The rule will be evaluated with the following logic:
 
-1. The asset handler will check if the transfer of tokens will be from an app administrator account. If it is not, the rule evaluation will be skipped.
-2. Then, the handler will send the amount of tokens being transferred along with the current balance of the app administrator account and the ruleId to the protocol's rule processor.
-3. The rule processor will then compare the final balance of the administrator account if the transaction succeeds. If the final balance will be less than the minimum balance specified in the rule, the transaction will revert.
+1. The asset handler checks if the transfer of tokens is from an app administrator account. If it is not, the rule evaluation is skipped.
+2. The handler sends the amount of tokens being transferred, the current balance of the app administrator account, and the ruleId to the protocol's rule processor.
+3. The rule processor calculates what the final balance of the administrator account would be if the transaction succeeds. If the final balance calculated is less than the minimum balance specified in the rule, the transaction reverts.
 
-###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
+###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkAdminWithdrawalRule*
 
 ### Evaluation Exceptions
 
@@ -92,7 +97,7 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): the address of the application manager to verify that the caller has Rule administrator privileges.
-- **_amount** (uint256): the minimum amount of tokens to be held by the app administrator until `_releaseDate` (in weis).
+- **_amount** (uint256): the minimum amount of tokens to be held by the app administrator until `_releaseDate` (in wei).
 - **_releaseDate** (uint256[]): the Unix timestamp of the date after which the app aministrator is free to transfer the tokens.
 
 ### Parameter Optionality:
