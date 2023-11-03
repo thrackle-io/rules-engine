@@ -55,17 +55,11 @@ The collection of these tagged sub-rules composes a minumum-account-balance-by-d
 
 A minimum-balance-by-date rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
-## Role Applicability
-
-- **Evaluation Exceptions**: 
-    - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-    - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
-
-- **Configuration and Enabling/Disabling**:
-    - This rule can only be configured in the protocol by a **rule administrator**.
-    - This rule can only be set in the asset handler by a **rule administrator**.
-    - This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
-    - This rule can only be updated in the asset handler by a **rule administrator**.
+## Configuration and Enabling/Disabling
+- This rule can only be configured in the protocol by a **rule administrator**.
+- This rule can only be set in the asset handler by a **rule administrator**.
+- This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
+- This rule can only be updated in the asset handler by a **rule administrator**.
 
 
 ## Rule Evaluation
@@ -79,6 +73,10 @@ The rule will be evaluated with the following logic:
 5. Step 4 is repeated for each of the account's tags. 
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
+
+## Evaluation Exceptions 
+- This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
 

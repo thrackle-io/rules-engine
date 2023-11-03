@@ -48,19 +48,11 @@ The account-balance-by-risk-score rules are stored in a mapping indexed by ruleI
 ```
 ###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
 
-## Role Applicability
-
-- **Evaluation Exceptions**: 
-    - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-    - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
-    - When the transaction is **burning** tokens.
-
-- **Configuration and Enabling/Disabling**:
-    - This rule can only be configured in the protocol by a **rule administrator**.
-    - This rule can only be set in the application handler by a **rule administrator**.
-    - This rule can only be activated/deactivated in the application handler by a **rule administrator**.
-    - This rule can only be updated in the application handler by a **rule administrator**.
-
+## Configuration and Enabling/Disabling
+- This rule can only be configured in the protocol by a **rule administrator**.
+- This rule can only be set in the asset handler by a **rule administrator**.
+- This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
+- This rule can only be updated in the asset handler by a **rule administrator**.
 
 ## Rule Evaluation
 
@@ -73,6 +65,10 @@ The rule will be evaluated with the following logic:
 5. The processor will then check if the transaction value + current balance total is less than the risk score `max balance`. If total is greater than `max balance`, the rule will revert. 
 
 ###### *see [ApplicationRiskProcessorFacet](../../../src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccBalanceByRisk*
+
+## Evaluation Exceptions 
+- This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
 
