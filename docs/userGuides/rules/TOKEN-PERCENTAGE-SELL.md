@@ -57,7 +57,7 @@ The rule will be evaluated with the following logic:
 1. The processor receives the ID of the token-percentage-sell rule set in the asset handler. 
 2. The processor receives the current `totalSoldWithinPeriod`, `_token_amount_0`, `previous sell time`, and token's total supply from the handler.
 3. The processor evaluates whether the rule has a set total supply or uses the token's total supply provided by the handler set at the beginning of every new `period`.  
-4. The processor will evaluate whether the current time is within a new `period`.
+4. The processor evaluates whether the current time is within a new `period`.
     - **If it is a new period**, the processor will use the `_token_amount_0` value from the current transaction as the `percentOfTotalSupply` value for the sell percent of total supply calculation.
     - **If it is not a new period**, the processor will then accumulate the `totalSoldWithinPeriod` (tokens transferred) and the `_token_amount_0` of tokens to be transferred as the `percentOfTotalSupply` value for the sell percent of total supply calculation. 
 5. The processor calculates the final sell percentage, in basis units, from `percentOfTotalSupply` and the total supply set in step 3. 
