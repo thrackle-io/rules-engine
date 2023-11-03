@@ -11,7 +11,7 @@ The purpose of the minimum-balance-by-date rule is to prevent token holders from
 
 ## Scope 
 
-This rule works at the application level which means that all tokens in the app will comply with this rule when the rule is active.
+This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.
 
 ## Data Structure
 
@@ -199,7 +199,7 @@ This rule doesn't require of any data to be recorded.
 
 - **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
-    - parameters: 
+    - Parameters: 
         - ruleType: "MIN_ACCT_BAL_BY_DATE".
         - handlerAddress: the address of the asset handler where the rule has been applied.
         - ruleId: the ruleId set for this rule in the handler.
