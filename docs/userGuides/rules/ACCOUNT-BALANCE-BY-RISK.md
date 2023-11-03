@@ -189,7 +189,7 @@ This rule does not require any data to be recorded.
 
 - **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
-    - parameters: 
+    - Parameters: 
         - ruleType: "BALANCE_BY_RISK".
         - handlerAddress: the address of the asset handler where the rule has been applied.
         - ruleId: the index of the rule created in the protocol by rule type.

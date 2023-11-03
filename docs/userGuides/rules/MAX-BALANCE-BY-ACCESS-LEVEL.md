@@ -169,7 +169,7 @@ This rule doesn't require of any data to be recorded.
 
 - **event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
     - Emitted when: rule has been applied in an application manager handler.
-    - parameters: 
+    - Parameters: 
         - ruleType: "BALANCE_BY_ACCESSLEVEL".
         - ruleId: the ruleId set for this rule in the handler.
 
