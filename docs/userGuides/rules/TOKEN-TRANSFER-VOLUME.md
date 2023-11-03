@@ -58,7 +58,7 @@ The rule will be evaluated with the following logic:
 1. The processor will receive the ID of the token-transfer-volume rule set in the token handler. 
 2. The processor will receive the current `transfer volume`, `last transfer time`, `amount` and token's total supply from the handler.
 3. The processor will evaluate whether the rule has a set total supply or use the token's total supply provided by the handler set at the beginning of every new `period`. 
-4. The processor will evaluate whether the rule is active based on the `starting timestamp`. 
+4. The processor will evaluate whether the rule is active based on the `starting timestamp`. If it is not active, the rule evaluation will skip the next steps, and will simply return the `transfer volume` value.
 5. The processor will evaluate whether the current time is within a new `period`.
     - **If it is a new period**, the processor will set the `amount` value from the current transaction as the `_volume` value for the volume percent of total supply calculation.
     - **If it is not a new period**, the processor will then accumulate the `transfer volume` (tokens transferred) and the `amount` of tokens to be transferred as the `_volume` value for the volume percent of total supply calculation. 
