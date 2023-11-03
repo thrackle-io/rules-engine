@@ -47,7 +47,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 - This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
 - This rule can only be updated in the asset handler by a **rule administrator**.
 
-In order to prevent the malfunction of this rule, there are some special restrictions:
+Since this rule is intended to apply specifically to app administrators, there are some special restrictions:
 
 - This rule can only be deactivated if current rule is outside its active period (post `releaseDate`).
 - This rule prevents app administrators from renouncing their roles when the rule is in its active period (pre `releaseDate`).
