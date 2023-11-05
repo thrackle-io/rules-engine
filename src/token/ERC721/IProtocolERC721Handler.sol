@@ -21,4 +21,10 @@ interface IProtocolERC721Handler {
      * @return Success equals true if all checks pass
      */
     function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, uint256 _tokenId, ActionTypes _action) external returns (bool);
+
+    /**
+     * @dev This function acts as a gate keeper for operators or approved addresses.
+     * @param _operator the address trying to be set as operator or approved address for future transactions.
+     */
+    function checkOperatorRules(address _operator) external;
 }

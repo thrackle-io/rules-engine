@@ -30,6 +30,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     uint32 private minBalByDateRuleId;
     uint32 private minAccountRuleId;
     uint32 private oracleRuleId;
+    uint32 private operatorOracleRuleId;
     uint32 private tradeCounterRuleId;
     uint32 private transactionLimitByRiskRuleId;
     uint32 private adminWithdrawalRuleId;
@@ -37,6 +38,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     uint32 private totalSupplyVolatilityRuleId;
     /// on-off switches for rules
     bool private oracleRuleActive;
+    bool private operatorOracleRuleActive;
     bool private minMaxBalanceRuleActive;
     bool private tradeCounterRuleActive;
     bool private transactionLimitByRiskRuleActive;
@@ -222,6 +224,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     }
 
     /**
+     * @dev This function acts as a gate keeper for operators or approved addresses.
+     * @param _operator the address trying to be set as operator or approved address for future transactions.
+     */
+    function checkOperatorRules(address _operator) public view {
+        if (operatorOracleRuleActive) ruleProcessor.checkOraclePasses(operatorOracleRuleId, _operator);
+    }
+
+    /**
      * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
      * @param _tokenId the specific token in question
      */
@@ -309,6 +319,47 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      */
     function isOracleActive() external view returns (bool) {
         return oracleRuleActive;
+    }
+
+    /**
+     * @dev Set the oracleRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setOperatorOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        //ruleProcessor.validateOracle(_ruleId);
+        operatorOracleRuleId = _ruleId;
+        operatorOracleRuleActive = true;
+        emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateOperatorOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        operatorOracleRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(ORACLE, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(ORACLE, address(this));
+        }
+    }
+
+    /**
+     * @dev Retrieve the oracle rule id
+     * @return oracleRuleId
+     */
+    function getOperatorOracleRuleId() external view returns (uint32) {
+        return operatorOracleRuleId;
+    }
+
+    /**
+     * @dev Tells you if the oracle rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isOperatorOracleActive() external view returns (bool) {
+        return operatorOracleRuleActive;
     }
 
     /**

@@ -161,4 +161,20 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     function getHandlerAddress() external view override returns (address) {
         return handlerAddress;
     }
+
+    /**
+     * @dev override of the original ERC721 function. Applies oracle rule for approved addresses.
+     */
+    function approve(address to, uint256 tokenId) public override(ERC721, IERC721) {
+        handler.checkOperatorRules(to);
+        super.approve(to, tokenId);
+    }
+
+    /**
+     * @dev override of the original ERC721 function. Applies oracle rule for operators.
+     */
+    function setApprovalForAll(address operator, bool approved) public override (ERC721, IERC721){
+        handler.checkOperatorRules(operator);
+        super.setApprovalForAll(operator, approved);
+    }
 }

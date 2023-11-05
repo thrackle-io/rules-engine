@@ -245,9 +245,15 @@ abstract contract TestCommonFoundry is TestCommon {
         applicationNFTHandler = _createERC721CHandler(ruleProcessor, applicationAppManager, applicationNFTC);
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFTC));
+        /// create an ERC721 Original
+        applicationNFT = _createERC721("CAIN", "CAIN", applicationAppManager);
+        applicationNFTHandler = _createERC721Handler(ruleProcessor, applicationAppManager, applicationNFT);
+        /// register the token
+        applicationAppManager.registerToken("CAIN", address(applicationNFT));
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFTC), 1 * (10 ** 18)); //setting at $1
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
         /// connect the pricers to both handlers
         applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
