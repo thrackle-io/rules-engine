@@ -93,7 +93,7 @@ constructor(address collectionToWrap, string memory _name, string memory _symbol
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override {
         // Rule Processor Module Check
         if(to != address(this) ||  from != address(this)) {
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, batchSize, tokenId, ActionTypes.TRADE));
+        require(handler.checkAllRules(msg.sender, from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, batchSize, tokenId, ActionTypes.TRADE));
         }
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }

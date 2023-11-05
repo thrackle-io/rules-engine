@@ -92,6 +92,44 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
     }
 
+    // NFTCTT = (NFT)erc721(C) (T)hrackle implementation (T)raditional style
+    function testNFTCTTOperatorWhitelistTrade() public{
+        /// set up a non admin user an nft
+        applicationNFT.safeMint(user1);
+        assertEq(applicationNFT.balanceOf(user1), 1);
+        // add the rule.
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        assertEq(_index, 0);
+        NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(_index);
+        assertEq(rule.oracleType, 1);
+        assertEq(rule.oracleAddress, address(oracleAllowed));
+        /// connect the rule to this handler
+        applicationNFTHandler.setSenderOracleRuleId(_index);
+        // add an allowed address
+        switchToAppAdministrator();
+        goodBoys.push(openPond);
+        oracleAllowed.addToAllowList(goodBoys);
+        // now comes the real action
+        //negative case
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.approve(address(0xBAAAAAAD), 0);
+        vm.stopPrank();
+        vm.startPrank(address(0xBAAAAAAD));
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user1, user2, 0);
+        //positive case
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.approve(openPond, 0);
+        vm.stopPrank();
+        vm.startPrank(openPond);
+        applicationNFT.safeTransferFrom(user1, user2, 0);
+
+    }
+
+    // NFTCTE = erc721(C) (T)hrackle implementation (E)fficient version
     function testNFTCTEOperatorWhitelistTradeApproved() public{
          /// set up a non admin user an nft
         applicationNFT.safeMint(user1);

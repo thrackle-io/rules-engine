@@ -31,6 +31,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     uint32 private minAccountRuleId;
     uint32 private oracleRuleId;
     uint32 private operatorOracleRuleId;
+    uint32 private senderOracleRuleId;
     uint32 private tradeCounterRuleId;
     uint32 private transactionLimitByRiskRuleId;
     uint32 private adminWithdrawalRuleId;
@@ -39,6 +40,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     /// on-off switches for rules
     bool private oracleRuleActive;
     bool private operatorOracleRuleActive;
+    bool private senderOracleRuleActive;
     bool private minMaxBalanceRuleActive;
     bool private tradeCounterRuleActive;
     bool private transactionLimitByRiskRuleActive;
@@ -103,6 +105,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @dev This function is the one called from the contract that implements this handler. It's the entry point to protocol.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
+     * @param _sender the msg.sender of the originating transaction
      * @param _from sender address
      * @param _to recipient address
      * @param _amount number of tokens transferred
@@ -111,7 +114,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @return _success equals true if all checks pass
      */
 
-    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external onlyOwner returns (bool) {
+    function checkAllRules(address _sender, uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external onlyOwner returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
@@ -127,6 +130,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
             _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
+            _checkOperatorRules(_sender, _from);
         } else {
             if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
         }
@@ -221,6 +225,10 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
                 ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _thisNFTValuation);
             }
         }
+    }
+
+    function _checkOperatorRules(address _sender, address _from) internal view {
+        if(senderOracleRuleActive && _sender != _from) ruleProcessor.checkOraclePasses(senderOracleRuleId, _sender);
     }
 
     /**
@@ -360,6 +368,47 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      */
     function isOperatorOracleActive() external view returns (bool) {
         return operatorOracleRuleActive;
+    }
+
+    /**
+     * @dev Set the oracleRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setSenderOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        //ruleProcessor.validateOracle(_ruleId);
+        senderOracleRuleId = _ruleId;
+        senderOracleRuleActive = true;
+        emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateSenderOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        senderOracleRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(ORACLE, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(ORACLE, address(this));
+        }
+    }
+
+    /**
+     * @dev Retrieve the oracle rule id
+     * @return oracleRuleId
+     */
+    function getOperatorSenderRuleId() external view returns (uint32) {
+        return senderOracleRuleId;
+    }
+
+    /**
+     * @dev Tells you if the oracle rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isOperatorSenderActive() external view returns (bool) {
+        return senderOracleRuleActive;
     }
 
     /**
