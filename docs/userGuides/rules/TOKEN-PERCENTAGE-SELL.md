@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The token-percentage-sell rule enforces a limit of the sale of tokens during a period. This rule sets a percentage of the token's total supply that is able to be sold per period. For this rule, a sell is considered a swap of an application token for an non application or chain native token. This can also be interpreted as an account leaving the application's ecosystem via AMM an swap. 
+The token-percentage-sell rule enforces a limit of the sale of tokens during a period. This rule sets a percentage of the token's total supply that is able to be sold per period. For this rule, a sell is considered a swap of an application token for an non application or chain native token. This can also be interpreted as an account leaving the application's ecosystem via an AMM swap. 
 
 ## Tokens Supported
 
@@ -101,16 +101,16 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
-- **_tokenPercentage** (uint16): maximum allowable basis unit percentage of trading volume per period.
+- **_tokenPercentage** (uint16): maximum allowable percentage (in basis unit) of trading volume per period.
 - **_sellPeriod** (uint16): the amount of hours per period.
-- **_startTimestamp** (uint64): starting timestamp of the rule. This timestamp will determine the time that a day starts and ends for the rule processing. For example, *the amount of trades will reset to 0 every day at 2:30 pm.*
+- **_startTimestamp** (uint64): starting unix timestamp of the rule. This timestamp will determine the time that a day starts and ends for the rule processing. For example, *the amount of trades will reset to 0 every day at 2:30 pm.*
 - **_totalSupply** (uint256): (optional) if not 0, then this is the value used for totalSupply instead of the live token's totalSupply value at rule processing time.
 
 
 ### Parameter Optionality:
 
 The parameters where developers have the options are:
-- **_totalSupply**: For volatility calculations, when this is zero, the token's totalSupply is used. Otherwise, this value is used as the total supply.
+- **_totalSupply**: For sell volume over supply calculations, when this is zero, the token's totalSupply is used. Otherwise, this value is used as the total supply.
 
 ### Parameter Validation:
 
