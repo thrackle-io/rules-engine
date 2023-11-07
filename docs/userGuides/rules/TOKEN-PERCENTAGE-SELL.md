@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The token-percentage-sell rule enforces a limit on the sale of tokens during a certain time period. This rule sets the limit as a percentage of the token's total supply. For this rule, a "sell" is a swap of an application token for a token that is not part of the application (e.g. the chain native token, or a token from another application).  
+The token-percentage-sell rule enforces a limit on the sale of tokens during a certain time period. This rule sets the limit as a percentage of the token's total supply. For this rule, a "sell" is a swap of an application token for a token that is not part of the application (e.g. the chain native token, or a token from another application). This rule can also be applied to AMMs created for two application tokens. In these cases the tokens are defined as token 0 and token 1 within the AMM. This rule will apply to token 0 in the AMM swaps. 
 
 ## Tokens Supported
 
@@ -10,13 +10,13 @@ The token-percentage-sell rule enforces a limit on the sale of tokens during a c
 
 ## Scope 
 
-This rule works at an asset level. It must be activated and configured for each desired AMM in the corresponding asset handler.
+This rule works at the AMM level. It must be activated and configured for each desired AMM in the corresponding asset handler. This rule will not be applied at the token level and will only be checked through the AMM swap function. 
 
 ## Data Structure
 
 A token-percentage-sell rule is composed of 4 components:
 
-- **Token Percentage** (uint16): The maximum percent in basis units of total supply able to be sold during the *period*.
+- **Token Percentage** (uint16): The maximum percent in basis units of total supply able to be sold during the *period* (i.e. 5050 = 50.50% of total supply). 
 - **Sell  Period** (uint16): The length of time for which the rule will apply, in hours.
 - **Starting Timestamp** (uint64): The timestamp of the date when the *period* starts counting.
 - **Total Supply** (uint256): if not zero, this value will always be used as the token's total supply for rule evaluation. This can be used when the amount of circulating supply is much smaller than the amount of the token totalSupply due to some tokens being locked in a dev account or a vesting contract, etc. Only use this value in such cases.
@@ -55,15 +55,15 @@ struct PctSellRuleS {
 The rule will be evaluated with the following logic:
 
 1. The processor receives the ID of the token-percentage-sell rule set in the asset handler. 
-2. The processor receives the current `total sold within period`, `token amount 0` (total amount of token 0 being transferred), `previous sell time`, and token's total supply from the handler.
+2. The processor receives the current `total sold within period`, `token amount 0` (total amount of token 0 being transferred in the current transaction), `previous sell time`, and token's total supply from the handler.
 3. The processor evaluates whether the rule has a set total supply or uses the token's total supply provided by the handler set at the beginning of every new `period`.  
 4. The processor evaluates whether the current time is within a new `period`.
-    - **If it is a new period**, the processor will use the `token amount 0` value from the current transaction as the `percent of total supply` value for the sell percent of total supply calculation.
-    - **If it is not a new period**, the processor will then accumulate the `total sold within period` (tokens transferred) and the `token amount 0` of tokens to be transferred as the `percent of total supply` value for the sell percent of total supply calculation. 
-5. The processor calculates the final sell percentage, in basis units, from `percent of total supply` and the total supply set in step 3. 
+    - **If it is a new period**, the processor sets the `percent of total supply` to the value of `token amount 0`.
+    - **If it is not a new period**, the processor sets `percent of total supply` to the sum of `total sold within period` and `token amount 0`. 
+5. The processor calculates the final sell percentage, in basis units, using the `percent of total supply` calculated in step 4 and the total supply set in step 3.  
 6. The processor evaluates if the final sell percentage of total supply would be greater than the `token percentage` in the case of the transaction succeeding. 
     - If yes, then the transaction will revert. 
-    - If no, the processor will return the `tokenPercentage` value for the current `period` to the handler.
+    - If no, the processor returns the `tokenPercentage` value for the current `period` to the handler.
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkSellPercentagePasses*
 
