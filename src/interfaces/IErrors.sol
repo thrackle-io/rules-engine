@@ -161,6 +161,7 @@ interface IAssetHandlerErrors {
     error ZeroValueNotPermited();
     error BatchMintBurnNotSupported();
     error FeesAreGreaterThanTransactionAmount(address);
+    error NoOTCTransfersAllowed();
 }
 
 interface IOwnershipErrors {

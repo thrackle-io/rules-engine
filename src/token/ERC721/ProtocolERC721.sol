@@ -108,7 +108,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) whenNotPaused {
         // Rule Processor Module Check
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, batchSize, tokenId, ActionTypes.TRADE));
+        require(handler.checkAllRules(msg.sender, from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, batchSize, tokenId, ActionTypes.TRADE));
 
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
@@ -160,5 +160,21 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      */
     function getHandlerAddress() external view override returns (address) {
         return handlerAddress;
+    }
+
+    /**
+     * @dev override of the original ERC721 function. Applies oracle rule for approved addresses.
+     */
+    function approve(address to, uint256 tokenId) public override(ERC721, IERC721) {
+        handler.checkOperatorRules(to);
+        super.approve(to, tokenId);
+    }
+
+    /**
+     * @dev override of the original ERC721 function. Applies oracle rule for operators.
+     */
+    function setApprovalForAll(address operator, bool approved) public override (ERC721, IERC721){
+        handler.checkOperatorRules(operator);
+        super.setApprovalForAll(operator, approved);
     }
 }

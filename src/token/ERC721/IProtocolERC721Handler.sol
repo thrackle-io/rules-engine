@@ -13,6 +13,7 @@ interface IProtocolERC721Handler {
      * @dev This function is the one called from the contract that implements this handler. It's the entry point to protocol.
      * @param balanceFrom token balance of sender address
      * @param balanceTo token balance of recipient address
+     * @param _sender the msg.sender of the originating transaction
      * @param _from sender address
      * @param _to recipient address
      * @param amount number of tokens transferred
@@ -20,5 +21,11 @@ interface IProtocolERC721Handler {
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return Success equals true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, uint256 _tokenId, ActionTypes _action) external returns (bool);
+    function checkAllRules(address _sender, uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, uint256 _tokenId, ActionTypes _action) external returns (bool);
+
+    /**
+     * @dev This function acts as a gate keeper for operators or approved addresses.
+     * @param _operator the address trying to be set as operator or approved address for future transactions.
+     */
+    function checkOperatorRules(address _operator) external;
 }

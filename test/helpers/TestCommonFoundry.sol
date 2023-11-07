@@ -2,6 +2,22 @@
 pragma solidity ^0.8.17;
 
 import "test/helpers/TestCommon.sol";
+import "src/example/OracleAllowed.sol";
+import "@limitbreak/creator-token-contracts/contracts/utils/CreatorTokenTransferValidator.sol";
+
+
+/**
+* @dev a dummy contract to test the receiver whitelist functionality
+ */
+contract NFTDummyReceiver is IERC721Receiver{
+    function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data) external pure returns (bytes4) {
+        _operator;
+        _from;
+        _tokenId;
+        _data;
+        return this.onERC721Received.selector;
+    }
+}
 
 /**
  * @title Test Common Foundry
@@ -12,6 +28,14 @@ import "test/helpers/TestCommon.sol";
  * _create = deploy contract, return the contract
  */
 abstract contract TestCommonFoundry is TestCommon {
+    OracleAllowed receiversAllowed;
+    CreatorTokenTransferValidator transferValidator;
+    NFTDummyReceiver receiver;
+    NFTDummyReceiver badReceiver;
+    address[] goodReceivers;
+    address openPond = address(0x74ADE);
+    uint120 whitelistId;
+    uint120 receiversWhitelistId;
     /**
      * @dev Deploy and set up the Rules Storage Diamond
      * @return diamond fully configured storage diamond
@@ -242,17 +266,53 @@ abstract contract TestCommonFoundry is TestCommon {
 
         /// create an ERC721C
         applicationNFTC = _createERC721C("FRANKENSTEIN", "FRK", applicationAppManager);
-        applicationNFTHandler = _createERC721CHandler(ruleProcessor, applicationAppManager, applicationNFTC);
+        applicationNFTCHandler = _createERC721CHandler(ruleProcessor, applicationAppManager, applicationNFTC);
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFTC));
+        /// create an ERC721 Original
+        applicationNFT = _createERC721("CAIN", "CAIN", applicationAppManager);
+        applicationNFTHandler = _createERC721Handler(ruleProcessor, applicationAppManager, applicationNFT);
+        /// register the token
+        applicationAppManager.registerToken("CAIN", address(applicationNFT));
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFTC), 1 * (10 ** 18)); //setting at $1
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
         /// connect the pricers to both handlers
         applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
+        applicationNFTCHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationNFTCHandler.setERC20PricingAddress(address(erc20Pricer));
         applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
         applicationCoinHandler.setNFTPricingAddress(address(erc721Pricer));
+
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        // we deploy the transfer validator for ERC721C
+        transferValidator = new CreatorTokenTransferValidator(address(superAdmin));
+        // we apply the transfer validator to the ERC721C token
+        applicationNFTC.setTransferValidator(address(transferValidator));
+        // we create a whitelist in the transfer validator
+        whitelistId = transferValidator.createOperatorWhitelist("ThrackleWhitelist");
+        // we set a security level of 1 (whitelist of operators) 
+        transferValidator.setTransferSecurityLevelOfCollection(address(applicationNFTC), TransferSecurityLevels.One);
+        // we set the whitelist for the token
+        transferValidator.setOperatorWhitelistOfCollection(address(applicationNFTC), whitelistId);
+        // we add our NFT marketplace to the whitelist 
+        transferValidator.addOperatorToWhitelist(whitelistId, address(openPond));
+
+        // let's create a receiver contract 
+        receiver = new NFTDummyReceiver();
+        //let's deploy our malicious contract receiver
+        badReceiver = new NFTDummyReceiver();
+        // we create a receiver whitelist in the transfer validator (this is not enabled yet since it requires at least 
+        // level 3 to take effect)
+        receiversWhitelistId = transferValidator.createPermittedContractReceiverAllowlist("ThrackleWhitelist");
+        // we set the receiver whitelist for the token 
+        transferValidator.setPermittedContractReceiverAllowlistOfCollection(address(applicationNFTC), receiversWhitelistId);
+        // we add our good receiver to the whitelist 
+        transferValidator.addPermittedContractReceiverToAllowlist(receiversWhitelistId, address(receiver));
+
         /// reset the user to the original
         switchToOriginalUser();
     }
