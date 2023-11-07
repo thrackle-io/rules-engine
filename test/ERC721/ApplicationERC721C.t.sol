@@ -17,7 +17,6 @@ contract ApplicationERC721Test is TestCommonFoundry {
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationERC721HandlerMod newAssetHandler;
-    CreatorTokenTransferValidator transferValidator;
     address user1 = address(11);
     address user2 = address(22);
     address user3 = address(33);
@@ -26,30 +25,12 @@ contract ApplicationERC721Test is TestCommonFoundry {
     address ac;
     address[] badBoys;
     address[] goodBoys;
-    address openPond = address(0x74ADE);
-    uint120 whitelistId;
 
     function setUp() public {
         vm.warp(Blocktime);
 
         vm.startPrank(appAdministrator);
         setUpProtocolAndAppManagerAndERC721CTokens();
-
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
-        // we deploy the transfer validator for ERC721C
-        transferValidator = new CreatorTokenTransferValidator(address(superAdmin));
-        // we apply the transfer validator to the ERC721C token
-        applicationNFTC.setTransferValidator(address(transferValidator));
-        // we create a whitelist in the transfer validator
-        whitelistId = transferValidator.createOperatorWhitelist("ThrackleWhitelist");
-        // we set a security level of 1 (whitelist of operators) 
-        transferValidator.setTransferSecurityLevelOfCollection(address(applicationNFTC), TransferSecurityLevels.One);
-        // we set the whitelist for the token
-        transferValidator.setOperatorWhitelistOfCollection(address(applicationNFTC), whitelistId);
-        // we add our NFT marketplace to the whitelist 
-        transferValidator.addOperatorToWhitelist(whitelistId, address(openPond));
-
         switchToAppAdministrator();
         // create the oracles
         oracleAllowed = new OracleAllowed();

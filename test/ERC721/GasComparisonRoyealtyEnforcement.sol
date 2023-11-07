@@ -11,21 +11,7 @@ import "src/example/OracleAllowed.sol";
 import {ApplicationERC721HandlerMod} from "../helpers/ApplicationERC721HandlerMod.sol";
 import "test/helpers/ApplicationERC721WithBatchMintBurn.sol";
 import "test/helpers/TestCommonFoundry.sol";
-import "@limitbreak/creator-token-contracts/contracts/utils/CreatorTokenTransferValidator.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-
-/**
-* @dev a dummy contract to test the receiver whitelist functionality
- */
-contract NFTDummyReceiver is IERC721Receiver{
-    function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data) external pure returns (bytes4) {
-        _operator;
-        _from;
-        _tokenId;
-        _data;
-        return this.onERC721Received.selector;
-    }
-}
 
 /**
 * @dev this test implements 3 different styles of royalty enforcement:
@@ -38,11 +24,7 @@ contract NFTDummyReceiver is IERC721Receiver{
 contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
-    OracleAllowed receiversAllowed;
     ApplicationERC721HandlerMod newAssetHandler;
-    CreatorTokenTransferValidator transferValidator;
-    NFTDummyReceiver receiver;
-    NFTDummyReceiver badReceiver;
     address user1 = address(11);
     address user2 = address(22);
     address user3 = address(33);
@@ -51,45 +33,14 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
     address ac;
     address[] badBoys;
     address[] goodBoys;
-    address[] goodReceivers;
-    address openPond = address(0x74ADE);
-    uint120 whitelistId;
-    uint120 receiversWhitelistId;
+    
+    
 
     function setUp() public {
         vm.warp(Blocktime);
 
-        vm.startPrank(appAdministrator);
-        setUpProtocolAndAppManagerAndERC721CTokens();
-
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
-        // we deploy the transfer validator for ERC721C
-        transferValidator = new CreatorTokenTransferValidator(address(superAdmin));
-        // we apply the transfer validator to the ERC721C token
-        applicationNFTC.setTransferValidator(address(transferValidator));
-        // we create a whitelist in the transfer validator
-        whitelistId = transferValidator.createOperatorWhitelist("ThrackleWhitelist");
-        // we set a security level of 1 (whitelist of operators) 
-        transferValidator.setTransferSecurityLevelOfCollection(address(applicationNFTC), TransferSecurityLevels.One);
-        // we set the whitelist for the token
-        transferValidator.setOperatorWhitelistOfCollection(address(applicationNFTC), whitelistId);
-        // we add our NFT marketplace to the whitelist 
-        transferValidator.addOperatorToWhitelist(whitelistId, address(openPond));
-
-        // let's create a receiver contract 
-        receiver = new NFTDummyReceiver();
-        //let's deploy our malicious contract receiver
-        badReceiver = new NFTDummyReceiver();
-        // we create a receiver whitelist in the transfer validator (this is not enabled yet since it requires at least 
-        // level 3 to take effect)
-        receiversWhitelistId = transferValidator.createPermittedContractReceiverAllowlist("ThrackleWhitelist");
-        // we set the receiver whitelist for the token 
-        transferValidator.setPermittedContractReceiverAllowlistOfCollection(address(applicationNFTC), receiversWhitelistId);
-        // we add our good receiver to the whitelist 
-        transferValidator.addPermittedContractReceiverToAllowlist(receiversWhitelistId, address(receiver));
-
         switchToAppAdministrator();
+        setUpProtocolAndAppManagerAndERC721CTokens();
         // create the oracles
         oracleAllowed = new OracleAllowed();
         receiversAllowed = new OracleAllowed();
