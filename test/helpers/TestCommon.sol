@@ -49,6 +49,8 @@ abstract contract TestCommon is Test {
     ApplicationERC721 applicationNFT;
     ApplicationERC721C applicationNFTC;
     ApplicationERC721Handler applicationNFTHandler;
+    ApplicationERC721Handler applicationNFTCHandler;
+    ApplicationERC721Handler applicationNFTC2Handler;
     ApplicationERC721Pricing erc721Pricer;
     // common block time
     uint64 Blocktime = 1769924800;

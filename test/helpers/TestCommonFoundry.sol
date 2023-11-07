@@ -266,7 +266,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
         /// create an ERC721C
         applicationNFTC = _createERC721C("FRANKENSTEIN", "FRK", applicationAppManager);
-        applicationNFTHandler = _createERC721CHandler(ruleProcessor, applicationAppManager, applicationNFTC);
+        applicationNFTCHandler = _createERC721CHandler(ruleProcessor, applicationAppManager, applicationNFTC);
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFTC));
         /// create an ERC721 Original
@@ -281,6 +281,8 @@ abstract contract TestCommonFoundry is TestCommon {
         /// connect the pricers to both handlers
         applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
+        applicationNFTCHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationNFTCHandler.setERC20PricingAddress(address(erc20Pricer));
         applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
         applicationCoinHandler.setNFTPricingAddress(address(erc721Pricer));
 

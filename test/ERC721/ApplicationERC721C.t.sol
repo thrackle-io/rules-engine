@@ -39,7 +39,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
 
     function testERC721AndHandlerVersions() public {
-        string memory version = applicationNFTHandler.version();
+        string memory version = applicationNFTCHandler.version();
         assertEq(version, "1.1.0");
     }
 
@@ -102,9 +102,9 @@ contract ApplicationERC721Test is TestCommonFoundry {
         new ApplicationERC721Handler(address(ruleProcessor), address(0x0), address(0x0), false);
 
         vm.expectRevert();
-        applicationNFTHandler.setNFTPricingAddress(address(0x00));
+        applicationNFTCHandler.setNFTPricingAddress(address(0x00));
         vm.expectRevert();
-        applicationNFTHandler.setERC20PricingAddress(address(0x00));
+        applicationNFTCHandler.setERC20PricingAddress(address(0x00));
     }
 
     function testPassMinMaxAccountBalanceRule() public {
@@ -155,7 +155,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         assertEq(applicationNFTC.balanceOf(user1), 1);
         switchToRuleAdmin();
         ///update ruleId in application NFT handler
-        applicationNFTHandler.setMinMaxBalanceRuleId(ruleId);
+        applicationNFTCHandler.setMinMaxBalanceRuleId(ruleId);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
         vm.startPrank(user1);
@@ -213,7 +213,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         oracleRestricted.addToSanctionsList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTCHandler.setOracleRuleId(_index);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -230,7 +230,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTCHandler.setOracleRuleId(_index);
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(address(59));
@@ -251,7 +251,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
         /// set oracle back to allow and attempt to burn token
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTCHandler.setOracleRuleId(_index);
         /// swap to user and burn
         vm.stopPrank();
         vm.startPrank(user1);
@@ -259,7 +259,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         /// set oracle to deny and add address(0) to list to deny burns
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTCHandler.setOracleRuleId(_index);
         switchToAppAdministrator();
         badBoys.push(address(0));
         oracleRestricted.addToSanctionsList(badBoys);
@@ -316,7 +316,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         TaggedRules.NFTTradeCounterRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
         // apply the rule to the ApplicationERC721Handler
-        applicationNFTHandler.setTradeCounterRuleId(_index);
+        applicationNFTCHandler.setTradeCounterRuleId(_index);
         // tag the NFT collection
         switchToAppAdministrator();
         applicationAppManager.addGeneralTag(address(applicationNFTC), "DiscoPunk"); ///add tag
@@ -399,7 +399,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        applicationNFTHandler.setTransactionLimitByRiskRuleId(index);
+        applicationNFTCHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
@@ -570,7 +570,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         assertTrue(applicationAppManager.hasTag(user3, "MIN3"));
         /// Set rule bool to active
         switchToRuleAdmin();
-        applicationNFTHandler.setMinBalByDateRuleId(_index);
+        applicationNFTCHandler.setMinBalByDateRuleId(_index);
         /// Transfers passing (above min value limit)
         vm.stopPrank();
         vm.startPrank(user1);
@@ -642,14 +642,14 @@ contract ApplicationERC721Test is TestCommonFoundry {
         uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// Set the rule in the handler
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTCHandler.setAdminWithdrawalRuleId(_index);
         _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
-        applicationNFTHandler.activateAdminWithdrawalRule(false);
+        applicationNFTCHandler.activateAdminWithdrawalRule(false);
         vm.expectRevert();
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTCHandler.setAdminWithdrawalRuleId(_index);
         switchToAppAdministrator();
         /// These transfers should pass
         applicationNFTC.safeTransferFrom(appAdministrator, user1, 0);
@@ -664,8 +664,8 @@ contract ApplicationERC721Test is TestCommonFoundry {
         /// Transfers and updating rules should now pass
         applicationNFTC.safeTransferFrom(appAdministrator, user1, 2);
         switchToRuleAdmin();
-        applicationNFTHandler.activateAdminWithdrawalRule(false);
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTCHandler.activateAdminWithdrawalRule(false);
+        applicationNFTCHandler.setAdminWithdrawalRuleId(_index);
     }
 
     /// test the transfer volume rule in erc721
@@ -685,7 +685,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         }
         // apply the rule
         switchToRuleAdmin();
-        applicationNFTHandler.setTokenTransferVolumeRuleId(_index);
+        applicationNFTCHandler.setTokenTransferVolumeRuleId(_index);
         vm.stopPrank();
         vm.startPrank(user1);
         // transfer under the threshold
@@ -724,7 +724,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         }
         // apply the rule
         switchToRuleAdmin();
-        applicationNFTHandler.setTokenTransferVolumeRuleId(_index);
+        applicationNFTCHandler.setTokenTransferVolumeRuleId(_index);
         vm.stopPrank();
         vm.startPrank(user1);
         // transfer under the threshold
@@ -751,8 +751,8 @@ contract ApplicationERC721Test is TestCommonFoundry {
     function testNFTMinimumHoldTime() public {
         /// set the rule for 24 hours
         switchToRuleAdmin();
-        applicationNFTHandler.setMinimumHoldTimeHours(24);
-        assertEq(applicationNFTHandler.getMinimumHoldTimeHours(), 24);
+        applicationNFTCHandler.setMinimumHoldTimeHours(24);
+        assertEq(applicationNFTCHandler.getMinimumHoldTimeHours(), 24);
         switchToAppAdministrator();
         // mint 1 nft to non admin user(this should set their ownership start time)
         applicationNFTC.safeMint(user1);
@@ -777,7 +777,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         applicationNFTC.safeTransferFrom(user2, user1, 0);
         // now change the rule hold hours to 2 and it should pass
         switchToRuleAdmin();
-        applicationNFTHandler.setMinimumHoldTimeHours(2);
+        applicationNFTCHandler.setMinimumHoldTimeHours(2);
         vm.stopPrank();
         vm.startPrank(user2);
         applicationNFTC.safeTransferFrom(user2, user1, 0);
@@ -799,7 +799,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         /// set rule id and activate
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(applicationAppManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        applicationNFTHandler.setTotalSupplyVolatilityRuleId(_index);
+        applicationNFTCHandler.setTotalSupplyVolatilityRuleId(_index);
         /// set blocktime to within rule period
         vm.warp(Blocktime + 13 hours);
         /// mint tokens under supply limit
@@ -837,7 +837,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         /// set the nftHandler nftValuationLimit variable
         switchToRuleAdmin();
         switchToAppAdministrator();
-        applicationNFTHandler.setNFTValuationLimit(20);
+        applicationNFTCHandler.setNFTValuationLimit(20);
         /// activate rule that calls valuation
         uint48[] memory balanceAmounts = new uint48[](5);
         balanceAmounts[0] = 0;
@@ -871,13 +871,13 @@ contract ApplicationERC721Test is TestCommonFoundry {
         /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
         ApplicationERC721 applicationNFT2 = new ApplicationERC721("ToughTurtles", "THTR", address(applicationAppManager), "https://SampleApp.io");
         console.log("applicationNFT2", address(applicationNFT2));
-        ApplicationERC721Handler applicationNFTHandler2 = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFT2), false);
-        applicationNFT2.connectHandlerToToken(address(applicationNFTHandler2));
+        ApplicationERC721Handler applicationNFTCHandler2 = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFT2), false);
+        applicationNFT2.connectHandlerToToken(address(applicationNFTCHandler2));
         /// register the token
         applicationAppManager.registerToken("THTR", address(applicationNFT2));
         ///Pricing Contracts
-        applicationNFTHandler2.setNFTPricingAddress(address(erc721Pricer));
-        applicationNFTHandler2.setERC20PricingAddress(address(erc20Pricer));
+        applicationNFTCHandler2.setNFTPricingAddress(address(erc721Pricer));
+        applicationNFTCHandler2.setERC20PricingAddress(address(erc20Pricer));
         for (uint i = 0; i < 40; i++) {
             applicationNFT2.safeMint(appAdministrator);
             applicationNFT2.transferFrom(appAdministrator, user1, i);
@@ -887,7 +887,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         assertEq(testPrice2, 1 * (10 ** 18));
         /// set the nftHandler nftValuationLimit variable
         switchToAppAdministrator();
-        applicationNFTHandler2.setNFTValuationLimit(20);
+        applicationNFTCHandler2.setNFTValuationLimit(20);
         /// set specific tokens in NFT 2 to higher prices. Expect this value to be ignored by rule check as it is checking collection price.
         erc721Pricer.setSingleNFTPrice(address(applicationNFT2), 36, 100 * (10 ** 18));
         erc721Pricer.setSingleNFTPrice(address(applicationNFT2), 37, 50 * (10 ** 18));
@@ -927,7 +927,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
         /// adjust nft valuation limit to ensure we revert back to individual pricing
         switchToAppAdministrator();
-        applicationNFTHandler.setNFTValuationLimit(50);
+        applicationNFTCHandler.setNFTValuationLimit(50);
 
         vm.stopPrank();
         vm.startPrank(user1);
@@ -951,8 +951,8 @@ contract ApplicationERC721Test is TestCommonFoundry {
     function testBatchMintAndBurn() public {
         /// create the batch capable NFT
         ApplicationERC721WithBatchMintBurn nftBurner = new ApplicationERC721WithBatchMintBurn("BeanBabyBurner", "THRK", address(applicationAppManager), "https://SampleApp.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(nftBurner), false);
-        nftBurner.connectHandlerToToken(address(applicationNFTHandler));
+        applicationNFTCHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(nftBurner), false);
+        nftBurner.connectHandlerToToken(address(applicationNFTCHandler));
         /// cannot batch burn
         /// non admins cannot batch mint
         vm.stopPrank();

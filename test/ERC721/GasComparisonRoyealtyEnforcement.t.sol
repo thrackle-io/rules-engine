@@ -39,8 +39,9 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
     function setUp() public {
         vm.warp(Blocktime);
 
-        switchToAppAdministrator();
+        vm.startPrank(appAdministrator);
         setUpProtocolAndAppManagerAndERC721CTokens();
+        switchToAppAdministrator();
         // create the oracles
         oracleAllowed = new OracleAllowed();
         receiversAllowed = new OracleAllowed();
