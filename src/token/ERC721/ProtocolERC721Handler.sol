@@ -13,6 +13,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "../ProtocolHandlerCommon.sol";
 
 contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
@@ -24,6 +25,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * Trade Counter
      * Balance By AccessLevel
      */
+
+     using Address for address;
+
     address public erc721Address;
     /// RuleIds for implemented tagged rules of the ERC721
     uint32 private minMaxBalanceRuleId;
@@ -32,6 +36,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     uint32 private oracleRuleId;
     uint32 private operatorOracleRuleId;
     uint32 private senderOracleRuleId;
+    uint32 private recipientOracleRuleId;
     uint32 private tradeCounterRuleId;
     uint32 private transactionLimitByRiskRuleId;
     uint32 private adminWithdrawalRuleId;
@@ -41,6 +46,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     bool private oracleRuleActive;
     bool private operatorOracleRuleActive;
     bool private senderOracleRuleActive;
+    bool private recipientOracleRuleActive;
     bool private minMaxBalanceRuleActive;
     bool private tradeCounterRuleActive;
     bool private transactionLimitByRiskRuleActive;
@@ -130,7 +136,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
             _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
-            _checkOperatorRules(_sender, _from);
+            _checkRoyaltyEnforcementRules(_sender, _from, _to);
         } else {
             if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
         }
@@ -227,8 +233,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         }
     }
 
-    function _checkOperatorRules(address _sender, address _from) internal view {
+    function _checkRoyaltyEnforcementRules(address _sender, address _from, address _to) internal view {
         if(senderOracleRuleActive && _sender != _from) ruleProcessor.checkOraclePasses(senderOracleRuleId, _sender);
+        if(recipientOracleRuleActive && _to.isContract()) ruleProcessor.checkOraclePasses(recipientOracleRuleId, _to);
     }
 
     /**
@@ -327,6 +334,47 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      */
     function isOracleActive() external view returns (bool) {
         return oracleRuleActive;
+    }
+
+    /**
+     * @dev Set the oracleRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setReceipientOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateOracle(_ruleId);
+        recipientOracleRuleId = _ruleId;
+        recipientOracleRuleActive = true;
+        emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateReceipientOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        recipientOracleRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(ORACLE, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(ORACLE, address(this));
+        }
+    }
+
+    /**
+     * @dev Retrieve the oracle rule id
+     * @return oracleRuleId
+     */
+    function getReceipientOracleRuleId() external view returns (uint32) {
+        return recipientOracleRuleId;
+    }
+
+    /**
+     * @dev Tells you if the oracle rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isReceipientOracleActive() external view returns (bool) {
+        return recipientOracleRuleActive;
     }
 
     /**
