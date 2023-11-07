@@ -113,12 +113,12 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
     }
 
     /// SIMPLE TRADES WITH WHITELIST OPERATORS
-    function testNFTCOperatorWhitelistTradeLevel1() public{
+    function testERC721CLevel1() public{
         applicationNFTC.safeMint(user1);
         //negative case
         vm.stopPrank();
         vm.startPrank(user1);
-        applicationNFTC.approve(address(0xBAAAAAAD), 0);
+        applicationNFTC.setApprovalForAll(address(0xBAAAAAAD), true);
         vm.stopPrank();
         vm.startPrank(address(0xBAAAAAAD));
         vm.expectRevert();
@@ -126,7 +126,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
         //positive case
         vm.stopPrank();
         vm.startPrank(user1);
-        applicationNFTC.approve(openPond, 0);
+        applicationNFTC.setApprovalForAll(openPond, true);
         vm.stopPrank();
         vm.startPrank(openPond);
         applicationNFTC.safeTransferFrom(user1, user2, 0);
@@ -138,7 +138,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
     }
 
     
-    function testNFTTronCOperatorWhitelistTradeLevel1() public{
+    function testTronCLevel1() public{
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1);
         assertEq(applicationNFT.balanceOf(user1), 1);
@@ -159,7 +159,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
         //negative case
         vm.stopPrank();
         vm.startPrank(user1);
-        applicationNFT.approve(address(0xBAAAAAAD), 0);
+        applicationNFT.setApprovalForAll(address(0xBAAAAAAD), true);
         vm.stopPrank();
         vm.startPrank(address(0xBAAAAAAD));
         vm.expectRevert();
@@ -167,7 +167,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
         //positive case
         vm.stopPrank();
         vm.startPrank(user1);
-        applicationNFT.approve(openPond, 0);
+        applicationNFT.setApprovalForAll(openPond, true);
         vm.stopPrank();
         vm.startPrank(openPond);
         applicationNFT.safeTransferFrom(user1, user2, 0);
@@ -180,7 +180,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
     }
 
    
-    function testNFTTronDOperatorWhitelistTradeApprovedLevel1() public{
+    function testTronDLevelApprove1() public{
          /// set up a non admin user an nft
         applicationNFT.safeMint(user1);
         assertEq(applicationNFT.balanceOf(user1), 1);
@@ -222,7 +222,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
 
     }
 
-    function testNFTTronDOperatorWhitelistTradeOperatorLevel1() public{
+    function testTronDLevelOperator1() public{
          /// set up a non admin user an nft
         applicationNFT.safeMint(user1);
         assertEq(applicationNFT.balanceOf(user1), 1);
@@ -238,6 +238,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(openPond);
+        goodBoys.push(address(0xABCDE));
         oracleAllowed.addToAllowList(goodBoys);
         // now comes the real action
         vm.stopPrank();
@@ -245,6 +246,8 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
         // this address shouldn't be allowed to be approved
         vm.expectRevert();
         applicationNFT.setApprovalForAll(address(0xBAAAAAAD), true);
+        // this first approval is to get a more accurate gas number since the first approval is always more expensive
+        applicationNFT.setApprovalForAll(address(0xABCDE), true);
         // but this one should
         applicationNFT.setApprovalForAll(openPond, true);
         // now, 0xBAAAAAAD shouldn't be able to transfer tokens
@@ -266,7 +269,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
 
 
     /// TRADES WITH WHITELIST OPERATORS AND WHITELIST CONTRACT REVEIVERS
-    function testNFTCOperatorWhitelistTradeWhitelistContractReceiverLevel3() public{
+    function testERC721CLevel3() public{
         
         vm.stopPrank();
         vm.startPrank(appAdministrator);
@@ -297,7 +300,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
 
     }
     
-    function testNFTTronCOperatorWhitelistTradeWhitelistContractReceiverLevel3() public{
+    function testTronCLevel3() public{
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1);
         applicationNFT.safeMint(user1);
@@ -341,7 +344,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
         applicationNFT.safeTransferFrom(user1, user2, 1);
     }
 
-    function testNFTTronDOperatorWhitelistTradeWhitelistContractReceiverLevel3() public{
+    function testTronDLevel3() public{
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1);
         applicationNFT.safeMint(user1);
@@ -355,6 +358,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(openPond);
+         goodBoys.push(address(0xABCDE));
         oracleAllowed.addToAllowList(goodBoys);
 
          // add the rule for receiver contracts.
@@ -372,6 +376,9 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
         //positive case
         vm.stopPrank();
         vm.startPrank(user1);
+        // this first approval is to get a more accurate gas number since the first approval is always more expensive
+        applicationNFT.setApprovalForAll(address(0xABCDE), true);
+        // now the real one
         applicationNFT.setApprovalForAll(openPond, true);
         vm.stopPrank();
         vm.startPrank(openPond);
@@ -387,7 +394,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
 
 
     /// TRADES WITH WHITELIST OPERATORS, WHITELIST CONTRACT REVEIVERS AND NO OTC TRANSFERS
-    function testNFTCOperatorWhitelistTradeWhitelistContractReceiverAndNoOTCTransfers() public{
+    function testERC721CLevel5() public{
         
         vm.stopPrank();
         vm.startPrank(appAdministrator);
@@ -419,7 +426,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
 
     }
     
-    function testNFTTronCOperatorWhitelistTradeWhitelistContractReceiverAndNoOTCTransfers() public{
+    function testTronCLevel5() public{
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1);
         applicationNFT.safeMint(user1);
@@ -466,7 +473,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
         applicationNFT.safeTransferFrom(user1, user2, 1);
     }
 
-    function testNFTTronDOperatorWhitelistTradeWhitelistContractReceiverAndNoOTCTransfers() public{
+    function testTronDLevel5() public{
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1);
         applicationNFT.safeMint(user1);
@@ -480,6 +487,7 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(openPond);
+        goodBoys.push(address(0xABCDE));
         oracleAllowed.addToAllowList(goodBoys);
 
          // add the rule for receiver contracts.
@@ -499,6 +507,9 @@ contract ERC721GasComparisonRoyaltyEnforcementTest is TestCommonFoundry {
         //positive case
         vm.stopPrank();
         vm.startPrank(user1);
+        // this first approval is to get a more accurate gas number since the first approval is always more expensive
+        applicationNFT.setApprovalForAll(address(0xABCDE), true);
+        // now the real one
         applicationNFT.setApprovalForAll(openPond, true);
         vm.stopPrank();
         vm.startPrank(openPond);
