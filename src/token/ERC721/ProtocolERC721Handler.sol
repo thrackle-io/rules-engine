@@ -47,6 +47,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     bool private operatorOracleRuleActive;
     bool private senderOracleRuleActive;
     bool private recipientOracleRuleActive;
+    bool private restrictedToTradesOnlyRuleActive;
     bool private minMaxBalanceRuleActive;
     bool private tradeCounterRuleActive;
     bool private transactionLimitByRiskRuleActive;
@@ -236,6 +237,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     function _checkRoyaltyEnforcementRules(address _sender, address _from, address _to) internal view {
         if(senderOracleRuleActive && _sender != _from) ruleProcessor.checkOraclePasses(senderOracleRuleId, _sender);
         if(recipientOracleRuleActive && _to.isContract()) ruleProcessor.checkOraclePasses(recipientOracleRuleId, _to);
+        if(restrictedToTradesOnlyRuleActive && _sender == _from) revert NoOTCTransfersAllowed();
     }
 
     /**
@@ -341,7 +343,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setReceipientOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+    function setRecipientOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateOracle(_ruleId);
         recipientOracleRuleId = _ruleId;
         recipientOracleRuleActive = true;
@@ -352,7 +354,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateReceipientOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+    function activateRecipientOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         recipientOracleRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(ORACLE, address(this));
@@ -365,7 +367,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @dev Retrieve the oracle rule id
      * @return oracleRuleId
      */
-    function getReceipientOracleRuleId() external view returns (uint32) {
+    function getRecipientOracleRuleId() external view returns (uint32) {
         return recipientOracleRuleId;
     }
 
@@ -373,7 +375,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @dev Tells you if the oracle rule is active or not.
      * @return boolean representing if the rule is active
      */
-    function isReceipientOracleActive() external view returns (bool) {
+    function isRecipientOracleActive() external view returns (bool) {
         return recipientOracleRuleActive;
     }
 
@@ -458,6 +460,29 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     function isOperatorSenderActive() external view returns (bool) {
         return senderOracleRuleActive;
     }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateRestrictedToTradesOnlyRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        restrictedToTradesOnlyRuleActive = _on;
+        // if (_on) {
+        //     emit ApplicationHandlerActivated(ORACLE, address(this));
+        // } else {
+        //     emit ApplicationHandlerDeactivated(ORACLE, address(this));
+        // }
+    }
+
+    /**
+     * @dev Tells you if the oracle rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isRestrictedToTradesOnlyActive() external view returns (bool) {
+        return restrictedToTradesOnlyRuleActive;
+    }
+
+    
 
     /**
      * @dev Set the tradeCounterRuleId. Restricted to app administrators only.
