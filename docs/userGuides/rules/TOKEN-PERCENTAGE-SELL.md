@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The token-percentage-sell rule enforces a limit on the sale of tokens during a certain time period. This rule sets the limit as a percentage of the token's total supply. For this rule, a "sell" is a swap of an application token for a token that is not part of the application (e.g. the chain native token, or a token from another application). This rule can also be applied to AMMs created for two application tokens. In these cases the tokens are defined as token 0 and token 1 within the AMM. This rule will apply to token 0 in the AMM swaps. 
+The token-percentage-sell rule enforces a limit on the sale of tokens during a certain time period. This rule sets the limit as a percentage of the token's total supply. For this rule, a "sell" is a swap of an application token for a token that is not part of the application (e.g. the chain native token, or a token from another application). This rule can also be applied to AMMs created for two application tokens. In this case the tokens are defined as token 0 and token 1 within the AMM. This rule will apply to token 0 in the AMM swaps. 
 
 ## Tokens Supported
 
@@ -10,7 +10,7 @@ The token-percentage-sell rule enforces a limit on the sale of tokens during a c
 
 ## Scope 
 
-This rule works at the AMM level. It must be activated and configured for each desired AMM in the corresponding asset handler. This rule will not be applied at the token level and will only be checked through the AMM swap function. 
+This rule works at the AMM level. It must be activated and configured for each desired AMM in the corresponding AMM handler. This rule will not be applied at the token level and will only be checked through the AMM swap function. 
 
 ## Data Structure
 
@@ -55,15 +55,15 @@ struct PctSellRuleS {
 The rule will be evaluated with the following logic:
 
 1. The processor receives the ID of the token-percentage-sell rule set in the asset handler. 
-2. The processor receives the current `total sold within period`, `token amount 0` (total amount of token 0 being transferred in the current transaction), `previous sell time`, and token's total supply from the handler.
+2. The processor receives the current total sold within period, token A amount (total amount of token A being transferred in the current transaction), previous sell time, and token's total supply from the handler.
 3. The processor evaluates whether the rule has a set total supply or uses the token's total supply provided by the handler set at the beginning of every new `period`.  
 4. The processor evaluates whether the current time is within a new `period`.
-    - **If it is a new period**, the processor sets the `percent of total supply` to the value of `token amount 0`.
-    - **If it is not a new period**, the processor sets `percent of total supply` to the sum of `total sold within period` and `token amount 0`. 
-5. The processor calculates the final sell percentage, in basis units, using the `percent of total supply` calculated in step 4 and the total supply set in step 3.  
+    - **If it is a new period**, the processor sets the percent of total supply to the token A amount.
+    - **If it is not a new period**, the processor sets percent of total supply to the sum of the total sold within period and token A amount. 
+5. The processor calculates the final sell percentage, in basis units, using the percent of total supply calculated in step 4 and the total supply set in step 3.  
 6. The processor evaluates if the final sell percentage of total supply would be greater than the `token percentage` in the case of the transaction succeeding. 
     - If yes, then the transaction will revert. 
-    - If no, the processor returns the `tokenPercentage` value for the current `period` to the handler.
+    - If no, the processor returns the `token percentage` value for the current `period` to the handler.
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkSellPercentagePasses*
 
@@ -103,7 +103,7 @@ The create function will return the protocol ID of the rule.
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
 - **_tokenPercentage** (uint16): maximum allowable percentage (in basis unit) of trading volume per period.
 - **_sellPeriod** (uint16): the amount of hours per period.
-- **_startTimestamp** (uint64): starting unix timestamp of the rule. This timestamp will determine the time that a day starts and ends for the rule processing. For example, *the amount of trades will reset to 0 every day at 2:30 pm.*
+- **_startTimestamp** (uint64): Unix timestamp for the *_sellPeriod* to start counting.
 - **_totalSupply** (uint256): (optional) if not 0, then this is the value used for totalSupply instead of the live token's totalSupply value at rule processing time.
 
 
