@@ -2,15 +2,15 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/ApplicationERC20Handler.sol";
-import {ApplicationERC721Handler} from "src/example/ApplicationERC721Handler.sol";
-import "src/example/ApplicationERC20.sol";
-import {ApplicationERC721} from "src/example/ERC721/not-upgradeable/ApplicationERC721FreeMint.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
+import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
+import "src/example/ERC20/ApplicationERC20.sol";
+import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
 import "src/example/liquidity/ApplicationAMMCalcLinear.sol";
 import "src/example/liquidity/ApplicationAMMCalcCP.sol";
 import "src/example/liquidity/ApplicationAMM.sol";
 import "src/example/liquidity/ApplicationAMMHandler.sol";
-import {ApplicationAppManager} from "src/example/ApplicationAppManager.sol";
+import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 import "src/example/application/ApplicationHandler.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";

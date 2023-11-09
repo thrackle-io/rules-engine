@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "../../staking/IERC20Staking.sol";
 import "../../economic/AppAdministratorOnly.sol";
 import "../../application/IAppManager.sol";
-import "../../example/ApplicationERC20.sol";
+import "../ERC20/ApplicationERC20.sol";
 
 /**
  * @title ERC20 Auto Mint Staking Contract

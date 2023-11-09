@@ -4,7 +4,7 @@ metadata:
   labels:
     app: anvil
   name: anvil
-  namespace: default
+  namespace: {{NAMESPACE}}
 spec:
   replicas: 1
   revisionHistoryLimit: 10
@@ -28,11 +28,10 @@ spec:
         - name: RUST_LOG
           value: backend,api,node,rpc=warn
         - name: CHAIN_ID
-          value: "31338"
+          value: "{{CHAIN_ID}}"
         image: {{ECR_REPOSITORY}}
         imagePullPolicy: Always
         name: anvil
         ports:
         - containerPort: 8545
           protocol: TCP
-          

@@ -8,7 +8,7 @@ import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
 import {ApplicationAMMHandler} from "../src/example/liquidity/ApplicationAMMHandler.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
 /**
  * @title Application AMM Handler  Test
@@ -16,7 +16,7 @@ import "test/helpers/TestCommon.sol";
  * @dev this contract tests the Application AMM Handler.
  * @notice It simulates the input from a token contract and the AMM contract
  */
-contract ApplicationAMMHandlerTest is TestCommon {
+contract ApplicationAMMHandlerTest is TestCommonFoundry {
     address rich_user = address(44);
     address user1 = address(0x111);
     address user2 = address(0x222);

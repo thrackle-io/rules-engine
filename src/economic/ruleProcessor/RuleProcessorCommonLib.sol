@@ -50,4 +50,21 @@ library RuleProcessorCommonLib {
     function checkMaxTags(bytes32[] memory _tags) internal pure {
         if (_tags.length > MAX_TAGS) revert MaxTagLimitReached();
     }
+
+    function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskLevels, uint48[] memory _maxSizes) internal pure returns(uint256){
+        uint256 maxSize;
+        for (uint256 i = 1; i < _riskLevels.length;) {
+            if (_riskScore < _riskLevels[i]) {
+                maxSize = uint(_maxSizes[i - 1]) * (10 ** 18); 
+                return maxSize;
+            } 
+            unchecked {
+                ++i;
+            }
+        }
+        if (_riskScore >= _riskLevels[_riskLevels.length - 1]) {
+            maxSize = uint(_maxSizes[_maxSizes.length - 1]) * (10 ** 18);
+        }
+        return maxSize; 
+    }
 }

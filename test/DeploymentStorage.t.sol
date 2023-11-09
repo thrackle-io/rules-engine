@@ -13,20 +13,20 @@ import {AppRuleDataFacet} from "../src/economic/ruleStorage/AppRuleDataFacet.sol
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 import {VersionFacet} from "../src/diamond/VersionFacet.sol";
 import {FeeRuleProcessorFacet} from "../src/economic/ruleProcessor/FeeRuleProcessorFacet.sol"; // for upgrade test only
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
 /**
  * @dev This test suite is for testing the deployed protocol via forking the desired network
- * The test will check if the addresses in the env are valid and then run the tests. If address is not added to the env these will be skkipped. 
+ * The test will check if the addresses in the env are valid and then run the tests. If address is not added to the env these will be skkipped.
  * This test suite contains if checks that assume you have followed the deployment guide docs and have added an NFTTransferCounter and AccountBalanceByAccessLevel rule when testing forked contracts.
  */
 
-contract DeploymentStorageTest is Test, GenerateSelectors, TestCommon {
+contract DeploymentStorageTest is Test, GenerateSelectors, TestCommonFoundry {
     // Store the FacetCut struct for each NonTaggedRuleFacetthat is being deployed.
     // NOTE: using storage array to easily "push" new FacetCut as we
     // process the facets.
     FacetCut[] private _facetCuts;
-    address ruleStorageDiamondAddress; 
+    address ruleStorageDiamondAddress;
     address ac;
     uint256 totalSupply = 100_000_000_000;
     uint32 startTime = 12;
@@ -39,7 +39,7 @@ contract DeploymentStorageTest is Test, GenerateSelectors, TestCommon {
             ruleStorageDiamond = RuleStorageDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_STORAGE_DIAMOND")));
             ruleStorageDiamondAddress = vm.envAddress("DEPLOYMENT_RULE_STORAGE_DIAMOND");
             assertEq(ruleStorageDiamondAddress, vm.envAddress("DEPLOYMENT_RULE_STORAGE_DIAMOND"));
-            forkTest = true; 
+            forkTest = true;
         } else {
             vm.startPrank(appAdministrator);
             setUpProtocolAndAppManagerAndTokens();
@@ -54,7 +54,7 @@ contract DeploymentStorageTest is Test, GenerateSelectors, TestCommon {
         vm.startPrank(appAdministrator);
     }
 
-function testUpgradeRuleStorage() public {
+    function testUpgradeRuleStorage() public {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         SampleFacet sampleFacet = new SampleFacet();
@@ -97,7 +97,7 @@ function testUpgradeRuleStorage() public {
         //test that the newOwner can upgrade
         vm.stopPrank();
         vm.startPrank(newOwner);
-        if (!forkTest){
+        if (!forkTest) {
             IDiamondCut(address(ruleStorageDiamond)).diamondCut(cut, address(0x0), "");
             retrievedOwner = ERC173Facet(address(ruleStorageDiamond)).owner();
             assertEq(retrievedOwner, newOwner);
@@ -129,7 +129,8 @@ function testUpgradeRuleStorage() public {
         // make sure that the version didn't change
         assertEq(version, "1.1.0");
     }
- /***************** Test Setters and Getters *****************/
+
+    /***************** Test Setters and Getters *****************/
 
     /*********************** Purchase *******************/
     /// Simple setting and getting
@@ -392,7 +393,6 @@ function testUpgradeRuleStorage() public {
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
     function testSettingPurchaseFeeVolumeRuleWithoutAppAdministratorAccount() public {
-
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -758,7 +758,7 @@ function testUpgradeRuleStorage() public {
     }
 
     /*********************** NFT Trade Counter ************************/
-        function testNFTTransferCounterRule() public {
+    function testNFTTransferCounterRule() public {
         switchToRuleAdmin();
         bytes32[] memory nftTags = new bytes32[](2);
         nftTags[0] = bytes32("BoredGrape");
@@ -766,18 +766,18 @@ function testUpgradeRuleStorage() public {
         uint8[] memory tradesAllowed = new uint8[](2);
         tradesAllowed[0] = 1;
         tradesAllowed[1] = 5;
-        uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         if (forkTest == true) {
             assertEq(_index, 1);
-            NonTaggedRules.NFTTradeCounterRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
+            TaggedRules.NFTTradeCounterRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
             assertEq(rule.tradesAllowedPerDay, 1);
-            rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[1]);
+            rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[1]);
             assertEq(rule.tradesAllowedPerDay, 5);
         } else {
             assertEq(_index, 0);
-            NonTaggedRules.NFTTradeCounterRule memory rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
+            TaggedRules.NFTTradeCounterRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
             assertEq(rule.tradesAllowedPerDay, 1);
-            rule = NonTaggedRuleFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[1]);
+            rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[1]);
             assertEq(rule.tradesAllowedPerDay, 5);
         }
     }
@@ -793,21 +793,21 @@ function testUpgradeRuleStorage() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         switchToRuleAdmin();
         if (forkTest == true) {
-            uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+            uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
             assertEq(_index, 1);
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
             assertEq(_index, 2);
         } else {
-            uint32 _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+            uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
             assertEq(_index, 0);
-            _index = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+            _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
             assertEq(_index, 1);
         }
     }
@@ -823,7 +823,7 @@ function testUpgradeRuleStorage() public {
         tradesAllowed[1] = 5;
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
-            _indexes[i] = NonTaggedRuleFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+            _indexes[i] = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         }
     }
 
@@ -916,7 +916,7 @@ function testUpgradeRuleStorage() public {
         balanceAmounts[3] = 1000;
         balanceAmounts[4] = 10000;
         uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
-        /// account for already deployed contract that has AccessLevelBalanceRule added 
+        /// account for already deployed contract that has AccessLevelBalanceRule added
         if (forkTest == true) {
             uint256 testBalance = AppRuleDataFacet(address(ruleStorageDiamond)).getAccessLevelBalanceRule(0, 2);
             assertEq(testBalance, 100);
@@ -1076,5 +1076,4 @@ function testUpgradeRuleStorage() public {
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
     }
-
 }

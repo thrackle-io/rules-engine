@@ -56,7 +56,7 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateNFTTransferCounter(uint32 _ruleId) external view {
-        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
+        TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
         // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(data.getTotalNFTTransferCounterRules());
     }

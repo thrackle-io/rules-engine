@@ -6,7 +6,7 @@
 1. Ensure the [environment variable][environment-url] is set correctly.
     1. Manual deployment of Handler contract for upgrading to new handler only. Handler Contract 
     will automatically deploy from the ERC721 contract. 
-2. Copy the template from _src/example/ApplicationERC721Handler.sol_ to your desired location
+2. Copy the template from _src/example/ERC721/ApplicationERC721Handler.sol_ to your desired location
 3. Change the name of the contract to suit your naming standards
     1. *Do not change the import or parent contract*
 4. Compile the contract

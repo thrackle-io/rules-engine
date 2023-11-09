@@ -11,13 +11,14 @@
 |:--------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | AppManager                | Allows for creation/maintenance of permission roles, application rules, pause windows, user account metadata. |
 | ApplicationHandler        | Connection to Rules Protocol for the AppManager. |
-| TokenHandler              | Deployed by Protocol Supported ERC721's and Protocol Supported ERC20 tokens. Allow for applying, activating, and deactivating token specific rules          |
-| Pricing Module            | Where prices for ERC20 and ERC721 tokens are derived. It can be the default protocol pricer or a custom pricing solution                                    |
+| TokenHandler              | Deployed by Protocol Supported ERC721's and Protocol Supported ERC20 tokens. Allow for applying, activating, and deactivating token specific rules.          |
+| Pricing Module            | Where prices for ERC20 and ERC721 tokens are derived. It can be the default protocol pricer or a custom pricing solution.                                    |
 | Protocol Supported ERC721 | An ERC721 token that implements the protocol ProtocolERC721.                                                                                                |
-| Access-Tier Provider      | An external provider that rates or segments users based on external criteria such as Know Your Customer (KYC) solutions                                     |
-| Permission Roles          | Roles used by AppManager. They include: Admin, Access Tier Admin, and Risk Admin                                                                            |
-| Application Rule          | Rule applied to all protocol supported assets. They are created using the protocol's RuleStorageDiamond and applied in the application's AppManager        |
-| Token Specific Rule       | Rule applied to a specific protocol supported entity. They are created using the protocol's RuleStorageDiamond and applied in the token's Handler        |
+| Access-Tier Provider      | An external provider that rates or segments users based on external criteria such as Know Your Customer (KYC) solutions.                                     |
+| Permission Roles          | Roles used by AppManager. They include: Admin, Access Tier Admin, and Risk Admin.                                                                            |
+| Application Rule          | Rule applied to all protocol supported assets. They are created using the protocol's RuleStorageDiamond and applied in the application's AppManager.        |
+| Token Specific Rule       | Rule applied to a specific protocol supported entity. They are created using the protocol's RuleStorageDiamond and applied in the token's Handler.        |
+| Tag | Bytes32 strings that can be attached to accounts via AppManager. Think of it as labels or badges that accounts can have. |
 
 
 

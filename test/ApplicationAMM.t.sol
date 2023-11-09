@@ -12,7 +12,7 @@ import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import {ApplicationAMMHandler} from "../src/example/liquidity/ApplicationAMMHandler.sol";
 import {ApplicationAMMHandlerMod} from "./helpers/ApplicationAMMHandlerMod.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
 /**
  * @title Test all AMM related functions
@@ -20,7 +20,7 @@ import "test/helpers/TestCommon.sol";
  * @dev A substantial amount of set up work is needed for each test.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ApplicationAMMTest is TestCommon {
+contract ApplicationAMMTest is TestCommonFoundry {
     ApplicationAMMHandler handler;
     ApplicationAMM applicationAMM;
     ApplicationAMMCalcLinear applicationAMMLinearCalc;

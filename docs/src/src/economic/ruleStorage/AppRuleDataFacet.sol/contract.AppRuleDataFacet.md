@@ -1,5 +1,9 @@
 # AppRuleDataFacet
+<<<<<<< HEAD
 [Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/economic/ruleStorage/AppRuleDataFacet.sol)
+=======
+[Git Source](https://github.com/thrackle-io/tron/blob/81964a0e15d7593cfe172486fd6691a89432c332/src/economic/ruleStorage/AppRuleDataFacet.sol)
+>>>>>>> external
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/interfaces/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/interfaces/IErrors.sol/interface.IInputErrors.md), [IAppRuleInputErrors](/src/interfaces/IErrors.sol/interface.IAppRuleInputErrors.md), [IRiskInputErrors](/src/interfaces/IErrors.sol/interface.IRiskInputErrors.md)
@@ -24,13 +28,6 @@ uint8 constant MAX_ACCESSLEVELS = 5;
 
 ```solidity
 uint8 constant MAX_RISKSCORE = 99;
-```
-
-
-### MAX_HOUR_OF_DAY
-
-```solidity
-uint8 constant MAX_HOUR_OF_DAY = 23;
 ```
 
 
@@ -197,7 +194,7 @@ function addMaxTxSizePerPeriodByRiskRule(
     uint48[] calldata _maxSize,
     uint8[] calldata _riskLevel,
     uint8 _period,
-    uint8 _startingTime
+    uint64 _startTimestamp
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -208,7 +205,7 @@ function addMaxTxSizePerPeriodByRiskRule(
 |`_maxSize`|`uint48[]`|array of max-tx-size allowed within period (whole USD max values --no cents) Each value in the array represents max USD value transacted within _period, and its positions indicate what range of risk levels it applies to. A value of 1000 here means $1000.00 USD.|
 |`_riskLevel`|`uint8[]`|array of risk-level ceilings that define each range. Risk levels are inclusive.|
 |`_period`|`uint8`|amount of hours that each period lasts for.|
-|`_startingTime`|`uint8`|between 00 and 23 representing the time of the day that the rule starts taking effect. The rule will always start in a date in the past.|
+|`_startTimestamp`|`uint64`|start timestamp for the rule|
 
 **Returns**
 
@@ -220,7 +217,6 @@ function addMaxTxSizePerPeriodByRiskRule(
 ### getMaxTxSizePerPeriodRule
 
 Validation block
-before creating the rule, we convert the starting time from hour of the day to timestamp date
 We create the rule now
 
 *Function to get the Max Tx Size Per Period By Risk rule.*

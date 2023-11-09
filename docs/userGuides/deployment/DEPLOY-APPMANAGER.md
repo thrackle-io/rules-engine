@@ -4,7 +4,7 @@
 ---
 
 1. Ensure the [environment variables][environment-url] are set correctly.
-2. Copy the template from src/example/ApplicationAppManager.sol to your desired location
+2. Copy the template from src/example/application/ApplicationAppManager.sol to your desired location
 3. Change the name of the contract to suit your naming standards
    - Do not change the import or parent contract
 4. Compile the contract

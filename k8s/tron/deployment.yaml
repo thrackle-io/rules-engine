@@ -4,7 +4,7 @@ metadata:
   labels:
     app: tron
   name: tron
-  namespace: default
+  namespace: {{NAMESPACE}}
 spec:
   replicas: 0
   selector:
@@ -30,4 +30,3 @@ spec:
         image: {{ECR_REPOSITORY}}
         imagePullPolicy: Always
         name: tron
-        

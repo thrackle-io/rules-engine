@@ -2,14 +2,14 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "../src/example/ApplicationERC20.sol";
-import {ApplicationERC721} from "../src/example/ERC721/not-upgradeable/ApplicationERC721FreeMint.sol";
-import "../src/example/ApplicationAppManager.sol";
+import "../src/example/ERC20/ApplicationERC20.sol";
+import {ApplicationERC721} from "../src/example/ERC721/ApplicationERC721FreeMint.sol";
+import "../src/example/application/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
-import "./DiamondTestUtil.sol";
-import "../src/example/ApplicationERC20Handler.sol";
-import {ApplicationERC721Handler} from "../src/example/ApplicationERC721Handler.sol";
-import "./RuleProcessorDiamondTestUtil.sol";
+import "./diamond/DiamondTestUtil.sol";
+import "../src/example/ERC20/ApplicationERC20Handler.sol";
+import {ApplicationERC721Handler} from "../src/example/ERC721/ApplicationERC721Handler.sol";
+import "./diamond/RuleProcessorDiamondTestUtil.sol";
 import "../src/example/staking/ERC721Staking.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 
