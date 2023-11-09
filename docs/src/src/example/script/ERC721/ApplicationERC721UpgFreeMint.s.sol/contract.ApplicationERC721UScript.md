@@ -1,9 +1,5 @@
 # ApplicationERC721UScript
-<<<<<<< HEAD:docs/src/src/example/script/ApplicationERC721UpgAdminMint.s.sol/contract.ApplicationERC721UScript.md
-[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/example/script/ApplicationERC721UpgAdminMint.s.sol)
-=======
 [Git Source](https://github.com/thrackle-io/tron/blob/81964a0e15d7593cfe172486fd6691a89432c332/src/example/script/ERC721/ApplicationERC721UpgFreeMint.s.sol)
->>>>>>> external:docs/src/src/example/script/ERC721/ApplicationERC721UpgFreeMint.s.sol/contract.ApplicationERC721UScript.md
 
 **Inherits:**
 Script

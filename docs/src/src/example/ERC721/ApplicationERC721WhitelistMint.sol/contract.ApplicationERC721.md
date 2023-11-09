@@ -1,9 +1,5 @@
 # ApplicationERC721
-<<<<<<< HEAD:docs/src/src/example/ERC721/not-upgradeable/ApplicationERC721WhitelistMint.sol/contract.ApplicationERC721.md
-[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/example/ERC721/not-upgradeable/ApplicationERC721WhitelistMint.sol)
-=======
 [Git Source](https://github.com/thrackle-io/tron/blob/81964a0e15d7593cfe172486fd6691a89432c332/src/example/ERC721/ApplicationERC721WhitelistMint.sol)
->>>>>>> external:docs/src/src/example/ERC721/ApplicationERC721WhitelistMint.sol/contract.ApplicationERC721.md
 
 **Inherits:**
 [ProtocolERC721](/src/token/ERC721/ProtocolERC721.sol/contract.ProtocolERC721.md)

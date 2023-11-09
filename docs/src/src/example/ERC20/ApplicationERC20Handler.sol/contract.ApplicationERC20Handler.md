@@ -1,9 +1,5 @@
 # ApplicationERC20Handler
-<<<<<<< HEAD:docs/src/src/example/ApplicationERC20Handler.sol/contract.ApplicationERC20Handler.md
-[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/example/ApplicationERC20Handler.sol)
-=======
 [Git Source](https://github.com/thrackle-io/tron/blob/81964a0e15d7593cfe172486fd6691a89432c332/src/example/ERC20/ApplicationERC20Handler.sol)
->>>>>>> external:docs/src/src/example/ERC20/ApplicationERC20Handler.sol/contract.ApplicationERC20Handler.md
 
 **Inherits:**
 [ProtocolERC20Handler](/src/token/ERC20/ProtocolERC20Handler.sol/contract.ProtocolERC20Handler.md)

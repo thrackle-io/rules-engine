@@ -1,9 +1,5 @@
 # ProtocolERC721Handler
-<<<<<<< HEAD:docs/src/src/token/ProtocolERC721Handler.sol/contract.ProtocolERC721Handler.md
-[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/token/ProtocolERC721Handler.sol)
-=======
 [Git Source](https://github.com/thrackle-io/tron/blob/81964a0e15d7593cfe172486fd6691a89432c332/src/token/ERC721/ProtocolERC721Handler.sol)
->>>>>>> external:docs/src/src/token/ERC721/ProtocolERC721Handler.sol/contract.ProtocolERC721Handler.md
 
 **Inherits:**
 Ownable, [ProtocolHandlerCommon](/src/token/ProtocolHandlerCommon.sol/abstract.ProtocolHandlerCommon.md), [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IAdminWithdrawalRuleCapable](/src/token/IAdminWithdrawalRuleCapable.sol/abstract.IAdminWithdrawalRuleCapable.md), ERC165

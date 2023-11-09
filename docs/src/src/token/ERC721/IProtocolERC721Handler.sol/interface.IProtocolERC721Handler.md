@@ -1,9 +1,5 @@
 # IProtocolERC721Handler
-<<<<<<< HEAD:docs/src/src/token/IProtocolERC721Handler.sol/interface.IProtocolERC721Handler.md
-[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/token/IProtocolERC721Handler.sol)
-=======
 [Git Source](https://github.com/thrackle-io/tron/blob/81964a0e15d7593cfe172486fd6691a89432c332/src/token/ERC721/IProtocolERC721Handler.sol)
->>>>>>> external:docs/src/src/token/ERC721/IProtocolERC721Handler.sol/interface.IProtocolERC721Handler.md
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett

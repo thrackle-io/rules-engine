@@ -1,9 +1,5 @@
 # IProtocolERC721U
-<<<<<<< HEAD:docs/src/src/token/IProtocolERC721U.sol/interface.IProtocolERC721U.md
-[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/token/IProtocolERC721U.sol)
-=======
 [Git Source](https://github.com/thrackle-io/tron/blob/81964a0e15d7593cfe172486fd6691a89432c332/src/token/ERC721/upgradeable/IProtocolERC721U.sol)
->>>>>>> external:docs/src/src/token/ERC721/upgradeable/IProtocolERC721U.sol/interface.IProtocolERC721U.md
 
 **Inherits:**
 IERC721EnumerableUpgradeable

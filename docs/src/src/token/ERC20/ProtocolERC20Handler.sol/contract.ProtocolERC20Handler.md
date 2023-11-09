@@ -1,9 +1,5 @@
 # ProtocolERC20Handler
-<<<<<<< HEAD:docs/src/src/token/ProtocolERC20Handler.sol/contract.ProtocolERC20Handler.md
-[Git Source](https://github.com/thrackle-io/tron/blob/c915f21b8dd526456aab7e2f9388d412d287d507/src/token/ProtocolERC20Handler.sol)
-=======
 [Git Source](https://github.com/thrackle-io/tron/blob/81964a0e15d7593cfe172486fd6691a89432c332/src/token/ERC20/ProtocolERC20Handler.sol)
->>>>>>> external:docs/src/src/token/ERC20/ProtocolERC20Handler.sol/contract.ProtocolERC20Handler.md
 
 **Inherits:**
 Ownable, [ProtocolHandlerCommon](/src/token/ProtocolHandlerCommon.sol/abstract.ProtocolHandlerCommon.md), [AppAdministratorOnly](/src/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [RuleAdministratorOnly](/src/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IAdminWithdrawalRuleCapable](/src/token/IAdminWithdrawalRuleCapable.sol/abstract.IAdminWithdrawalRuleCapable.md), ERC165
