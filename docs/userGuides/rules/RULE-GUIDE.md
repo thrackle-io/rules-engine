@@ -3,9 +3,9 @@
 
 ---
 
-| Rule                                           | Definition                                                                                                                                                                                                                                                                                                                                                                                                             |
-|:-----------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
-| Account Balance by Risk Score | Based on the risk score, an application developer may wish to enable account balance limitations on specific accounts of interest designated by their high risk score in their token economy. |  
+| Rule | Definition |
+|:-|:-| 
+| Account Balance by Risk Score |  https://github.com/thrackle-io/tron/blob/6576082443917a32d2879999036d85ee7b81fb65/docs/userGuides/rules/ACCOUNT-BALANCE-BY-RISK.md?plain=1#L22 |  
 | Account Purchase | The Account Purchase rule is an account-based measure which restricts an account’s ability to buy more of a token if the account balance exceeds a specified threshold within a specified time period. This value is in token units. |
 | Account Sell | The Account Sell rule is an account based measure which restricts an account’s ability to sell a token. This may be put in place to restrict large transactions from occurring against suspected malicious accounts or other accounts of interest. |
 | Application Admin Withdrawal | In some instances, an application developer may wish to assure users they will not pillage the ecosystem and then abandon it. For instance, an application developer may wish to promise on-chain that they will not withdraw more than 1000 tokens worth of value from the system until users have collectively withdrawn more than 100,000 tokens. NOTE: This rule is dependent upon trust of the "Super Admin" account as this account has permissions to remove the "App Admin" role thus allowing an admin to be released from the rule restriction. |
