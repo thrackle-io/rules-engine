@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The token-percentage-sell rule enforces a limit on the sale of tokens during a certain time period. This rule sets the limit as a percentage of the token's total supply. For this rule, a "sell" is a swap of an application token for a token that is not part of the application (e.g. the chain native token, or a token from another application). This rule can also be applied to AMMs created for two application tokens. In this case the tokens are defined as token 0 and token 1 within the AMM. This rule will apply to token 0 in the AMM swaps. 
+The token-percentage-sell rule enforces a limit on the sale of tokens during a certain time period. This rule sets the limit as a percentage of the token's total supply. The rule will apply to the token designated token 0 in the AMM at construction and apply to all AMM swaps of token 0 to token 1 while this rule is active.  
 
 ## Tokens Supported
 
