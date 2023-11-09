@@ -19,6 +19,7 @@ import "./RuleStorageCommonLib.sol";
 contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError {
     using RuleStorageCommonLib for uint64;
     using RuleStorageCommonLib for uint32;
+    using RuleStorageCommonLib for uint8; 
 
     /**
      * Note that no update method is implemented. Since reutilization of
@@ -366,16 +367,14 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _txnLimits Transaction Limit in whole USD for each score range. It corresponds to the _riskScores array and is +1 longer than _riskScores.
      * A value of 1000 in this arrays will be interpreted as $1000.00 USD.
      * @return position of new rule in array
-     * @notice _maxSize size must be equal to _riskLevel + 1 since the _maxSize must
-     * specify the maximum tx size for anything between the highest risk score and 100
-     * which should be specified in the last position of the _riskLevel. This also
-     * means that the positioning of the arrays is ascendant in terms of risk levels, and
-     * descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+     * @notice _txnLimits size must be equal to _riskLevel The positioning of the arrays is ascendant in terms of risk levels, 
+     * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      */
     function addTransactionLimitByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _txnLimits) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_riskScores.length == 0 || _txnLimits.length == 0) revert InvalidRuleInput();
-        if (_txnLimits.length != _riskScores.length + 1) revert InputArraysSizesNotValid();
+        // since the arrays are compared, it is only necessary to check for one of them being empty.
+        if (_riskScores.length == 0) revert InvalidRuleInput();
+        if (_txnLimits.length != _riskScores.length) revert InputArraysSizesNotValid();
         if (_riskScores[_riskScores.length - 1] > 99) revert RiskLevelCannotExceed99();
         for (uint i = 1; i < _riskScores.length; ) {
             if (_riskScores[i] <= _riskScores[i - 1]) revert WrongArrayOrder();
@@ -508,5 +507,74 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     function getTotalMinBalByDateRule() public view returns (uint32) {
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         return data.minBalByDateRulesIndex;
+    }
+
+    /************ NFT Getters/Setters ***********/
+    /**
+     * @dev Function adds Balance Limit Rule
+     * @param _appManagerAddr App Manager Address
+     * @param _nftTypes Types of NFTs
+     * @param _tradesAllowed Maximum trades allowed within 24 hours
+     * @param _startTs starting timestamp for the rule
+     * @return _nftTransferCounterRules which returns location of rule in array
+     */
+    function addNFTTransferCounterRule(
+        address _appManagerAddr,
+        bytes32[] calldata _nftTypes,
+        uint8[] calldata _tradesAllowed,
+        uint64 _startTs
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+        if (_appManagerAddr == address(0)) revert ZeroAddress();
+        if (_nftTypes.length == 0 || _startTs == 0) revert ZeroValueNotPermited();
+        if (_nftTypes.length != _tradesAllowed.length) revert InputArraysMustHaveSameLength();
+        _startTs.validateTimestamp();
+
+        return _addNFTTransferCounterRule(_nftTypes, _tradesAllowed, _startTs);
+    }
+
+    /**
+     * @dev internal Function to avoid stack too deep error
+     * @param _nftTypes Types of NFTs
+     * @param _tradesAllowed Maximum trades allowed within 24 hours
+     * @param _startTs starting timestamp for the rule
+     * @return position of new rule in array
+     */
+    function _addNFTTransferCounterRule(bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed, uint64 _startTs) internal returns (uint32) {
+        RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
+        uint32 index = data.NFTTransferCounterRuleIndex;
+        for (uint256 i; i < _nftTypes.length; ) {
+            if (_nftTypes[i] == bytes32("")) revert BlankTag();
+            TaggedRules.NFTTradeCounterRule memory rule = TaggedRules.NFTTradeCounterRule(_tradesAllowed[i], _startTs);
+            data.NFTTransferCounterRule[index][_nftTypes[i]] = rule;
+            unchecked {
+                ++i;
+            }
+        }
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(NFT_TRANSFER, index, empty);
+        ++data.NFTTransferCounterRuleIndex;
+        return index;
+    }
+
+    /**
+     * @dev Function get the NFT Transfer Counter rule in the rule set that belongs to an NFT type
+     * @param _index position of rule in array
+     * @param _nftType Type of NFT
+     * @return NftTradeCounterRule at index location in array
+     */
+    function getNFTTransferCounterRule(uint32 _index, bytes32 _nftType) external view returns (TaggedRules.NFTTradeCounterRule memory) {
+        RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalNFTTransferCounterRules());
+        return data.NFTTransferCounterRule[_index][_nftType];
+    }
+
+    /**
+     * @dev Function gets total NFT Trade Counter rules
+     * @return Total length of array
+     */
+    function getTotalNFTTransferCounterRules() public view returns (uint32) {
+        RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
+        return data.NFTTransferCounterRuleIndex;
     }
 }

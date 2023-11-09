@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "src/token/ProtocolERC721.sol";
+import "src/token/ERC721/ProtocolERC721.sol";
 
 /**
  * @title ApplicationERC721WithBatchMintBurn

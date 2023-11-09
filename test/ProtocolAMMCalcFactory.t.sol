@@ -7,7 +7,7 @@ import "src/liquidity/ProtocolAMMCalculatorFactory.sol";
 import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
-import "test/helpers/TestCommon.sol";
+import "test/helpers/TestCommonFoundry.sol";
 
 /**
  * @title Test all AMM Calculator Factory related functions
@@ -15,7 +15,7 @@ import "test/helpers/TestCommon.sol";
  * @dev A substantial amount of set up work is needed for each test.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolAMMCalcFactoryTest is TestCommon {
+contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
     ProtocolAMMCalculatorFactory factory;
 
     function setUp() public {

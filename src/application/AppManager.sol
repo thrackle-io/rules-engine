@@ -35,6 +35,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     bytes32 constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
     bytes32 constant RULE_ADMIN_ROLE = keccak256("RULE_ADMIN_ROLE");
     bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
+    bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
 
     /// Data contracts
     IAccounts accounts;
@@ -49,6 +50,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     address newGeneralTagsProviderAddress;
     address newPauseRulesProviderAddress;
     address newRiskScoresProviderAddress;
+
+    /// Application name string
+    string appName;
 
     /// Application Handler Contract
     ProtocolApplicationHandler public applicationHandler;
@@ -75,9 +79,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     mapping(address => uint) stakingToIndex;
     mapping(address => bool) isStakingRegistered;
 
-    /// Application name string
-    string appName;
-
     /**
      * @dev This constructor sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.
      * @param root address to set as the default admin and first app administrator
@@ -92,6 +93,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         _setRoleAdmin(ACCESS_TIER_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RISK_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RULE_ADMIN_ROLE, APP_ADMIN_ROLE);
+        _setRoleAdmin(SUPER_ADMIN_ROLE, PROPOSED_SUPER_ADMIN_ROLE);
+        _setRoleAdmin(PROPOSED_SUPER_ADMIN_ROLE, SUPER_ADMIN_ROLE);
         appName = _appName;
         if (!upgradeMode) {
             deployDataContracts();
@@ -101,6 +104,44 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         }
     }
 
+    /**
+     * @dev This function overrides the parent's grantRole function. This basically disables its public nature to make it private.
+     * @param role the role to grant to an acount.
+     * @param account address being granted the role.
+     * @notice this is purposely going to fail every time it will be invoked in order to force users to only use the appropiate 
+     * channels to grant roles, and therefore enforce the special rules in an app.
+     */
+     function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
+        /// this is done to funnel all the role granting functions through the app manager functions since
+        /// the superAdmins could add other superAdmins through this back door
+        role;
+        account;
+        revert("Function disabled");
+    }
+
+    /**
+     * @dev This function overrides the parent's renounceRole function. Its purpose is to prevent superAdmins from renouncing through
+     * this "backdoor", so they are forced to find another superAdmin through the function proposeNewSuperAdmin.
+     * @param role the role to renounce.
+     * @param account address renouncing to the role.
+     */
+    function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
+        /// enforcing the min-1-admin requirement. Only PROPOSED_SUPER_ADMIN_ROLE should be able to bypass this rule
+        if(role == SUPER_ADMIN_ROLE ) revert BelowMinAdminThreshold();
+        AccessControl.renounceRole(role, account);
+    }
+
+    /**
+     * @dev This function overrides the parent's revokeRole function. Its purpose is to prevent superAdmins from being revoked through
+     * this "backdoor" which would effectively leave the app in a superAdmin-orphan state.
+     * @param role the role to revoke.
+     * @param account address of revoked role.
+     */
+    function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
+        /// enforcing the min-1-admin requirement.
+        if(role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
+        AccessControl.revokeRole(role, account);
+    }
     // /// -------------ADMIN---------------
     /**
      * @dev This function is where the Super admin role is actually checked
@@ -109,6 +150,40 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function isSuperAdmin(address account) public view returns (bool) {
         return hasRole(SUPER_ADMIN_ROLE, account);
+    }
+
+    /// -------------- PROPOSE NEW SUPER ADMIN ------------------
+
+    /**
+     * @dev Propose a new super admin. Restricted to super admins.
+     * @param account address to be added
+     */
+    function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROLE) {
+        if(account == address(0)) revert ZeroAddress();
+        /// we should only have 1 proposed superAdmin. If there is one already in this role, we should remove it to replace it.
+        if(getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE) > 0){
+            revokeRole(PROPOSED_SUPER_ADMIN_ROLE, getRoleMember(PROPOSED_SUPER_ADMIN_ROLE, 0));
+        }
+        super.grantRole(PROPOSED_SUPER_ADMIN_ROLE, account);
+    }
+
+    /**
+     * @dev confirm the superAdmin role. 
+     * @notice only the proposed account can accept this role.
+     */
+    function confirmSuperAdmin() external {
+        address newSuperAdmin = getRoleMember(PROPOSED_SUPER_ADMIN_ROLE, 0);
+        /// We first check that only the proposed superAdmin can confirm
+        if (_msgSender() != newSuperAdmin) revert ConfirmerDoesNotMatchProposedAddress();
+        /// then we transfer the role
+        address oldSuperAdmin = getRoleMember(SUPER_ADMIN_ROLE, 0);
+
+        super.grantRole(SUPER_ADMIN_ROLE, newSuperAdmin);
+        super.revokeRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
+        renounceRole(PROPOSED_SUPER_ADMIN_ROLE, _msgSender());
+        /// we emit the events
+        emit SuperAdministrator(_msgSender(), true);
+        emit SuperAdministrator(oldSuperAdmin, false);
     }
 
     /// -------------APP ADMIN---------------
@@ -128,7 +203,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addAppAdministrator(address account) external onlyRole(SUPER_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
-        grantRole(APP_ADMIN_ROLE, account);
+        super.grantRole(APP_ADMIN_ROLE, account);
         emit AppAdministrator(account, true);
     }
 
@@ -138,7 +213,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleAppAdministrator(address[] memory _accounts) external onlyRole(SUPER_ADMIN_ROLE) {
         for (uint256 i; i < _accounts.length; ) {
-            grantRole(APP_ADMIN_ROLE, _accounts[i]);
+            super.grantRole(APP_ADMIN_ROLE, _accounts[i]);
             emit AppAdministrator(_accounts[i], true);
             unchecked {
                 ++i;
@@ -152,8 +227,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function renounceAppAdministrator() external {
         /// If the AdminWithdrawal rule is active, App Admins are not allowed to renounce their role to prevent manipulation of the rule
         checkForAdminWithdrawal();
-        renounceRole(APP_ADMIN_ROLE, msg.sender);
-        emit AppAdministrator(address(msg.sender), false);
+        renounceRole(APP_ADMIN_ROLE, _msgSender());
+        emit AppAdministrator(_msgSender(), false);
     }
 
     /**
@@ -190,7 +265,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addRuleAdministrator(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
-        grantRole(RULE_ADMIN_ROLE, account);
+        super.grantRole(RULE_ADMIN_ROLE, account);
         emit RuleAdmin(account, true);
     }
 
@@ -200,7 +275,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleRuleAdministrator(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            grantRole(RULE_ADMIN_ROLE, account[i]);
+            super.grantRole(RULE_ADMIN_ROLE, account[i]);
             emit RuleAdmin(account[i], true);
             unchecked {
                 ++i;
@@ -212,8 +287,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the rule admin role.
      */
     function renounceRuleAdministrator() external {
-        renounceRole(RULE_ADMIN_ROLE, msg.sender);
-        emit RuleAdmin(msg.sender, false);
+        renounceRole(RULE_ADMIN_ROLE, _msgSender());
+        emit RuleAdmin(_msgSender(), false);
     }
 
     /// -------------ACCESS TIER---------------
@@ -240,7 +315,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addAccessTier(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
-        grantRole(ACCESS_TIER_ADMIN_ROLE, account);
+        super.grantRole(ACCESS_TIER_ADMIN_ROLE, account);
         emit AccessTierAdmin(account, true);
     }
 
@@ -250,7 +325,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleAccessTier(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            grantRole(ACCESS_TIER_ADMIN_ROLE, account[i]);
+            super.grantRole(ACCESS_TIER_ADMIN_ROLE, account[i]);
             emit AccessTierAdmin(account[i], true);
             unchecked {
                 ++i;
@@ -262,8 +337,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the access tier role.
      */
     function renounceAccessTier() external {
-        renounceRole(ACCESS_TIER_ADMIN_ROLE, msg.sender);
-        emit AccessTierAdmin(address(msg.sender), false);
+        renounceRole(ACCESS_TIER_ADMIN_ROLE, _msgSender());
+        emit AccessTierAdmin(_msgSender(), false);
     }
 
     /// -------------RISK ADMIN---------------
@@ -283,7 +358,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addRiskAdmin(address account) external onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
-        grantRole(RISK_ADMIN_ROLE, account);
+        super.grantRole(RISK_ADMIN_ROLE, account);
         emit RiskAdmin(account, true);
     }
 
@@ -293,7 +368,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            grantRole(RISK_ADMIN_ROLE, account[i]);
+            super.grantRole(RISK_ADMIN_ROLE, account[i]);
             emit RiskAdmin(account[i], true);
             unchecked {
                 ++i;
@@ -305,8 +380,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the risk admin role.
      */
     function renounceRiskAdmin() external {
-        renounceRole(RISK_ADMIN_ROLE, msg.sender);
-        emit RiskAdmin(address(msg.sender), false);
+        renounceRole(RISK_ADMIN_ROLE, _msgSender());
+        emit RiskAdmin(_msgSender(), false);
     }
 
     /// -------------MAINTAIN ACCESS LEVELS---------------
@@ -637,10 +712,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev Checks if msg.sender is a registered handler
+     * @dev Checks if _msgSender() is a registered handler
      */
     modifier onlyHandler() {
-        if (!isRegisteredHandler(msg.sender)) revert NotRegisteredHandler(msg.sender);
+        if (!isRegisteredHandler(_msgSender())) revert NotRegisteredHandler(_msgSender());
         _;
     }
 
@@ -958,31 +1033,31 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function confirmNewDataProvider(IDataModule.ProviderType _providerType) external {
         if (_providerType == IDataModule.ProviderType.GENERAL_TAG) {
             if (newGeneralTagsProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (msg.sender != newGeneralTagsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            if (_msgSender() != newGeneralTagsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             generalTags = IGeneralTags(newGeneralTagsProviderAddress);
             emit GeneralTagProviderSet(newGeneralTagsProviderAddress);
             delete newGeneralTagsProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.RISK_SCORE) {
             if (newRiskScoresProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (msg.sender != newRiskScoresProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            if (_msgSender() != newRiskScoresProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             riskScores = IRiskScores(newRiskScoresProviderAddress);
             emit RiskProviderSet(newRiskScoresProviderAddress);
             delete newRiskScoresProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.ACCESS_LEVEL) {
             if (newAccessLevelsProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (msg.sender != newAccessLevelsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            if (_msgSender() != newAccessLevelsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             accessLevels = IAccessLevels(newAccessLevelsProviderAddress);
             emit AccessLevelProviderSet(newAccessLevelsProviderAddress);
             delete newAccessLevelsProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.ACCOUNT) {
             if (newAccountsProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (msg.sender != newAccountsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            if (_msgSender() != newAccountsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             accounts = IAccounts(newAccountsProviderAddress);
             emit AccountProviderSet(newAccountsProviderAddress);
             delete newAccountsProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.PAUSE_RULE) {
             if (newPauseRulesProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (msg.sender != newPauseRulesProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            if (_msgSender() != newPauseRulesProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             pauseRules = IPauseRules(newPauseRulesProviderAddress);
             emit PauseRuleProviderSet(newPauseRulesProviderAddress);
             delete newPauseRulesProviderAddress;

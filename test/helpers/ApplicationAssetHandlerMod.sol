@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "../../src/token/ProtocolERC20Handler.sol";
+import "../../src/token/ERC20/ProtocolERC20Handler.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract

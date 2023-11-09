@@ -2,13 +2,13 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "../src/example/ApplicationERC20.sol";
-import "../src/example/ApplicationAppManager.sol";
+import "../src/example/ERC20/ApplicationERC20.sol";
+import "../src/example/application/ApplicationAppManager.sol";
 import "../src/example/application/ApplicationHandler.sol";
-import "./DiamondTestUtil.sol";
+import "./diamond/DiamondTestUtil.sol";
 
-import "../src/example/ApplicationERC20Handler.sol";
-import "./RuleProcessorDiamondTestUtil.sol";
+import "../src/example/ERC20/ApplicationERC20Handler.sol";
+import "./diamond/RuleProcessorDiamondTestUtil.sol";
 
 import "../src/example/staking/ERC20Staking.sol";
 

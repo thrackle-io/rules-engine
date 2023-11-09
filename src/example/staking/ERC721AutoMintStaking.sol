@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "../../staking/IERC721Staking.sol";
 import "../../economic/AppAdministratorOnly.sol";
 import "../../application/IAppManager.sol";
-import "../../example/ApplicationERC20.sol";
+import "../ERC20/ApplicationERC20.sol";
 
 /**
  * @title ERC721 Staking Contract that automatically mints reward tokens to user at claim.

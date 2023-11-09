@@ -63,11 +63,6 @@ interface INonTaggedRules {
         uint8 oracleType; /// enum value --> 0 = restricted; 1 = allowed
         address oracleAddress;
     }
-    /// ******** NFT ********
-    struct NFTTradeCounterRule {
-        uint8 tradesAllowedPerDay;
-        uint64 startTs; // starting timestamp for the rule
-    }
 }
 
 interface ITaggedRules {
@@ -111,6 +106,11 @@ interface ITaggedRules {
         uint256 holdAmount; /// token units
         uint16 holdPeriod; /// hours
         uint256 startTimeStamp; /// start
+    }
+    /// ******** NFT ********
+    struct NFTTradeCounterRule {
+        uint8 tradesAllowedPerDay;
+        uint64 startTs; // starting timestamp for the rule
     }
 }
 

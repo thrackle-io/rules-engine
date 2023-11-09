@@ -3,7 +3,8 @@ name: K8s Build and Deploy
 on:
   push:
     branches:
-      - internal 
+      - external
+      - main
 
 env:
   AWS_REGION: us-east-1
@@ -14,6 +15,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -44,8 +47,8 @@ jobs:
 
       - name: Set Image Tags
         run: |
-          echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-${GITHUB_SHA::7}' >> $GITHUB_ENV
-          echo 'TRON_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:tron-${GITHUB_SHA::7}' >> $GITHUB_ENV
+          echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-${{ github.ref_name }}-${GITHUB_SHA::7}' >> $GITHUB_ENV
+          echo 'TRON_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:tron-${{ github.ref_name }}-${GITHUB_SHA::7}' >> $GITHUB_ENV
 
       - name: Build and Push Docker Images
         run: |
@@ -53,13 +56,3 @@ jobs:
           docker build -t ${{ env.TRON_IMAGE_TAG }} -f Dockerfile.tron .
           docker push ${{ env.ANVIL_IMAGE_TAG }}
           docker push ${{ env.TRON_IMAGE_TAG }}
-
-      - name: Update Deployment Files
-        run: |
-          sed -i "s|{{ECR_REPOSITORY}}|'${{ env.ANVIL_IMAGE_TAG }}'|g" ${{ env.ANVIL_DEPLOYMENT_FILE }}
-          sed -i "s|{{ECR_REPOSITORY}}|'${{ env.TRON_IMAGE_TAG }}'|g" ${{ env.TRON_DEPLOYMENT_FILE }}
-
-      - name: Apply Kubernetes Deployments
-        run: |
-          kubectl apply -f ${{ env.ANVIL_DEPLOYMENT_FILE }}
-          kubectl apply -f ${{ env.TRON_DEPLOYMENT_FILE }}
