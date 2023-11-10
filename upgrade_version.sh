@@ -42,6 +42,13 @@ replace_version_in_package_json() {
     sed -i "" "s/\(.*version-image.*-\)[0-9]*\.[0-9]*\.[0-9]*\(\w*\)/\1$new_version\2/" "$file"
  }
 
+ replace_version_in_docs(){
+    local file="$1"
+    local new_version="$2"
+    
+    sed -i "" "s/\(.*version-image.*-\)[0-9]*\.[0-9]*\.[0-9]*\(\w*\)/\1$new_version\2/" "$file"
+ }
+
 main() {
     
     local new_version="$1"
@@ -66,6 +73,12 @@ main() {
 
     # replace in package.json
     replace_version_in_readme "./README.md"  "$new_version"
+
+    # replace in docs
+    while IFS= read -r -d '' file; do
+        replace_version_in_readme "$file" "$new_version"
+    done < <(find "docs" -type f -name "*.md" -print0)
+    
     
 }
 
