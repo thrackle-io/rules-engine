@@ -27,11 +27,8 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
 
         if (data.getTotalMinimumTransferRules() != 0) {
-            try data.getMinimumTransferRule(_ruleId) returns (NonTaggedRules.TokenMinimumTransferRule memory rule) {
-                if (rule.minTransferAmount > amountToTransfer) revert BelowMinTransfer();
-            } catch {
-                revert RuleDoesNotExist();
-            }
+            NonTaggedRules.TokenMinimumTransferRule memory rule = data.getMinimumTransferRule(_ruleId);
+            if (rule.minTransferAmount > amountToTransfer) revert BelowMinTransfer();
         }
     }
 
@@ -43,29 +40,26 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
     function checkOraclePasses(uint32 _ruleId, address _address) external view {
         RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
         if (data.getTotalOracleRules() != 0) {
-            try data.getOracleRule(_ruleId) returns (NonTaggedRules.OracleRule memory oracleRule) {
-                uint256 oType = oracleRule.oracleType;
-                address oracleAddress = oracleRule.oracleAddress;
-                /// Allow List type
-                if (oType == uint(ORACLE_TYPE.ALLOWED_LIST)) {
-                    /// If Allow List Oracle rule active, address(0) is exempt to allow for burning
-                    if (_address != address(0)) {
-                        if (!IOracle(oracleAddress).isAllowed(_address)) {
-                            revert AddressNotOnAllowedList();
-                        }
+            NonTaggedRules.OracleRule memory oracleRule = data.getOracleRule(_ruleId);
+            uint256 oType = oracleRule.oracleType;
+            address oracleAddress = oracleRule.oracleAddress;
+            /// Allow List type
+            if (oType == uint(ORACLE_TYPE.ALLOWED_LIST)) {
+                /// If Allow List Oracle rule active, address(0) is exempt to allow for burning
+                if (_address != address(0)) {
+                    if (!IOracle(oracleAddress).isAllowed(_address)) {
+                        revert AddressNotOnAllowedList();
                     }
-                    /// Deny List type
-                } else if (oType == uint(ORACLE_TYPE.RESTRICTED_LIST)) {
-                    /// If Deny List Oracle rule active all transactions to addresses registered to deny list (including address(0)) will be denied.
-                    if (IOracle(oracleAddress).isRestricted(_address)) {
-                        revert AddressIsRestricted();
-                    }
-                    /// Invalid oracle type
-                } else {
-                    revert OracleTypeInvalid();
                 }
-            } catch {
-                revert RuleDoesNotExist();
+                /// Deny List type
+            } else if (oType == uint(ORACLE_TYPE.RESTRICTED_LIST)) {
+                /// If Deny List Oracle rule active all transactions to addresses registered to deny list (including address(0)) will be denied.
+                if (IOracle(oracleAddress).isRestricted(_address)) {
+                    revert AddressIsRestricted();
+                }
+                /// Invalid oracle type
+            } else {
+                revert OracleTypeInvalid();
             }
         }
     }
@@ -149,23 +143,20 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
         /// validation block
         if ((data.getTotalTransferVolumeRules() == 0)) revert RuleDoesNotExist();
         /// we procede to retrieve the rule
-        try data.getTransferVolumeRule(_ruleId) returns (NonTaggedRules.TokenTransferVolumeRule memory rule) {
-            if (rule.startTime.isRuleActive()) {
-                /// If the last trades "tradesWithinPeriod" were inside current period,
-                /// we need to acumulate this trade to the those ones. If not, reset to only current amount.
-                _volume = rule.startTime.isWithinPeriod(rule.period, _lastTransferTs) ? 
-                _volume + _amount : _amount;
-                /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
-                if (rule.totalSupply != 0) {
-                    _supply = rule.totalSupply;
-                }
-                // we check the numbers against the rule
-                if ((_volume * 100000000) / _supply >= uint(rule.maxVolume) * 10000) {
-                    revert TransferExceedsMaxVolumeAllowed();
-                }
+        NonTaggedRules.TokenTransferVolumeRule memory rule = data.getTransferVolumeRule(_ruleId);
+        if (rule.startTime.isRuleActive()) {
+            /// If the last trades "tradesWithinPeriod" were inside current period,
+            /// we need to acumulate this trade to the those ones. If not, reset to only current amount.
+            _volume = rule.startTime.isWithinPeriod(rule.period, _lastTransferTs) ? 
+            _volume + _amount : _amount;
+            /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
+            if (rule.totalSupply != 0) {
+                _supply = rule.totalSupply;
             }
-        } catch {
-            revert RuleDoesNotExist();
+            // we check the numbers against the rule
+            if ((_volume * 100000000) / _supply >= uint(rule.maxVolume) * 10000) {
+                revert TransferExceedsMaxVolumeAllowed();
+            }
         }
         return _volume;
     }
@@ -195,32 +186,29 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
         /// validation block
         if ((data.getTotalSupplyVolatilityRules() == 0)) revert RuleDoesNotExist();
         /// we procede to retrieve the rule
-        try data.getSupplyVolatilityRule(_ruleId) returns (NonTaggedRules.SupplyVolatilityRule memory rule) {
-            if (rule.startingTime.isRuleActive()) {
-                /// check if totalSupply is specified in rule params
-                if (rule.totalSupply != 0) {
-                    _supply = rule.totalSupply;
-                }
-                /// Account for the very first period
-                if (_tokenTotalSupply == 0) _tokenTotalSupply = _supply;
-                /// check if current transaction is inside rule period
-                if (rule.startingTime.isWithinPeriod(rule.period, _lastSupplyUpdateTime)) {
-                    /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
-                    _volumeTotalForPeriod += _amount;
-                    /// the _tokenTotalSupply is not modified during the rule period. It needs to stay the same value as what it was at the beginning of the period to keep consistent results since mints/burns change totalSupply in the token
-                } else {
-                    _volumeTotalForPeriod = _amount;
-                    /// update total supply of token when outside of rule period
-                    _tokenTotalSupply = _supply;
-                }
-                volatility = (_volumeTotalForPeriod * 100000000) / int(_tokenTotalSupply);
-                if (volatility < 0) volatility = volatility * -1;
-                if (uint256(volatility) > uint(rule.maxChange) * 10000) {
-                    revert TotalSupplyVolatilityLimitReached();
-                }
+        NonTaggedRules.SupplyVolatilityRule memory rule = data.getSupplyVolatilityRule(_ruleId);
+        if (rule.startingTime.isRuleActive()) {
+            /// check if totalSupply is specified in rule params
+            if (rule.totalSupply != 0) {
+                _supply = rule.totalSupply;
             }
-        } catch {
-            revert RuleDoesNotExist();
+            /// Account for the very first period
+            if (_tokenTotalSupply == 0) _tokenTotalSupply = _supply;
+            /// check if current transaction is inside rule period
+            if (rule.startingTime.isWithinPeriod(rule.period, _lastSupplyUpdateTime)) {
+                /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
+                _volumeTotalForPeriod += _amount;
+                /// the _tokenTotalSupply is not modified during the rule period. It needs to stay the same value as what it was at the beginning of the period to keep consistent results since mints/burns change totalSupply in the token
+            } else {
+                _volumeTotalForPeriod = _amount;
+                /// update total supply of token when outside of rule period
+                _tokenTotalSupply = _supply;
+            }
+            volatility = (_volumeTotalForPeriod * 100000000) / int(_tokenTotalSupply);
+            if (volatility < 0) volatility = volatility * -1;
+            if (uint256(volatility) > uint(rule.maxChange) * 10000) {
+                revert TotalSupplyVolatilityLimitReached();
+            }
         }
         return (_volumeTotalForPeriod, _tokenTotalSupply);
     }

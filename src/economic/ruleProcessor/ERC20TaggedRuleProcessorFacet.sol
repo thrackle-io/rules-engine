@@ -150,14 +150,11 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
         uint256 cumulativeSalesTotal;
         TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
         for (uint i = 0; i < fromTags.length; ) {
-            try data.getSellRuleByIndex(ruleId, fromTags[i]) returns (TaggedRules.SellRule memory sellRule) {
-                if (sellRule.sellPeriod > 0) {
-                    if (sellRule.startTime.isWithinPeriod(sellRule.sellPeriod, lastUpdateTime)) cumulativeSalesTotal = salesWithinPeriod + amount;
-                    else cumulativeSalesTotal = amount;
-                    if (cumulativeSalesTotal > sellRule.sellAmount) revert TemporarySellRestriction();
-                }
-            } catch {
-                revert RuleDoesNotExist();
+            TaggedRules.SellRule memory sellRule = data.getSellRuleByIndex(ruleId, fromTags[i]);
+            if (sellRule.sellPeriod > 0) {
+                if (sellRule.startTime.isWithinPeriod(sellRule.sellPeriod, lastUpdateTime)) cumulativeSalesTotal = salesWithinPeriod + amount;
+                else cumulativeSalesTotal = amount;
+                if (cumulativeSalesTotal > sellRule.sellAmount) revert TemporarySellRestriction();
             }
             unchecked {
                 ++i;
