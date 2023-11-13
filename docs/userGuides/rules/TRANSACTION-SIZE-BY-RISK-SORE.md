@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of this rule is to prevent accounts identified as "risky" from moving large amounts US Dollars in tokens at once. This attempts to mitigate the risk associated with such accounts to pose an existential, ethical or legal threat to an economy.
+The purpose of this rule is to prevent accounts identified as "risky" from moving large amounts of US Dollars in tokens at once. This attempts to mitigate the existential, ethical, or legal risks to an economy posed by such accounts.
 
 ## Applies To:
 
@@ -16,9 +16,9 @@ This rule works at a token level. It must be activated and configured for each d
 
 ## Data Structure
 
-A transaction-size-by-risk-score rule is composed of 2 variable:
+A transaction-size-by-risk-score rule is composed of 2 variables:
 
-- **riskLevel** uint8[]: array of risk score delimiting the different risk segments.
+- **riskLevel** uint8[]: array of risk scores delimiting the different risk segments.
 - **maxSize** uint48[]: array of maximum USD worth of application assets that a transaction can move per risk segment.
 
 The relation between `riskLevel` and `maxSize` can be explained better in the following example:
@@ -31,10 +31,10 @@ maxSize = [500, 250, 50];
 
  | risk score | balance | resultant logic |
 | - | - | - |
-| Implied* | Implied* | 0-24 =  NO LIMIT |
-| 25 | $500 | 25-49 =   $500 max |
-| 50 | $250 | 50-74 =   $250 max |
-| 75 | $50 | 75-100 =   $50 max |
+| Implied* | Implied* | 0-24 ->  NO LIMIT |
+| 25 | $500 | 25-49 ->   $500 max |
+| 50 | $250 | 50-74 ->   $250 max |
+| 75 | $50 | 75-100 ->   $50 max |
 
 \* *Note that the first risk segment is implied and has no limit. This first segment is from risk score 0 to the lowest risk score defined in the rule (`riskLevel`). A no-implied-segment rule could be achieved by starting the `riskLevel` from 0.*
 
