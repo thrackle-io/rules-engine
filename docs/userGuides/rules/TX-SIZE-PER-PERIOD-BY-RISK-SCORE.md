@@ -19,9 +19,9 @@ This rule works at the application level which means that all tokens in the app 
 A transaction-size-per-period-by-risk-score rule is composed of 4 variables:
 
 - **riskLevel** (uint8[]): array of risk score delimiting the different risk segments.
-- **maxSize** (uint48[]): array of maximum USD worth of application assets that a transaction can move per risk segment.
+- **maxSize** (uint48[]): array of maximum USD worth of application assets that a transaction can move per risk segment in a period of time.
 - **period** (uint16): the amount of hours that defines a period.
-- **startingTime** (uint64):  the timestamp of the date when the rule starts the first *period*.
+- **startingTime** (uint64): the Unix timestamp of the date when the rule starts the first *period*.
 
 The relation between `riskLevel` and `maxSize` can be explained better in the following example:
 
@@ -83,7 +83,7 @@ The rule will be evaluated with the following logic:
     - **If it is not a new period**, then the protocol accumulates the amount being currently transferred to the accumulated US Dollar amount transferred during the period. 
 4. The protocol then evaluates the accumulated US Dollar amount transferred during current period against the rule's maximum allowed for the risk segment in which the account is. The protocol reverts the transaction if the accumulated amount exceeds this rule risk-segment's maximum.
 
-###### *see [RiskTaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/RiskTaggedRuleProcessorFacet.sol) -> checkTransactionLimitByRiskScore*
+###### *see [ApplicationRiskProcessorFacet](../../../src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkMaxTxSizePerPeriodByRisk*
 
 ## Evaluation Exceptions 
 
@@ -121,7 +121,9 @@ function addMaxTxSizePerPeriodByRiskRule(
 
 ###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
 The create function will return the protocol ID of the rule.
+
 ### Parameters:
+
 - **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
 - **_riskScores** (uint8[]): array of risk scores delimiting each risk segment.
 - **_txnLimits** (uint48[]): array of maximum US-Dollar amounts allowed to be transferred in a transaction for each risk segment (in whole US Dollars).
@@ -132,12 +134,18 @@ The create function will return the protocol ID of the rule.
 There are no options for the parameters of this rule.
 
 ### Parameter Validation:
+
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
+
 - The `_appManagerAddr` is not the zero address.
 - `_riskScores` and `_txnLimits` are the same size.
 - `_riskScores` elements are in ascending order.
 - `_txnLimits` elements are in descending order.
+- `period` is not zero.
+- `_startTimestamp` is not zero and is not more than 52 weeks in the future.
+
 ###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
+
 ## Other Functions:
 - In Protocol [Storage Diamond](../../../src/economic/ruleStorage/AppRuleDataFacet.sol):
     - Function to get a rule by its Id:
