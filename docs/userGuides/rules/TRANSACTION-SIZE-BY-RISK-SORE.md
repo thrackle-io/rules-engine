@@ -1,0 +1,206 @@
+# Transaction Size By Risk Score Rule
+
+## Purpose
+
+The purpose of this rule is to prevent accounts identified as "risky" from moving large amounts US Dollars in tokens at once. This attempts to mitigate the risk associated with such accounts to pose an existential, ethical or legal threat to an economy.
+
+## Applies To:
+
+- [x] ERC20
+- [ ] ERC721
+- [ ] AMM
+
+## Scope 
+
+This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.
+
+## Data Structure
+
+A transaction-size-by-risk-score rule is composed of 2 variable:
+
+- **riskLevel** uint8[]: array of risk score delimiting the different risk segments.
+- **maxSize** uint48[]: array of maximum USD worth of application assets that a transaction can move per risk segment.
+
+The relation between `riskLevel` and `maxSize` can be explained better in the following example:
+
+Imagine the following data structure
+```
+riskLevel = [25, 50, 75];
+maxSize = [500, 250, 50];
+```
+
+ | risk score | balance | resultant logic |
+| - | - | - |
+| Implied* | Implied* | 0-24 =  NO LIMIT |
+| 25 | $500 | 25-49 =   $500 max |
+| 50 | $250 | 50-74 =   $250 max |
+| 75 | $50 | 75-100 =   $50 max |
+
+\* *Note that the first risk segment is implied and has no limit. This first segment is from risk score 0 to the lowest risk score defined in the rule (`riskLevel`). A no-implied-segment rule could be achieved by starting the `riskLevel` from 0.*
+
+***risk scores can be between 0 and 100.***
+
+```c
+/// ******** Transaction Size Rules ********
+    struct TransactionSizeToRiskRule {
+        uint8[] riskLevel;
+        uint48[] maxSize; /// whole USD (no cents) -> 1 = 1 USD (Max allowed: 281 trillion USD)
+    }
+```
+
+###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
+
+
+These rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
+
+```c
+ /// ******** Transaction Size Rules ********
+    struct TxSizeToRiskRuleS {
+        mapping(uint32 => ITaggedRules.TransactionSizeToRiskRule) txSizeToRiskRule;
+        uint32 txSizeToRiskRuleIndex;
+    }
+```
+
+###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+
+## Configuration and Enabling/Disabling
+- This rule can only be configured in the protocol by a **rule administrator**.
+- This rule can only be set in the asset handler by a **rule administrator**.
+- This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
+- This rule can only be updated in the asset handler by a **rule administrator**.
+
+
+## Rule Evaluation
+
+The rule will be evaluated with the following logic:
+
+1. The asset handler calculates the US Dollar amount of tokens being transferred, and gets the risk score from the AppManager for the account in the *from* side of the transaction.
+2. The asset handler then sends these values along with the rule Id of the transaction-size-by-risk-score rule set in the handler to the protocol.
+3. The protocol evaluates the amount being transferred against the rule's maximum allowed for the risk segment in which the account is. The protocol reverts the transaction if the amount being transferred exceeds this rule risk-segment's maximum.
+
+###### *see [RiskTaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/RiskTaggedRuleProcessorFacet.sol) -> checkTransactionLimitByRiskScore*
+
+## Evaluation Exceptions 
+- This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+
+### Revert Message
+
+The rule processor will revert with the following error if the rule check fails: 
+
+```
+error TransactionExceedsRiskScoreLimit();
+```
+
+The selector for this error is `0x9fe6aeac`.
+
+
+## Create Function
+
+Adding a max-balance-by-access-level rule is done through the function:
+
+```c
+function addTransactionLimitByRiskScore(
+            address _appManagerAddr, 
+            uint8[] calldata _riskScores, 
+            uint48[] calldata _txnLimits
+        ) 
+        external 
+        ruleAdministratorOnly(_appManagerAddr)
+        returns (uint32);
+```
+###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
+
+The create function will return the protocol ID of the rule.
+
+### Parameters:
+
+- **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
+- **_riskScores** (uint8[]): array of risk scores delimiting each risk segment.
+- **_txnLimits** (uint48[]): array of maximum US-Dollar amounts allowed to be transferred in a transaction for each risk segment (in whole US Dollars).
+
+### Parameter Optionality:
+
+There are no options for the parameters of this rule.
+
+### Parameter Validation:
+
+The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
+
+- The `_appManagerAddr` is not the zero address.
+- `_riskScores` and `_txnLimits` are the same size.
+- `_riskScores` elements are in ascending order.
+- `_txnLimits` elements are in descending order.
+
+###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
+
+## Other Functions:
+
+- In Protocol [Storage Diamond](../../../src/economic/ruleStorage/AppRuleDataFacet.sol):
+    - Function to get a rule by its Id:
+        ```c
+        function getMaxTxSizePerPeriodRule(uint32 _index) external view returns (AppRules.TxSizePerPeriodToRiskRule memory);
+        ```
+    - Function to get current amount of rules in the protocol:
+        ```c
+        function getTotalMaxTxSizePerPeriodRules() external view returns (uint32);
+        ```
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
+    - Function that evaluates the rule:
+        ```c
+        function checkTransactionLimitByRiskScore(uint32 _ruleId, uint8 _riskScore, uint256 _amountToTransfer) external view;
+        ```
+- In the [Asset Handler](../../../src/token/ERC20/ProtocolERC20Handler.sol):
+    - Function to set and activate at the same time the rule in the asset handler:
+        ```c
+        function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        ```
+    - Function to activate/deactivate the rule in the asset handler:
+        ```c
+        function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        ```
+     - Function to know the activation state of the rule in an asset handler:
+        ```c
+        function isTransactionLimitByRiskActive() external view returns (bool);
+        ```
+    - Function to get the rule Id from the asset handler:
+        ```c
+        function getTransactionLimitByRiskRule() external view returns (uint32);
+        ```
+
+## Return Data
+
+This rule doesn't return any data.
+
+## Data Recorded
+
+This rule doesn't require of any data to be recorded.
+
+## Events
+
+- **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
+    - Emitted when: the rule has been created in the protocol.
+    - Parameters:
+        - ruleType: "TX_SIZE_BY_RISK".
+        - ruleId: the index of the rule created in the protocol by rule type.
+        - extraTags: empty array.
+
+- **event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
+    - Emitted when: rule has been applied in an application manager handler.
+    - Parameters: 
+        - ruleType: "TX_SIZE_BY_RISK".
+        - ruleId: the ruleId set for this rule in the handler.
+
+- **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)**:
+    - Emitted when: a rule has been activated in an asset handler:
+    - Parameters: 
+        - ruleType: "TX_SIZE_BY_RISK".
+        - handlerAddress: the address of the asset handler where the rule has been activated.
+
+
+## Dependencies
+
+This rule depends on:
+
+- **Pricing contracts**: pricing contracts for ERC20s and ERC721s need to be setup in the token handlers in order for this rule to work.
+
