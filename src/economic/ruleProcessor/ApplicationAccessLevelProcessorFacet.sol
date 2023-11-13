@@ -25,12 +25,9 @@ contract ApplicationAccessLevelProcessorFacet is IRuleProcessorErrors, IAccessLe
         AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().rules);
         /// Get the account's AccessLevel
         if (data.getTotalAccessLevelBalanceRules() != 0) {
-            try data.getAccessLevelBalanceRule(_ruleId, _accessLevel) returns (uint48 max) {
-                /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
-                if (_amountToTransfer + _balance > (uint256(max) * (10 ** 18))) revert BalanceExceedsAccessLevelAllowedLimit();
-            } catch {
-                revert RuleDoesNotExist();
-            }
+            uint48 max = data.getAccessLevelBalanceRule(_ruleId, _accessLevel);
+            /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
+            if (_amountToTransfer + _balance > (uint256(max) * (10 ** 18))) revert BalanceExceedsAccessLevelAllowedLimit();
         }
     }
 

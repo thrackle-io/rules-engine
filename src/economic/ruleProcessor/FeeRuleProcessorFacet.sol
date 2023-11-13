@@ -22,12 +22,9 @@ contract FeeRuleProcessorFacet is IRuleProcessorErrors {
         FeeRuleDataFacet data = FeeRuleDataFacet(Diamond.ruleDataStorage().rules);
 
         if (data.getTotalAMMFeeRules() != 0) {
-            try data.getAMMFeeRule(_ruleId) returns (Fee.AMMFeeRule memory feeRule) {
-                /// the percentage is stored as three digits so the true percent is feePercentage/100
-                if (feeRule.feePercentage > 0) return (_collateralizedTokenAmount * feeRule.feePercentage) / 10000;
-            } catch {
-                revert RuleDoesNotExist();
-            }
+            Fee.AMMFeeRule memory feeRule = data.getAMMFeeRule(_ruleId);
+            /// the percentage is stored as three digits so the true percent is feePercentage/100
+            if (feeRule.feePercentage > 0) return (_collateralizedTokenAmount * feeRule.feePercentage) / 10000;
         }
         return 0;
     }
