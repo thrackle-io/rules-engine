@@ -4,10 +4,11 @@
 
 The purpose of this rule is to prevent a sudden increase or decrease in the supply of a token. This can help to prevent a sudden crash or spike in the price of a token due to sharp changes in the supply side, which could lead to severe damages to the health of the economy in the long run. 
 
-## Tokens Supported
+## Applies To:
 
-- ERC20
-- ERC721
+- [x] ERC20
+- [x] ERC721
+- [ ] AMM
 
 ## Scope 
 

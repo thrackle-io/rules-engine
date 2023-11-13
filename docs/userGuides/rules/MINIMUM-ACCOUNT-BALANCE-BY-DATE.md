@@ -4,10 +4,11 @@
 
 The purpose of the minimum-balance-by-date rule is to prevent token holders from rapidly flooding the market with newly acquired tokens since a dramatic increase in supply over a short time frame can cause a token price crash. This rule attempts to mitigate this scenario by making holders wait some period of time before they can transfer their tokens. The length of time depends on the account's tags. Different accounts may need to wait different periods of time depending on their tags, or even no time at all.
 
-## Tokens Supported
+## Applies To:
 
-- ERC20
-- ERC721
+- [x] ERC20
+- [x] ERC721
+- [ ] AMM
 
 ## Scope 
 
