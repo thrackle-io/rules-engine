@@ -81,7 +81,7 @@ The rule will be evaluated with the following logic:
 3. The protocol then proceeds to check if the current transaction is part of an ongoing period, or if it is the first one in a new period.
     - **If it is a new period**, the protocol resets the accumulated US Dollar amount transferred during current period to just the amount being currently transferred. 
     - **If it is not a new period**, then the protocol accumulates the amount being currently transferred to the accumulated US Dollar amount transferred during the period. 
-4. The protocol then evaluates the accumulated US Dollar amount transferred during current period against the rule's maximum allowed for the risk segment in which the account is. The protocol reverts the transaction if the accumulated amount exceeds this rule risk-segment's maximum.
+4. The protocol then evaluates the accumulated US Dollar amount transferred during current period against the rule's maximum allowed for the risk segment in which the account is in. The protocol reverts the transaction if the accumulated amount exceeds this rule risk-segment's maximum.
 
 ###### *see [ApplicationRiskProcessorFacet](../../../src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkMaxTxSizePerPeriodByRisk*
 
@@ -139,7 +139,7 @@ The following validation will be carried out by the create function in order to 
 
 - The `_appManagerAddr` is not the zero address.
 - `_riskScores` and `_txnLimits` are the same size.
-- `_riskScores` elements are in ascending order.
+- `_riskScores` elements are in ascending order and no greater than 99.
 - `_txnLimits` elements are in descending order.
 - `period` is not zero.
 - `_startTimestamp` is not zero and is not more than 52 weeks in the future.
@@ -192,7 +192,7 @@ The following validation will be carried out by the create function in order to 
 
 This rule returns 1 value:
 
-1. **Accumulated US Dollar Amount Transferred During Period** (int256): the updated value for the total US Dollar amount of tokens during current period. 
+1. **Accumulated US Dollar Amount Transferred During Period** (uint128): the updated value for the total US Dollar amount of tokens during current period. 
 
 ```c
 mapping(address => uint128) usdValueTransactedInRiskPeriod;
