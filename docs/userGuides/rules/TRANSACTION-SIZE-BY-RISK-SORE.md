@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of this rule is to prevent accounts identified as "risky" from moving large amounts of US Dollars in tokens at once. This attempts to mitigate the existential, ethical, or legal risks to an economy posed by such accounts.
+The purpose of this rule is to prevent accounts identified as "risky" from moving large amounts of US Dollars in tokens in a single transaction. This attempts to mitigate the existential, ethical, or legal risks to an economy posed by such accounts.
 
 ## Applies To:
 
