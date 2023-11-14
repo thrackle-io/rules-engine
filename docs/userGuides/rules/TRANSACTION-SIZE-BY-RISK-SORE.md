@@ -76,7 +76,7 @@ The rule will be evaluated with the following logic:
 
 1. The asset handler calculates the US Dollar amount of tokens being transferred, and gets the risk score from the AppManager for the account in the *from* side of the transaction.
 2. The asset handler then sends these values along with the rule Id of the transaction-size-by-risk-score rule set in the handler to the protocol.
-3. The protocol evaluates the amount being transferred against the rule's maximum allowed for the risk segment in which the account is. The protocol reverts the transaction if the amount being transferred exceeds this rule risk-segment's maximum.
+3. The protocol evaluates the amount being transferred against the rule's maximum allowed for the risk segment in which the account is in. The protocol reverts the transaction if the amount being transferred exceeds this rule risk-segment's maximum.
 
 ###### *see [RiskTaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/RiskTaggedRuleProcessorFacet.sol) -> checkTransactionLimitByRiskScore*
 
@@ -130,7 +130,7 @@ The following validation will be carried out by the create function in order to 
 - The `_appManagerAddr` is not the zero address.
 - `_riskScores` and `_txnLimits` are the same size.
 - `_riskScores` elements are in ascending order.
-- `_txnLimits` elements are in descending order.
+- `_txnLimits` elements are in descending order and no greater than 99.
 
 ###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
 
