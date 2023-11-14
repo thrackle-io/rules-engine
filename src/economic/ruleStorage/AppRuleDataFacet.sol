@@ -160,7 +160,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         address _appManagerAddr,
         uint48[] calldata _maxSize,
         uint8[] calldata _riskLevel,
-        uint8 _period,
+        uint16 _period,
         uint64 _startTimestamp
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         /// Validation block
