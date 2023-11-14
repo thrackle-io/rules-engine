@@ -26,5 +26,5 @@ jobs:
       - name: Merge and push
         run: |
           echo "Merging external -> internal"
-          git merge external
+          git merge --no-edit origin/external
           git push
