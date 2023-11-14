@@ -97,7 +97,7 @@ The selector for this error is `0x9fe6aeac`.
 
 ## Create Function
 
-Adding a max-balance-by-access-level rule is done through the function:
+Adding a transaction-size-by-risk-score rule is done through the function:
 
 ```c
 function addTransactionLimitByRiskScore(
@@ -139,11 +139,11 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Storage Diamond](../../../src/economic/ruleStorage/AppRuleDataFacet.sol):
     - Function to get a rule by its Id:
         ```c
-        function getMaxTxSizePerPeriodRule(uint32 _index) external view returns (AppRules.TxSizePerPeriodToRiskRule memory);
+        function getTransactionLimitByRiskRule(uint32 _index) external view returns (AppRules.TransactionSizeToRiskRule memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalMaxTxSizePerPeriodRules() external view returns (uint32);
+        function getTotalTransactionLimitByRiskRules() external view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function that evaluates the rule:
