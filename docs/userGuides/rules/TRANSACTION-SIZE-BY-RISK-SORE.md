@@ -129,8 +129,8 @@ The following validation will be carried out by the create function in order to 
 
 - The `_appManagerAddr` is not the zero address.
 - `_riskScores` and `_txnLimits` are the same size.
-- `_riskScores` elements are in ascending order.
-- `_txnLimits` elements are in descending order and no greater than 99.
+- `_riskScores` elements are in ascending order and no greater than 99.
+- `_txnLimits` elements are in descending order.
 
 ###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
 
