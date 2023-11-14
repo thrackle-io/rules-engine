@@ -4,10 +4,11 @@
 
 The purpose of this rule is to provide balance limits for accounts at the application level based on an application defined segment of users. The segments are defined as the access levels of the accounts. This rule may be used to provided gated accumulation of assets to ensure accounts cannot accumulate more assets without performing other actions defined by the application. For example, the application may decide users may not accumulate any assets without performing specific onboarding activities. The application developer may set a maximum balance of $0 for the default access level and $1000 for the next access level. As accounts are introduced to the ecosystem, they may not receive any assets until the application changes their access level to a higher value.
 
-## Tokens Supported
+## Applies To:
 
-- ERC20
-- ERC721
+- [x] ERC20
+- [x] ERC721
+- [x] AMM
 
 ## Scope 
 

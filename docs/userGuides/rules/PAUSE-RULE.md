@@ -4,10 +4,11 @@
 
 The purpose of the pause rule is to allow developers to pause the entirety of an application for maintenance, security or any other reason. Pausing the application means that no transfer of tokens is allowed at any level (with the few exceptions listed in the Role Applicability section). 
 
-## Tokens Supported
+## Applies To:
 
-- ERC20
-- ERC721
+- [x] ERC20
+- [x] ERC721
+- [x] AMM
 
 ## Scope 
 

@@ -12,10 +12,11 @@ risk scores      balances         resultant logic
     75              100            75-99 =   100
 ```
 
-## Tokens Supported
+## Applies To:
 
-- ERC20
-- ERC721
+- [x] ERC20
+- [x] ERC721
+- [ ] AMM
 
 ## Scope 
 

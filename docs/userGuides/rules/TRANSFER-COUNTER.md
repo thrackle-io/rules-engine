@@ -4,9 +4,11 @@
 
 The transfer-counter rule enforces a daily limit on the number of trades for each token within a collection. In the context of this rule, a "trade" is a transfer of a token from one address to another. Example uses of this rule: to mitigate price manipulation of tokens in the collection via the limitation of wash trading or the prevention of malfeasance for holders who transfer a token between addresses repeatedly. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a pseudo "soulBound" token, preventing all transfers of tokens in the collection.  
 
-## Tokens Supported
+## Applies To:
 
-- ERC721 
+- [ ] ERC20
+- [x] ERC721
+- [ ] AMM
 
 ## Scope 
 
