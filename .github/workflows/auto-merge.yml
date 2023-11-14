@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: internal
-          ssh-key: ${{ secrets.SSH_KEY }}
+          token: ${{ secrets.CI_PATH }}
           fetch-depth: "0"
 
       - name: Set GIT name and email
@@ -26,5 +26,5 @@ jobs:
       - name: Merge and push
         run: |
           echo "Merging external -> internal"
-          git merge --no-edit external
+          git merge --no-edit origin/external
           git push
