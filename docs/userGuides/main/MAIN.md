@@ -43,5 +43,5 @@ Should we create some sort of deployment verification test scripts?
 [header-link]: https://github.com/thrackle-io/Tron
 [repository-url]: https://github.com/thrackle-io/Tron
 [chain-url]: https://www.polygon.com/
-[version-image]: https://img.shields.io/badge/Version-1.0.0-brightgreen?style=for-the-badge&logo=appveyor
+[version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/Tron
