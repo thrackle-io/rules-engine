@@ -8,7 +8,7 @@ import {IEconomicEvents} from "../../interfaces/IEvents.sol";
 import {IInputErrors, IAppRuleInputErrors, IRiskInputErrors} from "../../interfaces/IErrors.sol";
 import "../RuleAdministratorOnly.sol";
 import "./RuleCodeData.sol";
-import "./RuleStorageCommonLib.sol";
+import "./RuleStorageCommonLib.sol"; 
 
 /**
  * @title App Rules Facet
