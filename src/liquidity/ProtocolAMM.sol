@@ -29,7 +29,7 @@ contract ProtocolAMM is AppAdministratorOnly, IApplicationEvents,  AMMCalculator
     address public appManagerAddress;
     // Address that will accrue fees
     address treasuryAddress;
-    address calculatorAddress;
+    address public calculatorAddress;
     IProtocolAMMCalculator calculator;
     IProtocolAMMHandler handler;
 

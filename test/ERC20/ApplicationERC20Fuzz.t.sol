@@ -7,7 +7,6 @@ import "src/example/OracleAllowed.sol";
 import "test/helpers/TestCommonFoundry.sol";
 
 contract ApplicationERC20FuzzTest is TestCommonFoundry {
-    ApplicationERC20Handler applicationCoinHandler2;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
 

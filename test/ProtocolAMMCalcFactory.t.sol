@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "src/example/liquidity/ApplicationAMM.sol";
+import "src/liquidity/ProtocolAMM.sol";
 import "src/liquidity/ProtocolAMMCalculatorFactory.sol";
 import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
@@ -21,7 +21,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
     function setUp() public {
         vm.startPrank(superAdmin);
         setUpProtocolAndAppManager();
-        factory = new ProtocolAMMCalculatorFactory(address(applicationAppManager));
+        factory = new ProtocolAMMCalculatorFactory();
         switchToAppAdministrator();
     }
 
@@ -166,7 +166,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
         // create a linear calculator (y=mx+b))
         // m = .00006(this is set as 8 digits)
         // b = 1.5
-        address calcAddress = factory.createLinear(6000, 15 * 10 ** 17, 2_000_000 * 10 ** 18, address(applicationAppManager));
+        address calcAddress = factory.createLinear(6000, 15 * 10 ** 17, address(applicationAppManager));
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
         uint256 reserve0 = 1_000_000 * 10 ** 18;
         uint256 reserve1 = 1_000_000 * 10 ** 18;
@@ -194,7 +194,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
 
         // work with another slope
         // m = .00005(this is set as 8 digits)
-        calc.setVariables(5000, 15 * 10 ** 17, 2_000_000 * 10 ** 18);
+        calc.setVariables(5000, 15 * 10 ** 17);
         // swap 1 *10**10 token0 for 51500025000000000000 token1
         amount0 = 1 * 10 ** 18;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
@@ -202,7 +202,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
 
         // work with another slope
         // m = .00001(this is set as 8 digits)
-        calc.setVariables(1000, 15 * 10 ** 17, 2_000_000 * 10 ** 18);
+        calc.setVariables(1000, 15 * 10 ** 17);
         // swap 1 *10**10 token0 for 11500005000000000000 token1
         amount0 = 1 * 10 ** 18;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
@@ -216,7 +216,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
         // create a linear calculator (y=mx+b))
         // m = .00006(this is set as 8 digits) = 6000
         // b = 1.5
-        address calcAddress = factory.createLinear(6000, 15 * 10 ** 17, 2_000_000 * 10 ** 18, address(applicationAppManager));
+        address calcAddress = factory.createLinear(6000, 15 * 10 ** 17, address(applicationAppManager));
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
         uint256 reserve0 = 1_000_000 * 10 ** 18;
         uint256 reserve1 = 1_000_000 * 10 ** 18;
@@ -241,7 +241,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
 
         // work with another slope
         // m = .00005(this is set as 8 digits)
-        calc.setVariables(5000, 15 * 10 ** 17, 2_000_000 * 10 ** 18);
+        calc.setVariables(5000, 15 * 10 ** 17);
         // swap 1 *10**18 token1 for 98893659466214506 token0
         amount1 = 1 * 10 ** 18;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
@@ -249,7 +249,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
 
         // work with another y-intercept
         // m = .00005(this is set as 8 digits)
-        calc.setVariables(5000, 2 * 10 ** 18, 2_000_000 * 10 ** 18);
+        calc.setVariables(5000, 2 * 10 ** 18);
         // swap 1 *10**18 token1 for 98058091140754206 token0
         amount1 = 1 * 10 ** 18;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
@@ -268,20 +268,17 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
         // validate parameters at constructor level
         bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 101 * 10 ** 8));
-        factory.createLinear(101 * 10 ** 8, 15 * 10 ** 17, 2_000_000 * 10 ** 18, address(applicationAppManager));
+        factory.createLinear(101 * 10 ** 8, 15 * 10 ** 17, address(applicationAppManager));
         vm.expectRevert(abi.encodeWithSelector(selector, 100_001 * 10 ** 18));
-        factory.createLinear(600, 100_001 * 10 ** 18, 2_000_000 * 10 ** 18, address(applicationAppManager));
-        calcAddress = factory.createLinear(100 * 10 ** 8, 100_000 * 10 ** 18, 2_000_000 * 10 ** 18, address(applicationAppManager));
+        factory.createLinear(600, 100_001 * 10 ** 18, address(applicationAppManager));
+        calcAddress = factory.createLinear(100 * 10 ** 8, 100_000 * 10 ** 18, address(applicationAppManager));
         // validate parameters at setter level
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
         vm.expectRevert(abi.encodeWithSelector(selector, 101 * 10 ** 8));
-        calc.setVariables(101 * 10 ** 8, 100_000 * 10 ** 18, 200_000_000_000 * 10 ** 18);
+        calc.setVariables(101 * 10 ** 8, 100_000 * 10 ** 18);
         vm.expectRevert(abi.encodeWithSelector(selector, 101_000 * 10 ** 18));
-        calc.setVariables(100 * 10 ** 8, 101_000 * 10 ** 18, 200_000_000_000 * 10 ** 18);
+        calc.setVariables(100 * 10 ** 8, 101_000 * 10 ** 18);
         // Make sure zeros are allowed for m and y
-        calc.setVariables(0, 0, 200_000_000_000 * 10 ** 18);
-        // zero not allowed for range
-        vm.expectRevert(0x454f1bd4);
-        calc.setVariables(0, 0, 0);
+        calc.setVariables(0, 0);
     }
 }

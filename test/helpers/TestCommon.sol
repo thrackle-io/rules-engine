@@ -11,6 +11,9 @@ import "src/example/ERC20/ApplicationERC20Handler.sol";
 import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import "src/example/ERC721/ApplicationERC721Handler.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
+import "src/liquidity/ProtocolAMM.sol";
+import "src/liquidity/ProtocolAMMFactory.sol";
+import "src/liquidity/ProtocolAMMCalculatorFactory.sol";
 import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
 import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
@@ -48,11 +51,16 @@ abstract contract TestCommon is Test {
     RuleStorageDiamond ruleStorageDiamond;
     ApplicationHandler applicationHandler;
     ApplicationERC20 applicationCoin;
+    ApplicationERC20 applicationCoin2;
     ApplicationERC20Handler applicationCoinHandler;
+    ApplicationERC20Handler applicationCoinHandler2;
     ApplicationERC20Pricing erc20Pricer;
     ApplicationERC721 applicationNFT;
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationERC721Pricing erc721Pricer;
+    ProtocolAMMFactory protocolAMMFactory;
+    ProtocolAMMCalculatorFactory protocolAMMCalculatorFactory;
+    ProtocolAMM protocolAMM;
     // common block time
     uint64 Blocktime = 1769924800;
 
@@ -139,5 +147,21 @@ abstract contract TestCommon is Test {
      */
     function _createERC721Pricing() public returns (ApplicationERC721Pricing _pricer) {
         return new ApplicationERC721Pricing();
+    }
+
+    /**
+     * @dev Deploy and set up an ProtocolAMMFactory
+     * @return _ammFactory ProtocolAMMFactory
+     */
+    function _createProtocolAMMFactory() public returns (ProtocolAMMFactory _ammFactory) {
+        return new ProtocolAMMFactory(address(_createProtocolAMMCalculatorFactory()));
+    }
+
+    /**
+     * @dev Deploy and set up an ProtocolAMMCalculatorFactory
+     * @return _ammCalcFactory ProtocolAMMCalculatorFactory
+     */
+    function _createProtocolAMMCalculatorFactory() public returns (ProtocolAMMCalculatorFactory _ammCalcFactory) {
+        return new ProtocolAMMCalculatorFactory();
     }
 }
