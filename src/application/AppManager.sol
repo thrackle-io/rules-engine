@@ -140,6 +140,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// enforcing the min-1-admin requirement.
         if(role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
+        if(role == APP_ADMIN_ROLE) checkForAdminWithdrawal();
         AccessControl.revokeRole(role, account);
     }
     // /// -------------ADMIN---------------
