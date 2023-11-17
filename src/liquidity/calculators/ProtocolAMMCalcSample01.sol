@@ -1,22 +1,32 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "../../liquidity/IProtocolAMMCalculator.sol";
+import "./IProtocolAMMFactoryCalculator.sol";
 
 /**
- * @title Automated Market Maker Swap Constant Product Calculator
+ * @title Automated Market Maker Swap Constant Calculator
  * @notice This contains the calculations for AMM swap.
  * @dev This is external and used by the ProtocolAMM. The intention is to be able to change the calculations
- *      as needed. It contains an example NT Algorithm
- *
- * f = func([0, 10], lambda x: ((10 - x)**2)/2, [0, 50], lambda y: 10 - (2*y)**(.5), tracker = 8)
- * g = func([0,100], lambda y: 10 - y**(.5), [0,10], lambda x: (10 - x)**2), tracker = 4
- * Note: These functions have been scaled to work only with ERC20s that have Decimals = 18
+ *      as needed. It contains an example constant that uses ratio x/y. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ApplicationAMMCalcSample01 is IProtocolAMMCalculator {
-    int256 f_tracker = 8 * 10 ** 18;
-    int256 g_tracker = 4 * 10 ** 18;
+contract ProtocolAMMCalcSample01 is IProtocolAMMFactoryCalculator {
+    int256 f_tracker;
+    int256 g_tracker;
+
+    /**
+     * @dev Set up the calculator and appManager for permissions
+     * @param _f_tracker f(x) tracker value
+     * @param _g_tracker f(x) tracker value
+     * @param _appManagerAddress appManager address
+     */
+    constructor(int256 _f_tracker, int256 _g_tracker, address _appManagerAddress) {
+        if (_appManagerAddress == address(0)) revert ZeroAddress();
+        f_tracker = _f_tracker;
+        g_tracker = _g_tracker;
+        appManagerAddress = _appManagerAddress;
+    }
+
 
     /**
      * @dev This is the overall swap function. It branches to the necessary swap subfunction
@@ -32,7 +42,7 @@ contract ApplicationAMMCalcSample01 is IProtocolAMMCalculator {
      * @param _amount1 amount of token1 possibly coming into the pool
      * @return _amountOut amount of alternate coming out of the pool
      */
-    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external returns (uint256) {
+    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external override returns (uint256) {
         if (_amount0 == 0 && _amount1 == 0) {
             revert AmountsAreZero();
         }
@@ -86,6 +96,38 @@ contract ApplicationAMMCalcSample01 is IProtocolAMMCalculator {
         g_tracker = (((10 ** 19) - (f_tracker)) ** 2) / (10 ** 18);
         _amountOut = uint(delta);
         return _amountOut;
+    }
+
+    /**
+     * set the F Tracker value
+     * @param _f_tracker f(x) tracker value
+     */
+    function setFTracker(int256 _f_tracker) external appAdministratorOnly(appManagerAddress){
+        f_tracker = _f_tracker;
+    }
+
+    /**
+     * @dev Retrieve the F Tracker value
+     * @return f_tracker
+     */
+    function getFTracker() external view returns(int256){
+        return f_tracker;
+    }
+
+    /**
+     * set the G Tracker value
+     * @param _g_tracker f(x) tracker value
+     */
+    function setGTracker(int256 _g_tracker) external appAdministratorOnly(appManagerAddress){
+        g_tracker = _g_tracker;
+    }
+
+    /**
+     * @dev Retrieve the G Tracker value
+     * @return g_tracker
+     */
+    function getGTracker() external view returns(int256){
+        return g_tracker;
     }
 
     /**

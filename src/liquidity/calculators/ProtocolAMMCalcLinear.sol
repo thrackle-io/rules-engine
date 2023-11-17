@@ -21,7 +21,6 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
     uint8 constant M_DIGITS = 8;
     uint256 m;
     uint256 b;
-    uint256 l;
     uint256 m_denom;
     uint256 b_num;
     uint256 b_denom;
@@ -31,12 +30,11 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
      * @param _slope slope = m This is expected as 10e8 to represent decimal slopes. For instance, 800000000 would be a slope of 8, 65 would be a slope of 
      .00000065
      * @param _y_intercept y_intercept = b(expected as 10e18)
-     * @param _range range = l(expected as 10e18)
      * @param _appManagerAddress appManager address
      */
-    constructor(uint256 _slope, uint256 _y_intercept, uint256 _range, address _appManagerAddress) {
+    constructor(uint256 _slope, uint256 _y_intercept, address _appManagerAddress) {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
-        _setVariables(_slope, _y_intercept, _range);
+        _setVariables(_slope, _y_intercept);
         appManagerAddress = _appManagerAddress;
     }
 
@@ -110,15 +108,12 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
      * @dev Set the equation variables and perform calculation adjustments
      * @param _slope slope = m
      * @param _y_intercept y_intercept = b
-     * @param _range range = l
      */
-    function _setVariables(uint256 _slope, uint256 _y_intercept, uint256 _range) private {
+    function _setVariables(uint256 _slope, uint256 _y_intercept) private {
         // y-intercept must be positive and from 0 to 100_000
         if (_y_intercept > Y_MAX) revert ValueOutOfRange(_y_intercept);
         // slope must be positive and from 0 to 100
         if (_slope > M_MAX) revert ValueOutOfRange(_slope);
-        if (_range == 0) revert ZeroValueNotPermited();
-        l = _range;
         b = _y_intercept;
         _calculateSlopeAndInterceptAdjustment(_slope);
     }
@@ -127,10 +122,9 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
      * @dev Set the equation variables
      * @param _slope slope = m
      * @param _y_intercept y_intercept = b
-     * @param _range range = l
      */
-    function setVariables(uint256 _slope, uint256 _y_intercept, uint256 _range) external appAdministratorOnly(appManagerAddress) {
-        _setVariables(_slope, _y_intercept, _range);
+    function setVariables(uint256 _slope, uint256 _y_intercept) external appAdministratorOnly(appManagerAddress) {
+        _setVariables(_slope, _y_intercept);
     }
 
     /**

@@ -196,6 +196,14 @@ abstract contract TestCommonFoundry is TestCommon {
 
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
 
+        // create a second ERC20 and connect it to its handler
+        applicationCoin2 = _createERC20("DRACULA", "DRAC", applicationAppManager);
+        applicationCoinHandler2 = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin2);
+        /// register the token
+        applicationAppManager.registerToken("DRACULA", address(applicationCoin));
+
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin2), 1 * (10 ** 18)); //setting at $1
+
         /// create an ERC721
         applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
         applicationNFTHandler = _createERC721Handler(ruleProcessor, applicationAppManager, applicationNFT);
@@ -296,6 +304,27 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToOriginalUser();
         return a;
     }
+
+    /**
+     * @dev Deploy and set up a ProtocolAMMFactory
+     * @return _ammFactory fully configured app manager
+     */
+    function createProtocolAMMFactory() public returns (ProtocolAMMFactory _ammFactory) {
+        switchToAppAdministrator();
+        _ammFactory = _createProtocolAMMFactory();
+        return _ammFactory;
+    }
+
+    /**
+     * @dev Deploy and set up a ProtocolAMMCalculatorFactory
+     * @return _ammCalcFactory fully configured app manager
+     */
+    function createProtocolAMMCalculatorFactory() public returns (ProtocolAMMCalculatorFactory _ammCalcFactory) {
+        switchToAppAdministrator();
+        _ammCalcFactory = _createProtocolAMMCalculatorFactory();
+        return _ammCalcFactory;
+    }
+
 
     ///---------------USER SWITCHING--------------------
     function switchToAppAdministrator() public {

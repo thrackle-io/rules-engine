@@ -157,3 +157,17 @@ interface IApplicationEvents {
     ///AppManager set
     event AppManagerAddressSet(address indexed _address);
 }
+
+/**
+ * @title AMM Factory Events
+ * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
+ * @dev This interface is for all events for the AMM factories. Each Contract should inherit this library for emitting events.
+ * @notice AMM Factory Events Library
+ */
+
+interface IAMMFactoryEvents {
+    /// AMM Factory
+    event AMMFactoryDeployed(address indexed ammAddress);
+    /// AMM Calculator Factory
+    event AMMCalculatorFactoryDeployed(address indexed ammAddress);
+}

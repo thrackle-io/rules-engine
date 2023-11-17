@@ -15,7 +15,7 @@ import "src/example/ERC20/ApplicationERC20Handler.sol";
 import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import "src/example/ERC721/ApplicationERC721Handler.sol";
 import "src/token/IAdminWithdrawalRuleCapable.sol";
-import "src/example/liquidity/ApplicationAMM.sol";
+import "src/liquidity/ProtocolAMMFactory.sol";
 import {ApplicationAMMHandler} from "../../src/example/liquidity/ApplicationAMMHandler.sol";
 import "test/helpers/TestCommonFoundry.sol";
 
@@ -950,28 +950,30 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
     /// Test the register AMM.
     function testRegisterAMM() public {
         /// Set up the AMM
-        ApplicationAMM applicationAMM = new ApplicationAMM(address(11), address(22), address(applicationAppManager), address(33));
-        /// Set up the ApplicationAMMHandler
-        ApplicationAMMHandler applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(applicationAMM));
-        applicationAMM.connectHandlerToAMM(address(applicationAMMHandler));
-        applicationAppManager.registerAMM(address(applicationAMM));
-        assertTrue(applicationAppManager.isRegisteredAMM(address(applicationAMM)));
+        protocolAMMFactory = createProtocolAMMFactory();
+        protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
+        protocolAMM = ProtocolAMM(protocolAMMFactory.createConstantAMM(address(11), address(22),1,1, address(applicationAppManager)));
+        ApplicationAMMHandler applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
+        protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));
+        applicationAppManager.registerAMM(address(protocolAMM));
+        assertTrue(applicationAppManager.isRegisteredAMM(address(protocolAMM)));
         /// this is expected to fail because you cannot register same address more than once
         vm.expectRevert();
-        applicationAppManager.registerAMM(address(applicationAMM));
+        applicationAppManager.registerAMM(address(protocolAMM));
     }
 
     /// Test the deregister AMM.
     function testDeregisterAMM() public {
         /// Set up the AMM
-        ApplicationAMM applicationAMM = new ApplicationAMM(address(11), address(22), address(applicationAppManager), address(33));
-        /// Set up the ApplicationAMMHandler
-        ApplicationAMMHandler applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(applicationAMM));
-        applicationAMM.connectHandlerToAMM(address(applicationAMMHandler));
-        applicationAppManager.registerAMM(address(applicationAMM));
-        assertTrue(applicationAppManager.isRegisteredAMM(address(applicationAMM)));
-        applicationAppManager.deRegisterAMM(address(applicationAMM));
-        assertFalse(applicationAppManager.isRegisteredAMM(address(applicationAMM)));
+        protocolAMMFactory = createProtocolAMMFactory();
+        protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
+        protocolAMM = ProtocolAMM(protocolAMMFactory.createConstantAMM(address(11), address(22),1,1, address(applicationAppManager)));
+        ApplicationAMMHandler applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
+        protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));
+        applicationAppManager.registerAMM(address(protocolAMM));
+        assertTrue(applicationAppManager.isRegisteredAMM(address(protocolAMM)));
+        applicationAppManager.deRegisterAMM(address(protocolAMM));
+        assertFalse(applicationAppManager.isRegisteredAMM(address(protocolAMM)));
     }
 
     function testRegisterAddresses() public {

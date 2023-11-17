@@ -1,9 +1,7 @@
 // // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "../src/example/liquidity/ApplicationAMM.sol";
-import "../src/example/liquidity/ApplicationAMMCalcLinear.sol";
-import "../src/example/liquidity/ApplicationAMMCalcCP.sol";
+import "../src/liquidity/ProtocolAMM.sol";
 import "../src/example/OracleRestricted.sol";
 import "../src/example/OracleAllowed.sol";
 import {ApplicationAMMHandler} from "../src/example/liquidity/ApplicationAMMHandler.sol";
@@ -24,13 +22,9 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
     address user4 = address(0x444);
     address[] badBoys;
     address[] goodBoys;
-    ApplicationERC20 applicationCoin2;
     ApplicationAMMHandler applicationAMMHandler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
-    ApplicationAMM applicationAMM;
-    ApplicationAMMCalcLinear applicationAMMLinearCalc;
-    ApplicationAMMCalcCP applicationAMMCPCalc;
 
     function setUp() public {
         vm.startPrank(superAdmin);
@@ -41,16 +35,14 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
 
-        /// Create calculators for the AMM
-        applicationAMMLinearCalc = new ApplicationAMMCalcLinear();
-        applicationAMMCPCalc = new ApplicationAMMCalcCP();
         /// Set up the AMM
-        applicationAMM = new ApplicationAMM(address(applicationCoin), address(applicationCoin2), address(applicationAppManager), address(applicationAMMLinearCalc));
+        protocolAMMFactory = createProtocolAMMFactory();
+        protocolAMM = ProtocolAMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2),1,1, address(applicationAppManager)));
         /// Set up the ApplicationAMMHandler
-        applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(applicationAMM));
-        applicationAMM.connectHandlerToAMM(address(applicationAMMHandler));
+        applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
+        protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));
         /// Register AMM
-        applicationAppManager.registerAMM(address(applicationAMM));
+        applicationAppManager.registerAMM(address(protocolAMM));
         vm.warp(Blocktime);
     }
 
@@ -137,7 +129,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         ///1675723152 = Feb 6 2023 22hrs 39min 12 sec
         /// Check Rule passes
         vm.stopPrank();
-        vm.startPrank(address(applicationAMM));
+        vm.startPrank(address(protocolAMM));
         applicationAMMHandler.checkAllRules(0, 0, user1, user2, 50, 50, address(applicationCoin), ActionTypes.PURCHASE);
         uint256 lastPurchaseTotal = applicationAMMHandler.getPurchasedWithinPeriod(user2);
         assertEq(lastPurchaseTotal, 50);
@@ -182,7 +174,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
 
         /// Check Rule passes
         vm.stopPrank();
-        vm.startPrank(address(applicationAMM));
+        vm.startPrank(address(protocolAMM));
         applicationAMMHandler.checkAllRules(0, 0, user1, user2, 50, 50, address(applicationCoin), ActionTypes.SELL);
 
         switchToAppAdministrator();
@@ -190,7 +182,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         assertEq(lastSellTotal, 50);
 
         vm.stopPrank();
-        vm.startPrank(address(applicationAMM));
+        vm.startPrank(address(protocolAMM));
         /// Check Rule Fails
         vm.expectRevert(0xc11d5f20);
         applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, address(applicationCoin), ActionTypes.SELL);
@@ -213,7 +205,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         /// we update the rule id in the token
         applicationAMMHandler.setMinTransferRuleId(ruleId);
         vm.stopPrank();
-        vm.startPrank(address(applicationAMM));
+        vm.startPrank(address(protocolAMM));
         /// These should all pass
         assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10, 10, address(applicationCoin), ActionTypes.TRADE));
         assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 11, 11, address(applicationCoin), ActionTypes.TRADE));
@@ -229,7 +221,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         applicationAMMHandler.setMinTransferRuleId(ruleId);
         /// These should all pass
         vm.stopPrank();
-        vm.startPrank(address(applicationAMM));
+        vm.startPrank(address(protocolAMM));
         assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 100, 100, address(applicationCoin), ActionTypes.TRADE));
         assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 111, 100, address(applicationCoin), ActionTypes.TRADE));
         assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10000000000, 1000, address(applicationCoin), ActionTypes.TRADE));
@@ -271,18 +263,18 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         applicationAMMHandler.setMinMaxBalanceRuleIdToken0(ruleId);
         applicationAMMHandler.setMinMaxBalanceRuleIdToken1(ruleId2);
         vm.stopPrank();
-        vm.startPrank(address(applicationAMM));
+        vm.startPrank(address(protocolAMM));
         /// execute a passing check for the minimum
-        applicationAMMHandler.checkAllRules(200, 200, user1, address(applicationAMM), 10, 10, address(applicationCoin), ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(200, 200, user1, address(protocolAMM), 10, 10, address(applicationCoin), ActionTypes.TRADE);
 
         /// execute a passing check for the maximum
-        applicationAMMHandler.checkAllRules(500, 500, user1, address(applicationAMM), 50, 50, address(applicationCoin), ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(500, 500, user1, address(protocolAMM), 50, 50, address(applicationCoin), ActionTypes.TRADE);
 
         // execute a failing check for the minimum
         vm.expectRevert(0xf1737570);
-        applicationAMMHandler.checkAllRules(20, 1000, user1, address(applicationAMM), 15, 15, address(applicationCoin), ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(20, 1000, user1, address(protocolAMM), 15, 15, address(applicationCoin), ActionTypes.TRADE);
         // execute a passing check for the maximum
         vm.expectRevert(0x24691f6b);
-        applicationAMMHandler.checkAllRules(1000, 800, user1, address(applicationAMM), 500, 500, address(applicationCoin), ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(1000, 800, user1, address(protocolAMM), 500, 500, address(applicationCoin), ActionTypes.TRADE);
     }
 }

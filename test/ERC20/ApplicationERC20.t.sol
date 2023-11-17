@@ -15,7 +15,6 @@ import {ApplicationAssetHandlerMod} from "../helpers/ApplicationAssetHandlerMod.
 import "test/helpers/TestCommonFoundry.sol";
 
 contract ApplicationERC20Test is TestCommonFoundry {
-    ApplicationERC20Handler applicationCoinHandler2;
 
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;

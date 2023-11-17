@@ -12,7 +12,7 @@ import "src/economic/AppAdministratorOnly.sol";
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
 abstract contract IProtocolAMMFactoryCalculator is AppAdministratorOnly, AMMCalculatorErrors, IZeroAddressError {
-    address appManagerAddress;
+    address public appManagerAddress;
 
     /**
      * @dev This performs the swap from token0 to token1

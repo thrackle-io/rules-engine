@@ -6,9 +6,9 @@ import "src/example/ERC20/ApplicationERC20Handler.sol";
 import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
 import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
-import "src/example/liquidity/ApplicationAMMCalcLinear.sol";
-import "src/example/liquidity/ApplicationAMMCalcCP.sol";
-import "src/example/liquidity/ApplicationAMM.sol";
+import "src/liquidity/ProtocolAMMFactory.sol";
+import "src/liquidity/ProtocolAMMCalculatorFactory.sol";
+import "src/liquidity/ProtocolAMM.sol";
 import "src/example/liquidity/ApplicationAMMHandler.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 import "src/example/application/ApplicationHandler.sol";
@@ -65,9 +65,13 @@ contract ApplicationUIDeployAllScript is Script {
         ///These are deployed to test fire events for indexer testing
         /// create the AMM with Dracula and Frankenstein tokens
         /// create the AMM Linear Calculator
-        ApplicationAMMCalcLinear applicationAMMCalcLinear = new ApplicationAMMCalcLinear();
-        ApplicationAMM amm = new ApplicationAMM(address(coin1), address(coin2), address(applicationAppManager), address(applicationAMMCalcLinear));
+        /// create the AMM with Dracula and Frankenstein tokens
+        ProtocolAMMFactory protocolAMMFactory = new ProtocolAMMFactory(address(new ProtocolAMMCalculatorFactory()));
+        ProtocolAMM amm = ProtocolAMM(protocolAMMFactory.createLinearAMM(address(coin1), address(coin2), 6000, 15 * 10 ** 17, address(applicationAppManager))); 
+        /// create AMM handler
         applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(amm));
+        /// connect AMM with its handler
+        amm.connectHandlerToAMM(address(applicationAMMHandler));
         applicationCoinHandler3 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2), false);
 
         vm.stopBroadcast();
