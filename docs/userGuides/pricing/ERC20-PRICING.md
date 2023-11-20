@@ -17,8 +17,10 @@ Refer to the deployment document [here](../deployment/DEPLOY-PRICING.md).
 - **price (uint256)**: the price in weis of dollars for a whole token (see [example](./PRICING-CONTRACTS.md)).
 
 ```c
-function setSingleTokenPrice(address tokenContract, uint256 price) external;
+function setSingleTokenPrice(address tokenContract, uint256 price) external onlyOwner;
 ```
+
+Notice that only the owner of the pricing contract can successfully invoke this function.
 
 ## The price-getter function:
     

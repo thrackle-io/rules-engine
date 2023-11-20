@@ -20,8 +20,10 @@ This function should be used in the case of specifying the price for a particula
 - **price (uint256)**: the price in weis of dollars for a whole token (see [example](./PRICING-CONTRACTS.md)).
 
 ```c
-function setSingleNFTPrice(address nftContract, uint256 id, uint256 price) external;
+function setSingleNFTPrice(address nftContract, uint256 id, uint256 price) external onlyOwner;
 ```
+
+Notice that only the owner of the pricing contract can successfully invoke this function.
 
 ## The price-setter function for an NFT collection:
 
@@ -32,8 +34,10 @@ This function should be used to set the default price for every NFT in a collect
 - **price (uint256)**: the price in weis of dollars for a whole token (see [example](./PRICING-CONTRACTS.md)).
 
 ```c
-function setNFTCollectionPrice(address nftContract, uint256 price) external;
+function setNFTCollectionPrice(address nftContract, uint256 price) external onlyOwner;
 ```
+
+Notice that only the owner of the pricing contract can successfully invoke this function.
 
 ## The price-getter function:
     
