@@ -14,10 +14,9 @@ The following diagram outlines a sample deployment:
    
 <!-- These are the body links -->
 [deploymentGuide-url]: deployment/NFT-DEPLOYMENT.md
-[userGuide-url]: DEVELOPER-GUIDE.md
+[userGuide-url]: README.md
 [ruleGuide-url]: rules/RULE-GUIDE.md
 [glossary-url]: GLOSSARY.md
-
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
