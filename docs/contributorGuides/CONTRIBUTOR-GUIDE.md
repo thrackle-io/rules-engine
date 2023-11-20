@@ -10,8 +10,8 @@
 2. [Upgrade Submodules][upgradeSubmodules-url]
 
 <!-- These are the body links -->
-[checkoutRepo-url]: ./contributorGuides/CHECKOUT-REPO.md
-[upgradeSubmodules-url]: ./contributorGuides/SUBMODULE-UPGRADE.md
+[checkoutRepo-url]: ./CHECKOUT-REPO.md
+[upgradeSubmodules-url]: ./SUBMODULE-UPGRADE.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
