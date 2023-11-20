@@ -12,7 +12,7 @@ Some protocol rules require these contracts to be set in the tokens for them to 
 - **Price is in weis of US Dollars**: 1 dollar is represented by 1 * 10^18, and 1 cent is represented 1 * 10^16 in these contracts. This is done to have precision over the price, and to account for the possibility of very cheap tokens like the famous Shiba Inu meme token.
 - **The price is given for a whole token**:
     - **For Fungible Tokens**: just like regular market data outlets, the price will be given for a whole token (no decimals), the same way the price is given for ETH or BTC, for example, which is not telling the price of a wei of an Ether or a Satoshi of a Bitcoin.
-    - **For Non-Fungible-Tokens**: even in the case of a fractionalized NFT, the price is still given for the whole token and not for its freactions.
+    - **For Non-Fungible-Tokens**: even in the case of a fractionalized NFT, the price is still given for the whole token and not for its fractions.
 
 ## Examples:
 

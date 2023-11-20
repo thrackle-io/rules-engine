@@ -58,7 +58,7 @@ function version() external pure returns (string memory);
 
 # Set an ERC721-Pricing Contract in an Asset Handler 
 
-Use the following function in the asset handler:
+Use the following function in the [asset handler](../../../src/token/ProtocolHandlerCommon.sol):
 
 ```c
 function setNFTPricingAddress(
