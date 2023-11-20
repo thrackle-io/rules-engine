@@ -14,7 +14,7 @@ The following diagram outlines a sample deployment:
    
 <!-- These are the body links -->
 [deploymentGuide-url]: deployment/NFT-DEPLOYMENT.md
-[userGuide-url]: USER-GUIDE.md
+[userGuide-url]: README.md
 [ruleGuide-url]: rules/RULE-GUIDE.md
 [glossary-url]: GLOSSARY.md
 
