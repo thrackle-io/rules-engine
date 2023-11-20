@@ -1,8 +1,14 @@
-# Developer Guide
+# User Guide
 
 [![Project Version][version-image]][version-url]
 
 # *** UNDER CONSTRUCTION ***
+
+Relevant Documentation:
+- [Deployment Guides][deploymentGuide-url]
+- [Rule Guide][ruleGuide-url]
+- [Glossary][glossary-url]
+- [Architecture Overview][archOverview-url]
 
 # Individual Actions
 
@@ -115,6 +121,10 @@ Formatting at the commandline:
 <!-- These are the body links -->
 [checkoutRepo-url]: ./developerGuides/CHECKOUT-REPO.md
 [upgradeSubmodules-url]: ./developerGuides/SUBMODULE-UPGRADE.md
+[deploymentGuide-url]: ./docs/userGuides/deployment/NFT-DEPLOYMENT.md
+[archOverview-url]: ./docs/userGuides/ARCHITECTURE-OVERVIEW.md
+[ruleGuide-url]: ./docs/userGuides/rules/RULE-GUIDE.md
+[glossary-url]: ./docs/userGuides/GLOSSARY.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
