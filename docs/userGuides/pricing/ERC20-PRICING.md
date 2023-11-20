@@ -1,6 +1,6 @@
 # Overview
 
-This is a protocol template for an ERC20-pricing contract. Any custom-made pricing contract that intends to be protocol compliant must implement the [IProtocolERC20PRicing](../../../src/pricing/IProtocolERC20Pricing.sol) interface, and follow the [price format](./PRICING-CONTRACTS.md) guideline.
+This is a protocol template for an ERC20-pricing contract. Any custom-made pricing contract that intends to be protocol compliant must implement the [IProtocolERC20PRicing](../../../src/pricing/IProtocolERC20Pricing.sol) interface, and follow the [price format](./README.md) guideline.
 
 [This template](../../../src/pricing/ProtocolERC20Pricing.sol) is available for developers to quickly get their pricing modules up and running.
 
@@ -14,7 +14,7 @@ Refer to the deployment document [here](../deployment/DEPLOY-PRICING.md).
 
 ### Parameters:
 - **tokenContract (address)**: the address for the token contract.
-- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./PRICING-CONTRACTS.md)).
+- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./README.md)).
 
 ```c
 function setSingleTokenPrice(address tokenContract, uint256 price) external onlyOwner;
@@ -28,7 +28,7 @@ Notice that only the owner of the pricing contract can successfully invoke this 
 - **tokenContract (address)**: the address for the token contract.
 
 ### Returns:
-- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./PRICING-CONTRACTS.md)).
+- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./README.md)).
 
 ```c
 function getTokenPrice(address tokenContract) external view returns (uint256 price);

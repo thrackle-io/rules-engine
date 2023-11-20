@@ -1,6 +1,6 @@
 # Overview
 
-This is a protocol template for an ERC721-pricing contract. Any custom-made pricing contract that intends to be protocol compliant must implement the [IProtocolERC721PRicing](../../../src/pricing/IProtocolERC721Pricing.sol) interface, and follow the [price format](./PRICING-CONTRACTS.md) guideline.
+This is a protocol template for an ERC721-pricing contract. Any custom-made pricing contract that intends to be protocol compliant must implement the [IProtocolERC721PRicing](../../../src/pricing/IProtocolERC721Pricing.sol) interface, and follow the [price format](./README.md) guideline.
 
 [This template](../../../src/pricing/ProtocolERC721Pricing.sol) is available for developers to quickly get their pricing modules up and running.
 
@@ -17,7 +17,7 @@ This function should be used in the case of specifying the price for a particula
 ### Parameters:
 - **nftContract (address)**: the address for the token contract.
 - **id (uint256)**: the token Id to set the price for.
-- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./PRICING-CONTRACTS.md)).
+- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./README.md)).
 
 ```c
 function setSingleNFTPrice(address nftContract, uint256 id, uint256 price) external onlyOwner;
@@ -31,7 +31,7 @@ This function should be used to set the default price for every NFT in a collect
 
 ### Parameters:
 - **nftContract (address)**: the address for the token contract.
-- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./PRICING-CONTRACTS.md)).
+- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./README.md)).
 
 ```c
 function setNFTCollectionPrice(address nftContract, uint256 price) external onlyOwner;
@@ -45,7 +45,7 @@ Notice that only the owner of the pricing contract can successfully invoke this 
 - **tokenContract (address)**: the address for the token contract.
 
 ### Returns:
-- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./PRICING-CONTRACTS.md)).
+- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./README.md)).
 
 ```c
 function getNFTPrice(address nftContract, uint256 id) external view returns (uint256 price);
