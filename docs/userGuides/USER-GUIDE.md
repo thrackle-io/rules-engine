@@ -119,8 +119,8 @@ Formatting at the commandline:
 > npx prettier --write .
 
 <!-- These are the body links -->
-[checkoutRepo-url]: ./developerGuides/CHECKOUT-REPO.md
-[upgradeSubmodules-url]: ./developerGuides/SUBMODULE-UPGRADE.md
+[checkoutRepo-url]: ./contributorGuides/CHECKOUT-REPO.md
+[upgradeSubmodules-url]: ./contributorGuides/SUBMODULE-UPGRADE.md
 [deploymentGuide-url]: ./docs/userGuides/deployment/NFT-DEPLOYMENT.md
 [archOverview-url]: ./docs/userGuides/ARCHITECTURE-OVERVIEW.md
 [ruleGuide-url]: ./docs/userGuides/rules/RULE-GUIDE.md
