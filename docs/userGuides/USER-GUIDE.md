@@ -10,15 +10,10 @@ Relevant Documentation:
 - [Glossary][glossary-url]
 - [Architecture Overview][archOverview-url]
 
-# Individual Actions
-
-1. [Repository Checkout][checkoutRepo-url]
-2. [Upgrade Submodules][upgradeSubmodules-url]
-
-# API 
+## API 
 API documentation can be found [here](../src/src/README.md).
 
-# Tooling
+## Tooling
 ##### This is designed to be tested and deployed with Foundry. All that should be required is to install python, then install [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run:
 
 `forge build` in the project directory to install the submodules.
@@ -119,8 +114,6 @@ Formatting at the commandline:
 > npx prettier --write .
 
 <!-- These are the body links -->
-[checkoutRepo-url]: ./contributorGuides/CHECKOUT-REPO.md
-[upgradeSubmodules-url]: ./contributorGuides/SUBMODULE-UPGRADE.md
 [deploymentGuide-url]: ./docs/userGuides/deployment/NFT-DEPLOYMENT.md
 [archOverview-url]: ./docs/userGuides/ARCHITECTURE-OVERVIEW.md
 [ruleGuide-url]: ./docs/userGuides/rules/RULE-GUIDE.md

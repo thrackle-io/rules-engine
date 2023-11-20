@@ -7,7 +7,6 @@ This repository contains an EVM-based protocol designed to meet the unique needs
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/tron
 
-
 ## Installation
 
 To install the package, run the following command in the root of your project:
@@ -76,12 +75,17 @@ import "@thrackle-io/rules-protocol-client/token/ERC20/ProtocolERC20.sol";
 
 All you need to do is to inherit the right contract and implement any necessary function. In this case, the `mint` function.
 
+## Contributing
+
+Please visit our [Contributor Guide][contributorGuide-url]. 
+
 ## Licensing
 
 TBD
 
 <!-- These are the body links -->
 
+[contributorGuide-url]: ./docs/contributorGuides/CONTRIBUTOR-GUIDE.md
 [userGuide-url]: ./docs/userGuides/USER-GUIDE.md
 [deploymentGuide-url]: ./docs/userGuides/deployment/NFT-DEPLOYMENT.md
 [archOverview-url]: ./docs/userGuides/ARCHITECTURE-OVERVIEW.md
