@@ -232,4 +232,4 @@ mapping(address => uint64) lastTxDateRiskRule;
 
 This rule depends on:
 
-- **Pricing contracts**: pricing contracts for ERC20s and ERC721s need to be setup in the token handlers in order for this rule to work.
+- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the token handlers in order for this rule to work.
