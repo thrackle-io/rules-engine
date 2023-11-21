@@ -114,10 +114,10 @@ Formatting at the commandline:
 > npx prettier --write .
 
 <!-- These are the body links -->
-[deploymentGuide-url]: ./docs/userGuides/deployment/NFT-DEPLOYMENT.md
-[archOverview-url]: ./docs/userGuides/ARCHITECTURE-OVERVIEW.md
-[ruleGuide-url]: ./docs/userGuides/rules/RULE-GUIDE.md
-[glossary-url]: ./docs/userGuides/GLOSSARY.md
+[deploymentGuide-url]: ./deployment/NFT-DEPLOYMENT.md
+[archOverview-url]: ./ARCHITECTURE-OVERVIEW.md
+[ruleGuide-url]: ./rules/RULE-GUIDE.md
+[glossary-url]: ./GLOSSARY.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
