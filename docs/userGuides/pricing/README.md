@@ -9,10 +9,10 @@ The purpose of the pricing contracts is to serve as token-price data sources for
 
 Some protocol rules require these contracts to be set in the tokens for them to be able to work:
 
-- Account Balance by Risk.
-- Max Balance by Access Level.
-- Tx Size by Risk Score.
-- Tx Size per Period by Risk Score.
+- [Account Balance by Risk](../rules/ACCOUNT-BALANCE-BY-RISK.md).
+- [Max Balance by Access Level](../rules/MAX-BALANCE-BY-ACCESS-LEVEL.md).
+- [Tx Size by Risk Score](../rules/TRANSACTION-SIZE-BY-RISK-SORE.md).
+- [Tx Size per Period by Risk Score](../rules/TX-SIZE-PER-PERIOD-BY-RISK-SCORE.md).
 
 ## Price Format
 
