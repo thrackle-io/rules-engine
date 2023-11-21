@@ -3,7 +3,7 @@ name: K8s Build and Deploy
 on:
   push:
     branches:
-      - external
+      - internal
       - main
 
 env:
