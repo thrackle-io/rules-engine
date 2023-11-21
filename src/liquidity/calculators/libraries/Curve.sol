@@ -16,7 +16,7 @@ library Curve{
     }
 
     /**
-    * for linear
+    * for sigmoidal
     */
     function getY(SigmoidS calldata sigmoid, uint256 x) pure internal returns(uint256 y){
         y = sigmoid.a * ( ( (sigmoid.a - sigmoid.b) / (sqrt(x - sigmoid.b) * (x - sigmoid.b) + sigmoid.c) ) + 1);
