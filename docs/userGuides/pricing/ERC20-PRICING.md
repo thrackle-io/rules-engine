@@ -14,7 +14,7 @@ Refer to the deployment document [here](../deployment/DEPLOY-PRICING.md).
 
 ### Parameters:
 - **tokenContract (address)**: the address for the token contract.
-- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./README.md)).
+- **price (uint256)**: the price in wei of dollars for a whole token (see [example](./README.md)).
 
 ```c
 function setSingleTokenPrice(address tokenContract, uint256 price) external onlyOwner;
@@ -28,7 +28,7 @@ Notice that only the owner of the pricing contract can successfully invoke this 
 - **tokenContract (address)**: the address for the token contract.
 
 ### Returns:
-- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./README.md)).
+- **price (uint256)**: the price in wei of dollars for a whole token (see [example](./README.md)).
 
 ```c
 function getTokenPrice(address tokenContract) external view returns (uint256 price);

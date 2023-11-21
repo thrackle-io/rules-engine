@@ -17,7 +17,7 @@ This function should be used in the case of specifying the price for a particula
 ### Parameters:
 - **nftContract (address)**: the address for the token contract.
 - **id (uint256)**: the token Id to set the price for.
-- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./README.md)).
+- **price (uint256)**: the price in wei of dollars for a whole token (see [example](./README.md)).
 
 ```c
 function setSingleNFTPrice(address nftContract, uint256 id, uint256 price) external onlyOwner;
@@ -31,7 +31,7 @@ This function should be used to set the default price for every NFT in a collect
 
 ### Parameters:
 - **nftContract (address)**: the address for the token contract.
-- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./README.md)).
+- **price (uint256)**: the price in wei of dollars for a whole token (see [example](./README.md)).
 
 ```c
 function setNFTCollectionPrice(address nftContract, uint256 price) external onlyOwner;
@@ -45,7 +45,7 @@ Notice that only the owner of the pricing contract can successfully invoke this 
 - **tokenContract (address)**: the address for the token contract.
 
 ### Returns:
-- **price (uint256)**: the price in weis of dollars for a whole token (see [example](./README.md)).
+- **price (uint256)**: the price in wei of dollars for a whole token (see [example](./README.md)).
 
 ```c
 function getNFTPrice(address nftContract, uint256 id) external view returns (uint256 price);
