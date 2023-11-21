@@ -25,7 +25,7 @@ Some protocol rules require these contracts to be set in the tokens for them to 
 
 #### ERC20s
 
-Let's say we have the ERC20 called *Frankenstein* which has 18 decimals (1 *Frankenstein* = 1 * 10^18 weis of a *Frankenstein*). Let's imagine that each Thrackle is worth exactly $0.55 US Dollars (55 ¢). In this case, the price for the token will be 55 * 10^16.  
+Let's say we have the ERC20 called *Frankenstein* which has 18 decimals (1 *Frankenstein* = 1 * 10^18 weis of a *Frankenstein*). Let's imagine that each *Frankenstein* is worth exactly $0.55 US Dollars (55 ¢). In this case, the price for the token will be 55 * 10^16.  
 
 #### ERC721s
 

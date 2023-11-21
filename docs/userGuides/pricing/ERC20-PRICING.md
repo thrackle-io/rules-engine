@@ -1,6 +1,6 @@
 # Overview
 
-This is a protocol template for an ERC20-pricing contract. Any custom-made pricing contract that intends to be protocol compliant must implement the [IProtocolERC20PRicing](../../../src/pricing/IProtocolERC20Pricing.sol) interface, and follow the [price format](./README.md) guideline.
+This is a protocol template for an ERC20-pricing contract. Any custom-made pricing contract that intends to be protocol compliant must implement the [IProtocolERC20Pricing](../../../src/pricing/IProtocolERC20Pricing.sol) interface, and follow the [price format](./README.md) guideline.
 
 [This template](../../../src/pricing/ProtocolERC20Pricing.sol) is available for developers to quickly get their pricing modules up and running.
 
