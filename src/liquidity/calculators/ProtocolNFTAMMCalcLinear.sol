@@ -27,11 +27,7 @@ contract ProtocolNFTAMMCalcLinear is IProtocolAMMFactoryCalculator, CurveErrors 
     Line public buyCurve;
     Line public sellCurve;
 
-    constructor(
-            LineInput memory _buyCurve, 
-            LineInput memory _sellCurve, 
-            address _appManagerAddress
-        ) {
+    constructor(LineInput memory _buyCurve, LineInput memory _sellCurve, address _appManagerAddress) {
             // validation block
             if (_appManagerAddress == address(0)) revert ZeroAddress();
             _validateSingleCurve(_buyCurve);
@@ -46,23 +42,28 @@ contract ProtocolNFTAMMCalcLinear is IProtocolAMMFactoryCalculator, CurveErrors 
 
     /**
      * @dev This performs the swap from token0 to token1. It is a linear calculation.
-     * @param _q tracker of 
+     * @param _reserve0 not used in this case.
+     * @param _q tracker of amount of NFTs released by the pool
      * @param _amountERC20 amount of ERC20 coming out of the pool
      * @param _amountNFT amount of token1 coming out of the pool
-     * @return _amountOut
+     * @return price
      */
-    function calculateSwap(uint256 _q, uint256 _amountERC20, uint256 _amountNFT) external view override returns (uint256 price) {
-        
+    function calculateSwap(uint256 _reserve0, uint256 _q, uint256 _amountERC20, uint256 _amountNFT) external view override returns (uint256 price) {
+        _reserve0;
         if (_amountERC20 == 0 && _amountNFT == 0) {
             revert AmountsAreZero();
         }
+        // user is trying to SELL an NFT to get ERC20s in return
         if (_amountERC20 != 0) {
-            // user is trying to SELL an NFT to get ERC20s in return
+            // we validate against overflow
             if (_q < 1) revert ValueOutOfRange(_q);
+            // we then calculate the price
             price = sellCurve.getY(_q - 1);
+        // user is trying to BUY an NFT in exchange for ERC20s
         } else {
-            // user is trying to BUY an NFT in exchange for ERC20s
+            // we enforce the 1-NFT-per-swap rule
             if (_amountNFT > 1) revert ValueOutOfRange(_amountNFT);
+            // we then calculate the price
             price = buyCurve.getY(_q);
         }
 
