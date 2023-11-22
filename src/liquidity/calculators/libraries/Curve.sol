@@ -16,11 +16,12 @@ library Curve{
     using Math for uint256;
 
     /**
-    * @dev calculates of f(x) for linear curve. 
+    * @dev calculates f(x) for linear curve. 
     * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den and b by b_num/b_den.
     * The ecuation was then reorganized to keep as much precision as possible while avoiding early overflows.
     * @param line the Line curve or function *f*
     * @param x the scalar on the abscissa axis to calculate *f(x)*.
+    * @return y the value of f(x) on the ordinate axis
     */
     function getY(Line memory line, uint256 x) pure internal returns(uint256 y){
         y = x * (((line.b_den * line.m_num ) + (line.b_num * line.m_den) / x) / (line.m_den * line.b_den));
@@ -35,7 +36,7 @@ library Curve{
     */
     function fromInput(Line storage line, LineInput memory input, uint8 precisionDecmls) internal {
 
-        // if precisionDecmls is even, then we simply save numerator as input's m, and we make the denominator to have as many
+        // if precisionDecmls is even, then we simply save input's m as numerator, and we make the denominator to have as many
         // zeros as *precisionDecmls*
         if (precisionDecmls % 2 > 0) {
             line.m_num = input.m;

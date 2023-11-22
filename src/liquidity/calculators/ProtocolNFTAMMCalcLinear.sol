@@ -6,7 +6,7 @@ import {Line, LineInput, Curve} from "./libraries/Curve.sol";
 import {CurveErrors} from "../../interfaces/IErrors.sol";
 
 /**
- * @title Automated Market Maker Swap Linear Calculator for NFT pools
+ * @title Automated Market Maker Swap Linear Calculator for NFT Pools
  * @dev This is external and used by the ProtocolAMM. The intention is to be able to change the calculations
  *      as needed. It contains an example linear. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
