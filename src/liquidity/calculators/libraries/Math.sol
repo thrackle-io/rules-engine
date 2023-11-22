@@ -5,6 +5,8 @@ library Math{
 
     /**
      * @dev This function calculates the square root using uniswap style logic
+     * @param y the value to get the square root of.
+     * @return z the square root of y
      */
     function sqrt(uint256 y) internal pure returns (uint z) {
         if (y > 3) {
@@ -22,6 +24,7 @@ library Math{
     /**
      * @dev calculate the total digits in a number.
      * @param _number number to count digits for
+     * @return digits the number of digits of _number
      */
     function getNumberOfDigits(uint256 _number) internal pure returns (uint8 digits) {
         while (_number != 0) {

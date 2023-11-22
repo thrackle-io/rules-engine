@@ -30,7 +30,8 @@ struct Line{
     uint256 b_den;
 }
 
-/** ########### THIS IS NOT A REAL IMPLEMENTATION. THIS IS JUST AN EXAMPLE FOR FUTURE CURVES YET TO BE IMPLEMENTED ############# 
+/** 
+* PLACE HOLDER FOR SIGMOIDAL 
 * @dev Sigmoidal curve
 * definition: S(x) = a*( ( (a - b) / ((x - b) ^ 2 + c) ^ 1/2 ) + 1)
 */
@@ -41,6 +42,7 @@ struct SigmoidFakeInput{
 }
 
 /** 
+* PLACE HOLDER FOR SIGMOIDAL 
 * @dev Sigmoidal curve expressed in fractions.
 * @notice this is how the internal sigmoid should be saved since this will allow more precision during mathematical operations.
 * definition: S(x) = (a_num/a_den)*( ( ((a_num/a_den) - (b_num/b_den)) / ((x - (b_num/b_den)) ^ 2 + (c_num/c_den)) ^ 1/2 ) + 1)
