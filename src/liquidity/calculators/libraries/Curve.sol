@@ -24,9 +24,11 @@ library Curve {
     * @param x the scalar on the abscissa axis to calculate *f(x)*.
     * @return y the value of f(x) on the ordinate axis in ATTOs
     */
-    function getY(Line memory line, uint256 x) pure internal returns(uint256 y){
-        y = ((line.m_num * x * ATTO) / line.m_den) + line.b;
-    }
+    function getY(Line memory line, uint256 x)  internal pure returns(uint256 y){
+        unchecked{
+            y = ((line.m_num * x * ATTO) / line.m_den) + line.b;
+        }
+       }
 
     /**
     * @dev creates a Line curve from a user's LineInput. This mostly means that m is represented now by m_num/m_den,
@@ -35,7 +37,7 @@ library Curve {
     * @param input the LineInput entered by the user to be stored.
     * @param precisionDecmls the amount of precision decimals that the input is formatted on.
     */
-    function fromInput(Line storage line, LineInput memory input, uint8 precisionDecmls) internal {
+    function fromInput(Line storage line, LineInput memory input, uint256 precisionDecmls) internal {
 
         // if precisionDecmls is even, then we simply save input's m as numerator, and we make the denominator to have as many
         // zeros as *precisionDecmls*
