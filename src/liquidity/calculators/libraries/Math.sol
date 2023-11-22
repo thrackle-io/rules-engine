@@ -22,7 +22,7 @@ library Math{
     }
 
     /**
-     * @dev calculate the total digits in a number.
+     * @dev calculate the total digits in number expressed in decimal system.
      * @param _number number to count digits for
      * @return digits the number of digits of _number
      */

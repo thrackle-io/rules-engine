@@ -6,8 +6,8 @@ import "src/liquidity/ProtocolAMM.sol";
 import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
-import {ApplicationAMMHandler} from "../src/example/liquidity/ApplicationAMMHandler.sol";
-import {ApplicationAMMHandlerMod} from "./helpers/ApplicationAMMHandlerMod.sol";
+import {ApplicationAMMHandler} from "../../src/example/liquidity/ApplicationAMMHandler.sol";
+import {ApplicationAMMHandlerMod} from "../helpers/ApplicationAMMHandlerMod.sol";
 import "test/helpers/TestCommonFoundry.sol";
 
 /**

@@ -2,24 +2,24 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "../src/example/ERC20/ApplicationERC20.sol";
-import {ApplicationERC721} from "../src/example/ERC721/ApplicationERC721FreeMint.sol";
-import "../src/example/application/ApplicationAppManager.sol";
-import "../src/example/application/ApplicationHandler.sol";
-import "./diamond/DiamondTestUtil.sol";
-import "../src/example/ERC20/ApplicationERC20Handler.sol";
-import {ApplicationERC721Handler} from "../src/example/ERC721/ApplicationERC721Handler.sol";
-import "./diamond/RuleProcessorDiamondTestUtil.sol";
-import "../src/example/staking/ERC721AutoMintStaking.sol";
-import {TaggedRuleDataFacet} from "../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
+import "../../src/example/ERC20/ApplicationERC20.sol";
+import {ApplicationERC721} from "../../src/example/ERC721/ApplicationERC721FreeMint.sol";
+import "../../src/example/application/ApplicationAppManager.sol";
+import "../../src/example/application/ApplicationHandler.sol";
+import "../diamond/DiamondTestUtil.sol";
+import "../../src/example/ERC20/ApplicationERC20Handler.sol";
+import {ApplicationERC721Handler} from "../../src/example/ERC721/ApplicationERC721Handler.sol";
+import "../diamond/RuleProcessorDiamondTestUtil.sol";
+import "../../src/example/staking/ERC721Staking.sol";
+import {TaggedRuleDataFacet} from "../../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
 
 /**
- * @title Test ERC721 Staking for multiple ERC721 Contracts with ERC20 rewards that are minted at claim.
- * @notice This tests the ERC721 Staking contract with erc20 rewards minted at claim.
+ * @title Test ERC721 Staking for multiple ERC721 Contracts with ERC20 rewards
+ * @notice This tests the ERC721 Staking contract with pre-minted erc20 rewards
  * @dev A testNFT contract is created in set up to test adding a new ERC721 address for staking
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract ERC721StakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationERC20 rewardCoin;
     ApplicationERC721 applicationNFT;
     ApplicationERC721 applicationNFTA;
@@ -30,8 +30,9 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationERC721Handler applicationNFTAHandler;
     ApplicationAppManager appManager;
+    ERC721Staking stakingContract;
     ApplicationHandler public applicationHandler;
-    ERC721AutoMintStaking stakingContract;
+
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     address user1 = address(0xAAA);
     address user2 = address(0xBBB);
@@ -53,21 +54,20 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
         ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
         appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
-        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
-        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         /// add the DEAD address as a app administrator
         appManager.addAppAdministrator(appAdministrator);
+        /// connect the appHandler to the appManager
+        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
+        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
         /// deploying the ERC721  contract
         applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(appManager), "https://SampleApp.io");
         applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(applicationNFT), false);
         applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
-
-        appManager.registerToken("THRK", address(applicationNFT));
+        appManager.registerToken("PudgyParakeet", address(applicationNFT));
         /// deploy ERC721A contract
-        applicationNFTA = new ApplicationERC721("PudgyParakeet", "THRKA", address(appManager), "https://SampleApp.io");
+        applicationNFTA = new ApplicationERC721("PudgyParakeet2", "THRKA", address(appManager), "https://SampleApp.io");
         applicationNFTAHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(applicationNFTA), false);
         applicationNFTA.connectHandlerToToken(address(applicationNFTAHandler));
-        applicationNFTAHandler.setERC721Address(address(applicationNFTA));
         appManager.registerToken("THRKA", address(applicationNFTA));
         // Create Reward Coin
         rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager));
@@ -81,11 +81,9 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
         rewardsPerAddress[1] = ruleBArray;
         ///Test NFT for testing staking collection update function (not wired up to handlers)
         testNFT = new ApplicationERC721("TestOnly", "TST", address(appManager), "https://SampleApp.io");
-        testNFT.connectHandlerToToken(address(new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(testNFT), false)));
-        stakingContract = new ERC721AutoMintStaking(address(rewardCoin), applicationTokens, rewardsPerAddress, address(appManager));
+        stakingContract = new ERC721Staking(address(rewardCoin), applicationTokens, rewardsPerAddress, address(appManager));
 
-        /// Register stakingContract for Minting
-        appManager.registerStaking(address(stakingContract));
+        rewardCoin.mint(address(stakingContract), 2_000_000_000_000);
         vm.warp(Blocktime);
     }
 
@@ -101,8 +99,6 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
     function testConstructorInvalidSetup() public {
         ///Test NFT for testing staking collection update function (not wired up to handlers)
         ApplicationERC721 nft1 = new ApplicationERC721("TestOnly", "TST", address(appManager), "https://SampleApp.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(appManager), address(nft1), false);
-        nft1.connectHandlerToToken(address(applicationNFTHandler));
         uint128[7][] memory rewardsPerAddress = new uint128[7][](1);
         rewardsPerAddress[0] = ruleAArray;
         // Create Reward Coin
@@ -110,10 +106,10 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
         ///Create ERC721 Staking Contract
         applicationTokens = [address(nft1), address(applicationNFTA)];
         vm.expectRevert(0x028a6c58);
-        stakingContract = new ERC721AutoMintStaking(address(rewardCoin), applicationTokens, rewardsPerAddress, address(appManager));
+        stakingContract = new ERC721Staking(address(rewardCoin), applicationTokens, rewardsPerAddress, address(appManager));
     }
 
-    function testStakingNftAutoMint() public {
+    function testStakingNFT() public {
         ///Mint NFTs and transfer to users
         setUpUsers();
         ///User 1 stakes NFTs
@@ -262,7 +258,6 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.approve(address(stakingContract), 0);
         applicationNFT.approve(address(stakingContract), 1);
         applicationNFTA.approve(address(stakingContract), 0);
-
         vm.stopPrank();
         vm.startPrank(superAdmin);
         applicationNFTA.safeMint(user2);
@@ -271,7 +266,6 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.approve(address(stakingContract), 2);
         applicationNFT.approve(address(stakingContract), 3);
         applicationNFTA.approve(address(stakingContract), 1);
-
         vm.stopPrank();
         vm.startPrank(superAdmin);
         applicationNFTA.safeMint(user3);
@@ -280,20 +274,6 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
         applicationNFT.approve(address(stakingContract), 4);
         applicationNFT.approve(address(stakingContract), 5);
         applicationNFTA.approve(address(stakingContract), 2);
-    }
-
-    function testMultiCollectionStaking() public {
-        ///Mint NFTs and transfer to users
-        setUpUsers();
-        ///User 1 stakes NFTs with same tokenID from different collections
-        vm.stopPrank();
-        vm.startPrank(user1);
-        stakingContract.stake(address(applicationNFTA), 0, 3, 3);
-        stakingContract.stake(address(applicationNFT), 0, 2, 1);
-        vm.warp(Blocktime + 2 days); /// Wait longe enough for second stake to expire but not the first
-        stakingContract.claimRewards();
-        assertEq(applicationNFTA.balanceOf(user1), 0);
-        assertEq(applicationNFT.balanceOf(user1), 2); /// Prove that only the collection that has expired stake is withdrawn
     }
 
     function testAdminFunction() public {
@@ -311,9 +291,9 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
         vm.stopPrank();
         vm.startPrank(user1);
-        if (rewardsA == 0) vm.expectRevert();
+        if (rewardsA > 2_000_000_000_000 || rewardsA == 0) vm.expectRevert();
         stakingContract.stake(address(applicationNFT), 0, unitsOfTime, forXUnitsOfTime);
-        if (rewardsA != 0) {
+        if (rewardsA <= 2_000_000_000_000 && rewardsA != 0) {
             stakingContract.stake(address(applicationNFT), 1, unitsOfTime, forXUnitsOfTime);
             vm.warp(block.timestamp + ((uint256(forXUnitsOfTime) * timeUnits[unitsOfTime])) + 1);
             stakingContract.claimRewards();
@@ -321,16 +301,16 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
         ///test multiple stakers for multiple times
         vm.stopPrank();
         vm.startPrank(user2);
-        if (rewardsA == 0) vm.expectRevert();
+        if (rewardsA > 2_000_000_000_000 || rewardsA == 0) vm.expectRevert();
         stakingContract.stake(address(applicationNFT), 2, unitsOfTime, forXUnitsOfTime);
         if (rewardsA <= 2_000_000_000_000 && rewardsA != 0) {
             stakingContract.stake(address(applicationNFT), 3, unitsOfTime, forXUnitsOfTime);
         }
         vm.stopPrank();
         vm.startPrank(user3);
-        if (rewardsA == 0) vm.expectRevert();
+        if (rewardsA > 2_000_000_000_000 || rewardsA == 0) vm.expectRevert();
         stakingContract.stake(address(applicationNFTA), 2, unitsOfTime, forXUnitsOfTime);
-        if (rewardsA != 0) {
+        if (rewardsA <= 2_000_000_000_000 && rewardsA != 0) {
             stakingContract.stake(address(applicationNFT), 5, unitsOfTime, forXUnitsOfTime);
         }
         /// try and claim before time is done

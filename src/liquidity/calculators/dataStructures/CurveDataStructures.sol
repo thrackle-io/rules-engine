@@ -21,13 +21,12 @@ struct LineInput{
 /** 
 * @dev Linear curve expressed in fractions.
 * @notice this is how the internal line should be saved since this will allow more precision during mathematical operations.
-* definition: y = (m_num/m_den) * X + (b_num/b_den)
+* definition: y = (m_num/m_den) * x + b
 */ 
 struct Line{
     uint256 m_num;
     uint256 m_den;
-    uint256 b_num;
-    uint256 b_den;
+    uint256 b;
 }
 
 /** 

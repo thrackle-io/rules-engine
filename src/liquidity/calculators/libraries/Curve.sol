@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import {Line, LineInput, SigmoidFakeS} from "./CurveDataStructures.sol";
+import {Line, LineInput, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
 import {Math} from "./Math.sol";
 
 /**
@@ -11,20 +11,21 @@ import {Math} from "./Math.sol";
  * Every curve should has its own implementation of both getY() function and fromInput() function.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-library Curve{
+library Curve {
 
     using Math for uint256;
 
+    uint256 constant ATTO = 10 ** 18;
+
     /**
     * @dev calculates f(x) for linear curve. 
-    * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den and b by b_num/b_den.
-    * The ecuation was then reorganized to keep as much precision as possible while avoiding early overflows.
+    * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den.
     * @param line the Line curve or function *f*
     * @param x the scalar on the abscissa axis to calculate *f(x)*.
-    * @return y the value of f(x) on the ordinate axis
+    * @return y the value of f(x) on the ordinate axis in ATTOs
     */
     function getY(Line memory line, uint256 x) pure internal returns(uint256 y){
-        y = x * (((line.b_den * line.m_num ) + (line.b_num * line.m_den) / x) / (line.m_den * line.b_den));
+        y = ((line.m_num * x * ATTO) / line.m_den) + line.b;
     }
 
     /**
@@ -47,16 +48,7 @@ library Curve{
             line.m_den = 10 ** (precisionDecmls + 1);
         }
 
-        // if y-intersection is less than 1, then we add more zeros to the numerator and denominator to avoid losing precision.
-        if(input.b < 1 * 10 ** 18){
-            uint256 bAdjust = 18 - input.b.getNumberOfDigits();
-            line.b_num = input.b * (2 * 10 ** bAdjust);
-            line.b_den = 2 * 10 ** (bAdjust + 18);
-        // if not, then we simply store standard values.
-        }else{
-            line.b_num = input.b;
-            line.b_den = 10 ** 18;
-        }
+        line.b = input.b;
     }
 
     /** 

@@ -1,10 +1,10 @@
 // // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "../src/liquidity/ProtocolAMM.sol";
-import "../src/example/OracleRestricted.sol";
-import "../src/example/OracleAllowed.sol";
-import {ApplicationAMMHandler} from "../src/example/liquidity/ApplicationAMMHandler.sol";
+import "../../src/liquidity/ProtocolAMM.sol";
+import "../../src/example/OracleRestricted.sol";
+import "../../src/example/OracleAllowed.sol";
+import {ApplicationAMMHandler} from "../../src/example/liquidity/ApplicationAMMHandler.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import "test/helpers/TestCommonFoundry.sol";
 

@@ -15,9 +15,10 @@ contract ProtocolNFTAMMCalcLinear is IProtocolAMMFactoryCalculator, CurveErrors 
 
     using Curve for Line;
 
-    uint256 constant Y_MAX = 100_000 * 10 ** 18;
-    uint256 constant M_MAX = 100 * 10 ** 8;
     uint8 constant PRECISION_DECIMALS = 8;
+    uint256 constant ATTO = 10 ** 18;
+    uint256 constant Y_MAX = 1_000_000_000_000_000_000_000_000 * ATTO;
+    uint256 constant M_MAX = 1_000_000_000_000_000_000_000_000 * 10 ** PRECISION_DECIMALS;
     Line public buyCurve;
     Line public sellCurve;
 
@@ -115,12 +116,12 @@ contract ProtocolNFTAMMCalcLinear is IProtocolAMMFactoryCalculator, CurveErrors 
     * that they don't intersect, and that they tend to diverge.
     * @notice this is an overloaded function. In this case, the buyCurve is of the LineInput type while the sellCurve
     * is of the Line type
-    * @param buyCurve the definition of the buyCurve stored in the contract
+    * @param _buyCurve the definition of the buyCurve stored in the contract
     * @param _sellCurve the definition of the sellCurve input
     */
     function _validateCurvePair(LineInput memory _buyCurve, Line memory _sellCurve) internal pure {
         if(_buyCurve.m * (_sellCurve.m_den / PRECISION_DECIMALS) <= _sellCurve.m_num) revert CurvesInvertedOrIntersecting(); 
-        if( _buyCurve.b * ( _sellCurve.b_den / 10 ** 18)  <= _sellCurve.b_num) revert CurvesInvertedOrIntersecting(); 
+        if( _buyCurve.b <= _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }
 
     /**
@@ -129,11 +130,11 @@ contract ProtocolNFTAMMCalcLinear is IProtocolAMMFactoryCalculator, CurveErrors 
     * @notice this is an overloaded function. In this case, the buyCurve is of the Line type while the sellCurve
     * is of the LineInput type
     * @param _buyCurve the definition of the buyCurve input
-    * @param sellCurve the definition of the sellCurve stored in the contract
+    * @param _sellCurve the definition of the sellCurve stored in the contract
     */
     function _validateCurvePair(Line memory _buyCurve, LineInput memory _sellCurve) internal pure {
         if(_buyCurve.m_num <= _sellCurve.m * (_buyCurve.m_den / PRECISION_DECIMALS))  revert CurvesInvertedOrIntersecting(); 
-        if(_buyCurve.b_num <= _sellCurve.b * ( _buyCurve.b_den / 10 ** 18)) revert CurvesInvertedOrIntersecting(); 
+        if(_buyCurve.b <= _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }
 
   
