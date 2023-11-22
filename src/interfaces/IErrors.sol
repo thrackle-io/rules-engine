@@ -122,6 +122,10 @@ interface AMMCalculatorErrors {
     error InsufficientPoolDepth(uint256 pool, int256 attemptedWithdrawal);
 }
 
+interface CurveErrors{
+    error CurvesInvertedOrIntersecting();
+}
+
 interface AMMErrors {
     error TokenInvalid(address);
     error AmountExceedsBalance(uint256);
