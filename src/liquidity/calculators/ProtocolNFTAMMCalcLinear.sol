@@ -6,7 +6,7 @@ import {Line, LineInput, Curve} from "./libraries/Curve.sol";
 import {CurveErrors} from "../../interfaces/IErrors.sol";
 
 /**
- * @title Automated Market Maker Swap Linear Calculator
+ * @title Automated Market Maker Swap Linear Calculator for NFTs
  * @notice This contains the calculations for AMM swap. y = mx + b
  * y = token0 amount
  * x = token1 amount
@@ -46,28 +46,26 @@ contract ProtocolNFTAMMCalcLinear is IProtocolAMMFactoryCalculator, CurveErrors 
 
     /**
      * @dev This performs the swap from token0 to token1. It is a linear calculation.
-     * @param _reserve0 amount of token0 being swapped for unknown amount of token1
-     * @param _reserve1 amount of token1 coming out of the pool
-     * @param _amount0 amount of token1 coming out of the pool
-     * @param _amount0 amount of token1 coming out of the pool
+     * @param _q tracker of 
+     * @param _amountERC20 amount of ERC20 coming out of the pool
+     * @param _amountNFT amount of token1 coming out of the pool
      * @return _amountOut
      */
-    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external view override returns (uint256) {
-        // if (_amount0 == 0 && _amount1 == 0) {
-        //     revert AmountsAreZero();
-        // }
-        // if (_amount0 != 0) {
-        //     // swap token0 for token1
-        //     _amount1 = (((3 * _amount0) / 2) + ((m * ((2 * _reserve0 * _amount0) + _amount0 ** 2))) / ((2 * 10 ** 18) * m_denom));
-        //     return _amount1;
-        // } else {
-        //     // swap token1 for token0
-        //     _amount0 =
-        //         ((2 * (10 ** 9)) * (_amount1 * b_denom) * sqrt(m_denom)) /
-        //         (sqrt(((10 ** 18) * (b_num ** 2) * m_denom) + 2 * _reserve1 * m * (b_denom ** 2)) + sqrt(((10 ** 18) * (b_num ** 2) * m_denom) + 2 * (_reserve1 - _amount1) * m * (b_denom ** 2)));
+    function calculateSwap(uint256 _q, uint256 _amountERC20, uint256 _amountNFT) external view override returns (uint256 price) {
+        
+        if (_amountERC20 == 0 && _amountNFT == 0) {
+            revert AmountsAreZero();
+        }
+        if (_amountERC20 != 0) {
+            // user is trying to SELL an NFT to get ERC20s in return
+            if (_q < 1) revert ValueOutOfRange(_q);
+            price = sellCurve.getY(_q - 1);
+        } else {
+            // user is trying to BUY an NFT in exchange for ERC20s
+            if (_amountNFT > 1) revert ValueOutOfRange(_amountNFT);
+            price = buyCurve.getY(_q);
+        }
 
-        //     return _amount0;
-        // }
     }
 
     function setBuyCurve(LineInput memory _buyCurve) external appAdministratorOnly(appManagerAddress){
