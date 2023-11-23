@@ -148,15 +148,15 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         ProtocolNFTAMMCalcLinear calc = testCreateNFTAMMCalculator();
 
         uint256 price;
-        // we test buying 1 NFT when q is 10
+        // we test selling 1 NFT when q is 10
         price = calc.calculateSwap(0, 10, 1, 0);
         // according to desmos, the price should be 11.42 * 10^19 (let's remember sell is calculated with q-1)
         assertEq(price, 1142 * 10 ** 16);
-        // we test buying 1 NFT when q is 1_000
+        // we test selling 1 NFT when q is 1_000
         price = calc.calculateSwap(0, 1_000, 1, 0);
         // according to desmos, the price should be 1.8962 * 10^20 (let's remember sell is calculated with q-1)
         assertEq(price, 18962 * 10 ** 16);
-        // we test buying 1 NFT when q is a mill
+        // we test selling 1 NFT when q is a mill
         price = calc.calculateSwap(0, 1_000_000, 1, 0);
         // according to desmos, the price should be 18000962 * 10^23 (let's remember sell is calculated with q-1)
         assertEq(price, 18000962 * 10 ** 16);
@@ -166,11 +166,11 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         ProtocolNFTAMMCalcLinear calc = testCreateNFTAMMCalculatorWithExtremelyHighParameters();
 
         uint256 price;
-        // we test buying 1 NFT when q is 1_000
+        // we test selling 1 NFT when q is 1_000
         price = calc.calculateSwap(0, 1_000, 1, 0);
         // according to desmos, the price should be 9.999 x 10^25 (let's remember sell is calculated with q-1)
         assertEq(price, 99 * 10 ** 25 * 10 ** 18);
-        // we test buying 1 NFT when q is a septillion
+        // we test selling 1 NFT when q is a septillion
         price = calc.calculateSwap(0, 1_000_000_000_000_000_000_000_000, 1, 0);
         // according to desmos, the price should be 1.000000000000000000000001 x 10^48 (let's remember sell is calculated with q-1)
         assertEq(price, 99 * 10 ** 46 * 10 ** 18);
@@ -181,11 +181,11 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         ProtocolNFTAMMCalcLinear calc = testCreateNFTAMMCalculatorWithExtremelyLowParameters();
 
         uint256 price;
-        // we test buying 1 NFT when q is 0
+        // we test selling 1 NFT when q is 0
         price = calc.calculateSwap(0, 1, 1, 0);
         // according to desmos, the price should be 9.9 * 10^-17 (let's remember sell is calculated with q-1)
         assertEq(price, 99);
-        // we test buying 1 NFT when q is 1
+        // we test selling 1 NFT when q is 1
         price = calc.calculateSwap(0, 2, 1, 0);
         // according to desmos, the price should be 1.0000000099 * 10−8 (let's remember sell is calculated with q-1)
         assertEq(price, 10000000099);

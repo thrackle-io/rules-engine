@@ -46,7 +46,7 @@ contract ProtocolNFTAMMCalcLinear is IProtocolAMMFactoryCalculator, CurveErrors 
      * @param _reserve0 not used in this case.
      * @param _q tracker of amount of NFTs released by the pool
      * @param _amountERC20 amount of ERC20 coming out of the pool
-     * @param _amountNFT amount of token1 coming out of the pool
+     * @param _amountNFT amount of NFTs coming out of the pool (restricted to 1 for now)
      * @return price
      */
     function calculateSwap(uint256 _reserve0, uint256 _q, uint256 _amountERC20, uint256 _amountNFT) external view override returns (uint256 price) {
@@ -91,7 +91,7 @@ contract ProtocolNFTAMMCalcLinear is IProtocolAMMFactoryCalculator, CurveErrors 
 
     /// #### Validation Functions ####
     /**
-    * @dev validates that the definition of a curve is within the save mathematical limits
+    * @dev validates that the definition of a curve is within the safe mathematical limits
     * @param curve the definition of the curve
     */
     function _validateSingleCurve(LineInput memory curve) internal pure {

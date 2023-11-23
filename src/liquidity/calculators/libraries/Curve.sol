@@ -31,23 +31,23 @@ library Curve {
        }
 
     /**
-    * @dev creates a Line curve from a user's LineInput. This mostly means that m is represented now by m_num/m_den,
-    * and b is now represented by b_num/b_den. This is done to have as much precision as possible when calculating *y*
+    * @dev creates a Line curve from a user's LineInput. This mostly means that m is represented now by m_num/m_den.
+    * This is done to have as much precision as possible when calculating *y*
     * @param line the Line in storage that will be built from the input.
     * @param input the LineInput entered by the user to be stored.
-    * @param precisionDecmls the amount of precision decimals that the input is formatted on.
+    * @param precisionDecimals the amount of precision decimals that the input's slope is formatted on.
     */
-    function fromInput(Line storage line, LineInput memory input, uint256 precisionDecmls) internal {
+    function fromInput(Line storage line, LineInput memory input, uint256 precisionDecimals) internal {
 
-        // if precisionDecmls is even, then we simply save input's m as numerator, and we make the denominator to have as many
-        // zeros as *precisionDecmls*
-        if (precisionDecmls % 2 > 0) {
+        // if precisionDecimals is even, then we simply save input's m as numerator, and we make the denominator to have as many
+        // zeros as *precisionDecimals*
+        if (precisionDecimals % 2 > 0) {
             line.m_num = input.m;
-            line.m_den = 10 ** precisionDecmls;
-        // if precisionDecmls is NOT even, then we make it even by adding one more decimal on both denominator and numerator.
+            line.m_den = 10 ** precisionDecimals;
+        // if precisionDecimals is NOT even, then we make it even by adding one more decimal on both denominator and numerator.
         }else{
             line.m_num = input.m * 10;
-            line.m_den = 10 ** (precisionDecmls + 1);
+            line.m_den = 10 ** (precisionDecimals + 1);
         }
 
         line.b = input.b;
@@ -63,7 +63,7 @@ library Curve {
     /** 
     *  PLACE HOLDER for sigmoidal
     */
-    function fromInput(SigmoidFakeS storage sigmoid, LineInput memory input, uint8 precisionDecmls) internal {
+    function fromInput(SigmoidFakeS storage sigmoid, LineInput memory input, uint8 precisionDecimals) internal {
         /// body here
     }
 
