@@ -41,7 +41,7 @@ library Curve {
 
         // if precisionDecimals is even, then we simply save input's m as numerator, and we make the denominator to have as many
         // zeros as *precisionDecimals*
-        if (precisionDecimals % 2 > 0) {
+        if (precisionDecimals % 2 == 0) {
             line.m_num = input.m;
             line.m_den = 10 ** precisionDecimals;
         // if precisionDecimals is NOT even, then we make it even by adding one more decimal on both denominator and numerator.
