@@ -11,6 +11,7 @@ import "test/helpers/TestCommonFoundry.sol";
 import {LineInput} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 import "../../src/liquidity/calculators/ProtocolNFTAMMCalcLinear.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "../helpers/Utils.sol";
 
 /**
  * @title Test all AMM Calculator Factory related functions
@@ -18,7 +19,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
  * @dev A substantial amount of set up work is needed for each test.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry {
+contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
 
     event Log(bytes data);
     event Tens(uint);
@@ -38,7 +39,10 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry {
     uint256 constant ATTO = 10 ** 18;
     uint256 constant Y_MAX = 1_000_000_000_000_000_000_000_000 * ATTO;
     uint256 constant M_MAX = 1_000_000_000_000_000_000_000_000 * 10 ** PRECISION_DECIMALS;
-    uint8 constant MAX_TOLERANCE = 70;
+    uint8 constant MAX_TOLERANCE = 1;
+    uint8 constant TOLERANCE_PRECISION = 8;
+    uint256 constant TOLERANCE_DEN = 10 ** TOLERANCE_PRECISION;
+    /// tolerance = (MAX_TOLERANCE * 100) / TOLERANCE_PRECISION %;
 
     function setUp() public {
         vm.startPrank(superAdmin);
@@ -108,124 +112,82 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry {
                 res = vm.ffi(inputs);
             }
         }
-        emit Log(res);
         bytes memory priceBytes = bytes(price.toString());
+
+        emit Log(res);
         emit Log(priceBytes);
         emit Price(price);
-        bool isAscii = true;
-        for (uint i; i < res.length; i++){
-            if (uint(uint8(res[i])) < 0x30 || uint(uint8(res[i])) > 0x39) {
-                isAscii = false;
-                emit Tens(uint(uint8(res[i])));
-                emit IsAscii(isAscii);
-                break;
-            }
-        }
+
+        bool isAscii = isPossiblyAnAscii(res);
         emit IsAscii(isAscii);
+
         if(isAscii){
-            if(areTheyEqual(priceBytes, res)){
+            // we compare if both results are exactly the same
+            if(areBytesEqual(priceBytes, res)){
+                // if they are then we're done here. Test passed.
                 emit Passed();
                 return;
+            // If they are not, then we calculate the difference...
             }else{
-                //if(uint(bytes(price.toString())) < uint(res) - 3 || uint(bytes(price.toString())) > uint(res) + 3){
                 uint diff;
-                
                 assembly{
                     diff := xor(priceBytes, res)
                 }
                 emit Diff(diff);
-                if((uint(diff) * 10000) / 100000000 > MAX_TOLERANCE ){
-                    uint pythonPrice;
-                    for (uint i; i < res.length; i++){
-                        //emit Log(bytes(res[i]));
-                        uint tens = ((uint(uint8(res[i])) / 16 ) * 10);
-                        emit Tens(tens);
-                        uint units = ( uint(uint8(res[i])) - ((uint(uint8(res[i])) / 16 ) * 16));
-                        emit Units(units);
-                        if (i != res.length - 1) pythonPrice += ( tens + units) * (10 ** ((res.length - i - 1 )*2));
-                        else pythonPrice += ( tens + units);
-                        emit PythonPrice(pythonPrice);
-                    }
+                // ... and we see if that difference is within the percentage tolerance
+                if(((uint(diff) * TOLERANCE_DEN)) / price > MAX_TOLERANCE ){
+                    // if it is not, it is possible that what we thought was an ascii, was not.
+                    // so we treat the number as adecimal string that needs to be decoded.
+                    uint pythonPrice = decodeHexDecimalBytes(res);
+                    // now we compare if the decoded number is exactly the same as the price from the calculator
                     if(price != pythonPrice){
+                        // if they are not, we then proceed to check if the difference is within tolerance
+                        // to avoid underflow, we check which one is greater than the other one
                         if(price  > pythonPrice){
-                            if(((price - pythonPrice) * 10000) / pythonPrice  > MAX_TOLERANCE){
+                            if(((price - pythonPrice) * TOLERANCE_DEN) / pythonPrice  > MAX_TOLERANCE){
                                 revert OutOfTolerance(price, pythonPrice);
                             }
                         }else{
-                            if(((pythonPrice - price) * 10000) / price  > MAX_TOLERANCE){
+                            if(((pythonPrice - price) * TOLERANCE_DEN) / price  > MAX_TOLERANCE){
                                 revert OutOfTolerance(price, pythonPrice);
                             }
                         }
                         
                     }else{
+                        // if they are the same, then we passed the test.
                         emit Passed();
                         return;
                     }
-                    //revert OutOfTolerance(bytes(price.toString()), res);
                 }else{
+                    // if the difference is within the tolerance, then we passed the test.
                     emit Passed();
                     return;
                 } 
             }
-        }else{
-            uint pythonPrice;
-             for (uint i; i < res.length; i++){
-                //emit Log(bytes(res[i]));
-                uint tens = ((uint(uint8(res[i])) / 16 ) * 10);
-                emit Tens(tens);
-                uint units = ( uint(uint8(res[i])) - ((uint(uint8(res[i])) / 16 ) * 16));
-                emit Units(units);
-                if (i != res.length - 1) pythonPrice += ( tens + units) * (10 ** ((res.length - i - 1 )*2));
-                else pythonPrice += ( tens + units);
-                emit PythonPrice(pythonPrice);
-             }
+        }
+        /// if the response was not an ascii.
+        else{
+            // we go from bytes to uint
+            uint pythonPrice= decodeHexDecimalBytes(res);
+            // if the prices are not exactly the same, we see if they are at least within the tolerance
              if(price != pythonPrice){
+                // to avoid underflow, we check first which one is greater than the other one.
                 if(price  > pythonPrice){
-                    if(((price - pythonPrice) * 10000) / pythonPrice  > MAX_TOLERANCE){
+                    if(((price - pythonPrice) * TOLERANCE_DEN) / pythonPrice  > MAX_TOLERANCE){
                         revert OutOfTolerance(price, pythonPrice);
                     }
                 }else{
-                    if(((pythonPrice - price) * 10000) / price  > MAX_TOLERANCE){
+                    if(((pythonPrice - price) * TOLERANCE_DEN) / price  > MAX_TOLERANCE){
                         revert OutOfTolerance(price, pythonPrice);
                     }
                 }
                 }else{
+                    // if they are, then we passed the test.
                     emit Passed();
                     return;
                 }
         }
-
-
-        // if(isAscii){
-        //     emit IsFormatted(false);
-        //     uint pythonPrice;
-        //      for (uint i; i < res.length; i++){
-        //         //emit Log(bytes(res[i]));
-        //         uint tens = ((uint(uint8(res[i])) / 16 ) * 10);
-        //         emit Tens(tens);
-        //         uint units = ( uint(uint8(res[i])) - ((uint(uint8(res[i])) / 16 ) * 16));
-        //         emit Units(units);
-        //         if (i != res.length - 1) pythonPrice += ( tens + units) * (10 ** ((res.length - i - 1 )*2));
-        //         else pythonPrice += ( tens + units);
-        //         emit PythonPrice(pythonPrice);
-        //      }
-        //     //pythonPrice = uint256(bytes32(res));
-        //     assertEq(price, pythonPrice);
-        // }else{
-        //     emit IsFormatted(true);
-        //     //uint pythonPrice;
-        //     // string memory pythonPrice = abi.decode(res, (string));
-        //     // console.log(pythonPrice);
-        //     emit PythonPrice(price);
-        //     assertEq(bytes(price.toString()), res);
-        //     // pythonPrice = uint256(bytes32(res));
-        //     // assertEq(price, pythonPrice);
-        // }
-
         
     }
 
-    function areTheyEqual(bytes memory x, bytes memory y) internal pure returns(bool) {
-        return keccak256(x) == keccak256(y);
-    }
 }
