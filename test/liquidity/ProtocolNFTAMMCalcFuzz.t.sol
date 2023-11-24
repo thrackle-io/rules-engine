@@ -9,7 +9,7 @@ import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "test/helpers/TestCommonFoundry.sol";
 import {LineInput} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
-import "../../src/liquidity/calculators/ProtocolNFTAMMCalcLinear.sol";
+import "../../src/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../helpers/Utils.sol";
 
@@ -78,7 +78,7 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
         LineInput memory sell = LineInput(mSell, bSell);
 
         /// we create the actual calculator with such curves
-        ProtocolNFTAMMCalcLinear calc = ProtocolNFTAMMCalcLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
+        ProtocolNFTAMMCalcDualLinear calc = ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
 
         /// the price that will be returned by the calculator
         uint256 price;

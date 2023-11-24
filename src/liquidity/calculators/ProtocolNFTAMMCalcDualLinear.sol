@@ -11,7 +11,7 @@ import {CurveErrors} from "../../interfaces/IErrors.sol";
  *      as needed. It contains an example linear. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolNFTAMMCalcLinear is IProtocolAMMFactoryCalculator, CurveErrors {
+contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErrors {
 
     using Curve for Line;
 

@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
-import "src/liquidity/calculators/ProtocolNFTAMMCalcLinear.sol";
+import "src/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcSample01.sol";
 import "src/economic/AppAdministratorOnly.sol";
 import {LineInput} from "./calculators/dataStructures/CurveDataStructures.sol";
@@ -49,7 +49,7 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
     function createDualLinearNFT(LineInput memory buyCurve, LineInput memory sellCurve, address _appManagerAddress) external returns (address) {
         // LineInput memory buyCurve = LineInput(_buySlope, _buy_y_intercept);
         // LineInput memory sellCurve = LineInput(_sellSlope, _sell_y_intercept);
-        ProtocolNFTAMMCalcLinear protocolAMMCalcLinear = new ProtocolNFTAMMCalcLinear(buyCurve, sellCurve, _appManagerAddress);
+        ProtocolNFTAMMCalcDualLinear protocolAMMCalcLinear = new ProtocolNFTAMMCalcDualLinear(buyCurve, sellCurve, _appManagerAddress);
         return address(protocolAMMCalcLinear);
     }
 

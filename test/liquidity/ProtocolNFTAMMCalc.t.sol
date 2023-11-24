@@ -9,7 +9,7 @@ import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "test/helpers/TestCommonFoundry.sol";
 import {LineInput} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
-import "../../src/liquidity/calculators/ProtocolNFTAMMCalcLinear.sol";
+import "../../src/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
 
 /**
  * @title Test all AMM Calculator Factory related functions
@@ -26,33 +26,33 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         switchToAppAdministrator();
     }
 
-    function testCreateNFTAMMCalculator() public returns(ProtocolNFTAMMCalcLinear calc) {
+    function testCreateNFTAMMCalculator() public returns(ProtocolNFTAMMCalcDualLinear calc) {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         /// buy slope = 0.2; b = 10
         LineInput memory buy = LineInput(2 * 10 ** 7, 10 * 10 ** 18);
         /// sell slope = 0.18; b = 9.8
         LineInput memory sell = LineInput(18 * 10 ** 6, 98 * 10 ** 17);
-        calc = ProtocolNFTAMMCalcLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
+        calc = ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
         assertEq(calc.appManagerAddress(),address(applicationAppManager));
     }
 
-    function testCreateNFTAMMCalculatorWithExtremelyHighParameters() public returns(ProtocolNFTAMMCalcLinear calc) {
+    function testCreateNFTAMMCalculatorWithExtremelyHighParameters() public returns(ProtocolNFTAMMCalcDualLinear calc) {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         /// buy slope = 1_000_000_000_000_000_000_000_000; b = 1_000_000_000_000_000_000_000_000
         LineInput memory buy = LineInput(1_000_000_000_000_000_000_000_000 * 10 ** 8, 1_000_000_000_000_000_000_000_000 * 10 ** 18);
         /// sell slope = 990 sextillion; b = 990 sextillion
         LineInput memory sell = LineInput(990_000_000_000_000_000_000_000 * 10 ** 8, 990_000_000_000_000_000_000_000 * 10 ** 18);
-        calc = ProtocolNFTAMMCalcLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
+        calc = ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
         assertEq(calc.appManagerAddress(),address(applicationAppManager));
     }
 
-    function testCreateNFTAMMCalculatorWithExtremelyLowParameters() public returns(ProtocolNFTAMMCalcLinear calc) {
+    function testCreateNFTAMMCalculatorWithExtremelyLowParameters() public returns(ProtocolNFTAMMCalcDualLinear calc) {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         /// buy slope = 0.00000002; b = 0.0000000000000001
         LineInput memory buy = LineInput(2, 100);
         /// sell slope = 0.00000001; b = 0.000000000000000099
         LineInput memory sell = LineInput(1, 99);
-        calc = ProtocolNFTAMMCalcLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
+        calc = ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
         assertEq(calc.appManagerAddress(),address(applicationAppManager));
     }
 
@@ -63,7 +63,7 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         /// sell slope = 0.18; b = 11
         LineInput memory sell = LineInput(18 * 10 ** 6, 11 * 10 ** 18);
         vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
-        ProtocolNFTAMMCalcLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
+        ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
     }
 
     function testNegCreateNFTAMMCalculatorIntersectingCurvesAtHigh_q() public {
@@ -73,7 +73,7 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         /// sell slope = 0.22; b = 9.8
         LineInput memory sell = LineInput(22 * 10 ** 6, 98 * 10 ** 17);
         vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
-        ProtocolNFTAMMCalcLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
+        ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
     }
 
     function testNegCreateNFTAMMCalculatorYAboveLimit() public {
@@ -83,7 +83,7 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         /// sell slope = 0.18; b = 9.8
         LineInput memory sell = LineInput(18 * 10 ** 6, 98 * 10 ** 17);
         vm.expectRevert(abi.encodeWithSignature("ValueOutOfRange(uint256)", 1_000_000_000_000_000_000_000_001 * 10 ** 18));
-        ProtocolNFTAMMCalcLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
+        ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
     }
 
     function testNegCreateNFTAMMCalculatorMAboveLimit() public {
@@ -93,11 +93,11 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         /// sell slope = 0.18; b = 9.8
         LineInput memory sell = LineInput(18 * 10 ** 6, 98 * 10 ** 17);
         vm.expectRevert(abi.encodeWithSignature("ValueOutOfRange(uint256)", 1_000_000_000_000_000_000_000_001 * 10 ** 8));
-        ProtocolNFTAMMCalcLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
+        ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
     }
 
    function testBuyCurve() public {
-        ProtocolNFTAMMCalcLinear calc = testCreateNFTAMMCalculator();
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
 
         uint256 price;
         // we test buying 1 NFT when q is 10
@@ -115,7 +115,7 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
    }
 
    function testBuyCurveWithExtremelyHighParameter() public {
-        ProtocolNFTAMMCalcLinear calc = testCreateNFTAMMCalculatorWithExtremelyHighParameters();
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculatorWithExtremelyHighParameters();
 
         uint256 price;
         // we test buying 1 NFT when q is 1_000
@@ -130,7 +130,7 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
    }
 
    function testBuyCurveWithExtremelyLowParameter() public {
-        ProtocolNFTAMMCalcLinear calc = testCreateNFTAMMCalculatorWithExtremelyLowParameters();
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculatorWithExtremelyLowParameters();
 
         uint256 price;
         // we test buying 1 NFT when q is 0
@@ -145,7 +145,7 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
 
 
    function testSellCurveSimple() public {
-        ProtocolNFTAMMCalcLinear calc = testCreateNFTAMMCalculator();
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
 
         uint256 price;
         // we test selling 1 NFT when q is 10
@@ -163,7 +163,7 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
    }
 
    function testSellCurveWithExtremelyHighParameter() public {
-        ProtocolNFTAMMCalcLinear calc = testCreateNFTAMMCalculatorWithExtremelyHighParameters();
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculatorWithExtremelyHighParameters();
 
         uint256 price;
         // we test selling 1 NFT when q is 1_000
@@ -178,7 +178,7 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
    }
 
    function testSellCurveWithExtremelyLowParameter() public {
-        ProtocolNFTAMMCalcLinear calc = testCreateNFTAMMCalculatorWithExtremelyLowParameters();
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculatorWithExtremelyLowParameters();
 
         uint256 price;
         // we test selling 1 NFT when q is 0
