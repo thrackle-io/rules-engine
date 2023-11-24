@@ -40,7 +40,7 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
     uint256 constant Y_MAX = 1_000_000_000_000_000_000_000_000 * ATTO;
     uint256 constant M_MAX = 1_000_000_000_000_000_000_000_000 * 10 ** PRECISION_DECIMALS;
     uint8 constant MAX_TOLERANCE = 1;
-    uint8 constant TOLERANCE_PRECISION = 8;
+    uint8 constant TOLERANCE_PRECISION = 10;
     uint256 constant TOLERANCE_DEN = 10 ** TOLERANCE_PRECISION;
     /// tolerance = (MAX_TOLERANCE * 100) / TOLERANCE_PRECISION %;
 
