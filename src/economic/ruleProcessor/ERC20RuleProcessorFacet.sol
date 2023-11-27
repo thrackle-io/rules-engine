@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {RuleDataFacet} from "../ruleStorage/RuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "../ruleStorage/RuleDataInterfaces.sol";
+import {RuleDataFacet} from "./RuleDataFacet.sol";
+import {INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
 import {IRuleProcessorErrors, IERC20Errors} from "../../interfaces/IErrors.sol";
-import "../ruleStorage/RuleCodeData.sol";
+import "./RuleCodeData.sol";
 import "./IOracle.sol";
 import "./RuleProcessorCommonLib.sol";
 

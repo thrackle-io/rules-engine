@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import {TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
-import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
-import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
+import {TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
+import {AppRuleDataFacet} from "src/economic/ruleProcessor/AppRuleDataFacet.sol";
+import {RuleDataFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import "test/helpers/TestCommonFoundry.sol";

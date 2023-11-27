@@ -18,7 +18,7 @@ import "./RuleStorageCommonLib.sol";
  * @dev setters and getters for non tagged token specific rules
  * @notice This contract sets and gets the Rules for the protocol
  */
-contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors {
+contract RuleDataFacetStorage is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors {
     using RuleStorageCommonLib for uint64;
     using RuleStorageCommonLib for uint32;
     uint16 constant MAX_TOKEN_PERCENTAGE = 9999;

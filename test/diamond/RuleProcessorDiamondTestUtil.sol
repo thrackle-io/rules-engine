@@ -3,15 +3,14 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "../helpers/GenerateSelectors.sol";
-import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
-import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import "diamond-std/core/DiamondCut/FacetCut.sol";
 import "./RuleStorageDiamondTestUtil.sol";
-import {RuleStorageDiamond, RuleStorageDiamondArgs} from "src/economic/ruleStorage/RuleStorageDiamond.sol";
+import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
+import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/economic/ruleProcessor/RuleProcessorDiamond.sol";
-import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
+import {RuleDataFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
+import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
 
 contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTestUtil {
     // Store the FacetCut struct for each facet that is being deployed.
@@ -24,7 +23,7 @@ contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTe
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[13] memory facets = [
+        string[17] memory facets = [
             // diamond version
             "VersionFacet",
             // Native facets,

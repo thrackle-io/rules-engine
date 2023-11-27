@@ -7,7 +7,7 @@ import "diamond-std/core/DiamondCut/FacetCut.sol";
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
 import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {RuleStorageDiamond, RuleStorageDiamondArgs} from "src/economic/ruleStorage/RuleStorageDiamond.sol";
-import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
+import {RuleDataFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 
 contract RuleStorageDiamondTestUtil is GenerateSelectors {

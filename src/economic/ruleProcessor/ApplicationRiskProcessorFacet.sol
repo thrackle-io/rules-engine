@@ -2,8 +2,8 @@
 pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {AppRuleDataFacet} from "../ruleStorage/AppRuleDataFacet.sol";
-import {IApplicationRules as ApplicationRuleStorage} from "../ruleStorage/RuleDataInterfaces.sol";
+import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
+import {IApplicationRules as ApplicationRuleStorage} from "./RuleDataInterfaces.sol";
 import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
 import "./RuleProcessorCommonLib.sol";
 

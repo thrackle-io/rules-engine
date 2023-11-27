@@ -3,12 +3,12 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
-import {TaggedRuleDataFacet as TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
+import {TaggedRuleDataFacet as TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import "./RuleStorageDiamondTestUtil.sol";
 import "src/application/AppManager.sol";
-import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
+import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
-import {RuleDataFacet as NonTaggedRuleFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
+import {RuleDataFacet as NonTaggedRuleFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
 import "src/application/AppManager.sol";
 import "src/example/application/ApplicationHandler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";

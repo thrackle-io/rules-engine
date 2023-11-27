@@ -5,17 +5,15 @@ import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
 import "src/application/AppManager.sol";
-import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import "src/application/AppManager.sol";
-import {TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
-import {RuleDataFacet as Facet} from "src/economic/ruleStorage/RuleDataFacet.sol";
 import {VersionFacet} from "src/diamond/VersionFacet.sol";
-import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
-
-import "src/example/ERC20/ApplicationERC20Handler.sol";
+import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
+import {ERC20TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
+import {TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import {RuleDataFacet as Facet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
+import {AppRuleDataFacet} from "src/economic/ruleProcessor/AppRuleDataFacet.sol";
 import {ApplicationERC20} from "src/example/ERC20/ApplicationERC20.sol";
 
 contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
@@ -34,16 +32,15 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     ApplicationERC20 public applicationCoin;
     RuleProcessorDiamond public ruleProcessor;
     ApplicationERC20Handler applicationCoinHandler;
-    RuleStorageDiamond ruleStorageDiamond;
 
     function setUp() public {
         vm.startPrank(superAdmin);
-        // Deploy the Rule Storage Diamond.
-        ruleStorageDiamond = getRuleStorageDiamond();
-        // Diploy the token rule processor diamond
+        // Deploy the token rule processor diamond
         ruleProcessor = getRuleProcessorDiamond();
-        // Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
+        //TODO remove this line once storage is removed 
+
+        ruleProcessor.setRuleDataDiamond(address(ruleProcessor)); 
+
 
         // Deploy app manager
         appManager = new AppManager(superAdmin, "Castlevania", false);
@@ -115,8 +112,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     }
 
     function testAddMinTransferRule() public {
-        uint32 index = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 1000);
-        assertEq(RuleDataFacet(address(ruleStorageDiamond)).getMinimumTransferRule(index).minTransferAmount, 1000);
+        uint32 index = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(ac, 1000);
+        assertEq(RuleDataFacet(address(ruleProcessor)).getMinimumTransferRule(index).minTransferAmount, 1000);
     }
 
     function testRuleProcessorVersion() public {
@@ -146,19 +143,19 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     function testFailAddMinTransferRuleByNonAdmin() public {
         vm.stopPrank();
         vm.startPrank(address(0xDEADA55));
-        RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 1000);
+        RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(ac, 1000);
         vm.stopPrank();
         vm.startPrank(superAdmin);
     }
 
     function testPassingMinTransferRule() public {
-        uint32 index = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 2222);
+        uint32 index = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(ac, 2222);
 
         ERC20RuleProcessorFacet(address(ruleProcessor)).checkMinTransferPasses(index, 2222);
     }
 
     function testNotPassingMinTransferRule() public {
-        uint32 index = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(ac, 420);
+        uint32 index = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(ac, 420);
         vm.expectRevert(0x70311aa2);
         ERC20RuleProcessorFacet(address(ruleProcessor)).checkMinTransferPasses(index, 400);
     }
@@ -180,8 +177,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[1] = uint256(10000000000000000000000000000);
         max[2] = uint256(1000000000000000000000000000000);
         // add empty rule at ruleId 0
-        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         appManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -212,8 +209,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[1] = uint256(10000000000000000000000000000);
         max[2] = uint256(1000000000000000000000000000000);
         // add empty rule at ruleId 0
-        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         for (uint i = 1; i < 11; i++) {
@@ -250,8 +247,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[0] = uint256(10000000000000000000000000);
         max[1] = uint256(10000000000000000000000000000);
         max[2] = uint256(1000000000000000000000000000000);
-        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         appManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -282,8 +279,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[0] = uint256(10000000000000000000000000);
         max[1] = uint256(10000000000000000000000000000);
         max[2] = uint256(1000000000000000000000000000000);
-        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         appManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -313,8 +310,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[0] = uint256(10000000000000000000000000);
         max[1] = uint256(10000000000000000000000000000);
         max[2] = uint256(1000000000000000000000000000000);
-        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         appManager.addGeneralTag(superAdmin, "Oscar"); //add tag

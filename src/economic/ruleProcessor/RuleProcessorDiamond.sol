@@ -35,23 +35,23 @@ contract RuleProcessorDiamond is ERC173{
         DiamondLib.diamondCut(diamondCut, args.init, args.initCalldata);
     }
 
-    // /**
-    //  * @dev Function sets the Rule Data Diamond Address
-    //  * @param diamondAddress Address of the Rule Data Diamond
-    //  */
-    // function setRuleDataDiamond(address diamondAddress) external onlyOwner {
-    //     RuleDataStorage storage data = DiamondLib.ruleDataStorage();
-    //     data.rules = diamondAddress;
-    // }
+    /**
+     * @dev Function sets the Rule Data Diamond Address
+     * @param diamondAddress Address of the Rule Data Diamond
+     */
+    function setRuleDataDiamond(address diamondAddress) external onlyOwner {
+        RuleDataStorage storage data = DiamondLib.ruleDataStorage();
+        data.rules = diamondAddress;
+    }
 
-    // /**
-    //  * @dev Function retrieves Rule Data Diamond
-    //  * @return Address of the Rule Data Diamond
-    //  */
-    // function getRuleDataDiamondAddress() external view returns (address) {
-    //     RuleDataStorage storage data = DiamondLib.ruleDataStorage();
-    //     return data.rules;
-    // }
+    /**
+     * @dev Function retrieves Rule Data Diamond
+     * @return Address of the Rule Data Diamond
+     */
+    function getRuleDataDiamondAddress() external view returns (address) {
+        RuleDataStorage storage data = DiamondLib.ruleDataStorage();
+        return data.rules;
+    }
 
     /**
      * @dev Function finds facet for function that is called and execute the function if a facet is found and return any value.

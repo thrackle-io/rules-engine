@@ -7,7 +7,7 @@ import "src/example/application/ApplicationHandler.sol";
 import "../diamond/DiamondTestUtil.sol";
 import "src/example/ERC721/ApplicationERC721Handler.sol";
 import "../diamond/RuleProcessorDiamondTestUtil.sol";
-import {TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
+import {TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 
 /**
  * @title Test For The NFTPricing Contract

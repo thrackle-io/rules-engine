@@ -4,8 +4,8 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/Context.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {TaggedRuleDataFacet} from "../ruleStorage/TaggedRuleDataFacet.sol";
-import {ITaggedRules as TaggedRules} from "../ruleStorage/RuleDataInterfaces.sol";
+import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
+import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
 import {IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";
 import "./RuleProcessorCommonLib.sol";
 

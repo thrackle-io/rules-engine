@@ -6,11 +6,11 @@ import "forge-std/Test.sol";
 import "src/application/AppManager.sol";
 import "./RuleStorageDiamondTestUtil.sol";
 import "src/application/AppManager.sol";
-import {TaggedRuleDataFacet as TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
+import {TaggedRuleDataFacet as TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
-import {RuleDataFacet as NonTaggedRuleFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
+import {RuleDataFacet as NonTaggedRuleFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
+import {AppRuleDataFacet} from "src/economic/ruleProcessor/AppRuleDataFacet.sol";
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 import {VersionFacet} from "src/diamond/VersionFacet.sol";
 import {FeeRuleProcessorFacet} from "src/economic/ruleProcessor/FeeRuleProcessorFacet.sol"; // for upgrade test only

@@ -2,12 +2,12 @@
 pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {FeeRuleDataFacet} from "../ruleStorage/FeeRuleDataFacet.sol";
-import {TaggedRuleDataFacet} from "../ruleStorage/TaggedRuleDataFacet.sol";
-import {RuleDataFacet} from "../ruleStorage/RuleDataFacet.sol";
-import {AppRuleDataFacet} from "../ruleStorage/AppRuleDataFacet.sol";
-import {IFeeRules as Fee, ITaggedRules as TaggedRules, INonTaggedRules as NonTaggedRules} from "../ruleStorage/RuleDataInterfaces.sol";
-import "../ruleStorage/RuleStorageCommonLib.sol";
+import {FeeRuleDataFacet} from "./FeeRuleDataFacet.sol";
+import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
+import {RuleDataFacet} from "./RuleDataFacet.sol";
+import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
+import {IFeeRules as Fee, ITaggedRules as TaggedRules, INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
+import "./RuleProcessorCommonLib.sol";
 import "../../data/PauseRule.sol";
 import "../../application/IAppManager.sol";
 import "forge-std/console.sol";
@@ -19,7 +19,7 @@ import "forge-std/console.sol";
  * @notice Implements Token Fee Rules on Accounts.
  */
 contract RuleApplicationValidationFacet {
-    using RuleStorageCommonLib for uint32;
+    using RuleProcessorCommonLib for uint32;
 
     /**
      * @dev Validate the existence of the rule
