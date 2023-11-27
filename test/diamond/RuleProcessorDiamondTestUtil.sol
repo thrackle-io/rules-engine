@@ -43,7 +43,11 @@ contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTe
             "ERC20TaggedRuleProcessorFacet",
             "ERC721TaggedRuleProcessorFacet",
             "RiskTaggedRuleProcessorFacet",
-            "RuleApplicationValidationFacet"
+            "RuleApplicationValidationFacet",
+            "RuleDataFacet",
+            "TaggedRuleDataFacet",
+            "FeeRuleDataFacet",
+            "AppRuleDataFacet"
         ];
 
         string[] memory inputs = new string[](3);

@@ -28,6 +28,9 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     address appAdministrator = address(0xDEAD);
     address ruleAdmin = address(0xACDC);
     address ac;
+    uint256 totalSupply = 100_000_000_000;
+    uint32 startTime = 12;
+    uint64 Blocktime = 1675723152;
     ApplicationERC20 public applicationCoin;
     RuleProcessorDiamond public ruleProcessor;
     ApplicationERC20Handler applicationCoinHandler;
