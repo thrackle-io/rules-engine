@@ -15,7 +15,7 @@ contract Utils{
 
     /**
     * @dev gets a bytes variable and checks if it is an ascii value or not.
-    * @notice this algorythm is 100% accurate in the negative case, but false
+    * @notice this algorithm is 100% accurate in the negative case, but false
     * positives are possible. This is because if all the bytes are between 0x30
     * and 0x39, then the code will say it is an ascii number, but there will be
     * cases where they are not. For instance, the decimal number 0x3333333333333333
