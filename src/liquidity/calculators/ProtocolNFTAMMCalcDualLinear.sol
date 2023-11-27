@@ -107,8 +107,8 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @param _sellCurve the definition of the sellCurve input
     */
      function _validateCurvePair(LineInput memory _buyCurve, LineInput memory _sellCurve) internal pure {
-        if(_buyCurve.m <= _sellCurve.m) revert CurvesInvertedOrIntersecting(); 
-        if(_buyCurve.b <= _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
+        if(_buyCurve.m < _sellCurve.m) revert CurvesInvertedOrIntersecting(); 
+        if(_buyCurve.b < _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }
 
     /**
@@ -120,8 +120,8 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @param _sellCurve the definition of the sellCurve input
     */
     function _validateCurvePair(LineInput memory _buyCurve, Line memory _sellCurve) internal pure {
-        if(_buyCurve.m * (_sellCurve.m_den / PRECISION_DECIMALS) <= _sellCurve.m_num) revert CurvesInvertedOrIntersecting(); 
-        if( _buyCurve.b <= _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
+        if(_buyCurve.m * (_sellCurve.m_den / PRECISION_DECIMALS) < _sellCurve.m_num) revert CurvesInvertedOrIntersecting(); 
+        if( _buyCurve.b < _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }
 
     /**
@@ -133,8 +133,8 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @param _sellCurve the definition of the sellCurve stored in the contract
     */
     function _validateCurvePair(Line memory _buyCurve, LineInput memory _sellCurve) internal pure {
-        if(_buyCurve.m_num <= _sellCurve.m * (_buyCurve.m_den / PRECISION_DECIMALS))  revert CurvesInvertedOrIntersecting(); 
-        if(_buyCurve.b <= _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
+        if(_buyCurve.m_num < _sellCurve.m * (_buyCurve.m_den / PRECISION_DECIMALS))  revert CurvesInvertedOrIntersecting(); 
+        if(_buyCurve.b < _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }
 
   

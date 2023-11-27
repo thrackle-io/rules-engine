@@ -61,13 +61,11 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
         bSell = bSell%Y_MAX;
 
         /// we make sure the curves comply with the premises mB > mS, and bB > bS.
-        if(mSell >= mBuy){
-            if(mBuy == 0) mBuy = 1;
-            mSell = mBuy - 1;
+        if(mSell > mBuy){
+            mSell = mBuy;
         }
-        if(bSell >= bBuy){
-            if(bBuy == 0) bBuy = 1;
-            bSell = bBuy - 1;
+        if(bSell > bBuy){
+            bSell = bBuy;
         }
          
         /// we create the factory
