@@ -9,17 +9,17 @@ contract Utils{
     * @param y uint
     * @return diff the absolute difference between *x* and *y*
     */
-    function safeDiff(uint x, uint y) public pure returns (uint diff){
+    function absoluteDiff(uint x, uint y) public pure returns (uint diff){
         diff = x > y ? x - y : y - x;
     }
 
     /**
     * @dev gets a bytes variable and checks if it is an ascii value or not.
     * @notice this algorythm is 100% accurate in the negative case, but false
-    * positives are possible. This is because if all the bytes are between 30
-    * and 39, then the code will say it is an ascii number, but there will be
-    * cases where they are not. For instance, the decimal number 3333333333333333
-    * will be interpreted as an ascii even though it is not.
+    * positives are possible. This is because if all the bytes are between 0x30
+    * and 0x39, then the code will say it is an ascii number, but there will be
+    * cases where they are not. For instance, the decimal number 0x3333333333333333
+    * will be interpreted as an ascii even though it might not be.
     * @param _bytes the variable to decide if it is a possible ascii.
     * @return true if it is a possible ascii.
     */
@@ -39,7 +39,7 @@ contract Utils{
     * @param bytesDecimal the byte variable to convert to uint.
     * @return decodedUint the uint that the bytes variable was trying to imply.
     */
-    function decodeHexDecimalBytes(bytes memory bytesDecimal) public pure returns(uint256 decodedUint){
+    function decodeFakeDecimalBytes(bytes memory bytesDecimal) public pure returns(uint256 decodedUint){
         for (uint i; i < bytesDecimal.length; i++){
             uint tens = ((uint(uint8(bytesDecimal[i])) / 16 ) * 10);
             uint units = ( uint(uint8(bytesDecimal[i])) - ((uint(uint8(bytesDecimal[i])) / 16 ) * 16));

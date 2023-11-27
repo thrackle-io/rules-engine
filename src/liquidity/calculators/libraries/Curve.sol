@@ -18,11 +18,11 @@ library Curve {
     uint256 constant ATTO = 10 ** 18;
 
     /**
-    * @dev calculates f(x) for linear curve. 
+    * @dev calculates ƒ(x) for linear curve. 
     * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den.
-    * @param line the Line curve or function *f*
-    * @param x the scalar on the abscissa axis to calculate *f(x)*.
-    * @return y the value of f(x) on the ordinate axis in ATTOs
+    * @param line the Line curve or function *ƒ*
+    * @param x the scalar on the abscissa axis to calculate *ƒ(x)*.
+    * @return y the value of ƒ(x) on the ordinate axis in ATTOs
     */
     function getY(Line memory line, uint256 x)  internal pure returns(uint256 y){
         unchecked{
