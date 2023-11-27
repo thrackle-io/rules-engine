@@ -68,8 +68,7 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
      * @dev calculate the total digits in a number.
      * @param _number number to count digits for
      */
-    function _numDigits(uint256 _number) private pure returns (uint8) {
-        uint8 digits = 0;
+    function _numDigits(uint256 _number) private pure returns (uint8 digits) {
         //if (number < 0) digits = 1; // enable this line if '-' counts as a digit
         while (_number != 0) {
             _number /= 10;

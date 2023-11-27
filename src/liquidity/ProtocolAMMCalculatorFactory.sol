@@ -4,8 +4,10 @@ pragma solidity ^0.8.17;
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
+import "src/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcSample01.sol";
 import "src/economic/AppAdministratorOnly.sol";
+import {LineInput} from "./calculators/dataStructures/CurveDataStructures.sol";
 import {IZeroAddressError} from "src/interfaces/IErrors.sol";
 import {IAMMFactoryEvents} from "src/interfaces/IEvents.sol";
 
@@ -31,6 +33,23 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
      */
     function createLinear(uint256 _slope, uint256 _y_intercept, address _appManagerAddress) external returns (address) {
         ProtocolAMMCalcLinear protocolAMMCalcLinear = new ProtocolAMMCalcLinear(_slope, _y_intercept, _appManagerAddress);
+        return address(protocolAMMCalcLinear);
+    }
+
+    /**
+     * @dev This creates a linear calculation module.
+     * @notice a LineInput has the shape {uint256 m; uint256 b}
+     *    *m* is the slope of the line expressed with 8 decimals of precision. Input of 100000001 means -> 1.00000001
+     *    *b* is the intersection of the line with the ordinate axis expressed in atto (18 decimals of precision). 1 ^ 10 ** 18 means -> 1
+     * @param buyCurve the definition of the buyCurve
+     * @param sellCurve the definition of the sellCurve
+     * @param _appManagerAddress address of the application's appManager
+     * @return _calculatorAddress
+     */
+    function createDualLinearNFT(LineInput memory buyCurve, LineInput memory sellCurve, address _appManagerAddress) external returns (address) {
+        // LineInput memory buyCurve = LineInput(_buySlope, _buy_y_intercept);
+        // LineInput memory sellCurve = LineInput(_sellSlope, _sell_y_intercept);
+        ProtocolNFTAMMCalcDualLinear protocolAMMCalcLinear = new ProtocolNFTAMMCalcDualLinear(buyCurve, sellCurve, _appManagerAddress);
         return address(protocolAMMCalcLinear);
     }
 
