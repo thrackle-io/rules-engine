@@ -7,6 +7,7 @@ import "./RuleProcessorDiamondTestUtil.sol";
 import "src/application/AppManager.sol";
 import "src/example/ERC20/ApplicationERC20Handler.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
+import {SampleUpgradeFacet} from "src/diamond/SampleUpgradeFacet.sol";
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 import {VersionFacet} from "src/diamond/VersionFacet.sol";
 import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
@@ -87,10 +88,10 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         vm.expectRevert("UNAUTHORIZED");
         SampleFacet(address(ruleProcessor)).sampleFunction();
 
-        AppRuleDataFacet testFacet = new AppRuleDataFacet();
+        SampleUpgradeFacet testFacet = new SampleUpgradeFacet();
         //build new cut struct
         console.log("before generate selectors");
-        cut[0] = (FacetCut({facetAddress: address(testFacet), action: FacetCutAction.Add, functionSelectors: generateSelectors("AppRuleDataFacet")}));
+        cut[0] = (FacetCut({facetAddress: address(testFacet), action: FacetCutAction.Add, functionSelectors: generateSelectors("SampleUpgradeFacet")}));
         console.log("after generate selectors");
 
         // test that account that isn't the owner cannot upgrade

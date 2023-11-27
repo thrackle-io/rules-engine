@@ -5,9 +5,7 @@ import "forge-std/Script.sol";
 import "../helpers/GenerateSelectors.sol";
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
 import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
-
 import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
-
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/economic/ruleProcessor/RuleProcessorDiamond.sol";
 import {ApplicationPauseProcessorFacet} from "src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";

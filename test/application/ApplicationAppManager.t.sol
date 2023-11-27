@@ -3,8 +3,8 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import "src/data/PauseRule.sol";
-import {TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
+import {TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import {AppRuleDataFacet} from "src/economic/ruleProcessor/AppRuleDataFacet.sol";
 import "src/data/GeneralTags.sol";
 import "src/data/PauseRules.sol";
 import "src/data/AccessLevels.sol";
@@ -207,7 +207,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         // add admin withdrawal rule that covers current time period
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
 
         // apply admin withdrawal rule to an ERC20
         applicationCoinHandler.setAdminWithdrawalRuleId(_index);
@@ -221,7 +221,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         vm.expectRevert(0x23a87520);
         applicationCoinHandler.activateAdminWithdrawalRule(false);
         // try to set the rule to a different one.
-        _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 5_000_000 * (10 ** 18), block.timestamp + 365 days);
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5_000_000 * (10 ** 18), block.timestamp + 365 days);
         vm.expectRevert(0x23a87520);
         applicationCoinHandler.setAdminWithdrawalRuleId(_index);
         // move a year into the future so that the rule is expired
@@ -251,7 +251,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         // add admin withdrawal rule that covers current time period
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
 
         // apply admin withdrawal rule to an ERC721
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
@@ -265,7 +265,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         vm.expectRevert(0x23a87520);
         applicationNFTHandler.activateAdminWithdrawalRule(false);
         // try to set the rule to a different one.
-        _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 5_000_000 * (10 ** 18), block.timestamp + 365 days);
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5_000_000 * (10 ** 18), block.timestamp + 365 days);
         vm.expectRevert(0x23a87520);
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
         // move a year into the future so that the rule is expired

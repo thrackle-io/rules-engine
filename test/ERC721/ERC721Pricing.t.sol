@@ -23,7 +23,6 @@ contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     ApplicationERC721 boredReptilianNFT;
     ApplicationERC721Pricing openOcean;
     RuleProcessorDiamond ruleProcessor;
-    RuleStorageDiamond ruleStorageDiamond;
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationERC721Handler applicationNFTHandler2;
     ApplicationAppManager appManager;
@@ -32,12 +31,11 @@ contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
 
     function setUp() public {
         vm.startPrank(superAdmin);
-        /// Deploy the Rule Storage Diamond.
-        ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
         ruleProcessor = getRuleProcessorDiamond();
-        /// Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
+        
+        /// TODO remove once refactored 
+        ruleProcessor.setRuleDataDiamond(address(ruleProcessor));
 
         /// Deploy app manager
         appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
