@@ -116,19 +116,20 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
         bool isAscii = isPossiblyAnAscii(res);
         emit IsAscii(isAscii);
         
-        /// will store the result of the check
-        bool isWithinTolerance;
         /// if it is a possible ascii, then we decode it and check if the difference is within tolerance
         if(isAscii){
-            isWithinTolerance = _checkPriceAsAsciiWithinTolerance(price, res);
+            assertTrue(_checkPriceAsAsciiWithinTolerance(price, res));
         }
         /// if the response was not an ascii.
         else{
             /// we decode the fake decimal and check if the difference is within tolerance
-            isWithinTolerance = _checkPriceAsFakeDecimalWithinTolerance(price, res);
+            assertTrue(_checkPriceAsFakeDecimalWithinTolerance(price, res));
         }
-        /// we make sure that the the result is within tolerance
-        assertTrue(isWithinTolerance);
+    }
+
+    /// internal test to make sure _areWithinTolerance won't fail
+    function testAreWithinTolerance(uint80 x, uint80 y) pure public{
+        _areWithinTolerance(x, y);
     }
 
     /**
@@ -200,7 +201,7 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
     function _areWithinTolerance(uint x, uint y) internal pure returns (bool){
         /// we calculate the absolute difference to avoid overflow/underflow
         uint diff = absoluteDiff(x,y);
-        /// we calculate difference percentage as diff/(smaller number) to get the bigger difference "percentage".
-        return !(diff != 0 && (diff * TOLERANCE_DEN) / ( x > y ? y : x)  > MAX_TOLERANCE);
+        /// we calculate difference percentage as diff/(smaller number unless 0) to get the bigger difference "percentage".
+        return !(diff != 0 && (diff * TOLERANCE_DEN) / ( x > y ? y == 0 ? x : y : x == 0 ? y : x)  > MAX_TOLERANCE);
     }
 }
