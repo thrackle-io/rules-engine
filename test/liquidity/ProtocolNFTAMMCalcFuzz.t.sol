@@ -31,8 +31,6 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
     event IsAscii(bool);
     event Passed();
 
-    error OutOfTolerance(uint256 _contractPrice, uint256 _pythonPrice); // 0x700e344e
-
     using Strings for uint256;
     uint256 constant PRECISION_DECIMALS = 8;
     uint256 constant ATTO = 10 ** 18;
@@ -118,17 +116,19 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
         bool isAscii = isPossiblyAnAscii(res);
         emit IsAscii(isAscii);
         
+        /// will store the result of the check
+        bool isWithinTolerance;
         /// if it is a possible ascii, then we decode it and check if the difference is within tolerance
         if(isAscii){
-            _checkPriceAsAsciiWithinTolerance(price, res);
+            isWithinTolerance = _checkPriceAsAsciiWithinTolerance(price, res);
         }
         /// if the response was not an ascii.
         else{
             /// we decode the fake decimal and check if the difference is within tolerance
-            _checkPriceAsFakeDecimalWithinTolerance(price, res);
+            isWithinTolerance = _checkPriceAsFakeDecimalWithinTolerance(price, res);
         }
-        /// if the check above did not revert, then the test passed
-        emit Passed();
+        /// we make sure that the the result is within tolerance
+        assertTrue(isWithinTolerance);
     }
 
     /**
@@ -156,12 +156,12 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
     * @notice this function will attempt a comparison with *res* as a fake decimal if
     * the initial comparison results with a difference greater than the tolerance.
     * This is because it is impossible to know with total certainty if a number is written as
-    * an ascii or a fake decimal. This function will ultimately revert in the case of a final
-    * difference above tolerance.
+    * an ascii or a fake decimal. 
     * @param price the price from the calculator contract
     * @param res the response from the Python script
+    * @return true if *price* and *res* are similar enough.
     */
-    function _checkPriceAsAsciiWithinTolerance(uint256 price, bytes memory res) internal pure {
+    function _checkPriceAsAsciiWithinTolerance(uint256 price, bytes memory res) internal pure returns(bool){
 
         /// we decode the ascii into a uint
         uint resUint = decodeAsciiUint(res);
@@ -169,34 +169,26 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
         if(!_areWithinTolerance(price, resUint)){
             /// if it is above tolerance, it is possible that we thought *res* was an ascii, but it was not.
             /// we compare the numbers again, but now as decimals, to see if they are within the tolerance
-            _checkPriceAsFakeDecimalWithinTolerance(price, res);
+            return _checkPriceAsFakeDecimalWithinTolerance(price, res);
+        }else{
+            return true;
         }
+
     }
 
     /**
     * @dev compares if a uint is similar enough to an encoded uint. 
     * i.e. The encoded value: 0x23456 is actually decimal 23456 and not hex 0x23456 which is 144470
     * The tolerance parameters are global to the contract.
-    * @notice this function will revert in the case of a difference above tolerance.
     * @param price the price from the calculator contract
     * @param res the response from the Python script
+    * @return true if *price* and *res* are similar enough.
     */
-    function _checkPriceAsFakeDecimalWithinTolerance(uint256 price, bytes memory res) internal pure {
+    function _checkPriceAsFakeDecimalWithinTolerance(uint256 price, bytes memory res) internal pure returns(bool) {
         /// we go from bytes to uint
         uint resUint= decodeFakeDecimalBytes(res);
         /// we compare the numbers to see if they are within the tolerance. If not, then revert.
-        _revertIfNotWithinTolerance(price, resUint);
-    }
-
-    /**
-    * @dev compares if 2 uints are similar enough. The tolerance parameters are global to the contract.
-    * @notice this function will revert in the case of a difference above tolerance
-    * @param x value to compare against *y*
-    * @param y value to compare against *x*
-    */
-    function _revertIfNotWithinTolerance(uint x, uint y) internal pure {
-        if(!_areWithinTolerance(x, y))
-            revert OutOfTolerance(x, y); 
+        return _areWithinTolerance(price, resUint);
     }
 
     /**
