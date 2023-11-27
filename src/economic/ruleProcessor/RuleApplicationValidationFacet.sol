@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
+import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
 import {FeeRuleDataFacet} from "./FeeRuleDataFacet.sol";
 import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "./RuleDataFacet.sol";
@@ -13,10 +13,10 @@ import "../../application/IAppManager.sol";
 import "forge-std/console.sol";
 
 /**
- * @title Fee Rule Processor Facet Contract
+ * @title Rule Application Validation Facet Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev Facet in charge of the logic to check fee rule compliance
- * @notice Implements Token Fee Rules on Accounts.
+ * @dev Facet in charge of the logic to check rule existence
+ * @notice Check that a rule in fact exists.
  */
 contract RuleApplicationValidationFacet {
     using RuleProcessorCommonLib for uint32;

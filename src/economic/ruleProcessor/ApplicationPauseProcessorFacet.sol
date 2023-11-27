@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
-import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
+import {RuleProcessorDiamondLib as actionDiamond} from "./RuleProcessorDiamondLib.sol";
 import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
 import {IApplicationRules as ApplicationRuleStorage} from "./RuleDataInterfaces.sol";
 import {IPauseRuleErrors} from "../../interfaces/IErrors.sol";

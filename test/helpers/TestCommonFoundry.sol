@@ -81,8 +81,6 @@ abstract contract TestCommonFoundry is TestCommon {
         /// Build the diamond
         RuleProcessorDiamond ruleProcessorInternal = new RuleProcessorDiamond(_ruleProcessorFacetCuts, diamondArgs);
 
-        /// TODO remove once refactored in diamond 
-        ruleProcessorInternal.setRuleDataDiamond(address(ruleProcessorInternal));
         // Deploy the diamond.
         return ruleProcessorInternal;
     }

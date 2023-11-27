@@ -3,10 +3,13 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/Context.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
-import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
+import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
+import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
+import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
+import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
 import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
 import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
-import {IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";
+import {IInputErrors, IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";
 import "./RuleProcessorCommonLib.sol";
 
 /**
@@ -15,8 +18,11 @@ import "./RuleProcessorCommonLib.sol";
  * @dev Contract implements rules to be checked by Handler.
  * @notice  Implements Token Rules on Tagged Accounts.
  */
-contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError {
+contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, ITagRuleErrors, IMaxTagLimitError {
     using RuleProcessorCommonLib for bytes32[];
+    using RuleProcessorCommonLib for uint64;
+    using RuleProcessorCommonLib for uint32;
+    using RuleProcessorCommonLib for uint8;
 
     /**
      * @dev Check the minimum/maximum rule. This rule ensures that both the to and from accounts do not
@@ -68,12 +74,11 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
         /// This Function checks the max account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
         toTags.checkMaxTags();
-        TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        uint totalRules = data.getTotalBalanceLimitRules();
+        uint totalRules = getTotalBalanceLimitRule();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
 
         for (uint i; i < toTags.length; ) {
-            uint256 max = data.getBalanceLimitRule(ruleId, toTags[i]).maximum;
+            uint256 max = getBalanceLimitRules(ruleId, toTags[i]).maximum;
             /// if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
              if (max > 0 && balanceTo + amount > max) revert MaxBalanceExceeded();
             unchecked {
@@ -93,18 +98,40 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, ITagRuleErrors, 
         /// This Function checks the min account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
         fromTags.checkMaxTags();
-        TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        uint totalRules = data.getTotalBalanceLimitRules();
+        uint totalRules = getTotalBalanceLimitRule();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
 
         for (uint i = 0; i < fromTags.length; ) {
-            uint256 min = data.getBalanceLimitRule(ruleId, fromTags[i]).minimum;
+            uint256 min = getBalanceLimitRules(ruleId, fromTags[i]).minimum;
             /// if a min is 0 then no need to check.
             if (min > 0 && balanceFrom - amount < min) revert BalanceBelowMin();
             unchecked {
                 ++i;
             }
         }
+    }
+
+    /**
+     * @dev Function get the purchase rule in the rule set that belongs to an account type
+     * @param _index position of rule in array
+     * @param _accountType Type of Accounts
+     * @return BalanceLimitRule at index location in array
+     */
+    function getBalanceLimitRules(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.BalanceLimitRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalBalanceLimitRule());
+        RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
+        if (_index >= data.balanceLimitRuleIndex) revert IndexOutOfRange();
+        return data.balanceLimitsPerAccountType[_index][_accountType];
+    }
+
+    /**
+     * @dev Function gets total Balance Limit rules
+     * @return Total length of array
+     */
+    function getTotalBalanceLimitRule() public view returns (uint32) {
+        RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
+        return data.balanceLimitRuleIndex;
     }
 
     /**

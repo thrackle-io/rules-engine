@@ -33,9 +33,6 @@ contract ERC721PricingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
         vm.startPrank(superAdmin);
         /// Deploy the token rule processor diamond
         ruleProcessor = getRuleProcessorDiamond();
-        
-        /// TODO remove once refactored 
-        ruleProcessor.setRuleDataDiamond(address(ruleProcessor));
 
         /// Deploy app manager
         appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);

@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
+import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
+import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
+import {INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
+import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {RuleDataFacet} from "./RuleDataFacet.sol";
 import {INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
-import {IRuleProcessorErrors, IERC20Errors} from "../../interfaces/IErrors.sol";
+import {IInputErrors, IRuleProcessorErrors, IERC20Errors} from "../../interfaces/IErrors.sol";
 import "./RuleCodeData.sol";
 import "./IOracle.sol";
 import "./RuleProcessorCommonLib.sol";
@@ -15,8 +18,9 @@ import "./RuleProcessorCommonLib.sol";
  * @dev Facet in charge of the logic to check token rules compliance
  * @notice Implements Token Fee Rules on Accounts.
  */
-contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
+contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Errors {
     using RuleProcessorCommonLib for uint64;
+    using RuleProcessorCommonLib for uint32;
 
     /**
      * @dev Check if transaction passes minTransfer rule.
@@ -24,12 +28,31 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
      * @param amountToTransfer total number of tokens to be transferred
      */
     function checkMinTransferPasses(uint32 _ruleId, uint256 amountToTransfer) external view {
-        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-
-        if (data.getTotalMinimumTransferRules() != 0) {
-            NonTaggedRules.TokenMinimumTransferRule memory rule = data.getMinimumTransferRule(_ruleId);
+        if (getTotalMinimumTransferRule() != 0) {
+            NonTaggedRules.TokenMinimumTransferRule memory rule = getMinimumTransferRules(_ruleId);
             if (rule.minTransferAmount > amountToTransfer) revert BelowMinTransfer();
         }
+    }
+
+    /**
+     * @dev Function to get Minimum Transfer rules by index
+     * @param _index position of rule in array
+     * @return Rule at index
+     */
+    function getMinimumTransferRules(uint32 _index) public view returns (NonTaggedRules.TokenMinimumTransferRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalMinimumTransferRule());
+        RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
+        return data.minimumTransferRules[_index];
+    }
+
+    /**
+     * @dev Function to get total Minimum Transfer rules
+     * @return Total length of array
+     */
+    function getTotalMinimumTransferRule() public view returns (uint32) {
+        RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
+        return data.minimumTransferRuleIndex;
     }
 
     /**

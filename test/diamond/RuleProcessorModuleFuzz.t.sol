@@ -52,9 +52,6 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
 
         // Deploy the rule processor diamonds
         ruleProcessor = getRuleProcessorDiamond();
-
-        // TODO refactor once removed 
-        ruleProcessor.setRuleDataDiamond(address(ruleProcessor));
         // Deploy app manager
         appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         // add the DEAD address as a app administrator

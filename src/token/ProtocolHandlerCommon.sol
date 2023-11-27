@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "../interfaces/IErrors.sol";
 import {ITokenHandlerEvents} from "../interfaces/IEvents.sol";
-import "../economic/ruleStorage/RuleCodeData.sol";
+import "../economic/ruleProcessor/RuleCodeData.sol";
 import "../economic/IRuleProcessor.sol";
 import "../application/IAppManager.sol";
 import "../pricing/IProtocolERC721Pricing.sol";

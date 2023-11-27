@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
+import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
 import {FeeRuleDataFacet} from "./FeeRuleDataFacet.sol";
 import {IFeeRules as Fee} from "./RuleDataInterfaces.sol";
 import {IRuleProcessorErrors} from "../../interfaces/IErrors.sol";

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
+import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
 import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
 import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
 import {IERC721Errors, IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";

@@ -2,8 +2,8 @@
 pragma solidity ^0.8.17;
 
 import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
-import {IApplicationRules as AppRules} from "./RuleDataInterfaces.sol";
 import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
+import {IApplicationRules as AppRules} from "./RuleDataInterfaces.sol";
 import {IEconomicEvents} from "../../interfaces/IEvents.sol";
 import {IInputErrors, IAppRuleInputErrors, IRiskInputErrors} from "../../interfaces/IErrors.sol";
 import "../RuleAdministratorOnly.sol";
