@@ -209,6 +209,6 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
         /// we calculate the absolute difference to avoid overflow/underflow
         uint diff = absoluteDiff(x,y);
         /// we calculate difference percentage as diff/(smaller number) to get the bigger difference "percentage".
-        return diff == 0 || (diff * TOLERANCE_DEN) / ( x > y ? y : x)  <= MAX_TOLERANCE;
+        return !(diff != 0 && (diff * TOLERANCE_DEN) / ( x > y ? y : x)  > MAX_TOLERANCE);
     }
 }
