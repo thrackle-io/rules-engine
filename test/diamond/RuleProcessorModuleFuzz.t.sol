@@ -86,122 +86,6 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
     }
 
     /***************** Test Setters and Getters *****************/
-
-    /*********************** Purchase *******************/
-    /** Purchase and sell + percentage Purchase and percentage sell rules are commented out uintil merge to internal as getters no longer exist until rules are written
-    TODO Uncomment after internal
-    /// Simple setting and getting
-    function testSettingPurchaseFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint16 pPeriodA, uint16 pPeriodB) public {
-        vm.warp(Blocktime);
-        vm.stopPrank();
-        address sender = ADDRESSES[addressIndex % ADDRESSES.length];
-        vm.startPrank(sender);
-        /// manual tag necessary because of memory issue.
-        bytes32[] memory accs = new bytes32[](2);
-        accs[0] = "tagA";
-        accs[1] = "tagB";
-        uint256[] memory pAmounts = new uint256[](2);
-        pAmounts[0] = amountA;
-        pAmounts[1] = amountB;
-        uint16[] memory pPeriods = new uint16[](2);
-        pPeriods[0] = pPeriodA;
-        pPeriods[1] = pPeriodB;
-        uint64[] memory startTimes = new uint64[](2);
-        startTimes[0] = Blocktime;
-        startTimes[1] = Blocktime;
-        if ((sender != ruleAdmin) || amountA == 0 || amountB == 0 || pPeriodA == 0 || pPeriodB == 0) vm.expectRevert();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, startTimes);
-        if ((sender == ruleAdmin) && amountA > 0 && amountB > 0 && pPeriodA > 0 && pPeriodB > 0) {
-            assertEq(_index, 0);
-            TaggedRules.PurchaseRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getPurchaseRule(_index, "tagA");
-            assertEq(rule.purchaseAmount, amountA);
-            assertEq(rule.purchasePeriod, pPeriodA);
-
-            /// testing different input sized
-            bytes32[] memory invalidAccs = new bytes32[](3);
-            invalidAccs[0] = "A";
-            invalidAccs[1] = "B";
-            invalidAccs[2] = "c";
-
-            vm.expectRevert();
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, invalidAccs, pAmounts, pPeriods, startTimes);
-
-            /// testing adding a second rule
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, startTimes);
-            assertEq(_index, 1);
-            rule = TaggedRuleDataFacet(address(ruleProcessor)).getPurchaseRule(_index, "tagB");
-            assertEq(rule.purchaseAmount, amountB);
-            assertEq(rule.purchasePeriod, pPeriodB);
-
-            /// testing total rules
-            assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalPurchaseRule(), 2);
-        }
-    }
-    */
-    // /************************ Sell *************************/
-    /** Purchase and sell + percentage Purchase and percentage sell rules are commented out uintil merge to internal as getters no longer exist until rules are written
-    TODO Uncomment after internal
-    /// Simple setting and getting
-
-    function testSettingSellFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint16 dFrozenA, uint16 dFrozenB, uint32 sTimeA, uint32 sTimeB, bytes32 accA, bytes32 accB) public {
-        vm.warp(Blocktime);
-        vm.assume(accA != accB);
-        vm.assume(accA != bytes32("") && accB != bytes32(""));
-        vm.stopPrank();
-        address sender = ADDRESSES[addressIndex % ADDRESSES.length];
-        vm.startPrank(sender);
-        bytes32[] memory accs = new bytes32[](2);
-        accs[0] = accA;
-        accs[1] = accB;
-        uint192[] memory sAmounts = new uint192[](2);
-        sAmounts[0] = amountA;
-        sAmounts[1] = amountB;
-        uint16[] memory dFrozen = new uint16[](2);
-        dFrozen[0] = dFrozenA;
-        dFrozen[1] = dFrozenB;
-        uint64[] memory startTimes = new uint64[](2);
-        startTimes[0] = sTimeA;
-        startTimes[1] = sTimeB;
-        uint32 _index;
-        if (
-            (sender != ruleAdmin) ||
-            amountA == 0 ||
-            amountB == 0 ||
-            dFrozenA == 0 ||
-            dFrozenB == 0 ||
-            sTimeA == 0 ||
-            sTimeB == 0 ||
-            sTimeA > (block.timestamp + (52 * 1 weeks)) ||
-            sTimeB > (block.timestamp + (52 * 1 weeks))
-        ) {
-            vm.expectRevert();
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, dFrozen, startTimes);
-        } else {
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, dFrozen, startTimes);
-            assertEq(_index, 0);
-            TaggedRules.SellRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, accA);
-            assertEq(rule.sellPeriod, dFrozenA);
-
-            /// testing different input sized
-            bytes32[] memory invalidAccs = new bytes32[](3);
-            invalidAccs[0] = "A";
-            invalidAccs[1] = "B";
-            invalidAccs[2] = "c";
-
-            vm.expectRevert();
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, invalidAccs, sAmounts, dFrozen, startTimes);
-
-            /// testing adding a second rule
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, dFrozen, startTimes);
-            assertEq(_index, 1);
-            rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, accB);
-            assertEq(rule.sellPeriod, dFrozenB);
-
-            /// testing total rules
-            assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalSellRule(), 2);
-        }
-    }
-    */
     /************************ Token Purchase Fee By Volume Percentage **********************/
     /// Simple setting and getting
 
@@ -440,70 +324,6 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         }
     }
 
-    /**************** Tagged Withdrawal Rule Testing  ****************/
-    //Test Adding Withdrawal Rule
-    /// Withdrawal rule getter does not exist until rule is written
-    // function testSettingWithdrawalRuleFuzz(uint8 addressIndex, uint256 amountA, uint256 amountB, uint256 dateA, uint256 dateB, bytes32 accA, bytes32 accB, uint forward) public {
-    //     /// avoiding arithmetic overflow when adding dateA and 1000 for second-rule test
-    //     vm.assume(forward < uint256(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000));
-    //     vm.assume(accA != accB);
-    //     vm.assume(accA != bytes32("") && accB != bytes32(""));
-
-    //     vm.stopPrank();
-    //     address sender = ADDRESSES[addressIndex % ADDRESSES.length];
-    //     vm.startPrank(sender);
-
-    //     bytes32[] memory accs = new bytes32[](2);
-    //     accs[0] = accA;
-    //     accs[1] = accB;
-    //     uint256[] memory amounts = new uint256[](2);
-    //     amounts[0] = amountA;
-    //     amounts[1] = amountB;
-    //     uint256[] memory releaseDate = new uint256[](2);
-    //     releaseDate[0] = dateA;
-    //     releaseDate[1] = dateB;
-
-    //     vm.warp(forward);
-    //     if ((sender != ruleAdmin) || amountA == 0 || amountB == 0 || dateA <= block.timestamp || dateB <= block.timestamp) vm.expectRevert();
-    //     uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs, amounts, releaseDate);
-    //     if (!((sender != ruleAdmin) || amountA == 0 || amountB == 0 || dateA <= block.timestamp || dateB <= block.timestamp)) {
-    //         assertEq(_index, 0);
-    //         TaggedRules.WithdrawalRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getWithdrawalRule(_index, accA);
-    //         assertEq(rule.amount, amountA);
-    //         assertEq(rule.releaseDate, dateA);
-
-    //         /// we create other parameters for next tests
-    //         bytes32[] memory accs2 = new bytes32[](3);
-    //         uint256[] memory amounts2 = new uint256[](3);
-    //         uint256[] memory releaseDate2 = new uint256[](3);
-    //         accs2[0] = bytes32("Oscar");
-    //         accs2[1] = bytes32("Tayler");
-    //         accs2[2] = bytes32("Shane");
-    //         amounts2[0] = uint256(500);
-    //         amounts2[1] = uint256(1500);
-    //         amounts2[2] = uint256(3000);
-    //         releaseDate2[0] = uint256(block.timestamp + 1100);
-    //         releaseDate2[1] = uint256(block.timestamp + 2200);
-    //         releaseDate2[2] = uint256(block.timestamp + 3300);
-
-    //         /// testing wrong size of patameters
-    //         vm.expectRevert();
-    //         _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs2, amounts, releaseDate);
-
-    //         /// testing adding a new rule
-    //         _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs2, amounts2, releaseDate2);
-    //         assertEq(_index, 1);
-
-    //         /// Withdrawal rule getter does not exist until rule is written
-    //         rule = TaggedRuleDataFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Oscar");
-    //         assertEq(rule.amount, 500);
-    //         assertEq(rule.releaseDate, block.timestamp + 1100);
-
-    //         /// testing total rules
-    //         assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalWithdrawalRule(), 2);
-    //     }
-    // }
-
     /**************** Tagged Admin Withdrawal Rule Testing  ****************/
 
     /// Test Adding Admin Withdrawal Rule releaseDate: 1669745700
@@ -610,4 +430,187 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
             else applicationCoinHandler.setOracleRuleId(whitelistOracle);
         }
     }
+
+        /*********************** Purchase *******************/
+    /** Purchase and sell + percentage Purchase and percentage sell rules are commented out uintil merge to internal as getters no longer exist until rules are written
+    TODO Uncomment after internal
+    /// Simple setting and getting
+    function testSettingPurchaseFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint16 pPeriodA, uint16 pPeriodB) public {
+        vm.warp(Blocktime);
+        vm.stopPrank();
+        address sender = ADDRESSES[addressIndex % ADDRESSES.length];
+        vm.startPrank(sender);
+        /// manual tag necessary because of memory issue.
+        bytes32[] memory accs = new bytes32[](2);
+        accs[0] = "tagA";
+        accs[1] = "tagB";
+        uint256[] memory pAmounts = new uint256[](2);
+        pAmounts[0] = amountA;
+        pAmounts[1] = amountB;
+        uint16[] memory pPeriods = new uint16[](2);
+        pPeriods[0] = pPeriodA;
+        pPeriods[1] = pPeriodB;
+        uint64[] memory startTimes = new uint64[](2);
+        startTimes[0] = Blocktime;
+        startTimes[1] = Blocktime;
+        if ((sender != ruleAdmin) || amountA == 0 || amountB == 0 || pPeriodA == 0 || pPeriodB == 0) vm.expectRevert();
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, startTimes);
+        if ((sender == ruleAdmin) && amountA > 0 && amountB > 0 && pPeriodA > 0 && pPeriodB > 0) {
+            assertEq(_index, 0);
+            TaggedRules.PurchaseRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getPurchaseRule(_index, "tagA");
+            assertEq(rule.purchaseAmount, amountA);
+            assertEq(rule.purchasePeriod, pPeriodA);
+
+            /// testing different input sized
+            bytes32[] memory invalidAccs = new bytes32[](3);
+            invalidAccs[0] = "A";
+            invalidAccs[1] = "B";
+            invalidAccs[2] = "c";
+
+            vm.expectRevert();
+            _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, invalidAccs, pAmounts, pPeriods, startTimes);
+
+            /// testing adding a second rule
+            _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, startTimes);
+            assertEq(_index, 1);
+            rule = TaggedRuleDataFacet(address(ruleProcessor)).getPurchaseRule(_index, "tagB");
+            assertEq(rule.purchaseAmount, amountB);
+            assertEq(rule.purchasePeriod, pPeriodB);
+
+            /// testing total rules
+            assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalPurchaseRule(), 2);
+        }
+    }
+    
+    /** Purchase, sell, percentage Purchase, percentage sell and withdrawal rules are commented out uintil merge to internal 
+        Getters no longer exist until rules are written. The rule getters are in the processing facet for that rule. 
+        TODO Uncomment after internal merge and rules are updated with new architecture. 
+     */
+    // /************************ Sell *************************/
+    /// Simple setting and getting
+    /** 
+    function testSettingSellFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint16 dFrozenA, uint16 dFrozenB, uint32 sTimeA, uint32 sTimeB, bytes32 accA, bytes32 accB) public {
+        vm.warp(Blocktime);
+        vm.assume(accA != accB);
+        vm.assume(accA != bytes32("") && accB != bytes32(""));
+        vm.stopPrank();
+        address sender = ADDRESSES[addressIndex % ADDRESSES.length];
+        vm.startPrank(sender);
+        bytes32[] memory accs = new bytes32[](2);
+        accs[0] = accA;
+        accs[1] = accB;
+        uint192[] memory sAmounts = new uint192[](2);
+        sAmounts[0] = amountA;
+        sAmounts[1] = amountB;
+        uint16[] memory dFrozen = new uint16[](2);
+        dFrozen[0] = dFrozenA;
+        dFrozen[1] = dFrozenB;
+        uint64[] memory startTimes = new uint64[](2);
+        startTimes[0] = sTimeA;
+        startTimes[1] = sTimeB;
+        uint32 _index;
+        if (
+            (sender != ruleAdmin) ||
+            amountA == 0 ||
+            amountB == 0 ||
+            dFrozenA == 0 ||
+            dFrozenB == 0 ||
+            sTimeA == 0 ||
+            sTimeB == 0 ||
+            sTimeA > (block.timestamp + (52 * 1 weeks)) ||
+            sTimeB > (block.timestamp + (52 * 1 weeks))
+        ) {
+            vm.expectRevert();
+            _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, dFrozen, startTimes);
+        } else {
+            _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, dFrozen, startTimes);
+            assertEq(_index, 0);
+            TaggedRules.SellRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, accA);
+            assertEq(rule.sellPeriod, dFrozenA);
+
+            /// testing different input sized
+            bytes32[] memory invalidAccs = new bytes32[](3);
+            invalidAccs[0] = "A";
+            invalidAccs[1] = "B";
+            invalidAccs[2] = "c";
+
+            vm.expectRevert();
+            _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, invalidAccs, sAmounts, dFrozen, startTimes);
+
+            /// testing adding a second rule
+            _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, dFrozen, startTimes);
+            assertEq(_index, 1);
+            rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, accB);
+            assertEq(rule.sellPeriod, dFrozenB);
+
+            /// testing total rules
+            assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalSellRule(), 2);
+        }
+    }
+    */
+
+    /**************** Tagged Withdrawal Rule Testing  ****************/
+    //Test Adding Withdrawal Rule
+    /// Withdrawal rule getter does not exist until rule is written
+    // function testSettingWithdrawalRuleFuzz(uint8 addressIndex, uint256 amountA, uint256 amountB, uint256 dateA, uint256 dateB, bytes32 accA, bytes32 accB, uint forward) public {
+    //     /// avoiding arithmetic overflow when adding dateA and 1000 for second-rule test
+    //     vm.assume(forward < uint256(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000));
+    //     vm.assume(accA != accB);
+    //     vm.assume(accA != bytes32("") && accB != bytes32(""));
+
+    //     vm.stopPrank();
+    //     address sender = ADDRESSES[addressIndex % ADDRESSES.length];
+    //     vm.startPrank(sender);
+
+    //     bytes32[] memory accs = new bytes32[](2);
+    //     accs[0] = accA;
+    //     accs[1] = accB;
+    //     uint256[] memory amounts = new uint256[](2);
+    //     amounts[0] = amountA;
+    //     amounts[1] = amountB;
+    //     uint256[] memory releaseDate = new uint256[](2);
+    //     releaseDate[0] = dateA;
+    //     releaseDate[1] = dateB;
+
+    //     vm.warp(forward);
+    //     if ((sender != ruleAdmin) || amountA == 0 || amountB == 0 || dateA <= block.timestamp || dateB <= block.timestamp) vm.expectRevert();
+    //     uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs, amounts, releaseDate);
+    //     if (!((sender != ruleAdmin) || amountA == 0 || amountB == 0 || dateA <= block.timestamp || dateB <= block.timestamp)) {
+    //         assertEq(_index, 0);
+    //         TaggedRules.WithdrawalRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getWithdrawalRule(_index, accA);
+    //         assertEq(rule.amount, amountA);
+    //         assertEq(rule.releaseDate, dateA);
+
+    //         /// we create other parameters for next tests
+    //         bytes32[] memory accs2 = new bytes32[](3);
+    //         uint256[] memory amounts2 = new uint256[](3);
+    //         uint256[] memory releaseDate2 = new uint256[](3);
+    //         accs2[0] = bytes32("Oscar");
+    //         accs2[1] = bytes32("Tayler");
+    //         accs2[2] = bytes32("Shane");
+    //         amounts2[0] = uint256(500);
+    //         amounts2[1] = uint256(1500);
+    //         amounts2[2] = uint256(3000);
+    //         releaseDate2[0] = uint256(block.timestamp + 1100);
+    //         releaseDate2[1] = uint256(block.timestamp + 2200);
+    //         releaseDate2[2] = uint256(block.timestamp + 3300);
+
+    //         /// testing wrong size of patameters
+    //         vm.expectRevert();
+    //         _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs2, amounts, releaseDate);
+
+    //         /// testing adding a new rule
+    //         _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs2, amounts2, releaseDate2);
+    //         assertEq(_index, 1);
+
+    //         /// Withdrawal rule getter does not exist until rule is written
+    //         rule = TaggedRuleDataFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Oscar");
+    //         assertEq(rule.amount, 500);
+    //         assertEq(rule.releaseDate, block.timestamp + 1100);
+
+    //         /// testing total rules
+    //         assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalWithdrawalRule(), 2);
+    //     }
+    // }
+    
 }
