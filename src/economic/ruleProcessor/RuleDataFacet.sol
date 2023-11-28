@@ -63,27 +63,6 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         return ruleId;
     }
 
-    /**
-     * @dev Function get Token Purchase Percentage by index
-     * @param _index position of rule in array
-     * @return percentagePurchaseRules rule at index position
-     */
-    function getPctPurchaseRule(uint32 _index) external view returns (NonTaggedRules.TokenPercentagePurchaseRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalPctPurchaseRule());
-        RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
-        return data.percentagePurchaseRules[_index];
-    }
-
-    /**
-     * @dev Function to get total Token Purchase Percentage
-     * @return Total length of array
-     */
-    function getTotalPctPurchaseRule() public view returns (uint32) {
-        RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
-        return data.percentagePurchaseRuleIndex;
-    }
-
     /************ Token Sell Percentage Getters/Setters ***********/
 
     /**
@@ -114,27 +93,6 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         emit ProtocolRuleCreated(SELL_PERCENTAGE, ruleId, empty);
         ++data.percentageSellRuleIndex;
         return ruleId;
-    }
-
-    /**
-     * @dev Function get Token sell Percentage by index
-     * @param _index position of rule in array
-     * @return percentageSellRules rule at index position
-     */
-    function getPctSellRule(uint32 _index) external view returns (NonTaggedRules.TokenPercentageSellRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalPctSellRule());
-        RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
-        return data.percentageSellRules[_index];
-    }
-
-    /**
-     * @dev Function to get total Token Percentage Sell
-     * @return Total length of array
-     */
-    function getTotalPctSellRule() public view returns (uint32) {
-        RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
-        return data.percentageSellRuleIndex;
     }
 
     /************ Token Purchase Fee By Volume Getters/Setters ***********/
@@ -263,27 +221,6 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         return ruleId;
     }
 
-    /**
-     * @dev Function get Token Transfer Volume Rule by index
-     * @param _index position of rule in array
-     * @return TokenTransferVolumeRule rule at index position
-     */
-    function getTransferVolumeRule(uint32 _index) external view returns (NonTaggedRules.TokenTransferVolumeRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalTransferVolumeRules());
-        RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
-        return data.transferVolumeRules[_index];
-    }
-
-    /**
-     * @dev Function to get total Token Transfer Volume rules
-     * @return Total length of array
-     */
-    function getTotalTransferVolumeRules() public view returns (uint32) {
-        RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
-        return data.transferVolRuleIndex;
-    }
-
     /************ Minimum Transfer Rule Getters/Setters ***********/
 
     /**
@@ -303,27 +240,6 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         emit ProtocolRuleCreated(MIN_TRANSFER, ruleId, empty);
         ++data.minimumTransferRuleIndex;
         return ruleId;
-    }
-
-    /**
-     * @dev Function to get Minimum Transfer rules by index
-     * @param _index position of rule in array
-     * @return Rule at index
-     */
-    function getMinimumTransferRule(uint32 _index) external view returns (NonTaggedRules.TokenMinimumTransferRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalMinimumTransferRules());
-        RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
-        return data.minimumTransferRules[_index];
-    }
-
-    /**
-     * @dev Function to get total Minimum Transfer rules
-     * @return Total length of array
-     */
-    function getTotalMinimumTransferRules() public view returns (uint32) {
-        RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
-        return data.minimumTransferRuleIndex;
     }
 
     /************ Supply Volatility Getters/Setters ***********/
@@ -358,27 +274,6 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         return ruleId;
     }
 
-    /**
-     * @dev Function gets Supply Volitility rule at index
-     * @param _index position of rule in array
-     * @return SupplyVolatilityRule rule at indexed postion
-     */
-    function getSupplyVolatilityRule(uint32 _index) external view returns (NonTaggedRules.SupplyVolatilityRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalSupplyVolatilityRules());
-        RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
-        return data.supplyVolatilityRules[_index];
-    }
-
-    /**
-     * @dev Function to get total Supply Volitility rules
-     * @return supplyVolatilityRules total length of array
-     */
-    function getTotalSupplyVolatilityRules() public view returns (uint32) {
-        RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
-        return data.supplyVolatilityRuleIndex;
-    }
-
     /************ Oracle Getters/Setters ***********/
 
     /**
@@ -402,24 +297,4 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         return ruleId;
     }
 
-    /**
-     * @dev Function get Oracle Rule by index
-     * @param _index Position of rule in storage
-     * @return OracleRule at index
-     */
-    function getOracleRule(uint32 _index) external view returns (NonTaggedRules.OracleRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalOracleRules());
-        RuleS.OracleRuleS storage data = Storage.oracleStorage();
-        return data.oracleRules[_index];
-    }
-
-    /**
-     * @dev Function get total Oracle rules
-     * @return total oracleRules array length
-     */
-    function getTotalOracleRules() public view returns (uint32) {
-        RuleS.OracleRuleS storage data = Storage.oracleStorage();
-        return data.oracleRuleIndex;
-    }
 }

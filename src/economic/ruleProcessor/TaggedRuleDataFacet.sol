@@ -77,29 +77,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         return index;
     }
 
-    /**
-     * @dev Function get the purchase rule in the rule set that belongs to an account type
-     * @param _index position of rule in array
-     * @param _accountType Type of account
-     * @return PurchaseRule rule at index position
-     */
-    function getPurchaseRule(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.PurchaseRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalPurchaseRule());
-        RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
-        if (_index >= data.purchaseRulesIndex) revert IndexOutOfRange();
-        return data.purchaseRulesPerUser[_index][_accountType];
-    }
-
-    /**
-     * @dev Function to get total purchase rules
-     * @return Total length of array
-     */
-    function getTotalPurchaseRule() public view returns (uint32) {
-        RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
-        return data.purchaseRulesIndex;
-    }
-
     /********************** Sell Getters/Setters **********************/
 
     /**
@@ -150,29 +127,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         return index;
     }
 
-    /**
-     * @dev Function to get Sell rule at index
-     * @param _index Position of rule in array
-     * @param _accountType Types of Accounts
-     * @return SellRule at position in array
-     */
-    function getSellRuleByIndex(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.SellRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalSellRule());
-        RuleS.SellRuleS storage data = Storage.sellStorage();
-        if (_index >= data.sellRulesIndex) revert IndexOutOfRange();
-        return data.sellRulesPerUser[_index][_accountType];
-    }
-
-    /**
-     * @dev Function to get total Sell rules
-     * @return Total length of array
-     */
-    function getTotalSellRule() public view returns (uint32) {
-        RuleS.SellRuleS storage data = Storage.sellStorage();
-        return data.sellRulesIndex;
-    }
-
     /********************** Balance Limit Getters/Setters ***********************/
 
     /**
@@ -219,29 +173,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         emit ProtocolRuleCreated(MIN_MAX_BALANCE_LIMIT, index, _accountTypes);
         ++data.balanceLimitRuleIndex;
         return index;
-    }
-
-    /**
-     * @dev Function get the purchase rule in the rule set that belongs to an account type
-     * @param _index position of rule in array
-     * @param _accountType Type of Accounts
-     * @return BalanceLimitRule at index location in array
-     */
-    function getBalanceLimitRule(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.BalanceLimitRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalBalanceLimitRules());
-        RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
-        if (_index >= data.balanceLimitRuleIndex) revert IndexOutOfRange();
-        return data.balanceLimitsPerAccountType[_index][_accountType];
-    }
-
-    /**
-     * @dev Function gets total Balance Limit rules
-     * @return Total length of array
-     */
-    function getTotalBalanceLimitRules() public view returns (uint32) {
-        RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
-        return data.balanceLimitRuleIndex;
     }
 
     /************ Account Withdrawal Getters/Setters ***********/
@@ -291,29 +222,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         return index;
     }
 
-    /**
-     * @dev Function gets withdrawal rule at index
-     * @param _index position of rule in array
-     * @param _accountType Type of Account
-     * @return WithdrawalRule rule at indexed postion
-     */
-    function getWithdrawalRule(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.WithdrawalRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalWithdrawalRule());
-        RuleS.WithdrawalRuleS storage data = Storage.withdrawalStorage();
-        if (_index >= data.withdrawalRulesIndex) revert IndexOutOfRange();
-        return data.withdrawalRulesPerToken[_index][_accountType];
-    }
-
-    /**
-     * @dev Function to get total withdrawal rules
-     * @return withdrawalRulesIndex total length of array
-     */
-    function getTotalWithdrawalRule() public view returns (uint32) {
-        RuleS.WithdrawalRuleS storage data = Storage.withdrawalStorage();
-        return data.withdrawalRulesIndex;
-    }
-
     /************ Admin Account Withdrawal Getters/Setters ***********/
 
     /**
@@ -334,28 +242,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         emit ProtocolRuleCreated(ADMIN_WITHDRAWAL, index, empty);
         ++data.adminWithdrawalRulesIndex;
         return index;
-    }
-
-    /**
-     * @dev Function gets Admin withdrawal rule at index
-     * @param _index position of rule in array
-     * @return adminWithdrawalRulesPerToken rule at indexed postion
-     */
-    function getAdminWithdrawalRule(uint32 _index) external view returns (TaggedRules.AdminWithdrawalRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalAdminWithdrawalRules());
-        RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
-        if (_index >= data.adminWithdrawalRulesIndex) revert IndexOutOfRange();
-        return data.adminWithdrawalRulesPerToken[_index];
-    }
-
-    /**
-     * @dev Function to get total Admin withdrawal rules
-     * @return adminWithdrawalRulesPerToken total length of array
-     */
-    function getTotalAdminWithdrawalRules() public view returns (uint32) {
-        RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
-        return data.adminWithdrawalRulesIndex;
     }
 
     //***********************  Risk Rules  ******************************* */
@@ -406,28 +292,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         emit ProtocolRuleCreated(TX_SIZE_BY_RISK, index, empty);
         ++data.txSizeToRiskRuleIndex;
         return index;
-    }
-
-    /**
-     * @dev Function to get the TransactionLimit in the rule set that belongs to an risk score
-     * @param _index position of rule in array
-     * @return balanceAmount balance allowed for access levellevel
-     */
-    function getTransactionLimitByRiskRule(uint32 _index) external view returns (TaggedRules.TransactionSizeToRiskRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalTransactionLimitByRiskRules());
-        RuleS.TxSizeToRiskRuleS storage data = Storage.txSizeToRiskStorage();
-        if (_index >= data.txSizeToRiskRuleIndex) revert IndexOutOfRange();
-        return data.txSizeToRiskRule[_index];
-    }
-
-    /**
-     * @dev Function to get total Transaction Limit by Risk Score rules
-     * @return Total length of array
-     */
-    function getTotalTransactionLimitByRiskRules() public view returns (uint32) {
-        RuleS.TxSizeToRiskRuleS storage data = Storage.txSizeToRiskStorage();
-        return data.txSizeToRiskRuleIndex;
     }
 
     /********************** Minimum Account Balance By Date Getters/Setters ***********************/
@@ -485,30 +349,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         ++data.minBalByDateRulesIndex;
         return index;
     }
-
-    /**
-     * @dev Function get the minimum balance by date rule in the rule set that belongs to an account type
-     * @param _index position of rule in array
-     * @param _accountTag Tag of account
-     * @return PurchaseRule rule at index position
-     */
-    function getMinBalByDateRule(uint32 _index, bytes32 _accountTag) external view returns (TaggedRules.MinBalByDateRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalMinBalByDateRule());
-        RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
-        if (_index >= data.minBalByDateRulesIndex) revert IndexOutOfRange();
-        return data.minBalByDateRulesPerUser[_index][_accountTag];
-    }
-
-    /**
-     * @dev Function to get total minimum balance by date rules
-     * @return Total length of array
-     */
-    function getTotalMinBalByDateRule() public view returns (uint32) {
-        RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
-        return data.minBalByDateRulesIndex;
-    }
-
+    
     /************ NFT Getters/Setters ***********/
     /**
      * @dev Function adds Balance Limit Rule
@@ -556,25 +397,4 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         return index;
     }
 
-    /**
-     * @dev Function get the NFT Transfer Counter rule in the rule set that belongs to an NFT type
-     * @param _index position of rule in array
-     * @param _nftType Type of NFT
-     * @return NftTradeCounterRule at index location in array
-     */
-    function getNFTTransferCounterRule(uint32 _index, bytes32 _nftType) external view returns (TaggedRules.NFTTradeCounterRule memory) {
-        RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalNFTTransferCounterRules());
-        return data.NFTTransferCounterRule[_index][_nftType];
-    }
-
-    /**
-     * @dev Function gets total NFT Trade Counter rules
-     * @return Total length of array
-     */
-    function getTotalNFTTransferCounterRules() public view returns (uint32) {
-        RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
-        return data.NFTTransferCounterRuleIndex;
-    }
 }

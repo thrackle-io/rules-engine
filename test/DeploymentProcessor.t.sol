@@ -7,6 +7,8 @@ import "./helpers/GenerateSelectors.sol";
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 import {ERC20RuleProcessorFacet} from "../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
+import {ERC721TaggedRuleProcessorFacet} from "../src/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
+import {ApplicationAccessLevelProcessorFacet} from "../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
 import {TaggedRuleDataFacet} from "../src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
@@ -124,7 +126,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
     function testAddMinTransferRule() public {
         switchToRuleAdmin();
         uint32 index = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), 1000);
-        assertEq(RuleDataFacet(address(ruleProcessor)).getMinimumTransferRule(index).minTransferAmount, 1000);
+        assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getMinimumTransferRule(index).minTransferAmount, 1000);
     }
 
     function testRuleProcessorVersion() public {
@@ -177,20 +179,21 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTimes);
         assertEq(_index, 0);
-        TaggedRules.PurchaseRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getPurchaseRule(_index, "Oscar");
-        assertEq(rule.purchaseAmount, 1000);
-        assertEq(rule.purchasePeriod, 100);
+        /// TODO Uncomment once merged into internal branch - get functions no longer live in this facet and need to be built in internal
+        // TaggedRules.PurchaseRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getPurchaseRule(_index, "Oscar");
+        // assertEq(rule.purchaseAmount, 1000);
+        // assertEq(rule.purchasePeriod, 100);
 
-        accs[1] = bytes32("Tayler");
-        pAmounts[1] = uint192(20000000);
-        pPeriods[1] = uint16(2);
-        sTimes[1] = uint8(23);
+        // accs[1] = bytes32("Tayler");
+        // pAmounts[1] = uint192(20000000);
+        // pPeriods[1] = uint16(2);
+        // sTimes[1] = uint8(23);
 
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTimes);
-        assertEq(_index, 1);
-        rule = TaggedRuleDataFacet(address(ruleProcessor)).getPurchaseRule(_index, "Tayler");
-        assertEq(rule.purchaseAmount, 20000000);
-        assertEq(rule.purchasePeriod, 2);
+        // _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTimes);
+        // assertEq(_index, 1);
+        // rule = TaggedRuleDataFacet(address(ruleProcessor)).getPurchaseRule(_index, "Tayler");
+        // assertEq(rule.purchaseAmount, 20000000);
+        // assertEq(rule.purchasePeriod, 2);
 
         /// test zero address check
         vm.expectRevert();
@@ -270,7 +273,8 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTimes);
         }
-        assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalPurchaseRule(), _indexes.length);
+        /// TODO Uncomment line after merge to internal
+        /// assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalPurchaseRule(), _indexes.length);
     }
 
     /************************ Sell *************************/
@@ -297,26 +301,27 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
 
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
         assertEq(_index, 0);
-        TaggedRules.SellRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, "Oscar");
-        assertEq(rule.sellAmount, 1000);
-        assertEq(rule.sellPeriod, 24);
+        ///TODO Uncomment lines after merge to internal 
+        // TaggedRules.SellRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, "Oscar");
+        // assertEq(rule.sellAmount, 1000);
+        // assertEq(rule.sellPeriod, 24);
 
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        sAmounts[0] = uint192(100000000);
-        sAmounts[1] = uint192(20000000);
-        sAmounts[2] = uint192(3000000);
-        sPeriod[0] = uint16(11);
-        sPeriod[1] = uint16(22);
-        sPeriod[2] = uint16(33);
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
-        assertEq(_index, 1);
-        rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, "Tayler");
-        assertEq(rule.sellAmount, 20000000);
-        assertEq(rule.sellPeriod, 22);
-        vm.expectRevert();
-        TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(0), accs, sAmounts, sPeriod, sTimes);
+        // accs[0] = bytes32("Oscar");
+        // accs[1] = bytes32("Tayler");
+        // accs[2] = bytes32("Shane");
+        // sAmounts[0] = uint192(100000000);
+        // sAmounts[1] = uint192(20000000);
+        // sAmounts[2] = uint192(3000000);
+        // sPeriod[0] = uint16(11);
+        // sPeriod[1] = uint16(22);
+        // sPeriod[2] = uint16(33);
+        // _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
+        // assertEq(_index, 1);
+        // rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, "Tayler");
+        // assertEq(rule.sellAmount, 20000000);
+        // assertEq(rule.sellPeriod, 22);
+        // vm.expectRevert();
+        // TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(0), accs, sAmounts, sPeriod, sTimes);
     }
 
     /// testing only appAdministrators can add Purchase Rule
@@ -393,7 +398,8 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
         }
-        assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalSellRule(), _indexes.length);
+        ///TODO Uncomment lines when merged into internal 
+        // assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalSellRule(), _indexes.length);
     }
 
     /************************ Token Purchase Fee By Volume Percentage **********************/
@@ -407,9 +413,10 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
 
         _index = RuleDataFacet(address(ruleProcessor)).addPurchaseFeeByVolumeRule(address(applicationAppManager), 10000000000000000000000000000000000, 200);
         assertEq(_index, 1);
-        rule = RuleDataFacet(address(ruleProcessor)).getPurchaseFeeByVolumeRule(_index);
-        assertEq(rule.volume, 10000000000000000000000000000000000);
-        assertEq(rule.rateIncreased, 200);
+        ///TODO Uncomment lines when merged into internal 
+        // rule = RuleDataFacet(address(ruleProcessor)).getPurchaseFeeByVolumeRule(_index);
+        // assertEq(rule.volume, 10000000000000000000000000000000000);
+        // assertEq(rule.rateIncreased, 200);
     }
 
     /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
@@ -493,12 +500,12 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addTransferVolumeRule(address(applicationAppManager), 1000, 2, Blocktime, 0);
         assertEq(_index, 0);
-        NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
+        NonTaggedRules.TokenTransferVolumeRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
         assertEq(rule.startTime, Blocktime);
 
         _index = RuleDataFacet(address(ruleProcessor)).addTransferVolumeRule(address(applicationAppManager), 2000, 1, 12, 1_000_000_000_000_000 * 10 ** 18);
         assertEq(_index, 1);
-        rule = RuleDataFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
+        rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, 2000);
         assertEq(rule.period, 1);
         assertEq(rule.startTime, 12);
@@ -532,7 +539,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = RuleDataFacet(address(ruleProcessor)).addTransferVolumeRule(address(applicationAppManager), 5000 + i, 60 + i, Blocktime, 0);
         }
-        assertEq(RuleDataFacet(address(ruleProcessor)).getTotalTransferVolumeRules(), _indexes.length);
+        assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTransferVolumeRules(), _indexes.length);
     }
 
     /*********************** Minimum Transfer ************************/
@@ -541,12 +548,12 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), 500000000000000);
         assertEq(_index, 0);
-        NonTaggedRules.TokenMinimumTransferRule memory rule = RuleDataFacet(address(ruleProcessor)).getMinimumTransferRule(_index);
+        NonTaggedRules.TokenMinimumTransferRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getMinimumTransferRule(_index);
         assertEq(rule.minTransferAmount, 500000000000000);
 
         _index = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), 300000000000000);
         assertEq(_index, 1);
-        rule = RuleDataFacet(address(ruleProcessor)).getMinimumTransferRule(_index);
+        rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getMinimumTransferRule(_index);
         assertEq(rule.minTransferAmount, 300000000000000);
     }
 
@@ -574,7 +581,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), 5000 + i);
         }
-        assertEq(RuleDataFacet(address(ruleProcessor)).getTotalMinimumTransferRules(), _indexes.length);
+        assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalMinimumTransferRules(), _indexes.length);
     }
 
     /*********************** BalanceLimits *******************/
@@ -595,7 +602,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         max[2] = uint256(100000000000000000000000000000000000000000000000000000000000000000000000000);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
         assertEq(_index, 0);
-        TaggedRules.BalanceLimitRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getBalanceLimitRule(_index, "Oscar");
+        TaggedRules.BalanceLimitRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getBalanceLimitRule(_index, "Oscar");
         assertEq(rule.minimum, 1000);
         assertEq(rule.maximum, 10000000000000000000000000000000000000);
 
@@ -610,7 +617,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         max[2] = uint256(900000000000000000000000000000000000000000000000000000000000000000000000000);
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
         assertEq(_index, 1);
-        rule = TaggedRuleDataFacet(address(ruleProcessor)).getBalanceLimitRule(_index, "Tayler");
+        rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getBalanceLimitRule(_index, "Tayler");
         assertEq(rule.minimum, 20000000);
         assertEq(rule.maximum, 20000000000000000000000000000000000000);
         vm.expectRevert();
@@ -690,7 +697,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
         }
-        assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalBalanceLimitRules(), _indexes.length);
+        assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalBalanceLimitRules(), _indexes.length);
     }
 
     /*********************** Supply Volatility ************************/
@@ -699,12 +706,12 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), 6500, 24, Blocktime, totalSupply);
         assertEq(_index, 0);
-        NonTaggedRules.SupplyVolatilityRule memory rule = RuleDataFacet(address(ruleProcessor)).getSupplyVolatilityRule(_index);
+        NonTaggedRules.SupplyVolatilityRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getSupplyVolatilityRule(_index);
         assertEq(rule.startingTime, Blocktime);
 
         _index = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), 5000, 24, Blocktime, totalSupply);
         assertEq(_index, 1);
-        rule = RuleDataFacet(address(ruleProcessor)).getSupplyVolatilityRule(_index);
+        rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getSupplyVolatilityRule(_index);
         assertEq(rule.startingTime, Blocktime);
     }
 
@@ -732,7 +739,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), 6500 + i, 24 + i, 12, totalSupply);
         }
-        assertEq(RuleDataFacet(address(ruleProcessor)).getTotalSupplyVolatilityRules(), _indexes.length);
+        assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalSupplyVolatilityRules(), _indexes.length);
     }
 
     /*********************** Oracle ************************/
@@ -741,12 +748,12 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(69));
         assertEq(_index, 0);
-        NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleProcessor)).getOracleRule(_index);
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(69));
         _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(79));
         assertEq(_index, 1);
-        rule = RuleDataFacet(address(ruleProcessor)).getOracleRule(_index);
+        rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 1);
     }
 
@@ -775,7 +782,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(69));
         }
-        assertEq(RuleDataFacet(address(ruleProcessor)).getTotalOracleRules(), _indexes.length);
+        assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalOracleRules(), _indexes.length);
     }
 
     /*********************** NFT Trade Counter ************************/
@@ -790,15 +797,15 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         if (forkTest == true) {
             assertEq(_index, 1);
-            TaggedRules.NFTTradeCounterRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
+            TaggedRules.NFTTradeCounterRule memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
             assertEq(rule.tradesAllowedPerDay, 1);
-            rule = TaggedRuleDataFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[1]);
+            rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[1]);
             assertEq(rule.tradesAllowedPerDay, 5);
         } else {
             assertEq(_index, 0);
-            TaggedRules.NFTTradeCounterRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
+            TaggedRules.NFTTradeCounterRule memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
             assertEq(rule.tradesAllowedPerDay, 1);
-            rule = TaggedRuleDataFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[1]);
+            rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[1]);
             assertEq(rule.tradesAllowedPerDay, 5);
         }
     }
@@ -866,24 +873,25 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         releaseDate[2] = uint256(block.timestamp + 888);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
         assertEq(_index, 0);
-        TaggedRules.WithdrawalRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Tayler");
-        assertEq(rule.amount, 5000);
-        assertEq(rule.releaseDate, block.timestamp + 444);
+        /// Lines are removed as the getWithdrawalRule function is gone until rule check function is created
+        // TaggedRules.WithdrawalRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Tayler");
+        // assertEq(rule.amount, 5000);
+        // assertEq(rule.releaseDate, block.timestamp + 444);
 
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        amounts[0] = uint256(500);
-        amounts[1] = uint256(1500);
-        amounts[2] = uint256(3000);
-        releaseDate[0] = uint256(block.timestamp + 10000);
-        releaseDate[1] = uint256(block.timestamp + 888);
-        releaseDate[2] = uint256(block.timestamp + 666);
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
-        assertEq(_index, 1);
-        rule = TaggedRuleDataFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Oscar");
-        assertEq(rule.amount, 500);
-        assertEq(rule.releaseDate, block.timestamp + 10000);
+        // accs[0] = bytes32("Oscar");
+        // accs[1] = bytes32("Tayler");
+        // accs[2] = bytes32("Shane");
+        // amounts[0] = uint256(500);
+        // amounts[1] = uint256(1500);
+        // amounts[2] = uint256(3000);
+        // releaseDate[0] = uint256(block.timestamp + 10000);
+        // releaseDate[1] = uint256(block.timestamp + 888);
+        // releaseDate[2] = uint256(block.timestamp + 666);
+        // _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
+        // assertEq(_index, 1);
+        // rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Oscar");
+        // assertEq(rule.amount, 500);
+        // assertEq(rule.releaseDate, block.timestamp + 10000);
     }
 
     //Test Get Withdrawal Rule
@@ -898,9 +906,10 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         releaseDate[0] = uint256(block.timestamp + 10000);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
         assertEq(_index, 0);
-        TaggedRules.WithdrawalRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Shane");
-        assertEq(rule.amount, 1000);
-        assertEq(rule.releaseDate, block.timestamp + 10000);
+        /// Lines are removed as the getWithdrawalRule function is gone until rule check function is created
+        // TaggedRules.WithdrawalRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Shane");
+        // assertEq(rule.amount, 1000);
+        // assertEq(rule.releaseDate, block.timestamp + 10000);
     }
 
     //Test Get Total Withdrawal Rules
@@ -922,7 +931,8 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
         }
-        assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalWithdrawalRule(), _indexes.length);
+        /// Lines are removed as the getWithdrawalRule function is gone until rule check function is created
+        // assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalWithdrawalRule(), _indexes.length);
     }
 
     /**************** Balance by AccessLevel Rule Testing  ****************/
@@ -939,10 +949,10 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         /// account for already deployed contract that has AccessLevelBalanceRule added
         if (forkTest == true) {
-            uint256 testBalance = AppRuleDataFacet(address(ruleProcessor)).getAccessLevelBalanceRule(0, 2);
+            uint256 testBalance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccessLevelBalanceRule(0, 2);
             assertEq(testBalance, 100);
         } else {
-            uint256 testBalance = AppRuleDataFacet(address(ruleProcessor)).getAccessLevelBalanceRule(_index, 2);
+            uint256 testBalance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccessLevelBalanceRule(_index, 2);
             assertEq(testBalance, 500);
         }
     }
@@ -970,10 +980,10 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
             _indexes[i] = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         }
         if (forkTest == true) {
-            uint256 result = AppRuleDataFacet(address(ruleProcessor)).getTotalAccessLevelBalanceRules();
+            uint256 result = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getTotalAccessLevelBalanceRules();
             assertEq(result, _indexes.length + 1);
         } else {
-            uint256 result = AppRuleDataFacet(address(ruleProcessor)).getTotalAccessLevelBalanceRules();
+            uint256 result = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getTotalAccessLevelBalanceRules();
             assertEq(result, _indexes.length);
         }
     }
@@ -988,7 +998,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         switchToRuleAdmin();
         assertEq(applicationAppManager.isAppAdministrator(address(22)), true);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5000, block.timestamp + 10000);
-        TaggedRules.AdminWithdrawalRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getAdminWithdrawalRule(_index);
+        TaggedRules.AdminWithdrawalRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAdminWithdrawalRule(_index);
         assertEq(rule.amount, 5000);
         assertEq(rule.releaseDate, block.timestamp + 10000);
     }
@@ -1009,7 +1019,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), amount, releaseDate);
         }
         uint256 result;
-        result = TaggedRuleDataFacet(address(ruleProcessor)).getTotalAdminWithdrawalRules();
+        result = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAdminWithdrawalRules();
         assertEq(result, _indexes.length);
     }
 
@@ -1036,7 +1046,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         holdTimestamps[2] = Blocktime;
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
         assertEq(_index, 0);
-        TaggedRules.MinBalByDateRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Oscar");
+        TaggedRules.MinBalByDateRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Oscar");
         assertEq(rule.holdAmount, 1000);
         assertEq(rule.holdPeriod, 100);
 
@@ -1046,7 +1056,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
 
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
         assertEq(_index, 1);
-        rule = TaggedRuleDataFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Tayler");
+        rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Tayler");
         assertEq(rule.holdAmount, 20000000);
         assertEq(rule.holdPeriod, 2);
     }
@@ -1376,7 +1386,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
         assertEq(_index, 0);
-        NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleProcessor)).getOracleRule(_index);
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleRestricted));
         // add a blocked address
@@ -1465,7 +1475,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
-        TaggedRules.NFTTradeCounterRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
+        TaggedRules.NFTTradeCounterRule memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
         // apply the rule to the ApplicationERC721Handler
         applicationNFTHandler.setTradeCounterRuleId(_index);

@@ -6,11 +6,12 @@ import "forge-std/Test.sol";
 import {TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/economic/ruleProcessor/AppRuleDataFacet.sol";
+import {ApplicationAccessLevelProcessorFacet} from "src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
 import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
-
+import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
+import {ERC20TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
-
 import {ApplicationAssetHandlerMod} from "../helpers/ApplicationAssetHandlerMod.sol";
 import "test/helpers/TestCommonFoundry.sol";
 
@@ -170,7 +171,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
         assertEq(_index, 0);
-        NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleProcessor)).getOracleRule(_index);
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleRestricted));
         /// connect the rule to this handler
@@ -257,7 +258,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         balanceAmounts[4] = 10000;
         switchToRuleAdmin();
         uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
-        uint256 balance = AppRuleDataFacet(address(ruleProcessor)).getAccessLevelBalanceRule(_index, 2);
+        uint256 balance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccessLevelBalanceRule(_index, 2);
         assertEq(balance, 500);
         /// connect the rule to this handler
         applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);
@@ -1009,7 +1010,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addTransferVolumeRule(address(applicationAppManager), 4000, 2, Blocktime, 0);
         assertEq(_index, 0);
         switchToAppAdministrator();
-        NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
+        NonTaggedRules.TokenTransferVolumeRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, 4000);
         assertEq(rule.period, 2);
         assertEq(rule.startTime, Blocktime);
@@ -1059,7 +1060,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addTransferVolumeRule(address(applicationAppManager), 4000, 2, Blocktime, 100_000 * (10 ** 18));
         assertEq(_index, 0);
-        NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
+        NonTaggedRules.TokenTransferVolumeRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, 4000);
         assertEq(rule.period, 2);
         assertEq(rule.startTime, Blocktime);

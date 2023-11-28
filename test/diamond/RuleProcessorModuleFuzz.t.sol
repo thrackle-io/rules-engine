@@ -4,10 +4,13 @@ pragma solidity ^0.8.17;
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import {TaggedRuleDataFacet as TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import "src/application/AppManager.sol";
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {RuleDataFacet as NonTaggedRuleFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
+import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
+import {ERC20TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
+import {ERC721TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
+import {ApplicationAccessLevelProcessorFacet} from "src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
 import "src/application/AppManager.sol";
 import "src/example/application/ApplicationHandler.sol";
 import "./RuleProcessorDiamondTestUtil.sol";
@@ -85,6 +88,8 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
     /***************** Test Setters and Getters *****************/
 
     /*********************** Purchase *******************/
+    /** Purchase and sell + percentage Purchase and percentage sell rules are commented out uintil merge to internal as getters no longer exist until rules are written
+    TODO Uncomment after internal
     /// Simple setting and getting
     function testSettingPurchaseFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint16 pPeriodA, uint16 pPeriodB) public {
         vm.warp(Blocktime);
@@ -108,7 +113,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, startTimes);
         if ((sender == ruleAdmin) && amountA > 0 && amountB > 0 && pPeriodA > 0 && pPeriodB > 0) {
             assertEq(_index, 0);
-            TaggedRules.PurchaseRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getPurchaseRule(_index, "tagA");
+            TaggedRules.PurchaseRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getPurchaseRule(_index, "tagA");
             assertEq(rule.purchaseAmount, amountA);
             assertEq(rule.purchasePeriod, pPeriodA);
 
@@ -132,8 +137,10 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
             assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalPurchaseRule(), 2);
         }
     }
-
+    */
     // /************************ Sell *************************/
+    /** Purchase and sell + percentage Purchase and percentage sell rules are commented out uintil merge to internal as getters no longer exist until rules are written
+    TODO Uncomment after internal
     /// Simple setting and getting
 
     function testSettingSellFuzz(uint8 addressIndex, uint192 amountA, uint192 amountB, uint16 dFrozenA, uint16 dFrozenB, uint32 sTimeA, uint32 sTimeB, bytes32 accA, bytes32 accB) public {
@@ -194,7 +201,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
             assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalSellRule(), 2);
         }
     }
-
+    */
     /************************ Token Purchase Fee By Volume Percentage **********************/
     /// Simple setting and getting
 
@@ -263,19 +270,19 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         uint32 _index = NonTaggedRuleFacet(address(ruleProcessor)).addTransferVolumeRule(ac, maxVolume, hPeriod, startTime, 0);
         if ((sender == ruleAdmin) && maxVolume > 0 && maxVolume <= 100000 && hPeriod > 0 && startTime > 0 && startTime < 24) {
             assertEq(_index, 0);
-            NonTaggedRules.TokenTransferVolumeRule memory rule = NonTaggedRuleFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
+            NonTaggedRules.TokenTransferVolumeRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
             assertEq(rule.startTime, startTime);
 
             /// testing adding a second rule
             _index = NonTaggedRuleFacet(address(ruleProcessor)).addTransferVolumeRule(ac, 2000, 1, Blocktime, 0);
             assertEq(_index, 1);
-            rule = NonTaggedRuleFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
+            rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
             assertEq(rule.maxVolume, 2000);
             assertEq(rule.period, 1);
             assertEq(rule.startTime, Blocktime);
 
             /// testing total rules
-            assertEq(NonTaggedRuleFacet(address(ruleProcessor)).getTotalTransferVolumeRules(), 2);
+            assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTransferVolumeRules(), 2);
         }
     }
 
@@ -292,17 +299,17 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         uint32 _index = NonTaggedRuleFacet(address(ruleProcessor)).addMinimumTransferRule(ac, min);
         if ((sender == ruleAdmin) && min > 0) {
             assertEq(_index, 0);
-            NonTaggedRules.TokenMinimumTransferRule memory rule = NonTaggedRuleFacet(address(ruleProcessor)).getMinimumTransferRule(_index);
+            NonTaggedRules.TokenMinimumTransferRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getMinimumTransferRule(_index);
             assertEq(rule.minTransferAmount, min);
 
             /// testing adding a second rule
             _index = NonTaggedRuleFacet(address(ruleProcessor)).addMinimumTransferRule(ac, 300000000000000);
             assertEq(_index, 1);
-            rule = NonTaggedRuleFacet(address(ruleProcessor)).getMinimumTransferRule(_index);
+            rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getMinimumTransferRule(_index);
             assertEq(rule.minTransferAmount, 300000000000000);
 
             /// testing getting total rules
-            assertEq(NonTaggedRuleFacet(address(ruleProcessor)).getTotalMinimumTransferRules(), 2);
+            assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalMinimumTransferRules(), 2);
         }
     }
 
@@ -341,7 +348,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
         if ((sender == ruleAdmin) && minA > 0 && minB > 0 && maxA > 0 && maxB > 0 && !(minA > maxA || minB > maxB)) {
             assertEq(_index, 0);
-            TaggedRules.BalanceLimitRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getBalanceLimitRule(_index, accA);
+            TaggedRules.BalanceLimitRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getBalanceLimitRule(_index, accA);
             assertEq(rule.minimum, minA);
             assertEq(rule.maximum, maxA);
 
@@ -365,12 +372,12 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
             max2[2] = uint256(900000000000000000000000000000000000000000000000000000000000000000000000000);
             _index = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs2, min2, max2);
             assertEq(_index, 1);
-            rule = TaggedRuleDataFacet(address(ruleProcessor)).getBalanceLimitRule(_index, "Tayler");
+            rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getBalanceLimitRule(_index, "Tayler");
             assertEq(rule.minimum, min2[1]);
             assertEq(rule.maximum, max2[1]);
 
             /// testing getting total rules
-            assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalBalanceLimitRules(), 2);
+            assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalBalanceLimitRules(), 2);
         }
     }
 
@@ -389,17 +396,17 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         uint32 _index = NonTaggedRuleFacet(address(ruleProcessor)).addSupplyVolatilityRule(ac, maxChange, hPeriod, _startTimestamp, totalSupply);
         if (!((sender != ruleAdmin) || maxChange == 0 || hPeriod == 0 || _startTimestamp == 0)) {
             assertEq(_index, 0);
-            NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRuleFacet(address(ruleProcessor)).getSupplyVolatilityRule(_index);
+            NonTaggedRules.SupplyVolatilityRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getSupplyVolatilityRule(_index);
             assertEq(rule.startingTime, _startTimestamp);
 
             /// testing adding a second rule
             _index = NonTaggedRuleFacet(address(ruleProcessor)).addSupplyVolatilityRule(ac, 5000, 23, Blocktime, totalSupply);
             assertEq(_index, 1);
-            rule = NonTaggedRuleFacet(address(ruleProcessor)).getSupplyVolatilityRule(_index);
+            rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getSupplyVolatilityRule(_index);
             assertEq(rule.startingTime, Blocktime);
 
             /// testing total rules
-            assertEq(NonTaggedRuleFacet(address(ruleProcessor)).getTotalSupplyVolatilityRules(), 2);
+            assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalSupplyVolatilityRules(), 2);
         }
     }
 
@@ -417,83 +424,85 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         } else {
             _index = NonTaggedRuleFacet(address(ruleProcessor)).addOracleRule(ac, _type, _oracleAddress);
             assertEq(_index, 0);
-            NonTaggedRules.OracleRule memory rule = NonTaggedRuleFacet(address(ruleProcessor)).getOracleRule(_index);
+            NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
             assertEq(rule.oracleType, _type);
             assertEq(rule.oracleAddress, _oracleAddress);
 
             /// testing adding a second rule
             _index = NonTaggedRuleFacet(address(ruleProcessor)).addOracleRule(ac, 1, address(69));
             assertEq(_index, 1);
-            rule = NonTaggedRuleFacet(address(ruleProcessor)).getOracleRule(_index);
+            rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
             assertEq(rule.oracleType, 1);
             assertEq(rule.oracleAddress, address(69));
 
             /// testing total rules
-            assertEq(NonTaggedRuleFacet(address(ruleProcessor)).getTotalOracleRules(), 2);
+            assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalOracleRules(), 2);
         }
     }
 
     /**************** Tagged Withdrawal Rule Testing  ****************/
     //Test Adding Withdrawal Rule
+    /// Withdrawal rule getter does not exist until rule is written
+    // function testSettingWithdrawalRuleFuzz(uint8 addressIndex, uint256 amountA, uint256 amountB, uint256 dateA, uint256 dateB, bytes32 accA, bytes32 accB, uint forward) public {
+    //     /// avoiding arithmetic overflow when adding dateA and 1000 for second-rule test
+    //     vm.assume(forward < uint256(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000));
+    //     vm.assume(accA != accB);
+    //     vm.assume(accA != bytes32("") && accB != bytes32(""));
 
-    function testSettingWithdrawalRuleFuzz(uint8 addressIndex, uint256 amountA, uint256 amountB, uint256 dateA, uint256 dateB, bytes32 accA, bytes32 accB, uint forward) public {
-        /// avoiding arithmetic overflow when adding dateA and 1000 for second-rule test
-        vm.assume(forward < uint256(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000));
-        vm.assume(accA != accB);
-        vm.assume(accA != bytes32("") && accB != bytes32(""));
+    //     vm.stopPrank();
+    //     address sender = ADDRESSES[addressIndex % ADDRESSES.length];
+    //     vm.startPrank(sender);
 
-        vm.stopPrank();
-        address sender = ADDRESSES[addressIndex % ADDRESSES.length];
-        vm.startPrank(sender);
+    //     bytes32[] memory accs = new bytes32[](2);
+    //     accs[0] = accA;
+    //     accs[1] = accB;
+    //     uint256[] memory amounts = new uint256[](2);
+    //     amounts[0] = amountA;
+    //     amounts[1] = amountB;
+    //     uint256[] memory releaseDate = new uint256[](2);
+    //     releaseDate[0] = dateA;
+    //     releaseDate[1] = dateB;
 
-        bytes32[] memory accs = new bytes32[](2);
-        accs[0] = accA;
-        accs[1] = accB;
-        uint256[] memory amounts = new uint256[](2);
-        amounts[0] = amountA;
-        amounts[1] = amountB;
-        uint256[] memory releaseDate = new uint256[](2);
-        releaseDate[0] = dateA;
-        releaseDate[1] = dateB;
+    //     vm.warp(forward);
+    //     if ((sender != ruleAdmin) || amountA == 0 || amountB == 0 || dateA <= block.timestamp || dateB <= block.timestamp) vm.expectRevert();
+    //     uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs, amounts, releaseDate);
+    //     if (!((sender != ruleAdmin) || amountA == 0 || amountB == 0 || dateA <= block.timestamp || dateB <= block.timestamp)) {
+    //         assertEq(_index, 0);
+    //         TaggedRules.WithdrawalRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getWithdrawalRule(_index, accA);
+    //         assertEq(rule.amount, amountA);
+    //         assertEq(rule.releaseDate, dateA);
 
-        vm.warp(forward);
-        if ((sender != ruleAdmin) || amountA == 0 || amountB == 0 || dateA <= block.timestamp || dateB <= block.timestamp) vm.expectRevert();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs, amounts, releaseDate);
-        if (!((sender != ruleAdmin) || amountA == 0 || amountB == 0 || dateA <= block.timestamp || dateB <= block.timestamp)) {
-            assertEq(_index, 0);
-            TaggedRules.WithdrawalRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getWithdrawalRule(_index, accA);
-            assertEq(rule.amount, amountA);
-            assertEq(rule.releaseDate, dateA);
+    //         /// we create other parameters for next tests
+    //         bytes32[] memory accs2 = new bytes32[](3);
+    //         uint256[] memory amounts2 = new uint256[](3);
+    //         uint256[] memory releaseDate2 = new uint256[](3);
+    //         accs2[0] = bytes32("Oscar");
+    //         accs2[1] = bytes32("Tayler");
+    //         accs2[2] = bytes32("Shane");
+    //         amounts2[0] = uint256(500);
+    //         amounts2[1] = uint256(1500);
+    //         amounts2[2] = uint256(3000);
+    //         releaseDate2[0] = uint256(block.timestamp + 1100);
+    //         releaseDate2[1] = uint256(block.timestamp + 2200);
+    //         releaseDate2[2] = uint256(block.timestamp + 3300);
 
-            /// we create other parameters for next tests
-            bytes32[] memory accs2 = new bytes32[](3);
-            uint256[] memory amounts2 = new uint256[](3);
-            uint256[] memory releaseDate2 = new uint256[](3);
-            accs2[0] = bytes32("Oscar");
-            accs2[1] = bytes32("Tayler");
-            accs2[2] = bytes32("Shane");
-            amounts2[0] = uint256(500);
-            amounts2[1] = uint256(1500);
-            amounts2[2] = uint256(3000);
-            releaseDate2[0] = uint256(block.timestamp + 1100);
-            releaseDate2[1] = uint256(block.timestamp + 2200);
-            releaseDate2[2] = uint256(block.timestamp + 3300);
+    //         /// testing wrong size of patameters
+    //         vm.expectRevert();
+    //         _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs2, amounts, releaseDate);
 
-            /// testing wrong size of patameters
-            vm.expectRevert();
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs2, amounts, releaseDate);
+    //         /// testing adding a new rule
+    //         _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs2, amounts2, releaseDate2);
+    //         assertEq(_index, 1);
 
-            /// testing adding a new rule
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(ac, accs2, amounts2, releaseDate2);
-            assertEq(_index, 1);
-            rule = TaggedRuleDataFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Oscar");
-            assertEq(rule.amount, 500);
-            assertEq(rule.releaseDate, block.timestamp + 1100);
+    //         /// Withdrawal rule getter does not exist until rule is written
+    //         rule = TaggedRuleDataFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Oscar");
+    //         assertEq(rule.amount, 500);
+    //         assertEq(rule.releaseDate, block.timestamp + 1100);
 
-            /// testing total rules
-            assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalWithdrawalRule(), 2);
-        }
-    }
+    //         /// testing total rules
+    //         assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalWithdrawalRule(), 2);
+    //     }
+    // }
 
     /**************** Tagged Admin Withdrawal Rule Testing  ****************/
 
@@ -517,19 +526,19 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
 
         if (!((sender != ruleAdmin) || amountA == 0 || dateA <= block.timestamp)) {
             assertEq(0, _index);
-            TaggedRules.AdminWithdrawalRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getAdminWithdrawalRule(_index);
+            TaggedRules.AdminWithdrawalRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAdminWithdrawalRule(_index);
             assertEq(rule.amount, amountA);
             assertEq(rule.releaseDate, dateA);
 
             /// testing adding a second rule
             _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(ac, 666, block.timestamp + 1000);
             assertEq(1, _index);
-            rule = TaggedRuleDataFacet(address(ruleProcessor)).getAdminWithdrawalRule(_index);
+            rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAdminWithdrawalRule(_index);
             assertEq(rule.amount, 666);
             assertEq(rule.releaseDate, block.timestamp + 1000);
 
             /// testing total rules
-            assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalAdminWithdrawalRules(), 2);
+            assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAdminWithdrawalRules(), 2);
         }
     }
 

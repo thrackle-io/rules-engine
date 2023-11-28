@@ -74,11 +74,11 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         /// This Function checks the max account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
         toTags.checkMaxTags();
-        uint totalRules = getTotalBalanceLimitRule();
+        uint totalRules = getTotalBalanceLimitRules();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
 
         for (uint i; i < toTags.length; ) {
-            uint256 max = getBalanceLimitRules(ruleId, toTags[i]).maximum;
+            uint256 max = getBalanceLimitRule(ruleId, toTags[i]).maximum;
             /// if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
              if (max > 0 && balanceTo + amount > max) revert MaxBalanceExceeded();
             unchecked {
@@ -98,11 +98,11 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         /// This Function checks the min account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
         fromTags.checkMaxTags();
-        uint totalRules = getTotalBalanceLimitRule();
+        uint totalRules = getTotalBalanceLimitRules();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
 
         for (uint i = 0; i < fromTags.length; ) {
-            uint256 min = getBalanceLimitRules(ruleId, fromTags[i]).minimum;
+            uint256 min = getBalanceLimitRule(ruleId, fromTags[i]).minimum;
             /// if a min is 0 then no need to check.
             if (min > 0 && balanceFrom - amount < min) revert BalanceBelowMin();
             unchecked {
@@ -112,14 +112,14 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     }
 
     /**
-     * @dev Function get the purchase rule in the rule set that belongs to an account type
+     * @dev Function get the BalanceLimitRule in the rule set that belongs to an account type
      * @param _index position of rule in array
      * @param _accountType Type of Accounts
      * @return BalanceLimitRule at index location in array
      */
-    function getBalanceLimitRules(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.BalanceLimitRule memory) {
+    function getBalanceLimitRule(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.BalanceLimitRule memory) {
         // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalBalanceLimitRule());
+        _index.checkRuleExistence(getTotalBalanceLimitRules());
         RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
         if (_index >= data.balanceLimitRuleIndex) revert IndexOutOfRange();
         return data.balanceLimitsPerAccountType[_index][_accountType];
@@ -129,7 +129,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @dev Function gets total Balance Limit rules
      * @return Total length of array
      */
-    function getTotalBalanceLimitRule() public view returns (uint32) {
+    function getTotalBalanceLimitRules() public view returns (uint32) {
         RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
         return data.balanceLimitRuleIndex;
     }
@@ -143,13 +143,33 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * back if everything checks out.
      */
     function checkAdminWithdrawalRule(uint32 ruleId, uint256 currentBalance, uint256 amount) external view {
-        TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-
-        uint totalRules = data.getTotalAdminWithdrawalRules();
+        uint totalRules = getTotalAdminWithdrawalRules();
         if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
 
-        TaggedRules.AdminWithdrawalRule memory rule = data.getAdminWithdrawalRule(ruleId);
+        TaggedRules.AdminWithdrawalRule memory rule = getAdminWithdrawalRule(ruleId);
         if ((block.timestamp < rule.releaseDate) && (currentBalance - amount < rule.amount)) revert BalanceBelowMin();
+    }
+
+    /**
+     * @dev Function gets Admin withdrawal rule at index
+     * @param _index position of rule in array
+     * @return adminWithdrawalRulesPerToken rule at indexed postion
+     */
+    function getAdminWithdrawalRule(uint32 _index) public view returns (TaggedRules.AdminWithdrawalRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalAdminWithdrawalRules());
+        RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
+        if (_index >= data.adminWithdrawalRulesIndex) revert IndexOutOfRange();
+        return data.adminWithdrawalRulesPerToken[_index];
+    }
+
+    /**
+     * @dev Function to get total Admin withdrawal rules
+     * @return adminWithdrawalRulesPerToken total length of array
+     */
+    function getTotalAdminWithdrawalRules() public view returns (uint32) {
+        RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
+        return data.adminWithdrawalRulesIndex;
     }
 
     /**
@@ -161,13 +181,12 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      */
     function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags) external view {
         toTags.checkMaxTags();
-        TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        uint256 totalRules = data.getTotalMinBalByDateRule();
+        uint256 totalRules = getTotalMinBalByDateRules();
         uint256 finalBalance = balance - amount;
         if (totalRules > ruleId) {
             for (uint i = 0; i < toTags.length; ) {
                 if (toTags[i] != "") {
-                    TaggedRules.MinBalByDateRule memory minBalByDateRule = data.getMinBalByDateRule(ruleId, toTags[i]);
+                    TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
                     uint256 holdPeriod = minBalByDateRule.holdPeriod;
                     /// first check to see if still in the hold period
                     if ((block.timestamp - (holdPeriod * 1 hours)) < minBalByDateRule.startTimeStamp) {
@@ -183,5 +202,28 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         } else {
             revert RuleDoesNotExist();
         }
+    }
+
+    /**
+     * @dev Function get the minimum balance by date rule in the rule set that belongs to an account type
+     * @param _index position of rule in array
+     * @param _accountTag Tag of account
+     * @return Min BalanceByDate rule at index position
+     */
+    function getMinBalByDateRule(uint32 _index, bytes32 _accountTag) public view returns (TaggedRules.MinBalByDateRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalMinBalByDateRules());
+        RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
+        if (_index >= data.minBalByDateRulesIndex) revert IndexOutOfRange();
+        return data.minBalByDateRulesPerUser[_index][_accountTag];
+    }
+
+    /**
+     * @dev Function to get total minimum balance by date rules
+     * @return Total length of array
+     */
+    function getTotalMinBalByDateRules() public view returns (uint32) {
+        RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
+        return data.minBalByDateRulesIndex;
     }
 }

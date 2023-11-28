@@ -57,27 +57,6 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
     }
 
     /**
-     * @dev Function to get the AccessLevel Balance rule in the rule set that belongs to the Access Level
-     * @param _index position of rule in array
-     * @param _accessLevel AccessLevel Level to check
-     * @return balanceAmount balance allowed for access levellevel
-     */
-    function getAccessLevelBalanceRule(uint32 _index, uint8 _accessLevel) external view returns (uint48) {
-        RuleS.AccessLevelRuleS storage data = Storage.accessStorage();
-        if (_index >= data.accessRuleIndex) revert IndexOutOfRange();
-        return data.accessRulesPerToken[_index][_accessLevel];
-    }
-
-    /**
-     * @dev Function to get total AccessLevel Balance rules
-     * @return Total length of array
-     */
-    function getTotalAccessLevelBalanceRules() external view returns (uint32) {
-        RuleS.AccessLevelRuleS storage data = Storage.accessStorage();
-        return data.accessRuleIndex;
-    }
-
-    /**
      * @dev Function add a Accessc Level Withdrawal rule
      * @dev Function has ruleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
@@ -107,27 +86,6 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         bytes32[] memory empty;
         emit ProtocolRuleCreated(ACCESS_LEVEL_WITHDRAWAL, index, empty);
         return index;
-    }
-
-    /**
-     * @dev Function to get the Access Level Withdrawal rule in the rule set that belongs to the Access Level
-     * @param _index position of rule in array
-     * @param _accessLevel AccessLevel Level to check
-     * @return balanceAmount balance allowed for access levellevel
-     */
-    function getAccessLevelWithdrawalRule(uint32 _index, uint8 _accessLevel) external view returns (uint48) {
-        RuleS.AccessLevelWithrawalRuleS storage data = Storage.accessLevelWithdrawalRuleStorage();
-        if (_index >= data.accessLevelWithdrawalRuleIndex) revert IndexOutOfRange();
-        return data.accessLevelWithdrawal[_index][_accessLevel];
-    }
-
-    /**
-     * @dev Function to get total AccessLevel withdrawal rules
-     * @return Total number of access level withdrawal rules
-     */
-    function getTotalAccessLevelWithdrawalRules() external view returns (uint32) {
-        RuleS.AccessLevelWithrawalRuleS storage data = Storage.accessLevelWithdrawalRuleStorage();
-        return data.accessLevelWithdrawalRuleIndex;
     }
 
     //***********************  Risk Rules  ******************************* */
@@ -194,27 +152,6 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
     }
 
     /**
-     * @dev Function to get the Max Tx Size Per Period By Risk rule.
-     * @param _index position of rule in array
-     * @return a touple of arrays, a uint8 and a uint64. The first array will be the _maxSize, the second
-     * will be the _riskLevel, the uint8 will be the period, and the last value will be the starting date.
-     */
-    function getMaxTxSizePerPeriodRule(uint32 _index) external view returns (AppRules.TxSizePerPeriodToRiskRule memory) {
-        RuleS.TxSizePerPeriodToRiskRuleS storage data = Storage.txSizePerPeriodToRiskStorage();
-        if (_index >= data.txSizePerPeriodToRiskRuleIndex) revert IndexOutOfRange();
-        return data.txSizePerPeriodToRiskRule[_index];
-    }
-
-    /**
-     * @dev Function to get total Max Tx Size Per Period By Risk rules
-     * @return Total length of array
-     */
-    function getTotalMaxTxSizePerPeriodRules() external view returns (uint32) {
-        RuleS.TxSizePerPeriodToRiskRuleS storage data = Storage.txSizePerPeriodToRiskStorage();
-        return data.txSizePerPeriodToRiskRuleIndex;
-    }
-
-    /**
      * @dev Function to add new AccountBalanceByRiskScore Rules
      * @dev Function has ruleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
@@ -272,23 +209,4 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         return ruleId;
     }
 
-    /**
-     * @dev Function to get the TransactionLimit in the rule set that belongs to an risk score
-     * @param _index position of rule in array
-     * @return balanceAmount balance allowed for access levellevel
-     */
-    function getAccountBalanceByRiskScore(uint32 _index) external view returns (AppRules.AccountBalanceToRiskRule memory) {
-        RuleS.AccountBalanceToRiskRuleS storage data = Storage.accountBalanceToRiskStorage();
-        if (_index >= data.balanceToRiskRuleIndex) revert IndexOutOfRange();
-        return data.balanceToRiskRule[_index];
-    }
-
-    /**
-     * @dev Function to get total Transaction Limit by Risk Score rules
-     * @return Total length of array
-     */
-    function getTotalAccountBalanceByRiskScoreRules() external view returns (uint32) {
-        RuleS.AccountBalanceToRiskRuleS storage data = Storage.accountBalanceToRiskStorage();
-        return data.balanceToRiskRuleIndex;
-    }
 }

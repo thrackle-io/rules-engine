@@ -2,9 +2,11 @@
 pragma solidity ^0.8.17;
 
 import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
+import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
+import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
 import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
-import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
+import {IInputErrors, IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
 import "./RuleProcessorCommonLib.sol";
 
 /**
@@ -14,8 +16,10 @@ import "./RuleProcessorCommonLib.sol";
  * @notice Implements Risk Rules on Tagged Accounts. All risk rules are measured in
  * in terms of USD with 18 decimals of precision.
  */
-contract RiskTaggedRuleProcessorFacet is IRuleProcessorErrors, IRiskErrors {
+contract RiskTaggedRuleProcessorFacet is IRuleProcessorErrors, IRiskErrors, IInputErrors {
     using RuleProcessorCommonLib for uint8; 
+    using RuleProcessorCommonLib for uint64;
+    using RuleProcessorCommonLib for uint32;
     /**
      * @dev Transaction Limit for Risk Score
      * @param _ruleId Rule Identifier for rule arguments
@@ -35,15 +39,36 @@ contract RiskTaggedRuleProcessorFacet is IRuleProcessorErrors, IRiskErrors {
      */
     function checkTransactionLimitByRiskScore(uint32 _ruleId, uint8 _riskScore, uint256 _amountToTransfer) external view {
         uint256 ruleMaxSize;
-        TaggedRuleDataFacet data = TaggedRuleDataFacet(Diamond.ruleDataStorage().rules);
-        uint256 totalRules = data.getTotalTransactionLimitByRiskRules();
+        uint256 totalRules = getTotalTransactionLimitByRiskRule();
         if ((totalRules > 0 && totalRules <= _ruleId) || totalRules == 0) revert RuleDoesNotExist();
-        TaggedRules.TransactionSizeToRiskRule memory rule = data.getTransactionLimitByRiskRule(_ruleId);
+        TaggedRules.TransactionSizeToRiskRule memory rule = getTransactionLimitByRiskRules(_ruleId);
         /// If risk score is less than the first risk score of the rule, there is no limit. 
         /// Skips the loop for gas efficiency on low risk scored users 
         if (_riskScore >= rule.riskLevel[0]) {
             ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskLevel, rule.maxSize);
             if (_amountToTransfer > ruleMaxSize) revert TransactionExceedsRiskScoreLimit();
         }
+    }
+
+    /**
+     * @dev Function to get the TransactionLimit in the rule set that belongs to an risk score
+     * @param _index position of rule in array
+     * @return balanceAmount balance allowed for access levellevel
+     */
+    function getTransactionLimitByRiskRules(uint32 _index) public view returns (TaggedRules.TransactionSizeToRiskRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalTransactionLimitByRiskRule());
+        RuleS.TxSizeToRiskRuleS storage data = Storage.txSizeToRiskStorage();
+        if (_index >= data.txSizeToRiskRuleIndex) revert IndexOutOfRange();
+        return data.txSizeToRiskRule[_index];
+    }
+
+    /**
+     * @dev Function to get total Transaction Limit by Risk Score rules
+     * @return Total length of array
+     */
+    function getTotalTransactionLimitByRiskRule() public view returns (uint32) {
+        RuleS.TxSizeToRiskRuleS storage data = Storage.txSizeToRiskStorage();
+        return data.txSizeToRiskRuleIndex;
     }
 }

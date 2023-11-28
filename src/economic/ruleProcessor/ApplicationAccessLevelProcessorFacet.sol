@@ -30,8 +30,8 @@ contract ApplicationAccessLevelProcessorFacet is IInputErrors, IRuleProcessorErr
      */
     function checkAccBalanceByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _balance, uint128 _amountToTransfer) external view {
         /// Get the account's AccessLevel
-        if (getTotalAccessLevelBalanceRule() != 0) {
-            uint48 max = getAccessLevelBalanceRules(_ruleId, _accessLevel);
+        if (getTotalAccessLevelBalanceRules() != 0) {
+            uint48 max = getAccessLevelBalanceRule(_ruleId, _accessLevel);
             /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
             if (_amountToTransfer + _balance > (uint256(max) * (10 ** 18))) revert BalanceExceedsAccessLevelAllowedLimit();
         }
@@ -43,7 +43,7 @@ contract ApplicationAccessLevelProcessorFacet is IInputErrors, IRuleProcessorErr
      * @param _accessLevel AccessLevel Level to check
      * @return balanceAmount balance allowed for access levellevel
      */
-    function getAccessLevelBalanceRules(uint32 _index, uint8 _accessLevel) public view returns (uint48) {
+    function getAccessLevelBalanceRule(uint32 _index, uint8 _accessLevel) public view returns (uint48) {
         RuleS.AccessLevelRuleS storage data = Storage.accessStorage();
         if (_index >= data.accessRuleIndex) revert IndexOutOfRange();
         return data.accessRulesPerToken[_index][_accessLevel];
@@ -53,7 +53,7 @@ contract ApplicationAccessLevelProcessorFacet is IInputErrors, IRuleProcessorErr
      * @dev Function to get total AccessLevel Balance rules
      * @return Total length of array
      */
-    function getTotalAccessLevelBalanceRule() public view returns (uint32) {
+    function getTotalAccessLevelBalanceRules() public view returns (uint32) {
         RuleS.AccessLevelRuleS storage data = Storage.accessStorage();
         return data.accessRuleIndex;
     }
