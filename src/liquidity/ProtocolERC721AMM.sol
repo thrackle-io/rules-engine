@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "../application/IAppManager.sol";
 import "../liquidity/IProtocolAMMHandler.sol";
 import "../economic/AppAdministratorOnly.sol";
@@ -37,13 +38,16 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
     /**
      * @dev Must provide the addresses for both tokens that will provide liquidity
      * @param _ERC20Token valid ERC20 address
-     * @param _ERC721Toke valid ERC721 address
+     * @param _ERC721Token valid ERC721 address
      * @param _appManagerAddress valid address of the corresponding app manager
      * @param _calculatorAddress valid address of the corresponding calculator for the AMM
      */
-    constructor(address _ERC20Token, address _ERC721Toke, address _appManagerAddress, address _calculatorAddress) {
+    constructor(address _ERC20Token, address _ERC721Token, address _appManagerAddress, address _calculatorAddress) {
+
+        if(!_isERC721Enumerable(_ERC721Token)) revert("MUST BE ENUMERABLE");
         ERC20Token = IERC20(_ERC20Token);
-        ERC721Token = IERC721(_ERC721Toke);
+        ERC721Token = IERC721(_ERC721Token);
+        
         appManagerAddress = _appManagerAddress;
         /// Set the calculator and create the variable for it.
         _setCalculatorAddress(_calculatorAddress);
@@ -119,7 +123,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         );
 
         /// update the reserves with the proper amounts(adding to token0, subtracting from token1)
-        _update(reserveERC20 += price, reserveERC721 - _amountOut);
+        _update(reserveERC20 + price, reserveERC721 - _amountOut);
         /// Assess fees. All fees are always taken out of the collateralized token (ERC721Token)
         // uint256 fees = handler.assessFees (ERC20Token.balanceOf(msg.sender), ERC721Token.balanceOf(msg.sender), msg.sender, address(this), _amountOut, ActionTypes.SELL);
         /// subtract fees from collateralized token
@@ -167,7 +171,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         );
 
         /// update the reserves with the proper amounts(subtracting from token0, adding to token1)
-        _update(reserveERC20 - _amountOut, reserveERC721 += _amountIn);
+        _update(reserveERC20 - _amountOut, reserveERC721 + _amountIn);
         /// transfer the ERC20Token amount to the swapper
         ERC721Token.safeTransferFrom(msg.sender, address(this), _tokenId);
         if (ERC721Token.ownerOf(_tokenId) != address(this)) revert TransferFailed();
@@ -286,14 +290,14 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
     /**
      * @dev This function returns reserveERC20
      */
-    function getReserve0() external view returns (uint256) {
+    function getReserveERC20() external view returns (uint256) {
         return reserveERC20;
     }
 
     /**
      * @dev This function returns reserveERC721
      */
-    function getReserve1() external view returns (uint256) {
+    function getReserveERC721() external view returns (uint256) {
         return reserveERC721;
     }
 
@@ -329,5 +333,10 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
      */
     function getHandlerAddress() external view returns (address) {
         return address(handler);
+    }
+
+
+    function _isERC721Enumerable(address _ERC721Token) internal returns(bool){
+        return IERC165(_ERC721Token).supportsInterface(type(IERC721Enumerable));
     }
 }
