@@ -10,13 +10,13 @@ import {IApplicationEvents} from "../interfaces/IEvents.sol";
 import { AMMCalculatorErrors, AMMErrors, IZeroAddressError } from "../interfaces/IErrors.sol";
 
 /**
- * @title ProtocolAMM Base Contract
+ * @title ProtocolERC20AMM Base Contract
  * @notice This is the base contract for all protocol AMMs. Token 0 is the application native token. Token 1 is the chain native token (ETH, MATIC, ETC).
  * @dev The only thing to recognize is that calculations are all done in an external calculation contract
  * TODO add action types purchase and sell to buy/sell functions, test purchaseWithinPeriod on buy functions.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolAMM is AppAdministratorOnly, IApplicationEvents,  AMMCalculatorErrors, AMMErrors, IZeroAddressError {
+contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalculatorErrors, AMMErrors, IZeroAddressError {
     
     /// Application Token
     IERC20 public immutable token0;

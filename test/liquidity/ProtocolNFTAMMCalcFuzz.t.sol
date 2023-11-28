@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "src/liquidity/ProtocolAMM.sol";
+import "src/liquidity/ProtocolERC20AMM.sol";
 import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";

@@ -952,7 +952,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        protocolAMM = ProtocolAMM(protocolAMMFactory.createConstantAMM(address(11), address(22),1,1, address(applicationAppManager)));
+        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(11), address(22),1,1, address(applicationAppManager)));
         ApplicationAMMHandler applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
         protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));
         applicationAppManager.registerAMM(address(protocolAMM));
@@ -967,7 +967,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        protocolAMM = ProtocolAMM(protocolAMMFactory.createConstantAMM(address(11), address(22),1,1, address(applicationAppManager)));
+        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(11), address(22),1,1, address(applicationAppManager)));
         ApplicationAMMHandler applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
         protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));
         applicationAppManager.registerAMM(address(protocolAMM));

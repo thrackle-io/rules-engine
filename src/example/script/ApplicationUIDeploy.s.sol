@@ -8,7 +8,7 @@ import "src/example/ERC20/ApplicationERC20.sol";
 import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
 import "src/liquidity/ProtocolAMMFactory.sol";
 import "src/liquidity/ProtocolAMMCalculatorFactory.sol";
-import "src/liquidity/ProtocolAMM.sol";
+import "src/liquidity/ProtocolERC20AMM.sol";
 import "src/example/liquidity/ApplicationAMMHandler.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 import "src/example/application/ApplicationHandler.sol";
@@ -67,7 +67,7 @@ contract ApplicationUIDeployAllScript is Script {
         /// create the AMM Linear Calculator
         /// create the AMM with Dracula and Frankenstein tokens
         ProtocolAMMFactory protocolAMMFactory = new ProtocolAMMFactory(address(new ProtocolAMMCalculatorFactory()));
-        ProtocolAMM amm = ProtocolAMM(protocolAMMFactory.createLinearAMM(address(coin1), address(coin2), 6000, 15 * 10 ** 17, address(applicationAppManager))); 
+        ProtocolERC20AMM amm = ProtocolERC20AMM(protocolAMMFactory.createLinearAMM(address(coin1), address(coin2), 6000, 15 * 10 ** 17, address(applicationAppManager))); 
         /// create AMM handler
         applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(amm));
         /// connect AMM with its handler

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "src/liquidity/ProtocolAMM.sol";
+import "src/liquidity/ProtocolERC20AMM.sol";
 import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
@@ -16,7 +16,7 @@ import "test/helpers/TestCommonFoundry.sol";
  * @dev A substantial amount of set up work is needed for each test.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolAMMTest is TestCommonFoundry {
+contract ProtocolERC20AMMTest is TestCommonFoundry {
     ApplicationAMMHandler handler;
     OracleRestricted oracleRestricted;
     OracleAllowed oracleAllowed;
@@ -48,7 +48,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        protocolAMM = ProtocolAMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2),1,1, address(applicationAppManager)));
+        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2),1,1, address(applicationAppManager)));
         handler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
         protocolAMM.connectHandlerToAMM(address(handler));
         applicationAMMHandler = ApplicationAMMHandler(protocolAMM.getHandlerAddress());

@@ -7,7 +7,7 @@ import {CurveErrors} from "../../interfaces/IErrors.sol";
 
 /**
  * @title Automated Market Maker Swap Linear Calculator for NFT Pools
- * @dev This is external and used by the ProtocolAMM. The intention is to be able to change the calculations
+ * @dev This is external and used by the ProtocolERC20AMM. The intention is to be able to change the calculations
  *      as needed. It contains an example linear. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
