@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
+import "forge-std/Test.sol";
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
 import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
@@ -12,17 +13,20 @@ import {TaggedRuleDataFacet} from "../src/economic/ruleProcessor/TaggedRuleDataF
 import {RuleDataFacet} from "../src/economic/ruleProcessor/RuleDataFacet.sol";
 
 /**
- * @title The deployment script for the Protocol. It deploys protocol contracts and links everything.
+ * @title The deployment script for the Protocol. It deploys the processor diamond and all protocol facets.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract deploys All Contracts for the Protocol
- * @dev This script will set contract addresses needed by protocol interaction in connectAndSetUpAll()
+ * @dev This script will only deploy the processor diamond and all of its facets and set the storage diamond address
+ * note This script should be used to break up facet cuts if necessary for testnet deployments (Not DeployAllModules.s.sol as that is for local testing)
  */
-
 contract DeployAllModulesScript is Script {
     /// Store the FacetCut struct for each facet that is being deployed.
     /// NOTE: using storage array to easily "push" new FacetCut as we
     /// process the facets.
+    FacetCut[] private _facetCutsApplicationProcessor;
+    FacetCut[] private _facetCutsData;
     FacetCut[] private _facetCutsRuleProcessor;
+    FacetCut[] private _facetCutsTaggedRuleProcessor;
     /// address and private key used to for deployment
     uint256 privateKey;
     address ownerAddress;
@@ -33,12 +37,10 @@ contract DeployAllModulesScript is Script {
      * @dev This is the main function that gets called by the Makefile or CLI
      */
     function run() external {
-        privateKey = vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY");
-        ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
+        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
+        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
-
         ruleProcessorDiamond = deployRuleProcessorDiamond();
-
         vm.stopBroadcast();
     }
 
@@ -59,6 +61,7 @@ contract DeployAllModulesScript is Script {
             /// Raw implementation facets.
             "ProtocolRawFacet",
             /// Protocol facets.
+            ///ruleProcessor (Rules setters and getters)
             "ERC20RuleProcessorFacet",
             "ERC721RuleProcessorFacet",
             "FeeRuleProcessorFacet",
