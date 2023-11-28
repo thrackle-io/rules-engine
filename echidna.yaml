@@ -26,5 +26,5 @@ sender: ["0x10000", "0x20000", "0x30000"]
 cryticArgs: # If we add more dependencies they will need to be added as symlinks here!
   [
     "--solc-remaps",
-    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/ @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/ diamond-std/=lib/diamond-std/ ds-test/=lib/forge-std/lib/ds-test/src/ forge-std/=lib/forge-std/src/" ,
+    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/ @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/ diamond-std/=lib/diamond-std/ ds-test/=lib/forge-std/lib/ds-test/src/ forge-std/=lib/forge-std/src/",
   ]

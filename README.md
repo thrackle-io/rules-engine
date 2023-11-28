@@ -102,4 +102,3 @@ All you need to do is to inherit the right contract and implement any necessary 
 ## Docs
 
 Please visit the official [GitHub repository](https://github.com/thrackle-io/rules-protocol) for more information.
-
