@@ -1,18 +1,19 @@
-# Developer Guide
+# User Guide
 
 [![Project Version][version-image]][version-url]
 
 # *** UNDER CONSTRUCTION ***
 
-# Individual Actions
+Relevant Documentation:
+- [Deployment Guides][deploymentGuide-url]
+- [Rule Guide][ruleGuide-url]
+- [Glossary][glossary-url]
+- [Architecture Overview][archOverview-url]
 
-1. [Repository Checkout][checkoutRepo-url]
-2. [Upgrade Submodules][upgradeSubmodules-url]
-
-# API 
+## API 
 API documentation can be found [here](../src/src/README.md).
 
-# Tooling
+## Tooling
 ##### This is designed to be tested and deployed with Foundry. All that should be required is to install python, then install [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run:
 
 `forge build` in the project directory to install the submodules.
@@ -113,9 +114,11 @@ Formatting at the commandline:
 > npx prettier --write .
 
 <!-- These are the body links -->
-[checkoutRepo-url]: ./developerGuides/CHECKOUT-REPO.md
-[upgradeSubmodules-url]: ./developerGuides/SUBMODULE-UPGRADE.md
+[deploymentGuide-url]: ./deployment/NFT-DEPLOYMENT.md
+[archOverview-url]: ./ARCHITECTURE-OVERVIEW.md
+[ruleGuide-url]: ./rules/RULE-GUIDE.md
+[glossary-url]: ./GLOSSARY.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
-[version-url]: https://github.com/thrackle-io/Tron
+[version-url]: https://github.com/thrackle-io/rules-protocol

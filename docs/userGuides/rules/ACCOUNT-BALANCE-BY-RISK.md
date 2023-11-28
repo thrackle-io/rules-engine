@@ -193,4 +193,4 @@ This rule does not require any data to be recorded.
 
 ## Dependencies
 
-- This rule has no dependencies.
+- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the token handlers in order for this rule to work.

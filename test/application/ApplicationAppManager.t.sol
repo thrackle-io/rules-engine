@@ -215,9 +215,14 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         // try to renounce AppAdmin
         vm.expectRevert(0x23a87520);
         applicationAppManager.renounceAppAdministrator();
+        // try revoking from superAdmin
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        vm.expectRevert(0x23a87520);
+        applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
+        // try to deactivate the rule
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        // try to deactivate the rule
         vm.expectRevert(0x23a87520);
         applicationCoinHandler.activateAdminWithdrawalRule(false);
         // try to set the rule to a different one.
@@ -259,6 +264,11 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         // try to renounce AppAdmin
         vm.expectRevert(0x23a87520);
         applicationAppManager.renounceAppAdministrator();
+        // try revoking from superAdmin
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        vm.expectRevert(0x23a87520);
+        applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
         // try to deactivate the rule
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
