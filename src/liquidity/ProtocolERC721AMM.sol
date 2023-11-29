@@ -90,10 +90,9 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         
         /// only 1 NFT per swap is allowed
         _amountOut = 1;
-
+        /// we get price, fees and validate _amountIn
         (uint256 price, uint256 fees) = getBuyPrice();
         uint256 pricePlusFees =  price + fees;
-
         if(pricePlusFees > _amountIn) revert("NOT ENOUGH MONEY BUDDY");
         else _amountIn = price;
         
@@ -124,8 +123,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
 
         /// only 1 NFT per swap is allowed
         if(_amountIn > 1) _amountIn = 1;/// NOT SURE IF I NEED THIS
-
-        /// Calculate how much token they get in return
+        /// we get price and fees
         (uint256 price, uint256 fees) =  getSellPrice();
         _amountOut = price;
 
@@ -137,7 +135,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         ++q;
 
         /// transfer the ERC20Token amount to the swapper
-        _transferSwap1for0(_amountOut, _tokenId);
+        _transferSwap1for0(_amountOut - fees, _tokenId);
         _sendERC20WithConfirmation(address(this), treasuryAddress, fees);
         emit Swap(address (ERC721Token), _amountIn, _amountOut);
     }
@@ -183,12 +181,9 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
      */
 
     function removeERC20(uint256 _amount) external appAdministratorOnly(appManagerAddress) returns (bool) {
-        if (_amount == 0) {
-            revert AmountsAreZero();
-        }
-        if (_amount > reserveERC20) {
-            revert AmountExceedsBalance(_amount);
-        }
+        if (_amount == 0) revert AmountsAreZero();
+        if (_amount > reserveERC20) revert AmountExceedsBalance(_amount);
+        
         /// update the reserve balances
         _updateReserves(reserveERC20 - _amount, reserveERC721);
         /// transfer the tokens to the remover
@@ -207,9 +202,8 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         /// we make sure we have the nft
         _checkNFTOwnership(address(this), _tokenId);
 
-        if (reserveERC721 < 1) {
-            revert AmountExceedsBalance(1);
-        }
+        if (reserveERC721 < 1) revert AmountExceedsBalance(1);
+        
         /// update the reserve balances
         _updateReserves(reserveERC20, reserveERC721 - 1);
         /// transfer the tokens to the remover
@@ -340,5 +334,14 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
 
     function _checkNFTOwnership(address _owner, uint256 _tokenId) internal view {
         if(ERC721Token.ownerOf(_tokenId) != _owner) revert("WE DONT HAVE THIS NFT BUDDY");
+    }
+
+    function howMuchToBuyAllBack() pure public returns(uint256 budget){
+        //call integral in the calculator
+
+    }
+
+    function _LineIntegral(uint256 m, uint256 x, uint256 b) internal pure returns(uint256 integral){
+        integral = (m * m) * (x * x) + (b * x);
     }
 }

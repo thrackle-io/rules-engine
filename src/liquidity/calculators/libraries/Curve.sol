@@ -29,6 +29,10 @@ library Curve {
             y = ((line.m_num * x * ATTO) / line.m_den) + line.b;
         }
        }
+    
+    function integral(Line memory line, uint256 x) internal pure returns(uint256 a){
+        a = (((line.m_num * line.m_num) / (line.m_den * line.m_den)) * (x * x) * ATTO) + (line.b * x);
+    }
 
     /**
     * @dev creates a Line curve from a user's LineInput. This mostly means that m is represented now by m_num/m_den.
