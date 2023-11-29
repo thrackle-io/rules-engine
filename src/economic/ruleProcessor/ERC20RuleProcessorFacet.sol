@@ -1,13 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as Diamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {RuleDataFacet} from "../ruleStorage/RuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "../ruleStorage/RuleDataInterfaces.sol";
-import {IRuleProcessorErrors, IERC20Errors} from "../../interfaces/IErrors.sol";
-import "../ruleStorage/RuleCodeData.sol";
+import "./RuleProcessorDiamondImports.sol";
 import "./IOracle.sol";
-import "./RuleProcessorCommonLib.sol";
 
 /**
  * @title ERC20 Handler Facet Contract
@@ -15,8 +10,9 @@ import "./RuleProcessorCommonLib.sol";
  * @dev Facet in charge of the logic to check token rules compliance
  * @notice Implements Token Fee Rules on Accounts.
  */
-contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
+contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Errors {
     using RuleProcessorCommonLib for uint64;
+    using RuleProcessorCommonLib for uint32;
 
     /**
      * @dev Check if transaction passes minTransfer rule.
@@ -24,12 +20,29 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
      * @param amountToTransfer total number of tokens to be transferred
      */
     function checkMinTransferPasses(uint32 _ruleId, uint256 amountToTransfer) external view {
-        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-
-        if (data.getTotalMinimumTransferRules() != 0) {
-            NonTaggedRules.TokenMinimumTransferRule memory rule = data.getMinimumTransferRule(_ruleId);
+            NonTaggedRules.TokenMinimumTransferRule memory rule = getMinimumTransferRule(_ruleId);
             if (rule.minTransferAmount > amountToTransfer) revert BelowMinTransfer();
-        }
+    }
+
+    /**
+     * @dev Function to get Minimum Transfer rules by index
+     * @param _index position of rule in array
+     * @return Rule at index
+     */
+    function getMinimumTransferRule(uint32 _index) public view returns (NonTaggedRules.TokenMinimumTransferRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalMinimumTransferRules());
+        RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
+        return data.minimumTransferRules[_index];
+    }
+
+    /**
+     * @dev Function to get total Minimum Transfer rules
+     * @return Total length of array
+     */
+    function getTotalMinimumTransferRules() public view returns (uint32) {
+        RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
+        return data.minimumTransferRuleIndex;
     }
 
     /**
@@ -38,9 +51,7 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
      * @param _address user address to be checked
      */
     function checkOraclePasses(uint32 _ruleId, address _address) external view {
-        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        if (data.getTotalOracleRules() != 0) {
-            NonTaggedRules.OracleRule memory oracleRule = data.getOracleRule(_ruleId);
+            NonTaggedRules.OracleRule memory oracleRule = getOracleRule(_ruleId);
             uint256 oType = oracleRule.oracleType;
             address oracleAddress = oracleRule.oracleAddress;
             /// Allow List type
@@ -61,7 +72,27 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
             } else {
                 revert OracleTypeInvalid();
             }
-        }
+    }
+
+    /**
+     * @dev Function get Oracle Rule by index
+     * @param _index Position of rule in storage
+     * @return OracleRule at index
+     */
+    function getOracleRule(uint32 _index) public view returns (NonTaggedRules.OracleRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalOracleRules());
+        RuleS.OracleRuleS storage data = Storage.oracleStorage();
+        return data.oracleRules[_index];
+    }
+
+    /**
+     * @dev Function get total Oracle rules
+     * @return total oracleRules array length
+     */
+    function getTotalOracleRules() public view returns (uint32) {
+        RuleS.OracleRuleS storage data = Storage.oracleStorage();
+        return data.oracleRuleIndex;
     }
 
     /**
@@ -74,12 +105,8 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
      * @return _volume new accumulated volume
      */
     function checkTokenTransferVolumePasses(uint32 _ruleId, uint256 _volume, uint256 _supply, uint256 _amount, uint64 _lastTransferTs) external view returns (uint256) {
-        /// we create the 'data' variable which is simply a connection to the rule diamond
-        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        /// validation block
-        if ((data.getTotalTransferVolumeRules() == 0)) revert RuleDoesNotExist();
         /// we procede to retrieve the rule
-        NonTaggedRules.TokenTransferVolumeRule memory rule = data.getTransferVolumeRule(_ruleId);
+        NonTaggedRules.TokenTransferVolumeRule memory rule = getTransferVolumeRule(_ruleId);
         if (rule.startTime.isRuleActive()) {
             /// If the last trades "tradesWithinPeriod" were inside current period,
             /// we need to acumulate this trade to the those ones. If not, reset to only current amount.
@@ -95,6 +122,27 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
             }
         }
         return _volume;
+    }
+
+    /**
+     * @dev Function get Token Transfer Volume Rule by index
+     * @param _index position of rule in array
+     * @return TokenTransferVolumeRule rule at index position
+     */
+    function getTransferVolumeRule(uint32 _index) public view returns (NonTaggedRules.TokenTransferVolumeRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalTransferVolumeRules());
+        RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
+        return data.transferVolumeRules[_index];
+    }
+
+    /**
+     * @dev Function to get total Token Transfer Volume rules
+     * @return Total length of array
+     */
+    function getTotalTransferVolumeRules() public view returns (uint32) {
+        RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
+        return data.transferVolRuleIndex;
     }
 
     /**
@@ -117,12 +165,8 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
         uint64 _lastSupplyUpdateTime
     ) external view returns (int256, uint256) {
         int256 volatility;
-        /// we create the 'data' variable which is simply a connection to the rule diamond
-        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        /// validation block
-        if ((data.getTotalSupplyVolatilityRules() == 0)) revert RuleDoesNotExist();
         /// we procede to retrieve the rule
-        NonTaggedRules.SupplyVolatilityRule memory rule = data.getSupplyVolatilityRule(_ruleId);
+        NonTaggedRules.SupplyVolatilityRule memory rule = getSupplyVolatilityRule(_ruleId);
         if (rule.startingTime.isRuleActive()) {
             /// check if totalSupply is specified in rule params
             if (rule.totalSupply != 0) {
@@ -147,5 +191,21 @@ contract ERC20RuleProcessorFacet is IRuleProcessorErrors, IERC20Errors {
             }
         }
         return (_volumeTotalForPeriod, _tokenTotalSupply);
+    }
+
+        function getSupplyVolatilityRule(uint32 _index) public view returns (NonTaggedRules.SupplyVolatilityRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalSupplyVolatilityRules());
+        RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
+        return data.supplyVolatilityRules[_index];
+    }
+
+    /**
+     * @dev Function to get total Supply Volitility rules
+     * @return supplyVolatilityRules total length of array
+     */
+    function getTotalSupplyVolatilityRules() public view returns (uint32) {
+        RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
+        return data.supplyVolatilityRuleIndex;
     }
 }

@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {AppRuleDataFacet} from "../ruleStorage/AppRuleDataFacet.sol";
-import {IApplicationRules as ApplicationRuleStorage} from "../ruleStorage/RuleDataInterfaces.sol";
-import {IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
-import "./RuleProcessorCommonLib.sol";
+import "./RuleProcessorDiamondImports.sol";
 
 /**
  * @title Risk Score Processor Facet Contract
@@ -14,7 +10,8 @@ import "./RuleProcessorCommonLib.sol";
  * @notice Risk Score Rules. All risk rules are measured in
  * in terms of USD with 18 decimals of precision.
  */
-contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
+contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IRiskErrors {
+    using RuleProcessorCommonLib for uint32;
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for uint8; 
     /**
@@ -37,12 +34,8 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
      *    75              100            75-99 =   100
      */
     function checkAccBalanceByRisk(uint32 _ruleId, address _toAddress, uint8 _riskScore, uint128 _totalValuationTo, uint128 _amountToTransfer) external view {
-        /// create the 'data' variable which is simply a connection to the rule diamond
-        AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().rules);
-        uint256 totalRules = data.getTotalAccountBalanceByRiskScoreRules();
-        if (totalRules <= _ruleId) revert RuleDoesNotExist();
         /// retrieve the rule
-        ApplicationRuleStorage.AccountBalanceToRiskRule memory rule = data.getAccountBalanceByRiskScore(_ruleId);
+        ApplicationRuleStorage.AccountBalanceToRiskRule memory rule = getAccountBalanceByRiskScore(_ruleId);
         uint256 ruleMaxSize;
         uint256 total = _totalValuationTo + _amountToTransfer;
         /// perform the rule check
@@ -56,6 +49,27 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
             }
         }
     }
+
+    /**
+     * @dev Function to get the TransactionLimit in the rule set that belongs to an risk score
+     * @param _index position of rule in array
+     * @return balanceAmount balance allowed for access levellevel
+     */
+    function getAccountBalanceByRiskScore(uint32 _index) public view returns (ApplicationRuleStorage.AccountBalanceToRiskRule memory) {
+        RuleS.AccountBalanceToRiskRuleS storage data = Storage.accountBalanceToRiskStorage();
+        _index.checkRuleExistence(getTotalAccountBalanceByRiskScoreRules());
+        if (_index >= data.balanceToRiskRuleIndex) revert IndexOutOfRange();
+        return data.balanceToRiskRule[_index];
+    }
+
+    /**
+     * @dev Function to get total Transaction Limit by Risk Score rules
+     * @return Total length of array
+     */
+    function getTotalAccountBalanceByRiskScoreRules() public view returns (uint32) {
+        RuleS.AccountBalanceToRiskRuleS storage data = Storage.accountBalanceToRiskStorage();
+        return data.balanceToRiskRuleIndex;
+    }    
 
     /**
      * @dev rule that checks if the tx exceeds the limit size in USD for a specific risk profile
@@ -83,14 +97,9 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
      *    75              100            75-99 =   100
      */
     function checkMaxTxSizePerPeriodByRisk(uint32 ruleId, uint128 _usdValueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 _riskScore) external view returns (uint128) {
-        /// we create the 'data' variable which is simply a connection to the rule diamond
-        AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().rules);
-        /// validation block
-        uint256 totalRules = data.getTotalMaxTxSizePerPeriodRules();
         uint256 ruleMaxSize;
-        if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
         /// we retrieve the rule
-        ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory rule = data.getMaxTxSizePerPeriodRule(ruleId);
+        ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory rule = getMaxTxSizePerPeriodRule(ruleId);
         /// resetting the "tradesWithinPeriod", unless we have been in current period for longer than the last update
         uint128 amountTransactedInPeriod = rule.startingTime.isWithinPeriod(rule.period, lastTxDate) ? 
         amount + _usdValueTransactedInPeriod: amount;
@@ -103,5 +112,27 @@ contract ApplicationRiskProcessorFacet is IRuleProcessorErrors, IRiskErrors {
         } else {
             return amountTransactedInPeriod;
         }
+    }
+
+    /**
+     * @dev Function to get the Max Tx Size Per Period By Risk rule.
+     * @param _index position of rule in array
+     * @return a touple of arrays, a uint8 and a uint64. The first array will be the _maxSize, the second
+     * will be the _riskLevel, the uint8 will be the period, and the last value will be the starting date.
+     */
+    function getMaxTxSizePerPeriodRule(uint32 _index) public view returns (ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory) {
+        RuleS.TxSizePerPeriodToRiskRuleS storage data = Storage.txSizePerPeriodToRiskStorage();
+        _index.checkRuleExistence(getTotalMaxTxSizePerPeriodRules());
+        if (_index >= data.txSizePerPeriodToRiskRuleIndex) revert IndexOutOfRange();
+        return data.txSizePerPeriodToRiskRule[_index];
+    }
+
+    /**
+     * @dev Function to get total Max Tx Size Per Period By Risk rules
+     * @return Total length of array
+     */
+    function getTotalMaxTxSizePerPeriodRules() public view returns (uint32) {
+        RuleS.TxSizePerPeriodToRiskRuleS storage data = Storage.txSizePerPeriodToRiskStorage();
+        return data.txSizePerPeriodToRiskRuleIndex;
     }
 }

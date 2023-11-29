@@ -4,10 +4,13 @@ pragma solidity ^0.8.17;
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 
-import {TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
-import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
+import {TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import {AppRuleDataFacet} from "src/economic/ruleProcessor/AppRuleDataFacet.sol";
+import {ApplicationAccessLevelProcessorFacet} from "src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
+import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
+import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
+import {ERC20TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
+import {RuleDataFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import "src/token/data/Fees.sol";
@@ -186,7 +189,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         _riskLevel[1] = 50;
         _riskLevel[2] = 75;
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
         ///Activate rule
         applicationCoinHandlerSpecialOwner.setTransactionLimitByRiskRuleId(ruleId);
         ///add txnLimit failing (risk level 100)
@@ -200,7 +203,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         riskLevel[1] = 75;
         riskLevel[2] = 100;
         vm.expectRevert();
-        TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), riskLevel, maxSize);
+        TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskLevel, maxSize);
 
         ///add balanceLimit passing (less than 100)
         uint8[] memory _riskScores = new uint8[](5);
@@ -216,7 +219,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         _balanceLimits[3] = 100;
         _balanceLimits[4] = 1;
 
-        AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), _riskScores, _balanceLimits);
+        AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), _riskScores, _balanceLimits);
 
         ///add balanceLimit failing (risk level 100)
         uint8[] memory riskScores = new uint8[](5);
@@ -233,7 +236,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         balanceLimits[4] = 1;
 
         vm.expectRevert();
-        AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
+        AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
     }
 
     /// now disable since it won't work unless an ERC20 is using it
@@ -250,7 +253,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         _maximum[0] = 1000;
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
         /// connect the rule to this handler
         applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(ruleId);
         switchToAppAdministrator();
@@ -270,10 +273,10 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
     function testOracleERC20Handler() public {
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
         switchToAppAdministrator();
         assertEq(_index, 0);
-        NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(_index);
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleRestricted));
         // add a blocked address
@@ -292,7 +295,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         // check the allowed list type
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
         applicationCoinHandlerSpecialOwner.setOracleRuleId(_index);
         switchToAppAdministrator();
@@ -309,7 +312,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToRuleAdmin();
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 2, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 2, address(oracleAllowed));
     }
 
     /// now disable since it won't work unless an ERC20 is using it
@@ -326,7 +329,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         _maximum[0] = 1000;
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
         /// connect the rule to this handler
         applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(ruleId);
         switchToAppAdministrator();
@@ -359,9 +362,9 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
         assertEq(_index, 0);
-        NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(_index);
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleRestricted));
         // add a blocked address
@@ -381,7 +384,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         // check the allowed list type
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
         applicationCoinHandlerSpecialOwner.setOracleRuleId(_index);
         switchToAppAdministrator();

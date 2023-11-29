@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../application/AppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
-import "../economic/ruleStorage/RuleCodeData.sol";
+import "../economic/ruleProcessor/RuleCodeData.sol";
 import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/IRuleProcessor.sol";
 import "../economic/ruleProcessor/ActionEnum.sol";

@@ -3,17 +3,16 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "../helpers/GenerateSelectors.sol";
+import "diamond-std/core/DiamondCut/FacetCut.sol";
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
 import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
-import "diamond-std/core/DiamondCut/FacetCut.sol";
-import "./RuleStorageDiamondTestUtil.sol";
-import {RuleStorageDiamond, RuleStorageDiamondArgs} from "src/economic/ruleStorage/RuleStorageDiamond.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/economic/ruleProcessor/RuleProcessorDiamond.sol";
-import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
+import {RuleDataFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
+import {AppRuleDataFacet} from "src/economic/ruleProcessor/AppRuleDataFacet.sol";
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
+import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
 
-contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTestUtil {
+contract RuleProcessorDiamondTestUtil is GenerateSelectors {
     // Store the FacetCut struct for each facet that is being deployed.
     // NOTE: using storage array to easily "push" new FacetCut as we
     // process the facets.
@@ -24,7 +23,7 @@ contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTe
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[13] memory facets = [
+        string[17] memory facets = [
             // diamond version
             "VersionFacet",
             // Native facets,
@@ -43,7 +42,11 @@ contract RuleProcessorDiamondTestUtil is GenerateSelectors, RuleStorageDiamondTe
             "ERC20TaggedRuleProcessorFacet",
             "ERC721TaggedRuleProcessorFacet",
             "RiskTaggedRuleProcessorFacet",
-            "RuleApplicationValidationFacet"
+            "RuleApplicationValidationFacet",
+            "RuleDataFacet",
+            "TaggedRuleDataFacet",
+            "FeeRuleDataFacet",
+            "AppRuleDataFacet"
         ];
 
         string[] memory inputs = new string[](3);

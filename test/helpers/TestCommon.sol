@@ -12,7 +12,6 @@ import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import "src/example/ERC721/ApplicationERC721Handler.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/economic/ruleProcessor/RuleProcessorDiamond.sol";
-import {RuleStorageDiamond, RuleStorageDiamondArgs} from "src/economic/ruleStorage/RuleStorageDiamond.sol";
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
 import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
@@ -27,7 +26,6 @@ import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLi
  */
 abstract contract TestCommon is Test {
     FacetCut[] _ruleProcessorFacetCuts;
-    FacetCut[] _ruleStorageFacetCuts;
 
     // common addresses
     address superAdmin = address(0xDaBEEF);
@@ -40,7 +38,6 @@ abstract contract TestCommon is Test {
     // shared objects
     ApplicationAppManager public applicationAppManager;
     RuleProcessorDiamond ruleProcessor;
-    RuleStorageDiamond ruleStorageDiamond;
     ApplicationHandler applicationHandler;
     ApplicationERC20 applicationCoin;
     ApplicationERC20Handler applicationCoinHandler;
