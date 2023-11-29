@@ -20,6 +20,7 @@ import { AMMCalculatorErrors, AMMErrors, IZeroAddressError } from "../interfaces
  */
 contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalculatorErrors, AMMErrors, IZeroAddressError {
     
+    uint256 constant PCT_MULTIPLIER = 100000000;
     /// The fungible token
     IERC20 public immutable ERC20Token;
     /// the non-fungible token
@@ -55,7 +56,6 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         _setCalculatorAddress(_calculatorAddress);
         emit AMMDeployed(address(this));
     }
-
 
     /**
      * @dev This is the primary function of this contract. It allows for
@@ -96,27 +96,21 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         /// only 1 NFT per swap is allowed
         _amountOut = 1;
 
-        {
-            uint256 price = getBuyPrice();
-            if(price > _amountIn){
-                revert("NOT ENOUGH MONEY BUDDY");
-            }else{
-                _amountIn = price;
-            }
-        }
+        (uint256 price, uint256 fees) = getBuyPrice();
+        uint256 pricePlusFees =  price + fees;
 
+        if(pricePlusFees > _amountIn) revert("NOT ENOUGH MONEY BUDDY");
+        else _amountIn = price;
+        
         ///Check Rules(it's ok for this to be after the swap...it will revert on rule violation)
         _checkRules(_amountIn, _amountOut, ActionTypes.PURCHASE);
 
         /// update the reserves with the proper amounts(adding to token0, subtracting from token1)
         _updateReserves(reserveERC20 + _amountIn, reserveERC721 - _amountOut);
         --q;
-        /// Assess fees. All fees are always taken out of the collateralized token (ERC721Token)
-        // uint256 fees = handler.assessFees (ERC20Token.balanceOf(msg.sender), ERC721Token.balanceOf(msg.sender), msg.sender, address(this), _amountOut, ActionTypes.SELL);
-        /// subtract fees from collateralized token
-        // _amountOut -= fees;
-        /// perform swap transfers. Notice we only take what we need. In this case it is *price* instead of *_amountIn*
-        _transferSwap0for1(_amountIn, _tokenId);
+        /// perform transfers
+        _transferSwap0for1(pricePlusFees, _tokenId);
+        _sendERC20WithConfirmation(address(this), treasuryAddress, fees);
         emit Swap(address(ERC20Token), _amountIn, _amountOut);
     }
 
@@ -260,20 +254,6 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         calculator = IProtocolAMMCalculator(calculatorAddress);
     }
 
-    // /**
-    //  * @dev This function returns reserveERC20
-    //  */
-    // function getReserveERC20() external view returns (uint256) {
-    //     return reserveERC20;
-    // }
-
-    // /**
-    //  * @dev This function returns reserveERC721
-    //  */
-    // function getReserveERC721() external view returns (uint256) {
-    //     return reserveERC721;
-    // }
-
     /**
      * @dev This function sets the treasury address
      * @param _treasury address for the treasury
@@ -282,8 +262,11 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         treasuryAddress = _treasury;
     }
 
-    function getBuyPrice() public view returns(uint256){
-        return calculator.calculateSwap(0, q, 0, 1);
+    function getBuyPrice() public view returns(uint256 price, uint256 fees){
+        uint256 price = calculator.calculateSwap(0, q, 0, 1);
+        uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(msg.sender), ERC20Token.balanceOf( address(this)), msg.sender, address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
+        uint256 fees = (feesPct * price) / PCT_MULTIPLIER ;
+        return (price, fees);
     }
 
     function getSellPrice() public view returns(uint256){
