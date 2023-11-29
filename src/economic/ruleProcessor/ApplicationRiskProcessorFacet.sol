@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as processorDiamond} from "./RuleProcessorDiamondLib.sol";
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
-import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
-import {IApplicationRules as ApplicationRuleStorage} from "./RuleDataInterfaces.sol";
-import {IInputErrors, IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
-import "./RuleProcessorCommonLib.sol";
+import "./RuleProcessorDiamondImports.sol";
 
 /**
  * @title Risk Score Processor Facet Contract
@@ -40,8 +34,6 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
      *    75              100            75-99 =   100
      */
     function checkAccBalanceByRisk(uint32 _ruleId, address _toAddress, uint8 _riskScore, uint128 _totalValuationTo, uint128 _amountToTransfer) external view {
-        uint256 totalRules = getTotalAccountBalanceByRiskScoreRules();
-        if (totalRules <= _ruleId) revert RuleDoesNotExist();
         /// retrieve the rule
         ApplicationRuleStorage.AccountBalanceToRiskRule memory rule = getAccountBalanceByRiskScore(_ruleId);
         uint256 ruleMaxSize;
@@ -105,10 +97,7 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
      *    75              100            75-99 =   100
      */
     function checkMaxTxSizePerPeriodByRisk(uint32 ruleId, uint128 _usdValueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 _riskScore) external view returns (uint128) {
-        /// validation block
-        uint256 totalRules = getTotalMaxTxSizePerPeriodRules();
         uint256 ruleMaxSize;
-        if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
         /// we retrieve the rule
         ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory rule = getMaxTxSizePerPeriodRule(ruleId);
         /// resetting the "tradesWithinPeriod", unless we have been in current period for longer than the last update

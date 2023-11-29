@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
-import {RuleDataFacet} from "./RuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
-import {IERC721Errors, IRuleProcessorErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";
-import "./RuleProcessorCommonLib.sol";
+import "./RuleProcessorDiamondImports.sol";
 
 /**
  * @title NFT Rule Processor Facet Contract

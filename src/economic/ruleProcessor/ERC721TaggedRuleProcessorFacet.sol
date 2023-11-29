@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
-import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
-import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
-import {IInputErrors, IERC721Errors, IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";
-import "./RuleProcessorCommonLib.sol";
+import "./RuleProcessorDiamondImports.sol";
 
 /**
  * @title NFT Tagged Rule Processor Facet Contract
@@ -45,8 +39,6 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
     function minAccountBalanceERC721(uint256 balanceFrom, bytes32[] calldata fromTags, uint32 ruleId) internal view {
         /// This Function checks the min account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
-        uint256 totalRules = getTotalBalanceLimitRulesERC721();
-        if (totalRules <= ruleId) revert RuleDoesNotExist();
         /// we decrease the balance to check the rule
         --balanceFrom;
         for (uint256 i; i < fromTags.length; ) {
@@ -66,8 +58,6 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
      * @param ruleId Rule identifier for rule arguments
      */
     function maxAccountBalanceERC721(uint256 balanceTo, bytes32[] calldata toTags, uint32 ruleId) internal view {
-        uint256 totalRules = getTotalBalanceLimitRulesERC721();
-        if (totalRules != 0 && totalRules <= ruleId) revert RuleDoesNotExist();
         /// we increase the balance to check the rule.
         ++balanceTo;
         for (uint256 i = 0; i < toTags.length; ) {
@@ -113,24 +103,19 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
     function checkNFTTransferCounter(uint32 ruleId, uint256 transfersWithinPeriod, bytes32[] calldata nftTags, uint64 lastTransferTime) public view returns (uint256) {
         nftTags.checkMaxTags();
         uint256 cumulativeTotal;
-        uint totalRules = getTotalNFTTransferCounterRules();
         for (uint i = 0; i < nftTags.length; ) {
             // if the tag is blank, then ignore
             if (bytes32(nftTags[i]).length != 0) {
                 cumulativeTotal = 0;
-                if (totalRules > ruleId) {
-                    TaggedRules.NFTTradeCounterRule memory rule = getNFTTransferCounterRule(ruleId, nftTags[i]);
-                    uint32 period = 24; // set purchase period to one day(24 hours)
-                    uint256 tradesAllowedPerDay = rule.tradesAllowedPerDay;
-                    // if within time period, add to cumulative
-                    cumulativeTotal = rule.startTs.isWithinPeriod(period, lastTransferTime) ? 
-                    transfersWithinPeriod + 1 : 1;
-                    if (cumulativeTotal > tradesAllowedPerDay) revert MaxNFTTransferReached();
-                    unchecked {
-                        ++i;
-                    }
-                } else {
-                    revert RuleDoesNotExist();
+                TaggedRules.NFTTradeCounterRule memory rule = getNFTTransferCounterRule(ruleId, nftTags[i]);
+                uint32 period = 24; // set purchase period to one day(24 hours)
+                uint256 tradesAllowedPerDay = rule.tradesAllowedPerDay;
+                // if within time period, add to cumulative
+                cumulativeTotal = rule.startTs.isWithinPeriod(period, lastTransferTime) ? 
+                transfersWithinPeriod + 1 : 1;
+                if (cumulativeTotal > tradesAllowedPerDay) revert MaxNFTTransferReached();
+                unchecked {
+                    ++i;
                 }
             }
         }

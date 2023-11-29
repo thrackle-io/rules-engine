@@ -1,16 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "../RuleAdministratorOnly.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
+import "../RuleAdministratorOnly.sol";
 import "../AppAdministratorOnly.sol";
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
-import {INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
-import {IEconomicEvents} from "../../interfaces/IEvents.sol";
-import {IInputErrors, ITagInputErrors, IZeroAddressError, IAppRuleInputErrors} from "../../interfaces/IErrors.sol";
-import "./RuleCodeData.sol";
-import "./RuleProcessorCommonLib.sol";
+import "./RuleProcessorDiamondImports.sol";
 
 /**
  * @title RuleDataFacet

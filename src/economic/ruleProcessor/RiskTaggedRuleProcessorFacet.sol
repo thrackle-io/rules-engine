@@ -1,13 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
+import "./RuleProcessorDiamondImports.sol";
 import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
-import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
-import {IInputErrors, IRuleProcessorErrors, IRiskErrors} from "../../interfaces/IErrors.sol";
-import "./RuleProcessorCommonLib.sol";
+
 
 /**
  * @title Risk Rules Handler Facet Contract
@@ -39,8 +35,6 @@ contract RiskTaggedRuleProcessorFacet is IRuleProcessorErrors, IRiskErrors, IInp
      */
     function checkTransactionLimitByRiskScore(uint32 _ruleId, uint8 _riskScore, uint256 _amountToTransfer) external view {
         uint256 ruleMaxSize;
-        uint256 totalRules = getTotalTransactionLimitByRiskRule();
-        if ((totalRules > 0 && totalRules <= _ruleId) || totalRules == 0) revert RuleDoesNotExist();
         TaggedRules.TransactionSizeToRiskRule memory rule = getTransactionLimitByRiskRules(_ruleId);
         /// If risk score is less than the first risk score of the rule, there is no limit. 
         /// Skips the loop for gas efficiency on low risk scored users 

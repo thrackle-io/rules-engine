@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as processorDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
-import {IApplicationRules as Application} from "./RuleDataInterfaces.sol";
-import {IInputErrors, IRuleProcessorErrors, IAccessLevelErrors} from "../../interfaces/IErrors.sol";
-import "./RuleProcessorCommonLib.sol"; 
+import "./RuleProcessorDiamondImports.sol";
 
 /**
  * @title AccessLevel Handler Facet Contract
@@ -30,11 +24,9 @@ contract ApplicationAccessLevelProcessorFacet is IInputErrors, IRuleProcessorErr
      */
     function checkAccBalanceByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _balance, uint128 _amountToTransfer) external view {
         /// Get the account's AccessLevel
-        if (getTotalAccessLevelBalanceRules() != 0) {
-            uint48 max = getAccessLevelBalanceRule(_ruleId, _accessLevel);
-            /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
-            if (_amountToTransfer + _balance > (uint256(max) * (10 ** 18))) revert BalanceExceedsAccessLevelAllowedLimit();
-        }
+        uint48 max = getAccessLevelBalanceRule(_ruleId, _accessLevel);
+        /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
+        if (_amountToTransfer + _balance > (uint256(max) * (10 ** 18))) revert BalanceExceedsAccessLevelAllowedLimit();
     }
 
     /**
@@ -68,7 +60,7 @@ contract ApplicationAccessLevelProcessorFacet is IInputErrors, IRuleProcessorErr
     function checkwithdrawalLimitsByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _usdWithdrawalTotal, uint128 _usdAmountTransferring) external view returns (uint128) {
         uint48 max = getAccessLevelWithdrawalRules(_ruleId, _accessLevel);
         /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
-       if (_usdAmountTransferring + _usdWithdrawalTotal > (uint256(max) * (10 ** 18))) revert WithdrawalExceedsAccessLevelAllowedLimit();
+        if (_usdAmountTransferring + _usdWithdrawalTotal > (uint256(max) * (10 ** 18))) revert WithdrawalExceedsAccessLevelAllowedLimit();
         else _usdWithdrawalTotal += _usdAmountTransferring;
         return _usdWithdrawalTotal;
     }

@@ -1,16 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
-import {INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
-import {RuleDataFacet} from "./RuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
-import {IInputErrors, IRuleProcessorErrors, IERC20Errors} from "../../interfaces/IErrors.sol";
-import "./RuleCodeData.sol";
+import "./RuleProcessorDiamondImports.sol";
 import "./IOracle.sol";
-import "./RuleProcessorCommonLib.sol";
 
 /**
  * @title ERC20 Handler Facet Contract
@@ -28,10 +20,8 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
      * @param amountToTransfer total number of tokens to be transferred
      */
     function checkMinTransferPasses(uint32 _ruleId, uint256 amountToTransfer) external view {
-        if (getTotalMinimumTransferRules() != 0) {
             NonTaggedRules.TokenMinimumTransferRule memory rule = getMinimumTransferRule(_ruleId);
             if (rule.minTransferAmount > amountToTransfer) revert BelowMinTransfer();
-        }
     }
 
     /**
@@ -61,7 +51,6 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
      * @param _address user address to be checked
      */
     function checkOraclePasses(uint32 _ruleId, address _address) external view {
-        if (getTotalOracleRules() != 0) {
             NonTaggedRules.OracleRule memory oracleRule = getOracleRule(_ruleId);
             uint256 oType = oracleRule.oracleType;
             address oracleAddress = oracleRule.oracleAddress;
@@ -83,7 +72,6 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
             } else {
                 revert OracleTypeInvalid();
             }
-        }
     }
 
     /**
@@ -117,8 +105,6 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
      * @return _volume new accumulated volume
      */
     function checkTokenTransferVolumePasses(uint32 _ruleId, uint256 _volume, uint256 _supply, uint256 _amount, uint64 _lastTransferTs) external view returns (uint256) {
-        /// validation block
-        if ((getTotalTransferVolumeRules() == 0)) revert RuleDoesNotExist();
         /// we procede to retrieve the rule
         NonTaggedRules.TokenTransferVolumeRule memory rule = getTransferVolumeRule(_ruleId);
         if (rule.startTime.isRuleActive()) {
@@ -179,8 +165,6 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         uint64 _lastSupplyUpdateTime
     ) external view returns (int256, uint256) {
         int256 volatility;
-        /// validation block
-        if ((getTotalSupplyVolatilityRules() == 0)) revert RuleDoesNotExist();
         /// we procede to retrieve the rule
         NonTaggedRules.SupplyVolatilityRule memory rule = getSupplyVolatilityRule(_ruleId);
         if (rule.startingTime.isRuleActive()) {

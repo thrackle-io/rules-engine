@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
+import "forge-std/console.sol";
+import "./RuleProcessorDiamondImports.sol";
+import "../../data/PauseRule.sol";
+import "../../application/IAppManager.sol";
 import {FeeRuleDataFacet} from "./FeeRuleDataFacet.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
 import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "./RuleDataFacet.sol";
 import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
-import {IFeeRules as Fee, ITaggedRules as TaggedRules, INonTaggedRules as NonTaggedRules} from "./RuleDataInterfaces.sol";
-import "./RuleProcessorCommonLib.sol";
-import "../../data/PauseRule.sol";
-import "../../application/IAppManager.sol";
-import "forge-std/console.sol";
+
+
+
 
 /**
  * @title Rule Application Validation Facet Contract

@@ -1,14 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
-import {IApplicationRules as AppRules} from "./RuleDataInterfaces.sol";
-import {IEconomicEvents} from "../../interfaces/IEvents.sol";
-import {IInputErrors, IAppRuleInputErrors, IRiskInputErrors} from "../../interfaces/IErrors.sol";
+import "./RuleProcessorDiamondImports.sol";
 import "../RuleAdministratorOnly.sol";
-import "./RuleCodeData.sol";
-import "./RuleProcessorCommonLib.sol"; 
+import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
+
 
 /**
  * @title App Rules Facet
@@ -143,7 +139,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         /// We create the rule now
         RuleS.TxSizePerPeriodToRiskRuleS storage data = Storage.txSizePerPeriodToRiskStorage();
         uint32 ruleId = data.txSizePerPeriodToRiskRuleIndex;
-        AppRules.TxSizePerPeriodToRiskRule memory rule = AppRules.TxSizePerPeriodToRiskRule(_maxSize, _riskLevel, _period, _startTimestamp);
+        ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory rule = ApplicationRuleStorage.TxSizePerPeriodToRiskRule(_maxSize, _riskLevel, _period, _startTimestamp);
         data.txSizePerPeriodToRiskRule[ruleId] = rule;
         ++data.txSizePerPeriodToRiskRuleIndex;
         bytes32[] memory empty;
@@ -201,7 +197,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
     function _addAccountBalanceByRiskScore(uint8[] calldata _riskScores, uint48[] calldata _balanceLimits) internal returns (uint32) {
         RuleS.AccountBalanceToRiskRuleS storage data = Storage.accountBalanceToRiskStorage();
         uint32 ruleId = data.balanceToRiskRuleIndex;
-        AppRules.AccountBalanceToRiskRule memory rule = AppRules.AccountBalanceToRiskRule(_riskScores, _balanceLimits);
+        ApplicationRuleStorage.AccountBalanceToRiskRule memory rule = ApplicationRuleStorage.AccountBalanceToRiskRule(_riskScores, _balanceLimits);
         data.balanceToRiskRule[ruleId] = rule;
         ++data.balanceToRiskRuleIndex;
         bytes32[] memory empty;

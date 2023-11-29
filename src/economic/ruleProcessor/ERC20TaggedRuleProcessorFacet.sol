@@ -2,15 +2,9 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/Context.sol";
-import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
-import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
-import {RuleProcessorDiamondLib as Diamond} from "./RuleProcessorDiamondLib.sol";
+import "./RuleProcessorDiamondImports.sol";
 import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
-import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
-import {IInputErrors, IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError} from "../../interfaces/IErrors.sol";
-import "./RuleProcessorCommonLib.sol";
+
 
 /**
  * @title ERC20 Tagged Rule Processor Facet Contract
@@ -74,9 +68,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         /// This Function checks the max account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
         toTags.checkMaxTags();
-        uint totalRules = getTotalBalanceLimitRules();
-        if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
-
         for (uint i; i < toTags.length; ) {
             uint256 max = getBalanceLimitRule(ruleId, toTags[i]).maximum;
             /// if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
@@ -98,9 +89,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         /// This Function checks the min account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
         fromTags.checkMaxTags();
-        uint totalRules = getTotalBalanceLimitRules();
-        if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
-
         for (uint i = 0; i < fromTags.length; ) {
             uint256 min = getBalanceLimitRule(ruleId, fromTags[i]).minimum;
             /// if a min is 0 then no need to check.
@@ -143,9 +131,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * back if everything checks out.
      */
     function checkAdminWithdrawalRule(uint32 ruleId, uint256 currentBalance, uint256 amount) external view {
-        uint totalRules = getTotalAdminWithdrawalRules();
-        if ((totalRules > 0 && totalRules <= ruleId) || totalRules == 0) revert RuleDoesNotExist();
-
         TaggedRules.AdminWithdrawalRule memory rule = getAdminWithdrawalRule(ruleId);
         if ((block.timestamp < rule.releaseDate) && (currentBalance - amount < rule.amount)) revert BalanceBelowMin();
     }
@@ -181,26 +166,21 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      */
     function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags) external view {
         toTags.checkMaxTags();
-        uint256 totalRules = getTotalMinBalByDateRules();
         uint256 finalBalance = balance - amount;
-        if (totalRules > ruleId) {
-            for (uint i = 0; i < toTags.length; ) {
-                if (toTags[i] != "") {
-                    TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
-                    uint256 holdPeriod = minBalByDateRule.holdPeriod;
-                    /// first check to see if still in the hold period
-                    if ((block.timestamp - (holdPeriod * 1 hours)) < minBalByDateRule.startTimeStamp) {
-                        uint256 holdAmount = minBalByDateRule.holdAmount;
-                        /// If the transaction will violate the rule, then revert
-                        if (finalBalance < holdAmount) revert TxnInFreezeWindow();
-                    }
-                }
-                unchecked {
-                    ++i;
+        for (uint i = 0; i < toTags.length; ) {
+            if (toTags[i] != "") {
+                TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
+                uint256 holdPeriod = minBalByDateRule.holdPeriod;
+                /// first check to see if still in the hold period
+                if ((block.timestamp - (holdPeriod * 1 hours)) < minBalByDateRule.startTimeStamp) {
+                    uint256 holdAmount = minBalByDateRule.holdAmount;
+                    /// If the transaction will violate the rule, then revert
+                    if (finalBalance < holdAmount) revert TxnInFreezeWindow();
                 }
             }
-        } else {
-            revert RuleDoesNotExist();
+            unchecked {
+                ++i;
+            }
         }
     }
 

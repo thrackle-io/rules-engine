@@ -1,14 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
-import {ITaggedRules as TaggedRules} from "./RuleDataInterfaces.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
-import {IEconomicEvents} from "../../interfaces/IEvents.sol";
-import {IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError} from "../../interfaces/IErrors.sol";
-import "./RuleCodeData.sol";
+import "./RuleProcessorDiamondImports.sol";
 import "../RuleAdministratorOnly.sol";
-import "./RuleProcessorCommonLib.sol";
 
 /**
  * @title Tagged Rule Data Facet
@@ -349,7 +343,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         ++data.minBalByDateRulesIndex;
         return index;
     }
-    
+
     /************ NFT Getters/Setters ***********/
     /**
      * @dev Function adds Balance Limit Rule
