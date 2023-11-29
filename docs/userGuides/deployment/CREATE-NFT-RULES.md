@@ -5,7 +5,7 @@
 
 1.  Ensure the [environment variables][environment-url] are set correctly.
 2.  Create a token specific rule:
-    -  Get the rule creation function from the [Token Specific Rule Directory][tokenSpecificRuleDirectory-url] and invoke it on the Rule Storage Diamond sending in the required parameters. NOTE: Each rule requires a different parameter set. For local deployments, the Rule Storage Diamond address can be found in previous steps, otherwise consult the [Deployment Directory][deploymentDirectory-url]. 
+    -  Get the rule creation function from the [Token Specific Rule Directory][tokenSpecificRuleDirectory-url] and invoke it on the Rule Processor Diamond sending in the required parameters. NOTE: Each rule requires a different parameter set. For local deployments, the Rule Processor Diamond address can be found in previous steps, otherwise consult the [Deployment Directory][deploymentDirectory-url]. 
         -  This will return a ruleId, please take note of this value.
 3.  Apply the token specific rule to the application
     -  Get the rule application function from the [Token Specific Rule Directory][tokenSpecificRuleDirectory-url] and invoke it on the ERC721Handler created in previous steps.
@@ -14,9 +14,9 @@
 ### Example using NFT Transfer Control Rule
 1.  Ensure the [environment variables][environment-url] are set correctly.
 2.  Create a token specific rule:
-    -  Get the rule creation function from the [Token Specific Rule Directory][tokenSpecificRuleDirectory-url] and invoke it on the Rule Storage Diamond sending in the required parameters. NOTE: Each rule requires a different parameter set. For local deployments, the Rule Storage Diamond address can be found in previous steps, otherwise consult the [Deployment Directory][deploymentDirectory-url]. NOTE: Metadata tags must be sent in as bytes32. This can be done with any [keccak converter][keccak-url]. For instance, a tag named "TransferRestriction1" would be sent as: _0x44628a3708ec20e64749d41fc781a34a888977eaf5b82cfa61d0dbccb8665903_. The final param of this rule is a unix timestamp of the rule starting time. 
+    -  Get the rule creation function from the [Token Specific Rule Directory][tokenSpecificRuleDirectory-url] and invoke it on the Rule Processor Diamond sending in the required parameters. NOTE: Each rule requires a different parameter set. For local deployments, the Rule Processor Diamond address can be found in previous steps, otherwise consult the [Deployment Directory][deploymentDirectory-url]. NOTE: Metadata tags must be sent in as bytes32. This can be done with any [keccak converter][keccak-url]. For instance, a tag named "TransferRestriction1" would be sent as: _0x44628a3708ec20e64749d41fc781a34a888977eaf5b82cfa61d0dbccb8665903_. The final param of this rule is a unix timestamp of the rule starting time. 
         ````
-        cast send $RULE_STORAGE_DIAMOND "addNFTTransferCounterRule(address,bytes32[],uint8[],uint64)(uint32)" $APPLICATION_APP_MANAGER \[0x44628a3708ec20e64749d41fc781a34a888977eaf5b82cfa61d0dbccb8665903] \[2] \1694033883 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+        cast send $RULE_PROCESSOR_DIAMOND "addNFTTransferCounterRule(address,bytes32[],uint8[],uint64)(uint32)" $APPLICATION_APP_MANAGER \[0x44628a3708ec20e64749d41fc781a34a888977eaf5b82cfa61d0dbccb8665903] \[2] \1694033883 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
         ````
 
         -  This function will return a ruleId, please take note of this value. It can be found in the _logs_ section of the output as the second value in the topics section. It will be the last digits so in the example, _0000_(0 is a valid rule id) is the ruleId:
