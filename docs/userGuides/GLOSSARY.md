@@ -16,8 +16,8 @@
 | Protocol Supported ERC721 | An ERC721 token that implements the protocol ProtocolERC721.                                                                                                |
 | Access-Tier Provider      | An external provider that rates or segments users based on external criteria such as Know Your Customer (KYC) solutions.                                     |
 | Permission Roles          | Roles used by AppManager. They include: Admin, Access Tier Admin, and Risk Admin.                                                                            |
-| Application Rule          | Rule applied to all protocol supported assets. They are created using the protocol's RuleProcssorDiamond and applied in the application's AppManager.        |
-| Token Specific Rule       | Rule applied to a specific protocol supported entity. They are created using the protocol's RuleProcssorDiamond and applied in the token's Handler.        |
+| Application Rule          | Rule applied to all protocol supported assets. They are created using the protocol's RuleProcessorDiamond and applied in the application's AppManager.        |
+| Token Specific Rule       | Rule applied to a specific protocol supported entity. They are created using the protocol's RuleProcessorDiamond and applied in the token's Handler.        |
 | Tag | Bytes32 strings that can be attached to accounts via AppManager. Think of it as labels or badges that accounts can have. |
 
 

@@ -45,7 +45,7 @@ is an overview of this deployment process:
 ```
       "hash": "0x1902f5f3c6f2ed24ae3a64c8ddb41e72fb71b57c3404278c965dee920aa6f40f",
       "transactionType": "CREATE",
-      "contractName": "RuleProcssorDiamond",
+      "contractName": "RuleProcessorDiamond",
       "contractAddress": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8"
 
 ```
