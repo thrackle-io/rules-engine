@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "src/liquidity/ProtocolAMMCalculatorFactory.sol";
 import "src/liquidity/ProtocolERC20AMM.sol";
+import "src/liquidity/ProtocolERC721AMM.sol";
 import "src/economic/AppAdministratorOnly.sol";
 import {IZeroAddressError} from "src/interfaces/IErrors.sol";
 import {IAMMFactoryEvents} from "src/interfaces/IEvents.sol";
@@ -44,7 +45,7 @@ contract ProtocolAMMFactory is AppAdministratorOnly, IZeroAddressError, IAMMFact
      * @param _calculatorAddress valid address of the corresponding calculator for the AMM
      */
     function createERC721AMM(address _ERC20Token, address _ERC721Token, address _appManagerAddress, address _calculatorAddress) public returns (address){
-        if (_token0 == address(0) || _token1 == address(0) || _appManagerAddress == address(0) || _calculatorAddress == address(0)) revert ZeroAddress();
+        if (_ERC20Token == address(0) || _ERC721Token == address(0) || _appManagerAddress == address(0) || _calculatorAddress == address(0)) revert ZeroAddress();
         
         return address(new ProtocolERC721AMM(_ERC20Token, _ERC721Token, _appManagerAddress, _calculatorAddress));
     }

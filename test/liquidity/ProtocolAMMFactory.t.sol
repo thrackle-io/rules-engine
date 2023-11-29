@@ -26,7 +26,7 @@ contract ProtocolAMMFactoryTest is TestCommonFoundry {
 
     function testCreateAMM() public {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createAMM(address(applicationCoin), address(applicationCoin2), address(applicationAppManager), protocolAMMCalculatorFactory.createConstantProduct(address(applicationAppManager))));
+        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createERC20AMM(address(applicationCoin), address(applicationCoin2), address(applicationAppManager), protocolAMMCalculatorFactory.createConstantProduct(address(applicationAppManager))));
         ProtocolAMMCalcCP calc = ProtocolAMMCalcCP(protocolAMM.calculatorAddress());
         assertEq(calc.appManagerAddress(),address(applicationAppManager));
     }

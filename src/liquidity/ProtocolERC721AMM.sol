@@ -315,8 +315,8 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         reserveERC721 = _reserveERC721;
     }
 
-    function _isERC721Enumerable(address _ERC721Token) internal returns(bool){
-        return IERC165(_ERC721Token).supportsInterface(type(IERC721Enumerable));
+    function _isERC721Enumerable(address _ERC721Token) internal view returns(bool){
+        return IERC165(_ERC721Token).supportsInterface(type(IERC721Enumerable).interfaceId);
     }
 
     function _transferSwap0for1(uint256 _amount, uint256 _tokenId) private {
@@ -338,7 +338,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         if (ERC721Token.ownerOf(_tokenId) != _to) revert TransferFailed();
     }
 
-    function _checkNFTOwnership(address _owner, uint256 _tokenId) internal {
+    function _checkNFTOwnership(address _owner, uint256 _tokenId) internal view {
         if(ERC721Token.ownerOf(_tokenId) != _owner) revert("WE DONT HAVE THIS NFT BUDDY");
     }
 }
