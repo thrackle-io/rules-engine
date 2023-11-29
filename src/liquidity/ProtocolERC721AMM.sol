@@ -67,18 +67,13 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
      * @return amountOut amount of the other token coming out of the AMM
      */
     function swap(address _tokenIn, uint256 _amountIn, uint256 _tokenId) external returns (uint256 amountOut) {
-        if (!(_tokenIn == address(ERC20Token) || _tokenIn == address (ERC721Token))) {
-            revert TokenInvalid(_tokenIn);
-        }
-        if (_amountIn == 0) {
-            revert AmountsAreZero();
-        }
-
-        if (_tokenIn == address(ERC20Token)) {
-            return _swap0For1(_amountIn, _tokenId);
-        } else {
-            return _swap1For0(_amountIn, _tokenId);
-        }
+        /// validatation block
+        if (!(_tokenIn == address(ERC20Token) || _tokenIn == address (ERC721Token))) revert TokenInvalid(_tokenIn);
+        if (_amountIn == 0) revert AmountsAreZero();
+        /// swap
+        if (_tokenIn == address(ERC20Token)) return _swap0For1(_amountIn, _tokenId);
+        else return _swap1For0(_amountIn, _tokenId);
+        
     }
 
     /**
@@ -108,6 +103,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         /// update the reserves with the proper amounts(adding to token0, subtracting from token1)
         _updateReserves(reserveERC20 + _amountIn, reserveERC721 - _amountOut);
         --q;
+
         /// perform transfers
         _transferSwap0for1(pricePlusFees, _tokenId);
         _sendERC20WithConfirmation(address(this), treasuryAddress, fees);
@@ -130,22 +126,19 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         if(_amountIn > 1) _amountIn = 1;/// NOT SURE IF I NEED THIS
 
         /// Calculate how much token they get in return
-        _amountOut = getSellPrice();
+        (uint256 price, uint256 fees) =  getSellPrice();
+        _amountOut = price;
 
-        /// Assess fees. All fees are always taken out of the collateralized token (ERC721Token)
-        // uint256 fees = handler.assessFees (ERC721Token.balanceOf(msg.sender), ERC20Token.balanceOf(msg.sender), msg.sender, address(this), _amountIn, ActionTypes.PURCHASE);
-        /// subtract fees from collateralized token
-        // _amountIn -= fees;
-        /// add fees to treasury
-        //if (!token1.transfer(treasuryAddress, fees)) revert TransferFailed();
         ///Check Rules
         _checkRules(_amountIn, _amountOut, ActionTypes.SELL);
 
         /// update the reserves with the proper amounts(subtracting from token0, adding to token1)
         _updateReserves(reserveERC20 - _amountOut, reserveERC721 + _amountIn);
         ++q;
+
         /// transfer the ERC20Token amount to the swapper
         _transferSwap1for0(_amountOut, _tokenId);
+        _sendERC20WithConfirmation(address(this), treasuryAddress, fees);
         emit Swap(address (ERC721Token), _amountIn, _amountOut);
     }
 
@@ -263,14 +256,14 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
     }
 
     function getBuyPrice() public view returns(uint256 price, uint256 fees){
-        uint256 price = calculator.calculateSwap(0, q, 0, 1);
+        price = calculator.calculateSwap(0, q, 0, 1);
         uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(msg.sender), ERC20Token.balanceOf( address(this)), msg.sender, address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
-        uint256 fees = (feesPct * price) / PCT_MULTIPLIER ;
-        return (price, fees);
+        fees = (feesPct * price) / PCT_MULTIPLIER ;
     }
 
-    function getSellPrice() public view returns(uint256){
-        return calculator.calculateSwap(0, q, 1, 0);
+    function getSellPrice() public view returns(uint256 price, uint256 fees){
+        price = calculator.calculateSwap(0, q, 1, 0);
+        fees = handler.assessFees(ERC20Token.balanceOf(address(this)), ERC20Token.balanceOf(msg.sender), address(this), msg.sender, price, ActionTypes.SELL);
     }
 
     /**
