@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "../application/IAppManager.sol";
 import "../liquidity/IProtocolAMMHandler.sol";
 import "../economic/AppAdministratorOnly.sol";
@@ -18,7 +19,7 @@ import { AMMCalculatorErrors, AMMErrors, IZeroAddressError } from "../interfaces
  * TODO add action types purchase and sell to buy/sell functions, test purchaseWithinPeriod on buy functions.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalculatorErrors, AMMErrors, IZeroAddressError {
+contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicationEvents,  AMMCalculatorErrors, AMMErrors, IZeroAddressError {
     
     uint256 constant PCT_MULTIPLIER = 100000000;
     /// The fungible token
@@ -93,7 +94,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
         /// we get price, fees and validate _amountIn
         (uint256 price, uint256 fees) = getBuyPrice();
         uint256 pricePlusFees =  price + fees;
-        if(pricePlusFees > _amountIn) revert("NOT ENOUGH MONEY BUDDY");
+        if(pricePlusFees > _amountIn) revert NotEnoughTokensForSwap(_amountIn, pricePlusFees);
         else _amountIn = price;
         
         ///Check Rules(it's ok for this to be after the swap...it will revert on rule violation)
@@ -101,7 +102,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
 
         /// update the reserves with the proper amounts(adding to token0, subtracting from token1)
         _updateReserves(reserveERC20 + _amountIn, reserveERC721 - _amountOut);
-        --q;
+        ++q;
 
         /// perform transfers
         _transferSwap0for1(pricePlusFees, _tokenId);
@@ -132,7 +133,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
 
         /// update the reserves with the proper amounts(subtracting from token0, adding to token1)
         _updateReserves(reserveERC20 - _amountOut, reserveERC721 + _amountIn);
-        ++q;
+        --q;
 
         /// transfer the ERC20Token amount to the swapper
         _transferSwap1for0(_amountOut - fees, _tokenId);
@@ -147,7 +148,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
      * @return success pass/fail
      */
     function addLiquidityERC20(uint256 _amountERC20) external appAdministratorOnly(appManagerAddress) returns (bool) {
-        require(_amountERC20 > 0, "No tokens contributed"); /// BUDDY
+        if(_amountERC20 == 0) revert ZeroValueNotPermited();
 
         _updateReserves(reserveERC20 + _amountERC20, reserveERC721 );
         /// transfer funds from sender to the AMM. All the checks for available funds
@@ -201,9 +202,6 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
     function removeERC721(uint256 _tokenId) external appAdministratorOnly(appManagerAddress) returns (bool) {
         /// we make sure we have the nft
         _checkNFTOwnership(address(this), _tokenId);
-
-        if (reserveERC721 < 1) revert AmountExceedsBalance(1);
-        
         /// update the reserve balances
         _updateReserves(reserveERC20, reserveERC721 - 1);
         /// transfer the tokens to the remover
@@ -247,6 +245,14 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
      */
     function setTreasuryAddress(address _treasury) external appAdministratorOnly(appManagerAddress) {
         treasuryAddress = _treasury;
+    }
+
+    function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data) external pure returns (bytes4){
+        _operator;
+        _from;
+        _tokenId;
+        _data;
+        return this.onERC721Received.selector;
     }
 
     function getBuyPrice() public view returns(uint256 price, uint256 fees){
@@ -333,7 +339,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
     }
 
     function _checkNFTOwnership(address _owner, uint256 _tokenId) internal view {
-        if(ERC721Token.ownerOf(_tokenId) != _owner) revert("WE DONT HAVE THIS NFT BUDDY");
+        if(ERC721Token.ownerOf(_tokenId) != _owner) revert NotTheOwnerOfNFT(_tokenId);
     }
 
     function howMuchToBuyAllBack() pure public returns(uint256 budget){
@@ -341,7 +347,5 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalc
 
     }
 
-    function _LineIntegral(uint256 m, uint256 x, uint256 b) internal pure returns(uint256 integral){
-        integral = (m * m) * (x * x) + (b * x);
-    }
+
 }

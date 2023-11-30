@@ -33,7 +33,6 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
 
     using Strings for uint256;
     uint256 constant PRECISION_DECIMALS = 8;
-    uint256 constant ATTO = 10 ** 18;
     uint256 constant Y_MAX = 1_000_000_000_000_000_000_000_000 * ATTO;
     uint256 constant M_MAX = 1_000_000_000_000_000_000_000_000 * 10 ** PRECISION_DECIMALS;
     uint8 constant MAX_TOLERANCE = 5;
