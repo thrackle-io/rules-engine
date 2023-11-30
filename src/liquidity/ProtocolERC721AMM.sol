@@ -330,7 +330,12 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     }
 
     function _sendERC20WithConfirmation(address _from, address _to, uint256 _amount) private {
-        if (!ERC20Token.transferFrom(_from, _to, _amount)) revert TransferFailed(); /// change to low level call later
+        if (_from == address(this)){
+            if (!ERC20Token.transfer(_to, _amount)) revert TransferFailed(); /// change to low level call later
+        }else{
+            if (!ERC20Token.transferFrom(_from, _to, _amount)) revert TransferFailed(); /// change to low level call later
+        }
+       
     }
 
     function _sendERC721WithConfirmation(address _from, address _to, uint256 _tokenId) private {
