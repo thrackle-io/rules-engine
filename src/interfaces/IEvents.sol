@@ -71,6 +71,10 @@ interface IApplicationHandlerEvents {
     event ApplicationHandlerDeployed(address indexed deployedAddress, address indexed appManager);
     // Rule applied
     event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
+    /// Rule deactivated
+    event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
+    /// Rule activated
+    event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
 }
 
 /**
