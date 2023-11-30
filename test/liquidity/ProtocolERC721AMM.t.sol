@@ -49,8 +49,8 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        LineInput memory buy = LineInput(2 * 10 ** 7, 10 * ATTO); /// buy slope = 0.2; b = 10
-        LineInput memory sell = LineInput(18 * 10 ** 6, 98 * 10 ** 17); /// sell slope = 0.18; b = 9.8
+        LineInput memory buy = LineInput(1 * 10 ** 6, 30 * ATTO); /// buy slope = 0.01; b = 30
+        LineInput memory sell = LineInput(9 * 10 ** 5, 29 * ATTO); /// sell slope = 0.009; b = 29
         dualLinearERC271AMM = ProtocolERC721AMM(protocolAMMFactory.createDualLinearERC721AMM(address(applicationCoin), address(applicationNFT), buy, sell, address(applicationAppManager)));
         handler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(dualLinearERC271AMM));
         dualLinearERC271AMM.connectHandlerToAMM(address(handler));
@@ -119,10 +119,10 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     function testNegSwapZeroAmountERC20() public {
         testAddLiquidityDualLinearNFTAMM();
         /// Set up a regular user with some tokens
-        applicationCoin.transfer(user, 22 * ATTO);
+        applicationCoin.transfer(user, 500_000_000_000 * ATTO);
         switchToUser();
         /// Approve transfer
-        applicationCoin.approve(address(dualLinearERC271AMM), 22 * ATTO);
+        applicationCoin.approve(address(dualLinearERC271AMM), 500_000_000_000 * ATTO);
         vm.expectRevert(abi.encodeWithSignature("AmountsAreZero()"));
         dualLinearERC271AMM.swap(address(applicationCoin), 0, 123);
     }
@@ -170,231 +170,31 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         dualLinearERC271AMM.removeERC721(0);
     }
 
-    // function testSwapLinearToken1() public {
-    //     /// Approve the transfer of tokens into AMM
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 1000000);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 1000000);
-    //     /// Transfer the tokens into the AMM
-    //     dualLinearERC271AMM.addLiquidity(1000000, 1000000);
-    //     /// Make sure the tokens made it
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 1000000);
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 1000000);
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin2.transfer(user, 100000);
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 100000);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 100000);
-    //     /// Make sure AMM balances show change
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 1100000);
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 900000);
-    //     vm.stopPrank();
-    //     vm.startPrank(superAdmin);
+    function testBuyAllNFTs() public{
+         testNegSwapZeroAmountERC20();
 
-    //     /// Make sure user's wallet shows change
-    //     assertEq(applicationCoin2.balanceOf(user), 0);
-    //     assertEq(applicationCoin.balanceOf(user), 100000);
-    // }
+         uint256 balanceBefore = applicationCoin.balanceOf(user);
+         for(uint i; i < erc721Liq;){
+            _testBuyNFT(i);
+            unchecked{
+                ++i;
+            }
+         }
+         console.log("Spent buying all NFTs", balanceBefore - applicationCoin.balanceOf(user));
+    }
 
-    // /// Test constant product swaps
-    // function testSwapCPToken0() public {
-    //     /// change AMM to use the CP calculator
-    //     dualLinearERC271AMM.setCalculatorAddress(protocolAMMCalculatorFactory.createConstantProduct(address(applicationAppManager)));
-    //     /// Approve the transfer of tokens into AMM(1B)
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 1000000000);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 1000000000);
-    //     /// Transfer the tokens into the AMM
-    //     dualLinearERC271AMM.addLiquidity(1000000000, 1000000000);
-    //     /// Make sure the tokens made it
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 1000000000);
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 1000000000);
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin.transfer(user, 50000);
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer(1M)
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 50000);
-    //     uint256 rValue = dualLinearERC271AMM.swap(address(applicationCoin), 50000);
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue, 49997);
-    //     /// Make sure AMM balances show change
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 1000050000);
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 999950003);
-    //     vm.stopPrank();
-    //     vm.startPrank(superAdmin);
-
-    //     /// Make sure user's wallet shows change
-    //     assertEq(applicationCoin.balanceOf(user), 0);
-    //     assertEq(applicationCoin2.balanceOf(user), 49997);
-    // }
-
-    // function testSwapCPToken1() public {
-    //     /// change AMM to use the CP calculator
-    //     dualLinearERC271AMM.setCalculatorAddress(protocolAMMCalculatorFactory.createConstantProduct(address(applicationAppManager)));
-    //     /// Approve the transfer of tokens into AMM
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 1000000000);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 1000000000);
-    //     /// Transfer the tokens into the AMM
-    //     dualLinearERC271AMM.addLiquidity(1000000000, 1000000000);
-    //     /// Make sure the tokens made it
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 1000000000);
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 1000000000);
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin2.transfer(user, 50000);
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 50000);
-    //     uint256 rValue = dualLinearERC271AMM.swap(address(applicationCoin2), 50000);
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue, 49997);
-    //     /// Make sure AMM balances show change
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 1000050000);
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 999950003);
-    //     vm.stopPrank();
-    //     vm.startPrank(superAdmin);
-
-    //     /// Make sure user's wallet shows change
-    //     assertEq(applicationCoin2.balanceOf(user), 0);
-    //     assertEq(applicationCoin.balanceOf(user), 49997);
-    // }
-
-    // /// Test sample 1 function swaps
-    // function testSwapSample1BackAndForth() public {
-    //     /// change AMM to use the CP calculator
-    //     dualLinearERC271AMM.setCalculatorAddress(protocolAMMCalculatorFactory.createSample01(8 * ATTO, 4 * ATTO, address(applicationAppManager)));
-    //     /// Approve the transfer of tokens into AMM(1B)
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 100_000 * (ATTO));
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10_000 * (ATTO));
-    //     /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
-    //     dualLinearERC271AMM.addLiquidity(100000 * (ATTO), 10_000 * (ATTO));
-    //     /// Make sure the tokens made it
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 100_000 * (ATTO));
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 10_000 * (ATTO));
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin.transfer(user, 3 * (ATTO));
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 1 * (ATTO));
-    //     uint256 rValue = dualLinearERC271AMM.swap(address(applicationCoin), 1 * (ATTO));
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue, 15 * (10 ** 17));
-
-    //     /// now make the opposite trade to ensure we get the proper value back
-    //     vm.stopPrank();
-    //     vm.startPrank(appAdministrator);
-    //     applicationCoin2.transfer(user, 10 * (ATTO));
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 3 * (ATTO));
-    //     uint256 rValue2 = dualLinearERC271AMM.swap(address(applicationCoin2), 3 * (ATTO));
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue2, 1 * (ATTO));
-
-    //     /// Now try trade application coin 0 for 1
-    //     /// Approve transfer
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 1 * (ATTO));
-    //     rValue = dualLinearERC271AMM.swap(address(applicationCoin), 1 * (ATTO));
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue, 15 * (10 ** 17));
-    // }
-
-    // /// Test sample 1 function swaps
-    // function testSwapSample1Token0() public {
-    //     /// change AMM to use the CP calculator
-    //     dualLinearERC271AMM.setCalculatorAddress(protocolAMMCalculatorFactory.createSample01(8 * ATTO, 4 * ATTO, address(applicationAppManager)));
-    //     /// Approve the transfer of tokens into AMM(1B)
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 100_000 * (ATTO));
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10_000 * (ATTO));
-    //     /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
-    //     dualLinearERC271AMM.addLiquidity(100000 * (ATTO), 10_000 * (ATTO));
-    //     /// Make sure the tokens made it
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 100_000 * (ATTO));
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 10_000 * (ATTO));
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin.transfer(user, 3 * (ATTO));
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 1 * (ATTO));
-    //     uint256 rValue = dualLinearERC271AMM.swap(address(applicationCoin), 1 * (ATTO));
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue, 15 * (10 ** 17));
-    // }
-
-    // /// Test sample 1 function swaps
-    // function testSwapSample1Token1() public {
-    //     /// change AMM to use the CP calculator
-    //     dualLinearERC271AMM.setCalculatorAddress(protocolAMMCalculatorFactory.createSample01(8 * ATTO, 4 * ATTO, address(applicationAppManager)));
-    //     /// Approve the transfer of tokens into AMM(1B)
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 100_000 * (ATTO));
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10_000 * (ATTO));
-    //     /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
-    //     dualLinearERC271AMM.addLiquidity(100000 * (ATTO), 10_000 * (ATTO));
-    //     /// Make sure the tokens made it
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 100_000 * (ATTO));
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 10_000 * (ATTO));
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin2.transfer(user, 5 * (ATTO));
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 5 * (ATTO));
-    //     uint256 rValue = dualLinearERC271AMM.swap(address(applicationCoin2), 5 * (ATTO));
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue, 1 * (ATTO));
-    // }
-
-    // /// Test sample 1 function swaps failure for shallow pool
-    // function testSwapSample1Token1PoolFail() public {
-    //     /// change AMM to use the CP calculator
-    //     dualLinearERC271AMM.setCalculatorAddress(protocolAMMCalculatorFactory.createSample01(8 * ATTO, 4 * ATTO, address(applicationAppManager)));
-    //     /// Approve the transfer of tokens into AMM(1B)
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10 * (ATTO));
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10 * (ATTO));
-    //     /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
-    //     dualLinearERC271AMM.addLiquidity(5 * (ATTO), 5 * (ATTO));
-    //     /// Make sure the tokens made it
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 5 * (ATTO));
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 5 * (ATTO));
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin2.transfer(user, 10000 * (ATTO));
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * (ATTO));
-    //     bytes4 selector = bytes4(keccak256("InsufficientPoolDepth(uint256,int256)"));
-    //     vm.expectRevert(abi.encodeWithSelector(selector, 5 * (ATTO), 98019998000000000000));
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 10000 * (ATTO));
-    //     /// make sure swap returns correct value
-    //     // assertEq(rValue, 1 * (ATTO));
-    // }
-
-    // /// Test sample 1 function swaps failure for shallow pool
-    // function testSwapSample1Token0PoolFail() public {
-    //     /// change AMM to use the CP calculator
-    //     dualLinearERC271AMM.setCalculatorAddress(protocolAMMCalculatorFactory.createSample01(8 * ATTO, 4 * ATTO, address(applicationAppManager)));
-    //     /// Approve the transfer of tokens into AMM(1B)
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 5 * (ATTO));
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 5 * (ATTO));
-    //     /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
-    //     dualLinearERC271AMM.addLiquidity(5 * (ATTO), 5 * (ATTO));
-    //     /// Make sure the tokens made it
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 5 * (ATTO));
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 5 * (ATTO));
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin.transfer(user, 10000 * (ATTO));
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * (ATTO));
-    //     bytes4 selector = bytes4(keccak256("InsufficientPoolDepth(uint256,int256)"));
-    //     vm.expectRevert(abi.encodeWithSelector(selector, 5 * (ATTO), -49980000000000000000000000));
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10000 * (ATTO));
-    // }
+    function testSellAllNFTs() public{
+         testBuyAllNFTs();
+         applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
+         uint256 balanceBefore = applicationCoin.balanceOf(user);
+         for(uint i; i < erc721Liq;){
+            _testSellNFT(i);
+            unchecked{
+                ++i;
+            }
+         }
+         console.log("Made selling all NFTs", applicationCoin.balanceOf(user) - balanceBefore);
+    }
 
     // ///TODO Test Purchase rule through AMM once Purchase functionality is created
     // function testSellRule() public {
@@ -454,28 +254,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     //     /// Swap that fails
     //     vm.expectRevert(0xc11d5f20);
     //     dualLinearERC271AMM.swap(address(applicationCoin), 500);
-    // }
-
-    // /// test updating min transfer rule
-    // function testAMMPassesMinTransferRule() public {
-    //     /// initialize the AMM
-    //     initializeAMMAndUsers();
-    //     /// we add the rule.
-    //     switchToRuleAdmin();
-    //     uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 10);
-    //     /// we update the rule id in the token
-    //     applicationAMMHandler.setMinTransferRuleId(ruleId);
-    //     /// Set up this particular swap
-    //     /// Approve transfer
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10);
-    //     assertEq(dualLinearERC271AMM.swap(address(applicationCoin), 10), 10);
-
-    //     /// now we check for proper failure
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 9);
-    //     vm.expectRevert(0x70311aa2);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 9);
     // }
 
     // /// test AMM Fees
@@ -633,213 +411,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     //     }
     // }
 
-    // /// set up the AMM(linear) for rule tests. Also set up user1 with applicationCoin and user2 with applicationCoin2
-    // function initializeAMMAndUsers() public {
-    //     /// Approve the transfer of tokens into AMM
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 1_000_000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 1_000_000 * ATTO);
-    //     /// Transfer the tokens into the AMM
-    //     dualLinearERC271AMM.addLiquidity(1_000_000 * ATTO, 1_000_000 * ATTO);
-    //     /// Make sure the tokens made it
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 1_000_000 * ATTO);
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 1_000_000 * ATTO);
-    //     applicationCoin.transfer(user1, 1000 * ATTO);
-    //     applicationCoin.transfer(user2, 1000 * ATTO);
-    //     applicationCoin.transfer(user3, 1000 * ATTO);
-    //     applicationCoin.transfer(rich_user, 1000 * ATTO);
-    //     applicationCoin2.transfer(user1, 1000 * ATTO);
-    //     applicationCoin2.transfer(user2, 1000 * ATTO);
-    //     applicationCoin.transfer(address(69), 1000 * ATTO);
-    //     applicationCoin2.transfer(address(69), 1000 * ATTO);
-    // }
-
-    // function testMinMaxAccountBalanceAMM() public {
-    //     initializeAMMAndUsers();
-    //     ///Token 0 Limits
-    //     bytes32[] memory accs = new bytes32[](1);
-    //     uint256[] memory min = new uint256[](1);
-    //     uint256[] memory max = new uint256[](1);
-    //     accs[0] = bytes32("MINMAXTAG");
-    //     min[0] = uint256(10 * ATTO);
-    //     max[0] = uint256(1100 * ATTO);
-    //     switchToRuleAdmin();
-    //     /// add the actual rule
-    //     uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
-
-    //     ///Token 1 Limits
-    //     bytes32[] memory accs1 = new bytes32[](1);
-    //     uint256[] memory min1 = new uint256[](1);
-    //     uint256[] memory max1 = new uint256[](1);
-    //     accs1[0] = bytes32("MINMAX");
-    //     min1[0] = uint256(500 * ATTO);
-    //     max1[0] = uint256(2000 * ATTO);
-    //     /// add the actual rule
-    //     uint32 ruleId1 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
-    //     ////update ruleId in coin rule handler
-    //     applicationAMMHandler.setMinMaxBalanceRuleIdToken0(ruleId);
-    //     applicationAMMHandler.setMinMaxBalanceRuleIdToken1(ruleId1);
-    //     switchToAppAdministrator();
-    //     ///Add GeneralTag to account
-    //     applicationAppManager.addGeneralTag(user1, "MINMAXTAG"); ///add tag
-    //     assertTrue(applicationAppManager.hasTag(user1, "MINMAXTAG"));
-    //     applicationAppManager.addGeneralTag(user2, "MINMAXTAG"); ///add tag
-    //     assertTrue(applicationAppManager.hasTag(user2, "MINMAXTAG"));
-    //     applicationAppManager.addGeneralTag(user1, "MINMAX"); ///add tag
-    //     assertTrue(applicationAppManager.hasTag(user1, "MINMAX"));
-    //     applicationAppManager.addGeneralTag(user2, "MINMAX"); ///add tag
-    //     assertTrue(applicationAppManager.hasTag(user2, "MINMAX"));
-
-    //     ///perform transfer that checks rule
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10 * ATTO);
-    //     assertEq(applicationCoin.balanceOf(user1), 990 * ATTO);
-    //     assertEq(applicationCoin2.balanceOf(user1), 1010 * ATTO);
-
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 100 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 200 * ATTO);
-    //     assertEq(applicationCoin.balanceOf(user1), 690 * ATTO);
-    //     assertEq(applicationCoin2.balanceOf(user1), 1310 * ATTO);
-
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 100 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 10 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 200 * ATTO);
-    //     assertEq(applicationCoin.balanceOf(user1), 1000 * ATTO);
-    //     assertEq(applicationCoin2.balanceOf(user1), 1000 * ATTO);
-
-    //     // make sure the minimum rules fail results in revert
-    //     // vm.expectRevert("Balance Will Drop Below Minimum");
-    //     vm.expectRevert(0xf1737570);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 990 * ATTO);
-
-    //     /// make sure the maximum rule fail results in revert
-    //     /// vm.expectRevert("Balance Will Exceed Maximum");
-    //     vm.expectRevert(0x24691f6b);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 500 * ATTO);
-
-    //     ///vm.expectRevert("Balance Will Exceed Maximum");
-    //     vm.expectRevert(0x24691f6b);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 150 * ATTO);
-
-    //     /// make sure the minimum rules fail results in revert
-    //     ///vm.expectRevert("Balance Will Drop Below Minimum");
-    //     vm.expectRevert(0xf1737570);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 650 * ATTO);
-    // }
-
-    // function testPauseRulesViaAppManagerAMM() public {
-    //     initializeAMMAndUsers();
-    //     applicationCoin.transfer(appAdministrator, 1000);
-    //     applicationCoin2.transfer(appAdministrator, 1000);
-    //     ///set pause rule and check check that the transaction reverts
-    //     switchToRuleAdmin();
-    //     applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
-    //     vm.warp(Blocktime + 1001);
-
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000);
-    //     vm.expectRevert();
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 100);
-
-    //     //Check that appAdministrators can still transfer within pausePeriod
-    //     switchToAppAdministrator();
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 100);
-    //     ///move blocktime after pause to resume transfers
-    //     vm.warp(Blocktime + 1600);
-    //     ///transfer again to check
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     // dualLinearERC271AMM.swap(address(applicationCoin), 100);
-
-    //     ///create new pause rule to check that swaps and transfers are paused
-    //     switchToRuleAdmin();
-    //     applicationAppManager.addPauseRule(Blocktime + 1700, Blocktime + 2000);
-    //     vm.warp(Blocktime + 1750);
-
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     vm.expectRevert();
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 100);
-
-    //     vm.expectRevert();
-    //     applicationCoin.transfer(user2, 100);
-
-    //     ///Set multiple pause rules and ensure pauses during and regular function between
-    //     switchToRuleAdmin();
-    //     applicationAppManager.addPauseRule(Blocktime + 2100, Blocktime + 2500);
-    //     applicationAppManager.addPauseRule(Blocktime + 2750, Blocktime + 3000);
-    //     applicationAppManager.addPauseRule(Blocktime + 3150, Blocktime + 3500);
-
-    //     vm.warp(Blocktime + 2050); ///Expire previous pause rule
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 100);
-
-    //     vm.warp(Blocktime + 2150);
-    //     vm.expectRevert();
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 100);
-
-    //     vm.warp(Blocktime + 2501); ///Expire Pause rule
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 100);
-
-    //     vm.warp(Blocktime + 2755);
-    //     vm.expectRevert();
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 100);
-
-    //     switchToAppAdministrator();
-    //     // dualLinearERC271AMM.swap(address(applicationCoin), 10); ///Show Application Administrators can utilize system during pauses
-
-    //     vm.warp(Blocktime + 3015); ///Expire previous pause rule
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10);
-
-    //     vm.warp(Blocktime + 3300); ///Expire previous pause rule
-    //     vm.expectRevert();
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 100);
-
-    //     vm.warp(Blocktime + 3501); ///Expire previous pause rule
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10);
-    // }
-
-    // /**
-    //  * @dev Test the AccessLevel = 0 rule
-    //  */
-    // function testAccessLevel0AMM() public {
-    //     /// initialize the AMM
-    //     initializeAMMAndUsers();
-
-    //     /// Set up this particular swap
-    //     /// Approve transfer
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10);
-    //     // this one should pass because the rule is off
-    //     assertEq(dualLinearERC271AMM.swap(address(applicationCoin), 10), 10);
-    //     /// turn the rule on
-    //     switchToRuleAdmin();
-    //     applicationHandler.activateAccessLevel0Rule(true);
-    //     /// now we check for proper failure
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 9);
-    //     vm.expectRevert(0x3fac082d);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 9);
-    //     /// now add a AccessLevel score and try again
-    //     switchToAccessLevelAdmin();
-    //     applicationAppManager.addAccessLevel(user1, 1);
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 9);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 9);
-    // }
 
     // function testUpgradeHandlerAMM() public {
     //     /// Deploy the modified AMM Handler contract
@@ -1034,107 +605,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     //     dualLinearERC271AMM.swap(address(applicationCoin2), 60_000_000);
     // }
 
-    // function testPurchasePercentageRuleFuzz(uint256 amountA, uint16 tokenPercentage, uint16 purchasePeriod, uint64 ruleStartTime) public {
-    //     initializeAMMAndUsers();
-    //     vm.assume(amountA > 0 && amountA < 99999999 && tokenPercentage > 0 && tokenPercentage < 9999 && purchasePeriod > 0 && ruleStartTime > 0);
-
-    //     if (purchasePeriod > 23) {
-    //         purchasePeriod = 23;
-    //     }
-    //     if (ruleStartTime > block.timestamp) ruleStartTime = uint64(block.timestamp);
-    //     uint256 totalSupply = 100_000_000;
-    //     uint256 amountB = ((totalSupply / tokenPercentage) * 10000);
-    //     switchToRuleAdmin();
-    //     uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
-    //     /// add and activate rule
-    //     applicationAMMHandler.setPurchasePercentageRuleId(ruleId);
-    //     vm.warp(Blocktime + 36 hours);
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-
-    //     if (amountA > amountB) vm.expectRevert();
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), amountA);
-
-    //     vm.warp(Blocktime + 72 hours);
-    //     vm.stopPrank();
-    //     vm.startPrank(user2);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-
-    //     if (amountA > amountB) vm.expectRevert();
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), amountA);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), amountA);
-    // }
-
-    // function testSellPercentageRuleFuzz(uint256 amountA, uint16 tokenPercentage, uint16 sellPeriod, uint64 ruleStartTime) public {
-    //     initializeAMMAndUsers();
-    //     vm.assume(amountA > 0 && amountA < 99999999 && tokenPercentage > 0 && tokenPercentage < 9999 && sellPeriod > 0 && ruleStartTime > 0);
-
-    //     if (sellPeriod > 23) {
-    //         sellPeriod = 23;
-    //     }
-    //     if (ruleStartTime > block.timestamp) ruleStartTime = uint64(block.timestamp);
-    //     uint256 totalSupply = 100_000_000;
-    //     uint256 amountB = ((totalSupply / tokenPercentage) * 10000);
-    //     switchToRuleAdmin();
-    //     uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(applicationAppManager), tokenPercentage, sellPeriod, totalSupply, ruleStartTime);
-    //     /// add and activate rule
-    //     applicationAMMHandler.setSellPercentageRuleId(ruleId);
-    //     vm.warp(Blocktime + 36 hours);
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-
-    //     if (amountA > amountB) vm.expectRevert();
-    //     dualLinearERC271AMM.swap(address(applicationCoin), amountA);
-
-    //     vm.warp(Blocktime + 72 hours);
-    //     vm.stopPrank();
-    //     vm.startPrank(user2);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-
-    //     if (amountA > amountB) vm.expectRevert();
-    //     dualLinearERC271AMM.swap(address(applicationCoin), amountA);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), amountA);
-    // }
-
-    // /// Test constant product swaps that use a factory created calculator
-    // function testSwapCPToken0ThroughFactory() public {
-    //     factory = new ProtocolAMMCalculatorFactory();
-    //     address calcAddress = factory.createConstantProduct(address(applicationAppManager));
-    //     /// change AMM to use the CP calculator
-    //     dualLinearERC271AMM.setCalculatorAddress(calcAddress);
-    //     /// Approve the transfer of tokens into AMM(1B)
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 1000000000);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 1000000000);
-    //     /// Transfer the tokens into the AMM
-    //     dualLinearERC271AMM.addLiquidity(1000000000, 1000000000);
-    //     /// Make sure the tokens made it
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 1000000000);
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 1000000000);
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin.transfer(user, 50000);
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer(1M)
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 50000);
-    //     uint256 rValue = dualLinearERC271AMM.swap(address(applicationCoin), 50000);
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue, 49997);
-    //     /// Make sure AMM balances show change
-    //     assertEq(dualLinearERC271AMM.reserveERC20(), 1000050000);
-    //     assertEq(dualLinearERC271AMM.reserveERC721(), 999950003);
-    //     vm.stopPrank();
-    //     vm.startPrank(superAdmin);
-
-    //     /// Make sure user's wallet shows change
-    //     assertEq(applicationCoin.balanceOf(user), 0);
-    //     assertEq(applicationCoin2.balanceOf(user), 49997);
-    // }
 
     /// HELPER INTERNAL FUNCTIONS
 
