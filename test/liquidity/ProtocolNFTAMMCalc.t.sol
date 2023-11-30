@@ -96,6 +96,46 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
     }
 
+    function testNegUpdateBuyCurveIntersectingAtLow_q() public {
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
+        LineInput memory newBuy = LineInput(2 * 10 ** 7, 97 * 10 ** 17 ); // m = 0.2, b = 9.7
+        vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
+        calc.setBuyCurve(newBuy);
+    }
+
+    function testNegUpdateBuyCurveIntersectingAtHigh_q() public {
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
+        LineInput memory newBuy = LineInput(15 * 10 ** 6, 10 * 10 ** 18 ); // m = 0.15, b = 10
+        vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
+        calc.setBuyCurve(newBuy);
+    }
+
+    function testUpdateBuyCurve() public {
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
+        LineInput memory newBuy = LineInput(22 * 10 ** 7, 11 * 10 ** 18 ); // m = 0.22, b = 11
+        calc.setBuyCurve(newBuy);
+    }
+
+    function testNegUpdateSellCurveIntersectingAtLow_q() public {
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
+        LineInput memory newSell = LineInput(18 * 10 ** 6, 11 * 10 ** 18 ); // m = 0.18, b = 11
+        vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
+        calc.setSellCurve(newSell);
+    }
+
+    function testNegUpdateSellCurveIntersectingAtHigh_q() public {
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
+        LineInput memory newSell = LineInput(3 * 10 ** 7, 98 * 10 ** 17 ); // m = 0.3, b = 9.8
+        vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
+        calc.setSellCurve(newSell);
+    }
+
+    function testUpdateSellCurve() public {
+        ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
+        LineInput memory newSell = LineInput(1 * 10 ** 7, 5 * 10 ** 18 ); // m = 0.1, b = 5
+        calc.setSellCurve(newSell);
+    }
+
    function testBuyCurve() public {
         ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
 
