@@ -21,7 +21,7 @@ import { AMMCalculatorErrors, AMMErrors, IZeroAddressError } from "../interfaces
  */
 contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicationEvents,  AMMCalculatorErrors, AMMErrors, IZeroAddressError {
     
-    uint256 constant PCT_MULTIPLIER = 100000000;
+    uint256 constant PCT_MULTIPLIER = 10_000;
     /// The fungible token
     IERC20 public immutable ERC20Token;
     /// the non-fungible token
@@ -258,7 +258,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     function getBuyPrice() public view returns(uint256 price, uint256 fees){
         price = calculator.calculateSwap(0, q, 0, 1);
         uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(msg.sender), ERC20Token.balanceOf( address(this)), msg.sender, address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
-        fees = (feesPct * price) / PCT_MULTIPLIER ;
+        fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price; /// old version = (feesPct * price) / PCT_MULTIPLIER ;
     }
 
     function getSellPrice() public view returns(uint256 price, uint256 fees){
