@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the sanction-oracle rule is to check if the caller of the transaction is allowed to or restricted from performing the transaction. Addresses are added to the sanction oracle by the owner of the oracle contract for any reason that owner deems necessary. This is designed as a tool to reduce the risk of malicious actors in the ecosystem. If an address is on the sanction oracle list they are restricted from performing the transaction. Any address not on the sanction list will pass this rule check.  
+The purpose of the sanction-oracle rule is to check if the caller of the transaction is allowed to or restricted from performing the transaction. Addresses are added to the sanction oracle by the owner of the oracle contract for any reason that the owner deems necessary. This is designed as a tool to reduce the risk of malicious actors in the ecosystem. If an address is on the sanction oracle list they are restricted from performing the transaction. Any address not on the sanction list will pass this rule check.  
 
 ## Applies To:
 
@@ -53,8 +53,8 @@ The rule will be evaluated with the following logic:
 
 1. The processor will receive the ID of the sanction-oracle rule set in the application handler. 
 2. The processor will receive the address that is to be checked in the oracle.
-3. The processor will will determine the type of oracle based on the rule id. 
-4. The processor will then call the oracle address to check if the address is sanctioned (not allowed to perform the current transaction). If address is restricted the transaction will revert. 
+3. The processor will determine the type of oracle based on the rule id. 
+4. The processor will then call the oracle address to check if the address is sanctioned (not allowed to perform the current transaction). If the address is restricted the transaction will revert. 
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkOraclePasses*
 

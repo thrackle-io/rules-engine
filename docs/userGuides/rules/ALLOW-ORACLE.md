@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the allow-oracle rule is to check if the receiver address in the transaction is an allowed address. Addresses are added to the allow oracle by the owner of the oracle contract for any reason that owner deems necessary. If an address is not on an allowed oracle list, they will be restricted from receiving application tokens. This rule can be used to restrict transfers to only specific contract addresses or wallets that are approved by the oracle owner. An example is NFT exchanges that support ERC2981 royalty payments. 
+The purpose of the allow-oracle rule is to check if the receiver address in the transaction is an allowed address. Addresses are added to the allow oracle by the owner of the oracle contract for any reason that the owner deems necessary. If an address is not on an allowed oracle list, they will be restricted from receiving application tokens. This rule can be used to restrict transfers to only specific contract addresses or wallets that are approved by the oracle owner. An example is NFT exchanges that support ERC2981 royalty payments. 
 
 ## Applies To:
 
@@ -53,8 +53,8 @@ The rule will be evaluated with the following logic:
 
 1. The processor will receive the ID of the allow-oracle rule set in the application handler. 
 2. The processor will receive the address that is to be checked in the oracle.
-3. The processor will will determine the type of oracle based on the rule id. 
-4. The processor will then call the oracle address to check if the receiver address is an alloweded address. If address is not on the allowed list the transaction will revert. 
+3. The processor will determine the type of oracle based on the rule id. 
+4. The processor will then call the oracle address to check if the receiver address is an allowed address. If the address is not on the allowed list the transaction will revert. 
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkOraclePasses*
 
