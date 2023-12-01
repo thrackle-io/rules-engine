@@ -74,6 +74,19 @@ interface IApplicationHandlerEvents {
 }
 
 /**
+ * @title Application Handler Events Interface
+ * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
+ * @dev This library for all events in the Protocol module for the protocol. Each contract in the Protocol module should inherit this library for emitting events.
+ * @notice Protocol Module Events Library
+ */
+interface ICommonApplicationHandlerEvents {
+    /// Rule deactivated
+    event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
+    /// Rule activated
+    event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
+}
+
+/**
  *@title Rule Storage Diamond Events Interface
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev This library for all events in the Rule Processor Module for the protocol. Each contract in the access module should inherit this library for emitting events.
@@ -110,11 +123,6 @@ interface ITokenHandlerEvents {
     /// Rule applied
     event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId);
     event ApplicationHandlerSimpleApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint256 indexed param1);
-
-    /// Rule deactivated
-    event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
-    /// Rule activated
-    event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
     /// NFT Valuation Limit Updated
     event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit, address indexed handlerAddress);
     event AppManagerAddressSet(address indexed _address);
