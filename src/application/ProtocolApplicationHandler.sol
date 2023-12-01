@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../application/AppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
 import "../economic/ruleProcessor/RuleCodeData.sol";
-import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
+import {IApplicationHandlerEvents, ICommonApplicationHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/IRuleProcessor.sol";
 import "../economic/ruleProcessor/ActionEnum.sol";
 import {IZeroAddressError, IInputErrors} from "../interfaces/IErrors.sol";
@@ -17,7 +17,7 @@ import "../economic/RuleAdministratorOnly.sol";
  * @dev This contract is injected into the appManagers.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, IInputErrors, IZeroAddressError {
+contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, ICommonApplicationHandlerEvents, IInputErrors, IZeroAddressError {
     string private constant VERSION="1.1.0";
     AppManager appManager;
     address public appManagerAddress;
