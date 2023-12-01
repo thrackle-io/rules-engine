@@ -16,7 +16,7 @@ This rule works at a token level. It must be activated and configured for each d
 
 ## Data Structure
 
-A allow-oracle rule is composed of 2 components:
+An allow-oracle rule is composed of 2 components:
 
 - **Oracle Type** (uint8): The Type of Oracle (0 for sanctioned, 1 for allowed).
 - **Oracle Address** (address): The address of the allow Oracle contract. 
@@ -67,14 +67,14 @@ The rule will be evaluated with the following logic:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error AddressIsRestricted();
+error AddressNotOnAllowedList();
 ```
 
-The selector for this error is `0x6bdfffc0`.
+The selector for this error is `0x7304e213`.
 
 ## Create Function
 
-Adding a allow-oracle rule is done through the function:
+Adding an allow-oracle rule is done through the function:
 
 ```c
 function addOracleRule(
