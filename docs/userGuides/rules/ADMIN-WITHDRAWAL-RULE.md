@@ -28,7 +28,7 @@ An admin-withdrawal rule is composed of 2 variables:
         uint256 releaseDate; /// timestamp
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 These rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
@@ -39,7 +39,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
         uint32 adminWithdrawalRulesIndex;
     }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 
@@ -91,7 +91,7 @@ function addAdminWithdrawalRule(
         ruleAdministratorOnly(_appManagerAddr) 
         returns (uint32);
 ```
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -113,11 +113,11 @@ The following validation will be carried out by the create function in order to 
 - `_amount` is not zero.
 - `_releaseDate` is not in the past.
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Storage Diamond]((../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)):
+- In Protocol [Storage Diamond](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getAdminWithdrawalRule(

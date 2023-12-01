@@ -32,7 +32,7 @@ A token-transfer-volume rule is composed of 4 components:
         uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to token's totalSupply.
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
@@ -43,7 +43,7 @@ The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32
         uint32 transferVolRuleIndex;
     }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -97,7 +97,7 @@ function addTransferVolumeRule(
     uint256 _totalSupply
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)* 
+###### *see [RuleDataFacet](../../../src/economic/ruleProcessor/RuleDataFacet.sol)* 
 
 The create function will return the protocol ID of the rule.
 
@@ -125,11 +125,11 @@ The following validation will be carried out by the create function in order to 
 - `_startTimestamp` is not zero and is not more than 52 weeks in the future.
 
 
-###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../../src/economic/ruleProcessor/RuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Storage Diamond]((../../../src/economic/ruleStorage/RuleDataFacet.sol)):
+- In Protocol [Storage Diamond](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getTransferVolumeRule(

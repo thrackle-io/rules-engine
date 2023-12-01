@@ -28,7 +28,7 @@ This is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection 
         uint64 startTs; // starting timestamp for the rule
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 Additionally, each one of these data structures will be under a tagged NFT Collection (bytes32):
 
@@ -38,7 +38,7 @@ tag -> token collection (sub-rule).
     //       tag         =>   sub-rule
     mapping(bytes32 => INonTaggedRules.NFTTradeCounterRule)
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
 
 The tagged token collections then compose a transfer-counter rule.
 
@@ -49,7 +49,7 @@ The tagged token collections then compose a transfer-counter rule.
         uint32 NFTTransferCounterRuleIndex; /// increments every time someone adds a rule
     }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
 
 A transfer-counter rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
@@ -69,7 +69,7 @@ The rule will be evaluated in the following way:
 4. The processor will evaluate whether the trade is within a new period. If no, the rule will continue to the trades per day check (step 5). If yes, the rule will return `tradesInPeriod` of 1 (current trade) for the token Id. 
 5. The processor will evaluate if the total number of trades within the period plus the current trade would be more than the amount of trades allowed per day by the rule in the case of the transaction succeeding. If yes (trades will exceed allowable trades per day), then the transaction will revert.
 
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkNFTTransferCounter*
+###### *see [ERC721RuleProcessor](../../../src/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkNFTTransferCounter*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -100,7 +100,7 @@ bytes32 _nftTypes are the same as [tags](../GLOSSARY.md) and are applied to the 
 
 The function will return the protocol id of the rule.
 
-###### *see [RuleDataFacet](../../../src/economic/ruleStorage/RuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../../src/economic/ruleProcessor/RuleDataFacet.sol)*
 
 ### Parameters:
 
@@ -124,11 +124,11 @@ The following validation will be carried out by the create function in order to 
 - Not one `tag` can be a blank tag.
 
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Storage Diamond]((../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)):
+- In Protocol [Storage Diamond](../../../src/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getNFTTransferCounterRule(

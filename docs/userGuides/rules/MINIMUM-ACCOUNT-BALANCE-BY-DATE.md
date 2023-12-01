@@ -30,7 +30,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
         uint256 startTimeStamp; /// start
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 Additionally, each one of these data structures will be under a tag (bytes32):
 
@@ -40,7 +40,7 @@ Additionally, each one of these data structures will be under a tag (bytes32):
     //      tag     =>   sub-rule
     mapping(bytes32 => ITaggedRules.MinBalByDateRule)
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
 
 The collection of these tagged sub-rules composes a minumum-account-balance-by-date rule.
 
@@ -52,7 +52,7 @@ The collection of these tagged sub-rules composes a minumum-account-balance-by-d
         uint32 minBalByDateRulesIndex; /// increments every time someone adds a rule
     }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
 
 A minimum-balance-by-date rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
@@ -102,7 +102,7 @@ function addMinBalByDateRule(
             uint64[] calldata _startTimestamps
         ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -132,11 +132,11 @@ The following validation will be carried out by the create function in order to 
 - Not one `holdAmount` nor `holdPeriod` can have a value of 0.
 
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Storage Diamond]((../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)):
+- In Protocol [Storage Diamond](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getMinBalByDateRule(
