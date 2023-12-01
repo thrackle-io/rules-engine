@@ -259,7 +259,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     function getBuyPrice() public view returns(uint256 price, uint256 fees){
         price = calculator.simulateSwap(0, 0, 0, 1);
         uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(_msgSender()), ERC20Token.balanceOf( address(this)), _msgSender(), address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
-        fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price; 
+        fees = _calculateBuyFeesFromPct(price, feesPct); 
     }
 
     /**
@@ -268,7 +268,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     function _calculateBuyPrice() internal returns(uint256 price, uint256 fees){
         price = calculator.calculateSwap(0, 0, 0, 1);
         uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(_msgSender()), ERC20Token.balanceOf( address(this)), _msgSender(), address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
-        fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price; 
+        fees = _calculateBuyFeesFromPct(price, feesPct); 
     }
 
     /**
@@ -286,6 +286,13 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     function _calculateSellPrice() internal returns(uint256 price, uint256 fees){
         price = calculator.calculateSwap(0, 0, 1, 0);
         fees = handler.assessFees(ERC20Token.balanceOf(address(this)), ERC20Token.balanceOf(_msgSender()), address(this), _msgSender(), price, ActionTypes.SELL);
+    }
+
+    /**
+    * @dev internal function to get assess the buy fees
+    */
+    function _calculateBuyFeesFromPct(uint256 price, uint256 feesPct) internal returns(uint256 fees){
+        fees = fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price;
     }
 
     /**
