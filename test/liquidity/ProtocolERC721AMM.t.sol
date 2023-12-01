@@ -267,6 +267,46 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         _sell(124);
     }
 
+    // function testPurchaseRuleDualLinearNFTAMM() public {
+    //      testNegSwapZeroAmountERC20();
+
+    //     vm.stopPrank();
+    //     vm.startPrank(superAdmin);
+    //     ///Add tag to user
+    //     bytes32[] memory accs = new bytes32[](1);
+    //     uint256[] memory purchaseAmounts = new uint256[](1);
+    //     uint16[] memory purchasePeriod = new uint16[](1);
+    //     uint64[] memory startTime = new uint64[](1);
+    //     accs[0] = bytes32("purchaseRule");
+    //     purchaseAmounts[0] = uint256(1); ///Amount to trigger purchase freeze rules
+    //     purchasePeriod[0] = uint16(36); ///Hours
+    //     startTime[0] = uint64(Blocktime);
+
+    //     /// Set the rule data
+    //     applicationAppManager.addGeneralTag(user, "purchaseRule");
+    //     /// add the rule.
+    //     switchToRuleAdmin();
+    //     uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriod, startTime);
+    //     ///update ruleId in application AMM rule handler
+    //     applicationAMMHandler.setPurchaseLimitRuleId(ruleId);
+    //     /// Swap that passes rule check
+    //     switchToUser();
+    //     (uint256 priceA, uint256 feesA) = dualLinearERC271AMM.getBuyPrice();
+    //     uint256 pricePlusFeesA = priceA + feesA;
+    //     applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
+    //     _buy(pricePlusFeesA, 0);
+
+    //     /// Swap that fails
+    //     (uint256 priceB, uint256 feesB) = dualLinearERC271AMM.getBuyPrice();
+    //     uint256 pricePlusFeesB = priceB + feesB;
+    //     vm.expectRevert(0xc11d5f20);
+    //     _buy(pricePlusFeesB, 1);
+
+    //     /// we wait until the next period so user can swap again
+    //     vm.warp(block.timestamp + 36 hours);
+    //     _buy(pricePlusFeesB, 1);
+    // }
+
     /// test AMM Fees
     function testDualLinearNFTAMMFees() public {
         uint256 testFees = 300;
@@ -476,7 +516,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         testPurchasePercentageRuleNFTAMM();
         switchToRuleAdmin();
         /// we turn off the purchase percentage rule
-        applicationAMMHandler.activatePurchaseLimitRule(false);
+        applicationAMMHandler.activatePurchasePercentageRule(false);
 
         /// now we setup the sell percentage rule
         switchToRuleAdmin();

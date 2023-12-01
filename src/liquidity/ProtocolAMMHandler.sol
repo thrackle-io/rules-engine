@@ -498,7 +498,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activatePurchasePercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+    function activatePurchasePercentageRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         purchasePercentageRuleActive = _on;
     }
 
