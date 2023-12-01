@@ -291,92 +291,92 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
     }
 
     /// Test sample 1 function swaps
-    // function testSwapSample1BackAndForth() public {
-    //     /// change AMM to use the CP calculator
-    //     protocolAMM.setCalculatorAddress(protocolAMMCalculatorFactory.createSample01(8 * 10 ** 18, 4 * 10 ** 18, address(applicationAppManager)));
-    //     /// Approve the transfer of tokens into AMM(1B)
-    //     applicationCoin.approve(address(protocolAMM), 100_000 * (10 ** 18));
-    //     applicationCoin2.approve(address(protocolAMM), 10_000 * (10 ** 18));
-    //     /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
-    //     protocolAMM.addLiquidity(100000 * (10 ** 18), 10_000 * (10 ** 18));
-    //     /// Make sure the tokens made it
-    //     assertEq(protocolAMM.getReserve0(), 100_000 * (10 ** 18));
-    //     assertEq(protocolAMM.getReserve1(), 10_000 * (10 ** 18));
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin.transfer(user, 3 * (10 ** 18));
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin.approve(address(protocolAMM), 1 * (10 ** 18));
-    //     uint256 rValue = protocolAMM.swap(address(applicationCoin), 1 * (10 ** 18));
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue, 15 * (10 ** 17));
+    function testSwapSample1BackAndForth() public {
+        /// change AMM to use the CP calculator
+        protocolAMM.setCalculatorAddress(protocolAMMCalculatorFactory.createSample01(8 * 10 ** 18, 4 * 10 ** 18, address(applicationAppManager)));
+        /// Approve the transfer of tokens into AMM(1B)
+        applicationCoin.approve(address(protocolAMM), 100_000 * (10 ** 18));
+        applicationCoin2.approve(address(protocolAMM), 10_000 * (10 ** 18));
+        /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
+        protocolAMM.addLiquidity(100000 * (10 ** 18), 10_000 * (10 ** 18));
+        /// Make sure the tokens made it
+        assertEq(protocolAMM.getReserve0(), 100_000 * (10 ** 18));
+        assertEq(protocolAMM.getReserve1(), 10_000 * (10 ** 18));
+        /// Set up a regular user with some tokens
+        applicationCoin.transfer(user, 3 * (10 ** 18));
+        vm.stopPrank();
+        vm.startPrank(user);
+        /// Approve transfer
+        applicationCoin.approve(address(protocolAMM), 1 * (10 ** 18));
+        uint256 rValue = protocolAMM.swap(address(applicationCoin), 1 * (10 ** 18));
+        /// make sure swap returns correct value
+        assertEq(rValue, 15 * (10 ** 17));
 
-    //     /// now make the opposite trade to ensure we get the proper value back
-    //     vm.stopPrank();
-    //     vm.startPrank(appAdministrator);
-    //     applicationCoin2.transfer(user, 10 * (10 ** 18));
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin2.approve(address(protocolAMM), 3 * (10 ** 18));
-    //     uint256 rValue2 = protocolAMM.swap(address(applicationCoin2), 3 * (10 ** 18));
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue2, 1 * (10 ** 18));
+        /// now make the opposite trade to ensure we get the proper value back
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        applicationCoin2.transfer(user, 10 * (10 ** 18));
+        vm.stopPrank();
+        vm.startPrank(user);
+        /// Approve transfer
+        applicationCoin2.approve(address(protocolAMM), 3 * (10 ** 18));
+        uint256 rValue2 = protocolAMM.swap(address(applicationCoin2), 3 * (10 ** 18));
+        /// make sure swap returns correct value
+        assertEq(rValue2, 1 * (10 ** 18));
 
-    //     /// Now try trade application coin 0 for 1
-    //     /// Approve transfer
-    //     applicationCoin.approve(address(protocolAMM), 1 * (10 ** 18));
-    //     rValue = protocolAMM.swap(address(applicationCoin), 1 * (10 ** 18));
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue, 15 * (10 ** 17));
-    // }
-
-    /// Test sample 1 function swaps
-    // function testSwapSample1Token0() public {
-    //     /// change AMM to use the CP calculator
-    //     protocolAMM.setCalculatorAddress(protocolAMMCalculatorFactory.createSample01(8 * 10 ** 18, 4 * 10 ** 18, address(applicationAppManager)));
-    //     /// Approve the transfer of tokens into AMM(1B)
-    //     applicationCoin.approve(address(protocolAMM), 100_000 * (10 ** 18));
-    //     applicationCoin2.approve(address(protocolAMM), 10_000 * (10 ** 18));
-    //     /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
-    //     protocolAMM.addLiquidity(100000 * (10 ** 18), 10_000 * (10 ** 18));
-    //     /// Make sure the tokens made it
-    //     assertEq(protocolAMM.getReserve0(), 100_000 * (10 ** 18));
-    //     assertEq(protocolAMM.getReserve1(), 10_000 * (10 ** 18));
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin.transfer(user, 3 * (10 ** 18));
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin.approve(address(protocolAMM), 1 * (10 ** 18));
-    //     uint256 rValue = protocolAMM.swap(address(applicationCoin), 1 * (10 ** 18));
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue, 15 * (10 ** 17));
-    // }
+        /// Now try trade application coin 0 for 1
+        /// Approve transfer
+        applicationCoin.approve(address(protocolAMM), 1 * (10 ** 18));
+        rValue = protocolAMM.swap(address(applicationCoin), 1 * (10 ** 18));
+        /// make sure swap returns correct value
+        assertEq(rValue, 15 * (10 ** 17));
+    }
 
     /// Test sample 1 function swaps
-    // function testSwapSample1Token1() public {
-    //     /// change AMM to use the CP calculator
-    //     protocolAMM.setCalculatorAddress(protocolAMMCalculatorFactory.createSample01(8 * 10 ** 18, 4 * 10 ** 18, address(applicationAppManager)));
-    //     /// Approve the transfer of tokens into AMM(1B)
-    //     applicationCoin.approve(address(protocolAMM), 100_000 * (10 ** 18));
-    //     applicationCoin2.approve(address(protocolAMM), 10_000 * (10 ** 18));
-    //     /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
-    //     protocolAMM.addLiquidity(100000 * (10 ** 18), 10_000 * (10 ** 18));
-    //     /// Make sure the tokens made it
-    //     assertEq(protocolAMM.getReserve0(), 100_000 * (10 ** 18));
-    //     assertEq(protocolAMM.getReserve1(), 10_000 * (10 ** 18));
-    //     /// Set up a regular user with some tokens
-    //     applicationCoin2.transfer(user, 5 * (10 ** 18));
-    //     vm.stopPrank();
-    //     vm.startPrank(user);
-    //     /// Approve transfer
-    //     applicationCoin2.approve(address(protocolAMM), 5 * (10 ** 18));
-    //     uint256 rValue = protocolAMM.swap(address(applicationCoin2), 5 * (10 ** 18));
-    //     /// make sure swap returns correct value
-    //     assertEq(rValue, 1 * (10 ** 18));
-    // }
+    function testSwapSample1Token0() public {
+        /// change AMM to use the CP calculator
+        protocolAMM.setCalculatorAddress(protocolAMMCalculatorFactory.createSample01(8 * 10 ** 18, 4 * 10 ** 18, address(applicationAppManager)));
+        /// Approve the transfer of tokens into AMM(1B)
+        applicationCoin.approve(address(protocolAMM), 100_000 * (10 ** 18));
+        applicationCoin2.approve(address(protocolAMM), 10_000 * (10 ** 18));
+        /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
+        protocolAMM.addLiquidity(100000 * (10 ** 18), 10_000 * (10 ** 18));
+        /// Make sure the tokens made it
+        assertEq(protocolAMM.getReserve0(), 100_000 * (10 ** 18));
+        assertEq(protocolAMM.getReserve1(), 10_000 * (10 ** 18));
+        /// Set up a regular user with some tokens
+        applicationCoin.transfer(user, 3 * (10 ** 18));
+        vm.stopPrank();
+        vm.startPrank(user);
+        /// Approve transfer
+        applicationCoin.approve(address(protocolAMM), 1 * (10 ** 18));
+        uint256 rValue = protocolAMM.swap(address(applicationCoin), 1 * (10 ** 18));
+        /// make sure swap returns correct value
+        assertEq(rValue, 15 * (10 ** 17));
+    }
+
+    /// Test sample 1 function swaps
+    function testSwapSample1Token1() public {
+        /// change AMM to use the CP calculator
+        protocolAMM.setCalculatorAddress(protocolAMMCalculatorFactory.createSample01(8 * 10 ** 18, 4 * 10 ** 18, address(applicationAppManager)));
+        /// Approve the transfer of tokens into AMM(1B)
+        applicationCoin.approve(address(protocolAMM), 100_000 * (10 ** 18));
+        applicationCoin2.approve(address(protocolAMM), 10_000 * (10 ** 18));
+        /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
+        protocolAMM.addLiquidity(100000 * (10 ** 18), 10_000 * (10 ** 18));
+        /// Make sure the tokens made it
+        assertEq(protocolAMM.getReserve0(), 100_000 * (10 ** 18));
+        assertEq(protocolAMM.getReserve1(), 10_000 * (10 ** 18));
+        /// Set up a regular user with some tokens
+        applicationCoin2.transfer(user, 5 * (10 ** 18));
+        vm.stopPrank();
+        vm.startPrank(user);
+        /// Approve transfer
+        applicationCoin2.approve(address(protocolAMM), 5 * (10 ** 18));
+        uint256 rValue = protocolAMM.swap(address(applicationCoin2), 5 * (10 ** 18));
+        /// make sure swap returns correct value
+        assertEq(rValue, 1 * (10 ** 18));
+    }
 
     /// Test sample 1 function swaps failure for shallow pool
     function testSwapSample1Token1PoolFail() public {

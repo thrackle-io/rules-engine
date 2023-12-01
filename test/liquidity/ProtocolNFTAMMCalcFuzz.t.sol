@@ -92,7 +92,8 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
             /// we make sure q is at least 1 to avoid underflow (only for the sale case)
             if( q < 1) q = 1;
             /// we calculate the price through the calculator and store it in *price*
-            price = calc.calculateSwap(0, q, 1, 0); //(reserves0, q, ERC20s out, NFTs out)
+            calc.set_q(q);
+            price = calc.calculateSwap(0, 0, 1, 0); //(reserves0, q, ERC20s out, NFTs out)
 
             /// we then call the Python script to calculate the price "offchain" and store it in *res*
             string[] memory inputs = _buildFFILinearCalculator(sell, "8", q - 1); // sel always is q-1
@@ -100,7 +101,8 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
         } 
         else{
             /// we calculate the price through the calculator and store it in *price*
-            price = calc.calculateSwap(0, q, 0, 1); //(reserves0, q, ERC20s out, NFTs out)
+            calc.set_q(q);
+            price = calc.calculateSwap(0, 0, 0, 1); //(reserves0, q, ERC20s out, NFTs out)
 
             /// we then call the Python script to calculate the price "offchain" and store it in *res*
             string[] memory inputs = _buildFFILinearCalculator(buy, "8", q);

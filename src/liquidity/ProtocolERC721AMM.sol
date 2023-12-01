@@ -27,11 +27,6 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     /// the non-fungible token
     IERC721 public immutable ERC721Token;
 
-    uint256 public reserveERC20;
-    uint256 public reserveERC721;
-
-    uint256 q;
-
     address public appManagerAddress;
     // Address that will accrue fees
     address treasuryAddress;
@@ -92,17 +87,13 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         /// only 1 NFT per swap is allowed
         _amountOut = 1;
         /// we get price, fees and validate _amountIn
-        (uint256 price, uint256 fees) = getBuyPrice();
+        (uint256 price, uint256 fees) = _calculateBuyPrice();
         uint256 pricePlusFees =  price + fees;
         if(pricePlusFees > _amountIn) revert NotEnoughTokensForSwap(_amountIn, pricePlusFees);
         else _amountIn = price;
         
         ///Check Rules(it's ok for this to be after the swap...it will revert on rule violation)
         _checkRules(_amountOut, _amountIn, ActionTypes.PURCHASE);
-
-        /// update the reserves with the proper amounts(adding to token0, subtracting from token1)
-        _updateReserves(reserveERC20 + _amountIn, reserveERC721 - _amountOut);
-        ++q;
 
         /// perform transfers
         _transferSwap0for1(pricePlusFees, _tokenId);
@@ -125,15 +116,11 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         /// only 1 NFT per swap is allowed
         if(_amountIn > 1) _amountIn = 1;/// NOT SURE IF I NEED THIS
         /// we get price and fees
-        (uint256 price, uint256 fees) =  getSellPrice();
+        (uint256 price, uint256 fees) =  _calculateSellPrice();
         _amountOut = price;
 
         ///Check Rules
         _checkRules(_amountIn, _amountOut, ActionTypes.SELL);
-
-        /// update the reserves with the proper amounts(subtracting from token0, adding to token1)
-        _updateReserves(reserveERC20 - _amountOut, reserveERC721 + _amountIn);
-        --q;
 
         /// transfer the ERC20Token amount to the swapper
         _transferSwap1for0(_amountOut - fees, _tokenId);
@@ -150,7 +137,6 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     function addLiquidityERC20(uint256 _amountERC20) external appAdministratorOnly(appManagerAddress) returns (bool) {
         if(_amountERC20 == 0) revert ZeroValueNotPermited();
 
-        _updateReserves(reserveERC20 + _amountERC20, reserveERC721 );
         /// transfer funds from sender to the AMM. All the checks for available funds
         /// and approval are done in the ERC20
         _sendERC20WithConfirmation(_msgSender(), address(this), _amountERC20);
@@ -166,8 +152,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
      * @return success pass/fail
      */
     function addLiquidityERC721( uint256 _tokenId) external appAdministratorOnly(appManagerAddress) returns (bool) {
-      
-        _updateReserves(reserveERC20 , reserveERC721 + 1);
+
         /// transfer funds from sender to the AMM. All the checks for available funds
         _sendERC721WithConfirmation(_msgSender(), address(this), _tokenId);
         emit AddLiquidity(address(ERC20Token), address (ERC721Token), 0, _tokenId);
@@ -183,10 +168,6 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
 
     function removeERC20(uint256 _amount) external appAdministratorOnly(appManagerAddress) returns (bool) {
         if (_amount == 0) revert AmountsAreZero();
-        if (_amount > reserveERC20) revert AmountExceedsBalance(_amount);
-        
-        /// update the reserve balances
-        _updateReserves(reserveERC20 - _amount, reserveERC721);
         /// transfer the tokens to the remover
         _sendERC20WithConfirmation(address(this), _msgSender(), _amount);
         emit RemoveLiquidity(address(ERC20Token), _amount);
@@ -202,8 +183,6 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     function removeERC721(uint256 _tokenId) external appAdministratorOnly(appManagerAddress) returns (bool) {
         /// we make sure we have the nft
         _checkNFTOwnership(address(this), _tokenId);
-        /// update the reserve balances
-        _updateReserves(reserveERC20, reserveERC721 - 1);
         /// transfer the tokens to the remover
         _sendERC721WithConfirmation(address(this), _msgSender(), _tokenId);
         emit RemoveLiquidity(address (ERC721Token), _tokenId);
@@ -255,14 +234,37 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         return this.onERC721Received.selector;
     }
 
+    /**
+    * @dev public function to get the price for buying an NFT
+    */
     function getBuyPrice() public view returns(uint256 price, uint256 fees){
-        price = calculator.calculateSwap(0, q, 0, 1);
+        price = calculator.simulateSwap(0, 0, 0, 1);
         uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(_msgSender()), ERC20Token.balanceOf( address(this)), _msgSender(), address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
         fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price; /// old version = (feesPct * price) / PCT_MULTIPLIER ;
     }
 
+    /**
+    * @dev internal function to get the price for buying an NFT and also changing the state of the calculator
+    */
+    function _calculateBuyPrice() internal returns(uint256 price, uint256 fees){
+        price = calculator.calculateSwap(0, 0, 0, 1);
+        uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(_msgSender()), ERC20Token.balanceOf( address(this)), _msgSender(), address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
+        fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price; /// old version = (feesPct * price) / PCT_MULTIPLIER ;
+    }
+
+    /**
+    * @dev internal function to get the price for selling an NFT
+    */
     function getSellPrice() public view returns(uint256 price, uint256 fees){
-        price = calculator.calculateSwap(0, q, 1, 0);
+        price = calculator.simulateSwap(0, 0, 1, 0);
+        fees = handler.assessFees(ERC20Token.balanceOf(address(this)), ERC20Token.balanceOf(_msgSender()), address(this), _msgSender(), price, ActionTypes.SELL);
+    }
+
+    /**
+    * @dev internal function to get the price for selling an NFT and also changing the state of the calculator
+    */
+    function _calculateSellPrice() internal returns(uint256 price, uint256 fees){
+        price = calculator.calculateSwap(0, 0, 1, 0);
         fees = handler.assessFees(ERC20Token.balanceOf(address(this)), ERC20Token.balanceOf(_msgSender()), address(this), _msgSender(), price, ActionTypes.SELL);
     }
 
@@ -305,14 +307,12 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
             );
     }
 
-    /**
-     * @dev update the reserve balances
-     * @param _reserveERC20 amount of ERC20Token in contract
-     * @param _reserveERC721 amount of  ERC721Token in contract
-     */
-    function _updateReserves(uint256 _reserveERC20, uint256 _reserveERC721) private {
-        reserveERC20 = _reserveERC20;
-        reserveERC721 = _reserveERC721;
+    function getERC20Reserves() external view returns(uint256 reserves){
+        reserves = ERC20Token.balanceOf(address(this));
+    }
+
+    function getERC721Reserves() external view returns(uint256 reserves){
+        reserves = ERC721Token.balanceOf(address(this));
     }
 
     function _isERC721Enumerable(address _ERC721Token) internal view returns(bool){

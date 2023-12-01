@@ -87,8 +87,8 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         dualLinearERC271AMM.addLiquidityERC20(erc20Liq);
         
         /// Make sure the tokens made it
-        assertEq(dualLinearERC271AMM.reserveERC20(),erc20Liq);
-        assertEq(dualLinearERC271AMM.reserveERC721(), erc721Liq);
+        assertEq(dualLinearERC271AMM.getERC20Reserves(),erc20Liq);
+        assertEq(dualLinearERC271AMM.getERC721Reserves(), erc721Liq);
         /// another way of doing the same
         assertEq(applicationCoin.balanceOf(address(dualLinearERC271AMM)), erc20Liq);
         assertEq(applicationNFT.balanceOf(address(dualLinearERC271AMM)), erc721Liq);
@@ -98,7 +98,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     function testNegativeRemoveERC20s() public {
         testAddLiquidityDualLinearNFTAMM();
         /// try to remove more coins than what it has
-        vm.expectRevert(abi.encodeWithSignature("AmountExceedsBalance(uint256)", erc20Liq + 1));
+        vm.expectRevert("ERC20: transfer amount exceeds balance");
         dualLinearERC271AMM.removeERC20(erc20Liq + 1);
     }
 
@@ -111,7 +111,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         /// Make sure they came back to admin
         assertEq(balanceAppAdmin + 500 , applicationCoin.balanceOf(appAdministrator));
         /// Make sure they no longer show in AMM
-        assertEq(erc20Liq - 500 , dualLinearERC271AMM.reserveERC20());
+        assertEq(erc20Liq - 500 , dualLinearERC271AMM.getERC20Reserves());
     }
 
     function testRemoveNFTs() public {
@@ -123,7 +123,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         /// Make sure they came back to admin
         assertEq(balance + 500, applicationNFT.balanceOf(appAdministrator));
         /// Make sure they no longer show in AMM
-        assertEq(erc721Liq - 500, dualLinearERC271AMM.reserveERC721());
+        assertEq(erc721Liq - 500, dualLinearERC271AMM.getERC721Reserves());
     }
 
     function testNegSwapZeroAmountERC20() public {
@@ -616,8 +616,8 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         uint256 pricePlusFees; 
         uint256 initialUserCoinBalance = applicationCoin.balanceOf(user);
         uint256 initialUserNFTBalance = applicationNFT.balanceOf(user);
-        uint256 initialERC20Reserves = dualLinearERC271AMM.reserveERC20();
-        uint256 initialERC721Reserves = dualLinearERC271AMM.reserveERC721();
+        uint256 initialERC20Reserves = dualLinearERC271AMM.getERC20Reserves();
+        uint256 initialERC721Reserves = dualLinearERC271AMM.getERC721Reserves();
         
         if(_fees > 0){
             (price, fees) = _testFeesInPurchase(_tokenId, _fees, treasury);
@@ -630,8 +630,8 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         
 
         /// Make sure AMM balances show change
-        assertEq(dualLinearERC271AMM.reserveERC20(), initialERC20Reserves + price);
-        assertEq(dualLinearERC271AMM.reserveERC721(), initialERC721Reserves - 1);
+        assertEq(dualLinearERC271AMM.getERC20Reserves(), initialERC20Reserves + price);
+        assertEq(dualLinearERC271AMM.getERC721Reserves(), initialERC721Reserves - 1);
         /// Make sure user's wallet shows change
         assertEq(applicationCoin.balanceOf(user), initialUserCoinBalance - pricePlusFees);
         assertEq(applicationNFT.balanceOf(user), initialUserNFTBalance + 1);
@@ -662,8 +662,8 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         uint256 priceMinusFees; 
         uint256 initialUserCoinBalance = applicationCoin.balanceOf(user);
         uint256 initialUserNFTBalance = applicationNFT.balanceOf(user);
-        uint256 initialERC20Reserves = dualLinearERC271AMM.reserveERC20();
-        uint256 initialERC721Reserves = dualLinearERC271AMM.reserveERC721();
+        uint256 initialERC20Reserves = dualLinearERC271AMM.getERC20Reserves();
+        uint256 initialERC721Reserves = dualLinearERC271AMM.getERC721Reserves();
 
         if(_fees > 0){
             (price, fees) = _testFeesInSale(_tokenId, _fees, trasury);
@@ -675,8 +675,8 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         
 
         /// Make sure AMM balances show change
-        assertEq(dualLinearERC271AMM.reserveERC20(), initialERC20Reserves - price);
-        assertEq(dualLinearERC271AMM.reserveERC721(), initialERC721Reserves + 1);
+        assertEq(dualLinearERC271AMM.getERC20Reserves(), initialERC20Reserves - price);
+        assertEq(dualLinearERC271AMM.getERC721Reserves(), initialERC721Reserves + 1);
         /// Make sure user's wallet shows change
         assertEq(applicationCoin.balanceOf(user), initialUserCoinBalance + priceMinusFees);
         assertEq(applicationNFT.balanceOf(user), initialUserNFTBalance - 1);
