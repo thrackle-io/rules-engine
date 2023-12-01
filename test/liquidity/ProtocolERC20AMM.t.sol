@@ -1029,11 +1029,11 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         assertEq(applicationCoin2.balanceOf(user1), 50_001_000 * 10 ** 18);
         /// set up rule
         uint16 tokenPercentage = 5000; /// 50%
-        uint16 purchasePeriod = 24; /// 24 hour periods
+        uint16 sellPeriod = 24; /// 24 hour periods
         uint256 totalSupply = 100_000_000;
         uint64 ruleStartTime = Blocktime;
         switchToRuleAdmin();
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
+        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(applicationAppManager), tokenPercentage, sellPeriod, totalSupply, ruleStartTime);
         /// add and activate rule
         applicationAMMHandler.setSellPercentageRuleId(ruleId);
         vm.warp(Blocktime + 36 hours);

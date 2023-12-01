@@ -434,82 +434,93 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         /// test swap below percentage
         switchToUser();
         _approveTokens(5 * 10 ** 8 * ATTO, true);
-        /// we test buying 1% of the NFTs total supply to get to the limit of the law
+        /// we test buying the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
         for(uint i; i < (erc721Liq * tokenPercentage) / 10000 - 1;){
             _testBuyNFT(i, 0, address(0));
             unchecked{
                 ++i;
             }
         }
-        /// If try to buy one more, it should fail in this period.
+        /// we get the price manually since we will test reverts on buys
         (uint256 price, uint256 fees) = dualLinearERC271AMM.getBuyPrice();
         uint256 pricePlusFees = price + fees;
 
+        /// If try to buy one more, it should fail in this period.
         vm.expectRevert(0xb634aad9);
-        _buy(pricePlusFees, 999);
+        _buy(pricePlusFees, 100);
         /// switch users and test rule still fails
         vm.stopPrank();
         vm.startPrank(address(0xB0B));
         _approveTokens(5 * 10 ** 8 * ATTO, true);
         vm.expectRevert(0xb634aad9);
-        _buy(pricePlusFees, 999);
+        _buy(pricePlusFees, 100);
 
         /// let's go to another period
         vm.warp(Blocktime + 72 hours);
         switchToUser();
         /// now it should work
-        _testBuyNFT(999, 0, address(0));
+        _testBuyNFT(100, 0, address(0));
         /// with another user
          vm.stopPrank();
         vm.startPrank(address(0xB0B));
-        _testBuyNFT(1000, 0, address(0));
+        /// we have to do this manually since the _testBuyNFT uses the *user* acccount
+        (price, fees) = dualLinearERC271AMM.getBuyPrice();
+        pricePlusFees = price + fees;
+        _buy(pricePlusFees, 222);
 
     }
 
-    // function testSellPercentageRule() public {
-    //     /// initialize AMM and give two users more app tokens and "chain native" tokens
-    //     initializeAMMAndUsers();
-    //     applicationCoin2.transfer(user1, 50_000_000 * ATTO);
-    //     applicationCoin2.transfer(user2, 30_000_000 * ATTO);
-    //     applicationCoin.transfer(user1, 50_000_000 * ATTO);
-    //     applicationCoin.transfer(user2, 30_000_000 * ATTO);
-    //     assertEq(applicationCoin2.balanceOf(user1), 50_001_000 * ATTO);
-    //     /// set up rule
-    //     uint16 tokenPercentage = 5000; /// 50%
-    //     uint16 purchasePeriod = 24; /// 24 hour periods
-    //     uint256 totalSupply = 100_000_000;
-    //     uint64 ruleStartTime = Blocktime;
-    //     switchToRuleAdmin();
-    //     uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
-    //     /// add and activate rule
-    //     applicationAMMHandler.setSellPercentageRuleId(ruleId);
-    //     vm.warp(Blocktime + 36 hours);
-    //     /// test swap below percentage
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10_000_000);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10_000_000);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10_000_000);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10_000_000); /// percentage limit hit now
-    //     /// test swaps after we hit limit
-    //     vm.expectRevert(0xb17ff693);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10_000_000);
-    //     /// switch users and test rule still fails
-    //     vm.stopPrank();
-    //     vm.startPrank(user2);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     vm.expectRevert(0xb17ff693);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10_000_000);
-    //     /// wait until new period
-    //     vm.warp(Blocktime + 72 hours);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10_000_000);
+    function testSellPercentageRuleNFTAMM() public {
+        /// We start the test by running the testPurchasePercentageRuleNFTAMM so we can have some 
+        /// NFTs already bought by the users
+        testPurchasePercentageRuleNFTAMM();
+        switchToRuleAdmin();
+        /// we turn off the purchase percentage rule
+        applicationAMMHandler.activatePurchaseLimitRule(false);
 
-    //     /// check that rule does not apply to coin 0 as this would be a sell
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 60_000_000);
-    // }
+        /// now we setup the sell percentage rule
+        switchToRuleAdmin();
+        /// set up rule
+        /// set up rule
+        uint16 tokenPercentageSell = 30; /// 0.30%
+        uint16 sellPeriod = 24; /// 24 hour periods
+        uint256 totalSupply = 0;
+        uint64 ruleStartTime = Blocktime;
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(applicationAppManager), tokenPercentageSell, sellPeriod, totalSupply, ruleStartTime);
+        /// add and activate rule
+        applicationAMMHandler.setSellPercentageRuleId(ruleId);
+        vm.warp(Blocktime + 36 hours);
+        switchToUser();
+        /// we test selling the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
+        for(uint i; i < (erc721Liq * tokenPercentageSell) / 10000 - 1;){
+            _testSellNFT(i, 0, address(0));
+            unchecked{
+                ++i;
+            }
+        }
+
+        /// If try to sell one more, it should fail in this period.
+        vm.expectRevert(0xb17ff693);
+        _sell(30);
+        /// switch users and test rule still fails
+        vm.stopPrank();
+        vm.startPrank(address(0xB0B));
+        vm.expectRevert(0xb17ff693);
+        _sell(222);
+
+        /// let's go to another period
+        vm.warp(Blocktime + 72 hours);
+        switchToUser();
+        /// now it should work
+        _testSellNFT(30, 0, address(0));
+        /// with another user
+         vm.stopPrank();
+        vm.startPrank(address(0xB0B));
+        /// we test selling the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
+        _sell(222);
+
+    }
 
 
     /// HELPER INTERNAL FUNCTIONS
