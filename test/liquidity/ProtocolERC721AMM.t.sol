@@ -139,19 +139,19 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     /// Test linear swaps
     function testBuyFirstNFT() public {
         testNegSwapZeroAmountERC20();
-        _testBuyNFT(0);
+        _testBuyNFT(0, 0, address(0));
     }
 
     function testBuySecondNFT() public {
         testBuyFirstNFT();
-        _testBuyNFT(1);
+        _testBuyNFT(1, 0, address(0));
     }
 
     function testSellFirstNFT() public {
         // we cannot sell without having bought first since q can't be negative
         testBuySecondNFT(); // user buys NFTs 0 and 1
         applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
-        _testSellNFT(0); // user sells back NFT 0
+        _testSellNFT(0, 0, address(0)); // user sells back NFT 0
     }
 
     function testNegSwapZeroAmountERC721() public {
@@ -173,7 +173,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
          testNegSwapZeroAmountERC20();
          uint256 balanceBefore = applicationCoin.balanceOf(user);
          for(uint i; i < erc721Liq;){
-            _testBuyNFT(i);
+            _testBuyNFT(i, 0, address(0));
             unchecked{
                 ++i;
             }
@@ -186,7 +186,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
          applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
          uint256 balanceBefore = applicationCoin.balanceOf(user);
          for(uint i; i < erc721Liq;){
-            _testSellNFT(i);
+            _testSellNFT(i, 0, address(0));
             unchecked{
                 ++i;
             }
@@ -269,6 +269,9 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
 
     /// test AMM Fees
     function testDualLinearNFTAMMFees() public {
+        uint256 testFees = 300;
+        address testTreasury = address(99);
+
         testAddLiquidityDualLinearNFTAMM();
         /// we add the rule.
         switchToRuleAdmin();
@@ -279,35 +282,32 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         vm.expectRevert(abi.encodeWithSelector(selector, 0));
         ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), 0);
         /// now add the good rule
-        ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), 300);
+        ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), testFees);
         /// we update the rule id in the token
         applicationAMMHandler.setAMMFeeRuleId(ruleId);
 
         switchToAppAdministrator();
         /// set the treasury address
-        dualLinearERC271AMM.setTreasuryAddress(address(99));
+        dualLinearERC271AMM.setTreasuryAddress(testTreasury);
         applicationCoin.transfer(user, 500_000_000_000 * ATTO);
 
         switchToUser();
         /// Approve transfer
         _approveTokens(5 * 10 ** 9 * ATTO, true);
 
-        /// get price and fees from contract
-        (uint256 priceA, uint256 feesA) = dualLinearERC271AMM.getBuyPrice();
-        // should destine 3% to fees
-        uint256 expectedFees = (priceA + feesA) * 300 / 10000 ;
-        assertEq(expectedFees, feesA);
-        _testBuyNFT(234);
-        uint256 treasuryBalance = applicationCoin.balanceOf(address(99));
-        assertEq(treasuryBalance, expectedFees);
-
-        // Now try the other direction
-        (uint256 priceB, uint256 feesB) = dualLinearERC271AMM.getSellPrice();
-        feesB;
-        // should get 97% back
-        expectedFees += (priceB) * 300 / 10000 ;
-        _testSellNFT(234);
-        assertEq(applicationCoin.balanceOf(address(99)), expectedFees);
+        for(uint i; i < erc721Liq;){
+            _testBuyNFT(i, testFees,  testTreasury);
+            unchecked{
+                ++i;
+            }
+        }
+        
+        for(uint i; i < erc721Liq;){
+            _testSellNFT(i, testFees,  testTreasury);
+            unchecked{
+                ++i;
+            }
+        }
     }
 
     
@@ -371,86 +371,49 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     }
 
 
-    // function testUpgradeHandlerAMM() public {
-    //     /// Deploy the modified AMM Handler contract
-    //     ApplicationAMMHandlerMod assetHandler = new ApplicationAMMHandlerMod(address(applicationAppManager), address(ruleProcessor), address(dualLinearERC271AMM));
+    function testUpgradeHandlerAMM() public {
+        /// Deploy the modified AMM Handler contract
+        ApplicationAMMHandlerMod assetHandler = new ApplicationAMMHandlerMod(address(applicationAppManager), address(ruleProcessor), address(dualLinearERC271AMM));
+       
+        /// connect AMM to new Handler
+        dualLinearERC271AMM.connectHandlerToAMM(address(assetHandler));
+        /// must deregister and reregister AMM
+        applicationAppManager.deRegisterAMM(address(dualLinearERC271AMM));
+        applicationAppManager.registerAMM(address(dualLinearERC271AMM));
+        testBuyAllNFTs();
 
-    //     /// connect AMM to new Handler
-    //     dualLinearERC271AMM.connectHandlerToAMM(address(assetHandler));
-    //     /// must deregister and reregister AMM
-    //     applicationAppManager.deRegisterAMM(address(dualLinearERC271AMM));
-    //     applicationAppManager.registerAMM(address(dualLinearERC271AMM));
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        ///Add tag to user
+        bytes32[] memory accs = new bytes32[](1);
+        uint192[] memory sellAmounts = new uint192[](1);
+        uint16[] memory sellPeriod = new uint16[](1);
+        uint64[] memory startTime = new uint64[](1);
+        accs[0] = bytes32("SellRule");
+        sellAmounts[0] = uint192(1); ///Amount to trigger Sell freeze rules
+        sellPeriod[0] = uint16(36); ///Hours
+        startTime[0] = uint64(Blocktime);
 
-    //     /// Test Min Max Balance Rule with New Handler
-    //     initializeAMMAndUsers();
-    //     ///Token 0 Limits
-    //     bytes32[] memory accs = new bytes32[](1);
-    //     uint256[] memory min = new uint256[](1);
-    //     uint256[] memory max = new uint256[](1);
-    //     accs[0] = bytes32("MINMAXTAG");
-    //     min[0] = uint256(10 * ATTO);
-    //     max[0] = uint256(1100 * ATTO);
-    //     /// add the actual rule
-    //     switchToRuleAdmin();
-    //     uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
-    //     ///Token 1 Limits
-    //     bytes32[] memory accs1 = new bytes32[](1);
-    //     uint256[] memory min1 = new uint256[](1);
-    //     uint256[] memory max1 = new uint256[](1);
-    //     accs1[0] = bytes32("MINMAX");
-    //     min1[0] = uint256(500 * ATTO);
-    //     max1[0] = uint256(2000 * ATTO);
-    //     /// add the actual rule
-    //     uint32 ruleId1 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
-    //     ////update ruleId in coin rule handler
-    //     assetHandler.setMinMaxBalanceRuleIdToken0(ruleId);
-    //     assetHandler.setMinMaxBalanceRuleIdToken1(ruleId1);
-    //     switchToAppAdministrator();
-    //     ///Add GeneralTag to account
-    //     applicationAppManager.addGeneralTag(user1, "MINMAXTAG"); ///add tag
-    //     assertTrue(applicationAppManager.hasTag(user1, "MINMAXTAG"));
-    //     applicationAppManager.addGeneralTag(user2, "MINMAXTAG"); ///add tag
-    //     assertTrue(applicationAppManager.hasTag(user2, "MINMAXTAG"));
-    //     applicationAppManager.addGeneralTag(user1, "MINMAX"); ///add tag
-    //     assertTrue(applicationAppManager.hasTag(user1, "MINMAX"));
-    //     applicationAppManager.addGeneralTag(user2, "MINMAX"); ///add tag
-    //     assertTrue(applicationAppManager.hasTag(user2, "MINMAX"));
-    //     ///perform transfer that checks rule
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 10 * ATTO);
-    //     assertEq(applicationCoin.balanceOf(user1), 990 * ATTO);
-    //     assertEq(applicationCoin2.balanceOf(user1), 1010 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 100 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 200 * ATTO);
-    //     assertEq(applicationCoin.balanceOf(user1), 690 * ATTO);
-    //     assertEq(applicationCoin2.balanceOf(user1), 1310 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 100 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 10 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 200 * ATTO);
-    //     assertEq(applicationCoin.balanceOf(user1), 1000 * ATTO);
-    //     assertEq(applicationCoin2.balanceOf(user1), 1000 * ATTO);
-    //     // make sure the minimum rules fail results in revert
-    //     // vm.expectRevert("Balance Will Drop Below Minimum");
-    //     vm.expectRevert(0xf1737570);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 990 * ATTO);
-    //     /// make sure the maximum rule fail results in revert
-    //     /// vm.expectRevert("Balance Will Exceed Maximum");
-    //     vm.expectRevert(0x24691f6b);
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 500 * ATTO);
-    //     ///vm.expectRevert("Balance Will Exceed Maximum");
-    //     vm.expectRevert(0x24691f6b);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 150 * ATTO);
-    //     /// make sure the minimum rules fail results in revert
-    //     ///vm.expectRevert("Balance Will Drop Below Minimum");
-    //     vm.expectRevert(0xf1737570);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 650 * ATTO);
-    //     /// test new function in new handler
-    //     address testAddress = assetHandler.newTestFunction();
-    //     console.log(assetHandler.newTestFunction(), testAddress);
-    // }
+        /// Set the rule data
+        applicationAppManager.addGeneralTag(user, "SellRule");
+        /// add the rule.
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
+        ///update ruleId in application AMM rule handler
+        assetHandler.setSellLimitRuleId(ruleId);
+        /// Swap that passes rule check
+        switchToUser();
+        applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
+        _sell(123);
+
+        /// Swap that fails
+        vm.expectRevert(0xc11d5f20);
+        _sell(124);
+
+        /// we wait until the next period so user can swap again
+        vm.warp(block.timestamp + 36 hours);
+        _sell(124);
+    }
 
     // /**
     //  * @dev this function tests the purchase percentage rule via AMM
@@ -599,16 +562,24 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         }
     }
 
-    function _testBuyNFT(uint256 _tokenId) internal {
+    function _testBuyNFT(uint256 _tokenId, uint256 _fees, address treasury) internal {
         switchToUser();
+
+        uint256 price;
+        uint256 fees; 
+        uint256 pricePlusFees; 
         uint256 initialUserCoinBalance = applicationCoin.balanceOf(user);
         uint256 initialUserNFTBalance = applicationNFT.balanceOf(user);
         uint256 initialERC20Reserves = dualLinearERC271AMM.reserveERC20();
         uint256 initialERC721Reserves = dualLinearERC271AMM.reserveERC721();
-        (uint256 price, uint256 fees) = dualLinearERC271AMM.getBuyPrice();
-        uint256 pricePlusFees = price + fees;
-
-        _buy(pricePlusFees, _tokenId);
+        
+        if(_fees > 0){
+            (price, fees) = _testBuyWithFee(_tokenId, _fees, treasury);
+        }else{
+            ( price, fees) = dualLinearERC271AMM.getBuyPrice();
+            _buy(pricePlusFees, _tokenId);
+        }
+        pricePlusFees = price + fees;
 
         /// Make sure AMM balances show change
         assertEq(dualLinearERC271AMM.reserveERC20(), initialERC20Reserves + price);
@@ -618,20 +589,42 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user), initialUserNFTBalance + 1);
     }
 
+    function _testBuyWithFee(uint256 _tokenId, uint256 _fees, address treasury) internal returns(uint256 price, uint256 fees){
+        (price, fees) = dualLinearERC271AMM.getBuyPrice();
+        uint256 pricePlusFees = price + fees;
+        uint256 initialTreasuryBalance = applicationCoin.balanceOf(treasury);
+        uint256 expectedFees = (price + fees) * _fees / 10000;
+        assertEq(expectedFees, fees);
+
+        _buy(pricePlusFees, _tokenId);
+
+        uint256 treasuryBalance = applicationCoin.balanceOf(treasury);
+        assertEq(treasuryBalance, initialTreasuryBalance + expectedFees);
+    }
+
     function _buy(uint256 price, uint256 _tokenId) internal {
         dualLinearERC271AMM.swap(address(applicationCoin), price, _tokenId);
     }
 
-    function _testSellNFT(uint256 _tokenId) internal {
+    function _testSellNFT(uint256 _tokenId, uint256 _fees, address trasury) internal {
         switchToUser();
+
+        uint256 price;
+        uint256 fees; 
+        uint256 priceMinusFees; 
         uint256 initialUserCoinBalance = applicationCoin.balanceOf(user);
         uint256 initialUserNFTBalance = applicationNFT.balanceOf(user);
         uint256 initialERC20Reserves = dualLinearERC271AMM.reserveERC20();
         uint256 initialERC721Reserves = dualLinearERC271AMM.reserveERC721();
-        (uint256 price, uint256 fees) = dualLinearERC271AMM.getSellPrice();
-        uint256 priceMinusFees = price - fees;
 
-        _sell(_tokenId);
+        if(_fees > 0){
+            (price, fees) = _testSellWithFee(_tokenId, _fees, trasury);
+        }else{
+            (price, fees) = dualLinearERC271AMM.getSellPrice();
+            _sell(_tokenId);
+        }
+        priceMinusFees = price - fees;
+        
 
         /// Make sure AMM balances show change
         assertEq(dualLinearERC271AMM.reserveERC20(), initialERC20Reserves - price);
@@ -639,6 +632,18 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         /// Make sure user's wallet shows change
         assertEq(applicationCoin.balanceOf(user), initialUserCoinBalance + priceMinusFees);
         assertEq(applicationNFT.balanceOf(user), initialUserNFTBalance - 1);
+    }
+
+    function _testSellWithFee(uint256 _tokenId, uint256 _fees, address treasury) internal returns(uint256 price, uint256 fees){
+        uint256 initialTreasuryBalance = applicationCoin.balanceOf(treasury);
+        (price, fees) = dualLinearERC271AMM.getSellPrice();
+        uint256 expectedFees = (price) * _fees / 10000 ;
+        assertEq(expectedFees, fees);
+
+        _sell(_tokenId);
+        
+        uint256 treasuryBalance = applicationCoin.balanceOf(treasury);
+        assertEq(treasuryBalance, initialTreasuryBalance + expectedFees);
     }
 
     function _sell(uint256 _tokenId) internal {
