@@ -292,7 +292,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     * @dev internal function to get assess the buy fees
     */
     function _calculateBuyFeesFromPct(uint256 price, uint256 feesPct) internal returns(uint256 fees){
-        fees = fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price;
+        fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price;
     }
 
     /**
