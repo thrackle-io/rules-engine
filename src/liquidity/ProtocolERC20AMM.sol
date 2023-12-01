@@ -13,7 +13,6 @@ import { AMMCalculatorErrors, AMMErrors, IZeroAddressError } from "../interfaces
  * @title ProtocolERC20AMM Base Contract
  * @notice This is the base contract for all protocol AMMs. Token 0 is the application native token. Token 1 is the chain native token (ETH, MATIC, ETC).
  * @dev The only thing to recognize is that calculations are all done in an external calculation contract
- * TODO add action types purchase and sell to buy/sell functions, test purchaseWithinPeriod on buy functions.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
 contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalculatorErrors, AMMErrors, IZeroAddressError {
@@ -41,6 +40,7 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
      * @param _calculatorAddress valid address of the corresponding calculator for the AMM
      */
     constructor(address _token0, address _token1, address _appManagerAddress, address _calculatorAddress) {
+        if(_token0 == address(0) || _token1 == address(0)) revert ZeroAddress();
         token0 = IERC20(_token0);
         token1 = IERC20(_token1);
         appManagerAddress = _appManagerAddress;

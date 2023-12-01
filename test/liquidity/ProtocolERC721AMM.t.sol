@@ -76,7 +76,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     }
 
 
-    //Test adding liquidity to the AMM
     function testAddLiquidityDualLinearNFTAMM() public {
         switchToAppAdministrator();
         /// Approve the transfer of tokens into AMM
@@ -84,6 +83,23 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
 
         /// Transfer the tokens into the AMM
         _addLiquidityInBatchERC721(erc721Liq);
+        dualLinearERC271AMM.addLiquidityERC20(erc20Liq);
+        
+        /// Make sure the tokens made it
+        assertEq(dualLinearERC271AMM.getERC20Reserves(),erc20Liq);
+        assertEq(dualLinearERC271AMM.getERC721Reserves(), erc721Liq);
+        /// another way of doing the same
+        assertEq(applicationCoin.balanceOf(address(dualLinearERC271AMM)), erc20Liq);
+        assertEq(applicationNFT.balanceOf(address(dualLinearERC271AMM)), erc721Liq);
+    }
+
+    function testAddLiquidityDualLinearNFTAMMOneByOne() public {
+        switchToAppAdministrator();
+        /// Approve the transfer of tokens into AMM
+        _approveTokens(erc20Liq, true);
+
+        /// Transfer the tokens into the AMM
+        _addAllLiquidityERC721OneByOne(erc721Liq);
         dualLinearERC271AMM.addLiquidityERC20(erc20Liq);
         
         /// Make sure the tokens made it
@@ -591,6 +607,17 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     }
 
     function _addLiquidityInBatchERC721(uint256 amount) private {
+        uint256[] memory nfts = new uint256[](10_000);
+        for(uint256 i; i < amount;){
+            nfts[i] = i;
+            unchecked{
+                ++i;
+            }
+        }
+        dualLinearERC271AMM.addLiquidityERC721InBatch(nfts);
+    }
+
+    function _addAllLiquidityERC721OneByOne(uint256 amount) private {
         for(uint256 i; i < amount;){
             dualLinearERC271AMM.addLiquidityERC721(i);
             unchecked{

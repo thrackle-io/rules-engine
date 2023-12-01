@@ -13,10 +13,9 @@ import {IApplicationEvents} from "../interfaces/IEvents.sol";
 import { AMMCalculatorErrors, AMMErrors, IZeroAddressError } from "../interfaces/IErrors.sol";
 
 /**
- * @title ProtocolERC20AMM Base Contract
- * @notice This is the base contract for all protocol AMMs. Token 0 is the application native token. Token 1 is the chain native token (ETH, MATIC, ETC).
+ * @title ProtocolERC721AMM Base Contract
+ * @notice This is the base contract for all protocol AMMs. 
  * @dev The only thing to recognize is that calculations are all done in an external calculation contract
- * TODO add action types purchase and sell to buy/sell functions, test purchaseWithinPeriod on buy functions.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
 contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicationEvents,  AMMCalculatorErrors, AMMErrors, IZeroAddressError {
@@ -42,7 +41,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
      * @param _calculatorAddress valid address of the corresponding calculator for the AMM
      */
     constructor(address _ERC20Token, address _ERC721Token, address _appManagerAddress, address _calculatorAddress) {
-
+        if(_ERC20Token == address(0) || _ERC721Token == address(0)) revert ZeroAddress();
         if(!_isERC721Enumerable(_ERC721Token)) revert NotEnumerable();
         ERC20Token = IERC20(_ERC20Token);
         ERC721Token = IERC721(_ERC721Token);
@@ -73,11 +72,11 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     }
 
     /**
-     * @dev This performs the swap from ERC20Token to token1
-     * @notice This is considered a "SELL" as the user is trading application native token 0 and receiving the chain native token 1
+     * @dev This performs the swap from ERC20Token to ERC721
+     * @notice This is considered a "PURCHASE" as the user is trading fungible tokens in exchange for NFTs (buying NFTs)
      * @param _amountIn amount of ERC20Token being swapped for unknown amount of token1
      * @param _tokenId the NFT Id to swap
-     * @return _amountOut amount of  ERC721Token coming out of the pool
+     * @return _amountOut amount of ERC721Token coming out of the pool
      */
     function _swap0For1(uint256 _amountIn, uint256 _tokenId) private returns (uint256 _amountOut) {
 
@@ -96,25 +95,25 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         _checkRules(_amountOut, _amountIn, ActionTypes.PURCHASE);
 
         /// perform transfers
-        _transferSwap0for1(pricePlusFees, _tokenId);
+        _transferBuy(pricePlusFees, _tokenId);
         _sendERC20WithConfirmation(address(this), treasuryAddress, fees);
         emit Swap(address(ERC20Token), _amountIn, _amountOut);
     }
 
     /**
-     * @dev This performs the swap from  ERC721Token to token0
-     * @notice This is considered a "Purchase" as the user is trading chain native token 1 and receiving the application native token
-     * @param _amountIn amount of ERC20Token being swapped for unknown amount of token1
+     * @dev This performs the swap from  ERC721Token to ERC20s
+     * @notice This is considered a "SELL" as the user is providing NFT in exchange for fungible tokens
+     * @param _amountIn amount of ERC20Token to pay for the NFT with _tokenId and the possible fees
      * @param _tokenId the NFT Id to swap
-     * @return _amountOut amount of  ERC721Token coming out of the pool
+     * @return _amountOut amount of ERC20 tokens coming out of the pool
      */
     function _swap1For0(uint256 _amountIn, uint256 _tokenId) private returns (uint256 _amountOut) {
 
-        /// we make sure we have the nft
+        /// we make sure the user has the nft
         _checkNFTOwnership(_msgSender(),_tokenId);
 
         /// only 1 NFT per swap is allowed
-        if(_amountIn > 1) _amountIn = 1;/// NOT SURE IF I NEED THIS
+        if(_amountIn > 1) _amountIn = 1;
         /// we get price and fees
         (uint256 price, uint256 fees) =  _calculateSellPrice();
         _amountOut = price;
@@ -123,7 +122,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         _checkRules(_amountIn, _amountOut, ActionTypes.SELL);
 
         /// transfer the ERC20Token amount to the swapper
-        _transferSwap1for0(_amountOut - fees, _tokenId);
+        _transferSell(_amountOut - fees, _tokenId);
         _sendERC20WithConfirmation(address(this), treasuryAddress, fees);
         emit Swap(address (ERC721Token), _amountIn, _amountOut);
     }
@@ -148,7 +147,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     /**
      * @dev This function allows contributions to the liquidity pool
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
-     * @param _tokenId The amount of  ERC721Token being added
+     * @param _tokenId The Id of the ERC721Token being added. Liquidity can be added one by one.
      * @return success pass/fail
      */
     function addLiquidityERC721( uint256 _tokenId) external appAdministratorOnly(appManagerAddress) returns (bool) {
@@ -156,6 +155,24 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         /// transfer funds from sender to the AMM. All the checks for available funds
         _sendERC721WithConfirmation(_msgSender(), address(this), _tokenId);
         emit AddLiquidity(address(ERC20Token), address (ERC721Token), 0, _tokenId);
+        return true;
+    }
+
+    /**
+     * @dev This function allows contributions to the liquidity pool
+     * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
+     * @param _tokenIds The Ids of the ERC721Tokens being added. This allows to add NFT liquidity in batch.
+     * @return success pass/fail
+     */
+    function addLiquidityERC721InBatch( uint256[] memory _tokenIds) external appAdministratorOnly(appManagerAddress) returns (bool) {
+        /// transfer NFTs from sender to the AMM
+        for(uint i; i < _tokenIds.length;){
+            _sendERC721WithConfirmation(_msgSender(), address(this), _tokenIds[i]);
+            emit AddLiquidity(address(ERC20Token), address (ERC721Token), 0, _tokenIds[i]);
+            unchecked{
+                ++i;
+            }
+        }
         return true;
     }
 
@@ -190,7 +207,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     }
 
     /**
-     * @dev This function allows owners to set the app manager address
+     * @dev sets the app manager address
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      * @param _appManagerAddress The address of a valid appManager
      */
@@ -200,7 +217,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     }
 
     /**
-     * @dev This function allows owners to set the calculator address
+     * @dev sets the calculator address
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      * @param _calculatorAddress The address of a valid AMMCalculator
      */
@@ -209,7 +226,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     }
 
     /**
-     * @dev This function allows owners to set the calculator address. It is only meant to be used at instantiation of contract
+     * @dev sets the calculator address. It is only meant to be used at instantiation of contract
      * @param _calculatorAddress The address of a valid AMMCalculator
      */
     function _setCalculatorAddress(address _calculatorAddress) private {
@@ -226,6 +243,9 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         treasuryAddress = _treasury;
     }
 
+    /** 
+    * the receiver function specified in ERC721
+    */
     function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data) external pure returns (bytes4){
         _operator;
         _from;
@@ -287,7 +307,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     }
 
     /**
-     * @dev this function returns the handler address
+     * @dev returns the handler address
      * @return handlerAddress
      */
     function getHandlerAddress() external view returns (address) {
@@ -307,28 +327,57 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
             );
     }
 
+    /** 
+    * @dev gets ERC20 reserves in the pool
+    * @return reserves of the ERC20 
+    */
     function getERC20Reserves() external view returns(uint256 reserves){
         reserves = ERC20Token.balanceOf(address(this));
     }
 
+    /** 
+    * @dev gets ERC721 reserves in the pool
+    * @return reserves of the ERC721 
+    */
     function getERC721Reserves() external view returns(uint256 reserves){
         reserves = ERC721Token.balanceOf(address(this));
     }
 
+    /** 
+    * @dev assesses if an ERC721 token is enumerable 
+    * @param _ERC721Token address of the token
+    * @return true if the token is enumerable
+    */
     function _isERC721Enumerable(address _ERC721Token) internal view returns(bool){
         return IERC165(_ERC721Token).supportsInterface(type(IERC721Enumerable).interfaceId);
     }
 
-    function _transferSwap0for1(uint256 _amount, uint256 _tokenId) private {
+    /** 
+    * @dev carries out the "BUY" swap 
+    * @param _amount amount of ERC20s being paid to the AMM
+    * @param _tokenId the NFT Id being sold
+    */
+    function _transferBuy(uint256 _amount, uint256 _tokenId) private {
         _sendERC20WithConfirmation(_msgSender(), address(this), _amount);
         _sendERC721WithConfirmation(address(this), _msgSender(), _tokenId);
     }
 
-    function _transferSwap1for0(uint256 _amount, uint256 _tokenId) private {
+    /** 
+    * @dev carries out the "SELL" swap 
+    * @param _amount amount of ERC20s being paid to the user
+    * @param _tokenId the NFT Id being added to the AMM
+    */
+    function _transferSell(uint256 _amount, uint256 _tokenId) private {
         _sendERC20WithConfirmation(address(this), _msgSender(), _amount);
         _sendERC721WithConfirmation(_msgSender(), address(this), _tokenId);
     }
 
+    /** 
+    * @dev transfers ERC20s and makes sure the transfer happened successfully
+    * @param _from address of the sender
+    * @param _to address of the recepient
+    * @param _amount the amount of tokens changing hands
+    */
     function _sendERC20WithConfirmation(address _from, address _to, uint256 _amount) private {
         if (_from == address(this)){
             if (!ERC20Token.transfer(_to, _amount)) revert TransferFailed(); /// change to low level call later
@@ -338,11 +387,22 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
        
     }
 
+    /** 
+    * @dev transfers an ERC721 and makes sure the transfer happened successfully
+    * @param _from address of the sender
+    * @param _to address of the recepient
+    * @param _tokenId the NFT being transferred
+    */
     function _sendERC721WithConfirmation(address _from, address _to, uint256 _tokenId) private {
         ERC721Token.safeTransferFrom(_from, _to, _tokenId);
         if (ERC721Token.ownerOf(_tokenId) != _to) revert TransferFailed();
     }
 
+    /** 
+    * @dev reverts if an NFT is not owned by the aleged owner
+    * @param _owner address of the aleged owner
+    * @param _tokenId the NFT the _owner claims to own
+    */
     function _checkNFTOwnership(address _owner, uint256 _tokenId) internal view {
         if(ERC721Token.ownerOf(_tokenId) != _owner) revert NotTheOwnerOfNFT(_tokenId);
     }
