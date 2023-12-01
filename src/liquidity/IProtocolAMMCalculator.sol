@@ -22,7 +22,7 @@ interface IProtocolAMMCalculator is AMMCalculatorErrors, IZeroAddressError {
     function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external returns (uint256 _amountOut);
 
     /**
-     * @dev This performs the swap from token0 to token1
+     * @dev This simulates the swap from token0 to token1 to get prices
      * @param _reserve0 total amount of token0 in reserve
      * @param _reserve1 total amount of token1 in reserve
      * @param _amount0 amount of token0 possibly coming into the pool

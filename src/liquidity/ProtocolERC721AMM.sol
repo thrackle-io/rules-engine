@@ -289,7 +289,9 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     }
 
     /**
-    * @dev internal function to get assess the buy fees
+    * @dev internal function to calculate the fees in a purchase by getting its price and fee percentage
+    * @param price the price for the NFT
+    * @param feesPct the percentage of fees to pay in a purchase
     */
     function _calculateBuyFeesFromPct(uint256 price, uint256 feesPct) internal returns(uint256 fees){
         fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price;
@@ -338,16 +340,16 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     * @dev gets ERC20 reserves in the pool
     * @return reserves of the ERC20 
     */
-    function getERC20Reserves() external view returns(uint256 reserves){
-        reserves = ERC20Token.balanceOf(address(this));
+    function getERC20Reserves() external view returns(uint256){
+        return ERC20Token.balanceOf(address(this));
     }
 
     /** 
     * @dev gets ERC721 reserves in the pool
     * @return reserves of the ERC721 
     */
-    function getERC721Reserves() external view returns(uint256 reserves){
-        reserves = ERC721Token.balanceOf(address(this));
+    function getERC721Reserves() external view returns(uint256){
+        return ERC721Token.balanceOf(address(this));
     }
 
     /** 
