@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
@@ -64,6 +65,16 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
     }
+
+
+    function testNegNotEnumerableNFT() public{
+        ERC721 notEnumNFT = new ERC721("NotEnum","NE");
+        LineInput memory buy = LineInput(1 * 10 ** 6, 30 * ATTO); /// buy slope = 0.01; b = 30
+        LineInput memory sell = LineInput(9 * 10 ** 5, 29 * ATTO); /// sell slope = 0.009; b = 29
+        vm.expectRevert(abi.encodeWithSignature("NotEnumerable()"));
+        dualLinearERC271AMM = ProtocolERC721AMM(protocolAMMFactory.createDualLinearERC721AMM(address(applicationCoin), address(notEnumNFT), buy, sell, address(applicationAppManager)));
+    }
+
 
     //Test adding liquidity to the AMM
     function testAddLiquidityDualLinearNFTAMM() public {

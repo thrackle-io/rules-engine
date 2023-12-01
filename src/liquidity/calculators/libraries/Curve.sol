@@ -31,7 +31,7 @@ library Curve {
        }
     
     function integral(Line memory line, uint256 x) internal pure returns(uint256 a){
-        a = (((line.m_num * line.m_num) / (line.m_den * line.m_den)) * (x * x) * ATTO) + (line.b * x);
+       /// a = (((line.m_num * line.m_num) / (line.m_den * line.m_den)) * (x * x) * ATTO) + (line.b * x);
     }
 
     /**

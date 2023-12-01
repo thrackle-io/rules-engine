@@ -48,7 +48,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
      */
     constructor(address _ERC20Token, address _ERC721Token, address _appManagerAddress, address _calculatorAddress) {
 
-        if(!_isERC721Enumerable(_ERC721Token)) revert("MUST BE ENUMERABLE");
+        if(!_isERC721Enumerable(_ERC721Token)) revert NotEnumerable();
         ERC20Token = IERC20(_ERC20Token);
         ERC721Token = IERC721(_ERC721Token);
         
@@ -61,7 +61,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     /**
      * @dev This is the primary function of this contract. It allows for
      *      the swapping of one token for the other.
-     * @dev arguments for checkRuleStorages: balanceFrom is ERC20Token balance of msg.sender, balanceTo is  ERC721Token balance of msg.sender.
+     * @dev arguments for checkRuleStorages: balanceFrom is ERC20Token balance of _msgSender(), balanceTo is  ERC721Token balance of _msgSender().
      * @param _tokenIn address identifying the token coming into AMM
      * @param _amountIn amount of the token being swapped
      * @param _tokenId the NFT Id to swap
@@ -120,7 +120,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     function _swap1For0(uint256 _amountIn, uint256 _tokenId) private returns (uint256 _amountOut) {
 
         /// we make sure we have the nft
-        _checkNFTOwnership(msg.sender,_tokenId);
+        _checkNFTOwnership(_msgSender(),_tokenId);
 
         /// only 1 NFT per swap is allowed
         if(_amountIn > 1) _amountIn = 1;/// NOT SURE IF I NEED THIS
@@ -153,7 +153,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         _updateReserves(reserveERC20 + _amountERC20, reserveERC721 );
         /// transfer funds from sender to the AMM. All the checks for available funds
         /// and approval are done in the ERC20
-        _sendERC20WithConfirmation(msg.sender, address(this), _amountERC20);
+        _sendERC20WithConfirmation(_msgSender(), address(this), _amountERC20);
         
         emit AddLiquidity(address(ERC20Token), address (ERC721Token), _amountERC20, 0);
         return true;
@@ -169,7 +169,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
       
         _updateReserves(reserveERC20 , reserveERC721 + 1);
         /// transfer funds from sender to the AMM. All the checks for available funds
-        _sendERC721WithConfirmation(msg.sender, address(this), _tokenId);
+        _sendERC721WithConfirmation(_msgSender(), address(this), _tokenId);
         emit AddLiquidity(address(ERC20Token), address (ERC721Token), 0, _tokenId);
         return true;
     }
@@ -188,7 +188,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         /// update the reserve balances
         _updateReserves(reserveERC20 - _amount, reserveERC721);
         /// transfer the tokens to the remover
-        _sendERC20WithConfirmation(address(this), msg.sender, _amount);
+        _sendERC20WithConfirmation(address(this), _msgSender(), _amount);
         emit RemoveLiquidity(address(ERC20Token), _amount);
         return true;
     }
@@ -205,7 +205,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         /// update the reserve balances
         _updateReserves(reserveERC20, reserveERC721 - 1);
         /// transfer the tokens to the remover
-        _sendERC721WithConfirmation(address(this), msg.sender, _tokenId);
+        _sendERC721WithConfirmation(address(this), _msgSender(), _tokenId);
         emit RemoveLiquidity(address (ERC721Token), _tokenId);
         return true;
     }
@@ -257,13 +257,13 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
 
     function getBuyPrice() public view returns(uint256 price, uint256 fees){
         price = calculator.calculateSwap(0, q, 0, 1);
-        uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(msg.sender), ERC20Token.balanceOf( address(this)), msg.sender, address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
+        uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(_msgSender()), ERC20Token.balanceOf( address(this)), _msgSender(), address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
         fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price; /// old version = (feesPct * price) / PCT_MULTIPLIER ;
     }
 
     function getSellPrice() public view returns(uint256 price, uint256 fees){
         price = calculator.calculateSwap(0, q, 1, 0);
-        fees = handler.assessFees(ERC20Token.balanceOf(address(this)), ERC20Token.balanceOf(msg.sender), address(this), msg.sender, price, ActionTypes.SELL);
+        fees = handler.assessFees(ERC20Token.balanceOf(address(this)), ERC20Token.balanceOf(_msgSender()), address(this), _msgSender(), price, ActionTypes.SELL);
     }
 
     /**
@@ -294,9 +294,9 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
 
     function _checkRules(uint256 _amountIn, uint256 _amountOut, ActionTypes act) private {
         handler.checkAllRules(
-                ERC20Token.balanceOf(msg.sender),
-                ERC721Token.balanceOf(msg.sender),
-                msg.sender,
+                ERC20Token.balanceOf(_msgSender()),
+                ERC721Token.balanceOf(_msgSender()),
+                _msgSender(),
                 address(this),
                 _amountIn,
                 _amountOut,
@@ -320,13 +320,13 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     }
 
     function _transferSwap0for1(uint256 _amount, uint256 _tokenId) private {
-        _sendERC20WithConfirmation(msg.sender, address(this), _amount);
-        _sendERC721WithConfirmation(address(this), msg.sender, _tokenId);
+        _sendERC20WithConfirmation(_msgSender(), address(this), _amount);
+        _sendERC721WithConfirmation(address(this), _msgSender(), _tokenId);
     }
 
     function _transferSwap1for0(uint256 _amount, uint256 _tokenId) private {
-        _sendERC20WithConfirmation(address(this), msg.sender, _amount);
-        _sendERC721WithConfirmation(msg.sender, address(this), _tokenId);
+        _sendERC20WithConfirmation(address(this), _msgSender(), _amount);
+        _sendERC721WithConfirmation(_msgSender(), address(this), _tokenId);
     }
 
     function _sendERC20WithConfirmation(address _from, address _to, uint256 _amount) private {
