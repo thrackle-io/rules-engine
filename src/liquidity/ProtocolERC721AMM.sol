@@ -74,7 +74,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     /**
      * @dev This performs the swap from ERC20Token to ERC721
      * @notice This is considered a "PURCHASE" as the user is trading fungible tokens in exchange for NFTs (buying NFTs)
-     * @param _amountIn amount of ERC20Token being swapped for unknown amount of token1
+     * @param _amountIn amount of ERC20Token being swapped for 1 NFT
      * @param _tokenId the NFT Id to swap
      * @return _amountOut amount of ERC721Token coming out of the pool
      */
@@ -91,7 +91,6 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         if(pricePlusFees > _amountIn) revert NotEnoughTokensForSwap(_amountIn, pricePlusFees);
         else _amountIn = price;
         
-        ///Check Rules(it's ok for this to be after the swap...it will revert on rule violation)
         _checkRules(_amountOut, _amountIn, ActionTypes.PURCHASE);
 
         /// perform transfers
@@ -103,7 +102,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     /**
      * @dev This performs the swap from  ERC721Token to ERC20s
      * @notice This is considered a "SELL" as the user is providing NFT in exchange for fungible tokens
-     * @param _amountIn amount of ERC20Token to pay for the NFT with _tokenId and the possible fees
+     * @param _amountIn amount of NFTs. In this case it should always be 1.
      * @param _tokenId the NFT Id to swap
      * @return _amountOut amount of ERC20 tokens coming out of the pool
      */
@@ -118,7 +117,6 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         (uint256 price, uint256 fees) =  _calculateSellPrice();
         _amountOut = price;
 
-        ///Check Rules
         _checkRules(_amountIn, _amountOut, ActionTypes.SELL);
 
         /// transfer the ERC20Token amount to the swapper
@@ -255,12 +253,13 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     }
 
     /**
-    * @dev public function to get the price for buying an NFT
+    * @dev public function to get the price for buying an NFT.
+    * @notice this function won't change the state of the calculator.
     */
     function getBuyPrice() public view returns(uint256 price, uint256 fees){
         price = calculator.simulateSwap(0, 0, 0, 1);
         uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(_msgSender()), ERC20Token.balanceOf( address(this)), _msgSender(), address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
-        fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price; /// old version = (feesPct * price) / PCT_MULTIPLIER ;
+        fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price; 
     }
 
     /**
@@ -269,11 +268,12 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     function _calculateBuyPrice() internal returns(uint256 price, uint256 fees){
         price = calculator.calculateSwap(0, 0, 0, 1);
         uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(_msgSender()), ERC20Token.balanceOf( address(this)), _msgSender(), address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
-        fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price; /// old version = (feesPct * price) / PCT_MULTIPLIER ;
+        fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price; 
     }
 
     /**
-    * @dev internal function to get the price for selling an NFT
+    * @dev internal function to get the price for selling an NFT.
+    * @notice this function won't change the state of the calculator.
     */
     function getSellPrice() public view returns(uint256 price, uint256 fees){
         price = calculator.simulateSwap(0, 0, 1, 0);
@@ -407,6 +407,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         if(ERC721Token.ownerOf(_tokenId) != _owner) revert NotTheOwnerOfNFT(_tokenId);
     }
 
+    /// TODO
     function howMuchToBuyAllBack() pure public returns(uint256 budget){
         //call integral in the calculator
 

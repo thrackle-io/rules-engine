@@ -34,7 +34,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     address[] badBoys;
     address[] goodBoys;
     address[] addresses = [user1, user2, user3, rich_user];
-    uint256 erc20Liq = 1_000; // there will be only no NFTs left outside the AMM. ERC20 liquidity should get filled by swaps. We only add some for tests (1 * 10 ** (-14)).
+    uint256 erc20Liq = 1_000; // there will be no NFTs left outside the AMM. ERC20 liquidity should get filled by swaps. We only add some for tests (1 * 10 ** (-14)).
     uint256 erc721Liq = 10_000;
 
     function setUp() public {
@@ -44,7 +44,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
 
         /// we mint coins and nfts for the appAdmin
         applicationCoin.mint(appAdministrator, 1_000_000_000_000 * (ATTO));
-        _safeMintERC721(10_000); // usual amount of NFTs in a collection
+        _safeMintERC721(10_000); 
 
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();
@@ -221,43 +221,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
          console.log("Made selling all NFTs", applicationCoin.balanceOf(user) - balanceBefore);
     }
 
-    
-    function testSellRuleNFTAMM() public {
-        testBuyAllNFTs();
-
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
-        ///Add tag to user
-        bytes32[] memory accs = new bytes32[](1);
-        uint192[] memory sellAmounts = new uint192[](1);
-        uint16[] memory sellPeriod = new uint16[](1);
-        uint64[] memory startTime = new uint64[](1);
-        accs[0] = bytes32("SellRule");
-        sellAmounts[0] = uint192(1); ///Amount to trigger Sell freeze rules
-        sellPeriod[0] = uint16(36); ///Hours
-        startTime[0] = uint64(Blocktime);
-
-        /// Set the rule data
-        applicationAppManager.addGeneralTag(user, "SellRule");
-        /// add the rule.
-        switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
-        ///update ruleId in application AMM rule handler
-        applicationAMMHandler.setSellLimitRuleId(ruleId);
-        /// Swap that passes rule check
-        switchToUser();
-        applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
-        _sell(123);
-
-        /// Swap that fails
-        vm.expectRevert(0xc11d5f20);
-        _sell(124);
-
-        /// we wait until the next period so user can swap again
-        vm.warp(block.timestamp + 36 hours);
-        _sell(124);
-    }
-
     function testSellRuleDualLinearNFTAMM() public {
         testBuyAllNFTs();
 
@@ -337,7 +300,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     /// test AMM Fees
     function testDualLinearNFTAMMFees() public {
         uint256 testFees = 300;
-        address testTreasury = address(99);
 
         testAddLiquidityDualLinearNFTAMM();
         /// we add the rule.
@@ -355,7 +317,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
 
         switchToAppAdministrator();
         /// set the treasury address
-        dualLinearERC271AMM.setTreasuryAddress(testTreasury);
+        dualLinearERC271AMM.setTreasuryAddress(treasuryAddress);
         applicationCoin.transfer(user, 500_000_000_000 * ATTO);
 
         switchToUser();
@@ -364,14 +326,14 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
 
         /// we test buying all the NFTs with the testFees
         for(uint i; i < erc721Liq;){
-            _testBuyNFT(i, testFees,  testTreasury);
+            _testBuyNFT(i, testFees,  treasuryAddress);
             unchecked{
                 ++i;
             }
         }
         /// we test selling all the NFTs with the testFees
         for(uint i; i < erc721Liq;){
-            _testSellNFT(i, testFees,  testTreasury);
+            _testSellNFT(i, testFees,  treasuryAddress);
             unchecked{
                 ++i;
             }
@@ -389,10 +351,10 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         assertEq(rule.oracleAddress, address(oracleRestricted));
         switchToAppAdministrator();
         applicationCoin.transfer(user, 50_000_000_000 * ATTO);
-        applicationCoin.transfer(address(0xC1A), 50_000_000_000 * ATTO);
-        applicationCoin.transfer(address(0xB0B), 50_000_000_000 * ATTO);
+        applicationCoin.transfer(user2, 50_000_000_000 * ATTO);
+        applicationCoin.transfer(user1, 50_000_000_000 * ATTO);
         // add a blocked address
-        badBoys.push(address(0xC1A));
+        badBoys.push(user2);
         oracleRestricted.addToSanctionsList(badBoys);
         switchToRuleAdmin();
         /// connect the rule to this handler
@@ -403,7 +365,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
 
         /// we test that bad boys can't trade
         vm.stopPrank();
-        vm.startPrank(address(0xC1A));
+        vm.startPrank(user2);
         _approveTokens(5 * 10 ** 8 * ATTO, true);
         vm.expectRevert(0x6bdfffc0);
         _buy(pricePlusFeesA, 345);
@@ -419,7 +381,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         applicationAMMHandler.setOracleRuleId(_index);
         switchToAppAdministrator();
         // add an allowed address
-        goodBoys.push(address(0xB0B));
+        goodBoys.push(user1);
         oracleAllowed.addToAllowList(goodBoys);
 
         (uint256 priceB, uint256 feesB) = dualLinearERC271AMM.getBuyPrice();
@@ -429,7 +391,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         vm.expectRevert(0x7304e213);
         _buy(pricePlusFeesB, 456);
         vm.stopPrank();
-        vm.startPrank(address(0xB0B));
+        vm.startPrank(user1);
         _approveTokens(5 * 10 ** 8 * ATTO, true);
         _buy(pricePlusFeesB, 456);
     }
@@ -484,8 +446,8 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         testAddLiquidityDualLinearNFTAMM();
         switchToAppAdministrator();
         applicationCoin.transfer(user, 50_000_000_000 * ATTO);
-        applicationCoin.transfer(address(0xC1A), 50_000_000_000 * ATTO);
-        applicationCoin.transfer(address(0xB0B), 50_000_000_000 * ATTO);
+        applicationCoin.transfer(user2, 50_000_000_000 * ATTO);
+        applicationCoin.transfer(user1, 50_000_000_000 * ATTO);
 
         switchToRuleAdmin();
         /// set up rule
@@ -517,7 +479,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         _buy(pricePlusFees, 100);
         /// switch users and test rule still fails
         vm.stopPrank();
-        vm.startPrank(address(0xB0B));
+        vm.startPrank(user1);
         _approveTokens(5 * 10 ** 8 * ATTO, true);
         vm.expectRevert(0xb634aad9);
         _buy(pricePlusFees, 100);
@@ -529,7 +491,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         _testBuyNFT(100, 0, address(0));
         /// with another user
          vm.stopPrank();
-        vm.startPrank(address(0xB0B));
+        vm.startPrank(user1);
         /// we have to do this manually since the _testBuyNFT uses the *user* acccount
         (price, fees) = dualLinearERC271AMM.getBuyPrice();
         pricePlusFees = price + fees;
@@ -572,7 +534,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         _sell(30);
         /// switch users and test rule still fails
         vm.stopPrank();
-        vm.startPrank(address(0xB0B));
+        vm.startPrank(user1);
         vm.expectRevert(0xb17ff693);
         _sell(222);
 
@@ -583,12 +545,11 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         _testSellNFT(30, 0, address(0));
         /// with another user
          vm.stopPrank();
-        vm.startPrank(address(0xB0B));
+        vm.startPrank(user1);
         /// we test selling the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
         _sell(222);
 
     }
-
 
     /// HELPER INTERNAL FUNCTIONS
 
@@ -607,7 +568,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     }
 
     function _addLiquidityInBatchERC721(uint256 amount) private {
-        uint256[] memory nfts = new uint256[](10_000);
+        uint256[] memory nfts = new uint256[](amount);
         for(uint256 i; i < amount;){
             nfts[i] = i;
             unchecked{
