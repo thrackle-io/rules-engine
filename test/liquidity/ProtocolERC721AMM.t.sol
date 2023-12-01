@@ -295,13 +295,14 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         /// Approve transfer
         _approveTokens(5 * 10 ** 9 * ATTO, true);
 
+        /// we test buying all the NFTs with the testFees
         for(uint i; i < erc721Liq;){
             _testBuyNFT(i, testFees,  testTreasury);
             unchecked{
                 ++i;
             }
         }
-        
+        /// we test selling all the NFTs with the testFees
         for(uint i; i < erc721Liq;){
             _testSellNFT(i, testFees,  testTreasury);
             unchecked{
@@ -309,14 +310,10 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
             }
         }
     }
-
     
     function testAMMOracle() public {
         testAddLiquidityDualLinearNFTAMM();
         /// we add the rule.
-        switchToRuleAdmin();
-
-        // BLOCKLIST ORACLE
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
         assertEq(_index, 0);
@@ -415,72 +412,59 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         _sell(124);
     }
 
-    // /**
-    //  * @dev this function tests the purchase percentage rule via AMM
-    //  */
-    // function testPurchasePercentageRule() public {
-    //     /// initialize AMM and give two users more app tokens and "chain native" tokens
-    //     initializeAMMAndUsers();
-    //     applicationCoin2.transfer(user1, 50_000_000 * ATTO);
-    //     applicationCoin2.transfer(user2, 30_000_000 * ATTO);
-    //     applicationCoin.transfer(user1, 50_000_000 * ATTO);
-    //     applicationCoin.transfer(user2, 30_000_000 * ATTO);
-    //     assertEq(applicationCoin2.balanceOf(user1), 50_001_000 * ATTO);
-    //     /// set up rule
-    //     uint16 tokenPercentage = 5000; /// 50%
-    //     uint16 purchasePeriod = 24; /// 24 hour periods
-    //     uint256 totalSupply = 100_000_000;
-    //     uint64 ruleStartTime = Blocktime;
-    //     switchToRuleAdmin();
-    //     uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
-    //     /// add and activate rule
-    //     applicationAMMHandler.setPurchasePercentageRuleId(ruleId);
-    //     vm.warp(Blocktime + 36 hours);
-    //     /// test swap below percentage
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 10_000_000);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 10_000_000);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 10_000_000);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 10_000_000); /// percentage limit hit now
-    //     /// test swaps after we hit limit
-    //     vm.expectRevert(0xb634aad9);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 10_000_000);
-    //     /// switch users and test rule still fails
-    //     vm.stopPrank();
-    //     vm.startPrank(user2);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     vm.expectRevert(0xb634aad9);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 10_000_000);
-    //     /// wait until new period
-    //     vm.warp(Blocktime + 72 hours);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 10_000_000);
+    function testPurchasePercentageRuleNFTAMM() public {
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        testAddLiquidityDualLinearNFTAMM();
+        switchToAppAdministrator();
+        applicationCoin.transfer(user, 50_000_000_000 * ATTO);
+        applicationCoin.transfer(address(0xC1A), 50_000_000_000 * ATTO);
+        applicationCoin.transfer(address(0xB0B), 50_000_000_000 * ATTO);
 
-    //     /// check that rule does not apply to coin 0 as this would be a sell
-    //     dualLinearERC271AMM.swap(address(applicationCoin), 60_000_000);
+        switchToRuleAdmin();
+        /// set up rule
+        uint16 tokenPercentage = 100; /// 1%
+        uint16 purchasePeriod = 24; /// 24 hour periods
+        uint256 totalSupply = 0;
+        uint64 ruleStartTime = Blocktime;
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
+        /// add and activate rule
+        applicationAMMHandler.setPurchasePercentageRuleId(ruleId);
+        vm.warp(Blocktime + 36 hours);
+        /// test swap below percentage
+        switchToUser();
+        _approveTokens(5 * 10 ** 8 * ATTO, true);
+        /// we test buying 1% of the NFTs total supply to get to the limit of the law
+        for(uint i; i < (erc721Liq * tokenPercentage) / 10000 - 1;){
+            _testBuyNFT(i, 0, address(0));
+            unchecked{
+                ++i;
+            }
+        }
+        /// If try to buy one more, it should fail in this period.
+        (uint256 price, uint256 fees) = dualLinearERC271AMM.getBuyPrice();
+        uint256 pricePlusFees = price + fees;
 
-    //     /// Low percentage rule checks
-    //     switchToRuleAdmin();
-    //     /// create new rule
-    //     uint16 newTokenPercentage = 1; /// .01%
-    //     uint256 newTotalSupply = 100_000;
-    //     uint32 newRuleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(applicationAppManager), newTokenPercentage, purchasePeriod, newTotalSupply, ruleStartTime);
-    //     /// add and activate rule
-    //     applicationAMMHandler.setPurchasePercentageRuleId(newRuleId);
-    //     vm.warp(Blocktime + 96 hours);
-    //     /// test swap below percentage
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     applicationCoin.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     applicationCoin2.approve(address(dualLinearERC271AMM), 10000 * ATTO);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 1);
+        vm.expectRevert(0xb634aad9);
+        _buy(pricePlusFees, 999);
+        /// switch users and test rule still fails
+        vm.stopPrank();
+        vm.startPrank(address(0xB0B));
+        _approveTokens(5 * 10 ** 8 * ATTO, true);
+        vm.expectRevert(0xb634aad9);
+        _buy(pricePlusFees, 999);
 
-    //     vm.expectRevert(0xb634aad9);
-    //     dualLinearERC271AMM.swap(address(applicationCoin2), 9);
-    // }
+        /// let's go to another period
+        vm.warp(Blocktime + 72 hours);
+        switchToUser();
+        /// now it should work
+        _testBuyNFT(999, 0, address(0));
+        /// with another user
+         vm.stopPrank();
+        vm.startPrank(address(0xB0B));
+        _testBuyNFT(1000, 0, address(0));
+
+    }
 
     // function testSellPercentageRule() public {
     //     /// initialize AMM and give two users more app tokens and "chain native" tokens
@@ -574,12 +558,14 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         uint256 initialERC721Reserves = dualLinearERC271AMM.reserveERC721();
         
         if(_fees > 0){
-            (price, fees) = _testBuyWithFee(_tokenId, _fees, treasury);
+            (price, fees) = _testFeesInPurchase(_tokenId, _fees, treasury);
+            pricePlusFees = price + fees;
         }else{
             ( price, fees) = dualLinearERC271AMM.getBuyPrice();
+            pricePlusFees = price + fees;
             _buy(pricePlusFees, _tokenId);
         }
-        pricePlusFees = price + fees;
+        
 
         /// Make sure AMM balances show change
         assertEq(dualLinearERC271AMM.reserveERC20(), initialERC20Reserves + price);
@@ -589,7 +575,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user), initialUserNFTBalance + 1);
     }
 
-    function _testBuyWithFee(uint256 _tokenId, uint256 _fees, address treasury) internal returns(uint256 price, uint256 fees){
+    function _testFeesInPurchase(uint256 _tokenId, uint256 _fees, address treasury) internal returns(uint256 price, uint256 fees){
         (price, fees) = dualLinearERC271AMM.getBuyPrice();
         uint256 pricePlusFees = price + fees;
         uint256 initialTreasuryBalance = applicationCoin.balanceOf(treasury);
@@ -618,7 +604,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         uint256 initialERC721Reserves = dualLinearERC271AMM.reserveERC721();
 
         if(_fees > 0){
-            (price, fees) = _testSellWithFee(_tokenId, _fees, trasury);
+            (price, fees) = _testFeesInSale(_tokenId, _fees, trasury);
         }else{
             (price, fees) = dualLinearERC271AMM.getSellPrice();
             _sell(_tokenId);
@@ -634,7 +620,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user), initialUserNFTBalance - 1);
     }
 
-    function _testSellWithFee(uint256 _tokenId, uint256 _fees, address treasury) internal returns(uint256 price, uint256 fees){
+    function _testFeesInSale(uint256 _tokenId, uint256 _fees, address treasury) internal returns(uint256 price, uint256 fees){
         uint256 initialTreasuryBalance = applicationCoin.balanceOf(treasury);
         (price, fees) = dualLinearERC271AMM.getSellPrice();
         uint256 expectedFees = (price) * _fees / 10000 ;

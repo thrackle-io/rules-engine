@@ -98,7 +98,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         else _amountIn = price;
         
         ///Check Rules(it's ok for this to be after the swap...it will revert on rule violation)
-        _checkRules(_amountIn, _amountOut, ActionTypes.PURCHASE);
+        _checkRules(_amountOut, _amountIn, ActionTypes.PURCHASE);
 
         /// update the reserves with the proper amounts(adding to token0, subtracting from token1)
         _updateReserves(reserveERC20 + _amountIn, reserveERC721 - _amountOut);
