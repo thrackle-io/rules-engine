@@ -292,8 +292,9 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     * @dev internal function to calculate the fees in a purchase by getting its price and fee percentage
     * @param price the price for the NFT
     * @param feesPct the percentage of fees to pay in a purchase
+    * @return fees to be paid at such price and at such percentage
     */
-    function _calculateBuyFeesFromPct(uint256 price, uint256 feesPct) internal returns(uint256 fees){
+    function _calculateBuyFeesFromPct(uint256 price, uint256 feesPct) internal pure returns(uint256 fees){
         fees = (price * PCT_MULTIPLIER) / (PCT_MULTIPLIER - feesPct ) - price;
     }
 
