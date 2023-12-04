@@ -42,7 +42,6 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
      */
     constructor(address _ERC20Token, address _ERC721Token, address _appManagerAddress, address _calculatorAddress) {
         if(_ERC20Token == address(0) || _ERC721Token == address(0)) revert ZeroAddress();
-        if(!_isERC721Enumerable(_ERC721Token)) revert NotEnumerable();
         ERC20Token = IERC20(_ERC20Token);
         ERC721Token = IERC721(_ERC721Token);
         
@@ -351,15 +350,6 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     */
     function getERC721Reserves() external view returns(uint256){
         return ERC721Token.balanceOf(address(this));
-    }
-
-    /** 
-    * @dev assesses if an ERC721 token is enumerable 
-    * @param _ERC721Token address of the token
-    * @return true if the token is enumerable
-    */
-    function _isERC721Enumerable(address _ERC721Token) internal view returns(bool){
-        return IERC165(_ERC721Token).supportsInterface(type(IERC721Enumerable).interfaceId);
     }
 
     /** 

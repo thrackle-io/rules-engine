@@ -36,6 +36,8 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     address[] addresses = [user1, user2, user3, rich_user];
     uint256 erc20Liq = 1_000; // there will be no NFTs left outside the AMM. ERC20 liquidity should get filled by swaps. We only add some for tests (1 * 10 ** (-14)).
     uint256 erc721Liq = 10_000;
+    LineInput buy = LineInput(1 * 10 ** 6, 30 * ATTO); /// buy slope = 0.01; b = 30
+    LineInput sell = LineInput(9 * 10 ** 5, 29 * ATTO); /// sell slope = 0.009; b = 29
 
     function setUp() public {
         vm.startPrank(superAdmin);
@@ -49,8 +51,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        LineInput memory buy = LineInput(1 * 10 ** 6, 30 * ATTO); /// buy slope = 0.01; b = 30
-        LineInput memory sell = LineInput(9 * 10 ** 5, 29 * ATTO); /// sell slope = 0.009; b = 29
         dualLinearERC271AMM = ProtocolERC721AMM(protocolAMMFactory.createDualLinearERC721AMM(address(applicationCoin), address(applicationNFT), buy, sell, address(applicationAppManager)));
         handler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(dualLinearERC271AMM));
         dualLinearERC271AMM.connectHandlerToAMM(address(handler));
@@ -64,15 +64,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         // create the oracles
         oracleAllowed = new OracleAllowed();
         oracleRestricted = new OracleRestricted();
-    }
-
-
-    function testAMMERC721NegNotEnumerable() public{
-        ERC721 notEnumNFT = new ERC721("NotEnum","NE");
-        LineInput memory buy = LineInput(1 * 10 ** 6, 30 * ATTO); /// buy slope = 0.01; b = 30
-        LineInput memory sell = LineInput(9 * 10 ** 5, 29 * ATTO); /// sell slope = 0.009; b = 29
-        vm.expectRevert(abi.encodeWithSignature("NotEnumerable()"));
-        dualLinearERC271AMM = ProtocolERC721AMM(protocolAMMFactory.createDualLinearERC721AMM(address(applicationCoin), address(notEnumNFT), buy, sell, address(applicationAppManager)));
     }
 
 
