@@ -12,75 +12,17 @@ import "test/helpers/TestCommon.sol";
  * _create = deploy contract, return the contract
  */
 abstract contract TestCommonFoundry is TestCommon {
-    /**
-     * @dev Deploy and set up the Rules Storage Diamond
-     * @return diamond fully configured storage diamond
-     */
-    function _createRuleStorageDiamond() internal returns (RuleStorageDiamond diamond) {
-        // Start by deploying the DiamonInit contract.
-        DiamondInit diamondInit = new DiamondInit();
-
-        // Register all facets.
-        string[7] memory facets = [
-            // diamond version
-            "VersionFacet",
-            // Native facets,
-            "ProtocolNativeFacet",
-            // Raw implementation facets.
-            "ProtocolRawFacet",
-            // Protocol facets.
-            "RuleDataFacet",
-            "TaggedRuleDataFacet",
-            "FeeRuleDataFacet",
-            "AppRuleDataFacet"
-        ];
-
-        string[] memory inputs = new string[](3);
-        inputs[0] = "python3";
-        inputs[1] = "script/python/get_selectors.py";
-
-        // Loop on each facet, deploy them and create the FacetCut.
-        for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
-            string memory facet = facets[facetIndex];
-
-            // Deploy the facet.
-            bytes memory bytecode = vm.getCode(string.concat(facet, ".sol"));
-            address facetAddress;
-            assembly {
-                facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
-            }
-
-            // Get the facet selectors.
-            inputs[2] = facet;
-            bytes memory res = vm.ffi(inputs);
-            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
-
-            // Create the FacetCut struct for this facet.
-            _ruleStorageFacetCuts.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
-        }
-
-        // Build the DiamondArgs.
-        RuleStorageDiamondArgs memory diamondArgs = RuleStorageDiamondArgs({
-            init: address(diamondInit),
-            // NOTE: "interfaceId" can be used since "init" is the only function in IDiamondInit.
-            initCalldata: abi.encode(type(IDiamondInit).interfaceId)
-        });
-
-        // Deploy the diamond.
-        return new RuleStorageDiamond(_ruleStorageFacetCuts, diamondArgs);
-    }
 
     /**
      * @dev Deploy and set up the Rules Processor Diamond
-     * @param _storageDiamond preconfigured storage diamond
      * @return diamond fully configured rules processor diamond
      */
-    function _createRulesProcessorDiamond(RuleStorageDiamond _storageDiamond) public returns (RuleProcessorDiamond diamond) {
+    function _createRulesProcessorDiamond() public returns (RuleProcessorDiamond diamond) {
         // Start by deploying the DiamonInit contract.
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[13] memory facets = [
+        string[17] memory facets = [
             // diamond version
             "VersionFacet",
             // Native facets,
@@ -99,7 +41,11 @@ abstract contract TestCommonFoundry is TestCommon {
             "ERC20TaggedRuleProcessorFacet",
             "ERC721TaggedRuleProcessorFacet",
             "RiskTaggedRuleProcessorFacet",
-            "RuleApplicationValidationFacet"
+            "RuleApplicationValidationFacet",
+            "RuleDataFacet",
+            "TaggedRuleDataFacet",
+            "FeeRuleDataFacet",
+            "AppRuleDataFacet"
         ];
 
         string[] memory inputs = new string[](3);
@@ -135,8 +81,6 @@ abstract contract TestCommonFoundry is TestCommon {
         /// Build the diamond
         RuleProcessorDiamond ruleProcessorInternal = new RuleProcessorDiamond(_ruleProcessorFacetCuts, diamondArgs);
 
-        /// Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessorInternal.setRuleDataDiamond(address(_storageDiamond));
         // Deploy the diamond.
         return ruleProcessorInternal;
     }
@@ -147,8 +91,7 @@ abstract contract TestCommonFoundry is TestCommon {
      */
     function setUpProtocol() public {
         switchToSuperAdmin();
-        ruleStorageDiamond = _createRuleStorageDiamond();
-        ruleProcessor = _createRulesProcessorDiamond(ruleStorageDiamond);
+        ruleProcessor = _createRulesProcessorDiamond();
         /// reset the user to the original
         switchToOriginalUser();
     }
@@ -159,8 +102,7 @@ abstract contract TestCommonFoundry is TestCommon {
      */
     function setUpProtocolAndAppManager() public {
         switchToSuperAdminWithSave();
-        ruleStorageDiamond = _createRuleStorageDiamond();
-        ruleProcessor = _createRulesProcessorDiamond(ruleStorageDiamond);
+        ruleProcessor = _createRulesProcessorDiamond();
         applicationAppManager = _createAppManager();
         switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
         applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
@@ -175,10 +117,8 @@ abstract contract TestCommonFoundry is TestCommon {
      */
     function setUpProtocolAndAppManagerAndTokens() public {
         switchToSuperAdminWithSave();
-        // create the rule storage diamond
-        ruleStorageDiamond = _createRuleStorageDiamond();
         // create the rule processor diamond
-        ruleProcessor = _createRulesProcessorDiamond(ruleStorageDiamond);
+        ruleProcessor = _createRulesProcessorDiamond();
         // create the app manager
         applicationAppManager = _createAppManager();
         switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
@@ -267,25 +207,12 @@ abstract contract TestCommonFoundry is TestCommon {
     ///--------------- CREATE FUNCTIONS WITH SENDER SETTING --------------------
 
     /**
-     * @dev Deploy and set up the Rules Storage Diamond. This includes sender setting/resetting
-     * @return diamond fully configured storage diamond
-     */
-    function createRuleStorageDiamond() internal returns (RuleStorageDiamond diamond) {
-        switchToSuperAdmin();
-        RuleStorageDiamond d = _createRuleStorageDiamond();
-        /// reset the user to the original
-        switchToOriginalUser();
-        return d;
-    }
-
-    /**
      * @dev Deploy and set up the Rules Processor Diamond. This includes sender setting/resetting
-     * @param _storageDiamond preconfigured storage diamond
      * @return diamond fully configured rules processor diamond
      */
-    function createRulesProcessorDiamond(RuleStorageDiamond _storageDiamond) public returns (RuleProcessorDiamond diamond) {
+    function createRulesProcessorDiamond() public returns (RuleProcessorDiamond diamond) {
         switchToSuperAdmin();
-        RuleProcessorDiamond d = _createRulesProcessorDiamond(_storageDiamond);
+        RuleProcessorDiamond d = _createRulesProcessorDiamond();
         /// reset the user to the original
         switchToOriginalUser();
         return d;

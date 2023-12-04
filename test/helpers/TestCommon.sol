@@ -14,13 +14,7 @@ import "src/example/pricing/ApplicationERC721Pricing.sol";
 import "src/liquidity/ProtocolAMM.sol";
 import "src/liquidity/ProtocolAMMFactory.sol";
 import "src/liquidity/ProtocolAMMCalculatorFactory.sol";
-import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
-import {TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import {FeeRuleDataFacet} from "src/economic/ruleStorage/FeeRuleDataFacet.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/economic/ruleProcessor/RuleProcessorDiamond.sol";
-import {RuleStorageDiamond, RuleStorageDiamondArgs} from "src/economic/ruleStorage/RuleStorageDiamond.sol";
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
 import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
@@ -35,7 +29,6 @@ import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLi
  */
 abstract contract TestCommon is Test {
     FacetCut[] _ruleProcessorFacetCuts;
-    FacetCut[] _ruleStorageFacetCuts;
 
     // common addresses
     address superAdmin = address(0xDaBEEF);
@@ -48,7 +41,6 @@ abstract contract TestCommon is Test {
     // shared objects
     ApplicationAppManager public applicationAppManager;
     RuleProcessorDiamond ruleProcessor;
-    RuleStorageDiamond ruleStorageDiamond;
     ApplicationHandler applicationHandler;
     ApplicationERC20 applicationCoin;
     ApplicationERC20 applicationCoin2;

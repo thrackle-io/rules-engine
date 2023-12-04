@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {RuleProcessorDiamondLib as actionDiamond, RuleDataStorage} from "./RuleProcessorDiamondLib.sol";
-import {AppRuleDataFacet} from "../ruleStorage/AppRuleDataFacet.sol";
-import {IApplicationRules as Application} from "../ruleStorage/RuleDataInterfaces.sol";
-import {IRuleProcessorErrors, IAccessLevelErrors} from "../../interfaces/IErrors.sol";
+import "./RuleProcessorDiamondImports.sol";
 
 /**
  * @title AccessLevel Handler Facet Contract
@@ -13,7 +10,11 @@ import {IRuleProcessorErrors, IAccessLevelErrors} from "../../interfaces/IErrors
  * @notice Implements AccessLevel Rule Checks. AccessLevel rules are measured in
  * in terms of USD with 18 decimals of precision.
  */
-contract ApplicationAccessLevelProcessorFacet is IRuleProcessorErrors, IAccessLevelErrors {
+contract ApplicationAccessLevelProcessorFacet is IInputErrors, IRuleProcessorErrors, IAccessLevelErrors {
+    using RuleProcessorCommonLib for uint64;
+    using RuleProcessorCommonLib for uint32;
+    using RuleProcessorCommonLib for uint8; 
+    
     /**
      * @dev Check if transaction passes Balance by AccessLevel rule.
      * @param _ruleId Rule Identifier for rule arguments
@@ -22,13 +23,31 @@ contract ApplicationAccessLevelProcessorFacet is IRuleProcessorErrors, IAccessLe
      * @param _amountToTransfer total USD amount to be transferred with 18 decimals of precision
      */
     function checkAccBalanceByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _balance, uint128 _amountToTransfer) external view {
-        AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().rules);
         /// Get the account's AccessLevel
-        if (data.getTotalAccessLevelBalanceRules() != 0) {
-            uint48 max = data.getAccessLevelBalanceRule(_ruleId, _accessLevel);
-            /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
-            if (_amountToTransfer + _balance > (uint256(max) * (10 ** 18))) revert BalanceExceedsAccessLevelAllowedLimit();
-        }
+        uint48 max = getAccessLevelBalanceRule(_ruleId, _accessLevel);
+        /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
+        if (_amountToTransfer + _balance > (uint256(max) * (10 ** 18))) revert BalanceExceedsAccessLevelAllowedLimit();
+    }
+
+    /**
+     * @dev Function to get the AccessLevel Balance rule in the rule set that belongs to the Access Level
+     * @param _index position of rule in array
+     * @param _accessLevel AccessLevel Level to check
+     * @return balanceAmount balance allowed for access levellevel
+     */
+    function getAccessLevelBalanceRule(uint32 _index, uint8 _accessLevel) public view returns (uint48) {
+        RuleS.AccessLevelRuleS storage data = Storage.accessStorage();
+        if (_index >= data.accessRuleIndex) revert IndexOutOfRange();
+        return data.accessRulesPerToken[_index][_accessLevel];
+    }
+
+    /**
+     * @dev Function to get total AccessLevel Balance rules
+     * @return Total length of array
+     */
+    function getTotalAccessLevelBalanceRules() public view returns (uint32) {
+        RuleS.AccessLevelRuleS storage data = Storage.accessStorage();
+        return data.accessRuleIndex;
     }
 
     /**
@@ -39,12 +58,32 @@ contract ApplicationAccessLevelProcessorFacet is IRuleProcessorErrors, IAccessLe
      * @param _usdAmountTransferring total USD amount to be transferred with 18 decimals of precision
      */
     function checkwithdrawalLimitsByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _usdWithdrawalTotal, uint128 _usdAmountTransferring) external view returns (uint128) {
-        AppRuleDataFacet data = AppRuleDataFacet(actionDiamond.ruleDataStorage().rules);
-        uint48 max = data.getAccessLevelWithdrawalRule(_ruleId, _accessLevel);
+        uint48 max = getAccessLevelWithdrawalRules(_ruleId, _accessLevel);
         /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
-       if (_usdAmountTransferring + _usdWithdrawalTotal > (uint256(max) * (10 ** 18))) revert WithdrawalExceedsAccessLevelAllowedLimit();
+        if (_usdAmountTransferring + _usdWithdrawalTotal > (uint256(max) * (10 ** 18))) revert WithdrawalExceedsAccessLevelAllowedLimit();
         else _usdWithdrawalTotal += _usdAmountTransferring;
         return _usdWithdrawalTotal;
+    }
+    
+    /**
+     * @dev Function to get the Access Level Withdrawal rule in the rule set that belongs to the Access Level
+     * @param _index position of rule in array
+     * @param _accessLevel AccessLevel Level to check
+     * @return balanceAmount balance allowed for access levellevel
+     */
+    function getAccessLevelWithdrawalRules(uint32 _index, uint8 _accessLevel) public view returns (uint48) {
+        RuleS.AccessLevelWithrawalRuleS storage data = Storage.accessLevelWithdrawalRuleStorage();
+        if (_index >= data.accessLevelWithdrawalRuleIndex) revert IndexOutOfRange();
+        return data.accessLevelWithdrawal[_index][_accessLevel];
+    }
+
+    /**
+     * @dev Function to get total AccessLevel withdrawal rules
+     * @return Total number of access level withdrawal rules
+     */
+    function getTotalAccessLevelWithdrawalRule() external view returns (uint32) {
+        RuleS.AccessLevelWithrawalRuleS storage data = Storage.accessLevelWithdrawalRuleStorage();
+        return data.accessLevelWithdrawalRuleIndex;
     }
 
     /**

@@ -11,7 +11,7 @@ import "../../src/example/ERC20/ApplicationERC20Handler.sol";
 import {ApplicationERC721Handler} from "../../src/example/ERC721/ApplicationERC721Handler.sol";
 import "../diamond/RuleProcessorDiamondTestUtil.sol";
 import "../../src/example/staking/ERC721AutoMintStaking.sol";
-import {TaggedRuleDataFacet} from "../../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
+import {TaggedRuleDataFacet} from "../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 
 /**
  * @title Test ERC721 Staking for multiple ERC721 Contracts with ERC20 rewards that are minted at claim.
@@ -25,7 +25,6 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
     ApplicationERC721 applicationNFTA;
     ApplicationERC721 testNFT;
     RuleProcessorDiamond ruleProcessor;
-    RuleStorageDiamond ruleStorageDiamond;
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationERC721Handler applicationNFTHandler;
     ApplicationERC721Handler applicationNFTAHandler;
@@ -45,12 +44,8 @@ contract ERC721AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestU
 
     function setUp() public {
         vm.startPrank(superAdmin);
-        /// Deploy the Rule Storage Diamond.
-        ruleStorageDiamond = getRuleStorageDiamond();
         /// Deploy the token rule processor diamond
         ruleProcessor = getRuleProcessorDiamond();
-        /// Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
         /// Deploy app manager
         appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));

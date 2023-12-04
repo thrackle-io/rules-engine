@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "../RuleAdministratorOnly.sol";
+
 import "@openzeppelin/contracts/utils/Context.sol";
 import "../AppAdministratorOnly.sol";
-import {RuleStoragePositionLib as Storage} from "./RuleStoragePositionLib.sol";
+import "../RuleAdministratorOnly.sol";
+import "./RuleProcessorDiamondImports.sol";
 import {IFeeRules as Fee} from "./RuleDataInterfaces.sol";
-import {IRuleStorage as RuleS} from "./IRuleStorage.sol";
-import {IEconomicEvents} from "../../interfaces/IEvents.sol";
-import {IInputErrors} from "../../interfaces/IErrors.sol";
-import "./RuleCodeData.sol";
+
 
 /**
  * @title Fee Rules Facet
@@ -40,22 +38,4 @@ contract FeeRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         return ruleId;
     }
 
-    /**s
-     * @dev Function get AMM Fee Rule by index
-     * @param _index Position of rule in storage
-     * @return AMMFeeRule at index
-     */
-    function getAMMFeeRule(uint32 _index) external view returns (Fee.AMMFeeRule memory) {
-        RuleS.AMMFeeRuleS storage data = Storage.ammFeeRuleStorage();
-        return data.ammFeeRules[_index];
-    }
-
-    /**
-     * @dev Function get total AMM Fee rules
-     * @return total ammFeeRules array length
-     */
-    function getTotalAMMFeeRules() external view returns (uint32) {
-        RuleS.AMMFeeRuleS storage data = Storage.ammFeeRuleStorage();
-        return data.ammFeeRuleIndex;
-    }
 }
