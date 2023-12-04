@@ -11,10 +11,14 @@ import "../diamond/DiamondTestUtil.sol";
 import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
 import {ApplicationERC20Handler} from "src/example/ERC20/ApplicationERC20Handler.sol";
 import "../diamond/RuleProcessorDiamondTestUtil.sol";
-import {TaggedRuleDataFacet} from "src/economic/ruleStorage/TaggedRuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/economic/ruleStorage/AppRuleDataFacet.sol";
-import {RuleDataFacet} from "src/economic/ruleStorage/RuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/economic/ruleStorage/RuleDataInterfaces.sol";
+import {TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import {AppRuleDataFacet} from "src/economic/ruleProcessor/AppRuleDataFacet.sol";
+import {RuleDataFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
+import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
+import {ApplicationAccessLevelProcessorFacet} from "src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
+import {ERC721TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
+import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
+import {ERC20TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
 import "test/helpers/TestCommonFoundry.sol";
@@ -138,9 +142,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFT.transferFrom(randomUser, user1, 4);
         assertEq(applicationNFT.balanceOf(user1), 2);
         switchToRuleAdmin();
-        TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
         // add the actual rule
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
 
         ///Add GeneralTag to account
         switchToAppAdministrator();
@@ -204,9 +208,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
 
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
         assertEq(_index, 0);
-        NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(_index);
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleRestricted));
         switchToAppAdministrator();
@@ -230,7 +234,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user3), 0);
         // check the allowed list type
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
         applicationNFTHandler.setOracleRuleId(_index);
         switchToAppAdministrator();
@@ -249,7 +253,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         switchToRuleAdmin();
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 2, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 2, address(oracleAllowed));
     }
 
     /**
@@ -276,9 +280,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         tradesAllowed[0] = 1;
         tradesAllowed[1] = 5;
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
-        TaggedRules.NFTTradeCounterRule memory rule = TaggedRuleDataFacet(address(ruleStorageDiamond)).getNFTTransferCounterRule(_index, nftTags[0]);
+        TaggedRules.NFTTradeCounterRule memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
         assertEq(rule.startTs, Blocktime);
         // tag the NFT collection
@@ -380,7 +384,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
 
         ///Register rule with ERC721Handler
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
         applicationNFTHandler.setTransactionLimitByRiskRuleId(ruleId);
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
@@ -449,7 +453,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         balanceAmounts[3] = accessBalance3;
         balanceAmounts[4] = accessBalance4;
         switchToRuleAdmin();
-        uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
+        uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         /// connect the rule to this handler
         applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);
 
@@ -563,7 +567,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         balanceAmounts[3] = 100;
         balanceAmounts[4] = 300;
         switchToRuleAdmin();
-        uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
+        uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         /// connect the rule to this handler
         applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);
         switchToAppAdministrator();
@@ -632,7 +636,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         balanceAmounts[3] = 100;
         balanceAmounts[4] = 300;
         switchToRuleAdmin();
-        uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
+        uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         /// connect the rule to this handler
         applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);
         switchToAppAdministrator();
@@ -709,7 +713,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         holdTimestamps[1] = Blocktime;
         holdTimestamps[2] = Blocktime;
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
         assertEq(_index, 0);
         /// Set rule
         applicationNFTHandler.setMinBalByDateRuleId(_index);
@@ -791,7 +795,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
 
         /// we register the rule in the protocol
         switchToRuleAdmin();
-        uint32 ruleId = AppRuleDataFacet(address(ruleStorageDiamond)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, period, Blocktime);
+        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, period, Blocktime);
         /// now we set the rule in the applicationHandler for the applicationCoin only
         applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(ruleId);
 
@@ -852,7 +856,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         /// let's deactivate the rule before minting to avoid triggering the rule
         applicationHandler.activateMaxTxSizePerPeriodByRiskRule(false);
         /// we register the rule in the protocol
-        ruleId = AppRuleDataFacet(address(ruleStorageDiamond)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, period, Blocktime);
+        ruleId = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, period, Blocktime);
         assertEq(ruleId, 1);
         /// now we set the rule in the applicationHandler for the applicationCoin only
         applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(ruleId);
@@ -945,7 +949,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
 
         ///Switch to Default admin and activate AccountBalanceByRiskScore Rule
         switchToRuleAdmin();
-        uint32 index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
+        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
         applicationHandler.setAccountBalanceByRiskRuleId(index);
 
         vm.stopPrank();
@@ -1009,7 +1013,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         withdrawalLimits[3] = 50;
         withdrawalLimits[4] = 250;
         switchToRuleAdmin();
-        uint32 index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelWithdrawalRule(address(applicationAppManager), withdrawalLimits);
+        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelWithdrawalRule(address(applicationAppManager), withdrawalLimits);
         applicationHandler.setWithdrawalLimitByAccessLevelRuleId(index);
 
         /// assign accessLevels to users
@@ -1084,7 +1088,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFT.safeTransferFrom(appAdministrator, rich_user, 9);
         /// create and activate rule
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addSupplyVolatilityRule(address(applicationAppManager), volLimit, rulePeriod, startingTime, tokenSupply);
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volLimit, rulePeriod, startingTime, tokenSupply);
         applicationNFTHandler.setTotalSupplyVolatilityRuleId(_index);
 
         /// determine the maximum burn/mint amount for inital test
@@ -1160,7 +1164,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                 badBoys.push(_user4);
                 oracleRestricted.addToSanctionsList(badBoys);
                 switchToRuleAdmin();
-                uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+                uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
                 applicationNFTHandler.setOracleRuleId(_index);
             } else {
                 goodBoys.push(_user1);
@@ -1169,7 +1173,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                 goodBoys.push(address(0xee55));
                 oracleAllowed.addToAllowList(goodBoys);
                 switchToRuleAdmin();
-                uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+                uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
                 applicationNFTHandler.setOracleRuleId(_index);
             }
             switchToAppAdministrator();
@@ -1197,7 +1201,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                 }
             }
             switchToRuleAdmin();
-            uint32 balanceByRiskId = AppRuleDataFacet(address(ruleStorageDiamond)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
+            uint32 balanceByRiskId = AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
             applicationHandler.setAccountBalanceByRiskRuleId(balanceByRiskId);
         }
         {
@@ -1207,7 +1211,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             accs[0] = bytes32("Oscar");
             min[0] = uint256(1);
             max[0] = uint256(3);
-            uint32 balanceLimitId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
+            uint32 balanceLimitId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
             applicationNFTHandler.setMinMaxBalanceRuleId(balanceLimitId);
         }
         {
@@ -1222,7 +1226,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             switchToAppAdministrator();
             applicationAppManager.addGeneralTag(_user1, tag1); ///add tag
             switchToRuleAdmin();
-            uint32 balanceByDateId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+            uint32 balanceByDateId = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
             /// Set rule
             applicationNFTHandler.setMinBalByDateRuleId(balanceByDateId);
         }
@@ -1231,7 +1235,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             nftTags[0] = bytes32("BoredGrape");
             uint8[] memory tradesAllowed = new uint8[](1);
             tradesAllowed[0] = 3;
-            uint32 tradeRuleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+            uint32 tradeRuleId = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
             switchToAppAdministrator();
             applicationAppManager.addGeneralTag(address(applicationNFT), "BoredGrape"); ///add tag
             switchToRuleAdmin();
@@ -1253,7 +1257,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             _riskLevel[4] = 99;
 
             ///Register rule with ERC721Handler
-            uint32 maxTxPerRiskId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
+            uint32 maxTxPerRiskId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
             applicationNFTHandler.setTransactionLimitByRiskRuleId(maxTxPerRiskId);
         }
 
@@ -1308,7 +1312,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                     min1[0] = uint256(1);
                     max1[0] = uint256(5);
                     switchToRuleAdmin();
-                    uint32 balanceLimitId1 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
+                    uint32 balanceLimitId1 = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
                     applicationNFTHandler.setMinMaxBalanceRuleId(balanceLimitId1);
                     assertEq(balanceLimitId1, 1);
                     console.log("balanceLimitId", balanceLimitId1);
@@ -1331,7 +1335,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                 min2[0] = uint256(1);
                 max2[0] = uint256(8);
                 switchToRuleAdmin();
-                uint32 balanceLimitId2 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs2, min2, max2);
+                uint32 balanceLimitId2 = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs2, min2, max2);
                 applicationNFTHandler.setMinMaxBalanceRuleId(balanceLimitId2);
                 vm.stopPrank();
                 vm.startPrank(_user2);
@@ -1344,7 +1348,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             min3[0] = uint256(1);
             max3[0] = uint256(8);
             switchToRuleAdmin();
-            uint32 balanceLimitId3 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs3, min3, max3);
+            uint32 balanceLimitId3 = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs3, min3, max3);
             applicationNFTHandler.setMinMaxBalanceRuleId(balanceLimitId3);
             vm.stopPrank();
             vm.startPrank(_user2);
@@ -1358,7 +1362,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             min4[0] = uint256(1);
             max4[0] = uint256(8);
             switchToRuleAdmin();
-            uint32 balanceLimitId4 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs4, min4, max4);
+            uint32 balanceLimitId4 = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs4, min4, max4);
             applicationNFTHandler.setMinMaxBalanceRuleId(balanceLimitId4);
         }
         {
@@ -1402,7 +1406,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             balanceAmounts[4] = 200_000_000;
             {
                 switchToRuleAdmin();
-                uint32 _index = AppRuleDataFacet(address(ruleStorageDiamond)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
+                uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
                 /// connect the rule to this handler
                 applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);
             }
@@ -1437,10 +1441,10 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         for (uint i; i < 7; i++) applicationNFT.safeMint(appAdministrator);
         /// we create a rule that sets the minimum amount to 5 tokens to be tranferable in 1 year
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
         /// Set the rule in the handler
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
-        _index = TaggedRuleDataFacet(address(ruleStorageDiamond)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
         applicationNFTHandler.activateAdminWithdrawalRule(false);
@@ -1474,9 +1478,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         address rich_user = addressList[0];
         address _user1 = addressList[1];
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addTransferVolumeRule(address(applicationAppManager), _maxPercent, _period, Blocktime, 0);
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addTransferVolumeRule(address(applicationAppManager), _maxPercent, _period, Blocktime, 0);
         assertEq(_index, 0);
-        NonTaggedRules.TokenTransferVolumeRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getTransferVolumeRule(_index);
+        NonTaggedRules.TokenTransferVolumeRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, _maxPercent);
         assertEq(rule.period, _period);
         assertEq(rule.startTime, Blocktime);

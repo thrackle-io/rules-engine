@@ -4,8 +4,8 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../application/AppManager.sol";
 import "../economic/AppAdministratorOnly.sol";
-import "../economic/ruleStorage/RuleCodeData.sol";
-import {IApplicationHandlerEvents} from "../interfaces/IEvents.sol";
+import "../economic/ruleProcessor/RuleCodeData.sol";
+import {IApplicationHandlerEvents, ICommonApplicationHandlerEvents} from "../interfaces/IEvents.sol";
 import "../economic/IRuleProcessor.sol";
 import "../economic/ruleProcessor/ActionEnum.sol";
 import {IZeroAddressError, IInputErrors} from "../interfaces/IErrors.sol";
@@ -17,7 +17,7 @@ import "../economic/RuleAdministratorOnly.sol";
  * @dev This contract is injected into the appManagers.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, IInputErrors, IZeroAddressError {
+contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicationHandlerEvents, ICommonApplicationHandlerEvents, IInputErrors, IZeroAddressError {
     string private constant VERSION="1.1.0";
     AppManager appManager;
     address public appManagerAddress;
@@ -167,6 +167,11 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function activateAccountBalanceByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountBalanceByRiskRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(BALANCE_BY_RISK, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(BALANCE_BY_RISK, address(this));
+        }
     }
 
     /**
@@ -203,6 +208,11 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function activateAccountBalanceByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountBalanceByAccessLevelRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(BALANCE_BY_ACCESSLEVEL, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(BALANCE_BY_ACCESSLEVEL, address(this));
+        }
     }
 
     /**
@@ -227,6 +237,11 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function activateAccessLevel0Rule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         AccessLevel0RuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(ACCESS_LEVEL_0, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_0, address(this));
+        }
     }
 
     /**
@@ -255,6 +270,11 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function activateWithdrawalLimitByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         withdrawalLimitByAccessLevelRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(ACCESS_LEVEL_WITHDRAWAL, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_WITHDRAWAL, address(this));
+        }
     }
 
     /**
@@ -300,6 +320,11 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
 
     function activateMaxTxSizePerPeriodByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         maxTxSizePerPeriodByRiskActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(MAX_TX_PER_PERIOD, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(MAX_TX_PER_PERIOD, address(this));
+        }
     }
 
     /**
@@ -318,6 +343,11 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function activatePauseRule(bool _on) external onlyOwner {
         pauseRuleActive = _on; 
+        if (_on) {
+            emit ApplicationHandlerActivated(PAUSE_RULE, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(PAUSE_RULE, address(this));
+        }
     }
 
     /**

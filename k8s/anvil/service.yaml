@@ -4,12 +4,12 @@ metadata:
   labels:
     app: anvil
   name: anvil
-  namespace: {{NAMESPACE}}
+  namespace: { { NAMESPACE } }
 spec:
   ports:
-  - port: 8545
-    protocol: TCP
-    targetPort: 8545
+    - port: 8545
+      protocol: TCP
+      targetPort: 8545
   selector:
     app: anvil
   type: ClusterIP
