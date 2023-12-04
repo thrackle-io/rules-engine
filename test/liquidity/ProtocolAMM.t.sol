@@ -6,9 +6,16 @@ import "src/liquidity/ProtocolAMM.sol";
 import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/example/OracleRestricted.sol";
 import "src/example/OracleAllowed.sol";
+import "test/helpers/TestCommonFoundry.sol";
 import {ApplicationAMMHandler} from "../../src/example/liquidity/ApplicationAMMHandler.sol";
 import {ApplicationAMMHandlerMod} from "../helpers/ApplicationAMMHandlerMod.sol";
-import "test/helpers/TestCommonFoundry.sol";
+import {TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import {RuleDataFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
+import {AppRuleDataFacet} from "src/economic/ruleProcessor/AppRuleDataFacet.sol";
+import {FeeRuleDataFacet} from "src/economic/ruleProcessor/FeeRuleDataFacet.sol";
+import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
+import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
+import {ERC20TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 
 /**
  * @title Test all AMM related functions
@@ -470,7 +477,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         applicationAppManager.addGeneralTag(user2, "SellRule");
         /// add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
         ///update ruleId in application AMM rule handler
         applicationAMMHandler.setSellLimitRuleId(ruleId);
         /// Swap that passes rule check
@@ -492,7 +499,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         initializeAMMAndUsers();
         /// we add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 10);
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), 10);
         /// we update the rule id in the token
         applicationAMMHandler.setMinTransferRuleId(ruleId);
         /// Set up this particular swap
@@ -517,11 +524,11 @@ contract ProtocolAMMTest is TestCommonFoundry {
         /// make sure that no bogus fee percentage can get in
         bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 10001));
-        uint32 ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), 10001);
+        uint32 ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 10001);
         vm.expectRevert(abi.encodeWithSelector(selector, 0));
-        ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), 0);
+        ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 0);
         /// now add the good rule
-        ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), 300);
+        ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 300);
         /// we update the rule id in the token
         applicationAMMHandler.setAMMFeeRuleId(ruleId);
         switchToAppAdministrator();
@@ -574,7 +581,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         /// we add the rule.
         switchToRuleAdmin();
         console.logString("Create the Fee Rule");
-        uint32 ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), feePercentage);
+        uint32 ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), feePercentage);
         /// we update the rule id in the token
         applicationAMMHandler.setAMMFeeRuleId(ruleId);
         switchToAppAdministrator();
@@ -608,9 +615,9 @@ contract ProtocolAMMTest is TestCommonFoundry {
 
         // BLOCKLIST ORACLE
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
         assertEq(_index, 0);
-        NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(_index);
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleRestricted));
         switchToAppAdministrator();
@@ -639,7 +646,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
 
         /// ALLOWLIST ORACLE
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
         applicationAMMHandler.setOracleRuleId(_index);
         switchToAppAdministrator();
@@ -694,7 +701,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         max[0] = uint256(1100 * 10 ** 18);
         switchToRuleAdmin();
         /// add the actual rule
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
 
         ///Token 1 Limits
         bytes32[] memory accs1 = new bytes32[](1);
@@ -704,7 +711,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         min1[0] = uint256(500 * 10 ** 18);
         max1[0] = uint256(2000 * 10 ** 18);
         /// add the actual rule
-        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
+        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
         ////update ruleId in coin rule handler
         applicationAMMHandler.setMinMaxBalanceRuleIdToken0(ruleId);
         applicationAMMHandler.setMinMaxBalanceRuleIdToken1(ruleId1);
@@ -892,7 +899,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         max[0] = uint256(1100 * 10 ** 18);
         /// add the actual rule
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
         ///Token 1 Limits
         bytes32[] memory accs1 = new bytes32[](1);
         uint256[] memory min1 = new uint256[](1);
@@ -901,7 +908,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         min1[0] = uint256(500 * 10 ** 18);
         max1[0] = uint256(2000 * 10 ** 18);
         /// add the actual rule
-        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
+        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
         ////update ruleId in coin rule handler
         assetHandler.setMinMaxBalanceRuleIdToken0(ruleId);
         assetHandler.setMinMaxBalanceRuleIdToken1(ruleId1);
@@ -969,7 +976,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         uint256 totalSupply = 100_000_000;
         uint64 ruleStartTime = Blocktime;
         switchToRuleAdmin();
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
         /// add and activate rule
         applicationAMMHandler.setPurchasePercentageRuleId(ruleId);
         vm.warp(Blocktime + 36 hours);
@@ -1004,7 +1011,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         /// create new rule
         uint16 newTokenPercentage = 1; /// .01%
         uint256 newTotalSupply = 100_000;
-        uint32 newRuleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(applicationAppManager), newTokenPercentage, purchasePeriod, newTotalSupply, ruleStartTime);
+        uint32 newRuleId = RuleDataFacet(address(ruleProcessor)).addPercentagePurchaseRule(address(applicationAppManager), newTokenPercentage, purchasePeriod, newTotalSupply, ruleStartTime);
         /// add and activate rule
         applicationAMMHandler.setPurchasePercentageRuleId(newRuleId);
         vm.warp(Blocktime + 96 hours);
@@ -1033,7 +1040,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         uint256 totalSupply = 100_000_000;
         uint64 ruleStartTime = Blocktime;
         switchToRuleAdmin();
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addPercentageSellRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
         /// add and activate rule
         applicationAMMHandler.setSellPercentageRuleId(ruleId);
         vm.warp(Blocktime + 36 hours);
@@ -1075,7 +1082,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         uint256 totalSupply = 100_000_000;
         uint256 amountB = ((totalSupply / tokenPercentage) * 10000);
         switchToRuleAdmin();
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
         /// add and activate rule
         applicationAMMHandler.setPurchasePercentageRuleId(ruleId);
         vm.warp(Blocktime + 36 hours);
@@ -1109,7 +1116,7 @@ contract ProtocolAMMTest is TestCommonFoundry {
         uint256 totalSupply = 100_000_000;
         uint256 amountB = ((totalSupply / tokenPercentage) * 10000);
         switchToRuleAdmin();
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(applicationAppManager), tokenPercentage, sellPeriod, totalSupply, ruleStartTime);
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addPercentageSellRule(address(applicationAppManager), tokenPercentage, sellPeriod, totalSupply, ruleStartTime);
         /// add and activate rule
         applicationAMMHandler.setSellPercentageRuleId(ruleId);
         vm.warp(Blocktime + 36 hours);

@@ -28,31 +28,30 @@ build  :; forge clean && forge build --optimize
 testAll:; forge test -vv --ffi 
 
 # Deploy contracts(singles)
-deployApplicationHandler:; 	forge script script/ApplicationHandlerModule.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationManager:;	forge script script/ApplicationAppManager.s.sol --ffi --broadcast --verify -vvvv
-deployRuleStorageDiamond:; forge script script/RuleStorageModule.s.sol --ffi --broadcast --verify -vvvv
-deployRuleProcessor:; forge script script/RuleProcessorModule.s.sol --ffi --broadcast --verify -vvvv
-deployTokenRuleRouter:; forge script script/TokenRuleRouter.s.sol --ffi --broadcast --verify -vvvv
-deployTaggedRuleProcessor:; forge script script/TaggedRuleProcessor.s.sol --ffi --broadcast --verify -vvvv
+deployApplicationHandler:; 	forge script script/ApplicationHandlerModule.s.sol --ffi --broadcast -vvvv
+deployApplicationManager:;	forge script script/ApplicationAppManager.s.sol --ffi --broadcast -vvvv
+deployRuleProcessor:; forge script script/RuleProcessorModule.s.sol --ffi --broadcast -vvvv
+deployTokenRuleRouter:; forge script script/TokenRuleRouter.s.sol --ffi --broadcast -vvvv
+deployTaggedRuleProcessor:; forge script script/TaggedRuleProcessor.s.sol --ffi --broadcast -vvvv
 # Deploy contracts(full protocol)
-deployAll:;	forge script script/DeployAllModules.s.sol --ffi --broadcast --verify -vvvv
+deployAll:;	forge script script/DeployAllModules.s.sol --ffi --broadcast -vvvv
 # Deploy Application Contracts(singles)
-deployApplicationAppManager:; forge script src/example/script/ApplicationAppManager.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationERC20Handler:; forge script src/example/script/ApplicationERC20Handler.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationAMMCalcLinear:; forge script src/example/script/ApplicationAMMCalcLinear.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationAMMCalcCP:; forge script src/example/script/ApplicationAMMCalcCP.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationAMM:; forge script src/example/script/ApplicationAMM.s.sol --ffi --broadcast --verify -vvvv
+deployApplicationAppManager:; forge script src/example/script/ApplicationAppManager.s.sol --ffi --broadcast -vvvv
+deployApplicationERC20Handler:; forge script src/example/script/ApplicationERC20Handler.s.sol --ffi --broadcast -vvvv
+deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol --ffi --broadcast -vvvv
+deployApplicationAMMCalcLinear:; forge script src/example/script/ApplicationAMMCalcLinear.s.sol --ffi --broadcast -vvvv
+deployApplicationAMMCalcCP:; forge script src/example/script/ApplicationAMMCalcCP.s.sol --ffi --broadcast -vvvv
+deployApplicationAMM:; forge script src/example/script/ApplicationAMM.s.sol --ffi --broadcast -vvvv
 # Deploy Application Contracts(entire application implementation)
-deployAllApp:; forge script src/example/script/ApplicationDeployAll.s.sol --ffi  --broadcast --verify -vvvvv
-deployNewApp:; forge script src/example/script/ApplicationUIDeploy.s.sol --ffi  --broadcast --verify -vvvvv
+deployAllApp:; forge script src/example/script/ApplicationDeployAll.s.sol --ffi  --broadcast -vvvvv
+deployNewApp:; forge script src/example/script/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvvvv
 # Using a different env ref for pipeline deploy command.
 # Note from RK -- Outside the scope of what I'm doing right now, but
 # This could also be accomplished by creating a "pipeline" profile in foundry.toml which
 # defines its own value for eth-rpc-url, similarly to how the docker profile is set up now,
 # and then having the deploy pipeline set FOUNDRY_PROFILE=pipeline in the build environment
-deployAllPipeline:; forge script script/DeployAllModules.s.sol --ffi --rpc-url ${PIPELINE_ETH_RPC_URL} --broadcast --verify -vvvv
-deployAllPipelineResume:; forge script script/DeployAllModules.s.sol --ffi --rpc-url ${PIPELINE_ETH_RPC_URL} --broadcast --verify -vvvv --resume
+deployAllPipeline:; forge script script/DeployAllModules.s.sol --ffi --rpc-url ${PIPELINE_ETH_RPC_URL} --broadcast -vvvv
+deployAllPipelineResume:; forge script script/DeployAllModules.s.sol --ffi --rpc-url ${PIPELINE_ETH_RPC_URL} --broadcast -vvvv --resume
 
 			
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>    TERMINAL TESTS    <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -671,7 +670,7 @@ tokenFee_checkTokenFeeRuleUpgrade2:; cast call ${APPLICATION_ERC20_HANDLER_ADDRE
 
 #			<><><><><><><><><><><><><><><> Narrative <><><><><><><><><><><><><><><>
 # Deploy the Application App Manager
-applicationDeployAppManager:;	forge script src/example/script/ApplicationAppManager.s.sol --ffi --fork-url http://localhost:8545  --broadcast --verify -vvvv			
+applicationDeployAppManager:;	forge script src/example/script/ApplicationAppManager.s.sol --ffi --fork-url http://localhost:8545  --broadcast -vvvv			
 applicationAddAppAdministrator:; cast send ${APPLICATION_APP_MANAGER} "addAppAdministrator(address)" ${CLU}  --private-key ${QUORRA_PRIVATE_KEY}
 applicationCheckAppAdministrator:; cast call ${APPLICATION_APP_MANAGER} "isAppAdministrator(address)(bool)" ${CLU}  --private-key ${QUORRA_PRIVATE_KEY}
 
@@ -688,7 +687,7 @@ applicationAddGeneralTagGem:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTa
 applicationCheckGeneralTag:; cast call ${APPLICATION_APP_MANAGER} "hasTag(address,bytes32)(bool)" ${GEM} 0x4b4e49475448  --private-key ${CLU_PRIVATE_KEY}
 
 # Deploy the Application Token
-applicationDeployToken:;	forge script src/example/script/ApplicationERC20.s.sol --ffi --fork-url http://localhost:8545  --broadcast --verify -vvvv			
+applicationDeployToken:; forge script src/example/script/ApplicationERC20.s.sol --ffi --fork-url http://localhost:8545  --broadcast -vvvv			
 applicationTokenCheckBalance:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${QUORRA} --from ${QUORRA}
 applicationTokenTransferKevin:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 2000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 applicationTokenCheckKevinBalance:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${KEVIN} --from ${QUORRA}

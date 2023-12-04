@@ -110,10 +110,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         uint64 lastPurchaseTime,
         uint256 purchasedWithinPeriod
     ) external view returns (uint256) {
-        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        /// validation block
-        if ((data.getTotalPctPurchaseRule() == 0)) revert RuleDoesNotExist();
-        NonTaggedRules.TokenPercentagePurchaseRule memory percentagePurchaseRule = data.getPctPurchaseRule(ruleId);
+        NonTaggedRules.TokenPercentagePurchaseRule memory percentagePurchaseRule = getPctPurchaseRule(ruleId);
         uint256 totalPurchasedWithinPeriod = amountToTransfer; /// resets value for purchases outside of purchase period
         uint256 totalSupply = percentagePurchaseRule.totalSupply;
         /// check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
@@ -131,6 +128,27 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
     }
 
     /**
+     * @dev Function get Token Purchase Percentage by index
+     * @param _index position of rule in array
+     * @return percentagePurchaseRules rule at index position
+     */
+    function getPctPurchaseRule(uint32 _index) public view returns (NonTaggedRules.TokenPercentagePurchaseRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalPctPurchaseRule());
+        RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
+        return data.percentagePurchaseRules[_index];
+    }
+
+    /**
+     * @dev Function to get total Token Purchase Percentage
+     * @return Total length of array
+     */
+    function getTotalPctPurchaseRule() public view returns (uint32) {
+        RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
+        return data.percentagePurchaseRuleIndex;
+    }
+
+    /**
      *
      * @param ruleId id of the rule to be checked
      * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
@@ -139,10 +157,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
      * @param soldWithinPeriod total amount of tokens sold within current period
      */
     function checkSellPercentagePasses(uint32 ruleId, uint256 currentTotalSupply, uint256 amountToTransfer, uint64 lastSellTime, uint256 soldWithinPeriod) external view returns (uint256) {
-        RuleDataFacet data = RuleDataFacet(Diamond.ruleDataStorage().rules);
-        /// validation block
-        if ((data.getTotalPctSellRule() == 0)) revert RuleDoesNotExist();
-        NonTaggedRules.TokenPercentageSellRule memory percentageSellRule = data.getPctSellRule(ruleId);
+        NonTaggedRules.TokenPercentageSellRule memory percentageSellRule = getPctSellRule(ruleId);
         uint256 totalSoldWithinPeriod = amountToTransfer; /// resets value for purchases outside of purchase period
         uint256 totalSupply = percentageSellRule.totalSupply;
         /// check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
@@ -157,6 +172,27 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
             if (percentOfTotalSupply >= percentageSellRule.tokenPercentage) revert SellPercentageReached();
         }
         return totalSoldWithinPeriod;
+    }
+
+    /**
+     * @dev Function get Token sell Percentage by index
+     * @param _index position of rule in array
+     * @return percentageSellRules rule at index position
+     */
+    function getPctSellRule(uint32 _index) public view returns (NonTaggedRules.TokenPercentageSellRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalPctSellRule());
+        RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
+        return data.percentageSellRules[_index];
+    }
+
+    /**
+     * @dev Function to get total Token Percentage Sell
+     * @return Total length of array
+     */
+    function getTotalPctSellRule() public view returns (uint32) {
+        RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
+        return data.percentageSellRuleIndex;
     }
 
     /**
