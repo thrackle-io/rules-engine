@@ -28,21 +28,21 @@ build  :; forge clean && forge build --optimize
 testAll:; forge test -vv --ffi 
 
 # Deploy contracts(singles)
-deployApplicationHandler:; 	forge script script/ApplicationHandlerModule.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationManager:;	forge script script/ApplicationAppManager.s.sol --ffi --broadcast --verify -vvvv
-deployRuleStorageDiamond:; forge script script/RuleStorageModule.s.sol --ffi --broadcast --verify -vvvv
-deployRuleProcessor:; forge script script/RuleProcessorModule.s.sol --ffi --broadcast --verify -vvvv
-deployTokenRuleRouter:; forge script script/TokenRuleRouter.s.sol --ffi --broadcast --verify -vvvv
-deployTaggedRuleProcessor:; forge script script/TaggedRuleProcessor.s.sol --ffi --broadcast --verify -vvvv
+deployApplicationHandler:; 	forge script script/ApplicationHandlerModule.s.sol --ffi --broadcast -vvv
+deployApplicationManager:;	forge script script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
+deployRuleStorageDiamond:; forge script script/RuleStorageModule.s.sol --ffi --broadcast -vvv
+deployRuleProcessor:; forge script script/RuleProcessorModule.s.sol --ffi --broadcast -vvv
+deployTokenRuleRouter:; forge script script/TokenRuleRouter.s.sol --ffi --broadcast -vvv
+deployTaggedRuleProcessor:; forge script script/TaggedRuleProcessor.s.sol --ffi --broadcast -vvv
 # Deploy contracts(full protocol)
-deployAll:;	forge script script/DeployAllModules.s.sol --ffi --broadcast --verify -vvvv
+deployAll:;	forge script script/DeployAllModules.s.sol --ffi --broadcast -vvv
 # Deploy Application Contracts(singles)
-deployApplicationAppManager:; forge script src/example/script/ApplicationAppManager.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationERC20Handler:; forge script src/example/script/ApplicationERC20Handler.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol --ffi --broadcast --verify -vvvv
+deployApplicationAppManager:; forge script src/example/script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
+deployApplicationERC20Handler:; forge script src/example/script/ApplicationERC20Handler.s.sol --ffi --broadcast -vvv
+deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol --ffi --broadcast -vvv
 # Deploy Application Contracts(entire application implementation)
-deployAllApp:; forge script src/example/script/ApplicationDeployAll.s.sol --ffi  --broadcast --verify -vvvvv
-deployNewApp:; forge script src/example/script/ApplicationUIDeploy.s.sol --ffi  --broadcast --verify -vvvvv
+deployAllApp:; forge script src/example/script/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv
+deployNewApp:; forge script src/example/script/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvv
 # Using a different env ref for pipeline deploy command.
 # Note from RK -- Outside the scope of what I'm doing right now, but
 # This could also be accomplished by creating a "pipeline" profile in foundry.toml which
