@@ -154,19 +154,19 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
     /// Test linear swaps
     function testAMMERC721DualLinearBuyNFT0() public { 
         testAMMERC721DualLinearSwapZeroAmountERC20();
-        _testBuyNFT(0, 0, address(0));
+        _testBuyNFT(0,  0);
     }
 
     function testAMMERC721DualLinearBuyNFT1() public {
         testAMMERC721DualLinearBuyNFT0();
-        _testBuyNFT(1, 0, address(0));
+        _testBuyNFT(1,  0);
     }
 
     function testAMMERC721DualLinearSellNFT0() public {
         // we cannot sell without having bought first since q can't be negative
         testAMMERC721DualLinearBuyNFT1(); // user buys NFTs 0 and 1
         applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
-        _testSellNFT(0, 0, address(0)); // user sells back NFT 0
+        _testSellNFT(0,  0); // user sells back NFT 0
     }
 
     function testAMMERC721DualLinearSwapZeroAmountERC721() public { 
@@ -188,7 +188,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
          testAMMERC721DualLinearSwapZeroAmountERC20();
          uint256 balanceBefore = applicationCoin.balanceOf(user);
          for(uint i; i < erc721Liq; i++){
-            _testBuyNFT(i, 0, address(0));
+            _testBuyNFT(i,  0);
          }
          console.log("Spent buying all NFTs", balanceBefore - applicationCoin.balanceOf(user));
     }
@@ -198,7 +198,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
          applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
          uint256 balanceBefore = applicationCoin.balanceOf(user);
          for(uint i; i < erc721Liq; i++){
-            _testSellNFT(i, 0, address(0));
+            _testSellNFT(i,  0);
          }
          console.log("Made selling all NFTs", applicationCoin.balanceOf(user) - balanceBefore);
     }
@@ -239,11 +239,11 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         _approveTokens(5 * 10 ** 9 * ATTO, true);
         /// we test buying all the NFTs with the testFees
         for(uint i; i < erc721Liq; i++){
-            _testBuyNFT(i, testFees,  treasuryAddress);
+            _testBuyNFT(i, testFees);
         }
         /// we test selling all the NFTs with the testFees
         for(uint i; i < erc721Liq; i++){
-            _testSellNFT(i, testFees,  treasuryAddress);
+            _testSellNFT(i, testFees);
         }
     }
     
@@ -350,7 +350,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         _approveTokens(5 * 10 ** 8 * ATTO, true);
         /// we test buying the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
         for(uint i; i < (erc721Liq * tokenPercentage) / 10000 - 1; i++){
-            _testBuyNFT(i, 0, address(0));
+            _testBuyNFT(i,  0);
         }
         /// we get the price manually since we will test reverts on buys
         (uint256 price, uint256 fees) = dualLinearERC271AMM.getBuyPrice();
@@ -368,7 +368,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         vm.warp(Blocktime + 72 hours);
         switchToUser();
         /// now it should work
-        _testBuyNFT(100, 0, address(0));
+        _testBuyNFT(100,  0);
         /// with another user
         vm.stopPrank();
         vm.startPrank(user1);
@@ -394,7 +394,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         switchToUser();
         /// we test selling the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
         for(uint i; i < (erc721Liq * tokenPercentageSell) / 10000 - 1; i++){
-            _testSellNFT(i, 0, address(0));
+            _testSellNFT(i,  0);
         }
         /// If try to sell one more, it should fail in this period.
         vm.expectRevert(0xb17ff693);
@@ -408,7 +408,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         vm.warp(Blocktime + 72 hours);
         switchToUser();
         /// now it should work
-        _testSellNFT(30, 0, address(0));
+        _testSellNFT(30,  0);
         /// with another user
          vm.stopPrank();
         vm.startPrank(user1);
@@ -459,7 +459,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         }
     }
 
-    function _testBuyNFT(uint256 _tokenId, uint256 _fees, address treasury) internal {
+    function _testBuyNFT(uint256 _tokenId, uint256 _fees) internal {
         switchToUser();
 
         uint256 price;
@@ -471,7 +471,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         uint256 initialERC721Reserves = dualLinearERC271AMM.getERC721Reserves();
         
         if(_fees > 0){
-            (price, fees) = _testFeesInPurchase(_tokenId, _fees, treasury);
+            (price, fees) = _testFeesInPurchase(_tokenId, _fees);
             pricePlusFees = price + fees;
         }else{
             ( price, fees) = dualLinearERC271AMM.getBuyPrice();
@@ -488,16 +488,16 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user), initialUserNFTBalance + 1);
     }
 
-    function _testFeesInPurchase(uint256 _tokenId, uint256 _fees, address treasury) internal returns(uint256 price, uint256 fees){
+    function _testFeesInPurchase(uint256 _tokenId, uint256 _fees) internal returns(uint256 price, uint256 fees){
         (price, fees) = dualLinearERC271AMM.getBuyPrice();
         uint256 pricePlusFees = price + fees;
-        uint256 initialTreasuryBalance = applicationCoin.balanceOf(treasury);
+        uint256 initialTreasuryBalance = applicationCoin.balanceOf(treasuryAddress);
         uint256 expectedFees = (price + fees) * _fees / 10000;
         assertEq(expectedFees, fees);
 
         _buy(pricePlusFees, _tokenId);
 
-        uint256 treasuryBalance = applicationCoin.balanceOf(treasury);
+        uint256 treasuryBalance = applicationCoin.balanceOf(treasuryAddress);
         assertEq(treasuryBalance, initialTreasuryBalance + expectedFees);
     }
 
@@ -505,7 +505,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         dualLinearERC271AMM.swap(address(applicationCoin), price, _tokenId);
     }
 
-    function _testSellNFT(uint256 _tokenId, uint256 _fees, address trasury) internal {
+    function _testSellNFT(uint256 _tokenId, uint256 _fees) internal {
         switchToUser();
 
         uint256 price;
@@ -517,7 +517,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         uint256 initialERC721Reserves = dualLinearERC271AMM.getERC721Reserves();
 
         if(_fees > 0){
-            (price, fees) = _testFeesInSale(_tokenId, _fees, trasury);
+            (price, fees) = _testFeesInSale(_tokenId, _fees);
         }else{
             (price, fees) = dualLinearERC271AMM.getSellPrice();
             _sell(_tokenId);
@@ -533,15 +533,15 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user), initialUserNFTBalance - 1);
     }
 
-    function _testFeesInSale(uint256 _tokenId, uint256 _fees, address treasury) internal returns(uint256 price, uint256 fees){
-        uint256 initialTreasuryBalance = applicationCoin.balanceOf(treasury);
+    function _testFeesInSale(uint256 _tokenId, uint256 _fees) internal returns(uint256 price, uint256 fees){
+        uint256 initialTreasuryBalance = applicationCoin.balanceOf(treasuryAddress);
         (price, fees) = dualLinearERC271AMM.getSellPrice();
         uint256 expectedFees = (price) * _fees / 10000 ;
         assertEq(expectedFees, fees);
 
         _sell(_tokenId);
         
-        uint256 treasuryBalance = applicationCoin.balanceOf(treasury);
+        uint256 treasuryBalance = applicationCoin.balanceOf(treasuryAddress);
         assertEq(treasuryBalance, initialTreasuryBalance + expectedFees);
     }
 

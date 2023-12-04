@@ -22,6 +22,12 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     Line public buyCurve;
     Line public sellCurve;
 
+    /**
+    * @dev tracks how many NFTs have been put in circulation by the AMM.
+    * If the AMM has sold 10 NFTs and then "bought" back 7, then the value of q will be 3.
+    * @notice that q is a unit, which means we are assuming that the AMM is the ONLY source of NFTs.
+    * In other words, q = ERC721Contract.totalSupply() - ERC721Contract.balanceOf(AMM_ADDRESS).
+    */
     uint256 public q;
 
     /**
