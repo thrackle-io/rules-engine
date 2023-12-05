@@ -2,6 +2,8 @@
 pragma solidity ^0.8.17;
 
 import "./IProtocolAMMFactoryCalculator.sol";
+import {ConstantProduct, Curve} from "./libraries/Curve.sol";
+
 
 /**
  * @title Automated Market Maker Swap Constant Product Calculator
@@ -11,6 +13,7 @@ import "./IProtocolAMMFactoryCalculator.sol";
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
 contract ProtocolAMMCalcCP is IProtocolAMMFactoryCalculator {
+    using Curve for ConstantProduct;
     /**
      * @dev Set up the calculator and appManager for permissions
      * @param _appManagerAddress appManager address
@@ -37,14 +40,10 @@ contract ProtocolAMMCalcCP is IProtocolAMMFactoryCalculator {
      * @return _amountOut amount of alternate coming out of the pool
      */
     function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external pure override returns (uint256) {
-        if (_amount0 == 0 && _amount1 == 0) {
+        if (_amount0 == 0 && _amount1 == 0) 
             revert AmountsAreZero();
-        }
-        if (_amount0 == 0) {
-            return (_amount1 * _reserve0) / (_reserve1 + _amount1);
-        } else {
-            return (_amount0 * _reserve1) / (_reserve0 + _amount0);
-        }
+        ConstantProduct memory cp = ConstantProduct(_reserve0, _reserve1);
+        return cp.getY(_amount0, _amount1);
     }
 
     /**
@@ -55,7 +54,7 @@ contract ProtocolAMMCalcCP is IProtocolAMMFactoryCalculator {
      * @param _amountNFT amount of NFTs coming out of the pool (restricted to 1 for now)
      * @return price
      */
-    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amountERC20, uint256 _amountNFT) public view override returns (uint256 price) {
+    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amountERC20, uint256 _amountNFT) public view override returns (uint256) {
         _reserve0;
         _reserve1;
         _amountERC20;

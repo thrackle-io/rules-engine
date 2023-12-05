@@ -63,7 +63,7 @@ contract ProtocolAMMCalcSample01 is IProtocolAMMFactoryCalculator {
      * @param _amountNFT amount of NFTs coming out of the pool (restricted to 1 for now)
      * @return price
      */
-    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amountERC20, uint256 _amountNFT) public view override returns (uint256 price) {
+    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amountERC20, uint256 _amountNFT) public view override returns (uint256) {
         _reserve0;
         _reserve1;
         _amountERC20;

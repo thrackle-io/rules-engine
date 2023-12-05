@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import {Line, LineInput, ConstantRatio, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
+import {Line, LineInput, ConstantRatio, ConstantProduct, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
 import {AMMMath} from "./AMMMath.sol";
 
 /**
@@ -76,6 +76,21 @@ library Curve {
             unchecked{
                 amountOut = (amountIn * ((x * (10 ** 20)) / y)) / (10 ** 20);
             }
+        }
+    }
+
+    /**
+    * @dev calculates ƒ(amountIn) for a constant-product AMM. 
+    * @param constatProduct the values of x and y for the constant ratio.
+    * @param _amount0 the amount received of token0
+    * @param _amount1 the amount received of token1
+    * @return amountOut
+    */
+    function getY(ConstantProduct memory constatProduct, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 amountOut){
+        if (_amount0 == 0) {
+            amountOut =  (_amount1 * constatProduct.x) / (constatProduct.y + _amount1);
+        } else {
+            amountOut = (_amount0 * constatProduct.y) / (constatProduct.x + _amount0);
         }
     }
 
