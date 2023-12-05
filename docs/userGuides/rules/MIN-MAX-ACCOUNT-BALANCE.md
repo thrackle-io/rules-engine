@@ -115,7 +115,7 @@ The create function will return the protocol ID of the rule.
 - **_minimum** (uint256[]): array of *minimum amounts* for each sub-rule.
 - **_maximum** (uint256[]): array of *maximum amounts* for each sub-rule.
 
-It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_minimum` and `_maximum`. Same with tag in posotion *n*.
+It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_minimum` and `_maximum`. Same with tag in position *n*.
 
 ### Parameter Optionality:
 
@@ -129,7 +129,7 @@ The following validation will be carried out by the create function in order to 
 - All the parameter arrays have at least one element.
 - All the parameter arrays have the exact same length.
 - Not one `tag` can be a blank tag.
-- Not one `minimum` nor `maximum` can have a value of 0.
+- Not one `minimum` or `maximum` can have a value of 0.
 
 
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
@@ -203,7 +203,7 @@ This rule doesn't return any data.
 
 ## Data Recorded
 
-This rule doesn't require of any data to be recorded.
+This rule doesn't require any data to be recorded.
 
 ## Events
 
@@ -229,5 +229,5 @@ This rule doesn't require of any data to be recorded.
 
 ## Dependencies
 
-- **Tags**: This rules relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
+- **Tags**: This rule relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
 

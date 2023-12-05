@@ -114,7 +114,7 @@ The create function will return the protocol ID of the rule.
 - **_holdPeriods** (uint16[]): array of *hold periods* for each sub-rule.
 - **_startTimestamps** (uint64[]): array of *timestamps* for each sub-rule.
 
-It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_holdAmounts`, `_holdPeriods` and `_startTimestamps`. Same with tag in posotion *n*.
+It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_holdAmounts`, `_holdPeriods` and `_startTimestamps`. Same with tag in position *n*.
 
 ### Parameter Optionality:
 
@@ -208,5 +208,5 @@ This rule doesn't require of any data to be recorded.
 
 ## Dependencies
 
-- **Tags**: This rules relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
+- **Tags**: This rule relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
 
