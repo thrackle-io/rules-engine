@@ -122,11 +122,11 @@ none
 
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
+- All input array lengths must be equal and not empty.
 - `_appManagerAddr` Must not be the zero address.
 - `_accountTypes` No blank tags.
 - `_sellAmounts` 0 not allowed.
 
-NOTE: All input array lengths must be equal and not empty.
 
 
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
