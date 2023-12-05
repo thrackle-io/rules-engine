@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "src/liquidity/ProtocolAMM.sol";
+import "src/liquidity/ProtocolERC20AMM.sol";
 import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
@@ -33,7 +33,6 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
 
     using Strings for uint256;
     uint256 constant PRECISION_DECIMALS = 8;
-    uint256 constant ATTO = 10 ** 18;
     uint256 constant Y_MAX = 1_000_000_000_000_000_000_000_000 * ATTO;
     uint256 constant M_MAX = 1_000_000_000_000_000_000_000_000 * 10 ** PRECISION_DECIMALS;
     uint8 constant MAX_TOLERANCE = 5;
@@ -93,7 +92,8 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
             /// we make sure q is at least 1 to avoid underflow (only for the sale case)
             if( q < 1) q = 1;
             /// we calculate the price through the calculator and store it in *price*
-            price = calc.calculateSwap(0, q, 1, 0); //(reserves0, q, ERC20s out, NFTs out)
+            calc.set_q(q);
+            price = calc.calculateSwap(0, 0, 1, 0); //(reserves0, q, ERC20s out, NFTs out)
 
             /// we then call the Python script to calculate the price "offchain" and store it in *res*
             string[] memory inputs = _buildFFILinearCalculator(sell, "8", q - 1); // sel always is q-1
@@ -101,7 +101,8 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
         } 
         else{
             /// we calculate the price through the calculator and store it in *price*
-            price = calc.calculateSwap(0, q, 0, 1); //(reserves0, q, ERC20s out, NFTs out)
+            calc.set_q(q);
+            price = calc.calculateSwap(0, 0, 0, 1); //(reserves0, q, ERC20s out, NFTs out)
 
             /// we then call the Python script to calculate the price "offchain" and store it in *res*
             string[] memory inputs = _buildFFILinearCalculator(buy, "8", q);

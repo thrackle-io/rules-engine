@@ -11,7 +11,7 @@ import "src/example/ERC20/ApplicationERC20Handler.sol";
 import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import "src/example/ERC721/ApplicationERC721Handler.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
-import "src/liquidity/ProtocolAMM.sol";
+import "src/liquidity/ProtocolERC20AMM.sol";
 import "src/liquidity/ProtocolAMMFactory.sol";
 import "src/liquidity/ProtocolAMMCalculatorFactory.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/economic/ruleProcessor/RuleProcessorDiamond.sol";
@@ -29,6 +29,8 @@ import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLi
  */
 abstract contract TestCommon is Test {
     FacetCut[] _ruleProcessorFacetCuts;
+
+    uint256 constant ATTO = 10 ** 18;
 
     // common addresses
     address superAdmin = address(0xDaBEEF);
@@ -52,7 +54,8 @@ abstract contract TestCommon is Test {
     ApplicationERC721Pricing erc721Pricer;
     ProtocolAMMFactory protocolAMMFactory;
     ProtocolAMMCalculatorFactory protocolAMMCalculatorFactory;
-    ProtocolAMM protocolAMM;
+    ProtocolERC20AMM protocolAMM;
+    ProtocolERC721AMM dualLinearERC271AMM;
     // common block time
     uint64 Blocktime = 1769924800;
 

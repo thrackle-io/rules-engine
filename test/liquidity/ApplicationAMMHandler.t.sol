@@ -1,7 +1,7 @@
 // // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "../../src/liquidity/ProtocolAMM.sol";
+import "../../src/liquidity/ProtocolERC20AMM.sol";
 import "../../src/example/OracleRestricted.sol";
 import "../../src/example/OracleAllowed.sol";
 import "test/helpers/TestCommonFoundry.sol";
@@ -44,7 +44,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
 
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();
-        protocolAMM = ProtocolAMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2),1,1, address(applicationAppManager)));
+        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2),1,1, address(applicationAppManager)));
         /// Set up the ApplicationAMMHandler
         applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
         protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));

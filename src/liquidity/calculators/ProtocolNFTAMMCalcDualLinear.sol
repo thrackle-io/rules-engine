@@ -7,7 +7,7 @@ import {CurveErrors} from "../../interfaces/IErrors.sol";
 
 /**
  * @title Automated Market Maker Swap Linear Calculator for NFT Pools
- * @dev This is external and used by the ProtocolAMM. The intention is to be able to change the calculations
+ * @dev This is external and used by the ProtocolERC20AMM. The intention is to be able to change the calculations
  *      as needed. It contains an example linear. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
@@ -21,6 +21,14 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     uint256 constant M_MAX = 1_000_000_000_000_000_000_000_000 * 10 ** PRECISION_DECIMALS;
     Line public buyCurve;
     Line public sellCurve;
+
+    /**
+    * @dev tracks how many NFTs have been put in circulation by the AMM.
+    * If the AMM has sold 10 NFTs and then "bought" back 7, then the value of q will be 3.
+    * @notice that q is a unit, which means we are assuming that the AMM is the ONLY source of NFTs.
+    * In other words, q = ERC721Contract.totalSupply() - ERC721Contract.balanceOf(AMM_ADDRESS).
+    */
+    uint256 public q;
 
     /**
     * @dev constructor
@@ -44,29 +52,63 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     /**
      * @dev This performs the swap from ERC20s to NFTs. It is a linear calculation.
      * @param _reserve0 not used in this case.
-     * @param _q tracker of amount of NFTs released by the pool
+     * @param _reserve1 not used in this case.
      * @param _amountERC20 amount of ERC20 coming out of the pool
      * @param _amountNFT amount of NFTs coming out of the pool (restricted to 1 for now)
      * @return price
      */
-    function calculateSwap(uint256 _reserve0, uint256 _q, uint256 _amountERC20, uint256 _amountNFT) external view override returns (uint256 price) {
+    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amountERC20, uint256 _amountNFT) external override returns (uint256 price) {
         _reserve0;
-        if (_amountERC20 == 0 && _amountNFT == 0) {
-            revert AmountsAreZero();
-        }
-        // user is trying to SELL an NFT to get ERC20s in return
-        if (_amountERC20 != 0) {
-            // we validate against overflow
-            if (_q < 1) revert ValueOutOfRange(_q);
-            // we then calculate the price
-            price = sellCurve.getY(_q - 1);
-        // user is trying to BUY an NFT in exchange for ERC20s
-        } else {
-            // we enforce the 1-NFT-per-swap rule
-            if (_amountNFT > 1) revert ValueOutOfRange(_amountNFT);
-            // we then calculate the price
-            price = buyCurve.getY(_q);
-        }
+        _reserve1;
+        if (_amountERC20 == 0 && _amountNFT == 0) revert AmountsAreZero();
+        
+        price =  simulateSwap( _reserve0,  _reserve1,  _amountERC20,  _amountNFT);
+        _amountERC20 == 0 ? ++q : --q ;
+    }
+
+    /**
+     * @dev This performs the swap from ERC20s to NFTs. It is a linear calculation.
+     * @param _reserve0 not used in this case.
+     * @param _reserve1 not used in this case.
+     * @param _amountERC20 amount of ERC20 coming out of the pool
+     * @param _amountNFT amount of NFTs coming out of the pool (restricted to 1 for now)
+     * @return price
+     */
+    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amountERC20, uint256 _amountNFT) public view returns (uint256 price) {
+        _reserve0;
+        _reserve1;
+        if (_amountERC20 == 0)  
+            price = _calculateBuy(_amountNFT);
+        else 
+            price = _calculateSell();
+    }
+
+    /**
+     * @dev sets the value of q
+     * @param _q the new value of q.
+     * @notice only AppAdministrators can perform this operation
+     */
+    function set_q(uint256 _q) external appAdministratorOnly(appManagerAddress){
+        q = _q;
+    }
+
+    /**
+     * @dev calculates the price for a buy with current q
+     * @param _amountNFT the amount of NFTs coming out of the pool in the transaction
+     */
+    function _calculateBuy(uint256 _amountNFT) internal view returns (uint256 price) {
+        // we enforce the 1-NFT-per-swap rule
+        if (_amountNFT > 1) revert ValueOutOfRange(_amountNFT);
+        price = buyCurve.getY(q);
+    }
+
+    /**
+     * @dev calculates the price for a sell with current q
+     */
+    function _calculateSell() internal view returns (uint256 price) {
+        // we validate against overflow
+        if (q < 1) revert ValueOutOfRange(q);
+        price = sellCurve.getY(q - 1);
     }
 
     /**
@@ -120,7 +162,7 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @param _sellCurve the definition of the sellCurve input
     */
     function _validateCurvePair(LineInput memory _buyCurve, Line memory _sellCurve) internal pure {
-        if(_buyCurve.m * (_sellCurve.m_den / PRECISION_DECIMALS) < _sellCurve.m_num) revert CurvesInvertedOrIntersecting(); 
+        if(_buyCurve.m * (_sellCurve.m_den / (10 ** PRECISION_DECIMALS)) < _sellCurve.m_num) revert CurvesInvertedOrIntersecting(); 
         if( _buyCurve.b < _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }
 
@@ -133,7 +175,7 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @param _sellCurve the definition of the sellCurve stored in the contract
     */
     function _validateCurvePair(Line memory _buyCurve, LineInput memory _sellCurve) internal pure {
-        if(_buyCurve.m_num < _sellCurve.m * (_buyCurve.m_den / PRECISION_DECIMALS))  revert CurvesInvertedOrIntersecting(); 
+        if(_buyCurve.m_num < _sellCurve.m * (_buyCurve.m_den / (10 ** PRECISION_DECIMALS)))  revert CurvesInvertedOrIntersecting(); 
         if(_buyCurve.b < _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }
 

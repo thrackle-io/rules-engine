@@ -130,6 +130,9 @@ interface AMMErrors {
     error TokenInvalid(address);
     error AmountExceedsBalance(uint256);
     error TransferFailed();
+    error NotTheOwnerOfNFT(uint256 _tokenId);
+    error NotEnumerable();
+    error NotEnoughTokensForSwap(uint256 _tokensIn,uint256 _tokensRequired);
 }
 
 interface NFTPricingErrors {

@@ -43,5 +43,5 @@ interface IProtocolAMMHandler {
      * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return fees total assessed fee for transaction
      */
-    function assessFees(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, ActionTypes _action) external returns (uint256);
+    function assessFees(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, ActionTypes _action) external view returns (uint256);
 }

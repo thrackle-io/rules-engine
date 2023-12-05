@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "src/liquidity/ProtocolAMM.sol";
+import "src/liquidity/ProtocolERC20AMM.sol";
 import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
@@ -26,25 +26,25 @@ contract ProtocolAMMFactoryTest is TestCommonFoundry {
 
     function testCreateAMM() public {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        ProtocolAMM protocolAMM = ProtocolAMM(protocolAMMFactory.createAMM(address(applicationCoin), address(applicationCoin2), address(applicationAppManager), protocolAMMCalculatorFactory.createConstantProduct(address(applicationAppManager))));
+        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createERC20AMM(address(applicationCoin), address(applicationCoin2), address(applicationAppManager), protocolAMMCalculatorFactory.createConstantProduct(address(applicationAppManager))));
         ProtocolAMMCalcCP calc = ProtocolAMMCalcCP(protocolAMM.calculatorAddress());
         assertEq(calc.appManagerAddress(),address(applicationAppManager));
     }
 
     function testCreateAMMLinear() public {
-        ProtocolAMM protocolAMM = ProtocolAMM(protocolAMMFactory.createLinearAMM(address(applicationCoin), address(applicationCoin2), 6000, 15 * 10 ** 17,  address(applicationAppManager)));
+        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createLinearAMM(address(applicationCoin), address(applicationCoin2), 6000, 15 * 10 ** 17,  address(applicationAppManager)));
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(protocolAMM.calculatorAddress());
         assertEq(calc.getSlope(),6000);
     }
 
     function testCreateAMMConstant() public {
-        ProtocolAMM protocolAMM = ProtocolAMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2), 1, 2,  address(applicationAppManager)));
+        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2), 1, 2,  address(applicationAppManager)));
         ProtocolAMMCalcConst calc = ProtocolAMMCalcConst(protocolAMM.calculatorAddress());
         assertEq(calc.getX(),1);
     }
 
     function testCreateAMMConstantProduct() public {
-        ProtocolAMM protocolAMM = ProtocolAMM(protocolAMMFactory.createConstantProductAMM(address(applicationCoin), address(applicationCoin2), address(applicationAppManager)));
+        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantProductAMM(address(applicationCoin), address(applicationCoin2), address(applicationAppManager)));
         ProtocolAMMCalcCP calc = ProtocolAMMCalcCP(protocolAMM.calculatorAddress());
         assertEq(calc.appManagerAddress(),address(applicationAppManager));
     }

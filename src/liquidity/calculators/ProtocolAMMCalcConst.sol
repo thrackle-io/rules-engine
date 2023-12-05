@@ -6,7 +6,7 @@ import "./IProtocolAMMFactoryCalculator.sol";
 /**
  * @title Automated Market Maker Swap Constant Calculator
  * @notice This contains the calculations for AMM swap.
- * @dev This is external and used by the ProtocolAMM. The intention is to be able to change the calculations
+ * @dev This is external and used by the ProtocolERC20AMM. The intention is to be able to change the calculations
  *      as needed. It contains an example constant that uses ratio x/y. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */

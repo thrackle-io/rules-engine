@@ -881,13 +881,13 @@ function setPurchasePercentageRuleId(uint32 _ruleId) external ruleAdministratorO
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
-### activatePurchasePercentageRuleIdRule
+### activatePurchasePercentageRule
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.*
 
 
 ```solidity
-function activatePurchasePercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activatePurchasePercentageRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
