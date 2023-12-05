@@ -33,9 +33,33 @@ forge test --ffi --match-path <TEST_FILE_LOCATION> -vvvv
 ---
 ## Deployment Scripts
 
-### Local Test Deployment
+---
+## Deployment Test Scripts
 
-For local deployment tests, use Anvil's local blockchain in combination with the deployment scripts. To run anvil simply do ` anvil` in a dedicated terminal window. then, in a separate terminal:
+Deployments may be tested using the provided bash scripts. These scripts will test proper deployment and configurations of:
+- Protocol
+   - `deployProtocolTest.sh`
+- AppManager
+   - `deployAppManagerTest.sh`
+- Protocol Supported ERC20
+   - `deployAppERC20Test.sh`
+- Protocol Supported ERC721
+   - `deployAppERC721Test.sh`
+
+All the deployment scripts can be found in the root directory and all use '.env.deployTest' for environment specific variables but they can be left blank. If left blank, the scripts will prompt for entry of the necessary variables. 
+
+To run, open a terminal in the root directory and run the following command:
+```
+    bash deployProtocolTest.sh
+```
+
+Repeat the process for each desired test. If a configuration error is encountered, it should notify and give instructions to fix.
+
+---
+
+### Local Deployments
+
+For local deployments, use Anvil's local blockchain in combination with the deployment scripts. To run anvil simply do ` anvil` in a dedicated terminal window. then, in a separate terminal:
 
 ```
 forge script <SCRIPT_FILE_LOCATION> --ffi --rpc-url <ETH_RPC_URL>  --broadcast --verify -vvvv

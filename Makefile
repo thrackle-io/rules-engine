@@ -28,24 +28,21 @@ build  :; forge clean && forge build --optimize
 testAll:; forge test -vv --ffi 
 
 # Deploy contracts(singles)
-deployApplicationHandler:; 	forge script script/ApplicationHandlerModule.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationManager:;	forge script script/ApplicationAppManager.s.sol --ffi --broadcast --verify -vvvv
-deployRuleStorageDiamond:; forge script script/RuleStorageModule.s.sol --ffi --broadcast --verify -vvvv
-deployRuleProcessor:; forge script script/RuleProcessorModule.s.sol --ffi --broadcast --verify -vvvv
-deployTokenRuleRouter:; forge script script/TokenRuleRouter.s.sol --ffi --broadcast --verify -vvvv
-deployTaggedRuleProcessor:; forge script script/TaggedRuleProcessor.s.sol --ffi --broadcast --verify -vvvv
+deployApplicationHandler:; 	forge script script/ApplicationHandlerModule.s.sol --ffi --broadcast -vvv
+deployApplicationManager:;	forge script script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
+deployRuleStorageDiamond:; forge script script/RuleStorageModule.s.sol --ffi --broadcast -vvv
+deployRuleProcessor:; forge script script/RuleProcessorModule.s.sol --ffi --broadcast -vvv
+deployTokenRuleRouter:; forge script script/TokenRuleRouter.s.sol --ffi --broadcast -vvv
+deployTaggedRuleProcessor:; forge script script/TaggedRuleProcessor.s.sol --ffi --broadcast -vvv
 # Deploy contracts(full protocol)
-deployAll:;	forge script script/DeployAllModules.s.sol --ffi --broadcast --verify -vvvv
+deployAll:;	forge script script/DeployAllModules.s.sol --ffi --broadcast -vvv
 # Deploy Application Contracts(singles)
-deployApplicationAppManager:; forge script src/example/script/ApplicationAppManager.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationERC20Handler:; forge script src/example/script/ApplicationERC20Handler.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationAMMCalcLinear:; forge script src/example/script/ApplicationAMMCalcLinear.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationAMMCalcCP:; forge script src/example/script/ApplicationAMMCalcCP.s.sol --ffi --broadcast --verify -vvvv
-deployApplicationAMM:; forge script src/example/script/ApplicationAMM.s.sol --ffi --broadcast --verify -vvvv
+deployApplicationAppManager:; forge script src/example/script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
+deployApplicationERC20Handler:; forge script src/example/script/ApplicationERC20Handler.s.sol --ffi --broadcast -vvv
+deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol --ffi --broadcast -vvv
 # Deploy Application Contracts(entire application implementation)
-deployAllApp:; forge script src/example/script/ApplicationDeployAll.s.sol --ffi  --broadcast --verify -vvvvv
-deployNewApp:; forge script src/example/script/ApplicationUIDeploy.s.sol --ffi  --broadcast --verify -vvvvv
+deployAllApp:; forge script src/example/script/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv
+deployNewApp:; forge script src/example/script/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvv
 # Using a different env ref for pipeline deploy command.
 # Note from RK -- Outside the scope of what I'm doing right now, but
 # This could also be accomplished by creating a "pipeline" profile in foundry.toml which
@@ -132,13 +129,13 @@ checkFailSellLimit:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,ui
 
 #			<><><><><> ORACLE RULE <><><><><>
 loadUserWithTokensOracle:; :; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 1000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-addOracleRule:; cast send ${RULE_STORAGE_DIAMOND} "addOracleRule(address,uint8,address)(uint256)" ${APPLICATION_APP_MANAGER} 0 ${APPLICATION_ORACLE_ALLOWED_ADDRESS} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addOracleRule:; cast send ${RULE_STORAGE_DIAMOND} "addOracleRule(address,uint8,address)(uint256)" ${APPLICATION_APP_MANAGER} 0 ${APPLICATION_ORACLE_0_ADDRESS} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 applyOracleRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setOracleRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 mintFranksOracle:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${QUORRA} 10000000000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkBalanceFranksOracle:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${QUORRA} --from ${KEVIN}
 TransferFranksToKevin:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 10000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkFranksBalanceKevin:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${KEVIN} --from ${KEVIN}
-AddCluToRestrictionOracle:; cast send ${APPLICATION_ORACLE_RESTRICTED_ADDRESS} "addAddressToSanctionsList(address)" ${CLU} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+AddCluToRestrictionOracle:; cast send ${APPLICATION_ORACLE_1_ADDRESS} "addAddressToSanctionsList(address)" ${CLU} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 TransferFranksFromKevinToClu:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${SAM} 1 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 
 #			<><><><><> TOKEN REGISTRATION <><><><><>
@@ -186,7 +183,7 @@ loadCluWithFranks:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uin
 loadKevinWithFranks:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 100000000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 turnOffMaxTxSizePerPeriodByRiskRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateMaxTxSizePerPeriodByRiskRule(bool)" 0 --private-key ${QUORRA_PRIVATE_KEY} 
 turnOnMaxTxSizePerPeriodByRiskRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateMaxTxSizePerPeriodByRiskRule(bool)" 1 --private-key ${QUORRA_PRIVATE_KEY} 
-moveForwardInTime6Hours:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[21600]}' http://localhost:8545
+moveForwardInTime6Hours:; curl -H "Content-Type: application/json" -X POST --data '{"id":31337,"jsonrpc":"2.0","method":"evm_increaseTime","params":[21600]}' http://localhost:8545
 cluTransfers2FrankToKevin:;  cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${KEVIN} 2000000000000000000 --private-key ${CLU_PRIVATE_KEY}
 cluTransfers9998FrankToKevin:;  cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${KEVIN} 9998000000000000000000 --private-key ${CLU_PRIVATE_KEY}
 kevinTransfers2FrankToClu:;  cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${CLU} 2000000000000000000 --private-key ${KEVIN_PRIVATE_KEY}
@@ -263,7 +260,7 @@ applyTokenTransferVolumeRuleToToken:; cast send ${APPLICATION_ERC20_HANDLER_ADDR
 Transfer19FranksFromKevinToClu:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 19 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 # this one should fail
 Transfer1FrankFromKevinToClu:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 1 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-moveForwardInTime2Days:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[172800]}' http://localhost:8545
+moveForwardInTime2Days:; curl -H "Content-Type: application/json" -X POST --data '{"id":31337,"jsonrpc":"2.0","method":"evm_increaseTime","params":[172800]}' http://localhost:8545
 # Now it should pass
 # Transfer1FrankFromKevinToClu
 
@@ -280,27 +277,6 @@ tokenFee_AddGeneralTag:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTag(add
 tokenFee_transferTokensFromUser1ToUser2:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 1000 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
 _tokenFee_checkFranksBalanceUser2:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${KEVIN} --from ${KEVIN}
 _tokenFee_checkFranksBalanceUser1:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${CLU} --from ${KEVIN}
-
-
-#			<><><><><> ERC20 TOTAL SUPPLY VOLATILITY RULE  <><><><><>
-#	mint franks 1,000,000 total supply
-mintFranksForTotalSupplyRule:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${QUORRA} 1000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-#   create rule with 10% volatility threshold, 24 hrs period starting at noon with 0 as totalSupply to call totalSupply() from token 
-addTotalSupplyVolatilityRule:; cast send ${RULE_STORAGE_DIAMOND} "addSupplyVolatilityRule(address,uint16,uint8,uint8,uint256)(uint32)" ${APPLICATION_APP_MANAGER} 1000 24 12 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-#	activate rule 
-applyTotalSupplyVolatilityRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setTotalSupplyVolatilityRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-#	warp into rule period 
-# 	Mint tokens below rule threshold (50,000)
-mintFranksToKevinForVolRule:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${KEVIN} 50000000000000000000000 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-#	failed mint
-mintFranksToCluFailsVolRule:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${CLU} 100000000000000000000000 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-#	move to new period 
-#	failed mint passes 
-#	test Burn fails in current period (at limit)
-burnFranksKevinForVolRule:; cast send ${APPLICATION_ERC20_ADDRESS} "burn(uint256)" 50000000000000000000000 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-#	move forward to new period 
-#	burn successful 
-
 
 # <><><><><><><><><><> ERC721 TESTS  <><><><><><><><><><>
 #			<><><><><> NFT Trade Counter RULE <><><><><>
@@ -324,7 +300,7 @@ transferFrankNFTFromSamToClu:;cast send ${APPLICATION_ERC721_ADDRESS_1} "transfe
 checkFrankNFTBalanceClu:; cast call ${APPLICATION_ERC721_ADDRESS_1} "balanceOf(address)(uint256)" ${CLU} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkNFTBalanceSam:; cast call ${APPLICATION_ERC721_ADDRESS_1} "balanceOf(address)(uint256)" ${SAM} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # Make sure the DeLorean hits 88 mph and time travel one day into the future
-moveForwardInTime1Day:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[86400]}' http://localhost:8545
+moveForwardInTime1Day:; curl -H "Content-Type: application/json" -X POST --data '{"id":31337,"jsonrpc":"2.0","method":"evm_increaseTime","params":[86400]}' http://localhost:8545
 # Transfer Frankenstein NFT from Sam to Clu(This will now complete successfully)
 transferFrankNFTFromSamToCluAgain:;cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${SAM} ${CLU} 0 --private-key ${SAM_PRIVATE_KEY} --from ${SAM}
 #checkNFTBalanceClu
@@ -363,7 +339,7 @@ applyNFTAdminWithdrawalRule:; cast send ${APPLICATION_ERC721_HANDLER} "setAdminW
 # Attempt to transfer before rule expires (fails)
 transferFrankNFTFromQuorraToSamFails:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${QUORRA} ${SAM} 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # Move time to after rule 
-moveForwardInTime1Year:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[31536000]}' http://localhost:8545
+moveForwardInTime1Year:; curl -H "Content-Type: application/json" -X POST --data '{"id":31337,"jsonrpc":"2.0","method":"evm_increaseTime","params":[31536000]}' http://localhost:8545
 # Transfer NFTs 
 transferNFTFromQuorraToSam:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${QUORRA} ${SAM} 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 
@@ -421,7 +397,7 @@ transferFranksNFTSamToKevin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transfe
 #<<Failing Transfer From Kevin to Sam>>
 transferFranksNFTKevinToSamFails:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${KEVIN} ${SAM} 0 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 #<<Move Time Forward to Expire Rule>>
-moveForwardinTime3days:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[259200]}' http://localhost:8545
+moveForwardinTime3days:; curl -H "Content-Type: application/json" -X POST --data '{"id":31337,"jsonrpc":"2.0","method":"evm_increaseTime","params":[259200]}' http://localhost:8545
 #<<Repeat Failed Transfer (passes)>>
 transferFranksNFTKevinToSamPasses:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${KEVIN} ${SAM} 0 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 
@@ -434,7 +410,7 @@ TransferVolumeApplyTokenTransferVolumeRuleToToken:; cast send ${APPLICATION_ERC7
 TransferVolumeTransferNFT0ToFromKevinToClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${KEVIN} ${CLU} 0 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 # this one should fail
 TransferVolumeTransferNFT1ToFromKevinToClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${KEVIN} ${CLU} 1 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-TransferVolumeMoveForwardInTime2Days:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[172800]}' http://localhost:8545
+TransferVolumeMoveForwardInTime2Days:; curl -H "Content-Type: application/json" -X POST --data '{"id":31337,"jsonrpc":"2.0","method":"evm_increaseTime","params":[172800]}' http://localhost:8545
 # Now it should pass
 # TransferVolumeTransferNFT1ToFromKevinToClu
 
@@ -445,212 +421,6 @@ setTreasuryAddress:; cast send ${APPLICATION_ERC721_ADDRESS_1} "setTreasuryAddre
 mintPaidFrankNFT:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${CLU} --private-key ${CLU_PRIVATE_KEY} --from ${CLU} --value 1ether
 mintPaidFrankNFTNoEther:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${CLU} --private-key ${CLU_PRIVATE_KEY} --from ${CLU} 
 
-#			<><><><><> ERC721 MINIMUM HOLD TIME RULE <><><><><>
-# add the rule
-MinimumHoldTimeSetHours:; cast send ${APPLICATION_ERC721_HANDLER} "setMinimumHoldTimeHours(uint32)" 24 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-MinimumHoldTimeGetHours:; cast call ${APPLICATION_ERC721_HANDLER} "getMinimumHoldTimeHours()(uint32)" --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-# mint
-MinimumHoldTimeMintFrankNFT1forKevin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${KEVIN} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-# this should fail
-MinimumHoldTimeTransferNFT1ToFromKevinToClu1:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${KEVIN} ${CLU} 0 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-# move forward in time one day
-moveForwardInTime24Hours:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[86400]}' http://localhost:8545
-# now it will pass
-MinimumHoldTimeTransferNFT1ToFromKevinToClu2:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${KEVIN} ${CLU} 0 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-
-#			<><><><><> ERC721 TOTAL SUPPLY VOLATILITY RULE  <><><><><>
-#	mint frank NFTs to Quorra
-#   create rule with same params as erc20 (10% volatility threshold)
-#   addTotalSupplyVolatilityRule
-#	activate rule 
-applyTotalSupplyVolatilityRuleERC721:; cast send ${APPLICATION_ERC721_HANDLER} "setTotalSupplyVolatilityRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-#	warp into rule period 
-# 	Mint tokens below rule threshold 
-mintFranksNFTToSamVolRule:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${SAM}  --private-key ${SAM_PRIVATE_KEY}
-#	failed mint 
-#mintFranksNFTToSamVolRule
-#	move to new period 
-#	failed mint passes 
-#	fail burn in same period 
-burnFranksNFTSamVolRule:; cast send ${APPLICATION_ERC721_ADDRESS_1} "burn(uint256)" 22  --private-key ${SAM_PRIVATE_KEY}
-burnFranksNFTSamVolRule2:; cast send ${APPLICATION_ERC721_ADDRESS_1} "burn(uint256)" 21  --private-key ${SAM_PRIVATE_KEY}
-#	move to new period and burn successful 
-
-
-# <><><><><><><><><><> AMM MODULE TESTS  <><><><><><><><><><>
-#			<><><><><> AMM <><><><><>
-mintFranks:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${QUORRA} 10000000000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-checkBalanceFranksAMM:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${QUORRA} --from ${KEVIN}
-mintDracs:; cast send ${APPLICATION_ERC20_ADDRESS_2} "mint(address,uint256)" ${QUORRA} 10000000000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-checkBalanceDracs:; cast call ${APPLICATION_ERC20_ADDRESS_2} "balanceOf(address)(uint256)" ${QUORRA} --from ${KEVIN}
-approveFranks:; cast send ${APPLICATION_ERC20_ADDRESS} "approve(address,uint256)" ${APPLICATION_AMM_ADDRESS} 1000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-approveDracs:; cast send ${APPLICATION_ERC20_ADDRESS_2} "approve(address,uint256)" ${APPLICATION_AMM_ADDRESS} 1000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-addLiquidity:; cast send ${APPLICATION_AMM_ADDRESS} "addLiquidity(uint256,uint256)" 1000000 1000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-getAMMReserve0:; cast call ${APPLICATION_AMM_ADDRESS} "getReserve0()(uint256)" --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-giveCluFranks:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 100000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-approveCluFranksForAMM:; cast send ${APPLICATION_ERC20_ADDRESS} "approve(address,uint256)" ${APPLICATION_AMM_ADDRESS} 500000 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-swap0for1:; cast send ${APPLICATION_AMM_ADDRESS} "swap(address,uint256)(uint256)" ${APPLICATION_ERC20_ADDRESS} 50000 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-checkBalanceCluCoin2:; cast call ${APPLICATION_ERC20_ADDRESS_2} "balanceOf(address)(uint256)" ${CLU} --from ${KEVIN}
-
-#			<><><><><> MinMaxBalance Rule AMM <><><><><>
-addMinMaxBalanceRule:; cast send ${RULE_STORAGE_DIAMOND} "addBalanceLimitRules(address,bytes32[],uint256[],uint256[])(uint256)" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [10] [100000] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-addMinMaxBalanceRule2:; cast send ${RULE_STORAGE_DIAMOND} "addBalanceLimitRules(address,bytes32[],uint256[],uint256[])(uint256)" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [15] [10000] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyMinMaxBalanceRuleToken0:; cast send ${APPLICATION_AMM_HANDLER} "setMinMaxBalanceRuleIdToken0(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyMinMaxBalanceRuleToken1:; cast send ${APPLICATION_AMM_HANDLER} "setMinMaxBalanceRuleIdToken1(uint32)" 1 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-checkAMMHandler:; cast call ${APPLICATION_AMM_HANDLER} "getMinMaxBalanceRuleIdToken0()" --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-swap0for1PassMinMax:; cast send ${APPLICATION_AMM_ADDRESS} "swap(address,uint256)(uint256)" ${APPLICATION_ERC20_ADDRESS} 500 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-
-#			<><><><><> AMM Fees <><><><><>
-# mintFranks to Quorra 
-checkBalanceFranks:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${QUORRA} --from ${KEVIN}
-mintDracsAmm:; cast send ${APPLICATION_ERC20_ADDRESS_2} "mint(address,uint256)" ${QUORRA} 1000000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-checkBalanceDracsAMM:; cast call ${APPLICATION_ERC20_ADDRESS_2} "balanceOf(address)(uint256)" ${QUORRA} --from ${KEVIN}
-approveFranksAMM:; cast send ${APPLICATION_ERC20_ADDRESS} "approve(address,uint256)" ${APPLICATION_AMM_ADDRESS} 1000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-approveDracsAMM:; cast send ${APPLICATION_ERC20_ADDRESS_2} "approve(address,uint256)" ${APPLICATION_AMM_ADDRESS} 1000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-addLiquidityAMM:; cast send ${APPLICATION_AMM_ADDRESS} "addLiquidity(uint256,uint256)" 1000000 1000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-AMMReserve0:; cast call ${APPLICATION_AMM_ADDRESS} "getReserve0()(uint256)" --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-giveCluFranksAMM:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 100000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-approveCluFranksForAMMFees:; cast send ${APPLICATION_ERC20_ADDRESS} "approve(address,uint256)" ${APPLICATION_AMM_ADDRESS} 50000 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-
-addAMMFeeRule:; cast send ${RULE_STORAGE_DIAMOND} "addAMMFeeRule(address,uint256)(uint256)" ${APPLICATION_APP_MANAGER} 500 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyAMMFeeRule:; cast send ${APPLICATION_AMM_HANDLER} "setAMMFeeRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-checkAMMFeeActive:; cast call ${APPLICATION_AMM_HANDLER} "isAMMFeeRuleActive()(bool)" --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-swap0for1WithFee:; cast send ${APPLICATION_AMM_ADDRESS} "swap(address,uint256)(uint256)" ${APPLICATION_ERC20_ADDRESS} 100 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-checkCluCoin2Balance:; cast call ${APPLICATION_ERC20_ADDRESS_2} "balanceOf(address)(uint256)" ${CLU} --from ${KEVIN}
-checkBalanceTreasuryCoin2:; cast call ${APPLICATION_ERC20_ADDRESS_2} "balanceOf(address)(uint256)" ${AMM_TREASURY} --from ${KEVIN}
-checkBalanceTreasuryCoin:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${AMM_TREASURY} --from ${KEVIN}
-
-#			<><><><><> AMM Purchase Percentage Rule <><><><><>
-# << mint Franks and Dracs to Quorra >>
-giveCluDracsAMM:; cast send ${APPLICATION_ERC20_ADDRESS_2} "mint(address,uint256)" ${CLU} 1000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-# << add liquidity to AMM >>
-addPercentagePurchaseRule:; cast send ${RULE_STORAGE_DIAMOND} "addPercentagePurchaseRule(address,uint16,uint32,uint256,uint32)(uint32)" ${APPLICATION_APP_MANAGER} 1000 24 1000000 6 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyPercentagePurchaseRule:; cast send ${APPLICATION_AMM_HANDLER} "setPurchasePercentageRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-# << give AMM Approval for tokens >> 
-approveCluDracsForAMM:; cast send ${APPLICATION_ERC20_ADDRESS_2} "approve(address,uint256)" ${APPLICATION_AMM_ADDRESS} 500000 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-# << move forward in time to activate rule >> 
-moveForwardInTime36Hours:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[129600]}' http://localhost:8545
-swap1for0Clu:; cast send ${APPLICATION_AMM_ADDRESS} "swap(address,uint256)(uint256)" ${APPLICATION_ERC20_ADDRESS_2} 100 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-swap1for0ClueFails:; cast send ${APPLICATION_AMM_ADDRESS} "swap(address,uint256)(uint256)" ${APPLICATION_ERC20_ADDRESS_2} 99900 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-swap0for1CluePasses:; cast send ${APPLICATION_AMM_ADDRESS} "swap(address,uint256)(uint256)" ${APPLICATION_ERC20_ADDRESS} 100 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-
-
-#			<><><><><> AMM Sell Percentage Rule <><><><><>
-# << mint Franks to Quorra >>
-giveCluFranksForSwap:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 100000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-# << add liquidity to AMM >>
-addSellPercentageRule:; cast send ${RULE_STORAGE_DIAMOND} "addPercentageSellRule(address,uint16,uint32,uint256,uint32)(uint32)" ${APPLICATION_APP_MANAGER} 1000 24 10000000 6 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applySellPercentageRule:; cast send ${APPLICATION_AMM_HANDLER} "setSellPercentageRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-# << give AMM Approval for tokens >> 
-# << move forward in time to activate rule >> 
-swap0for1Clue:; cast send ${APPLICATION_AMM_ADDRESS} "swap(address,uint256)(uint256)" ${APPLICATION_ERC20_ADDRESS} 100 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-swap0for1ClueFails:; cast send ${APPLICATION_AMM_ADDRESS} "swap(address,uint256)(uint256)" ${APPLICATION_ERC20_ADDRESS} 99905 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-swap1for0CluePasses:; cast send ${APPLICATION_AMM_ADDRESS} "swap(address,uint256)(uint256)" ${APPLICATION_ERC20_ADDRESS_2} 100 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-
-
-# <><><><><><><><><><> STAKING MODULE TESTS  <><><><><><><><><><>
-#			<><><><><> FUNGIBLE TOKEN STAKING <><><><><>
-mintFranksForClu:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${CLU} 10000000000000000000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} 
-mintRewardTokensForStakingContract:; cast send ${APPLICATION_ERC20_ADDRESS_2} "mint(address,uint256)" ${ERC20STAKING_CONTRACT} 10000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} 
-eddieApprovesStakingContract:; cast send ${APPLICATION_ERC20_ADDRESS} "approve(address,uint256)" ${ERC20STAKING_CONTRACT} 100000000000 --private-key ${CLU_PRIVATE_KEY} 
-eddieTrysToStakesAFewFranksFor3Months:; cast send ${ERC20STAKING_CONTRACT} "stake(uint256,uint8,uint8)" 10 5 3 --private-key ${CLU_PRIVATE_KEY} 
-eddieStakesSomeFranksForTenMonths:; cast send ${ERC20STAKING_CONTRACT} "stake(uint256,uint8,uint8)" 1000000 5 10 --private-key ${CLU_PRIVATE_KEY} 
-moveForwardInTime6Months:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[15552001]}' http://localhost:8545
-moveForwardInTime4Months:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[10368000]}' http://localhost:8545
-moveForwardInTime10Months:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[25921000]}' http://localhost:8545
-eddieClaimsRewards:; cast send ${ERC20STAKING_CONTRACT} "claimRewards()" --private-key ${CLU_PRIVATE_KEY} 
-
-#			<><><><><> NON FUNGIBLE TOKEN STAKING  <><><><><>
-# <<mint reward tokens for staking contract>>
-mintRewardERC20ForERC721Staking:; cast send ${APPLICATION_ERC20_ADDRESS_2} "mint(address,uint256)" ${ERC721STAKING_CONTRACT} 10000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} 
-# <<mint NFTs to users to stake>>
-# <<Mint tokens 0,1,2 to Quorra) 
-transferFrankToken0ToKevin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${QUORRA} ${KEVIN} 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-transferFrankToken1ToSam:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${QUORRA} ${SAM} 1 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-transferFrankToken2ToClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${QUORRA} ${CLU} 2 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-# <<approve staking contract for NFTs for each user>>
-approveStakingContractKevin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "approve(address,uint256)" ${ERC721STAKING_CONTRACT} 0 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-approveStakingContractSam:; cast send ${APPLICATION_ERC721_ADDRESS_1} "approve(address,uint256)" ${ERC721STAKING_CONTRACT} 1 --private-key ${SAM_PRIVATE_KEY} --from ${SAM}
-approveStakingContractClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "approve(address,uint256)" ${ERC721STAKING_CONTRACT} 2 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-# <<stake users NFTs>>
-stakeToken0Kevin:; cast send ${ERC721STAKING_CONTRACT} "stake(address,uint256,uint8,uint8)" ${APPLICATION_ERC721_ADDRESS_1} 0 5 3 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-stakeToken1Sam:; cast send ${ERC721STAKING_CONTRACT} "stake(address,uint256,uint8,uint8)" ${APPLICATION_ERC721_ADDRESS_1} 1 5 4 --private-key ${SAM_PRIVATE_KEY} --from ${SAM}
-stakeToken2Clu:; cast send ${ERC721STAKING_CONTRACT} "stake(address,uint256,uint8,uint8)" ${APPLICATION_ERC721_ADDRESS_1} 2 5 10 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-# <<move forward in time>>
-checkBlockTime:; cast call ${ERC721STAKING_CONTRACT} "getBlocktime()(uint256)" --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-#moveForwardInTime4Months
-# <<calculate rewards>>
-calcRewardsForKevin:; cast call ${ERC721STAKING_CONTRACT} "calculateRewards(address)(uint256)" ${KEVIN} --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-# <<move to middle of period>> 
-# moveForwardInTime6Months
-# <<calculate rewards again>>
-calcRewardsForSam:; cast call ${ERC721STAKING_CONTRACT} "calculateRewards(address)(uint256)" ${SAM} --private-key ${SAM_PRIVATE_KEY} --from ${SAM}
-# <<move to end of period>>
-# moveForwardInTime10Months
-calcRewardsForClu:; cast call ${ERC721STAKING_CONTRACT} "calculateRewards(address)(uint256)" ${CLU} --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-# <<claim user rewards>>
-claimKevin:; cast send ${ERC721STAKING_CONTRACT} "claimRewards()" --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-claimSam:; cast send ${ERC721STAKING_CONTRACT} "claimRewards()" --private-key ${SAM_PRIVATE_KEY} --from ${SAM}
-claimClu:; cast send ${ERC721STAKING_CONTRACT} "claimRewards()" --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
-
-
-#		         	<><><><><> ERC20 Auto Mint Reward Token Staking Contract  <><><><><>		         	#
-# NOTE This contract does not need to have reward tokens minted or transfered to contract. Rewards are minted to user at claim. 
-# <<Mint Franks (staking token) to Sam, Clu and Kevin>> 
-mintFranksForStakingSam:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${SAM} 100000 --private-key ${QUORRA_PRIVATE_KEY} 
-mintFranksForStakingClu:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${CLU} 100000 --private-key ${QUORRA_PRIVATE_KEY} 
-mintFranksForStakingKevin:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${KEVIN} 100000 --private-key ${QUORRA_PRIVATE_KEY} 
-# <<Sam, Clu and Kevin Approve Staking Contract>> 
-approveAutoMintStakingSam:; cast send ${APPLICATION_ERC20_ADDRESS} "approve(address,uint256)" ${ERC20AUTOMINT_STAKING_CONTRACT} 100000000000 --private-key ${SAM_PRIVATE_KEY} 
-approveAutoMintStakingClu:; cast send ${APPLICATION_ERC20_ADDRESS} "approve(address,uint256)" ${ERC20AUTOMINT_STAKING_CONTRACT} 100000000000 --private-key ${CLU_PRIVATE_KEY} 
-approveAutoMintStakingKevin:; cast send ${APPLICATION_ERC20_ADDRESS} "approve(address,uint256)" ${ERC20AUTOMINT_STAKING_CONTRACT} 100000000000 --private-key ${KEVIN_PRIVATE_KEY} 
-# <<Sam Stakes for 1 days >> 
-stakeSam1Days:; cast send ${ERC20AUTOMINT_STAKING_CONTRACT} "stake(uint256,uint8,uint8)" 10000 3 1 --private-key ${SAM_PRIVATE_KEY} 
-# <<Clu Stakes for 2 days >> 
-stakeClu2Days:; cast send ${ERC20AUTOMINT_STAKING_CONTRACT} "stake(uint256,uint8,uint8)" 10000 3 2 --private-key ${CLU_PRIVATE_KEY} 
-# <<Kevin Stakes for 3 days >> 
-stakeKevin3Days:; cast send ${ERC20AUTOMINT_STAKING_CONTRACT} "stake(uint256,uint8,uint8)" 10000 3 3 --private-key ${KEVIN_PRIVATE_KEY} 
-# <<Move time forward 4 days >>
-moveForwardInTime4Days:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[345600]}' http://localhost:8545
-# <<Sam Claims >> 
-claimRewardsSam:; cast send ${ERC20AUTOMINT_STAKING_CONTRACT} "claimRewards()" --private-key ${SAM_PRIVATE_KEY} 
-# <<Clu Claims >> 
-claimRewardsClu:; cast send ${ERC20AUTOMINT_STAKING_CONTRACT} "claimRewards()" --private-key ${CLU_PRIVATE_KEY} 
-# <<Kevin Claims >> 
-claimRewardsKevin:; cast send ${ERC20AUTOMINT_STAKING_CONTRACT} "claimRewards()" --private-key ${KEVIN_PRIVATE_KEY} 
-###FAILCASE: Sam tries to claim again with zero rewards earned. 
-# <<Sam Claims >> 
-claimRewardsSamAgain:; cast send ${ERC20AUTOMINT_STAKING_CONTRACT} "claimRewards()" --private-key ${SAM_PRIVATE_KEY} 
-calculateRewardsAutoMint:; cast call ${ERC20AUTOMINT_STAKING_CONTRACT} "calculateRewards(address)(uint256)" ${SAM} --private-key ${QUORRA_PRIVATE_KEY} 
-
-#			<><><><><> ERC721 Auto Mint Reward Token Staking Contract  <><><><><>		         	
-# NOTE This contract does not need to have reward tokens minted or transfered to contract. Rewards are minted to user at claim. 
-# <<Mint Franks (ERC721 staking token) to Sam, Clu and Kevin>> 
-mintFrankNFTsForStakingSam:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${SAM}  --private-key ${QUORRA_PRIVATE_KEY} 
-mintFrankNFTsForStakingClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${CLU} --private-key ${QUORRA_PRIVATE_KEY} 
-mintFrankNFTsForStakingKevin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${KEVIN} --private-key ${QUORRA_PRIVATE_KEY} 
-# <<Sam, Clu and Kevin Approve Staking Contract>> 
-approveNFTAutoMintStakingSam:; cast send ${APPLICATION_ERC721_ADDRESS_1} "approve(address,uint256)" ${ERC721AUTOMINT_STAKING_CONTRACT} 0 --private-key ${SAM_PRIVATE_KEY} 
-approveNFTAutoMintStakingClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "approve(address,uint256)" ${ERC721AUTOMINT_STAKING_CONTRACT} 1 --private-key ${CLU_PRIVATE_KEY} 
-approveNFTAutoMintStakingKevin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "approve(address,uint256)" ${ERC721AUTOMINT_STAKING_CONTRACT} 2 --private-key ${KEVIN_PRIVATE_KEY} 
-# <<Sam Stakes for 1 days >> 
-stakeNFT0Sam1Days:; cast send ${ERC721AUTOMINT_STAKING_CONTRACT} "stake(address,uint256,uint8,uint8)" ${APPLICATION_ERC721_ADDRESS_1} 0 3 1 --private-key ${SAM_PRIVATE_KEY} 
-# <<Clu Stakes for 2 days >> 
-stakeNFT1Clu2Days:; cast send ${ERC721AUTOMINT_STAKING_CONTRACT} "stake(address,uint256,uint8,uint8)" ${APPLICATION_ERC721_ADDRESS_1} 1 3 2 --private-key ${CLU_PRIVATE_KEY} 
-# <<KEVIN Stakes for 3 days >> 
-stakeNFT2Kevin3Days:; cast send ${ERC721AUTOMINT_STAKING_CONTRACT} "stake(address,uint256,uint8,uint8)" ${APPLICATION_ERC721_ADDRESS_1} 2 3 3 --private-key ${KEVIN_PRIVATE_KEY} 
-# <<Move time forward 4 days >>
-moveForwardInTime4DaysNFT:; curl -H "Content-Type: application/json" -X POST --data '{"id":${CHAIN_ID},"jsonrpc":"2.0","method":"evm_increaseTime","params":[345600]}' http://localhost:8545
-# <<Sam Claims >> 
-claimRewardsSamNFTStaking:; cast send ${ERC721AUTOMINT_STAKING_CONTRACT} "claimRewards()" --private-key ${SAM_PRIVATE_KEY} 
-# <<Clu Claims >> 
-claimRewardsCluNFTStaking:; cast send ${ERC721AUTOMINT_STAKING_CONTRACT} "claimRewards()" --private-key ${CLU_PRIVATE_KEY} 
-# <<Kevin Claims >> 
-claimRewardsKevinNFTStaking:; cast send ${ERC721AUTOMINT_STAKING_CONTRACT} "claimRewards()" --private-key ${KEVIN_PRIVATE_KEY} 
-###FAILCASE: Sam tries to claim again with zero rewards earned. 
-# <<Sam Claims >> 
-claimRewardsSamAgainNFTStaking:; cast send ${ERC721AUTOMINT_STAKING_CONTRACT} "claimRewards()" --private-key ${SAM_PRIVATE_KEY} 
-calculateRewardsAutoMintNFT:; cast call ${ERC721AUTOMINT_STAKING_CONTRACT} "calculateRewards(address)(uint256)" ${SAM} --private-key ${QUORRA_PRIVATE_KEY} 
 
 #			<><><><><><><><><><><><><><><> UPGRADEABILITY  <><><><><><><><><><><><><><><>
 # <<AppManager Upgrade>> 
