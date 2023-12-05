@@ -56,15 +56,15 @@ The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32
 
 The rule will be evaluated with the following logic:
 
-1. The processor will receive the ID of the token-transfer-volume rule set in the token handler. 
-2. The processor will receive the current `transfer volume`, `last transfer time`, `amount` and token's total supply from the handler.
-3. The processor will evaluate whether the rule has a set total supply or use the token's total supply provided by the handler set at the beginning of every new `period`. 
-4. The processor will evaluate whether the rule is active based on the `starting timestamp`. If it is not active, the rule evaluation will skip the next steps, and will simply return the `transfer volume` value.
-5. The processor will evaluate whether the current time is within a new `period`.
+1. The processor receives the ID of the token-transfer-volume rule set in the token handler. 
+2. The processor receives the current `transfer volume`, `last transfer time`, `amount` and token's total supply from the handler.
+3. The processor evaluates whether the rule has a set total supply or use the token's total supply provided by the handler set at the beginning of every new `period`. 
+4. The processor evaluates whether the rule is active based on the `starting timestamp`. If it is not active, the rule evaluation will skip the next steps, and will simply return the `transfer volume` value.
+5. The processor evaluates whether the current time is within a new `period`.
     - **If it is a new period**, the processor will set the `amount` value from the current transaction as the `_volume` value for the volume percent of total supply calculation.
-    - **If it is not a new period**, the processor will then accumulate the `transfer volume` (tokens transferred) and the `amount` of tokens to be transferred as the `_volume` value for the volume percent of total supply calculation. 
-6. The processor will then calculate the final volume percentage, in basis units, from `_volume` and the total supply set in step 3. 
-7. The processor will then evaluate if the final volume percentage of total supply would be greater than the `max volume` in the case of the transaction succeeding. 
+    - **If it is not a new period**, the processor accumulates the `transfer volume` (tokens transferred) and the `amount` of tokens to be transferred as the `_volume` value for the volume percent of total supply calculation. 
+6. The processor calculates the final volume percentage, in basis units, from `_volume` and the total supply set in step 3. 
+7. The processor evaluates if the final volume percentage of total supply would be greater than the `max volume` in the case of the transaction succeeding. 
     - If yes, then the transaction will revert. 
     - If no, the processor will return the `_volume` value for the current `period` to the handler.
 

@@ -66,11 +66,11 @@ A minumum-maximum-account-balance rule must have at least one sub-rule. There is
 
 The rule will be evaluated with the following logic:
 
-1. The receiver account and the sender account being evaluated will pass to the protocol all the tags it has registered to their addresses in the application manager.
-2. The processor will receive these tags along with the ID of the minumum-maximum-account-balance rule set in the token handler. 
-3. The processor will then try to retrieve the sub-rule associated with each tag.
-4. The processor will evaluate if the final balance of the sender account would be less than the`minimum` in the case of the transaction succeeding. If yes, then the transaction will revert.
-5. The processor will evaluate if the final balance of the receiver account would be greater than the `maximum` in the case of the transaction succeeding. If yes, then the transaction will revert.
+1. The receiver account and the sender account being evaluated pass all the tags it has registered to their addresses in the application manager to the protocol.
+2. The processor receives these tags along with the ID of the minumum-maximum-account-balance rule set in the token handler. 
+3. The processor tries to retrieve the sub-rule associated with each tag.
+4. The processor evaluates if the final balance of the sender account would be less than the`minimum` in the case of the transaction succeeding. If yes, then the transaction will revert.
+5. The processor evaluates if the final balance of the receiver account would be greater than the `maximum` in the case of the transaction succeeding. If yes, then the transaction will revert.
 6. Step 4 and 5 are repeated for each of the account's tags. 
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinMaxAccountBalancePasses*
@@ -102,7 +102,7 @@ function addBalanceLimitRules(
         bytes32[] calldata _accountTypes,
         uint256[] calldata _minimum,
         uint256[] calldata _maximum
-        ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
+    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
 
@@ -220,7 +220,7 @@ This rule doesn't require any data to be recorded.
         - ruleType: "MIN_MAX_BALANCE_LIMIT".
         - handlerAddress: the address of the asset handler where the rule has been applied.
         - ruleId: the ruleId set for this rule in the handler.
-        
+
 - **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)**:
     - Emitted when: rule has been activated in the asset handler.
     - Parameters:

@@ -42,8 +42,8 @@ struct PauseRule {
 
 The rule will be evaluated with the following logic:
 
-1. The protocol's rule processor will retrieve all the pause rules stored in the data contract of the appManager. 
-2. Then, it will loop through all these pause rules, and will evaluate if current timestamp is greater or equal to `pauseStart` and less than `pauseStop`. If the condition is true for at least one rule, then the transaction will revert.
+1. The protocol's rule processor retrieves all the pause rules stored in the data contract of the appManager. 
+2. The processor loops through all these pause rules, and evaluates if current timestamp is greater or equal to `pauseStart` and less than `pauseStop`. If the condition is true for at least one rule, then the transaction will revert.
 
 ###### *see [ApplicationPauseProcessorFacet](../../../src/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol) -> checkPauseRules*
 
