@@ -31,7 +31,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
         uint64 startTime; /// Time the rule is created
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 Additionally, each one of these data structures will be under a tag (bytes32):
 
@@ -41,7 +41,7 @@ Additionally, each one of these data structures will be under a tag (bytes32):
         /// ruleIndex => userType => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.SellRule)) 
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleProcessor](../../../src/economic/ruleProcessor/IRuleProcessor.sol)*
 
 The collection of these tagged sub-rules composes an account-sell-controller rule.
 
@@ -53,7 +53,7 @@ The collection of these tagged sub-rules composes an account-sell-controller rul
         uint32 sellRulesIndex; /// increments every time someone adds a rule
     }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleProcessor](../../../src/economic/ruleProcessor/IRuleProcessor.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -102,7 +102,7 @@ function addSellRule(
         uint64[] calldata _startTimes
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)* 
+###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)* 
 
 The create function will return the protocol ID of the rule.
 
@@ -129,11 +129,11 @@ The following validation will be carried out by the create function in order to 
 NOTE: All input array lengths must be equal and not empty.
 
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Storage Diamond]((../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)):
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getSellRuleByIndex(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.SellRule memory);
