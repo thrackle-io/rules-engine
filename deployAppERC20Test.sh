@@ -20,7 +20,7 @@ NC='\033[0m' # No Color
 # make sure that foundry is installed. If it is, update it. If not, install it.
 if installed forge; then
   echo "...Updating Foundry..."
-  COMMAND="$(foundryup)"
+  COMMAND="$(foundryup --version nightly-09fe3e041369a816365a020f715ad6f94dbce9f2)"
 else
   echo "...Installing Foundry..."
   $(curl -L https://foundry.paradigm.xyz)
