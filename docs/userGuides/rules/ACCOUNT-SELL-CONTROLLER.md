@@ -69,9 +69,10 @@ The rule will be evaluated with the following logic:
 1. The account being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
 2. The processor will receive these tags along with the ID of the account-sell-controller rule set in the token handler. 
 3. The processor will then try to retrieve the sub-rule associated with each tag.
-4. The processor will evaluate whether each sub-rule's period is active (if the current time is within `period` from the `starting timestamp`). If it is not within the period, it will set the cumulative sales to the current sale amount. If it is within the period, the processor will add the current sale amount the accrued sale amount for the rule period.   
-5. The processor will then check if the cumulative sales amount is greater than the `sell amount` defined in the rule. If true, the transaction will revert. If false, the current sale amount will be added to the cumulative sales amount.
+4. The processor will evaluate whether each sub-rule's period is active (if the current time is within `period` from the `starting timestamp`). If it is not within the period, it will set the cumulative sales to the current sale amount. If it is within the period, the processor will add the current sale amount to the accrued sale amount for the rule period.   
+5. The processor will then check if the cumulative sales amount is greater than the `sell amount` defined in the rule. If true, the transaction will revert. 
 6. Steps 4 and 5 are repeated for each of the account's tags.
+7. Return the cumulative sales amount.
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkSellLimit*
 
@@ -121,11 +122,11 @@ none
 
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
-- `_appManagerAddr` Must not the zero address.
-- `_accountTypes` Array length must be equal to all other parameter arrays and not equal 0. No blank tags.
-- `_sellAmounts` Array length must be equal to all other parameter arrays and not equal 0. 0 not allowed.
-- `_sellPeriod` Array length must be equal to all other parameter arrays and not equal 0.
-- `_startTimes` Array length must be equal to all other parameter arrays and not equal 0.
+- `_appManagerAddr` Must not be the zero address.
+- `_accountTypes` No blank tags.
+- `_sellAmounts` 0 not allowed.
+
+NOTE: All input array lengths must be equal and not empty.
 
 
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
@@ -204,10 +205,10 @@ mapping(address => uint64) lastSellTime;
         - handlerAddress: the address of the asset handler where the rule has been applied.
         - ruleId: the index of the rule created in the protocol by rule type.
 
-- **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
+- **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
     - ruleType: "SELL_LIMIT".
     - handlerAddress: the address of the asset handler where the rule has been activated.
 
 ## Dependencies
 
-- This rule has no dependencies.
+- **Tags**: This rules relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
