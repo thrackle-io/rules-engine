@@ -205,7 +205,7 @@ mapping(address => uint64) lastSellTime;
         - handlerAddress: the address of the asset handler where the rule has been applied.
         - ruleId: the index of the rule created in the protocol by rule type.
 
-- **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
+- **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when an Account Sell Controller rule has been activated in an asset handler:
     - ruleType: "SELL_LIMIT".
     - handlerAddress: the address of the asset handler where the rule has been activated.
 
