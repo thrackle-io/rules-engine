@@ -147,7 +147,7 @@ The following validation will be carried out by the create function in order to 
 ###### *see [AppRuleDataFacet](../../../src/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 ## Other Functions:
-- In Protocol [Storage Diamond](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function to get a rule by its Id:
         ```c
         function getMaxTxSizePerPeriodRule(uint32 _index) external view returns (AppRules.TxSizePerPeriodToRiskRule memory);

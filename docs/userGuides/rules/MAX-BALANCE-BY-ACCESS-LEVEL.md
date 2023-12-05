@@ -109,7 +109,7 @@ The following validation will be carried out by the create function in order to 
 
 ## Other Functions:
 
-- In Protocol [Storage Diamond](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function to get a rule by its Id:
         ```c
         function getAccessLevelBalanceRule(uint32 _index, uint8 _accessLevel) external view returns (uint48);

@@ -1,24 +1,28 @@
-# Allow Oracle Rule
+# Allow Deny Oracle Rule
 
 ## Purpose
 
-The purpose of the allow-oracle rule is to check if the receiver address in the transaction is an allowed address. Addresses are added to the allow oracle by the owner of the oracle contract for any reason that the owner deems necessary. If an address is not on an allowed oracle list, they will be restricted from receiving application tokens. This rule can be used to restrict transfers to only specific contract addresses or wallets that are approved by the oracle owner. An example is NFT exchanges that support ERC2981 royalty payments. 
+The purpose of the allow-deny-oracle rule is to check if the receiver address in the transaction is an allowed address or to check if the sender is restricted from performing the transaction. Addresses are added to the oracle lists by the owner of the oracle contract for any reason that the owner deems necessary. 
+
+If an address is not on an allowed oracle list, they will be restricted from receiving application tokens. This rule can be used to restrict transfers to only specific contract addresses or wallets that are approved by the oracle owner. An example is NFT exchanges that support ERC2981 royalty payments. 
+
+The deny list is designed as a tool to reduce the risk of malicious actors in the ecosystem. If an address is on the deny oracle list they are restricted from performing the transaction. Any address not on the deny list will pass this rule check.
 
 ## Applies To:
 
 - [x] ERC20
 - [x] ERC721
-- [ ] AMM
+- [x] AMM
 
 ## Scope 
 
-This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.
+This rule works at both the token level and AMM level. It must be activated and configured for each desired token in the corresponding token handler or each desired AMM in the AMM Handler.
 
 ## Data Structure
 
-An allow-oracle rule is composed of 2 components:
+An allow-deny-oracle rule is composed of 2 components:
 
-- **Oracle Type** (uint8): The Type of Oracle (0 for sanctioned, 1 for allowed).
+- **Oracle Type** (uint8): The Type of Oracle (0 for denied, 1 for allowed).
 - **Oracle Address** (address): The address of the allow Oracle contract. 
 
 ```c
@@ -54,7 +58,9 @@ The rule will be evaluated with the following logic:
 1. The processor will receive the ID of the allow-oracle rule set in the application handler. 
 2. The processor will receive the address that is to be checked in the oracle.
 3. The processor will determine the type of oracle based on the rule id. 
-4. The processor will then call the oracle address to check if the receiver address is an allowed address. If the address is not on the allowed list the transaction will revert. 
+4. The processor will then call the oracle address to check if the address to be checked is on the oracle's list: 
+- Allow list: check if the receiver address is an allowed address. If the address is not on the allowed list the transaction will revert. 
+- Deny list: check if the sender is a denied address. If the address is restricted the transaction will revert. 
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkOraclePasses*
 
@@ -64,7 +70,7 @@ The rule will be evaluated with the following logic:
 
 ### Revert Message
 
-The rule processor will revert with the following error if the rule check fails: 
+The rule processor will revert with one of the following errors if the rule check fails: 
 
 ```
 error AddressNotOnAllowedList();
@@ -72,9 +78,15 @@ error AddressNotOnAllowedList();
 
 The selector for this error is `0x7304e213`.
 
+```
+error AddressIsRestricted();
+```
+
+The selector for this error is `0x6bdfffc0`.
+
 ## Create Function
 
-Adding an allow-oracle rule is done through the function:
+Adding an allow-deny-oracle rule is done through the function:
 
 ```c
 function addOracleRule(
@@ -90,7 +102,7 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
-- **_oracleType** (uint8): The type of oracle for this rule (0 for sanctioned, 1 for allowed).
+- **_oracleType** (uint8): The type of oracle for this rule (0 for denied, 1 for allowed).
 - **_oracleAddress** (address): the address of the allow oracle.
 
 
@@ -185,4 +197,11 @@ This rule does not require any data to be recorded.
 
 ## Dependencies
 
-- This rule has no dependencies.
+- This rule is dependant on a deployed oracle with either of the function signatures:
+
+```c
+function isRestricted(address _address) external view returns (bool)
+```
+```c
+function isAllowed(address _address) external view returns (bool)
+```

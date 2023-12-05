@@ -136,7 +136,7 @@ The following validation will be carried out by the create function in order to 
 
 ## Other Functions:
 
-- In Protocol [Storage Diamond](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getMinBalByDateRule(
