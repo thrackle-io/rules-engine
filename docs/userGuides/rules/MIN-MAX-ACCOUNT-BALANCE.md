@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the minimum-maximum-account-balance rule enforces token balance thresholds for user accounts with specific tags. This allows developers to set lower and upper limits on the amount of each token the user can hold. This rule attempts to mitigate the risk of token holders selling more than the minimum allowed amount and accumulating more than the maximum allowed amount of tokens for each specific tag. 
+The minimum-maximum-account-balance rule enforces token balance thresholds for user accounts with specific tags. This allows developers to set lower and upper limits on the amount of each token the user account can hold. This rule attempts to mitigate the risk of token holders selling more than the minimum allowed amount and accumulating more than the maximum allowed amount of tokens for each specific tag. 
 
 ## Applies To:
 
@@ -16,7 +16,7 @@ This rule works at both the token level and AMM level. It must be activated and 
 
 ## Data Structure
 
-As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection of rules, where all "sub-rules" are independent from each other, and where each "sub-rule" is indexed by its tag. A minumum-maximum-account-balance "sub-rule" is specified by 3 variables:
+As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection of rules, where all "sub-rules" are independent from each other, and where each "sub-rule" is indexed by its tag. A minumum-maximum-account-balance "sub-rule" is specified by 2 variables:
 
 - **Minimum** (uint256): The minimum amount of tokens to be held by the account.
 - **Maximum** (uint256): The maximum amount of tokens to be held by the account.
@@ -66,7 +66,7 @@ A minumum-maximum-account-balance rule must have at least one sub-rule. There is
 
 The rule will be evaluated with the following logic:
 
-1. The receiver account and the sender account being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
+1. The receiver account and the sender account being evaluated will pass to the protocol all the tags it has registered to their addresses in the application manager.
 2. The processor will receive these tags along with the ID of the minumum-maximum-account-balance rule set in the token handler. 
 3. The processor will then try to retrieve the sub-rule associated with each tag.
 4. The processor will evaluate if the final balance of the sender account would be less than the`minimum` in the case of the transaction succeeding. If yes, then the transaction will revert.
@@ -81,7 +81,7 @@ The rule will be evaluated with the following logic:
 
 ### Revert Message
 
-The rule processor will revert with the following errors if the rule check fails: 
+The rule processor will revert with one of the following errors if the rule check fails: 
 
 ```
 error MaxBalanceExceeded();
@@ -153,7 +153,7 @@ The following validation will be carried out by the create function in order to 
         function getTotalBalanceLimitRules() public view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
-    - Function that evaluates the rule:
+    - Function that evaluates the rule for tokens:
         ```c
         function checkMinMaxAccountBalancePasses(
                 uint32 ruleId, 
@@ -220,6 +220,7 @@ This rule doesn't require any data to be recorded.
         - ruleType: "MIN_MAX_BALANCE_LIMIT".
         - handlerAddress: the address of the asset handler where the rule has been applied.
         - ruleId: the ruleId set for this rule in the handler.
+        
 - **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)**:
     - Emitted when: rule has been activated in the asset handler.
     - Parameters:
