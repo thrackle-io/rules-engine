@@ -8,6 +8,7 @@ import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "test/helpers/TestCommonFoundry.sol";
+import {ConstantRatio} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
 /**
  * @title Test all AMM Calculator Factory related functions
@@ -38,9 +39,12 @@ contract ProtocolAMMFactoryTest is TestCommonFoundry {
     }
 
     function testCreateAMMConstant() public {
-        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2), 1, 2,  address(applicationAppManager)));
+        ConstantRatio memory cr = ConstantRatio(1, 2);
+        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2), cr,  address(applicationAppManager)));
         ProtocolAMMCalcConst calc = ProtocolAMMCalcConst(protocolAMM.calculatorAddress());
-        assertEq(calc.getX(),1);
+        (uint32 x, uint32 y )= calc.constRatio();
+        assertEq(x,1);
+        assertEq(y,2);
     }
 
     function testCreateAMMConstantProduct() public {

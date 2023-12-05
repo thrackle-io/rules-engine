@@ -14,6 +14,7 @@ import {ApplicationAccessLevelProcessorFacet} from "src/economic/ruleProcessor/A
 import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
+import {ConstantRatio} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
 /**
  * @title Application AMM Handler  Test
@@ -44,7 +45,8 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
 
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();
-        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2),1,1, address(applicationAppManager)));
+        ConstantRatio memory cr = ConstantRatio(1, 1);
+        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2),cr, address(applicationAppManager)));
         /// Set up the ApplicationAMMHandler
         applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
         protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));

@@ -30,6 +30,14 @@ struct Line{
 }
 
 /** 
+* @dev Constant Ratio.
+*/ 
+struct ConstantRatio{
+    uint32 x;
+    uint32 y;
+}
+
+/** 
 * PLACE HOLDER FOR SIGMOIDAL 
 * @dev Sigmoidal curve
 * definition: S(x) = a*( ( (a - b) / ((x - b) ^ 2 + c) ^ 1/2 ) + 1)

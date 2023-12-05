@@ -7,7 +7,7 @@ import "src/liquidity/ProtocolERC721AMM.sol";
 import "src/economic/AppAdministratorOnly.sol";
 import {IZeroAddressError} from "src/interfaces/IErrors.sol";
 import {IAMMFactoryEvents} from "src/interfaces/IEvents.sol";
-import {LineInput} from "./calculators/dataStructures/CurveDataStructures.sol";
+import {LineInput, ConstantRatio} from "./calculators/dataStructures/CurveDataStructures.sol";
 
 /**
  * @title Automated Market Maker Factory
@@ -91,13 +91,13 @@ contract ProtocolAMMFactory is AppAdministratorOnly, IZeroAddressError, IAMMFact
      * @dev This creates a constant AMM and calculation module.
      * @param _token0 valid ERC20 address
      * @param _token1 valid ERC20 address
-     * @param _x x value of the ratio
-     * @param _y y value of the ratio
+     * @param _constantRatio the values of x and y for the constant ratio
+     * @notice x represents token0 and y represents token1
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createConstantAMM(address _token0, address _token1, uint256 _x, uint256 _y, address _appManagerAddress) external returns (address) {
-        return address(createERC20AMM(_token0, _token1, _appManagerAddress, address(protocolAMMCalculatorFactory.createConstant(_x, _y, _appManagerAddress))));
+    function createConstantAMM(address _token0, address _token1, ConstantRatio memory _constantRatio, address _appManagerAddress) external returns (address) {
+        return address(createERC20AMM(_token0, _token1, _appManagerAddress, address(protocolAMMCalculatorFactory.createConstant(_constantRatio, _appManagerAddress))));
     }
 
     /**

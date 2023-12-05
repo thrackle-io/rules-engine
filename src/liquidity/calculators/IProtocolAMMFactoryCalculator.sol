@@ -23,4 +23,14 @@ abstract contract IProtocolAMMFactoryCalculator is AppAdministratorOnly, AMMCalc
      * @return _amountOut amount of alternate coming out of the pool
      */
     function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external virtual returns (uint256 _amountOut);
+
+    /**
+     * @dev This performs the swap from token0 to token1
+     * @param _reserve0 total amount of token0 in reserve
+     * @param _reserve1 total amount of token1 in reserve
+     * @param _amount0 amount of token0 possibly coming into the pool
+     * @param _amount1 amount of token1 possibly coming into the pool
+     * @return _amountOut amount of alternate coming out of the pool
+     */
+    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external virtual view returns (uint256 _amountOut);
 }

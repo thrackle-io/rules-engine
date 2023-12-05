@@ -56,7 +56,7 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
         bBuy = bBuy%Y_MAX;
         mSell = mSell%M_MAX;
         bSell = bSell%Y_MAX;
-        q = q%(2 ** 88 - 1);
+        q = q%(type(uint88).max - 1);
 
         /// we make sure the curves comply with the premises mB > mS, and bB > bS.
         if(mSell > mBuy){

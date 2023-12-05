@@ -18,6 +18,7 @@ import "src/token/IAdminWithdrawalRuleCapable.sol";
 import "src/liquidity/ProtocolAMMFactory.sol";
 import {ApplicationAMMHandler} from "../../src/example/liquidity/ApplicationAMMHandler.sol";
 import "test/helpers/TestCommonFoundry.sol";
+import {ConstantRatio} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
 contract ApplicationAppManagerTest is TestCommonFoundry {
     ApplicationAppManager public applicationAppManager2;
@@ -952,7 +953,8 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(11), address(22),1,1, address(applicationAppManager)));
+        ConstantRatio memory cr = ConstantRatio(1, 1);
+        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(11), address(22),cr , address(applicationAppManager)));
         ApplicationAMMHandler applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
         protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));
         applicationAppManager.registerAMM(address(protocolAMM));
@@ -967,7 +969,8 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(11), address(22),1,1, address(applicationAppManager)));
+        ConstantRatio memory cr = ConstantRatio(1, 1);
+        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(11), address(22),cr , address(applicationAppManager)));
         ApplicationAMMHandler applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
         protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));
         applicationAppManager.registerAMM(address(protocolAMM));

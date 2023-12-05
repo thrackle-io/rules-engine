@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import {Line, LineInput, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
-import {Math} from "./Math.sol";
+import {Line, LineInput, ConstantRatio, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
+import {AMMMath} from "./AMMMath.sol";
 
 /**
  * @title Curve Library
@@ -13,7 +13,7 @@ import {Math} from "./Math.sol";
  */
 library Curve {
 
-    using Math for uint256;
+    using AMMMath for uint256;
 
     uint256 constant ATTO = 10 ** 18;
 
@@ -28,7 +28,7 @@ library Curve {
         unchecked{
             y = ((line.m_num * x * ATTO) / line.m_den) + line.b;
         }
-       }
+    }
     
     function integral(Line memory line, uint256 x) internal pure returns(uint256 a){
        /// a = (((line.m_num * line.m_num) / (line.m_den * line.m_den)) * (x * x) * ATTO) + (line.b * x);
@@ -41,6 +41,7 @@ library Curve {
     * @param input the LineInput entered by the user to be stored.
     * @param precisionDecimals the amount of precision decimals that the input's slope is formatted on.
     */
+
     function fromInput(Line storage line, LineInput memory input, uint256 precisionDecimals) internal {
 
         // if precisionDecimals is even, then we simply save input's m as numerator, and we make the denominator to have as many
@@ -55,6 +56,27 @@ library Curve {
         }
 
         line.b = input.b;
+    }
+
+    /**
+    * @dev calculates ƒ(amountIn) for a constant-ratio AMM. 
+    * @param cr the values of x and y for the constant ratio.
+    * @param amountIn the amount received in exchange for the other token
+    * @param isAmountInToken0 boolean indicating if amountIn is token0 (constantRatio.x) or token1 (constantRatio.y)
+    * @return amountOut
+    */
+    function getY(ConstantRatio memory cr, uint256 amountIn, bool isAmountInToken0)  internal pure returns(uint256 amountOut){
+        uint256 x = uint256(cr.x);
+        uint256 y = uint256(cr.y);
+        if(isAmountInToken0){
+            unchecked{
+                amountOut = (amountIn * ((y * (10 ** 20)) / x)) / (10 ** 20);
+            }
+        }else{
+            unchecked{
+                amountOut = (amountIn * ((x * (10 ** 20)) / y)) / (10 ** 20);
+            }
+        }
     }
 
     /** 

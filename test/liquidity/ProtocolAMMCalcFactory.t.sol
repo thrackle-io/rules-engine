@@ -8,6 +8,7 @@ import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "test/helpers/TestCommonFoundry.sol";
+import {ConstantRatio} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
 /**
  * @title Test all AMM Calculator Factory related functions
@@ -31,15 +32,16 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
      */
     function testFactoryFuzzConstantToken0(uint32 _x, uint32 _y, uint128 _amount) public {
         // create a constant calculator with random ratio token0 to token1
-        uint256 x = bound(_x, 1, type(uint32).max);
-        uint256 y = bound(_y, 1, type(uint32).max);
-        address calcAddress = factory.createConstant(x, y, address(applicationAppManager));
+        uint32 x = uint32(bound(_x, 1, type(uint32).max));
+        uint32 y = uint32(bound(_y, 1, type(uint32).max));
+        ConstantRatio memory cr = ConstantRatio(x, y);
+        address calcAddress = factory.createConstant(cr, address(applicationAppManager));
         ProtocolAMMCalcConst calc = ProtocolAMMCalcConst(calcAddress);
         uint256 returnVal;
         // swap
         if (_amount == 0) vm.expectRevert(0x5b2790b5);
         returnVal = calc.calculateSwap(0, 0, _amount, 0); //reserves irrelevant in this calc
-        assertEq(returnVal, ((_amount * ((y * (10 ** 20)) / x)) / (10 ** 20)));
+        if (_amount != 0) assertEq(returnVal, ((_amount * ((uint(y) * (10 ** 20)) / uint(x))) / (10 ** 20)));
     }
 
     /**
@@ -48,15 +50,16 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
      */
     function testFactoryFuzzConstantToken1(uint32 _x, uint32 _y, uint128 _amount) public {
         // create a constant calculator with random ratio token0 to token1
-        uint256 x = bound(_x, 1, type(uint32).max); //must put them into 256 for calculation purposes
-        uint256 y = bound(_y, 1, type(uint32).max);
-        address calcAddress = factory.createConstant(x, y, address(applicationAppManager));
+        uint32 x = uint32(bound(_x, 1, type(uint32).max)); //must put them into 256 for calculation purposes
+        uint32 y = uint32(bound(_y, 1, type(uint32).max));
+        ConstantRatio memory cr = ConstantRatio(x, y);
+        address calcAddress = factory.createConstant(cr, address(applicationAppManager));
         ProtocolAMMCalcConst calc = ProtocolAMMCalcConst(calcAddress);
         uint256 returnVal;
         // swap
         if (_amount == 0) vm.expectRevert(0x5b2790b5);
         returnVal = calc.calculateSwap(0, 0, 0, _amount); //reserves irrelevant in this calc
-        assertEq(returnVal, ((_amount * ((x * (10 ** 20)) / y)) / (10 ** 20)));
+        if (_amount != 0) assertEq(returnVal, ((_amount * ((uint(x) * (10 ** 20)) / uint(y))) / (10 ** 20)));
     }
 
     /**
@@ -64,7 +67,9 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
      */
     function testFactoryConstant() public {
         // create a constant calculator with 2 to 1 ration token0 to token1
-        address calcAddress = factory.createConstant(2, 1, address(applicationAppManager));
+
+        ConstantRatio memory cr = ConstantRatio(2, 1);
+        address calcAddress = factory.createConstant(cr, address(applicationAppManager));
         ProtocolAMMCalcConst calc = ProtocolAMMCalcConst(calcAddress);
         uint256 reserve0 = 0;
         uint256 reserve1 = 0;
@@ -81,17 +86,21 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
         assertEq(returnVal, 4);
 
         // make sure non appAdmin cannot change the ratio
+        cr.x = type(uint32).max;
+        cr.y = 1;
         switchToUser();
         vm.expectRevert(0xba80c9e5);
-        calc.setRatio(type(uint32).max, 1);
+        calc.setRatio(cr);
 
-        // make sure the ratio can't be too large
-        switchToAppAdministrator();
-        vm.expectRevert(0x7db3aba7);
-        calc.setRatio(uint256((type(uint32).max)) + 1, 1);
+        // // make sure the ratio can't be too large
+         switchToAppAdministrator();
+        // vm.expectRevert(0x7db3aba7);
+        // calc.setRatio(uint256((type(uint32).max)) + 1, 1);
 
         // make sure it changes the ratio and works
-        calc.setRatio(1, 4);
+        cr.x = 1;
+        cr.y = 4;
+        calc.setRatio(cr);
         amount0 = 1;
         amount1 = 0;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);

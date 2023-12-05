@@ -7,7 +7,7 @@ import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
 import "src/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcSample01.sol";
 import "src/economic/AppAdministratorOnly.sol";
-import {LineInput} from "./calculators/dataStructures/CurveDataStructures.sol";
+import {LineInput, ConstantRatio} from "./calculators/dataStructures/CurveDataStructures.sol";
 import {IZeroAddressError} from "src/interfaces/IErrors.sol";
 import {IAMMFactoryEvents} from "src/interfaces/IEvents.sol";
 
@@ -75,13 +75,12 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
 
     /**
      * @dev This creates a constant calculation module.
-     * @param _x x value of the ratio
-     * @param _y y value of the ratio
+     * @param _constRatio the values of x and y for the constant ratio
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createConstant(uint256 _x, uint256 _y, address _appManagerAddress) external returns (address) {
-        ProtocolAMMCalcConst protocolAMMCalcConst = new ProtocolAMMCalcConst(_x, _y, _appManagerAddress);
+    function createConstant(ConstantRatio memory _constRatio, address _appManagerAddress) external returns (address) {
+        ProtocolAMMCalcConst protocolAMMCalcConst = new ProtocolAMMCalcConst(_constRatio, _appManagerAddress);
         return address(protocolAMMCalcConst);
     }
 

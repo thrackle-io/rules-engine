@@ -104,6 +104,21 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
     }
 
     /**
+     * @dev This performs the swap from ERC20s to NFTs. It is a linear calculation.
+     * @param _reserve0 not used in this case.
+     * @param _reserve1 not used in this case.
+     * @param _amountERC20 amount of ERC20 coming out of the pool
+     * @param _amountNFT amount of NFTs coming out of the pool (restricted to 1 for now)
+     * @return price
+     */
+    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amountERC20, uint256 _amountNFT) public view override returns (uint256 price) {
+        _reserve0;
+        _reserve1;
+        _amountERC20;
+        _amountNFT;
+    }
+
+    /**
      * @dev Set the equation variables and perform calculation adjustments
      * @param _slope slope = m
      * @param _y_intercept y_intercept = b
