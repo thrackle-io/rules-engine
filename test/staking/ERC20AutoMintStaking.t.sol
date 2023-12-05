@@ -6,13 +6,10 @@ import "../../src/example/ERC20/ApplicationERC20.sol";
 import "../../src/example/application/ApplicationAppManager.sol";
 import "../../src/example/application/ApplicationHandler.sol";
 import "../diamond/DiamondTestUtil.sol";
-
 import "../../src/example/ERC20/ApplicationERC20Handler.sol";
 import "../diamond/RuleProcessorDiamondTestUtil.sol";
-
 import "../../src/example/staking/ERC20AutoMintStaking.sol";
-
-import {TaggedRuleDataFacet} from "../../src/economic/ruleStorage/TaggedRuleDataFacet.sol";
+import {TaggedRuleDataFacet} from "../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 
 /**
  * @title Test ERC20 Auto Mint Rewards Staking Contract
@@ -24,8 +21,6 @@ contract ERC20AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestUt
     ApplicationERC20 stakingCoin;
     ApplicationERC20 rewardCoin;
     RuleProcessorDiamond ruleProcessor;
-    RuleStorageDiamond ruleStorageDiamond;
-
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationERC20Handler applicationCoinHandler2;
     ApplicationAppManager appManager;
@@ -46,13 +41,8 @@ contract ERC20AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestUt
 
     function setUp() public {
         vm.startPrank(superAdmin);
-        // Deploy the Rule Storage Diamond.
-        ruleStorageDiamond = getRuleStorageDiamond();
         // Deploy the token rule processor diamond
         ruleProcessor = getRuleProcessorDiamond();
-        // Connect the ruleProcessor into the ruleStorageDiamond
-        ruleProcessor.setRuleDataDiamond(address(ruleStorageDiamond));
-
         // Deploy app manager
         appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         // add the DEAD address as a app administrator

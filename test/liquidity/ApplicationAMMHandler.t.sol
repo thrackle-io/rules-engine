@@ -4,9 +4,16 @@ pragma solidity ^0.8.17;
 import "../../src/liquidity/ProtocolERC20AMM.sol";
 import "../../src/example/OracleRestricted.sol";
 import "../../src/example/OracleAllowed.sol";
+import "test/helpers/TestCommonFoundry.sol";
 import {ApplicationAMMHandler} from "../../src/example/liquidity/ApplicationAMMHandler.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
-import "test/helpers/TestCommonFoundry.sol";
+import {TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import {RuleDataFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
+import {AppRuleDataFacet} from "src/economic/ruleProcessor/AppRuleDataFacet.sol";
+import {ApplicationAccessLevelProcessorFacet} from "src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
+import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
+import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
+import {ERC20TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 
 /**
  * @title Application AMM Handler  Test
@@ -68,7 +75,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         startTime[0] = uint32(12); ///Hours rule starts after block.timestamp
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, startTime);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, startTime);
         ///update ruleId in application AMM rule handler
         applicationAMMHandler.setPurchaseLimitRuleId(ruleId);
         applicationAMMHandler.activatePurchaseLimitRule(true);
@@ -83,7 +90,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         startTime[0] = uint64(Blocktime); ///Hours
 
         // add the actual rule
-        uint32 sellRuleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(applicationAppManager), sellAccs, sellAmounts, sellPeriod, startTime);
+        uint32 sellRuleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), sellAccs, sellAmounts, sellPeriod, startTime);
         ///update ruleId in application AMM rule handler
         applicationAMMHandler.setSellLimitRuleId(sellRuleId);
         applicationAMMHandler.activateSellLimitRule(true);
@@ -108,7 +115,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
 
         // add the actual rule
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, startTime);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, startTime);
         ///update ruleId in application coin rule handler
         applicationAMMHandler.setPurchaseLimitRuleId(ruleId);
         applicationAMMHandler.activatePurchaseLimitRule(true);
@@ -125,7 +132,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         vm.expectRevert(0xd66c3008);
         applicationAMMHandler.setPurchaseLimitRuleId(15);
 
-        TaggedRuleDataFacet(address(ruleStorageDiamond)).getPurchaseRule(ruleId, "PurchaseRule");
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getPurchaseRule(ruleId, "PurchaseRule");
         ///1675723152 = Feb 6 2023 22hrs 39min 12 sec
         /// Check Rule passes
         vm.stopPrank();
@@ -155,7 +162,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
 
         // add the actual rule
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
         ///update ruleId in application coin rule handler
         applicationAMMHandler.setSellLimitRuleId(ruleId);
         applicationAMMHandler.activateSellLimitRule(true);
@@ -198,10 +205,10 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
     function testPassesMinTransferRule() public {
         /// We add the empty rule at index 0
         switchToRuleAdmin();
-        RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 1);
+        RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), 1);
 
         // Then we add the actual rule. Its index should be 1
-        uint32 ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 10);
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), 10);
         /// we update the rule id in the token
         applicationAMMHandler.setMinTransferRuleId(ruleId);
         vm.stopPrank();
@@ -216,7 +223,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         applicationAMMHandler.checkAllRules(0, 0, user1, user2, 9, 9, address(applicationCoin), ActionTypes.TRADE);
         /// no2 change the rule and recheck
         switchToRuleAdmin();
-        ruleId = RuleDataFacet(address(ruleStorageDiamond)).addMinimumTransferRule(address(applicationAppManager), 100);
+        ruleId = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), 100);
         /// we update the rule id in the token
         applicationAMMHandler.setMinTransferRuleId(ruleId);
         /// These should all pass
@@ -256,9 +263,9 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         _max[0] = 1100;
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
 
-        uint32 ruleId2 = TaggedRuleDataFacet(address(ruleStorageDiamond)).addBalanceLimitRules(address(applicationAppManager), _accs, _min, _max);
+        uint32 ruleId2 = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), _accs, _min, _max);
         /// connect the rule to this handler
         applicationAMMHandler.setMinMaxBalanceRuleIdToken0(ruleId);
         applicationAMMHandler.setMinMaxBalanceRuleIdToken1(ruleId2);

@@ -6,7 +6,7 @@
 ## Application Rule Implementation Overview
 1.  Ensure the [environment variables][environment-url] are set correctly.
 2.  Create an application rule:
-    -  Get the rule creation function from the [Application Rule Directory][appRuleDirectory-url] and invoke it on the RuleStorageDiamond, sending in the required parameters. NOTE: Each rule requires a different parameter set. For local deployments, the RuleStorageDiamond address can be found in previous steps, otherwise consult the [Deployment Directory][deploymentDirectory-url]. 
+    -  Get the rule creation function from the [Application Rule Directory][appRuleDirectory-url] and invoke it on the RuleProcessorDiamond, sending in the required parameters. NOTE: Each rule requires a different parameter set. For local deployments, the RuleProcessorDiamond address can be found in previous steps, otherwise consult the [Deployment Directory][deploymentDirectory-url]. 
        -  This function will return a ruleId, please take note of this value.
 3.  Apply the application rule to the application
     -  Get the rule application function from the rule directory and invoke it on the Application Handler created in previous steps.
@@ -14,9 +14,9 @@
 
 ## Example using Balance by Access Level Rule
 1.  Create an application rule:
-    -  Get the _Balance by Access Level Rule_ creation function from the [Application Rule Directory][appRuleDirectory-url] and invoke it on the RuleStorageDiamond, sending in the required parameters. NOTE: Each rule requires a different parameter set. For local deployments, the RuleStorageDiamond address can be found in previous steps, otherwise consult the [Deployment Directory][deploymentDirectory-url]. 
+    -  Get the _Balance by Access Level Rule_ creation function from the [Application Rule Directory][appRuleDirectory-url] and invoke it on the RuleProcessorDiamond, sending in the required parameters. NOTE: Each rule requires a different parameter set. For local deployments, the RuleProcessorDiamond address can be found in previous steps, otherwise consult the [Deployment Directory][deploymentDirectory-url]. 
         ````
-        cast send $RULE_STORAGE_DIAMOND "addAccessLevelBalanceRule(address,uint48[])(uint256)" $APPLICATION_APP_MANAGER \[0,10,100,1000,100000] --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+        cast send $RULE_PROCESSOR_DIAMOND "addAccessLevelBalanceRule(address,uint48[])(uint256)" $APPLICATION_APP_MANAGER \[0,10,100,1000,100000] --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
         ````
         -  This function will return a ruleId, please take note of this value. It can be found in the _logs_ section of the output as the second value in the topics section. It will be the last digits so in the example, _00002_ is the ruleId:
             ````

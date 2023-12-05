@@ -10,6 +10,13 @@ import {ApplicationAMMHandler} from "../../src/example/liquidity/ApplicationAMMH
 import {ApplicationAMMHandlerMod} from "../helpers/ApplicationAMMHandlerMod.sol";
 import "test/helpers/TestCommonFoundry.sol";
 import {LineInput} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
+import {TaggedRuleDataFacet} from "src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import {RuleDataFacet} from "src/economic/ruleProcessor/RuleDataFacet.sol";
+import {AppRuleDataFacet} from "src/economic/ruleProcessor/AppRuleDataFacet.sol";
+import {FeeRuleDataFacet} from "src/economic/ruleProcessor/FeeRuleDataFacet.sol";
+import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
+import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
+import {ERC20TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 
 /**
  * @title Test all AMM related functions
@@ -309,7 +316,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         applicationAppManager.addGeneralTag(user, "SellRule");
         /// add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
         ///update ruleId in application AMM rule handler
         assetHandler.setSellLimitRuleId(ruleId);
         /// Swap that passes rule check
@@ -550,7 +557,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         sellAmounts[0] = _sellAmount; ///Amount to trigger Sell freeze rules
         sellPeriod[0] = _sellPeriod; ///Hours
         startTime[0] = uint64(Blocktime);
-        ruleId = TaggedRuleDataFacet(address(ruleStorageDiamond)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
+        ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
         applicationAMMHandler.setSellLimitRuleId(ruleId);
     }
 
@@ -559,19 +566,19 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         /// make sure that no bogus fee percentage can get in
         bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 10001));
-        ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), 10001);
+        ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 10001);
         vm.expectRevert(abi.encodeWithSelector(selector, 0));
-        ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), 0);
+        ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 0);
         /// now add the good rule
-        ruleId = FeeRuleDataFacet(address(ruleStorageDiamond)).addAMMFeeRule(address(applicationAppManager), testFees);
+        ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), testFees);
         /// we update the rule id in the token
         applicationAMMHandler.setAMMFeeRuleId(ruleId);
     }
 
     function _setSanctionOracleRule() internal returns(uint32 ruleId){
         switchToRuleAdmin();
-        ruleId = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
-        NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(ruleId);
+        ruleId = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(ruleId);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleRestricted));
         applicationAMMHandler.setOracleRuleId(ruleId);
@@ -579,8 +586,8 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
 
     function _setAllowedOracleRule() internal returns(uint32 ruleId){
         switchToRuleAdmin();
-        ruleId = RuleDataFacet(address(ruleStorageDiamond)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
-        NonTaggedRules.OracleRule memory rule = RuleDataFacet(address(ruleStorageDiamond)).getOracleRule(ruleId);
+        ruleId = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(ruleId);
         assertEq(rule.oracleType, 1);
         assertEq(rule.oracleAddress, address(oracleAllowed));
         applicationAMMHandler.setOracleRuleId(ruleId);
@@ -592,7 +599,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         uint16 purchasePeriod = _purchasePeriod; 
         uint256 totalSupply = 0;
         uint64 ruleStartTime = Blocktime;
-        ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
+        ruleId = RuleDataFacet(address(ruleProcessor)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
         applicationAMMHandler.setPurchasePercentageRuleId(ruleId);
     }
 
@@ -602,7 +609,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         uint16 sellPeriod = _sellPeriod;
         uint256 totalSupply = 0;
         uint64 ruleStartTime = Blocktime;
-        ruleId = RuleDataFacet(address(ruleStorageDiamond)).addPercentageSellRule(address(applicationAppManager), tokenPercentageSell, sellPeriod, totalSupply, ruleStartTime);
+        ruleId = RuleDataFacet(address(ruleProcessor)).addPercentageSellRule(address(applicationAppManager), tokenPercentageSell, sellPeriod, totalSupply, ruleStartTime);
         applicationAMMHandler.setSellPercentageRuleId(ruleId);
     }
 
