@@ -24,7 +24,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
 
 ```c
 /// ******** Minimum/Maximum Account Balances ********
-    struct BalanceLimitRule {
+    struct MinMaxBalanceRule {
         uint256 minimum;
         uint256 maximum;
     }
@@ -37,7 +37,7 @@ Additionally, each one of these data structures will be under a tag (bytes32):
 
  ```c
     //      tag     =>   sub-rule
-    mapping(bytes32 => ITaggedRules.BalanceLimitRule)
+    mapping(bytes32 => ITaggedRules.MinMaxBalanceRule)
 ```
 ###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
 
@@ -45,10 +45,11 @@ The collection of these tagged sub-rules composes a minumum-maximum-account-bala
 
  ```c
 /// ******** Minimum/Maximum Account Balances ********
-struct BalanceLimitRuleS {
+    /// ******** Minimum/Maximum Account Balances ********
+struct MinMaxBalanceRuleS {
     /// ruleIndex => taggedAccount => minimumTransfer
-    mapping(uint32 => mapping(bytes32 => ITaggedRules.BalanceLimitRule)) balanceLimitsPerAccountType;
-    uint32 balanceLimitRuleIndex; /// increments every time someone adds a rule
+    mapping(uint32 => mapping(bytes32 => ITaggedRules.MinMaxBalanceRule)) minMaxBalanceRulesPerUser;
+    uint32 minMaxBalanceRuleIndex; /// increments every time someone adds a rule
 }
 ```
 ###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
@@ -97,7 +98,7 @@ The selectors for these errors are `0x24691f6b` and `0xf1737570` .
 Adding a minumum-maximum-account-balance rule is done through the function:
 
 ```c
-function addBalanceLimitRules(
+function addMinMaxBalanceRule(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
         uint256[] calldata _minimum,
@@ -139,18 +140,18 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
-        function getBalanceLimitRule(
+        function getMinMaxBalanceRule(
                     uint32 _index, 
                     bytes32 _accountTag
                 ) 
                 external 
                 view 
                 returns 
-                (TaggedRules.BalanceLimitRule memory);
+                (TaggedRules.MinMaxBalanceRule memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalBalanceLimitRules() public view returns (uint32);
+        function getTotalMinMaxBalanceRules() public view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     - Function that evaluates the rule for tokens:

@@ -79,10 +79,10 @@ interface IRuleStorage {
     }
 
     /// ******** Minimum/Maximum Account Balances ********
-    struct BalanceLimitRuleS {
+    struct MinMaxBalanceRuleS {
         /// ruleIndex => taggedAccount => minimumTransfer
-        mapping(uint32 => mapping(bytes32 => ITaggedRules.BalanceLimitRule)) balanceLimitsPerAccountType;
-        uint32 balanceLimitRuleIndex; /// increments every time someone adds a rule
+        mapping(uint32 => mapping(bytes32 => ITaggedRules.MinMaxBalanceRule)) minMaxBalanceRulesPerUser;
+        uint32 minMaxBalanceRuleIndex; /// increments every time someone adds a rule
     }
 
     /// ******** Minimum Balance By Date ********

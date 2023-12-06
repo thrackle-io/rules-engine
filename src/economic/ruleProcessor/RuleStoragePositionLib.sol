@@ -21,7 +21,7 @@ library RuleStoragePositionLib {
     bytes32 constant WITHDRAWAL_RULE_POSITION = bytes32(uint256(keccak256("vault.withdrawal")) - 1);
     bytes32 constant ADMIN_WITHDRAWAL_RULE_POSITION = bytes32(uint256(keccak256("vault.admin-withdrawal")) - 1);
     bytes32 constant MIN_TRANSFER_RULE_POSITION = bytes32(uint256(keccak256("token.min-transfer")) - 1);
-    bytes32 constant BALANCE_LIMIT_RULE_POSITION = bytes32(uint256(keccak256("token.balance-limit")) - 1);
+    bytes32 constant MIN_MAX_BALANCE_RULE_POSITION = bytes32(uint256(keccak256("token.min-max-balance-limit")) - 1);
     bytes32 constant SUPPLY_VOLATILITY_RULE_POSITION = bytes32(uint256(keccak256("token.supply-volatility")) - 1);
     bytes32 constant ORACLE_RULE_POSITION = bytes32(uint256(keccak256("all.oracle")) - 1);
     bytes32 constant ACCESS_LEVEL_RULE_POSITION = bytes32(uint256(keccak256("token.access")) - 1);
@@ -147,8 +147,8 @@ library RuleStoragePositionLib {
      * @dev Function to store Balance Limit rules
      * @return ds Data Storage of Balance Limit Rule
      */
-    function balanceLimitStorage() internal pure returns (IRuleStorage.BalanceLimitRuleS storage ds) {
-        bytes32 position = BALANCE_LIMIT_RULE_POSITION;
+    function minMaxBalanceStorage() internal pure returns (IRuleStorage.MinMaxBalanceRuleS storage ds) {
+        bytes32 position = MIN_MAX_BALANCE_RULE_POSITION;
         assembly {
             ds.slot := position
         }

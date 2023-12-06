@@ -178,8 +178,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[1] = uint256(10000000000000000000000000000);
         max[2] = uint256(1000000000000000000000000000000);
         // add empty rule at ruleId 0
-        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         appManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -210,8 +210,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[1] = uint256(10000000000000000000000000000);
         max[2] = uint256(1000000000000000000000000000000);
         // add empty rule at ruleId 0
-        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         for (uint i = 1; i < 11; i++) {
@@ -248,8 +248,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[0] = uint256(10000000000000000000000000);
         max[1] = uint256(10000000000000000000000000000);
         max[2] = uint256(1000000000000000000000000000000);
-        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         appManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -280,8 +280,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[0] = uint256(10000000000000000000000000);
         max[1] = uint256(10000000000000000000000000000);
         max[2] = uint256(1000000000000000000000000000000);
-        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         appManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -311,8 +311,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[0] = uint256(10000000000000000000000000);
         max[1] = uint256(10000000000000000000000000000);
         max[2] = uint256(1000000000000000000000000000000);
-        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         appManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -801,9 +801,9 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalMinimumTransferRules(), _indexes.length);
     }
 
-    /*********************** BalanceLimits *******************/
+    /*********************** Min Max Balance Rule Limits *******************/
     /// Simple setting and getting
-    function testSettingBalanceLimits() public {
+    function testSettingMinMaxBalanceRules() public {
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
@@ -819,9 +819,9 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[0] = uint256(10000000000000000000000000000000000000);
         max[1] = uint256(100000000000000000000000000000000000000000);
         max[2] = uint256(100000000000000000000000000000000000000000000000000000000000000000000000000);
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         assertEq(_index, 0);
-        TaggedRules.BalanceLimitRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getBalanceLimitRule(_index, "Oscar");
+        TaggedRules.MinMaxBalanceRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, "Oscar");
         assertEq(rule.minimum, 1000);
         assertEq(rule.maximum, 10000000000000000000000000000000000000);
 
@@ -834,17 +834,17 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[0] = uint256(100000000000000000000000000000000000000000000000000000000000000000000000000);
         max[1] = uint256(20000000000000000000000000000000000000);
         max[2] = uint256(900000000000000000000000000000000000000000000000000000000000000000000000000);
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         assertEq(_index, 1);
-        rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getBalanceLimitRule(_index, "Tayler");
+        rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, "Tayler");
         assertEq(rule.minimum, 20000000);
         assertEq(rule.maximum, 20000000000000000000000000000000000000);
         vm.expectRevert();
-        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(0), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(0), accs, min, max);
     }
 
     /// testing only appAdministrators can add Balance Limit Rule
-    function testSettingBalanceLimitRuleWithoutAppAdministratorAccount() public {
+    function testSettingMinMaxBalanceRuleWithoutAppAdministratorAccount() public {
         bytes32[] memory accs = new bytes32[](3);
         accs[0] = bytes32("Oscar");
         accs[1] = bytes32("Tayler");
@@ -860,17 +860,17 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         assertEq(_index, 0);
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         assertEq(_index, 1);
     }
 
@@ -891,7 +891,7 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         max[1] = uint256(100000000000000000000000000000000000000000);
         max[2] = uint256(100000000000000000000000000000000000000000000000000000000000000000000000000);
         vm.expectRevert(0x028a6c58);
-        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
     }
 
     /// testing inverted limits
@@ -906,7 +906,7 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         uint256[] memory max = new uint256[](1);
         max[0] = uint256(100);
         vm.expectRevert(0xeeb9d4f7);
-        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
     }
 
     /// test total rules
@@ -922,9 +922,9 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         uint256[] memory max = new uint256[](1);
         max[0] = uint256(999999000000000000000000000000000000000000000000000000000000000000000000000);
         for (uint8 i = 0; i < _indexes.length; i++) {
-            _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+            _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         }
-        assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalBalanceLimitRules(), _indexes.length);
+        assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalMinMaxBalanceRules(), _indexes.length);
     }
 
     /*********************** Supply Volatility ************************/

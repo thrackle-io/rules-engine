@@ -21,7 +21,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     /**
      * Functions added so far:
      * minTransfer
-     * balanceLimits
+     * MinMaxbalance
      * oracle
      * Balance by AccessLevel
      * Balance Limit by Risk

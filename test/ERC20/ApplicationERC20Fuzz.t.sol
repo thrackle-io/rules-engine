@@ -129,7 +129,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
                 max[0] = uint256(maxAmount);
                 // add the actual rule
                 switchToRuleAdmin();
-                uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
+                uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
 
                 ///update ruleId in coin rule handler
                 applicationCoinHandler.setMinMaxBalanceRuleId(ruleId);

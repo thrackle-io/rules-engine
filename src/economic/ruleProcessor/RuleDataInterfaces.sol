@@ -86,7 +86,7 @@ interface ITaggedRules {
     }
 
     /// ******** Minimum/Maximum Account Balances ********
-    struct BalanceLimitRule {
+    struct MinMaxBalanceRule {
         uint256 minimum;
         uint256 maximum;
     }
