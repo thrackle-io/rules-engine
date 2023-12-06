@@ -63,7 +63,7 @@ The rule will be evaluated with the following logic:
 2. The processor receives the risk score of the user set in the app manager.
 3. The processor receives the U.S. dollar value of all protocol supported tokens owned by the to address and the U.S. dollar value of the transaction. 
 4. The processor finds the `max balance` value for the risk score.  
-5. The processor checks if the transaction value + current balance total is less than the risk score `max balance`. If total is greater than `max balance`, the rule will revert. 
+5. The processor checks if the transaction value + current balance total is less than the risk score `max balance`. If total is greater than `max balance`, the rule reverts. 
 
 ###### *see [ApplicationRiskProcessorFacet](../../../src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccBalanceByRisk*
 

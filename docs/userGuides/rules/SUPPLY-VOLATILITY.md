@@ -59,9 +59,9 @@ The rule will be evaluated with the following logic:
 1. The asset handler keeps track of the total supply per period, the net supply increase/decrease per period, and the date of the last mint/burn transaction.
 2. The asset handler first checks if the transaction is a *minting* or *burning* operation. If it is, then it sends the aforementioned data to the rule processor with the rule Id, and the amount of tokens being minted/burned in the transaction.
 3. The rule processor evaluates if the current transaction is in a new period or part of the same period as the last burning/minting transactions. 
-    - **If it is a new period**, the absolute net supply change for the period will be equal to the amount of tokens minted/burned in current transaction. Also, the totalSupply for the current period will be set to current value. 
-    - **If it is not a new period**, then the absolute net supply change for the period will accumulate the amount of tokens minted/burned in current transaction. The totalSupply for the current period will remain fixed to the value set in the first transaction of the period. 
-4. After current period's net supply change and totalSupply have been defined, the rule processor will calculate the change in supply. If the change is greater than the rule's maximum, it will revert.
+    - **If it is a new period**, the absolute net supply change for the period is equal to the amount of tokens minted/burned in current transaction. Also, the totalSupply for the current period is set to current value. 
+    - **If it is not a new period**, then the absolute net supply change for the period accumulates the amount of tokens minted/burned in current transaction. The totalSupply for the current period remains fixed to the value set in the first transaction of the period. 
+4. After current period's net supply change and totalSupply have been defined, the rule processor calculates the change in supply. If the change is greater than the rule's maximum, it reverts.
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkTotalSupplyVolatilityPasses*
 
