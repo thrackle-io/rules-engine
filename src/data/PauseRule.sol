@@ -7,7 +7,6 @@ pragma solidity ^0.8.17;
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 struct PauseRule {
-    uint256 dateCreated;
-    uint256 pauseStart;
-    uint256 pauseStop;
+    uint64 pauseStart;
+    uint64 pauseStop;
 }

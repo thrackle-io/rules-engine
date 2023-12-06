@@ -469,7 +469,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
-    function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
+    function addPauseRule(uint64 _pauseStart, uint64 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
         pauseRules.addPauseRule(_pauseStart, _pauseStop);
         applicationHandler.activatePauseRule(true);
     }
@@ -480,7 +480,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
-    function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
+    function removePauseRule(uint64 _pauseStart, uint64 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
         pauseRules.removePauseRule(_pauseStart, _pauseStop);
         /// if length is 0 no pause rules exist
         if (pauseRules.isPauseRulesEmpty()){
