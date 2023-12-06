@@ -19,11 +19,10 @@
 | Token Percentage Purchase | TODO |
 | Token Percentage Sell |TODO |
 | [Token Transfer Volume Rule](./TOKEN-TRANSFER-VOLUME.md) | The purpose of the token-transfer-volume rule is to reduce high trading volatility periods by allowing developers to set a maximum volume (as a percentage of the token's total supply) that can be traded within a period of time. When the trading volume maximum is reached, transfers are suspended until the next period begins. Trading volume is the accumulated total number of tokens transferred during each period, and reset with each new period by the first transaction of that period.  |
-| Token Volatility | TODO |
 | [Total Supply Volatility Rule](./SUPPLY-VOLATILITY.md) | The purpose of this rule is to prevent a sudden increase or decrease in the supply of a token. This can help to prevent a sudden crash or spike in the price of a token due to sharp changes in the supply side, which could lead to severe damages to the health of the economy in the long run.  |
-| Transaction Size Limits by Risk | TODO |
+| [Transaction Size Limits by Risk](./TRANSACTION-SIZE-BY-RISK-SORE.md) | The purpose of this rule is to prevent accounts identified as "risky" from moving large amounts of US Dollars in tokens in a single transaction. This attempts to mitigate the existential, ethical, or legal risks to an economy posed by such accounts. |
 | [Transfer Counter Rule](./TRANSFER-COUNTER.md) | The transfer-counter rule enforces a daily limit on the number of trades for each token within a collection. In the context of this rule, a "trade" is a transfer of a token from one address to another. Example uses of this rule: to mitigate price manipulation of tokens in the collection via the limitation of wash trading or the prevention of malfeasance for holders who transfer a token between addresses repeatedly. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a pseudo "soulBound" token, preventing all transfers of tokens in the collection.   |
-| Transaction Size Per Time Period by Risk Score | TODO |
+| [Transaction Size Per Time Period by Risk Score](./TX-SIZE-PER-PERIOD-BY-RISK-SCORE.md) | The purpose of this rule is to prevent accounts identified as "risky" from moving large amounts of US Dollars in tokens within a specified period of time. This attempts to mitigate the existential, ethical or legal risks to an economy posed by such accounts. |
 
 
 <!-- These are the header links -->
