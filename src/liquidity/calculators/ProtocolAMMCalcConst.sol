@@ -36,13 +36,7 @@ contract ProtocolAMMCalcConst is IProtocolAMMFactoryCalculator {
      * @return _amountOut
      */
     function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external view override returns (uint256) {
-        _reserve0;
-        _reserve1;
-        if (_amount0 == 0 && _amount1 == 0) 
-            revert AmountsAreZero();
-        else
-            return _amount0 == 0 ? constRatio.getY(_amount1, false) : constRatio.getY(_amount0, true);
-
+        return simulateSwap(_reserve0, _reserve1, _amount0, _amount1);
     }
 
     /**
@@ -53,13 +47,12 @@ contract ProtocolAMMCalcConst is IProtocolAMMFactoryCalculator {
      * @param _amount1 amount of token1 coming out of the pool
      * @return _amountOut
      */
-    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external view override returns (uint256) {
+    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public view override returns (uint256) {
         _reserve0;
         _reserve1;
         if (_amount0 == 0 && _amount1 == 0) 
             revert AmountsAreZero();
-        else
-            return _amount0 == 0 ? constRatio.getY(_amount1, false) : constRatio.getY(_amount0, true);
+        return constRatio.getY(_amount0, _amount1);
 
     }
 

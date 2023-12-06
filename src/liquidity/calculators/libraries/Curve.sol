@@ -61,36 +61,44 @@ library Curve {
     /**
     * @dev calculates ƒ(amountIn) for a constant-ratio AMM. 
     * @param cr the values of x and y for the constant ratio.
-    * @param amountIn the amount received in exchange for the other token
-    * @param isAmountInToken0 boolean indicating if amountIn is token0 (constantRatio.x) or token1 (constantRatio.y)
+    * @param _amount0 the token0s received 
+    * @param _amount1 the token1s received 
     * @return amountOut
     */
-    function getY(ConstantRatio memory cr, uint256 amountIn, bool isAmountInToken0)  internal pure returns(uint256 amountOut){
+    function getY(ConstantRatio memory cr, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 amountOut){
         uint256 x = uint256(cr.x);
         uint256 y = uint256(cr.y);
-        if(isAmountInToken0){
+        if(_amount0 != 0){
             unchecked{
-                amountOut = (amountIn * ((y * (10 ** 20)) / x)) / (10 ** 20);
+                amountOut = (_amount0 * ((y * (10 ** 20)) / x)) / (10 ** 20);
             }
         }else{
             unchecked{
-                amountOut = (amountIn * ((x * (10 ** 20)) / y)) / (10 ** 20);
+                amountOut = (_amount1 * ((x * (10 ** 20)) / y)) / (10 ** 20);
             }
         }
     }
 
     /**
     * @dev calculates ƒ(amountIn) for a constant-product AMM. 
-    * @param constatProduct the values of x and y for the constant ratio.
+    *      Based on (x + a) * (y - b) = x * y
+    *      This is sometimes simplified as xy = k
+    *      x = _reserve0
+    *      y = _reserve1
+    *      a = _amount0
+    *      b = _amount1
+    *      k = _reserve0 * _reserve1
+    *
+    * @param constatProduct the values of x and y for the constant product.
     * @param _amount0 the amount received of token0
     * @param _amount1 the amount received of token1
     * @return amountOut
     */
     function getY(ConstantProduct memory constatProduct, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 amountOut){
         if (_amount0 == 0) {
-            amountOut =  (_amount1 * constatProduct.x) / (constatProduct.y + _amount1);
+            amountOut =  (_amount1 * constatProduct.x ) / (constatProduct.y + _amount1);
         } else {
-            amountOut = (_amount0 * constatProduct.y) / (constatProduct.x + _amount0);
+            amountOut = (_amount0 * constatProduct.y ) / (constatProduct.x + _amount0);
         }
     }
 

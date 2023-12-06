@@ -25,39 +25,28 @@ contract ProtocolAMMCalcCP is IProtocolAMMFactoryCalculator {
 
     /**
      * @dev This performs the swap from token0 to token1.
-     *      Based on (x + a) * (y - b) = x * y
-     *      This is sometimes simplified as xy = k
-     *      x = _reserve0
-     *      y = _reserve1
-     *      a = _amount0
-     *      b = _amount1
-     *      k = _reserve0 * _reserve1
-     *
      * @param _reserve0 total amount of token0 in reserve
      * @param _reserve1 total amount of token1 in reserve
      * @param _amount0 amount of token0 possibly coming into the pool
      * @param _amount1 amount of token1 possibly coming into the pool
      * @return _amountOut amount of alternate coming out of the pool
      */
-    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external pure override returns (uint256) {
+    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external view override returns (uint256) {
+        return simulateSwap(_reserve0, _reserve1, _amount0, _amount1);
+    }
+
+    /**
+     * @dev This performs the swap from token0 to token1.
+     * @param _reserve0 total amount of token0 in reserve
+     * @param _reserve1 total amount of token1 in reserve
+     * @param _amount0 amount coming to the pool of token0
+     * @param _amount1 amount coming to the pool of token1
+     * @return price
+     */
+    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public view override returns (uint256) {
         if (_amount0 == 0 && _amount1 == 0) 
             revert AmountsAreZero();
         ConstantProduct memory cp = ConstantProduct(_reserve0, _reserve1);
         return cp.getY(_amount0, _amount1);
-    }
-
-    /**
-     * @dev This performs the swap from ERC20s to NFTs. It is a linear calculation.
-     * @param _reserve0 not used in this case.
-     * @param _reserve1 not used in this case.
-     * @param _amountERC20 amount of ERC20 coming out of the pool
-     * @param _amountNFT amount of NFTs coming out of the pool (restricted to 1 for now)
-     * @return price
-     */
-    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amountERC20, uint256 _amountNFT) public view override returns (uint256) {
-        _reserve0;
-        _reserve1;
-        _amountERC20;
-        _amountNFT;
     }
 }
