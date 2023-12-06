@@ -17,8 +17,8 @@
 | Oracle | TODO |
 | [Pause Rule](./PAUSE-RULE.md) | The purpose of the pause rule is to allow developers to pause the entirety of an application for maintenance, security or any other reason. Pausing the application means that no transfer of tokens is allowed at any level (with the few exceptions listed in the Role Applicability section).  |
 | Token Percentage | TODO |
-| Token Percentage Purchase | TODO |
-| Token Percentage Sell |TODO |
+| [Token Percentage Purchase](./TOKEN-PERCENTAGE-PURCHASE.md) | The token-percentage-purchase rule enforces a limit on the purchase of tokens during a certain time period. This rule sets the limit as a percentage of the token's total supply. The rule will apply to the token designated token 0 in the AMM at construction and apply to all AMM swaps of token 0 to token 1 while this rule is active.  |
+| [Token Percentage Sell](./TOKEN-PERCENTAGE-SELL.md) | The token-percentage-sell rule enforces a limit on the sale of tokens during a certain time period. This rule sets the limit as a percentage of the token's total supply. The rule will apply to the token designated token 0 in the AMM at construction and apply to all AMM swaps of token 0 to token 1 while this rule is active. |
 | Token Purchase Fee by Volume | TODO |
 | [Token Transfer Volume Rule](./TOKEN-TRANSFER-VOLUME.md) | The purpose of the token-transfer-volume rule is to reduce high trading volatility periods by allowing developers to set a maximum volume (as a percentage of the token's total supply) that can be traded within a period of time. When the trading volume maximum is reached, transfers are suspended until the next period begins. Trading volume is the accumulated total number of tokens transferred during each period, and reset with each new period by the first transaction of that period.  |
 | Token Volatility | TODO |
