@@ -28,7 +28,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
     bytes32 public constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
     bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
     bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
-    uint256 public constant TEST_DATE = 1666706998;
+    uint64 public constant TEST_DATE = 1666706998;
     uint8[] RISKSCORES = [10, 20, 30, 40, 50, 60, 70, 80];
     uint8[] ACCESSTIERS = [1, 1, 1, 2, 2, 2, 3, 4];
     string tokenName = "FEUD";
@@ -683,7 +683,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
     function testManualCleaning() public {
         switchToRuleAdmin();
         vm.warp(TEST_DATE);
-        for (uint256 i; i < 15; ) {
+        for (uint64 i; i < 15; ) {
             applicationAppManager.addPauseRule(TEST_DATE + (i + 1) * 10, TEST_DATE + (i + 2) * 10);
             unchecked {
                 ++i;
