@@ -20,7 +20,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
 
 - **Purchase Amounts** (uint192): The maximum amount of tokens that may be purchased during the *purchase period*. 
 - **Purchase Periods** (uint16): The length of each time period for which the rule will apply, in hours.
-- **Starting Timestamps** (uint64): The timestamp of the date when the *period* starts counting.
+- **Starting Timestamps** (uint64): The Unix timestamp of the date when the *period* starts counting.
 
 
 ```c
@@ -66,18 +66,21 @@ The collection of these tagged sub-rules composes an account-purchase-controller
 
 The rule will be evaluated with the following logic:
 
-1. The account being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
-2. The processor will receive these tags along with the ID of the account-purchase-controller rule set in the token handler. 
-3. The processor will then try to retrieve the sub-rule associated with each tag.
-4. The processor will evaluate whether each sub-rule's period is active (if the current time is within `period` from the `starting timestamp`). If it is not within the period, it will set the cumulative purchases to the current purchase amount. If it is within the period, the processor will add the current purchase amount to the accrued purchase amount for the rule period.   
-5. The processor will then check if the cumulative purchases amount is greater than the `purchase amount` defined in the rule. If true, the transaction will revert. 
-6. Steps 4 and 5 are repeated for each of the account's tags.
-7. Return the cumulative purchases amount.
+1. The account is passed to the protocol with all the tags it has registered to its address in the application manager.
+2. The processor receives these tags along with the ID of the account-purchase-controller rule set in the token handler. 
+3. The processor retrieves the sub-rule associated with each tag.
+4. The processor evaluates whether the rule is active based on the `starting timestamp`. If it is not active, the rule aborts the next steps, and returns zero as the accrued cumulative purchases value.
+5. The processor evaluates whether the current time is within a new period.
+   -If it is a new period, the processor sets the cumulative purchases to the current purchase amount.
+   -If it is not a new period, the processor adds the current purchase amount to the accrued purchase amount for the rule period. 
+6. The processor checks if the cumulative purchases amount is greater than the `purchase amount` defined in the rule. If true, the transaction reverts. 
+8. Steps 4 and 5 are repeated for each of the account's tags.
+9. Returns the cumulative purchases amount.
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkPurchaseLimit*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. 
+- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
 
@@ -213,4 +216,4 @@ mapping(address => uint64) lastPurchaseTime;
 
 ## Dependencies
 
-- **Tags**: This rules relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
+- **Tags**: This rule relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
