@@ -16,7 +16,7 @@ contract AppManagerBaseTest is TestCommonFoundry {
     bytes32 public constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
     bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
     bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
-    uint256 public constant TEST_DATE = 1666706998;
+    uint64 public constant TEST_DATE = 1666706998;
 
     function setUp() public {
         vm.startPrank(superAdmin); //set up as the default admin
