@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import {Line_mF, Line_mbF, LineInput, ConstantRatio, ConstantProduct, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
+import {Line_mF, Line_mbF, Sample01Struct, LineInput, ConstantRatio, ConstantProduct, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
 import {AMMMath} from "./AMMMath.sol";
 
 /**
@@ -12,11 +12,11 @@ import {AMMMath} from "./AMMMath.sol";
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
 library Curve {
-
     using AMMMath for uint256;
-
     uint256 constant ATTO = 10 ** 18;
 
+
+    /// <<<<<<<< Line_mF >>>>>>>>>>
     /**
     * @dev calculates ƒ(x) for linear curve. 
     * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den.
@@ -36,29 +36,25 @@ library Curve {
 
     /**
     * @dev creates a Line_mF curve from a user's LineInput. This mostly means that m is represented now by m_num/m_den.
-    * This is done to have as much precision as possible when calculating *y*
     * @param line the Line_mF in storage that will be built from the input.
     * @param input the LineInput entered by the user to be stored.
     * @param precisionDecimals the amount of precision decimals that the input's slope is formatted with.
     */
-
     function fromInput(Line_mF storage line, LineInput memory input, uint256 precisionDecimals) internal {
 
-        // if precisionDecimals is even, then we simply save input's m as numerator, and we make the denominator to have as many
-        // zeros as *precisionDecimals*
         if (precisionDecimals % 2 == 0) {
             line.m_num = input.m;
             line.m_den = 10 ** precisionDecimals;
-        // if precisionDecimals is NOT even, then we make it even by adding one more decimal on both denominator and numerator.
         }else{
             line.m_num = input.m * 10;
             line.m_den = 10 ** (precisionDecimals + 1);
         }
-
         line.b = input.b;
     }
 
-    /// 
+
+
+    /// <<<<<<<< Line_mbF >>>>>>>>>>
     /**
     * @dev calculates ƒ(x) for linear curve. 
     * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den.
@@ -89,14 +85,12 @@ library Curve {
     }
 
     /**
-    * @dev creates a Line_mF curve from a user's LineInput. This mostly means that m is represented now by m_num/m_den.
-    * This is done to have as much precision as possible when calculating *y*
+    * @dev creates a Line_mF curve from a user's LineInput. This mostly means that m and b are represented by fractions.
     * @param line the Line_mF in storage that will be built from the input.
     * @param input the LineInput entered by the user to be stored.
     * @param precisionDecimals_m the amount of precision decimals that the input's slope is formatted with.
     * @param precisionDecimals_b the amount of precision decimals that the input's intersection with the Y axis is formatted with.
     */
-
     function fromInput(Line_mbF storage line, LineInput memory input, uint256 precisionDecimals_m, uint256 precisionDecimals_b) internal {
 
         // if precisionDecimals is even, then we simply save input's m as numerator, and we make the denominator to have as many
@@ -120,6 +114,9 @@ library Curve {
         }
     }
 
+
+
+    /// <<<<<<<< ConstantRatio >>>>>>>>>>
     /**
     * @dev calculates ƒ(amountIn) for a constant-ratio AMM. 
     * @param cr the values of x and y for the constant ratio.
@@ -141,6 +138,9 @@ library Curve {
         }
     }
 
+
+
+    /// <<<<<<<< ConstantProduct >>>>>>>>>>
     /**
     * @dev calculates ƒ(amountIn) for a constant-product AMM. 
     *      Based on (x + a) * (y - b) = x * y
@@ -164,6 +164,28 @@ library Curve {
         }
     }
 
+
+
+    /// <<<<<<<< Sample01Struct >>>>>>>>>>
+    function getY(Sample01Struct memory curve, int256 tracker, bool isReserves0)  internal pure returns(uint256 amountOut){
+        if (isReserves0) {
+            uint256 deltaY = uint(tracker + int(curve.amountIn ));
+            int256 delta = (10 ** 9) * (int256(sqrt(deltaY)) - int256(sqrt(uint(tracker)))); /// check for tracker sign!!
+            if (delta < 0 || delta > int(curve.reserves)) {
+                revert InsufficientPoolDepth(curve.reserves, delta);
+            }
+            amountOut =  uint(delta);
+        } else {
+            int256 delta = ((((((10 ** 19)) - tracker) ** 2)) - ((((10 ** 19) - ((tracker + int(curve.amountIn)))) ** 2))) / (2 * (10 ** 18));
+            if (delta < 0 || delta > int(curve.reserves)) {
+                revert InsufficientPoolDepth(curve.reserves, delta);
+            }
+            amountOut = uint(delta);
+        }
+    }
+
+
+    /// <<<<<<<< SigmoidFakeS >>>>>>>>>>
     /** 
     *  PLACE HOLDER for sigmoidal
     */

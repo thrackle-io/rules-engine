@@ -18,6 +18,7 @@ struct LineInput{
     uint256 b;
 }
 
+
 /** 
 * @dev Linear curve expressed in fractions.
 * @notice this is how the internal line should be saved since this will allow more precision during mathematical operations.
@@ -28,6 +29,7 @@ struct Line_mF { // if someone can think of a better name, please feel free to c
     uint256 m_den;
     uint256 b;
 }
+
 
 /** 
 * @dev Linear curve expressed in fractions.
@@ -41,6 +43,7 @@ struct Line_mbF{ // if someone can think of a better name,  please feel free to 
     uint256 b_den;
 }
 
+
 /** 
 * @dev Constant Ratio.
 */ 
@@ -49,6 +52,7 @@ struct ConstantRatio{
     uint32 y;
 }
 
+
 /** 
 * @dev Constant Ratio.
 */ 
@@ -56,6 +60,15 @@ struct ConstantProduct{
     uint256 x;
     uint256 y;
 }
+
+/** 
+* @dev 
+*/ 
+struct Sample01Struct{
+    uint256 reserves;
+    uint256 amountIn;
+}
+
 
 /** 
 * PLACE HOLDER FOR SIGMOIDAL 
@@ -67,6 +80,7 @@ struct SigmoidFakeInput{
     uint256 b;
     uint256 c;
 }
+
 
 /** 
 * PLACE HOLDER FOR SIGMOIDAL 
