@@ -16,7 +16,7 @@ import {CurveErrors} from "../../interfaces/IErrors.sol";
  */
 contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
 
-    using Curve for Line;
+    using Curve for Line_mbF;
 
     uint256 constant Y_MAX = 100_000 * 10 ** 18;
     uint256 constant M_MAX = 100 * 10 ** 8;
@@ -39,8 +39,8 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
      * @dev This performs the swap from token0 to token1. It is a linear calculation.
      * @param _reserve0 amount of token0 being swapped for unknown amount of token1
      * @param _reserve1 amount of token1 coming out of the pool
-     * @param _amount0 amount of token1 coming out of the pool
-     * @param _amount0 amount of token1 coming out of the pool
+     * @param _amount0 amount of token0 coming out of the pool
+     * @param _amount1 amount of token1 coming out of the pool
      * @return _amountOut
      */
     function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external view override returns (uint256) {
@@ -51,14 +51,14 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
      * @dev This performs the swap from ERC20s to NFTs. It is a linear calculation.
      * @param _reserve0 not used in this case.
      * @param _reserve1 not used in this case.
-     * @param _amountERC20 amount of ERC20 coming out of the pool
-     * @param _amountNFT amount of NFTs coming out of the pool (restricted to 1 for now)
+     * @param _amount0 amount of token0 coming out of the pool
+     * @param _amount1 amount of token1 coming out of the pool
      * @return price
      */
-    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amountERC20, uint256 _amountNFT) public view override returns (uint256) {
+    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public view override returns (uint256) {
         if (_amount0 == 0 && _amount1 == 0) 
             revert AmountsAreZero();
-        return curve.getY(_amount0, _amount1);
+        return curve.getY(_reserve0, _reserve1, _amount0, _amount1);
     }
 
     /**
@@ -74,7 +74,7 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
      * @param _curve the definition of the linear ecuation
      */
     function _setCurve(LineInput memory _curve) internal {
-        _validateSingleCurve(_slope, _y_intercept);
+        _validateSingleCurve(_curve);
         curve.fromInput(_curve, M_PRECISION_DECIMALS, B_PRECISION_DECIMALS);
     }
 

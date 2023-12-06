@@ -26,13 +26,12 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
 
     /**
      * @dev This creates a linear calculation module.
-     * @param _slope slope = m
-     * @param _y_intercept y_intercept = b
+     * @param curve the definition of the curve's equation
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createLinear(uint256 _slope, uint256 _y_intercept, address _appManagerAddress) external returns (address) {
-        ProtocolAMMCalcLinear protocolAMMCalcLinear = new ProtocolAMMCalcLinear(_slope, _y_intercept, _appManagerAddress);
+    function createLinear(LineInput memory curve, address _appManagerAddress) external returns (address) {
+        ProtocolAMMCalcLinear protocolAMMCalcLinear = new ProtocolAMMCalcLinear(curve, _appManagerAddress);
         return address(protocolAMMCalcLinear);
     }
 

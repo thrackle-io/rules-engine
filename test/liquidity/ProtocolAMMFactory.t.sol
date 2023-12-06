@@ -33,9 +33,14 @@ contract ProtocolAMMFactoryTest is TestCommonFoundry {
     }
 
     function testCreateAMMLinear() public {
-        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createLinearAMM(address(applicationCoin), address(applicationCoin2), 6000, 15 * 10 ** 17,  address(applicationAppManager)));
+        LineInput memory curve = LineInput( 6000, 15 * 10 ** 17);
+        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createLinearAMM(address(applicationCoin), address(applicationCoin2),curve,  address(applicationAppManager)));
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(protocolAMM.calculatorAddress());
-        assertEq(calc.getSlope(),6000);
+        (uint256 m_num, uint256 m_den, uint256 b_num, uint256 b_den) = calc.curve();
+        b_num;
+        b_den;
+        m_den;
+        assertEq(m_num, 6000);
     }
 
     function testCreateAMMConstant() public {

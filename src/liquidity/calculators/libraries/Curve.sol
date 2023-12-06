@@ -65,9 +65,11 @@ library Curve {
     * @param line the Line_mF curve or function *ƒ*
     * @param _amount0 the token0s received 
     * @param _amount1 the token1s received 
+    * @param _reserve0 reserves of token0  
+    * @param _reserve1 reserves of token1 
     * @return y the value of ƒ(x) on the ordinate axis in ATTOs
     */
-    function getY(Line_mbF memory line, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
+    function getY(Line_mbF memory line, uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
         if (_amount0 != 0) {
             // swap token0 for token1
             y = (((3 * _amount0) / 2) + ((line.m_num * ((2 * _reserve0 * _amount0) + _amount0 ** 2))) / ((2 * 10 ** 18) * line.m_den)); // where is b here?
@@ -76,7 +78,7 @@ library Curve {
         } else {
             // swap token1 for token0
             y = ((2 * (10 ** 9)) * (_amount1 * line.b_den) * line.m_den.sqrt()) /
-                ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * _reserve1 * m * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (_reserve1 - _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
+                ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * _reserve1 * line.m_num * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (_reserve1 - _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
             /// alternative math
             //y = ((line.m_den * line.b_den) * _amount1 - (line.b_num * line.m_den)) / (line.m_num * line.b_den);
         }
@@ -99,7 +101,7 @@ library Curve {
 
         // if precisionDecimals is even, then we simply save input's m as numerator, and we make the denominator to have as many
         // zeros as *precisionDecimals*
-        if (precisionDecimals % 2 == 0) {
+        if (precisionDecimals_m % 2 == 0) {
             line.m_num = input.m;
             line.m_den = 10 ** precisionDecimals_m;
         // if precisionDecimals is NOT even, then we make it even by adding one more decimal on both denominator and numerator.
@@ -109,12 +111,12 @@ library Curve {
         }
         // set b num so that it is a whole number but keep the ratio intact
         if (input.b < 1 * (10 ** precisionDecimals_b)) {
-            uint256 b_extraDecimals = precisionDecimals_b - input.b.numDigits();
+            uint256 b_extraDecimals = precisionDecimals_b - input.b.getNumberOfDigits();
             line.b_num = input.b * (2 * (10 ** b_extraDecimals));
             line.b_den = 2 * 10 ** (b_extraDecimals + precisionDecimals_b); /// this is different than original. Double check
         } else {
-            b_num = input.b;
-            b_den = 10 ** precisionDecimals_b;
+            line.b_num = input.b;
+            line.b_den = 10 ** precisionDecimals_b;
         }
     }
 

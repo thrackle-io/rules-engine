@@ -31,7 +31,7 @@ contract ProtocolAMMCalcCP is IProtocolAMMFactoryCalculator {
      * @param _amount1 amount of token1 possibly coming into the pool
      * @return _amountOut amount of alternate coming out of the pool
      */
-    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external view override returns (uint256) {
+    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external pure override returns (uint256) {
         return simulateSwap(_reserve0, _reserve1, _amount0, _amount1);
     }
 
@@ -43,7 +43,7 @@ contract ProtocolAMMCalcCP is IProtocolAMMFactoryCalculator {
      * @param _amount1 amount coming to the pool of token1
      * @return price
      */
-    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public view override returns (uint256) {
+    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public pure override returns (uint256) {
         if (_amount0 == 0 && _amount1 == 0) 
             revert AmountsAreZero();
         ConstantProduct memory cp = ConstantProduct(_reserve0, _reserve1);

@@ -13,7 +13,7 @@ import {CurveErrors} from "../../interfaces/IErrors.sol";
  */
 contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErrors {
 
-    using Curve for Line;
+    using Curve for Line_mF;
 
     uint256 constant M_PRECISION_DECIMALS = 8;
     uint256 constant ATTO = 10 ** 18;

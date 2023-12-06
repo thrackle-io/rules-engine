@@ -54,13 +54,12 @@ contract ProtocolAMMFactory is AppAdministratorOnly, IZeroAddressError, IAMMFact
      * @dev This creates a linear AMM and calculation module.
      * @param _token0 valid ERC20 address
      * @param _token1 valid ERC20 address
-     * @param _slope slope = m
-     * @param _y_intercept y_intercept = b
+     * @param curve LineInput for the linear curve equation
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createLinearAMM(address _token0, address _token1, uint256 _slope, uint256 _y_intercept, address _appManagerAddress) external returns (address) {
-        return address(createERC20AMM(_token0, _token1, _appManagerAddress, address(protocolAMMCalculatorFactory.createLinear(_slope, _y_intercept, _appManagerAddress))));
+    function createLinearAMM(address _token0, address _token1, LineInput memory curve, address _appManagerAddress) external returns (address) {
+        return address(createERC20AMM(_token0, _token1, _appManagerAddress, address(protocolAMMCalculatorFactory.createLinear(curve, _appManagerAddress))));
     }
 
     /**
