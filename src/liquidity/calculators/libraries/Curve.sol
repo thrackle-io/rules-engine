@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import {Line, LineInput, ConstantRatio, ConstantProduct, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
+import {Line_mF, Line_mbF, LineInput, ConstantRatio, ConstantProduct, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
 import {AMMMath} from "./AMMMath.sol";
 
 /**
@@ -20,29 +20,29 @@ library Curve {
     /**
     * @dev calculates ƒ(x) for linear curve. 
     * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den.
-    * @param line the Line curve or function *ƒ*
+    * @param line the Line_mF curve or function *ƒ*
     * @param x the scalar on the abscissa axis to calculate *ƒ(x)*.
     * @return y the value of ƒ(x) on the ordinate axis in ATTOs
     */
-    function getY(Line memory line, uint256 x)  internal pure returns(uint256 y){
+    function getY(Line_mF memory line, uint256 x)  internal pure returns(uint256 y){
         unchecked{
             y = ((line.m_num * x * ATTO) / line.m_den) + line.b;
         }
     }
     
-    function integral(Line memory line, uint256 x) internal pure returns(uint256 a){
+    function integral(Line_mF memory line, uint256 x) internal pure returns(uint256 a){
        /// a = (((line.m_num * line.m_num) / (line.m_den * line.m_den)) * (x * x) * ATTO) + (line.b * x);
     }
 
     /**
-    * @dev creates a Line curve from a user's LineInput. This mostly means that m is represented now by m_num/m_den.
+    * @dev creates a Line_mF curve from a user's LineInput. This mostly means that m is represented now by m_num/m_den.
     * This is done to have as much precision as possible when calculating *y*
-    * @param line the Line in storage that will be built from the input.
+    * @param line the Line_mF in storage that will be built from the input.
     * @param input the LineInput entered by the user to be stored.
-    * @param precisionDecimals the amount of precision decimals that the input's slope is formatted on.
+    * @param precisionDecimals the amount of precision decimals that the input's slope is formatted with.
     */
 
-    function fromInput(Line storage line, LineInput memory input, uint256 precisionDecimals) internal {
+    function fromInput(Line_mF storage line, LineInput memory input, uint256 precisionDecimals) internal {
 
         // if precisionDecimals is even, then we simply save input's m as numerator, and we make the denominator to have as many
         // zeros as *precisionDecimals*
@@ -56,6 +56,66 @@ library Curve {
         }
 
         line.b = input.b;
+    }
+
+    /// 
+    /**
+    * @dev calculates ƒ(x) for linear curve. 
+    * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den.
+    * @param line the Line_mF curve or function *ƒ*
+    * @param _amount0 the token0s received 
+    * @param _amount1 the token1s received 
+    * @return y the value of ƒ(x) on the ordinate axis in ATTOs
+    */
+    function getY(Line_mbF memory line, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
+        if (_amount0 != 0) {
+            // swap token0 for token1
+            y = (((3 * _amount0) / 2) + ((line.m_num * ((2 * _reserve0 * _amount0) + _amount0 ** 2))) / ((2 * 10 ** 18) * line.m_den)); // where is b here?
+            /// alternative math
+            //y = ((line.m_num * line.b_den) * _amount0 + (line.b_num * line.m_den)) / (line.m_den * line.b_den);
+        } else {
+            // swap token1 for token0
+            y = ((2 * (10 ** 9)) * (_amount1 * line.b_den) * line.m_den.sqrt()) /
+                ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * _reserve1 * m * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (_reserve1 - _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
+            /// alternative math
+            //y = ((line.m_den * line.b_den) * _amount1 - (line.b_num * line.m_den)) / (line.m_num * line.b_den);
+        }
+    }
+    
+    function integral(Line_mbF memory line, uint256 x) internal pure returns(uint256 a){
+       /// a = (((line.m_num * line.m_num) / (line.m_den * line.m_den)) * (x * x) * ATTO) + (line.b * x);
+    }
+
+    /**
+    * @dev creates a Line_mF curve from a user's LineInput. This mostly means that m is represented now by m_num/m_den.
+    * This is done to have as much precision as possible when calculating *y*
+    * @param line the Line_mF in storage that will be built from the input.
+    * @param input the LineInput entered by the user to be stored.
+    * @param precisionDecimals_m the amount of precision decimals that the input's slope is formatted with.
+    * @param precisionDecimals_b the amount of precision decimals that the input's intersection with the Y axis is formatted with.
+    */
+
+    function fromInput(Line_mbF storage line, LineInput memory input, uint256 precisionDecimals_m, uint256 precisionDecimals_b) internal {
+
+        // if precisionDecimals is even, then we simply save input's m as numerator, and we make the denominator to have as many
+        // zeros as *precisionDecimals*
+        if (precisionDecimals % 2 == 0) {
+            line.m_num = input.m;
+            line.m_den = 10 ** precisionDecimals_m;
+        // if precisionDecimals is NOT even, then we make it even by adding one more decimal on both denominator and numerator.
+        }else{
+            line.m_num = input.m * 10;
+            line.m_den = 10 ** (precisionDecimals_m + 1);
+        }
+        // set b num so that it is a whole number but keep the ratio intact
+        if (input.b < 1 * (10 ** precisionDecimals_b)) {
+            uint256 b_extraDecimals = precisionDecimals_b - input.b.numDigits();
+            line.b_num = input.b * (2 * (10 ** b_extraDecimals));
+            line.b_den = 2 * 10 ** (b_extraDecimals + precisionDecimals_b); /// this is different than original. Double check
+        } else {
+            b_num = input.b;
+            b_den = 10 ** precisionDecimals_b;
+        }
     }
 
     /**

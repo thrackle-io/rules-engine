@@ -23,10 +23,22 @@ struct LineInput{
 * @notice this is how the internal line should be saved since this will allow more precision during mathematical operations.
 * definition: y = (m_num/m_den) * x + b
 */ 
-struct Line{
+struct Line_mF { // if someone can think of a better name, please feel free to change it
     uint256 m_num;
     uint256 m_den;
     uint256 b;
+}
+
+/** 
+* @dev Linear curve expressed in fractions.
+* @notice this is how the internal line should be saved since this will allow more precision during mathematical operations.
+* definition: y = (m_num/m_den) * x + b
+*/ 
+struct Line_mbF{ // if someone can think of a better name,  please feel free to change it
+    uint256 m_num;
+    uint256 m_den;
+    uint256 b_num;
+    uint256 b_den;
 }
 
 /** 

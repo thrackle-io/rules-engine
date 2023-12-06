@@ -32,9 +32,9 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
     event Passed();
 
     using Strings for uint256;
-    uint256 constant PRECISION_DECIMALS = 8;
+    uint256 constant M_PRECISION_DECIMALS = 8;
     uint256 constant Y_MAX = 1_000_000_000_000_000_000_000_000 * ATTO;
-    uint256 constant M_MAX = 1_000_000_000_000_000_000_000_000 * 10 ** PRECISION_DECIMALS;
+    uint256 constant M_MAX = 1_000_000_000_000_000_000_000_000 * 10 ** M_PRECISION_DECIMALS;
     uint8 constant MAX_TOLERANCE = 5;
     uint8 constant TOLERANCE_PRECISION = 11;
     uint256 constant TOLERANCE_DEN = 10 ** TOLERANCE_PRECISION;
@@ -98,7 +98,7 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
             assertEq(calc.q(), q - 1);
 
             /// we then call the Python script to calculate the price "offchain" and store it in *res*
-            string[] memory inputs = _buildFFILinearCalculator(sell, PRECISION_DECIMALS, q - 1); // sel always is q-1
+            string[] memory inputs = _buildFFILinearCalculator(sell, M_PRECISION_DECIMALS, q - 1); // sel always is q-1
             res = vm.ffi(inputs);
         } 
         else{
@@ -108,7 +108,7 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
             assertEq(calc.q(), q + 1);
 
             /// we then call the Python script to calculate the price "offchain" and store it in *res*
-            string[] memory inputs = _buildFFILinearCalculator(buy, PRECISION_DECIMALS, q);
+            string[] memory inputs = _buildFFILinearCalculator(buy, M_PRECISION_DECIMALS, q);
             res = vm.ffi(inputs); 
         }
         
