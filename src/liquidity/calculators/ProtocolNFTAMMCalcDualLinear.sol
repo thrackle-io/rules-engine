@@ -63,21 +63,22 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
         if (_amountERC20 == 0 && _amountNFT == 0) revert AmountsAreZero();
         
         price =  simulateSwap( _reserve0,  _reserve1,  _amountERC20,  _amountNFT);
-        _amountERC20 != 0 ? ++q : --q ; // nftchange
+        _amountERC20 != 0 ? ++q : --q ; 
     }
 
     /**
      * @dev This performs the swap from ERC20s to NFTs. It is a linear calculation.
      * @param _reserve0 not used in this case.
      * @param _reserve1 not used in this case.
-     * @param _amountERC20 amount of ERC20 coming out of the pool
-     * @param _amountNFT amount of NFTs coming out of the pool (restricted to 1 for now)
+     * @param _amountERC20 amount of ERC20 coming into the pool
+     * @param _amountNFT amount of NFTs coming into the pool (restricted to 1 for now)
      * @return price
      */
     function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amountERC20, uint256 _amountNFT) public view override returns (uint256 price) {
         _reserve0;
         _reserve1;
-        if (_amountERC20 != 0)  // nftchange
+        _amountNFT;
+        if (_amountERC20 != 0) 
             price = _calculateBuy();
         else 
             price = _calculateSell();
@@ -97,7 +98,6 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
      */
     function _calculateBuy() internal view returns (uint256 price) {
         // we enforce the 1-NFT-per-swap rule
-        //if (_amountNFT > 1) revert ValueOutOfRange(_amountNFT);
         price = buyCurve.getY(q);
     }
 

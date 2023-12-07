@@ -293,11 +293,11 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         assertEq(calc.q(), 2 - 1);
    }
 
-   function _simulateSell(ProtocolNFTAMMCalcDualLinear calc) internal returns(uint256){
+   function _simulateSell(ProtocolNFTAMMCalcDualLinear calc) internal view returns(uint256){
         return calc.simulateSwap(0, 0, 0, 1);
    }
 
-   function _simulateBuy(ProtocolNFTAMMCalcDualLinear calc) internal returns(uint256){
+   function _simulateBuy(ProtocolNFTAMMCalcDualLinear calc) internal view returns(uint256){
         return calc.simulateSwap(0, 0, 1, 0);
    }
 

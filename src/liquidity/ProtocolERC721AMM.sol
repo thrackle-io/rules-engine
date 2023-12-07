@@ -65,9 +65,10 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         if (!(_tokenIn == address(ERC20Token) || _tokenIn == address (ERC721Token))) revert TokenInvalid(_tokenIn);
         if (_amountIn == 0) revert AmountsAreZero();
         /// swap
-        if (_tokenIn == address(ERC20Token)) return _swap0For1(_amountIn, _tokenId);
-        else return _swap1For0(_amountIn, _tokenId);
-        
+        if (_tokenIn == address(ERC20Token)) 
+            return _swap0For1(_amountIn, _tokenId);
+        else 
+            return _swap1For0(_amountIn, _tokenId);
     }
 
     /**
