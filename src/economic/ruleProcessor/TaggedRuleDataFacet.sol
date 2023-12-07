@@ -66,7 +66,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
                 ++i;
             }
         }
-        data.startTime = _startTime;
+        data.startTimes[index] = _startTime;
         emit ProtocolRuleCreated(PURCHASE_LIMIT, index, _accountTypes);
         ++data.purchaseRulesIndex;
         return index;
@@ -117,7 +117,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
                 ++i;
             }
         }
-        data.startTime = _startTime;
+        data.startTimes[index] = _startTime;
         emit ProtocolRuleCreated(SELL_LIMIT, index, _accountTypes);
         ++data.sellRulesIndex;
         return index;
