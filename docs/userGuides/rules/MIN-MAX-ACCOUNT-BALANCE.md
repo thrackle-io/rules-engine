@@ -67,7 +67,7 @@ A minumum-maximum-account-balance rule must have at least one sub-rule. There is
 
 The rule will be evaluated with the following logic:
 
-1. The receiver account and the sender account being evaluated pass all the tags it has registered to their addresses in the application manager to the protocol.
+1. The receiver account and the sender account being evaluated pass all the tags they have registered to their addresses in the application manager to the protocol.
 2. The processor receives these tags along with the ID of the minumum-maximum-account-balance rule set in the token handler. 
 3. The processor tries to retrieve the sub-rule associated with each tag.
 4. The processor evaluates if the final balance of the sender account would be less than the`minimum` in the case of the transaction succeeding. If yes, the transaction reverts.
@@ -131,6 +131,7 @@ The following validation will be carried out by the create function in order to 
 - All the parameter arrays have the exact same length.
 - Not one `tag` can be a blank tag.
 - Not one `minimum` or `maximum` can have a value of 0.
+- `minimum`is not greater than `maximum`
 
 
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
