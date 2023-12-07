@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "./IProtocolAMMFactoryCalculator.sol";
-import {LineWholeB, LineInput, Curve} from "./libraries/Curve.sol";
+import {LinearWholeB, LinearInput, Curve} from "./libraries/Curve.sol";
 import {CurveErrors} from "../../interfaces/IErrors.sol";
 
 /**
@@ -13,14 +13,14 @@ import {CurveErrors} from "../../interfaces/IErrors.sol";
  */
 contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErrors {
 
-    using Curve for LineWholeB;
+    using Curve for LinearWholeB;
 
     uint256 constant M_PRECISION_DECIMALS = 8;
     uint256 constant ATTO = 10 ** 18;
     uint256 constant Y_MAX = 1_000_000_000_000_000_000_000_000 * ATTO;
     uint256 constant M_MAX = 1_000_000_000_000_000_000_000_000 * 10 ** M_PRECISION_DECIMALS;
-    LineWholeB public buyCurve;
-    LineWholeB public sellCurve;
+    LinearWholeB public buyCurve;
+    LinearWholeB public sellCurve;
 
     /**
     * @dev tracks how many NFTs have been put in circulation by the AMM.
@@ -36,7 +36,7 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @param _sellCurve the definition of the sellCurve
     * @param _appManagerAddress the address of the appManager
     */
-    constructor(LineInput memory _buyCurve, LineInput memory _sellCurve, address _appManagerAddress) {
+    constructor(LinearInput memory _buyCurve, LinearInput memory _sellCurve, address _appManagerAddress) {
             // validation block
             if (_appManagerAddress == address(0)) revert ZeroAddress();
             _validateSingleCurve(_buyCurve);
@@ -115,7 +115,7 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @dev sets the buyCurve
     * @param _buyCurve the definition of the new buyCurve
     */
-    function setBuyCurve(LineInput memory _buyCurve) external appAdministratorOnly(appManagerAddress){
+    function setBuyCurve(LinearInput memory _buyCurve) external appAdministratorOnly(appManagerAddress){
         _validateSingleCurve(_buyCurve);
         _validateCurvePair(_buyCurve, sellCurve);
         buyCurve.fromInput(_buyCurve, M_PRECISION_DECIMALS);
@@ -125,7 +125,7 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @dev sets the sellCurve
     * @param _sellCurve the definition of the new sellCurve
     */
-    function setSellCurve(LineInput memory _sellCurve) external appAdministratorOnly(appManagerAddress){
+    function setSellCurve(LinearInput memory _sellCurve) external appAdministratorOnly(appManagerAddress){
         _validateSingleCurve(_sellCurve);
         _validateCurvePair(buyCurve, _sellCurve);
         sellCurve.fromInput(_sellCurve, M_PRECISION_DECIMALS);
@@ -136,7 +136,7 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @dev validates that the definition of a curve is within the safe mathematical limits
     * @param curve the definition of the curve
     */
-    function _validateSingleCurve(LineInput memory curve) internal pure {
+    function _validateSingleCurve(LinearInput memory curve) internal pure {
         if (curve.m > M_MAX) revert ValueOutOfRange(curve.m);
         if (curve.b > Y_MAX) revert ValueOutOfRange(curve.b);
     }
@@ -144,11 +144,11 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     /**
     * @dev validates that, on the positive side of the abscissa axis on the plane, the buyCurve is above the sellCurve, 
     * that they don't intersect, and that they tend to diverge.
-    * @notice this is an overloaded function. In this case, both parameters are of the LineInput type
+    * @notice this is an overloaded function. In this case, both parameters are of the LinearInput type
     * @param _buyCurve the definition of the buyCurve input
     * @param _sellCurve the definition of the sellCurve input
     */
-     function _validateCurvePair(LineInput memory _buyCurve, LineInput memory _sellCurve) internal pure {
+     function _validateCurvePair(LinearInput memory _buyCurve, LinearInput memory _sellCurve) internal pure {
         if(_buyCurve.m < _sellCurve.m) revert CurvesInvertedOrIntersecting(); 
         if(_buyCurve.b < _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }
@@ -156,12 +156,12 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     /**
     * @dev validates that, on the positive side of the abscissa axis on the plane, the buyCurve is above the sellCurve, 
     * that they don't intersect, and that they tend to diverge.
-    * @notice this is an overloaded function. In this case, the buyCurve is of the LineInput type while the sellCurve
+    * @notice this is an overloaded function. In this case, the buyCurve is of the LinearInput type while the sellCurve
     * is of the Line type
     * @param _buyCurve the definition of the buyCurve stored in the contract
     * @param _sellCurve the definition of the sellCurve input
     */
-    function _validateCurvePair(LineInput memory _buyCurve, LineWholeB memory _sellCurve) internal pure {
+    function _validateCurvePair(LinearInput memory _buyCurve, LinearWholeB memory _sellCurve) internal pure {
         if(_buyCurve.m * (_sellCurve.m_den / (10 ** M_PRECISION_DECIMALS)) < _sellCurve.m_num) revert CurvesInvertedOrIntersecting(); 
         if( _buyCurve.b < _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }
@@ -170,11 +170,11 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @dev validates that, on the positive side of the abscissa axis on the plane, the buyCurve is above the sellCurve, 
     * that they don't intersect, and that they tend to diverge.
     * @notice this is an overloaded function. In this case, the buyCurve is of the Line type while the sellCurve
-    * is of the LineInput type
+    * is of the LinearInput type
     * @param _buyCurve the definition of the buyCurve input
     * @param _sellCurve the definition of the sellCurve stored in the contract
     */
-    function _validateCurvePair(LineWholeB memory _buyCurve, LineInput memory _sellCurve) internal pure {
+    function _validateCurvePair(LinearWholeB memory _buyCurve, LinearInput memory _sellCurve) internal pure {
         if(_buyCurve.m_num < _sellCurve.m * (_buyCurve.m_den / (10 ** M_PRECISION_DECIMALS)))  revert CurvesInvertedOrIntersecting(); 
         if(_buyCurve.b < _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }

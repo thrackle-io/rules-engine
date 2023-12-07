@@ -29,10 +29,10 @@ contract ProtocolAMMCalcConst is IProtocolAMMFactoryCalculator {
 
     /**
      * @dev This performs the swap from token0 to token1. It is a linear calculation.
-     * @param _reserve0 amount of token0 being swapped for unknown amount of token1
-     * @param _reserve1 amount of token1 coming out of the pool
-     * @param _amount0 amount of token1 coming out of the pool
-     * @param _amount1 amount of token1 coming out of the pool
+     * @param _reserve0 amount of token0 in the pool
+     * @param _reserve1 amount of token1 in the pool
+     * @param _amount0 amount of token1 coming to the pool
+     * @param _amount1 amount of token1 coming to the pool
      * @return _amountOut
      */
     function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external view override returns (uint256) {
@@ -41,10 +41,10 @@ contract ProtocolAMMCalcConst is IProtocolAMMFactoryCalculator {
 
     /**
      * @dev This performs the swap from token0 to token1. It is a linear calculation.
-     * @param _reserve0 amount of token0 being swapped for unknown amount of token1
-     * @param _reserve1 amount of token1 coming out of the pool
-     * @param _amount0 amount of token1 coming out of the pool
-     * @param _amount1 amount of token1 coming out of the pool
+     * @param _reserve0 amount of token0 in the pool
+     * @param _reserve1 amount of token1 in the pool
+     * @param _amount0 amount of token0 coming to the pool
+     * @param _amount1 amount of token1 coming to the pool
      * @return _amountOut
      */
     function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public view override returns (uint256) {

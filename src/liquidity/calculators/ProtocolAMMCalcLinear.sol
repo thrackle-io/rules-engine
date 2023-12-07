@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "./IProtocolAMMFactoryCalculator.sol";
-import {LineFractionB, LineInput, Curve} from "./libraries/Curve.sol";
+import {LinearFractionB, LinearInput, Curve} from "./libraries/Curve.sol";
 import {CurveErrors} from "../../interfaces/IErrors.sol";
 
 /**
@@ -16,20 +16,20 @@ import {CurveErrors} from "../../interfaces/IErrors.sol";
  */
 contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
 
-    using Curve for LineFractionB;
+    using Curve for LinearFractionB;
 
     uint256 constant Y_MAX = 100_000 * 10 ** 18;
     uint256 constant M_MAX = 100 * 10 ** 8;
     uint8 constant M_PRECISION_DECIMALS = 8;
     uint8 constant B_PRECISION_DECIMALS = 18;
-    LineFractionB public curve;
+    LinearFractionB public curve;
 
     /**
      * @dev Set up the calculator and appManager for permissions
     * @param _curve the definition of the linear ecuation
      * @param _appManagerAddress appManager address
      */
-    constructor(LineInput memory _curve, address _appManagerAddress) {
+    constructor(LinearInput memory _curve, address _appManagerAddress) {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         _setCurve(_curve);
         appManagerAddress = _appManagerAddress;
@@ -37,10 +37,10 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
 
     /**
      * @dev This performs the swap from token0 to token1. It is a linear calculation.
-     * @param _reserve0 amount of token0 being swapped for unknown amount of token1
-     * @param _reserve1 amount of token1 coming out of the pool
-     * @param _amount0 amount of token0 coming out of the pool
-     * @param _amount1 amount of token1 coming out of the pool
+     * @param _reserve0 amount of token0 in the pool
+     * @param _reserve1 amount of token1 in the pool
+     * @param _amount0 amount of token1 coming to the pool
+     * @param _amount1 amount of token1 coming to the pool
      * @return _amountOut
      */
     function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external view override returns (uint256) {
@@ -49,10 +49,10 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
 
     /**
      * @dev This performs the swap from ERC20s to NFTs. It is a linear calculation.
-     * @param _reserve0 not used in this case.
-     * @param _reserve1 not used in this case.
-     * @param _amount0 amount of token0 coming out of the pool
-     * @param _amount1 amount of token1 coming out of the pool
+     * @param _reserve0 amount of token0 in the pool
+     * @param _reserve1 amount of token1 in the pool
+     * @param _amount0 amount of token1 coming to the pool
+     * @param _amount1 amount of token1 coming to the pool
      * @return price
      */
     function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public view override returns (uint256) {
@@ -65,7 +65,7 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
      * @dev Set the equation variables
     * @param _curve the definition of the linear ecuation
      */
-    function setCurve(LineInput memory _curve) external appAdministratorOnly(appManagerAddress) {
+    function setCurve(LinearInput memory _curve) external appAdministratorOnly(appManagerAddress) {
         _setCurve(_curve);
     }
 
@@ -73,7 +73,7 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
      * @dev Set the equation variables
      * @param _curve the definition of the linear ecuation
      */
-    function _setCurve(LineInput memory _curve) internal {
+    function _setCurve(LinearInput memory _curve) internal {
         _validateSingleCurve(_curve);
         curve.fromInput(_curve, M_PRECISION_DECIMALS, B_PRECISION_DECIMALS);
     }
@@ -82,7 +82,7 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
     * @dev validates that the definition of a curve is within the safe mathematical limits
     * @param _curve the definition of the curve
     */
-    function _validateSingleCurve(LineInput memory _curve) internal pure {
+    function _validateSingleCurve(LinearInput memory _curve) internal pure {
         if (_curve.m > M_MAX) revert ValueOutOfRange(_curve.m);
         if (_curve.b > Y_MAX) revert ValueOutOfRange(_curve.b);
     }

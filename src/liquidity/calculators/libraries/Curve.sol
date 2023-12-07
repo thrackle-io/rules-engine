@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import {LineWholeB, LineFractionB, Sample01Struct, LineInput, ConstantRatio, ConstantProduct, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
+import {LinearWholeB, LinearFractionB, Sample01Struct, LinearInput, ConstantRatio, ConstantProduct, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
 import {AMMMath} from "./AMMMath.sol";
 
 /**
@@ -17,31 +17,31 @@ library Curve {
     error InsufficientPoolDepth();
 
 
-    /// <<<<<<<< LineWholeB >>>>>>>>>>
+    /// <<<<<<<< LinearWholeB >>>>>>>>>>
     /**
     * @dev calculates ƒ(x) for linear curve. 
     * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den.
-    * @param line the LineWholeB curve or function *ƒ*
+    * @param line the LinearWholeB curve or function *ƒ*
     * @param x the scalar on the abscissa axis to calculate *ƒ(x)*.
     * @return y the value of ƒ(x) on the ordinate axis in ATTOs
     */
-    function getY(LineWholeB memory line, uint256 x)  internal pure returns(uint256 y){
+    function getY(LinearWholeB memory line, uint256 x)  internal pure returns(uint256 y){
         unchecked{
             y = ((line.m_num * x * ATTO) / line.m_den) + line.b;
         }
     }
     
-    function integral(LineWholeB memory line, uint256 x) internal pure returns(uint256 a){
+    function integral(LinearWholeB memory line, uint256 x) internal pure returns(uint256 a){
        /// a = (((line.m_num * line.m_num) / (line.m_den * line.m_den)) * (x * x) * ATTO) + (line.b * x);
     }
 
     /**
-    * @dev creates a LineWholeB curve from a user's LineInput. This mostly means that m is represented now by m_num/m_den.
-    * @param line the LineWholeB in storage that will be built from the input.
-    * @param input the LineInput entered by the user to be stored.
+    * @dev creates a LinearWholeB curve from a user's LinearInput. This mostly means that m is represented now by m_num/m_den.
+    * @param line the LinearWholeB in storage that will be built from the input.
+    * @param input the LinearInput entered by the user to be stored.
     * @param precisionDecimals the amount of precision decimals that the input's slope is formatted with.
     */
-    function fromInput(LineWholeB storage line, LineInput memory input, uint256 precisionDecimals) internal {
+    function fromInput(LinearWholeB storage line, LinearInput memory input, uint256 precisionDecimals) internal {
 
         if (precisionDecimals % 2 == 0) {
             line.m_num = input.m;
@@ -55,18 +55,18 @@ library Curve {
 
 
 
-    /// <<<<<<<< LineFractionB >>>>>>>>>>
+    /// <<<<<<<< LinearFractionB >>>>>>>>>>
     /**
     * @dev calculates ƒ(x) for linear curve. 
     * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den.
-    * @param line the LineWholeB curve or function *ƒ*
+    * @param line the LinearWholeB curve or function *ƒ*
     * @param _amount0 the token0s received 
     * @param _amount1 the token1s received 
     * @param _reserve0 reserves of token0  
     * @param _reserve1 reserves of token1 
     * @return y the value of ƒ(x) on the ordinate axis in ATTOs
     */
-    function getY(LineFractionB memory line, uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
+    function getY(LinearFractionB memory line, uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
         if (_amount0 != 0) {
             // swap token0 for token1
             y = (((3 * _amount0) / 2) + ((line.m_num * ((2 * _reserve0 * _amount0) + _amount0 ** 2))) / ((2 * 10 ** 18) * line.m_den)); // where is b here?
@@ -81,18 +81,18 @@ library Curve {
         }
     }
     
-    function integral(LineFractionB memory line, uint256 x) internal pure returns(uint256 a){
+    function integral(LinearFractionB memory line, uint256 x) internal pure returns(uint256 a){
        /// a = (((line.m_num * line.m_num) / (line.m_den * line.m_den)) * (x * x) * ATTO) + (line.b * x);
     }
 
     /**
-    * @dev creates a LineWholeB curve from a user's LineInput. This mostly means that m and b are represented by fractions.
-    * @param line the LineWholeB in storage that will be built from the input.
-    * @param input the LineInput entered by the user to be stored.
+    * @dev creates a LinearWholeB curve from a user's LinearInput. This mostly means that m and b are represented by fractions.
+    * @param line the LinearWholeB in storage that will be built from the input.
+    * @param input the LinearInput entered by the user to be stored.
     * @param precisionDecimals_m the amount of precision decimals that the input's slope is formatted with.
     * @param precisionDecimals_b the amount of precision decimals that the input's intersection with the Y axis is formatted with.
     */
-    function fromInput(LineFractionB storage line, LineInput memory input, uint256 precisionDecimals_m, uint256 precisionDecimals_b) internal {
+    function fromInput(LinearFractionB storage line, LinearInput memory input, uint256 precisionDecimals_m, uint256 precisionDecimals_b) internal {
 
         // if precisionDecimals is even, then we simply save input's m as numerator, and we make the denominator to have as many
         // zeros as *precisionDecimals*. This will make sure that m is a perfect square
@@ -197,7 +197,7 @@ library Curve {
     /** 
     *  PLACE HOLDER for sigmoidal
     */
-    function fromInput(SigmoidFakeS storage sigmoid, LineInput memory input, uint8 precisionDecimals) internal {
+    function fromInput(SigmoidFakeS storage sigmoid, LinearInput memory input, uint8 precisionDecimals) internal {
         /// body here
     }
 

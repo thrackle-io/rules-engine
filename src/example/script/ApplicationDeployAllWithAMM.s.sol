@@ -19,7 +19,7 @@ import "src/example/staking/ERC20Staking.sol";
 import "src/example/staking/ERC20AutoMintStaking.sol";
 import "src/example/staking/ERC721Staking.sol";
 import "src/example/staking/ERC721AutoMintStaking.sol";
-import {LineInput} from "../../liquidity/calculators/dataStructures/CurveDataStructures.sol";
+import {LinearInput} from "../../liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
 /**
  * @title Application Deploy All Script
@@ -52,7 +52,7 @@ contract ApplicationDeployAllScript is Script {
         coin2.connectHandlerToToken(address(applicationCoinHandler2));
         /// create the AMM with Dracula and Frankenstein tokens
         ProtocolAMMFactory protocolAMMFactory = new ProtocolAMMFactory(address(new ProtocolAMMCalculatorFactory()));
-        ProtocolERC20AMM amm = ProtocolERC20AMM(protocolAMMFactory.createLinearAMM(address(coin1), address(coin2), LineInput(6000, 15 * 10 ** 17), address(applicationAppManager))); 
+        ProtocolERC20AMM amm = ProtocolERC20AMM(protocolAMMFactory.createLinearAMM(address(coin1), address(coin2), LinearInput(6000, 15 * 10 ** 17), address(applicationAppManager))); 
         /// create AMM handler
         applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(amm));
         /// connect AMM with its handler

@@ -7,7 +7,7 @@ import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
 import "src/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcSample01.sol";
 import "src/economic/AppAdministratorOnly.sol";
-import {LineInput, ConstantRatio} from "./calculators/dataStructures/CurveDataStructures.sol";
+import {LinearInput, ConstantRatio} from "./calculators/dataStructures/CurveDataStructures.sol";
 import {IZeroAddressError} from "src/interfaces/IErrors.sol";
 import {IAMMFactoryEvents} from "src/interfaces/IEvents.sol";
 
@@ -30,14 +30,14 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createLinear(LineInput memory curve, address _appManagerAddress) external returns (address) {
+    function createLinear(LinearInput memory curve, address _appManagerAddress) external returns (address) {
         ProtocolAMMCalcLinear protocolAMMCalcLinear = new ProtocolAMMCalcLinear(curve, _appManagerAddress);
         return address(protocolAMMCalcLinear);
     }
 
     /**
      * @dev This creates a linear calculation module.
-     * @notice a LineInput has the shape {uint256 m; uint256 b}
+     * @notice a LinearInput has the shape {uint256 m; uint256 b}
      *    *m* is the slope of the line expressed with 8 decimals of precision. Input of 100000001 means -> 1.00000001
      *    *b* is the intersection of the line with the ordinate axis expressed in atto (18 decimals of precision). 1 ^ 10 ** 18 means -> 1
      * @param buyCurve the definition of the buyCurve
@@ -45,22 +45,12 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createDualLinearNFT(LineInput memory buyCurve, LineInput memory sellCurve, address _appManagerAddress) external returns (address) {
-        // LineInput memory buyCurve = LineInput(_buySlope, _buy_y_intercept);
-        // LineInput memory sellCurve = LineInput(_sellSlope, _sell_y_intercept);
+    function createDualLinearNFT(LinearInput memory buyCurve, LinearInput memory sellCurve, address _appManagerAddress) external returns (address) {
+        // LinearInput memory buyCurve = LinearInput(_buySlope, _buy_y_intercept);
+        // LinearInput memory sellCurve = LinearInput(_sellSlope, _sell_y_intercept);
         ProtocolNFTAMMCalcDualLinear protocolAMMCalcLinear = new ProtocolNFTAMMCalcDualLinear(buyCurve, sellCurve, _appManagerAddress);
         return address(protocolAMMCalcLinear);
     }
-
-    // /**
-    //  * @dev This creates a sigmoid calculation module.
-    //  * @param _appManagerAddress address of the application's appManager
-    //  * @return _calculatorAddress
-    //  */
-    // function createSigmoid(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) returns (address) {
-    //     ProtocolAMMCalcSigmoid protocolAMMCalcSigmoid = new ProtocolAMMCalcSigmoid(_appManagerAddress);
-    //     return address(protocolAMMCalcSigmoid);
-    // }
 
     /**
      * @dev This creates a linear calculation module.

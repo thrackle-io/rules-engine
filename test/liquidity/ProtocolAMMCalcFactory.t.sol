@@ -8,7 +8,7 @@ import "src/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "test/helpers/TestCommonFoundry.sol";
-import {ConstantRatio, LineInput} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
+import {ConstantRatio, LinearInput} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
 /**
  * @title Test all AMM Calculator Factory related functions
@@ -94,8 +94,6 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
 
         // // make sure the ratio can't be too large
          switchToAppAdministrator();
-        // vm.expectRevert(0x7db3aba7);
-        // calc.setRatio(uint256((type(uint32).max)) + 1, 1);
 
         // make sure it changes the ratio and works
         cr.x = 1;
@@ -175,7 +173,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
         // create a linear calculator (y=mx+b))
         // m = .00006(this is set as 8 digits)
         // b = 1.5
-        LineInput memory curve = LineInput(6000, 15 * 10 ** 17);
+        LinearInput memory curve = LinearInput(6000, 15 * 10 ** 17);
         address calcAddress = factory.createLinear(curve, address(applicationAppManager));
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
         uint256 reserve0 = 1_000_000 * 10 ** 18;
@@ -204,7 +202,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
 
         // work with another slope
         // m = .00005(this is set as 8 digits)
-        curve = LineInput(5000, 15 * 10 ** 17);
+        curve = LinearInput(5000, 15 * 10 ** 17);
         calc.setCurve(curve);
         // swap 1 *10**10 token0 for 51500025000000000000 token1
         amount0 = 1 * 10 ** 18;
@@ -213,7 +211,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
 
         // work with another slope
         // m = .00001(this is set as 8 digits)
-        curve = LineInput(1000, 15 * 10 ** 17);
+        curve = LinearInput(1000, 15 * 10 ** 17);
         calc.setCurve(curve);
         // swap 1 *10**10 token0 for 11500005000000000000 token1
         amount0 = 1 * 10 ** 18;
@@ -228,7 +226,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
         // create a linear calculator (y=mx+b))
         // m = .00006(this is set as 8 digits) = 6000
         // b = 1.5
-        LineInput memory curve = LineInput(6000, 15 * 10 ** 17);
+        LinearInput memory curve = LinearInput(6000, 15 * 10 ** 17);
         address calcAddress = factory.createLinear(curve, address(applicationAppManager));
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
         uint256 reserve0 = 1_000_000 * 10 ** 18;
@@ -254,7 +252,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
 
         // work with another slope
         // m = .00005(this is set as 8 digits)
-        curve = LineInput(5000, 15 * 10 ** 17);
+        curve = LinearInput(5000, 15 * 10 ** 17);
         calc.setCurve(curve);
         // swap 1 *10**18 token1 for 98893659466214506 token0
         amount1 = 1 * 10 ** 18;
@@ -263,7 +261,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
 
         // work with another y-intercept
         // m = .00005(this is set as 8 digits)
-        curve = LineInput(5000, 2 * 10 ** 18);
+        curve = LinearInput(5000, 2 * 10 ** 18);
         calc.setCurve(curve);
         // swap 1 *10**18 token1 for 98058091140754206 token0
         amount1 = 1 * 10 ** 18;
@@ -283,23 +281,23 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
         // validate parameters at constructor level
         bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 101 * 10 ** 8));
-        LineInput memory curve = LineInput(101 * 10 ** 8, 15 * 10 ** 17);
+        LinearInput memory curve = LinearInput(101 * 10 ** 8, 15 * 10 ** 17);
         factory.createLinear(curve, address(applicationAppManager));
         vm.expectRevert(abi.encodeWithSelector(selector, 100_001 * 10 ** 18));
-        curve = LineInput(600, 100_001 * 10 ** 18);
+        curve = LinearInput(600, 100_001 * 10 ** 18);
         factory.createLinear(curve, address(applicationAppManager));
-        curve = LineInput(100 * 10 ** 8, 100_000 * 10 ** 18);
+        curve = LinearInput(100 * 10 ** 8, 100_000 * 10 ** 18);
         calcAddress = factory.createLinear(curve, address(applicationAppManager));
         // validate parameters at setter level
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
-        curve = LineInput(101 * 10 ** 8, 100_000 * 10 ** 18);
+        curve = LinearInput(101 * 10 ** 8, 100_000 * 10 ** 18);
         vm.expectRevert(abi.encodeWithSelector(selector, 101 * 10 ** 8));
         calc.setCurve(curve);
-        curve = LineInput(100 * 10 ** 8, 101_000 * 10 ** 18);
+        curve = LinearInput(100 * 10 ** 8, 101_000 * 10 ** 18);
         vm.expectRevert(abi.encodeWithSelector(selector, 101_000 * 10 ** 18));
         calc.setCurve(curve);
         // Make sure zeros are allowed for m and y
-        curve = LineInput(0, 0);
+        curve = LinearInput(0, 0);
         calc.setCurve(curve);
     }
 }

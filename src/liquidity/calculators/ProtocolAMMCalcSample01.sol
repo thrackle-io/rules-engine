@@ -39,8 +39,8 @@ contract ProtocolAMMCalcSample01 is IProtocolAMMFactoryCalculator {
      *      b = _amount1
      *      k = _reserve0 * _reserve1
      *
-     * @param _reserve0 total amount of token0 in reserve
-     * @param _reserve1 total amount of token1 in reserve
+     * @param _reserve0 not used in this case
+     * @param _reserve1 not used in this case
      * @param _amount0 amount of token0 possibly coming into the pool
      * @param _amount1 amount of token1 possibly coming into the pool
      * @return amountOut amount of alternate coming out of the pool
@@ -62,8 +62,8 @@ contract ProtocolAMMCalcSample01 is IProtocolAMMFactoryCalculator {
 
     /**
      * @dev This performs the swap from ERC20s to NFTs. It is a linear calculation.
-     * @param _reserve0 total amount of token0 in reserve
-     * @param _reserve1 total amount of token1 in reserve
+     * @param _reserve0 not used in this case
+     * @param _reserve1 not used in this case
      * @param _amount0 amount of token0 possibly coming into the pool
      * @param _amount1 amount of token1 possibly coming into the pool
      * @return amountOut
@@ -117,52 +117,3 @@ contract ProtocolAMMCalcSample01 is IProtocolAMMFactoryCalculator {
     }
 
 }
-/**
-
-function calculate1for0(uint256 _reserve0, uint256 _amount1) private returns (uint256 _amountOut) {
-        int256 x_0 = g_tracker;
-        uint256 deltaY = uint(x_0 + int(_amount1));
-        // calculate for g(y)
-        int256 delta = (10 ** 9) * (int256(sqrt(deltaY)) - int256(sqrt(uint(x_0))));
-        if (delta < 0 || delta > int(_reserve0)) {
-            revert InsufficientPoolDepth(_reserve0, delta);
-        }
-        // increment the tracker
-        g_tracker += int(_amount1);
-        // set the inverse tracker
-        f_tracker = (10 ** 19) - ((10 ** 9) * int256(sqrt(uint(g_tracker))));
-        _amountOut = uint(delta);
-        return _amountOut;
-    }
-
-   
-    function calculate0for1(uint256 _reserve1, uint256 _amount0) private returns (uint256 _amountOut) {
-        int256 x_0 = f_tracker;
-        // calculate for f(x)
-        int256 delta = ((((((10 ** 19)) - x_0) ** 2)) - ((((10 ** 19) - ((x_0 + int(_amount0)))) ** 2))) / (2 * (10 ** 18));
-        if (delta < 0 || delta > int(_reserve1)) {
-            revert InsufficientPoolDepth(_reserve1, delta);
-        }
-        // increment the tracker
-        f_tracker += int(_amount0);
-        // set the inverse tracker
-        g_tracker = (((10 ** 19) - (f_tracker)) ** 2) / (10 ** 18);
-        _amountOut = uint(delta);
-        return _amountOut;
-    }
-
-    function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external override returns (uint256 amountOut) {
-        amountOut = simulateSwap(_reserve0, _reserve1, _amount0, _amount1);
-        if (_amount0 == 0) {
-            // increment the tracker
-            g_tracker += int(_amount1);
-            // set the inverse tracker
-            f_tracker = (10 ** 19) - ((10 ** 9) * int256(_amount1.sqrt()));
-        } else {
-            // increment the tracker
-            f_tracker += int(_amount0);
-            // set the inverse tracker
-            g_tracker = (((10 ** 19) - (f_tracker)) ** 2) / (10 ** 18);
-        }
-    }
- */

@@ -20,7 +20,7 @@ import "src/example/staking/ERC20Staking.sol";
 import "src/example/staking/ERC20AutoMintStaking.sol";
 import "src/example/staking/ERC721Staking.sol";
 import "src/example/staking/ERC721AutoMintStaking.sol";
-import {LineInput} from "../../liquidity/calculators/dataStructures/CurveDataStructures.sol";
+import {LinearInput} from "../../liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
 //
 // *******This deployment script is for UI testing only*************
@@ -68,7 +68,7 @@ contract ApplicationUIDeployAllScript is Script {
         /// create the AMM Linear Calculator
         /// create the AMM with Dracula and Frankenstein tokens
         ProtocolAMMFactory protocolAMMFactory = new ProtocolAMMFactory(address(new ProtocolAMMCalculatorFactory()));
-        LineInput memory curve = LineInput(6000, 15 * 10 ** 17);
+        LinearInput memory curve = LinearInput(6000, 15 * 10 ** 17);
         ProtocolERC20AMM amm = ProtocolERC20AMM(protocolAMMFactory.createLinearAMM(address(coin1), address(coin2), curve, address(applicationAppManager))); 
         /// create AMM handler
         applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(amm));

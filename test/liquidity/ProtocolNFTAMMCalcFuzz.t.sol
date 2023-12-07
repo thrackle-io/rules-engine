@@ -8,7 +8,7 @@ import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "test/helpers/TestCommonFoundry.sol";
-import {LineInput} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
+import {LinearInput} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 import "../../src/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../helpers/Utils.sol";
@@ -70,8 +70,8 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         
         /// we create the buy and line curves with the fuzz variables
-        LineInput memory buy = LineInput(mBuy, bBuy);
-        LineInput memory sell = LineInput(mSell, bSell);
+        LinearInput memory buy = LinearInput(mBuy, bBuy);
+        LinearInput memory sell = LinearInput(mSell, bSell);
 
         /// we create the actual calculator with these curves
         ProtocolNFTAMMCalcDualLinear calc = ProtocolNFTAMMCalcDualLinear(
@@ -137,7 +137,7 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
     * @param decimals the amount of decimals of precision for *m*.
     * @param q in this case, the value of x to solve ƒ(x).
     */
-    function _buildFFILinearCalculator(LineInput memory lineInput, uint256 decimals, uint88 q) internal pure returns(string[] memory) {
+    function _buildFFILinearCalculator(LinearInput memory lineInput, uint256 decimals, uint88 q) internal pure returns(string[] memory) {
         string[] memory inputs = new string[](7);
         inputs[0] = "python3";
         inputs[1] = "script/python/linear_calculator.py"; 
