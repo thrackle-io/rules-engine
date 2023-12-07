@@ -94,7 +94,7 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
             if( q < 1) q = 1;
             /// we calculate the price through the calculator and store it in *price*
             calc.set_q(q);
-            price = calc.calculateSwap(0, 0, 1, 0); //(reserves0, q, ERC20s out, NFTs out)
+            price = calc.calculateSwap(0, 0, 0, 1); //(reserves0, q, ERC20s out, NFTs out)
             assertEq(calc.q(), q - 1);
 
             /// we then call the Python script to calculate the price "offchain" and store it in *res*
@@ -104,7 +104,7 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
         else{
             /// we calculate the price through the calculator and store it in *price*
             calc.set_q(q);
-            price = calc.calculateSwap(0, 0, 0, 1); //(reserves0, q, ERC20s out, NFTs out)
+            price = calc.calculateSwap(0, 0, 1, 0); //(reserves0, q, ERC20s out, NFTs out)
             assertEq(calc.q(), q + 1);
 
             /// we then call the Python script to calculate the price "offchain" and store it in *res*

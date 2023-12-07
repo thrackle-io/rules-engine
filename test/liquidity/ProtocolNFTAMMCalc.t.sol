@@ -144,24 +144,24 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         // we test buying 1 NFT when q is 10
         calc.set_q(10);
 
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 12
         assertEq(priceA, priceB);
         assertEq(priceA, 12 * 10 ** 18);
         assertEq(calc.q(), 11);
         // we test buying 1 NFT when q is 1_000
         calc.set_q(1_000);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 210
         assertEq(priceA, priceB);
         assertEq(priceA, 210 * 10 ** 18);
         assertEq(calc.q(), 1_001);
         // we test buying 1 NFT when q is a mill
         calc.set_q(1_000_000);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 200010
         assertEq(priceA, priceB);
         assertEq(priceA, 200010 * 10 ** 18);
@@ -175,16 +175,16 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         uint256 priceB;
         // we test buying 1 NFT when q is 1_000
         calc.set_q(1_000);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 1.001 x 10^27
         assertEq(priceA, priceB);
         assertEq(priceA, 1001 * 10 ** 24 * 10 ** 18);
         assertEq(calc.q(), 1_001);
         // we test buying 1 NFT when q is a septillion
         calc.set_q(1_000_000_000_000_000_000_000_000);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 1.000000000000000000000001 x 10^48
         assertEq(priceA, priceB);
         assertEq(priceA, 1000000000000000000000001 * 10 ** 24 * 10 ** 18);
@@ -199,16 +199,16 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         uint256 priceB;
         // we test buying 1 NFT when q is 0
         calc.set_q(0);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 1 * 10^-16
         assertEq(priceA, priceB);
         assertEq(priceA, 100);
         assertEq(calc.q(), 1);
         // we test buying 1 NFT when q is 1
         calc.set_q(1);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 2.00000001 x 10^-8
         assertEq(priceA, priceB);
         assertEq(priceA, 20000000100);
@@ -223,24 +223,24 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         uint256 priceB;
         // we test selling 1 NFT when q is 10
         calc.set_q(10);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 11.42 * 10^19 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 1142 * 10 ** 16);
         assertEq(calc.q(), 10 - 1);
         // we test selling 1 NFT when q is 1_000
         calc.set_q(1_000);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 1.8962 * 10^20 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 18962 * 10 ** 16);
         assertEq(calc.q(), 1_000 - 1);
         // we test selling 1 NFT when q is a mill
         calc.set_q(1_000_000);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 18000962 * 10^23 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 18000962 * 10 ** 16);
@@ -254,16 +254,16 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         uint256 priceB;
         // we test selling 1 NFT when q is 1_000
         calc.set_q(1_000);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 9.999 x 10^25 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 99 * 10 ** 25 * 10 ** 18);       
         assertEq(calc.q(), 1_000 - 1);
         // we test selling 1 NFT when q is a septillion
         calc.set_q(1_000_000_000_000_000_000_000_000);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 1.000000000000000000000001 x 10^48 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 99 * 10 ** 46 * 10 ** 18);
@@ -277,19 +277,35 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         uint256 priceB;
         // we test selling 1 NFT when q is 0
         calc.set_q(1);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 9.9 * 10^-17 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 99);
         assertEq(calc.q(), 1 - 1);
         // we test selling 1 NFT when q is 1
         calc.set_q(2);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 1.0000000099 * 10−8 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 10000000099);
         assertEq(calc.q(), 2 - 1);
+   }
+
+   function _simulateSell(ProtocolNFTAMMCalcDualLinear calc) internal returns(uint256){
+        return calc.simulateSwap(0, 0, 0, 1);
+   }
+
+   function _simulateBuy(ProtocolNFTAMMCalcDualLinear calc) internal returns(uint256){
+        return calc.simulateSwap(0, 0, 1, 0);
+   }
+
+   function _calculateSell(ProtocolNFTAMMCalcDualLinear calc) internal returns(uint256){
+        return calc.calculateSwap(0, 0, 0, 1);
+   }
+
+   function _calculateBuy(ProtocolNFTAMMCalcDualLinear calc) internal returns(uint256){
+        return calc.calculateSwap(0, 0, 1, 0);
    }
 }
