@@ -20,7 +20,7 @@ A token-percentage-sell rule is composed of 4 components:
 
 - **Token Percentage** (uint16): The maximum percent in basis units of total supply able to be sold during the *period* (i.e. 5050 = 50.50% of total supply). 
 - **Sell  Period** (uint16): The length of time for which the rule will apply, in hours.
-- **Starting Timestamp** (uint64): The timestamp of the date when the *period* starts counting.
+- **Starting Timestamp** (uint64): The unix imestamp of the date when the *period* starts counting.
 - **Total Supply** (uint256): if not zero, this value will always be used as the token's total supply for rule evaluation. This can be used when the amount of circulating supply is much smaller than the amount of the token totalSupply due to some tokens being locked in a dev account or a vesting contract, etc. Only use this value in such cases.
 
 ```c
@@ -102,8 +102,8 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
-- **_tokenPercentage** (uint16): maximum allowable percentage (in basis unit) of trading volume per period.
-- **_sellPeriod** (uint16): the amount of hours per period.
+- **_tokenPercentage** (uint16): Maximum allowable percentage (in basis unit) of trading volume per period.
+- **_sellPeriod** (uint16): the Amount of hours per period.
 - **_startTimestamp** (uint64): Unix timestamp for the *_sellPeriod* to start counting.
 - **_totalSupply** (uint256): (optional) if not 0, then this is the value used for totalSupply instead of the live token's totalSupply value at rule processing time.
 
