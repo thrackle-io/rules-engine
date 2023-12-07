@@ -14,7 +14,7 @@ import {AMMMath} from "./AMMMath.sol";
 library Curve {
     using AMMMath for uint256;
     uint256 constant ATTO = 10 ** 18;
-    error InsufficientPoolDepth(uint256 reserves, int256 amount);
+    error InsufficientPoolDepth();
 
 
     /// <<<<<<<< LineWholeB >>>>>>>>>>
@@ -168,20 +168,20 @@ library Curve {
 
 
     /// <<<<<<<< Sample01Struct >>>>>>>>>>
-    function getY(Sample01Struct memory curve, int256 tracker, bool isReserves0)  internal pure returns(uint256 amountOut){
-        if (isReserves0) {
-            uint256 deltaY = uint(tracker + int(curve.amountIn ));
-            int256 delta = (10 ** 9) * (int256(deltaY.sqrt()) - int256((uint(tracker)).sqrt())); /// check for tracker sign!!
-            if (delta < 0 || delta > int(curve.reserves)) {
-                revert InsufficientPoolDepth(curve.reserves, delta);
-            }
-            amountOut =  uint(delta);
+    function getY(Sample01Struct memory curve, bool isSwap1For0)  internal pure returns(uint256 amountOut){
+        if (isSwap1For0) {
+            uint256 deltaYSquareRoot = uint(curve.tracker + int(curve.amountIn )).sqrt();
+            uint256 trackerSquareRoot = uint(curve.tracker).sqrt();
+            if(deltaYSquareRoot < trackerSquareRoot) 
+                revert InsufficientPoolDepth();
+            amountOut = (10 ** 9) * (deltaYSquareRoot - trackerSquareRoot); /// check for tracker sign!!
+        
         } else {
-            int256 delta = ((((((10 ** 19)) - tracker) ** 2)) - ((((10 ** 19) - ((tracker + int(curve.amountIn)))) ** 2))) / (2 * (10 ** 18));
-            if (delta < 0 || delta > int(curve.reserves)) {
-                revert InsufficientPoolDepth(curve.reserves, delta);
-            }
-            amountOut = uint(delta);
+            uint256 tenMinusTrackerSquare = uint((((10 ** 19)) - curve.tracker) ** 2);
+            uint256 tenMinusDeltaSquare = uint(((10 ** 19) - ((curve.tracker + int(curve.amountIn)))) ** 2);
+            if(tenMinusTrackerSquare < tenMinusDeltaSquare) 
+                revert InsufficientPoolDepth();
+            amountOut = (tenMinusTrackerSquare - tenMinusDeltaSquare) / (2 * (10 ** 18));
         }
     }
 

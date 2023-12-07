@@ -119,8 +119,8 @@ interface AMMCalculatorErrors {
     error OutOfRange();
     error ValueOutOfRange(uint256 value);
     error ZeroValueNotPermited();
-    error InsufficientPoolDepth(uint256 pool, int256 attemptedWithdrawal);
 }
+
 
 interface CurveErrors{
     error CurvesInvertedOrIntersecting();
@@ -133,6 +133,7 @@ interface AMMErrors {
     error NotTheOwnerOfNFT(uint256 _tokenId);
     error NotEnumerable();
     error NotEnoughTokensForSwap(uint256 _tokensIn,uint256 _tokensRequired);
+    error InsufficientPoolDepth(uint256 pool, uint256 attemptedWithdrawal);
 }
 
 interface NFTPricingErrors {

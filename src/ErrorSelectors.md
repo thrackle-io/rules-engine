@@ -91,7 +91,8 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0xfe5d1090 | RiskLevelCannotExceed99()                                        |
 | 0x06b5c782 | TokenNotAvailableToWithdraw()                                    |
 | 0x3fac082d | NotAllowedForAccessLevel()                                       |
-| 0xab6a6402 | InsufficientPoolDepth(uint256,int256)                            |
+| 0x684983bd | InsufficientPoolDepth(uint256,uint256)                           |
+| 0x2f17c7d9 | InsufficientPoolDepth()                                          |
 | 0x1a4a3f34 | CannotTurnOffAccessLevel0WithAccessLevelBalanceActive()          |
 | 0x15bd01b6 | ValueOutOfRange(uint256)                                         |
 | 0x8f802168 | CallerNotAuthorizedToMint()                                      |

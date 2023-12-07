@@ -61,12 +61,13 @@ struct ConstantProduct{
     uint256 y;
 }
 
+
 /** 
 * @dev 
 */ 
 struct Sample01Struct{
-    uint256 reserves;
     uint256 amountIn;
+    int256 tracker;
 }
 
 

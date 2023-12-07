@@ -405,7 +405,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         vm.startPrank(user);
         /// Approve transfer
         applicationCoin2.approve(address(protocolAMM), 10000 * (10 ** 18));
-        bytes4 selector = bytes4(keccak256("InsufficientPoolDepth(uint256,int256)"));
+        bytes4 selector = bytes4(keccak256("InsufficientPoolDepth(uint256,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 5 * (10 ** 18), 98019998000000000000));
         protocolAMM.swap(address(applicationCoin2), 10000 * (10 ** 18));
         /// make sure swap returns correct value
@@ -430,8 +430,8 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         vm.startPrank(user);
         /// Approve transfer
         applicationCoin.approve(address(protocolAMM), 10000 * (10 ** 18));
-        bytes4 selector = bytes4(keccak256("InsufficientPoolDepth(uint256,int256)"));
-        vm.expectRevert(abi.encodeWithSelector(selector, 5 * (10 ** 18), -49980000000000000000000000));
+        bytes4 selector = bytes4(keccak256("InsufficientPoolDepth()"));
+        vm.expectRevert(abi.encodeWithSelector(selector));
         protocolAMM.swap(address(applicationCoin), 10000 * (10 ** 18));
     }
 

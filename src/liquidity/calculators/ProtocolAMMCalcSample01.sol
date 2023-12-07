@@ -69,15 +69,17 @@ contract ProtocolAMMCalcSample01 is IProtocolAMMFactoryCalculator {
      * @return amountOut
      */
     function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public view override returns (uint256 amountOut) {
+        _reserve0;
+        _reserve1;
         if (_amount0 == 0 && _amount1 == 0)  
             revert AmountsAreZero();
 
         if (_amount0 == 0) {
-            Sample01Struct memory curve = Sample01Struct(_reserve0, _amount1);
-            amountOut = curve.getY(g_tracker, true);
+            Sample01Struct memory curve = Sample01Struct(_amount1, g_tracker);
+            amountOut = curve.getY(true);
         } else {
-            Sample01Struct memory curve = Sample01Struct(_reserve1, _amount0);
-            amountOut = curve.getY(f_tracker, false);
+            Sample01Struct memory curve = Sample01Struct(_amount0, f_tracker);
+            amountOut = curve.getY(false);
         }
     }
 
