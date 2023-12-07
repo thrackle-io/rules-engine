@@ -7,7 +7,7 @@ import "src/liquidity/ProtocolERC721AMM.sol";
 import "src/economic/AppAdministratorOnly.sol";
 import {IZeroAddressError} from "src/interfaces/IErrors.sol";
 import {IAMMFactoryEvents} from "src/interfaces/IEvents.sol";
-import {LineInput} from "./calculators/dataStructures/CurveDataStructures.sol";
+import {LinearInput, ConstantRatio} from "./calculators/dataStructures/CurveDataStructures.sol";
 
 /**
  * @title Automated Market Maker Factory
@@ -54,25 +54,24 @@ contract ProtocolAMMFactory is AppAdministratorOnly, IZeroAddressError, IAMMFact
      * @dev This creates a linear AMM and calculation module.
      * @param _token0 valid ERC20 address
      * @param _token1 valid ERC20 address
-     * @param _slope slope = m
-     * @param _y_intercept y_intercept = b
+     * @param curve LinearInput for the linear curve equation
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createLinearAMM(address _token0, address _token1, uint256 _slope, uint256 _y_intercept, address _appManagerAddress) external returns (address) {
-        return address(createERC20AMM(_token0, _token1, _appManagerAddress, address(protocolAMMCalculatorFactory.createLinear(_slope, _y_intercept, _appManagerAddress))));
+    function createLinearAMM(address _token0, address _token1, LinearInput memory curve, address _appManagerAddress) external returns (address) {
+        return address(createERC20AMM(_token0, _token1, _appManagerAddress, address(protocolAMMCalculatorFactory.createLinear(curve, _appManagerAddress))));
     }
 
     /**
      * @dev This creates a linear AMM and calculation module.
      * @param _ERC20Token valid ERC20 address
      * @param _ERC721Token valid ERC721 address
-     * @param buyCurve LineInput for buy curve
-     * @param sellCurve LineInput for sell curve
+     * @param buyCurve LinearInput for buy curve
+     * @param sellCurve LinearInput for sell curve
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createDualLinearERC721AMM(address _ERC20Token, address _ERC721Token, LineInput memory buyCurve, LineInput memory sellCurve, address _appManagerAddress) external returns (address) {
+    function createDualLinearERC721AMM(address _ERC20Token, address _ERC721Token, LinearInput memory buyCurve, LinearInput memory sellCurve, address _appManagerAddress) external returns (address) {
         return address(createERC721AMM(_ERC20Token, _ERC721Token, _appManagerAddress, address(protocolAMMCalculatorFactory.createDualLinearNFT(buyCurve, sellCurve, _appManagerAddress))));
     }
 
@@ -91,13 +90,13 @@ contract ProtocolAMMFactory is AppAdministratorOnly, IZeroAddressError, IAMMFact
      * @dev This creates a constant AMM and calculation module.
      * @param _token0 valid ERC20 address
      * @param _token1 valid ERC20 address
-     * @param _x x value of the ratio
-     * @param _y y value of the ratio
+     * @param _constantRatio the values of x and y for the constant ratio
+     * @notice x represents token0 and y represents token1
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createConstantAMM(address _token0, address _token1, uint256 _x, uint256 _y, address _appManagerAddress) external returns (address) {
-        return address(createERC20AMM(_token0, _token1, _appManagerAddress, address(protocolAMMCalculatorFactory.createConstant(_x, _y, _appManagerAddress))));
+    function createConstantAMM(address _token0, address _token1, ConstantRatio memory _constantRatio, address _appManagerAddress) external returns (address) {
+        return address(createERC20AMM(_token0, _token1, _appManagerAddress, address(protocolAMMCalculatorFactory.createConstant(_constantRatio, _appManagerAddress))));
     }
 
     /**

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "./IProtocolAMMFactoryCalculator.sol";
+import {ConstantRatio, Curve} from "./libraries/Curve.sol";
 
 /**
  * @title Automated Market Maker Swap Constant Calculator
@@ -11,76 +12,68 @@ import "./IProtocolAMMFactoryCalculator.sol";
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
 contract ProtocolAMMCalcConst is IProtocolAMMFactoryCalculator {
-    uint256 x;
-    uint256 y;
+    ConstantRatio public constRatio;
+    using Curve for ConstantRatio;
 
     /**
      * @dev Set up the ratio and appManager for permissions
-     * @param _x ratio value representing token0
-     * @param _y ratio value representing token1
+     * @param _constRatio the values of x and y for the constant ratio
      * @param _appManagerAddress appManager address
+     * @notice x represents token0 and y represents token1
      */
-    constructor(uint256 _x, uint256 _y, address _appManagerAddress) {
+    constructor(ConstantRatio memory _constRatio, address _appManagerAddress) {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
-        _setRatio(_x, _y);
+        _setRatio(_constRatio);
         appManagerAddress = _appManagerAddress;
     }
 
     /**
      * @dev This performs the swap from token0 to token1. It is a linear calculation.
-     * @param _reserve0 amount of token0 being swapped for unknown amount of token1
-     * @param _reserve1 amount of token1 coming out of the pool
-     * @param _amount0 amount of token1 coming out of the pool
-     * @param _amount0 amount of token1 coming out of the pool
+     * @param _reserve0 amount of token0 in the pool
+     * @param _reserve1 amount of token1 in the pool
+     * @param _amount0 amount of token1 coming to the pool
+     * @param _amount1 amount of token1 coming to the pool
      * @return _amountOut
      */
     function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external view override returns (uint256) {
+        return simulateSwap(_reserve0, _reserve1, _amount0, _amount1);
+    }
+
+    /**
+     * @dev This performs the swap from token0 to token1. It is a linear calculation.
+     * @param _reserve0 amount of token0 in the pool
+     * @param _reserve1 amount of token1 in the pool
+     * @param _amount0 amount of token0 coming to the pool
+     * @param _amount1 amount of token1 coming to the pool
+     * @return _amountOut
+     */
+    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public view override returns (uint256) {
         _reserve0;
         _reserve1;
-        if (_amount0 == 0 && _amount1 == 0) {
+        if (_amount0 == 0 && _amount1 == 0) 
             revert AmountsAreZero();
-        }
-        if (_amount0 == 0) {
-            return (_amount1 * ((x * (10 ** 20)) / y)) / (10 ** 20);
-        } else {
-            return (_amount0 * ((y * (10 ** 20)) / x)) / (10 ** 20);
-        }
+        return constRatio.getY(_amount0, _amount1);
+
     }
 
     /**
-     * @dev Set the ratio
-     * @param _x ratio value representing token0
-     * @param _y ratio value representing token1
+     * @dev Sets the ratio
+     * @param _constRatio the values of x and y for the constant ratio
+     * @notice x represents token0 and y represents token1
      */
-    function _setRatio(uint256 _x, uint256 _y) private {
+    function setRatio(ConstantRatio memory _constRatio) external appAdministratorOnly(appManagerAddress)  {
+        _setRatio(_constRatio);
+    }
+
+    /**
+     * @dev Sets the ratio
+     * @param _constRatio the values of x and y for the constant ratio
+     * @notice x represents token0 and y represents token1
+     */
+    function _setRatio(ConstantRatio memory _constRatio) internal  {
         // neither can be 0
-        if (_x == 0 || _y == 0) revert AmountsAreZero();
-        // ratio numbers must be limited to allow for larger swaps without over/under flow. max uint32 is the limit
-        if (_x > type(uint32).max || _x > type(uint32).max) revert OutOfRange();
-        x = _x;
-        y = _y;
-    }
-
-    /**
-     * @dev Set the ratio
-     * @param _x ratio value representing token0
-     * @param _y ratio value representing token1
-     */
-    function setRatio(uint256 _x, uint256 _y) external appAdministratorOnly(appManagerAddress) {
-        _setRatio(_x, _y);
-    }
-
-    /**
-     *  @dev get the x value of the linear ratio
-     */
-    function getX() external view returns (uint256) {
-        return x;
-    }
-
-    /**
-     *  @dev get the y value of the linear ratio
-     */
-    function getY() external view returns (uint256) {
-        return y;
+        if (_constRatio.x == 0 || _constRatio.y == 0) revert AmountsAreZero();
+        constRatio.x = _constRatio.x;
+        constRatio.y = _constRatio.y;
     }
 }

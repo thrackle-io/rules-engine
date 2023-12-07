@@ -13,44 +13,60 @@ pragma solidity ^0.8.17;
 * @dev Linear curve
 * definition: y = m*x + b
 */
-struct LineInput{
+struct LinearInput{
     uint256 m;
     uint256 b;
 }
+
 
 /** 
 * @dev Linear curve expressed in fractions.
 * @notice this is how the internal line should be saved since this will allow more precision during mathematical operations.
 * definition: y = (m_num/m_den) * x + b
 */ 
-struct Line{
+struct LinearWholeB {
     uint256 m_num;
     uint256 m_den;
     uint256 b;
 }
 
-/** 
-* PLACE HOLDER FOR SIGMOIDAL 
-* @dev Sigmoidal curve
-* definition: S(x) = a*( ( (a - b) / ((x - b) ^ 2 + c) ^ 1/2 ) + 1)
-*/
-struct SigmoidFakeInput{
-    uint256 a;
-    uint256 b;
-    uint256 c;
-}
 
 /** 
-* PLACE HOLDER FOR SIGMOIDAL 
-* @dev Sigmoidal curve expressed in fractions.
-* @notice this is how the internal sigmoid should be saved since this will allow more precision during mathematical operations.
-* definition: S(x) = (a_num/a_den)*( ( ((a_num/a_den) - (b_num/b_den)) / ((x - (b_num/b_den)) ^ 2 + (c_num/c_den)) ^ 1/2 ) + 1)
+* @dev Linear curve expressed in fractions.
+* @notice this is how the internal line should be saved since this will allow more precision during mathematical operations.
+* definition: y = (m_num/m_den) * x + b
 */ 
-struct SigmoidFakeS{
-    uint256 a_num;
-    uint256 a_den;
+struct LinearFractionB{
+    uint256 m_num;
+    uint256 m_den;
     uint256 b_num;
     uint256 b_den;
-    uint256 c_num;
-    uint256 c_den;
 }
+
+
+/** 
+* @dev Constant Ratio.
+*/ 
+struct ConstantRatio{
+    uint32 x;
+    uint32 y;
+}
+
+
+/** 
+* @dev Constant Ratio.
+*/ 
+struct ConstantProduct{
+    uint256 x;
+    uint256 y;
+}
+
+
+/** 
+* @dev 
+*/ 
+struct Sample01Struct{
+    uint256 amountIn;
+    int256 tracker;
+}
+

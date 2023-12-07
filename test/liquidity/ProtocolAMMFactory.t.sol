@@ -8,6 +8,7 @@ import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "test/helpers/TestCommonFoundry.sol";
+import {ConstantRatio} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
 /**
  * @title Test all AMM Calculator Factory related functions
@@ -32,15 +33,23 @@ contract ProtocolAMMFactoryTest is TestCommonFoundry {
     }
 
     function testCreateAMMLinear() public {
-        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createLinearAMM(address(applicationCoin), address(applicationCoin2), 6000, 15 * 10 ** 17,  address(applicationAppManager)));
+        LinearInput memory curve = LinearInput( 6000, 15 * 10 ** 17);
+        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createLinearAMM(address(applicationCoin), address(applicationCoin2),curve,  address(applicationAppManager)));
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(protocolAMM.calculatorAddress());
-        assertEq(calc.getSlope(),6000);
+        (uint256 m_num, uint256 m_den, uint256 b_num, uint256 b_den) = calc.curve();
+        b_num;
+        b_den;
+        m_den;
+        assertEq(m_num, 6000);
     }
 
     function testCreateAMMConstant() public {
-        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2), 1, 2,  address(applicationAppManager)));
+        ConstantRatio memory cr = ConstantRatio(1, 2);
+        ProtocolERC20AMM protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2), cr,  address(applicationAppManager)));
         ProtocolAMMCalcConst calc = ProtocolAMMCalcConst(protocolAMM.calculatorAddress());
-        assertEq(calc.getX(),1);
+        (uint32 x, uint32 y )= calc.constRatio();
+        assertEq(x,1);
+        assertEq(y,2);
     }
 
     function testCreateAMMConstantProduct() public {

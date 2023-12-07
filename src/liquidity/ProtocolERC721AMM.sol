@@ -65,9 +65,10 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         if (!(_tokenIn == address(ERC20Token) || _tokenIn == address (ERC721Token))) revert TokenInvalid(_tokenIn);
         if (_amountIn == 0) revert AmountsAreZero();
         /// swap
-        if (_tokenIn == address(ERC20Token)) return _swap0For1(_amountIn, _tokenId);
-        else return _swap1For0(_amountIn, _tokenId);
-        
+        if (_tokenIn == address(ERC20Token)) 
+            return _swap0For1(_amountIn, _tokenId);
+        else 
+            return _swap1For0(_amountIn, _tokenId);
     }
 
     /**
@@ -256,7 +257,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     * @notice this function won't change the state of the calculator.
     */
     function getBuyPrice() public view returns(uint256 price, uint256 fees){
-        price = calculator.simulateSwap(0, 0, 0, 1);
+        price = calculator.simulateSwap(0, 0, 1, 0);
         uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(_msgSender()), ERC20Token.balanceOf( address(this)), _msgSender(), address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
         fees = _calculateBuyFeesFromPct(price, feesPct); 
     }
@@ -265,7 +266,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     * @dev internal function to get the price for buying an NFT and also changing the state of the calculator
     */
     function _calculateBuyPrice() internal returns(uint256 price, uint256 fees){
-        price = calculator.calculateSwap(0, 0, 0, 1);
+        price = calculator.calculateSwap(0, 0, 1, 0);
         uint256 feesPct = handler.assessFees (ERC20Token.balanceOf(_msgSender()), ERC20Token.balanceOf( address(this)), _msgSender(), address(this), PCT_MULTIPLIER , ActionTypes.PURCHASE);
         fees = _calculateBuyFeesFromPct(price, feesPct); 
     }
@@ -275,7 +276,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     * @notice this function won't change the state of the calculator.
     */
     function getSellPrice() public view returns(uint256 price, uint256 fees){
-        price = calculator.simulateSwap(0, 0, 1, 0);
+        price = calculator.simulateSwap(0, 0, 0, 1);
         fees = handler.assessFees(ERC20Token.balanceOf(address(this)), ERC20Token.balanceOf(_msgSender()), address(this), _msgSender(), price, ActionTypes.SELL);
     }
 
@@ -283,7 +284,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     * @dev internal function to get the price for selling an NFT and also changing the state of the calculator
     */
     function _calculateSellPrice() internal returns(uint256 price, uint256 fees){
-        price = calculator.calculateSwap(0, 0, 1, 0);
+        price = calculator.calculateSwap(0, 0, 0, 1);
         fees = handler.assessFees(ERC20Token.balanceOf(address(this)), ERC20Token.balanceOf(_msgSender()), address(this), _msgSender(), price, ActionTypes.SELL);
     }
 

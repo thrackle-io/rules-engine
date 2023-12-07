@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-library Math{
+library AMMMath{
 
     /**
      * @dev This function calculates the square root using uniswap style logic

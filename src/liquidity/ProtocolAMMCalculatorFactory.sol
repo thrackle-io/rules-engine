@@ -7,7 +7,7 @@ import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
 import "src/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcSample01.sol";
 import "src/economic/AppAdministratorOnly.sol";
-import {LineInput} from "./calculators/dataStructures/CurveDataStructures.sol";
+import {LinearInput, ConstantRatio} from "./calculators/dataStructures/CurveDataStructures.sol";
 import {IZeroAddressError} from "src/interfaces/IErrors.sol";
 import {IAMMFactoryEvents} from "src/interfaces/IEvents.sol";
 
@@ -26,19 +26,18 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
 
     /**
      * @dev This creates a linear calculation module.
-     * @param _slope slope = m
-     * @param _y_intercept y_intercept = b
+     * @param curve the definition of the curve's equation
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createLinear(uint256 _slope, uint256 _y_intercept, address _appManagerAddress) external returns (address) {
-        ProtocolAMMCalcLinear protocolAMMCalcLinear = new ProtocolAMMCalcLinear(_slope, _y_intercept, _appManagerAddress);
+    function createLinear(LinearInput memory curve, address _appManagerAddress) external returns (address) {
+        ProtocolAMMCalcLinear protocolAMMCalcLinear = new ProtocolAMMCalcLinear(curve, _appManagerAddress);
         return address(protocolAMMCalcLinear);
     }
 
     /**
      * @dev This creates a linear calculation module.
-     * @notice a LineInput has the shape {uint256 m; uint256 b}
+     * @notice a LinearInput has the shape {uint256 m; uint256 b}
      *    *m* is the slope of the line expressed with 8 decimals of precision. Input of 100000001 means -> 1.00000001
      *    *b* is the intersection of the line with the ordinate axis expressed in atto (18 decimals of precision). 1 ^ 10 ** 18 means -> 1
      * @param buyCurve the definition of the buyCurve
@@ -46,22 +45,12 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createDualLinearNFT(LineInput memory buyCurve, LineInput memory sellCurve, address _appManagerAddress) external returns (address) {
-        // LineInput memory buyCurve = LineInput(_buySlope, _buy_y_intercept);
-        // LineInput memory sellCurve = LineInput(_sellSlope, _sell_y_intercept);
+    function createDualLinearNFT(LinearInput memory buyCurve, LinearInput memory sellCurve, address _appManagerAddress) external returns (address) {
+        // LinearInput memory buyCurve = LinearInput(_buySlope, _buy_y_intercept);
+        // LinearInput memory sellCurve = LinearInput(_sellSlope, _sell_y_intercept);
         ProtocolNFTAMMCalcDualLinear protocolAMMCalcLinear = new ProtocolNFTAMMCalcDualLinear(buyCurve, sellCurve, _appManagerAddress);
         return address(protocolAMMCalcLinear);
     }
-
-    // /**
-    //  * @dev This creates a sigmoid calculation module.
-    //  * @param _appManagerAddress address of the application's appManager
-    //  * @return _calculatorAddress
-    //  */
-    // function createSigmoid(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) returns (address) {
-    //     ProtocolAMMCalcSigmoid protocolAMMCalcSigmoid = new ProtocolAMMCalcSigmoid(_appManagerAddress);
-    //     return address(protocolAMMCalcSigmoid);
-    // }
 
     /**
      * @dev This creates a linear calculation module.
@@ -75,13 +64,12 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
 
     /**
      * @dev This creates a constant calculation module.
-     * @param _x x value of the ratio
-     * @param _y y value of the ratio
+     * @param _constRatio the values of x and y for the constant ratio
      * @param _appManagerAddress address of the application's appManager
      * @return _calculatorAddress
      */
-    function createConstant(uint256 _x, uint256 _y, address _appManagerAddress) external returns (address) {
-        ProtocolAMMCalcConst protocolAMMCalcConst = new ProtocolAMMCalcConst(_x, _y, _appManagerAddress);
+    function createConstant(ConstantRatio memory _constRatio, address _appManagerAddress) external returns (address) {
+        ProtocolAMMCalcConst protocolAMMCalcConst = new ProtocolAMMCalcConst(_constRatio, _appManagerAddress);
         return address(protocolAMMCalcConst);
     }
 

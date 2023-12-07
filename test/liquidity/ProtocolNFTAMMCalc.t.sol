@@ -8,7 +8,7 @@ import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "test/helpers/TestCommonFoundry.sol";
-import {LineInput} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
+import {LinearInput} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 import "../../src/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
 
 /**
@@ -29,9 +29,9 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
     function testCreateNFTAMMCalculator() public returns(ProtocolNFTAMMCalcDualLinear calc) {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         /// buy slope = 0.2; b = 10
-        LineInput memory buy = LineInput(2 * 10 ** 7, 10 * 10 ** 18);
+        LinearInput memory buy = LinearInput(2 * 10 ** 7, 10 * 10 ** 18);
         /// sell slope = 0.18; b = 9.8
-        LineInput memory sell = LineInput(18 * 10 ** 6, 98 * 10 ** 17);
+        LinearInput memory sell = LinearInput(18 * 10 ** 6, 98 * 10 ** 17);
         calc = ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
         assertEq(calc.appManagerAddress(),address(applicationAppManager));
     }
@@ -39,9 +39,9 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
     function testCreateNFTAMMCalculatorWithExtremelyHighParameters() public returns(ProtocolNFTAMMCalcDualLinear calc) {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         /// buy slope = 1_000_000_000_000_000_000_000_000; b = 1_000_000_000_000_000_000_000_000
-        LineInput memory buy = LineInput(1_000_000_000_000_000_000_000_000 * 10 ** 8, 1_000_000_000_000_000_000_000_000 * 10 ** 18);
+        LinearInput memory buy = LinearInput(1_000_000_000_000_000_000_000_000 * 10 ** 8, 1_000_000_000_000_000_000_000_000 * 10 ** 18);
         /// sell slope = 990 sextillion; b = 990 sextillion
-        LineInput memory sell = LineInput(990_000_000_000_000_000_000_000 * 10 ** 8, 990_000_000_000_000_000_000_000 * 10 ** 18);
+        LinearInput memory sell = LinearInput(990_000_000_000_000_000_000_000 * 10 ** 8, 990_000_000_000_000_000_000_000 * 10 ** 18);
         calc = ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
         assertEq(calc.appManagerAddress(),address(applicationAppManager));
     }
@@ -49,9 +49,9 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
     function testCreateNFTAMMCalculatorWithExtremelyLowParameters() public returns(ProtocolNFTAMMCalcDualLinear calc) {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         /// buy slope = 0.00000002; b = 0.0000000000000001
-        LineInput memory buy = LineInput(2, 100);
+        LinearInput memory buy = LinearInput(2, 100);
         /// sell slope = 0.00000001; b = 0.000000000000000099
-        LineInput memory sell = LineInput(1, 99);
+        LinearInput memory sell = LinearInput(1, 99);
         calc = ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
         assertEq(calc.appManagerAddress(),address(applicationAppManager));
     }
@@ -59,9 +59,9 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
     function testNegCreateNFTAMMCalculatorIntersectingCurvesAtLow_q() public {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         /// buy slope = 0.2; b = 10
-        LineInput memory buy = LineInput(2 * 10 ** 7, 10 * 10 ** 18);
+        LinearInput memory buy = LinearInput(2 * 10 ** 7, 10 * 10 ** 18);
         /// sell slope = 0.18; b = 11
-        LineInput memory sell = LineInput(18 * 10 ** 6, 11 * 10 ** 18);
+        LinearInput memory sell = LinearInput(18 * 10 ** 6, 11 * 10 ** 18);
         vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
         ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
     }
@@ -69,9 +69,9 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
     function testNegCreateNFTAMMCalculatorIntersectingCurvesAtHigh_q() public {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         /// buy slope = 0.2; b = 10
-        LineInput memory buy = LineInput(2 * 10 ** 7, 10 * 10 ** 18);
+        LinearInput memory buy = LinearInput(2 * 10 ** 7, 10 * 10 ** 18);
         /// sell slope = 0.22; b = 9.8
-        LineInput memory sell = LineInput(22 * 10 ** 6, 98 * 10 ** 17);
+        LinearInput memory sell = LinearInput(22 * 10 ** 6, 98 * 10 ** 17);
         vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
         ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
     }
@@ -79,9 +79,9 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
     function testNegCreateNFTAMMCalculatorYAboveLimit() public {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         /// buy slope = 0.2; b = 1_000_000_000_001
-        LineInput memory buy = LineInput(2 * 10 ** 7, 1_000_000_000_000_000_000_000_001 * 10 ** 18);
+        LinearInput memory buy = LinearInput(2 * 10 ** 7, 1_000_000_000_000_000_000_000_001 * 10 ** 18);
         /// sell slope = 0.18; b = 9.8
-        LineInput memory sell = LineInput(18 * 10 ** 6, 98 * 10 ** 17);
+        LinearInput memory sell = LinearInput(18 * 10 ** 6, 98 * 10 ** 17);
         vm.expectRevert(abi.encodeWithSignature("ValueOutOfRange(uint256)", 1_000_000_000_000_000_000_000_001 * 10 ** 18));
         ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
     }
@@ -89,50 +89,50 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
     function testNegCreateNFTAMMCalculatorMAboveLimit() public {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         /// buy slope = 1_000_000_000_001 ; b = 10
-        LineInput memory buy = LineInput(1_000_000_000_000_000_000_000_001 * 10 ** 8, 10 * 10 ** 18 );
+        LinearInput memory buy = LinearInput(1_000_000_000_000_000_000_000_001 * 10 ** 8, 10 * 10 ** 18 );
         /// sell slope = 0.18; b = 9.8
-        LineInput memory sell = LineInput(18 * 10 ** 6, 98 * 10 ** 17);
+        LinearInput memory sell = LinearInput(18 * 10 ** 6, 98 * 10 ** 17);
         vm.expectRevert(abi.encodeWithSignature("ValueOutOfRange(uint256)", 1_000_000_000_000_000_000_000_001 * 10 ** 8));
         ProtocolNFTAMMCalcDualLinear(protocolAMMCalculatorFactory.createDualLinearNFT(buy, sell, address(applicationAppManager)));
     }
 
     function testNegUpdateBuyCurveIntersectingAtLow_q() public {
         ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
-        LineInput memory newBuy = LineInput(2 * 10 ** 7, 97 * 10 ** 17 ); // m = 0.2, b = 9.7
+        LinearInput memory newBuy = LinearInput(2 * 10 ** 7, 97 * 10 ** 17 ); // m = 0.2, b = 9.7
         vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
         calc.setBuyCurve(newBuy);
     }
 
     function testNegUpdateBuyCurveIntersectingAtHigh_q() public {
         ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
-        LineInput memory newBuy = LineInput(15 * 10 ** 6, 10 * 10 ** 18 ); // m = 0.15, b = 10
+        LinearInput memory newBuy = LinearInput(15 * 10 ** 6, 10 * 10 ** 18 ); // m = 0.15, b = 10
         vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
         calc.setBuyCurve(newBuy);
     }
 
     function testUpdateBuyCurve() public {
         ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
-        LineInput memory newBuy = LineInput(22 * 10 ** 7, 11 * 10 ** 18 ); // m = 0.22, b = 11
+        LinearInput memory newBuy = LinearInput(22 * 10 ** 7, 11 * 10 ** 18 ); // m = 0.22, b = 11
         calc.setBuyCurve(newBuy);
     }
 
     function testNegUpdateSellCurveIntersectingAtLow_q() public {
         ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
-        LineInput memory newSell = LineInput(18 * 10 ** 6, 11 * 10 ** 18 ); // m = 0.18, b = 11
+        LinearInput memory newSell = LinearInput(18 * 10 ** 6, 11 * 10 ** 18 ); // m = 0.18, b = 11
         vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
         calc.setSellCurve(newSell);
     }
 
     function testNegUpdateSellCurveIntersectingAtHigh_q() public {
         ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
-        LineInput memory newSell = LineInput(3 * 10 ** 7, 98 * 10 ** 17 ); // m = 0.3, b = 9.8
+        LinearInput memory newSell = LinearInput(3 * 10 ** 7, 98 * 10 ** 17 ); // m = 0.3, b = 9.8
         vm.expectRevert(abi.encodeWithSignature("CurvesInvertedOrIntersecting()"));
         calc.setSellCurve(newSell);
     }
 
     function testUpdateSellCurve() public {
         ProtocolNFTAMMCalcDualLinear calc = testCreateNFTAMMCalculator();
-        LineInput memory newSell = LineInput(1 * 10 ** 7, 5 * 10 ** 18 ); // m = 0.1, b = 5
+        LinearInput memory newSell = LinearInput(1 * 10 ** 7, 5 * 10 ** 18 ); // m = 0.1, b = 5
         calc.setSellCurve(newSell);
     }
 
@@ -144,24 +144,24 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         // we test buying 1 NFT when q is 10
         calc.set_q(10);
 
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 12
         assertEq(priceA, priceB);
         assertEq(priceA, 12 * 10 ** 18);
         assertEq(calc.q(), 11);
         // we test buying 1 NFT when q is 1_000
         calc.set_q(1_000);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 210
         assertEq(priceA, priceB);
         assertEq(priceA, 210 * 10 ** 18);
         assertEq(calc.q(), 1_001);
         // we test buying 1 NFT when q is a mill
         calc.set_q(1_000_000);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 200010
         assertEq(priceA, priceB);
         assertEq(priceA, 200010 * 10 ** 18);
@@ -175,16 +175,16 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         uint256 priceB;
         // we test buying 1 NFT when q is 1_000
         calc.set_q(1_000);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 1.001 x 10^27
         assertEq(priceA, priceB);
         assertEq(priceA, 1001 * 10 ** 24 * 10 ** 18);
         assertEq(calc.q(), 1_001);
         // we test buying 1 NFT when q is a septillion
         calc.set_q(1_000_000_000_000_000_000_000_000);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 1.000000000000000000000001 x 10^48
         assertEq(priceA, priceB);
         assertEq(priceA, 1000000000000000000000001 * 10 ** 24 * 10 ** 18);
@@ -199,16 +199,16 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         uint256 priceB;
         // we test buying 1 NFT when q is 0
         calc.set_q(0);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 1 * 10^-16
         assertEq(priceA, priceB);
         assertEq(priceA, 100);
         assertEq(calc.q(), 1);
         // we test buying 1 NFT when q is 1
         calc.set_q(1);
-        priceB = calc.simulateSwap(0, 0, 0, 1);
-        priceA = calc.calculateSwap(0, 0, 0, 1);
+        priceB = _simulateBuy(calc);
+        priceA = _calculateBuy(calc);
         // according to desmos, the price should be 2.00000001 x 10^-8
         assertEq(priceA, priceB);
         assertEq(priceA, 20000000100);
@@ -223,24 +223,24 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         uint256 priceB;
         // we test selling 1 NFT when q is 10
         calc.set_q(10);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 11.42 * 10^19 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 1142 * 10 ** 16);
         assertEq(calc.q(), 10 - 1);
         // we test selling 1 NFT when q is 1_000
         calc.set_q(1_000);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 1.8962 * 10^20 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 18962 * 10 ** 16);
         assertEq(calc.q(), 1_000 - 1);
         // we test selling 1 NFT when q is a mill
         calc.set_q(1_000_000);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 18000962 * 10^23 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 18000962 * 10 ** 16);
@@ -254,16 +254,16 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         uint256 priceB;
         // we test selling 1 NFT when q is 1_000
         calc.set_q(1_000);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 9.999 x 10^25 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 99 * 10 ** 25 * 10 ** 18);       
         assertEq(calc.q(), 1_000 - 1);
         // we test selling 1 NFT when q is a septillion
         calc.set_q(1_000_000_000_000_000_000_000_000);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 1.000000000000000000000001 x 10^48 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 99 * 10 ** 46 * 10 ** 18);
@@ -277,19 +277,35 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         uint256 priceB;
         // we test selling 1 NFT when q is 0
         calc.set_q(1);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 9.9 * 10^-17 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 99);
         assertEq(calc.q(), 1 - 1);
         // we test selling 1 NFT when q is 1
         calc.set_q(2);
-        priceB = calc.simulateSwap(0, 0, 1, 0);
-        priceA = calc.calculateSwap(0, 0, 1, 0);
+        priceB = _simulateSell(calc);
+        priceA = _calculateSell(calc);
         // according to desmos, the price should be 1.0000000099 * 10−8 (let's remember sell is calculated with q-1)
         assertEq(priceA, priceB);
         assertEq(priceA, 10000000099);
         assertEq(calc.q(), 2 - 1);
+   }
+
+   function _simulateSell(ProtocolNFTAMMCalcDualLinear calc) internal view returns(uint256){
+        return calc.simulateSwap(0, 0, 0, 1);
+   }
+
+   function _simulateBuy(ProtocolNFTAMMCalcDualLinear calc) internal view returns(uint256){
+        return calc.simulateSwap(0, 0, 1, 0);
+   }
+
+   function _calculateSell(ProtocolNFTAMMCalcDualLinear calc) internal returns(uint256){
+        return calc.calculateSwap(0, 0, 0, 1);
+   }
+
+   function _calculateBuy(ProtocolNFTAMMCalcDualLinear calc) internal returns(uint256){
+        return calc.calculateSwap(0, 0, 1, 0);
    }
 }

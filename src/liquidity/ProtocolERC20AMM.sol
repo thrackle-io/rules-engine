@@ -104,7 +104,7 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
                 ActionTypes.SELL
             )
         );
-
+        if(reserve1 < _amountOut) revert InsufficientPoolDepth(reserve1, _amountOut);
         /// update the reserves with the proper amounts(adding to token0, subtracting from token1)
         _update(reserve0 += _amountIn, reserve1 - _amountOut);
         /// Assess fees. All fees are always taken out of the collateralized token(token1)
@@ -147,7 +147,7 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
                 ActionTypes.PURCHASE
             )
         );
-
+        if(reserve1 < _amountOut) revert InsufficientPoolDepth(reserve0, _amountOut);
         /// update the reserves with the proper amounts(subtracting from token0, adding to token1)
         _update(reserve0 - _amountOut, reserve1 += _amountIn);
         /// transfer the token0 amount to the swapper

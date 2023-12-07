@@ -16,6 +16,7 @@ import {FeeRuleDataFacet} from "src/economic/ruleProcessor/FeeRuleDataFacet.sol"
 import {INonTaggedRules as NonTaggedRules} from "src/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {ERC20RuleProcessorFacet} from "src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
+import {ConstantRatio} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
 /**
  * @title Test all AMM related functions
@@ -55,7 +56,8 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2),1,1, address(applicationAppManager)));
+        ConstantRatio memory cr = ConstantRatio(1,1);
+        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2),cr, address(applicationAppManager)));
         handler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
         protocolAMM.connectHandlerToAMM(address(handler));
         applicationAMMHandler = ApplicationAMMHandler(protocolAMM.getHandlerAddress());
@@ -305,7 +307,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         applicationCoin.approve(address(protocolAMM), 100_000 * (10 ** 18));
         applicationCoin2.approve(address(protocolAMM), 10_000 * (10 ** 18));
         /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
-        protocolAMM.addLiquidity(100000 * (10 ** 18), 10_000 * (10 ** 18));
+        protocolAMM.addLiquidity(100_000 * (10 ** 18), 10_000 * (10 ** 18));
         /// Make sure the tokens made it
         assertEq(protocolAMM.getReserve0(), 100_000 * (10 ** 18));
         assertEq(protocolAMM.getReserve1(), 10_000 * (10 ** 18));
@@ -403,7 +405,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         vm.startPrank(user);
         /// Approve transfer
         applicationCoin2.approve(address(protocolAMM), 10000 * (10 ** 18));
-        bytes4 selector = bytes4(keccak256("InsufficientPoolDepth(uint256,int256)"));
+        bytes4 selector = bytes4(keccak256("InsufficientPoolDepth(uint256,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 5 * (10 ** 18), 98019998000000000000));
         protocolAMM.swap(address(applicationCoin2), 10000 * (10 ** 18));
         /// make sure swap returns correct value
@@ -428,8 +430,8 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         vm.startPrank(user);
         /// Approve transfer
         applicationCoin.approve(address(protocolAMM), 10000 * (10 ** 18));
-        bytes4 selector = bytes4(keccak256("InsufficientPoolDepth(uint256,int256)"));
-        vm.expectRevert(abi.encodeWithSelector(selector, 5 * (10 ** 18), -49980000000000000000000000));
+        bytes4 selector = bytes4(keccak256("InsufficientPoolDepth()"));
+        vm.expectRevert(abi.encodeWithSelector(selector));
         protocolAMM.swap(address(applicationCoin), 10000 * (10 ** 18));
     }
 
