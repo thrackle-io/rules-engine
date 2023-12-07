@@ -429,7 +429,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
 
     ///---------------PAUSE RULES----------------
     // Test setting/removing pause rules
-    function testAddPauseRuleFuzz(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint start, uint end) public {
+    function testAddPauseRuleFuzz(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint64 start, uint64 end) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];

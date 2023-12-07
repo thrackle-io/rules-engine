@@ -27,14 +27,14 @@ contract PauseRules is IPauseRules, DataModule {
      * @param _pauseStart pause window start timestamp
      * @param _pauseStop pause window stop timestamp
      */
-    function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) public virtual onlyOwner {
+    function addPauseRule(uint64 _pauseStart, uint64 _pauseStop) public virtual onlyOwner {
         if (pauseRules.length >= MAX_RULES) revert MaxPauseRulesReached();
 
         cleanOutdatedRules();
         if (_pauseStop <= _pauseStart || _pauseStart <= block.timestamp) {
             revert InvalidDateWindow(_pauseStart, _pauseStop);
         }
-        PauseRule memory pauseRule = PauseRule(block.timestamp, _pauseStart, _pauseStop);
+        PauseRule memory pauseRule = PauseRule(_pauseStart, _pauseStop);
         pauseRules.push(pauseRule);
         emit PauseRuleEvent(_pauseStart, _pauseStop, true);
     }
@@ -54,7 +54,7 @@ contract PauseRules is IPauseRules, DataModule {
      * @param _pauseStart pause window start timestamp
      * @param _pauseStop pause window stop timestamp
      */
-    function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external virtual onlyOwner {
+    function removePauseRule(uint64 _pauseStart, uint64 _pauseStop) external virtual onlyOwner {
         uint256 i;
         while (i < pauseRules.length) {
             bool exit;

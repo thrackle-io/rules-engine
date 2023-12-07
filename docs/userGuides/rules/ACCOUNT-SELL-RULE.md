@@ -1,8 +1,8 @@
-# Account Sell Controller Rule
+# Account Sell Rule
 
 ## Purpose
 
-The Account Sell Controller is an account based measure which restricts an account’s ability to sell a token. This may be put in place to restrict large transactions from occurring against suspected malicious accounts or other accounts of interest. The amount of sales allowed depends on the account's tags. Different accounts may get different sale restrictions depending on their tags.
+The Account Sell Rule is an account based measure which restricts an account’s ability to sell a token. This may be put in place to restrict large transactions from occurring against suspected malicious accounts or other accounts of interest. The amount of sales allowed depends on the account's tags. Different accounts may get different sale restrictions depending on their tags.
 
 ## Applies To:
 
