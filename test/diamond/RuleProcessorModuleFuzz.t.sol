@@ -229,17 +229,17 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         max[0] = maxA;
         max[1] = maxB;
         if ((sender != ruleAdmin) || minA == 0 || minB == 0 || maxA == 0 || maxB == 0 || minA > maxA || minB > maxB) vm.expectRevert();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs, min, max);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs, min, max);
         if ((sender == ruleAdmin) && minA > 0 && minB > 0 && maxA > 0 && maxB > 0 && !(minA > maxA || minB > maxB)) {
             assertEq(_index, 0);
-            TaggedRules.BalanceLimitRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getBalanceLimitRule(_index, accA);
+            TaggedRules.MinMaxBalanceRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, accA);
             assertEq(rule.minimum, minA);
             assertEq(rule.maximum, maxA);
 
             /// testing different sizes
             bytes32[] memory invalidAccs = new bytes32[](3);
             vm.expectRevert();
-            TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, invalidAccs, min, max);
+            TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, invalidAccs, min, max);
 
             /// testing adding a second rule
             bytes32[] memory accs2 = new bytes32[](3);
@@ -254,14 +254,14 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
             max2[0] = uint256(100000000000000000000000000000000000000000000000000000000000000000000000000);
             max2[1] = uint256(20000000000000000000000000000000000000);
             max2[2] = uint256(900000000000000000000000000000000000000000000000000000000000000000000000000);
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, accs2, min2, max2);
+            _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, accs2, min2, max2);
             assertEq(_index, 1);
-            rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getBalanceLimitRule(_index, "Tayler");
+            rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, "Tayler");
             assertEq(rule.minimum, min2[1]);
             assertEq(rule.maximum, max2[1]);
 
             /// testing getting total rules
-            assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalBalanceLimitRules(), 2);
+            assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalMinMaxBalanceRules(), 2);
         }
     }
 
@@ -414,7 +414,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
             // add the rule.
             vm.stopPrank();
             vm.startPrank(ruleAdmin);
-            TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(ac, _accountTypes, _minimum, _maximum);
+            TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(ac, _accountTypes, _minimum, _maximum);
             /// if we added the rule in the protocol, then we add it in the application
             if (!(bMin == 0 || bMax == 0 || bMin > bMax)) applicationCoinHandler.setMinMaxBalanceRuleId(0);
         }

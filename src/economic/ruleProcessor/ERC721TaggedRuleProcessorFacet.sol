@@ -42,7 +42,7 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
         /// we decrease the balance to check the rule
         --balanceFrom;
         for (uint256 i; i < fromTags.length; ) {
-            uint256 min = getBalanceLimitRuleERC721(ruleId, fromTags[i]).minimum;
+            uint256 min = getMinMaxBalanceRuleERC721(ruleId, fromTags[i]).minimum;
             /// if a min is 0 then no need to check.
             if (min > 0 && balanceFrom < min) revert BalanceBelowMin();
             unchecked {
@@ -61,7 +61,7 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
         /// we increase the balance to check the rule.
         ++balanceTo;
         for (uint256 i = 0; i < toTags.length; ) {
-            uint256 max = getBalanceLimitRuleERC721(ruleId, toTags[i]).maximum;
+            uint256 max = getMinMaxBalanceRuleERC721(ruleId, toTags[i]).maximum;
             // if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
             if (max > 0 && balanceTo > max) revert MaxBalanceExceeded();
             unchecked {
@@ -74,23 +74,23 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
      * @dev Function get the purchase rule in the rule set that belongs to an account type
      * @param _index position of rule in array
      * @param _accountType Type of Accounts
-     * @return BalanceLimitRule at index location in array
+     * @return MinMaxBalanceRule at index location in array
      */
-    function getBalanceLimitRuleERC721(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.BalanceLimitRule memory) {
+    function getMinMaxBalanceRuleERC721(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.MinMaxBalanceRule memory) {
         // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalBalanceLimitRulesERC721());
-        RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
-        if (_index >= data.balanceLimitRuleIndex) revert IndexOutOfRange();
-        return data.balanceLimitsPerAccountType[_index][_accountType];
+        _index.checkRuleExistence(getTotalMinMaxBalanceRulesERC721());
+        RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
+        if (_index >= data.minMaxBalanceRuleIndex) revert IndexOutOfRange();
+        return data.minMaxBalanceRulesPerUser[_index][_accountType];
     }
 
     /**
      * @dev Function gets total Balance Limit rules
      * @return Total length of array
      */
-    function getTotalBalanceLimitRulesERC721() public view returns (uint32) {
-        RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
-        return data.balanceLimitRuleIndex;
+    function getTotalMinMaxBalanceRulesERC721() public view returns (uint32) {
+        RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
+        return data.minMaxBalanceRuleIndex;
     }
 
     /**

@@ -52,8 +52,8 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 The rule will be evaluated with the following logic:
 
-1. The application manager will send to the protocol's rule processor the dollar value sum of all application assets the account holds, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
-2. Then, the rule processor will retrieve the maximum balance allowed for the rule with the ruleId passed, and for the access level of the account. If the balance will exceed the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
+1. The application manager sends to the protocol's rule processor the dollar value sum of all application assets the account holds, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
+2. The processor retrieves the maximum balance allowed for the rule with the ruleId passed, and for the access level of the account. If the balance exceeds the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
 
 ###### *see [ApplicationAccessLevelProcessorFacet](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkAccBalanceByAccessLevel*
 
@@ -92,7 +92,7 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
-- **_balanceAmounts** (uint48[]): array of balance limits for each 5 levels (levels 0 to 4) in whole USD amounts (1 -> 1 USD; 1000 -> 1000 USD). Note that the position within the array matters. Posotion 0 represents access level 0, and position 4 represents level 4.
+- **_balanceAmounts** (uint48[]): array of balance limits for each 5 levels (levels 0 to 4) in whole USD amounts (1 -> 1 USD; 1000 -> 1000 USD). Note that the position within the array matters. Position 0 represents access level 0, and position 4 represents level 4.
 
 ### Parameter Optionality:
 
