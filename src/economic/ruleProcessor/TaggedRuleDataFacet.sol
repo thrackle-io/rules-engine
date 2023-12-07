@@ -29,7 +29,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _accountTypes Types of Accounts
      * @param _purchaseAmounts Allowed total purchase limits
      * @param _purchasePeriods Hours purhchases allowed
-     * @param _startTimes timestamp period to start
+     * @param _startTime timestamp period to start
      * @return position of new rule in array
      */
     function addPurchaseRule(
@@ -37,12 +37,12 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         bytes32[] calldata _accountTypes,
         uint256[] calldata _purchaseAmounts,
         uint16[] calldata _purchasePeriods,
-        uint64[] calldata _startTimes
+        uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_accountTypes.length != _purchaseAmounts.length || _accountTypes.length != _purchasePeriods.length || _accountTypes.length != _startTimes.length) revert InputArraysMustHaveSameLength();
+        if (_accountTypes.length != _purchaseAmounts.length || _accountTypes.length != _purchasePeriods.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
-        return _addPurchaseRule(_accountTypes, _purchaseAmounts, _purchasePeriods, _startTimes);
+        return _addPurchaseRule(_accountTypes, _purchaseAmounts, _purchasePeriods, _startTime);
     }
 
     /**
@@ -50,22 +50,23 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _accountTypes Types of Accounts
      * @param _purchaseAmounts Allowed total purchase limits
      * @param _purchasePeriods Hours purhchases allowed
-     * @param _startTimes timestamps for first period to start
+     * @param _startTime timestamp for first period to start
      * @return position of new rule in array
      */
-    function _addPurchaseRule(bytes32[] calldata _accountTypes, uint256[] calldata _purchaseAmounts, uint16[] calldata _purchasePeriods, uint64[] calldata _startTimes) internal returns (uint32) {
+    function _addPurchaseRule(bytes32[] calldata _accountTypes, uint256[] calldata _purchaseAmounts, uint16[] calldata _purchasePeriods, uint64 _startTime) internal returns (uint32) {
         RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
         uint32 index = data.purchaseRulesIndex;
+        _startTime.validateTimestamp();
         for (uint256 i; i < _accountTypes.length; ) {
             if (_accountTypes[i] == bytes32("")) revert BlankTag();
-            if (_purchaseAmounts[i] == 0 || _purchasePeriods[i] == 0 || _startTimes[i] == 0) revert ZeroValueNotPermited();
-            _startTimes[i].validateTimestamp();
-            data.purchaseRulesPerUser[index][_accountTypes[i]] = TaggedRules.PurchaseRule(_purchaseAmounts[i], _purchasePeriods[i], _startTimes[i]);
+            if (_purchaseAmounts[i] == 0 || _purchasePeriods[i] == 0) revert ZeroValueNotPermited();
+            data.purchaseRulesPerUser[index][_accountTypes[i]] = TaggedRules.PurchaseRule(_purchaseAmounts[i], _purchasePeriods[i]);
 
             unchecked {
                 ++i;
             }
         }
+        data.startTime = _startTime;
         emit ProtocolRuleCreated(PURCHASE_LIMIT, index, _accountTypes);
         ++data.purchaseRulesIndex;
         return index;
@@ -79,7 +80,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _accountTypes Types of Accounts
      * @param _sellAmounts Allowed total sell limits
      * @param _sellPeriod Period for sales
-     * @param _startTimes rule starts
+     * @param _startTime rule starts
      * @return position of new rule in array
      */
     function addSellRule(
@@ -87,13 +88,13 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         bytes32[] calldata _accountTypes,
         uint192[] calldata _sellAmounts,
         uint16[] calldata _sellPeriod,
-        uint64[] calldata _startTimes
+        uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length || _accountTypes.length != _startTimes.length) revert InputArraysMustHaveSameLength();
+        if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
-        return _addSellRule(_accountTypes, _sellAmounts, _sellPeriod, _startTimes);
+        return _addSellRule(_accountTypes, _sellAmounts, _sellPeriod, _startTime);
     }
 
     /**
@@ -101,21 +102,22 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _accountTypes Types of Accounts
      * @param _sellAmounts Allowed total sell limits
      * @param _sellPeriod Period for sales
-     * @param _startTimes rule starts
+     * @param _startTime rule starts
      * @return position of new rule in array
      */
-    function _addSellRule(bytes32[] calldata _accountTypes, uint192[] calldata _sellAmounts, uint16[] calldata _sellPeriod, uint64[] calldata _startTimes) internal returns (uint32) {
+    function _addSellRule(bytes32[] calldata _accountTypes, uint192[] calldata _sellAmounts, uint16[] calldata _sellPeriod, uint64 _startTime) internal returns (uint32) {
         RuleS.SellRuleS storage data = Storage.sellStorage();
         uint32 index = data.sellRulesIndex;
+        _startTime.validateTimestamp();
         for (uint256 i; i < _accountTypes.length; ) {
             if (_accountTypes[i] == bytes32("")) revert BlankTag();
             if (_sellAmounts[i] == 0 || _sellPeriod[i] == 0) revert ZeroValueNotPermited();
-            _startTimes[i].validateTimestamp();
-            data.sellRulesPerUser[index][_accountTypes[i]] = TaggedRules.SellRule(_sellAmounts[i], _sellPeriod[i], _startTimes[i]);
+            data.sellRulesPerUser[index][_accountTypes[i]] = TaggedRules.SellRule(_sellAmounts[i], _sellPeriod[i]);
             unchecked {
                 ++i;
             }
         }
+        data.startTime = _startTime;
         emit ProtocolRuleCreated(SELL_LIMIT, index, _accountTypes);
         ++data.sellRulesIndex;
         return index;

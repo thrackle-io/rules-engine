@@ -345,10 +345,6 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         pPeriods[0] = uint16(100);
         pPeriods[1] = uint16(101);
         pPeriods[2] = uint16(102);
-        uint64[] memory sTimes = new uint64[](3);
-        sTimes[0] = uint64(8);
-        sTimes[1] = uint64(12);
-        sTimes[2] = uint64(16);
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         // uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
@@ -372,7 +368,7 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
 
         /// test zero address check
         vm.expectRevert();
-        TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(0), accs, pAmounts, pPeriods, sTimes);
+        TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(0), accs, pAmounts, pPeriods, uint64(Blocktime));
     }
 
     /// testing only appAdministrators can add Purchase Rule
@@ -392,22 +388,18 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         pPeriods[0] = uint16(100);
         pPeriods[1] = uint16(101);
         pPeriods[2] = uint16(102);
-        uint64[] memory sTimes = new uint64[](3);
-        sTimes[0] = uint64(10);
-        sTimes[1] = uint64(12);
-        sTimes[2] = uint64(16);
         // set user to the super admin
         vm.stopPrank();
         vm.startPrank(superAdmin);
         vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
+        TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, uint64(Blocktime));
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
+        TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, uint64(Blocktime));
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(ruleAdmin); //interact as the rule admin
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, uint64(Blocktime));
         assertEq(_index, 0);
     }
 
@@ -425,16 +417,12 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         pAmounts[0] = uint256(1000);
         pAmounts[1] = uint256(2000);
         pAmounts[2] = uint256(3000);
-        uint16[] memory pPeriods = new uint16[](3);
+        uint16[] memory pPeriods = new uint16[](2);
         pPeriods[0] = uint16(100);
         pPeriods[1] = uint16(101);
-        pPeriods[2] = uint16(102);
-        uint64[] memory sTimes = new uint64[](2);
-        sTimes[0] = uint64(24);
-        sTimes[1] = uint64(36);
 
         vm.expectRevert(0x028a6c58);
-        TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
+        TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, uint64(Blocktime));
     }
 
     /// test total rules
@@ -450,10 +438,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         pAmounts[0] = uint192(1000);
         uint16[] memory pPeriods = new uint16[](1);
         pPeriods[0] = uint16(100);
-        uint64[] memory sTimes = new uint64[](1);
-        sTimes[0] = uint32(12);
         for (uint8 i = 0; i < _indexes.length; i++) {
-            _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, sTimes);
+            _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(ac, accs, pAmounts, pPeriods, uint64(Blocktime));
         }
         /// Uncomment lines after merge to internal 
         //assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalPurchaseRule(), _indexes.length);
@@ -478,12 +464,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         sPeriod[0] = uint16(24);
         sPeriod[1] = uint16(36);
         sPeriod[2] = uint16(48);
-        uint64[] memory sTimes = new uint64[](3);
-        sTimes[0] = Blocktime;
-        sTimes[1] = Blocktime;
-        sTimes[2] = Blocktime;
 
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, uint64(Blocktime));
         assertEq(_index, 0);
 
         ///Uncomment lines after merge to internal
@@ -506,7 +488,7 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         // assertEq(rule.sellAmount, 20000000);
         // assertEq(rule.sellPeriod, 22);
         vm.expectRevert();
-        TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(0), accs, sAmounts, sPeriod, sTimes);
+        TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(0), accs, sAmounts, sPeriod, uint64(Blocktime));
     }
 
     /// testing only appAdministrators can add Purchase Rule
@@ -524,22 +506,18 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         sPeriod[0] = uint16(24);
         sPeriod[1] = uint16(36);
         sPeriod[2] = uint16(48);
-        uint64[] memory sTimes = new uint64[](3);
-        sTimes[0] = Blocktime;
-        sTimes[1] = Blocktime;
-        sTimes[2] = Blocktime;
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
+        TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, uint64(Blocktime));
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
+        TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, uint64(Blocktime));
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, uint64(Blocktime));
         assertEq(_index, 0);
     }
 
@@ -560,12 +538,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         sPeriod[0] = uint16(24);
         sPeriod[1] = uint16(36);
         sPeriod[2] = uint16(48);
-        uint64[] memory sTimes = new uint64[](3);
-        sTimes[0] = Blocktime;
-        sTimes[1] = Blocktime;
-        sTimes[2] = Blocktime;
         vm.expectRevert(0x028a6c58);
-        TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
+        TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, uint64(Blocktime));
     }
 
     /// test total rules
@@ -583,10 +557,8 @@ contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
         pPeriods[0] = uint32(100);
         uint16[] memory sPeriod = new uint16[](1);
         sPeriod[0] = uint16(24);
-        uint64[] memory sTimes = new uint64[](1);
-        sTimes[0] = uint64(Blocktime);
         for (uint8 i = 0; i < _indexes.length; i++) {
-            _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, sTimes);
+            _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(ac, accs, sAmounts, sPeriod, uint64(Blocktime));
         }
         ///Uncomment lines after merge to internal
         // assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalSellRule(), _indexes.length);

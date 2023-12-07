@@ -220,9 +220,9 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         toTags.checkMaxTags();
         uint256 cumulativeTotal;
         for (uint i = 0; i < toTags.length; ) {
-            TaggedRules.PurchaseRule memory purchaseRule = getPurchaseRule(ruleId, toTags[i]);
+            (TaggedRules.PurchaseRule memory purchaseRule, uint64 startTime) = getPurchaseRule(ruleId, toTags[i]);
             if (purchaseRule.purchasePeriod > 0) {
-                if (purchaseRule.startTime.isWithinPeriod(purchaseRule.purchasePeriod, lastUpdateTime)) cumulativeTotal = purchasedWithinPeriod + amount;
+                if (startTime.isWithinPeriod(purchaseRule.purchasePeriod, lastUpdateTime)) cumulativeTotal = purchasedWithinPeriod + amount;
                 else cumulativeTotal = amount;
                 if (cumulativeTotal > purchaseRule.purchaseAmount) revert TxnInFreezeWindow();
             }
@@ -239,12 +239,12 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param _accountType Type of account
      * @return PurchaseRule rule at index position
      */
-    function getPurchaseRule(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.PurchaseRule memory) {
+    function getPurchaseRule(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.PurchaseRule memory, uint64 startTime) {
         // check one of the required non zero values to check for existence, if not, revert
         _index.checkRuleExistence(getTotalPurchaseRule());
         RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
         if (_index >= data.purchaseRulesIndex) revert IndexOutOfRange();
-        return data.purchaseRulesPerUser[_index][_accountType];
+        return (data.purchaseRulesPerUser[_index][_accountType], data.startTime);
     }
 
     /**
@@ -268,9 +268,9 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         fromTags.checkMaxTags();
         uint256 cumulativeSalesTotal;
         for (uint i = 0; i < fromTags.length; ) {
-            TaggedRules.SellRule memory sellRule = getSellRuleByIndex(ruleId, fromTags[i]);
+            (TaggedRules.SellRule memory sellRule, uint64 startTime) = getSellRuleByIndex(ruleId, fromTags[i]);
             if (sellRule.sellPeriod > 0) {
-                if (sellRule.startTime.isWithinPeriod(sellRule.sellPeriod, lastUpdateTime)) cumulativeSalesTotal = salesWithinPeriod + amount;
+                if (startTime.isWithinPeriod(sellRule.sellPeriod, lastUpdateTime)) cumulativeSalesTotal = salesWithinPeriod + amount;
                 else cumulativeSalesTotal = amount;
                 if (cumulativeSalesTotal > sellRule.sellAmount) revert TemporarySellRestriction();
             }
@@ -286,13 +286,14 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param _index Position of rule in array
      * @param _accountType Types of Accounts
      * @return SellRule at position in array
+     * @return startTime rule start date.
      */
-    function getSellRuleByIndex(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.SellRule memory) {
+    function getSellRuleByIndex(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.SellRule memory, uint64 startTime) {
         // check one of the required non zero values to check for existence, if not, revert
         _index.checkRuleExistence(getTotalSellRule());
         RuleS.SellRuleS storage data = Storage.sellStorage();
         if (_index >= data.sellRulesIndex) revert IndexOutOfRange();
-        return data.sellRulesPerUser[_index][_accountType];
+        return (data.sellRulesPerUser[_index][_accountType], data.startTime);
     }
 
     /**

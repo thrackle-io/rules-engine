@@ -20,7 +20,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
 
 - **Sell Amounts** (uint192): The maximum amount of tokens that may be sold during the *sell period*. 
 - **Sell Periods** (uint16): The length of each time period for which the rule will apply, in hours.
-- **Starting Timestamps** (uint64): The timestamp of the date when the *period* starts counting.
+- **Starting Timestamp** (uint64): The timestamp of the date when the *period* starts counting.
 
 
 ```c
@@ -28,7 +28,6 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
     struct SellRule {
         uint256 sellAmount; /// token units
         uint16 sellPeriod; /// hours
-        uint64 startTime; /// Time the rule is created
     }
 ```
 ###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
@@ -50,6 +49,7 @@ The collection of these tagged sub-rules composes an account-sell-controller rul
     struct SellRuleS {
         /// ruleIndex => userType => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.SellRule)) sellRulesPerUser;
+        uint64 startTime; /// Time the rule is created
         uint32 sellRulesIndex; /// increments every time someone adds a rule
     }
 ```
@@ -66,11 +66,11 @@ The collection of these tagged sub-rules composes an account-sell-controller rul
 
 The rule will be evaluated with the following logic:
 
-1. The account being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
-2. The processor will receive these tags along with the ID of the account-sell-controller rule set in the token handler. 
-3. The processor will then try to retrieve the sub-rule associated with each tag.
-4. The processor will evaluate whether each sub-rule's period is active (if the current time is within `period` from the `starting timestamp`). If it is not within the period, it will set the cumulative sales to the current sale amount. If it is within the period, the processor will add the current sale amount to the accrued sale amount for the rule period.   
-5. The processor will then check if the cumulative sales amount is greater than the `sell amount` defined in the rule. If true, the transaction will revert. 
+1. The account being evaluated passes to the protocol all the tags it has registered to its address in the application manager.
+2. The processor receives these tags along with the ID of the account-sell-controller rule set in the token handler. 
+3. The processor then tries to retrieve the sub-rule associated with each tag.
+4. The processor evaluates whether each sub-rule's period is active (if the current time is within `period` from the `starting timestamp`). If it is not within the period, it sets the cumulative sales to the current sale amount. If it is within the period, the processor adds the current sale amount to the accrued sale amount for the rule period.   
+5. The processor then checks if the cumulative sales amount is greater than the `sell amount` defined in the rule. If true, the transaction reverts. 
 6. Steps 4 and 5 are repeated for each of the account's tags.
 7. Return the cumulative sales amount.
 
@@ -99,7 +99,7 @@ function addSellRule(
         bytes32[] calldata _accountTypes,
         uint192[] calldata _sellAmounts,
         uint16[] calldata _sellPeriod,
-        uint64[] calldata _startTimes
+        uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)* 
@@ -112,7 +112,7 @@ The create function will return the protocol ID of the rule.
 - **_accountTypes** (bytes32[]): Array of applicable general tags.
 - **_sellAmounts** (uint192[]): Array of sell amounts corresponding to each tag.
 - **_sellPeriod** (uint16[]): Array of sell periods corresponding to each tag. 
-- **_startTimes** (uint64[]): Array of Unix timestamps for the *_sellPeriod* to start counting that corresponds to each tag.
+- **_startTime** (uint64): Unix timestamp for the *_sellPeriod* to start counting. It applies to each tag.
 
 
 ### Parameter Optionality:
@@ -126,6 +126,7 @@ The following validation will be carried out by the create function in order to 
 - `_appManagerAddr` Must not be the zero address.
 - `_accountTypes` No blank tags.
 - `_sellAmounts` 0 not allowed.
+- `_startTime` 0 not allowed. Must be less than 1 year into the future.
 
 
 
@@ -136,7 +137,7 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
-        function getSellRuleByIndex(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.SellRule memory);
+        function getSellRuleByIndex(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.SellRule memory, uint64 startTime);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
