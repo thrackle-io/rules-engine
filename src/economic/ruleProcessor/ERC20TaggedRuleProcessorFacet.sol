@@ -286,7 +286,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param _index Position of rule in array
      * @param _accountType Types of Accounts
      * @return SellRule at position in array
-     * @return startTime rule start date.
+     * @return startTime rule start timestamp.
      */
     function getSellRuleByIndex(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.SellRule memory, uint64 startTime) {
         // check one of the required non zero values to check for existence, if not, revert
