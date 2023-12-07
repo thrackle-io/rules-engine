@@ -24,7 +24,7 @@ struct LinearInput{
 * @notice this is how the internal line should be saved since this will allow more precision during mathematical operations.
 * definition: y = (m_num/m_den) * x + b
 */ 
-struct LinearWholeB { // if someone can think of a better name, please feel free to change it
+struct LinearWholeB {
     uint256 m_num;
     uint256 m_den;
     uint256 b;
@@ -36,7 +36,7 @@ struct LinearWholeB { // if someone can think of a better name, please feel free
 * @notice this is how the internal line should be saved since this will allow more precision during mathematical operations.
 * definition: y = (m_num/m_den) * x + b
 */ 
-struct LinearFractionB{ // if someone can think of a better name,  please feel free to change it
+struct LinearFractionB{
     uint256 m_num;
     uint256 m_den;
     uint256 b_num;
@@ -70,30 +70,3 @@ struct Sample01Struct{
     int256 tracker;
 }
 
-
-/** 
-* PLACE HOLDER FOR SIGMOIDAL 
-* @dev Sigmoidal curve
-* definition: S(x) = a*( ( (a - b) / ((x - b) ^ 2 + c) ^ 1/2 ) + 1)
-*/
-struct SigmoidFakeInput{
-    uint256 a;
-    uint256 b;
-    uint256 c;
-}
-
-
-/** 
-* PLACE HOLDER FOR SIGMOIDAL 
-* @dev Sigmoidal curve expressed in fractions.
-* @notice this is how the internal sigmoid should be saved since this will allow more precision during mathematical operations.
-* definition: S(x) = (a_num/a_den)*( ( ((a_num/a_den) - (b_num/b_den)) / ((x - (b_num/b_den)) ^ 2 + (c_num/c_den)) ^ 1/2 ) + 1)
-*/ 
-struct SigmoidFakeS{
-    uint256 a_num;
-    uint256 a_den;
-    uint256 b_num;
-    uint256 b_den;
-    uint256 c_num;
-    uint256 c_den;
-}

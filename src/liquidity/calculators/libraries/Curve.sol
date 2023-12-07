@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import {LinearWholeB, LinearFractionB, Sample01Struct, LinearInput, ConstantRatio, ConstantProduct, SigmoidFakeS} from "../dataStructures/CurveDataStructures.sol";
+import {LinearWholeB, LinearFractionB, Sample01Struct, LinearInput, ConstantRatio, ConstantProduct} from "../dataStructures/CurveDataStructures.sol";
 import {AMMMath} from "./AMMMath.sol";
 
 /**
@@ -68,16 +68,10 @@ library Curve {
     */
     function getY(LinearFractionB memory line, uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
         if (_amount0 != 0) {
-            // swap token0 for token1
-            y = (((3 * _amount0) / 2) + ((line.m_num * ((2 * _reserve0 * _amount0) + _amount0 ** 2))) / ((2 * 10 ** 18) * line.m_den)); // where is b here?
-            /// alternative math
-            //y = ((line.m_num * line.b_den) * _amount0 + (line.b_num * line.m_den)) / (line.m_den * line.b_den);
+            y = (((3 * _amount0) / 2) + ((line.m_num * ((2 * _reserve0 * _amount0) + _amount0 ** 2))) / ((2 * 10 ** 18) * line.m_den)); 
         } else {
-            // swap token1 for token0
             y = ((2 * (10 ** 9)) * (_amount1 * line.b_den) * line.m_den.sqrt()) /
                 ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * _reserve1 * line.m_num * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (_reserve1 - _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
-            /// alternative math
-            //y = ((line.m_den * line.b_den) * _amount1 - (line.b_num * line.m_den)) / (line.m_num * line.b_den);
         }
     }
     
@@ -183,22 +177,6 @@ library Curve {
                 revert InsufficientPoolDepth();
             amountOut = (tenMinusTrackerSquare - tenMinusDeltaSquare) / (2 * (10 ** 18));
         }
-    }
-
-
-    /// <<<<<<<< SigmoidFakeS >>>>>>>>>>
-    /** 
-    *  PLACE HOLDER for sigmoidal
-    */
-    function getY(SigmoidFakeS memory sigmoid, uint256 x) pure internal returns(uint256 y){
-       // y = sigmoid.a * ( ( (sigmoid.a - sigmoid.b) / ((x - sigmoid.b) * (x - sigmoid.b) + sigmoid.c).sqrt() ) + 1);
-    }
-
-    /** 
-    *  PLACE HOLDER for sigmoidal
-    */
-    function fromInput(SigmoidFakeS storage sigmoid, LinearInput memory input, uint8 precisionDecimals) internal {
-        /// body here
     }
 
 }
