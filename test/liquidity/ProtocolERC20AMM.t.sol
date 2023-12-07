@@ -701,7 +701,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         max[0] = uint256(1100 * 10 ** 18);
         switchToRuleAdmin();
         /// add the actual rule
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
 
         ///Token 1 Limits
         bytes32[] memory accs1 = new bytes32[](1);
@@ -711,7 +711,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         min1[0] = uint256(500 * 10 ** 18);
         max1[0] = uint256(2000 * 10 ** 18);
         /// add the actual rule
-        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
+        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs1, min1, max1);
         ////update ruleId in coin rule handler
         applicationAMMHandler.setMinMaxBalanceRuleIdToken0(ruleId);
         applicationAMMHandler.setMinMaxBalanceRuleIdToken1(ruleId1);
@@ -899,7 +899,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         max[0] = uint256(1100 * 10 ** 18);
         /// add the actual rule
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         ///Token 1 Limits
         bytes32[] memory accs1 = new bytes32[](1);
         uint256[] memory min1 = new uint256[](1);
@@ -908,7 +908,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         min1[0] = uint256(500 * 10 ** 18);
         max1[0] = uint256(2000 * 10 ** 18);
         /// add the actual rule
-        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs1, min1, max1);
+        uint32 ruleId1 = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs1, min1, max1);
         ////update ruleId in coin rule handler
         assetHandler.setMinMaxBalanceRuleIdToken0(ruleId);
         assetHandler.setMinMaxBalanceRuleIdToken1(ruleId1);
