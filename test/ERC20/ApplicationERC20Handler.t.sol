@@ -255,7 +255,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         _maximum[0] = 1000;
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
         /// connect the rule to this handler
         applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(ruleId);
         switchToAppAdministrator();
@@ -331,7 +331,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         _maximum[0] = 1000;
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
         /// connect the rule to this handler
         applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(ruleId);
         switchToAppAdministrator();

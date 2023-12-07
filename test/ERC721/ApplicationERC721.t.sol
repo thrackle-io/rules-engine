@@ -136,9 +136,9 @@ contract ApplicationERC721Test is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user1), 2);
 
         switchToRuleAdmin();
-        TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         // add the actual rule
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         switchToAppAdministrator();
         ///Add GeneralTag to account
         applicationAppManager.addGeneralTag(user1, "Oscar"); ///add tag

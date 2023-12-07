@@ -129,9 +129,9 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _accountTypes Types of Accounts
      * @param _minimum Minimum Balance allowed for tagged accounts
      * @param _maximum Maximum Balance allowed for tagged accounts
-     * @return _addBalanceLimitRules which returns location of rule in array
+     * @return _addMinMaxBalanceRule which returns location of rule in array
      */
-    function addBalanceLimitRules(
+    function addMinMaxBalanceRule(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
         uint256[] calldata _minimum,
@@ -141,7 +141,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         if (_accountTypes.length != _minimum.length || _accountTypes.length != _maximum.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
-        return _addBalanceLimitRules(_accountTypes, _minimum, _maximum);
+        return _addMinMaxBalanceRule(_accountTypes, _minimum, _maximum);
     }
 
     /**
@@ -151,21 +151,21 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _maximum Maximum Balance allowed for tagged accounts
      * @return position of new rule in array
      */
-    function _addBalanceLimitRules(bytes32[] calldata _accountTypes, uint256[] calldata _minimum, uint256[] calldata _maximum) internal returns (uint32) {
-        RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
-        uint32 index = data.balanceLimitRuleIndex;
+    function _addMinMaxBalanceRule(bytes32[] calldata _accountTypes, uint256[] calldata _minimum, uint256[] calldata _maximum) internal returns (uint32) {
+        RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
+        uint32 index = data.minMaxBalanceRuleIndex;
         for (uint256 i; i < _accountTypes.length; ) {
             if (_accountTypes[i] == bytes32("")) revert BlankTag();
             if (_minimum[i] == 0 || _maximum[i] == 0) revert ZeroValueNotPermited();
             if (_minimum[i] > _maximum[i]) revert InvertedLimits();
-            TaggedRules.BalanceLimitRule memory rule = TaggedRules.BalanceLimitRule(_minimum[i], _maximum[i]);
-            data.balanceLimitsPerAccountType[index][_accountTypes[i]] = rule;
+            TaggedRules.MinMaxBalanceRule memory rule = TaggedRules.MinMaxBalanceRule(_minimum[i], _maximum[i]);
+            data.minMaxBalanceRulesPerUser[index][_accountTypes[i]] = rule;
             unchecked {
                 ++i;
             }
         }
         emit ProtocolRuleCreated(MIN_MAX_BALANCE_LIMIT, index, _accountTypes);
-        ++data.balanceLimitRuleIndex;
+        ++data.minMaxBalanceRuleIndex;
         return index;
     }
 

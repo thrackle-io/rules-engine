@@ -64,7 +64,7 @@ contract RuleApplicationValidationFacet {
      */
     function validateMinMaxAccountBalanceERC721(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllBalanceLimitRules());
+        _ruleId.checkRuleExistence(getAllMinMaxBalanceRules());
     }
 
     /**
@@ -73,16 +73,16 @@ contract RuleApplicationValidationFacet {
      */
     function validateMinMaxAccountBalance(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllBalanceLimitRules());
+        _ruleId.checkRuleExistence(getAllMinMaxBalanceRules());
     }
 
     /**
      * @dev Function gets total Balance Limit rules
      * @return Total length of array
      */
-    function getAllBalanceLimitRules() internal view returns (uint32) {
-        RuleS.BalanceLimitRuleS storage data = Storage.balanceLimitStorage();
-        return data.balanceLimitRuleIndex;
+    function getAllMinMaxBalanceRules() internal view returns (uint32) {
+        RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
+        return data.minMaxBalanceRuleIndex;
     }
 
     /**
