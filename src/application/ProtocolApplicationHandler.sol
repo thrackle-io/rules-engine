@@ -291,7 +291,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Retrieve the oracle rule id
+     * @dev Retrieve the MaxTxSizePerPeriodByRisk rule id
      * @return MaxTxSizePerPeriodByRisk rule id for specified token
      */
     function getMaxTxSizePerPeriodByRiskRuleId() external view returns (uint32) {
