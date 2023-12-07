@@ -1040,13 +1040,9 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         holdPeriods[0] = uint16(100);
         holdPeriods[1] = uint16(101);
         holdPeriods[2] = uint16(102);
-        uint64[] memory holdTimestamps = new uint64[](3);
-        holdTimestamps[0] = Blocktime;
-        holdTimestamps[1] = Blocktime;
-        holdTimestamps[2] = Blocktime;
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
-        TaggedRules.MinBalByDateRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Oscar");
+        (TaggedRules.MinBalByDateRule memory rule,uint64 startTimestamp) = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Oscar");
         assertEq(rule.holdAmount, 1000);
         assertEq(rule.holdPeriod, 100);
 
@@ -1054,9 +1050,9 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         holdAmounts[1] = uint192(20000000);
         holdPeriods[1] = uint16(2);
 
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 1);
-        rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Tayler");
+        (rule,startTimestamp) = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Tayler");
         assertEq(rule.holdAmount, 20000000);
         assertEq(rule.holdPeriod, 2);
     }
@@ -1077,12 +1073,8 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         holdPeriods[0] = uint16(100);
         holdPeriods[1] = uint16(101);
         holdPeriods[2] = uint16(102);
-        uint64[] memory holdTimestamps = new uint64[](3);
-        holdTimestamps[0] = Blocktime;
-        holdTimestamps[1] = Blocktime;
-        holdTimestamps[2] = Blocktime;
         vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
     }
 
     /// Test for proper array size mismatch error
@@ -1100,12 +1092,8 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         uint16[] memory holdPeriods = new uint16[](2);
         holdPeriods[0] = uint16(100);
         holdPeriods[1] = uint16(101);
-        uint64[] memory holdTimestamps = new uint64[](3);
-        holdTimestamps[0] = Blocktime;
-        holdTimestamps[1] = Blocktime;
-        holdTimestamps[2] = Blocktime;
         vm.expectRevert(0x028a6c58);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
     }
 
     /***************** RULE PROCESSING *****************/

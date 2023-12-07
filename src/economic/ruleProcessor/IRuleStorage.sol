@@ -89,6 +89,7 @@ interface IRuleStorage {
     struct MinBalByDateRuleS {
         /// ruleIndex => userTag => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.MinBalByDateRule)) minBalByDateRulesPerUser;
+        uint64 startTime; /// start
         uint32 minBalByDateRulesIndex; /// increments every time someone adds a rule
     }
 

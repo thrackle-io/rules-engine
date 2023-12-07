@@ -169,10 +169,10 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         uint256 finalBalance = balance - amount;
         for (uint i = 0; i < toTags.length; ) {
             if (toTags[i] != "") {
-                TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
+                (TaggedRules.MinBalByDateRule memory minBalByDateRule, uint64 startTime) = getMinBalByDateRule(ruleId, toTags[i]);
                 uint256 holdPeriod = minBalByDateRule.holdPeriod;
                 /// first check to see if still in the hold period
-                if ((block.timestamp - (holdPeriod * 1 hours)) < minBalByDateRule.startTimeStamp) {
+                if ((block.timestamp - (holdPeriod * 1 hours)) < startTime) {
                     uint256 holdAmount = minBalByDateRule.holdAmount;
                     /// If the transaction will violate the rule, then revert
                     if (finalBalance < holdAmount) revert TxnInFreezeWindow();
@@ -189,13 +189,14 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param _index position of rule in array
      * @param _accountTag Tag of account
      * @return Min BalanceByDate rule at index position
+     * @return startTime rule start time
      */
-    function getMinBalByDateRule(uint32 _index, bytes32 _accountTag) public view returns (TaggedRules.MinBalByDateRule memory) {
+    function getMinBalByDateRule(uint32 _index, bytes32 _accountTag) public view returns (TaggedRules.MinBalByDateRule memory, uint64 startTime) {
         // check one of the required non zero values to check for existence, if not, revert
         _index.checkRuleExistence(getTotalMinBalByDateRules());
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         if (_index >= data.minBalByDateRulesIndex) revert IndexOutOfRange();
-        return data.minBalByDateRulesPerUser[_index][_accountTag];
+        return (data.minBalByDateRulesPerUser[_index][_accountTag], data.startTime);
     }
 
     /**

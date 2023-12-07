@@ -27,7 +27,6 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
     struct MinBalByDateRule {
         uint256 holdAmount; /// token units
         uint16 holdPeriod; /// hours
-        uint256 startTimeStamp; /// start
     }
 ```
 ###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
@@ -49,6 +48,7 @@ The collection of these tagged sub-rules composes a minumum-account-balance-by-d
     struct MinBalByDateRuleS {
         /// ruleIndex => userTag => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.MinBalByDateRule)) minBalByDateRulesPerUser;
+        uint256 startTime; /// start
         uint32 minBalByDateRulesIndex; /// increments every time someone adds a rule
     }
 ```
@@ -99,7 +99,7 @@ function addMinBalByDateRule(
             bytes32[] calldata _accountTags,
             uint256[] calldata _holdAmounts,
             uint16[] calldata _holdPeriods,
-            uint64[] calldata _startTimestamps
+            uint64 _startTime
         ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
@@ -112,14 +112,14 @@ The create function will return the protocol ID of the rule.
 - **_accountTags** (bytes32[]): array of tags that will contain each sub-rule.
 - **_holdAmounts** (uint256[]): array of *hold amounts* for each sub-rule.
 - **_holdPeriods** (uint16[]): array of *hold periods* for each sub-rule.
-- **_startTimestamps** (uint64[]): array of *timestamps* for each sub-rule.
+- **_startTimetamp** (uint64): *timestamp* that applies to each sub-rule.
 
-It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_holdAmounts`, `_holdPeriods` and `_startTimestamps`. Same with tag in position *n*.
+It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_holdAmounts` and `_holdPeriods`. Same with tag in position *n*. The `_startTimestamp` applies to all subrules
 
 ### Parameter Optionality:
 
 The parameters where developers have the options are:
-- **_startTimestamps**: developers can pass Unix timestamps or simply 0s. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation. The `_startTimestamps` array can have mixed options.
+- **_startTimestamp**: developers can pass a Unix timestamps or simply 0. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation. 
 
 ### Parameter Validation:
 
@@ -146,7 +146,7 @@ The following validation will be carried out by the create function in order to 
                 external 
                 view 
                 returns 
-                (TaggedRules.MinBalByDateRule memory);
+                (TaggedRules.MinBalByDateRule memory, uint64 startTime);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
