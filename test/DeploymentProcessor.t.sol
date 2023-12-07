@@ -1042,7 +1042,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         holdPeriods[2] = uint16(102);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
-        (TaggedRules.MinBalByDateRule memory rule,uint64 startTimestamp) = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Oscar");
+        TaggedRules.MinBalByDateRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Oscar");
         assertEq(rule.holdAmount, 1000);
         assertEq(rule.holdPeriod, 100);
 
@@ -1052,7 +1052,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
 
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 1);
-        (rule,startTimestamp) = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Tayler");
+        rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Tayler");
         assertEq(rule.holdAmount, 20000000);
         assertEq(rule.holdPeriod, 2);
     }

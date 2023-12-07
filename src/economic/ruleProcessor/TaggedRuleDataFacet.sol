@@ -334,7 +334,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
                 ++i;
             }
         }
-        data.startTime = _startTimestamp;
+        data.startTimes[index] = _startTimestamp;
         emit ProtocolRuleCreated(MIN_ACCT_BAL_BY_DATE, index, _accountTags);
         ++data.minBalByDateRulesIndex;
         return index;
