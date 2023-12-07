@@ -73,9 +73,9 @@ The rule will be evaluated with the following logic:
 5. The processor evaluates whether the current time is within a new period.
    -If it is a new period, the processor sets the cumulative purchases to the current purchase amount.
    -If it is not a new period, the processor adds the current purchase amount to the accrued purchase amount for the rule period. 
-6. The processor checks if the cumulative purchases amount is greater than the `purchase amount` defined in the rule. If true, the transaction reverts. 
-8. Steps 4 and 5 are repeated for each of the account's tags.
-9. Returns the cumulative purchases amount.
+6. The processor checks if the cumulative purchases amount is greater than the `purchase amount` defined in the rule. If true, the transaction reverts.
+7. Steps 4 and 5 are repeated for each of the account's tags. In the case where multiple tags apply, the most restrictive is applied.
+8. Returns the cumulative purchases amount.
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkPurchaseLimit*
 
