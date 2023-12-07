@@ -14,7 +14,7 @@
 | Minimum Hold Time | TODO |
 | Minimum Transaction| TODO |
 | Minimum/Maximum Account Balances | TODO |
-| Oracle | TODO |
+| [Oracle](./ALLOW-DENY-ORACLE.md) | The purpose of the allow-deny-oracle rule is to check if the receiver address in the transaction is an allowed or restricted address. Addresses are added to the oracle lists by the owner of the oracle contract for any reason that the owner deems necessary. If an address is not on an allowed oracle list, they will be restricted from receiving application tokens. This rule can be used to restrict transfers to only specific contract addresses or wallets that are approved by the oracle owner. An example is NFT exchanges that support ERC2981 royalty payments. The deny list is designed as a tool to reduce the risk of malicious actors in the ecosystem. If an address is on the deny oracle list they are restricted receiving tokens. Any address not on the deny list will pass this rule check. |
 | [Pause Rule](./PAUSE-RULE.md) | The purpose of the pause rule is to allow developers to pause the entirety of an application for maintenance, security or any other reason. Pausing the application means that no transfer of tokens is allowed at any level (with the few exceptions listed in the Role Applicability section).  |
 | Token Percentage Purchase | TODO |
 | Token Percentage Sell |TODO |
