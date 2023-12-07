@@ -708,12 +708,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         holdPeriods[0] = uint16(720); // one month
         holdPeriods[1] = uint16(4380); // six months
         holdPeriods[2] = uint16(17520); // two years
-        uint64[] memory holdTimestamps = new uint64[](3);
-        holdTimestamps[0] = Blocktime;
-        holdTimestamps[1] = Blocktime;
-        holdTimestamps[2] = Blocktime;
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
         /// Set rule
         applicationNFTHandler.setMinBalByDateRuleId(_index);
@@ -1221,12 +1217,10 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             holdAmounts[0] = 2;
             uint16[] memory holdPeriods = new uint16[](1);
             holdPeriods[0] = uint16(720); // one month
-            uint64[] memory holdTimestamps = new uint64[](1);
-            holdTimestamps[0] = Blocktime;
             switchToAppAdministrator();
             applicationAppManager.addGeneralTag(_user1, tag1); ///add tag
             switchToRuleAdmin();
-            uint32 balanceByDateId = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+            uint32 balanceByDateId = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
             /// Set rule
             applicationNFTHandler.setMinBalByDateRuleId(balanceByDateId);
         }
