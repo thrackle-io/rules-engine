@@ -17,14 +17,14 @@ interface IPauseRules is IDataModule, IPauseRuleErrors {
      * @param _pauseStart pause window start timestamp
      * @param _pauseStop pause window stop timestamp
      */
-    function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external;
+    function addPauseRule(uint64 _pauseStart, uint64 _pauseStop) external;
 
     /**
      * @dev Remove the pause rule from the account. Restricted to the owner
      * @param _pauseStart pause window start timestamp
      * @param _pauseStop pause window stop timestamp
      */
-    function removePauseRule(uint256 _pauseStart, uint256 _pauseStop) external;
+    function removePauseRule(uint64 _pauseStart, uint64 _pauseStop) external;
 
     /**
      * @dev Cleans up outdated pause rules by removing them from the mapping

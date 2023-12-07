@@ -51,7 +51,7 @@ struct TxSizePerPeriodToRiskRule {
         uint64 startingTime; 
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 These rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
@@ -63,7 +63,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
     }
 ```
 
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -119,7 +119,7 @@ function addMaxTxSizePerPeriodByRiskRule(
         ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 
-###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/economic/ruleProcessor/AppRuleDataFacet.sol)*
 The create function will return the protocol ID of the rule.
 
 ### Parameters:
@@ -144,10 +144,10 @@ The following validation will be carried out by the create function in order to 
 - `period` is not zero.
 - `_startTimestamp` is not zero and is not more than 52 weeks in the future.
 
-###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 ## Other Functions:
-- In Protocol [Storage Diamond](../../../src/economic/ruleStorage/AppRuleDataFacet.sol):
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function to get a rule by its Id:
         ```c
         function getMaxTxSizePerPeriodRule(uint32 _index) external view returns (AppRules.TxSizePerPeriodToRiskRule memory);

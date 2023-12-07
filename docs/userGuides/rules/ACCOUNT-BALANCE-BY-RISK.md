@@ -36,7 +36,7 @@ struct AccountBalanceToRiskRule {
     uint48[] maxBalance; /// whole US dollar (no cents) -> 1 = 1 US dollar (Max allowed: 281 trillion USD)
 }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 The account-balance-by-risk-score rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
@@ -47,7 +47,7 @@ The account-balance-by-risk-score rules are stored in a mapping indexed by ruleI
         uint32 balanceToRiskRuleIndex;
     }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -92,7 +92,7 @@ function addAccountBalanceByRiskScore(
     uint48[] calldata _balanceLimits
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -118,11 +118,11 @@ The following validation will be carried out by the create function in order to 
 - `_balanceLimits` array is in descending order (the next value is always smaller than the previous value in the array). 
 
 
-###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Storage Diamond]((../../../src/economic/ruleStorage/RuleDataFacet.sol)):
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)):
     -  Function to get a rule by its ID:
         ```c
         function getAccountBalanceByRiskScore(

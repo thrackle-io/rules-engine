@@ -24,7 +24,7 @@ A max-balance-by-access-level rule is composed of a single variable:
  mapping(uint8 => uint48);
 ```
 
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
 
 ***NOTE: access levels are restricted from 0 to 4.***
 
@@ -39,7 +39,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
     }
 ```
 
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -85,7 +85,7 @@ function addAccessLevelBalanceRule(
         ruleAdministratorOnly(_appManagerAddr) 
         returns (uint32);
 ```
-###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -105,11 +105,11 @@ The following validation will be carried out by the create function in order to 
 - The `_balanceAmounts` array has length 5.
 - The elements of the `_balanceAmounts` array are in ascendant order.
 
-###### *see [AppRuleDataFacet](../../../src/economic/ruleStorage/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Storage Diamond](../../../src/economic/ruleStorage/AppRuleDataFacet.sol):
+- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function to get a rule by its Id:
         ```c
         function getAccessLevelBalanceRule(uint32 _index, uint8 _accessLevel) external view returns (uint48);
