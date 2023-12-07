@@ -307,7 +307,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         applicationCoin.approve(address(protocolAMM), 100_000 * (10 ** 18));
         applicationCoin2.approve(address(protocolAMM), 10_000 * (10 ** 18));
         /// Transfer the tokens into the AMM(token0 = Application Coin, token1 = Source Coin)
-        protocolAMM.addLiquidity(100000 * (10 ** 18), 10_000 * (10 ** 18));
+        protocolAMM.addLiquidity(100_000 * (10 ** 18), 10_000 * (10 ** 18));
         /// Make sure the tokens made it
         assertEq(protocolAMM.getReserve0(), 100_000 * (10 ** 18));
         assertEq(protocolAMM.getReserve1(), 10_000 * (10 ** 18));

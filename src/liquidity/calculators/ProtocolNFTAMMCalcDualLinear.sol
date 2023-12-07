@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "./IProtocolAMMFactoryCalculator.sol";
-import {Line_mF, LineInput, Curve} from "./libraries/Curve.sol";
+import {LineWholeB, LineInput, Curve} from "./libraries/Curve.sol";
 import {CurveErrors} from "../../interfaces/IErrors.sol";
 
 /**
@@ -13,14 +13,14 @@ import {CurveErrors} from "../../interfaces/IErrors.sol";
  */
 contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErrors {
 
-    using Curve for Line_mF;
+    using Curve for LineWholeB;
 
     uint256 constant M_PRECISION_DECIMALS = 8;
     uint256 constant ATTO = 10 ** 18;
     uint256 constant Y_MAX = 1_000_000_000_000_000_000_000_000 * ATTO;
     uint256 constant M_MAX = 1_000_000_000_000_000_000_000_000 * 10 ** M_PRECISION_DECIMALS;
-    Line_mF public buyCurve;
-    Line_mF public sellCurve;
+    LineWholeB public buyCurve;
+    LineWholeB public sellCurve;
 
     /**
     * @dev tracks how many NFTs have been put in circulation by the AMM.
@@ -161,7 +161,7 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @param _buyCurve the definition of the buyCurve stored in the contract
     * @param _sellCurve the definition of the sellCurve input
     */
-    function _validateCurvePair(LineInput memory _buyCurve, Line_mF memory _sellCurve) internal pure {
+    function _validateCurvePair(LineInput memory _buyCurve, LineWholeB memory _sellCurve) internal pure {
         if(_buyCurve.m * (_sellCurve.m_den / (10 ** M_PRECISION_DECIMALS)) < _sellCurve.m_num) revert CurvesInvertedOrIntersecting(); 
         if( _buyCurve.b < _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }
@@ -174,7 +174,7 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
     * @param _buyCurve the definition of the buyCurve input
     * @param _sellCurve the definition of the sellCurve stored in the contract
     */
-    function _validateCurvePair(Line_mF memory _buyCurve, LineInput memory _sellCurve) internal pure {
+    function _validateCurvePair(LineWholeB memory _buyCurve, LineInput memory _sellCurve) internal pure {
         if(_buyCurve.m_num < _sellCurve.m * (_buyCurve.m_den / (10 ** M_PRECISION_DECIMALS)))  revert CurvesInvertedOrIntersecting(); 
         if(_buyCurve.b < _sellCurve.b) revert CurvesInvertedOrIntersecting(); 
     }

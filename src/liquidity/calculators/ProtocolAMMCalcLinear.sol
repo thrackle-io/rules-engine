@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "./IProtocolAMMFactoryCalculator.sol";
-import {Line_mbF, LineInput, Curve} from "./libraries/Curve.sol";
+import {LineFractionB, LineInput, Curve} from "./libraries/Curve.sol";
 import {CurveErrors} from "../../interfaces/IErrors.sol";
 
 /**
@@ -16,13 +16,13 @@ import {CurveErrors} from "../../interfaces/IErrors.sol";
  */
 contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
 
-    using Curve for Line_mbF;
+    using Curve for LineFractionB;
 
     uint256 constant Y_MAX = 100_000 * 10 ** 18;
     uint256 constant M_MAX = 100 * 10 ** 8;
     uint8 constant M_PRECISION_DECIMALS = 8;
     uint8 constant B_PRECISION_DECIMALS = 18;
-    Line_mbF public curve;
+    LineFractionB public curve;
 
     /**
      * @dev Set up the calculator and appManager for permissions
