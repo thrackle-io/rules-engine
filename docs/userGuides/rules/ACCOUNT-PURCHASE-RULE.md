@@ -1,8 +1,8 @@
-# Account Purchase Controller Rule
+# Account Purchase Rule
 
 ## Purpose
 
-The Account Purchase Controller is an account based measure which restricts an account’s ability to purchase more of a token. This may be put in place to restrict large transactions from occurring against suspected malicious accounts or other accounts of interest. The amount of purchases allowed depends on the account's tags. Different accounts may get different purchase restrictions depending on their tags.
+The Account Purchase Rule is an account based measure which restricts an account’s ability to purchase more of a token. This may be put in place to restrict large transactions from occurring against suspected malicious accounts or other accounts of interest. The amount of purchases allowed depends on the account's tags. Different accounts may get different purchase restrictions depending on their tags.
 
 ## Applies To:
 
