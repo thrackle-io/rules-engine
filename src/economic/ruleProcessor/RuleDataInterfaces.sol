@@ -103,7 +103,6 @@ interface ITaggedRules {
     struct MinBalByDateRule {
         uint256 holdAmount; /// token units
         uint16 holdPeriod; /// hours
-        uint256 startTimeStamp; /// start
     }
     /// ******** NFT ********
     struct NFTTradeCounterRule {
