@@ -6,6 +6,7 @@ import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
 import "src/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcSample01.sol";
+import "./calculators/ProtocolAMMCalcConcLiqMulCurves.sol";
 import "src/economic/AppAdministratorOnly.sol";
 import {LinearInput, ConstantRatio} from "./calculators/dataStructures/CurveDataStructures.sol";
 import {IZeroAddressError} from "src/interfaces/IErrors.sol";
@@ -83,5 +84,15 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
     function createSample01(int256 _f_tracker, int256 _g_tracker, address _appManagerAddress) external returns (address) {
         ProtocolAMMCalcSample01 protocolAMMCalcSample01 = new ProtocolAMMCalcSample01(_f_tracker, _g_tracker, _appManagerAddress);
         return address(protocolAMMCalcSample01);
+    }
+
+    /**
+     * @dev This creates a concentrated liquidity with multiple curves calculator.
+     * @param _appManagerAddress address of the application's appManager
+     * @return _calculatorAddress
+     */
+    function createConcLiqMulCurves(address _appManagerAddress) external returns(address){
+        ProtocolAMMCalcConcLiqMulCurves protocolAMMCalcConcLiqMulCurves = new ProtocolAMMCalcConcLiqMulCurves(_appManagerAddress);
+        return address(protocolAMMCalcConcLiqMulCurves);
     }
 }

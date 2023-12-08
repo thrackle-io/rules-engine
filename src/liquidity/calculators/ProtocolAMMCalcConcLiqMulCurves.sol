@@ -9,7 +9,7 @@ import {
     ConstantProduct, 
     Curve
 } from "./libraries/Curve.sol";
-import "./dataStructures/CurveEnum.sol";
+import "./dataStructures/CurveTypes.sol";
 import {CurveErrors} from "../../interfaces/IErrors.sol";
 
 /**
@@ -23,11 +23,6 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     using Curve for ConstantRatio;
     using Curve for ConstantProduct;
 
-    struct SectionCurve{
-        CurveTypes curveType;
-        uint8 index; // index in the curve array. i.e. in *linears* or *constRatios*
-    }
-
     uint256 constant Y_MAX = 100_000 * 10 ** 18;
     uint256 constant M_MAX = 100 * 10 ** 8;
     uint8 constant M_PRECISION_DECIMALS = 8;
@@ -36,8 +31,8 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     LinearFractionB[] public linears;
     ConstantRatio[] public constRatios;
 
-    SectionCurve[] sectionCurves;
-    uint256[] sectionUpperLimits;
+    SectionCurve[] public sectionCurves;
+    uint256[] public sectionUpperLimits;
 
     /**
      * @dev Set up the calculator and appManager for permissions
@@ -137,6 +132,9 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     function setUpperLimits(uint256[] calldata upperLimits) external appAdministratorOnly(appManagerAddress) {
         for(uint i=1; i < upperLimits.length;){
             if(upperLimits[i] <= upperLimits[i - 1]) revert("WRONG ORDER");
+            unchecked{
+                ++i;
+            }
         }
         sectionUpperLimits = upperLimits;
     }

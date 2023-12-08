@@ -7,3 +7,8 @@ enum CurveTypes{
     CONST_RATIO,
     CONST_PRODUCT
 }
+
+struct SectionCurve{
+    CurveTypes curveType;
+    uint8 index; // index in the curve array. i.e. in *linears* or *constRatios*
+}
