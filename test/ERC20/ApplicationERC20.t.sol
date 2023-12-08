@@ -668,12 +668,8 @@ contract ApplicationERC20Test is TestCommonFoundry {
         holdPeriods[0] = uint16(720); // one month
         holdPeriods[1] = uint16(4380); // six months
         holdPeriods[2] = uint16(17520); // two years
-        uint64[] memory holdTimestamps = new uint64[](3);
-        holdTimestamps[0] = Blocktime;
-        holdTimestamps[1] = Blocktime;
-        holdTimestamps[2] = Blocktime;
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
         applicationCoinHandler.setMinBalByDateRuleId(_index);
         switchToAppAdministrator();
@@ -1241,12 +1237,8 @@ contract ApplicationERC20Test is TestCommonFoundry {
         holdPeriods[0] = uint16(720); // one month
         holdPeriods[1] = uint16(4380); // six months
         holdPeriods[2] = uint16(17520); // two years
-        uint64[] memory holdTimestamps = new uint64[](3);
-        holdTimestamps[0] = Blocktime;
-        holdTimestamps[1] = Blocktime;
-        holdTimestamps[2] = Blocktime;
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
         assetHandler.setMinBalByDateRuleId(_index);
         switchToAppAdministrator();
@@ -1317,12 +1309,8 @@ contract ApplicationERC20Test is TestCommonFoundry {
         holdPeriods[0] = uint16(720); // one month
         holdPeriods[1] = uint16(4380); // six months
         holdPeriods[2] = uint16(17520); // two years
-        uint64[] memory holdTimestamps = new uint64[](3);
-        holdTimestamps[0] = Blocktime;
-        holdTimestamps[1] = Blocktime;
-        holdTimestamps[2] = Blocktime;
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, holdTimestamps);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
         assetHandler.setMinBalByDateRuleId(_index);
         switchToAppAdministrator();

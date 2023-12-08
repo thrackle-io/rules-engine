@@ -166,12 +166,13 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      */
     function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags) external view {
         toTags.checkMaxTags();
-        uint256 finalBalance = balance - amount;
-        for (uint i = 0; i < toTags.length; ) {
-            if (toTags[i] != "") {
-                TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
-                uint256 holdPeriod = minBalByDateRule.holdPeriod;
-                uint256 holdAmount = minBalByDateRule.holdAmount;
+        uint64 startTime = getMinBalByDateRuleStart(ruleId);
+        if (startTime <= block.timestamp){
+            uint256 finalBalance = balance - amount;
+            for (uint i = 0;  i < toTags.length; ) {
+                if (toTags[i] != "") {
+                    TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
+                    uint256 holdAmount = minBalByDateRule.holdAmount;
                 /// check if holdAmount = 0, 0 means there is no sub rule for this tag
                 if(holdAmount != 0) {
                     /// first check to see if still in the hold period
@@ -180,9 +181,9 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
                         if (finalBalance < holdAmount) revert TxnInFreezeWindow();
                     }
                 }
-            }
-            unchecked {
-                ++i;
+                unchecked {
+                    ++i;
+                }
             }
         }
     }
@@ -194,11 +195,22 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @return Min BalanceByDate rule at index position
      */
     function getMinBalByDateRule(uint32 _index, bytes32 _accountTag) public view returns (TaggedRules.MinBalByDateRule memory) {
+        // No need to check the rule existence or index since it was already checked in getSellRuleStartByIndex
+        RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
+        return data.minBalByDateRulesPerUser[_index][_accountTag];
+    }
+
+    /**
+     * @dev Function get the minimum balance by date rule start timestamp
+     * @param _index position of rule in array
+     * @return startTime rule start time
+     */
+    function getMinBalByDateRuleStart(uint32 _index) public view returns (uint64 startTime) {
         // check one of the required non zero values to check for existence, if not, revert
         _index.checkRuleExistence(getTotalMinBalByDateRules());
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         if (_index >= data.minBalByDateRulesIndex) revert IndexOutOfRange();
-        return data.minBalByDateRulesPerUser[_index][_accountTag];
+        return data.startTimes[_index];
     }
 
     /**
