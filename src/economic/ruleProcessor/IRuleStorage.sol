@@ -17,6 +17,7 @@ interface IRuleStorage {
     struct PurchaseRuleS {
         /// ruleIndex => userType => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.PurchaseRule)) purchaseRulesPerUser;
+        mapping(uint32 => uint64) startTimes;///Time the rule is applied
         uint32 purchaseRulesIndex; /// increments every time someone adds a rule
     }
 
@@ -24,6 +25,7 @@ interface IRuleStorage {
     struct SellRuleS {
         /// ruleIndex => userType => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.SellRule)) sellRulesPerUser;
+        mapping(uint32 => uint64) startTimes;///Time the rule is applied
         uint32 sellRulesIndex; /// increments every time someone adds a rule
     }
 

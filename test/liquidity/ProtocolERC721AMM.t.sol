@@ -306,17 +306,15 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         bytes32[] memory accs = new bytes32[](1);
         uint192[] memory sellAmounts = new uint192[](1);
         uint16[] memory sellPeriod = new uint16[](1);
-        uint64[] memory startTime = new uint64[](1);
         accs[0] = bytes32("SellRule");
         sellAmounts[0] = uint192(1); ///Amount to trigger Sell freeze rules
         sellPeriod[0] = uint16(36); ///Hours
-        startTime[0] = uint64(Blocktime);
 
         /// Set the rule data
         applicationAppManager.addGeneralTag(user, "SellRule");
         /// add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, uint64(Blocktime));
         ///update ruleId in application AMM rule handler
         assetHandler.setSellLimitRuleId(ruleId);
         /// Swap that passes rule check
@@ -552,12 +550,10 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         bytes32[] memory accs = new bytes32[](1);
         uint192[] memory sellAmounts = new uint192[](1);
         uint16[] memory sellPeriod = new uint16[](1);
-        uint64[] memory startTime = new uint64[](1);
         accs[0] = bytes32(_tag);
         sellAmounts[0] = _sellAmount; ///Amount to trigger Sell freeze rules
         sellPeriod[0] = _sellPeriod; ///Hours
-        startTime[0] = uint64(Blocktime);
-        ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
+        ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, uint64(Blocktime));
         applicationAMMHandler.setSellLimitRuleId(ruleId);
     }
 

@@ -74,10 +74,9 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         accs[0] = bytes32("PURCHASE_RULE");
         purchaseAmounts[0] = uint256(600); ///Amount to trigger purchase freeze rules
         purchasePeriods[0] = uint16(36); ///Hours Purchase Period lasts
-        startTime[0] = uint32(12); ///Hours rule starts after block.timestamp
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, startTime);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, uint64(Blocktime));
         ///update ruleId in application AMM rule handler
         applicationAMMHandler.setPurchaseLimitRuleId(ruleId);
         applicationAMMHandler.activatePurchaseLimitRule(true);
@@ -89,10 +88,9 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         sellAccs[0] = bytes32("SellRule");
         sellAmounts[0] = uint192(600); ///Amount to trigger Sell freeze rules
         sellPeriod[0] = uint16(36); ///Hours
-        startTime[0] = uint64(Blocktime); ///Hours
 
         // add the actual rule
-        uint32 sellRuleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), sellAccs, sellAmounts, sellPeriod, startTime);
+        uint32 sellRuleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), sellAccs, sellAmounts, sellPeriod, uint64(Blocktime));
         ///update ruleId in application AMM rule handler
         applicationAMMHandler.setSellLimitRuleId(sellRuleId);
         applicationAMMHandler.activateSellLimitRule(true);
@@ -109,15 +107,13 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         bytes32[] memory accs = new bytes32[](1);
         uint256[] memory purchaseAmounts = new uint256[](1);
         uint16[] memory purchasePeriods = new uint16[](1);
-        uint64[] memory startTime = new uint64[](1);
         accs[0] = bytes32("PurchaseRule");
         purchaseAmounts[0] = uint256(600); ///Amount to trigger purchase freeze rules
-        purchasePeriods[0] = uint16(36); ///Hours
-        startTime[0] = uint64(12); ///Hours
+        purchasePeriods[0] = uint16(12); ///Hours
 
         // add the actual rule
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, startTime);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, uint64(Blocktime));
         ///update ruleId in application coin rule handler
         applicationAMMHandler.setPurchaseLimitRuleId(ruleId);
         applicationAMMHandler.activatePurchaseLimitRule(true);
@@ -156,15 +152,13 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         bytes32[] memory accs = new bytes32[](1);
         uint192[] memory sellAmounts = new uint192[](1);
         uint16[] memory sellPeriod = new uint16[](1);
-        uint64[] memory startTime = new uint64[](1);
         accs[0] = bytes32("SellRule");
         sellAmounts[0] = uint192(600); ///Amount to trigger Sell freeze rules
-        sellPeriod[0] = uint16(36); ///Hours
-        startTime[0] = uint64(12); ///Hours
+        sellPeriod[0] = uint16(12); ///Hours
 
         // add the actual rule
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, startTime);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, uint64(Blocktime));
         ///update ruleId in application coin rule handler
         applicationAMMHandler.setSellLimitRuleId(ruleId);
         applicationAMMHandler.activateSellLimitRule(true);
@@ -265,9 +259,9 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         _max[0] = 1100;
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), _accountTypes, _minimum, _maximum);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
 
-        uint32 ruleId2 = TaggedRuleDataFacet(address(ruleProcessor)).addBalanceLimitRules(address(applicationAppManager), _accs, _min, _max);
+        uint32 ruleId2 = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accs, _min, _max);
         /// connect the rule to this handler
         applicationAMMHandler.setMinMaxBalanceRuleIdToken0(ruleId);
         applicationAMMHandler.setMinMaxBalanceRuleIdToken1(ruleId2);
