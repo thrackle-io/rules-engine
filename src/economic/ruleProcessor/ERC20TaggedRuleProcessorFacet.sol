@@ -167,20 +167,22 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags) external view {
         toTags.checkMaxTags();
         uint64 startTime = getMinBalByDateRuleStart(ruleId);
-        uint256 finalBalance = balance - amount;
-        for (uint i = 0; i < toTags.length; ) {
-            if (toTags[i] != "") {
-                TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
-                uint256 holdPeriod = minBalByDateRule.holdPeriod;
-                /// first check to see if still in the hold period
-                if ((block.timestamp - (holdPeriod * 1 hours)) < startTime) {
-                    uint256 holdAmount = minBalByDateRule.holdAmount;
-                    /// If the transaction will violate the rule, then revert
-                    if (finalBalance < holdAmount) revert TxnInFreezeWindow();
+        if (startTime <= block.timestamp){
+            uint256 finalBalance = balance - amount;
+            for (uint i = 0;  i < toTags.length; ) {
+                if (toTags[i] != "") {
+                    TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
+                    uint256 holdPeriod = minBalByDateRule.holdPeriod;
+                    /// first check to see if still in the hold period
+                    if ((block.timestamp - (holdPeriod * 1 hours)) < startTime) {
+                        uint256 holdAmount = minBalByDateRule.holdAmount;
+                        /// If the transaction will violate the rule, then revert
+                        if (finalBalance < holdAmount) revert TxnInFreezeWindow();
+                    }
                 }
-            }
-            unchecked {
-                ++i;
+                unchecked {
+                    ++i;
+                }
             }
         }
     }
