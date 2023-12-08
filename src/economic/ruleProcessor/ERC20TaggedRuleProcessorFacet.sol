@@ -176,6 +176,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
                     uint256 holdAmount = minBalByDateRule.holdAmount;
                     /// check if holdAmount = 0, 0 means there is no sub rule for this tag
                     if(holdAmount != 0) {
+                        /// Check to see if still in the hold period
                         if ((block.timestamp - (holdPeriod * 1 hours)) < startTime) {
                         /// If the transaction will violate the rule, then revert
                         if (finalBalance < holdAmount) revert TxnInFreezeWindow();
