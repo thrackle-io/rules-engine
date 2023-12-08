@@ -46,7 +46,7 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
         appManagerAddress = _appManagerAddress;
         /// Set the calculator and create the variable for it.
         _setCalculatorAddress(_calculatorAddress);
-        emit AMMDeployed(address(this));
+        emit AMMDeployed(address(this), _token0, _token1, _appManagerAddress, _calculatorAddress);
     }
 
     /**

@@ -48,7 +48,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         appManagerAddress = _appManagerAddress;
         /// Set the calculator and create the variable for it.
         _setCalculatorAddress(_calculatorAddress);
-        emit AMMDeployed(address(this));
+        emit AMMDeployed(address(this), _ERC20Token, _ERC721Token, _appManagerAddress, _calculatorAddress);
     }
 
     /**
