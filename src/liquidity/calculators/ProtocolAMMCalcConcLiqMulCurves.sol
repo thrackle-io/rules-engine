@@ -85,7 +85,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
                     return curve.getY(_reserve0, _reserve1, _amount0, _amount1);
                 /// revert if type was none of the above
                 }else{
-                    revert("NOT VALID CURVE");
+                    revert InvalidCurveType();
                 }
             }
             unchecked{
@@ -93,7 +93,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
             }
         }
         /// if we made it here that means that x is out of range
-        revert("NOT VALID CURVE");
+        revert InvalidCurveType();
     }
 
     /**
@@ -118,20 +118,20 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     function addAnUpperLimit(uint256 upperLimit) external appAdministratorOnly(appManagerAddress) {
         uint256 length = sectionUpperLimits.length;
         if ( (length > 0) && (sectionUpperLimits[length - 1] > upperLimit) ) 
-            revert("WRONG ORDER");
+            revert WrongArrayOrder();
         sectionUpperLimits.push(upperLimit);
     }
 
     function setAnUpperLimit(uint256 upperLimit, uint8 index) external appAdministratorOnly(appManagerAddress) {
         if( ( (index > 0) && (upperLimit <= sectionUpperLimits[index - 1]) ) || 
             ( (sectionUpperLimits.length > 0) && (upperLimit >= sectionUpperLimits[index + 1])) )
-                revert("WRONG ORDER");
+                revert WrongArrayOrder();
         sectionUpperLimits[index] = upperLimit;
     }
 
     function setUpperLimits(uint256[] calldata upperLimits) external appAdministratorOnly(appManagerAddress) {
         for(uint i=1; i < upperLimits.length;){
-            if(upperLimits[i] <= upperLimits[i - 1]) revert("WRONG ORDER");
+            if(upperLimits[i] <= upperLimits[i - 1]) revert WrongArrayOrder();
             unchecked{
                 ++i;
             }
@@ -150,14 +150,16 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     }
 
     function _validateSectionCurve(SectionCurve calldata selectedCurve) internal view{
-        if (selectedCurve.curveType == CurveTypes.CONST_RATIO)
+        if (selectedCurve.curveType == CurveTypes.CONST_RATIO){
             if(selectedCurve.index >= constRatios.length) 
-                revert("OUT OF BOUNDS");
-        else if(selectedCurve.curveType == CurveTypes.LINEAR_FRACTION_B)
-            if(selectedCurve.index >= constRatios.length) 
-                revert("OUT OF BOUNDS");
+                revert IndexOutOfRange();
+        }
+        else if(selectedCurve.curveType == CurveTypes.LINEAR_FRACTION_B){
+            if(selectedCurve.index >= linears.length) 
+                revert IndexOutOfRange();
+        }
         else if (selectedCurve.curveType != CurveTypes.CONST_PRODUCT) 
-            revert("NOT VALID CURVE");
+            revert InvalidCurveType();
     }
 
 

@@ -58,13 +58,16 @@ interface ITagRuleErrors {
     error TemporarySellRestriction();
 }
 
-interface IInputErrors {
+interface CommonInputErrors{
+    error ValueOutOfRange(uint256 _value);
+    error ZeroValueNotPermited();
+}
+
+interface IInputErrors is CommonInputErrors{
     error IndexOutOfRange();
     error WrongArrayOrder();
     error InputArraysSizesNotValid();
     error InputArraysMustHaveSameLength();
-    error ValueOutOfRange(uint256 _value);
-    error ZeroValueNotPermited();
     error InvertedLimits();
     error InvalidOracleType(uint8 _type);
     error InvalidRuleInput();
@@ -114,11 +117,10 @@ interface IAppManagerErrors is INoAddressToRemove {
     error NotRegisteredHandler(address);
 }
 
-interface AMMCalculatorErrors {
+interface AMMCalculatorErrors is CommonInputErrors{
     error AmountsAreZero();
     error OutOfRange();
-    error ValueOutOfRange(uint256 value);
-    error ZeroValueNotPermited();
+    error InvalidCurveType();
 }
 
 
