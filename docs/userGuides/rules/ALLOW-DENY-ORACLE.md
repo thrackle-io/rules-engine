@@ -32,7 +32,7 @@ struct OracleRule {
     address oracleAddress;
 }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 The allow-oracle rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
@@ -43,7 +43,7 @@ struct OracleRuleS {
     uint32 oracleRuleIndex;
 }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -62,7 +62,7 @@ The rule will be evaluated with the following logic:
 - Allow list: check if the receiver address is an allowed address. If the address is not on the allowed list the transaction will revert. 
 - Deny list: check if the sender is a denied address. If the address is restricted the transaction will revert. 
 
-###### *see [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkOraclePasses*
+###### *see [ERC20RuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkOraclePasses*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -95,7 +95,7 @@ function addOracleRule(
     address _oracleAddress
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [RuleDataFacet](../../../src/economic/ruleProcessor/RuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -119,11 +119,11 @@ The following validation will be carried out by the create function in order to 
 - `_type` is not greater than 1. 
 
 
-###### *see [RuleDataFacet](../../../src/economic/ruleProcessor/RuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
+- In Protocol [ERC20RuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getOracleRule(
@@ -138,7 +138,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalOracleRules() public view returns (uint32);
         ```
-- In Protocol [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
+- In Protocol [ERC20RuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkOraclePasses(

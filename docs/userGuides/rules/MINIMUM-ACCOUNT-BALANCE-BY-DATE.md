@@ -29,7 +29,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
         uint16 holdPeriod; /// hours
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 Additionally, each one of these data structures will be under a tag (bytes32):
 
@@ -39,7 +39,7 @@ Additionally, each one of these data structures will be under a tag (bytes32):
     //      tag     =>   sub-rule
     mapping(bytes32 => ITaggedRules.MinBalByDateRule)
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 The collection of these tagged sub-rules composes a minumum-account-balance-by-date rule.
 
@@ -52,7 +52,7 @@ The collection of these tagged sub-rules composes a minumum-account-balance-by-d
         uint32 minBalByDateRulesIndex; /// increments every time someone adds a rule
     }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 A minimum-balance-by-date rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
@@ -73,7 +73,7 @@ The rule will be evaluated with the following logic:
 4. The processor evaluates whether each sub-rule's hold period is still active (if the current time is within `hold period` from the `starting timestamp`). If it is, the processor then evaluates if the final balance of the account would be less than the `hold amount` in the case of the transaction succeeding. If yes, then the transaction reverts.
 5. Step 4 is repeated for each of the account's tags. 
 
-###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
+###### *see [ERC20TaggedRuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -102,7 +102,7 @@ function addMinBalByDateRule(
             uint64 _startTime
         ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -132,11 +132,11 @@ The following validation will be carried out by the create function in order to 
 - Not one `holdAmount` nor `holdPeriod` can have a value of 0.
 
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getMinBalByDateRule(
@@ -152,7 +152,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalMinBalByDateRule() public view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkMinBalByDatePasses(

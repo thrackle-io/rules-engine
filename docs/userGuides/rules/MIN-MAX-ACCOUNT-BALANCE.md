@@ -29,7 +29,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
         uint256 maximum;
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
 
 Additionally, each one of these data structures will be under a tag (bytes32):
 
@@ -39,7 +39,7 @@ Additionally, each one of these data structures will be under a tag (bytes32):
     //      tag     =>   sub-rule
     mapping(bytes32 => ITaggedRules.MinMaxBalanceRule)
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/economic/ruleStorage/IRuleStorage.sol)*
 
 The collection of these tagged sub-rules composes a minumum-maximum-account-balance rule.
 
@@ -52,7 +52,7 @@ struct MinMaxBalanceRuleS {
     uint32 minMaxBalanceRuleIndex; /// increments every time someone adds a rule
 }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/economic/ruleStorage/IRuleStorage.sol)*
 
 A minumum-maximum-account-balance rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
@@ -74,7 +74,7 @@ The rule will be evaluated with the following logic:
 5. The processor evaluates if the final balance of the receiver account would be greater than the `maximum` in the case of the transaction succeeding. If yes, the transaction reverts.
 6. Step 4 and 5 are repeated for each of the account's tags. 
 
-###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinMaxAccountBalancePasses*
+###### *see [ERC20TaggedRuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinMaxAccountBalancePasses*
 
 ## Evaluation Exceptions 
 - For tokens, this rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -105,7 +105,7 @@ function addMinMaxBalanceRule(
         uint256[] calldata _maximum
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -134,11 +134,11 @@ The following validation will be carried out by the create function in order to 
 - `minimum`is not greater than `maximum`
 
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getMinMaxBalanceRule(
@@ -154,7 +154,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalMinMaxBalanceRules() public view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     - Function that evaluates the rule for tokens:
         ```c
         function checkMinMaxAccountBalancePasses(

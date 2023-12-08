@@ -28,7 +28,7 @@ An admin-withdrawal rule is composed of 2 variables:
         uint256 releaseDate; /// timestamp
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 These rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
@@ -39,7 +39,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
         uint32 adminWithdrawalRulesIndex;
     }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 
@@ -61,7 +61,7 @@ The rule will be evaluated with the following logic:
 2. The handler sends the amount of tokens being transferred, the current balance of the app administrator account, and the ruleId to the protocol's rule processor.
 3. The rule processor calculates what the final balance of the administrator account would be if the transaction succeeds. If the final balance calculated is less than the minimum balance specified in the rule, the transaction reverts.
 
-###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkAdminWithdrawalRule*
+###### *see [ERC20TaggedRuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkAdminWithdrawalRule*
 
 ### Evaluation Exceptions
 
@@ -91,7 +91,7 @@ function addAdminWithdrawalRule(
         ruleAdministratorOnly(_appManagerAddr) 
         returns (uint32);
 ```
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -113,11 +113,11 @@ The following validation will be carried out by the create function in order to 
 - `_amount` is not zero.
 - `_releaseDate` is not in the past.
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getAdminWithdrawalRule(
@@ -131,7 +131,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalAdminWithdrawalRules() public view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkAdminWithdrawalRule(uint32 ruleId, uint256 currentBalance, uint256 amount) external view;

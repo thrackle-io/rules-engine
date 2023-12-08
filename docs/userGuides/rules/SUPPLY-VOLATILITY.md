@@ -32,7 +32,7 @@ A total-supply-volatility rule is composed of 4 variables:
         uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to token's totalSupply.
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 These rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
@@ -43,7 +43,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
         uint32 supplyVolatilityRuleIndex;
     }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -63,7 +63,7 @@ The rule will be evaluated with the following logic:
     - **If it is not a new period**, then the absolute net supply change for the period accumulates the amount of tokens minted/burned in current transaction. The totalSupply for the current period remains fixed to the value set in the first transaction of the period. 
 4. After current period's net supply change and totalSupply have been defined, the rule processor calculates the change in supply. If the change is greater than the rule's maximum, it reverts.
 
-###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkTotalSupplyVolatilityPasses*
+###### *see [ERC20TaggedRuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkTotalSupplyVolatilityPasses*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -92,7 +92,7 @@ function addSupplyVolatilityRule(
         uint256 _totalSupply
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [RuleDataFacet](../../../src/economic/ruleProcessor/RuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -121,11 +121,11 @@ The following validation will be carried out by the create function in order to 
 - `_startTimestamp` is not zero and is not more than 52 weeks in the future.
 
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getSupplyVolatilityRule(uint32 _index) external view returns (NonTaggedRules.SupplyVolatilityRule memory);
@@ -134,7 +134,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalSupplyVolatilityRules() public view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkTotalSupplyVolatilityPasses(
@@ -174,7 +174,7 @@ int256 private volumeTotalForPeriod;
 uint256 private totalSupplyForPeriod;
 ```
 
-*see [ERC721Handler](../../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../src/token/ERC20/ProtocolERC20Handler.sol)*
 
 ## Data Recorded
 
@@ -190,7 +190,7 @@ int256 private volumeTotalForPeriod;
 uint256 private totalSupplyForPeriod;
 ```
 
-*see [ERC721Handler](../../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../src/token/ERC20/ProtocolERC20Handler.sol)*
 
 ## Events
 
