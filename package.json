@@ -22,7 +22,7 @@
     "src/economic/RuleAdministratorOnly.sol",
     "src/economic/AppAdministratorOnlyU.sol",
     "src/economic/ruleStorage/RuleCodeData.sol",
-    "src/economic/ruleProcessor/ActionEnum.sol",
+    "src/protocol/economic/ruleProcessor/ActionEnum.sol",
     "unpack.sh",
     "to_relative.sh"
   ],
