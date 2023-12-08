@@ -220,15 +220,17 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         toTags.checkMaxTags();
         uint64 startTime = getPurchaseRuleStart(ruleId);
         uint256 cumulativeTotal;
-        for (uint i = 0; i < toTags.length; ) {
-            TaggedRules.PurchaseRule memory purchaseRule = getPurchaseRule(ruleId, toTags[i]);
-            if (purchaseRule.purchasePeriod > 0) {
-                if (startTime.isWithinPeriod(purchaseRule.purchasePeriod, lastUpdateTime)) cumulativeTotal = purchasedWithinPeriod + amount;
-                else cumulativeTotal = amount;
-                if (cumulativeTotal > purchaseRule.purchaseAmount) revert TxnInFreezeWindow();
-            }
-            unchecked {
-                ++i;
+        if (startTime <= block.timestamp){
+            for (uint i = 0; i < toTags.length; ) {
+                TaggedRules.PurchaseRule memory purchaseRule = getPurchaseRule(ruleId, toTags[i]);
+                if (purchaseRule.purchasePeriod > 0) {
+                    if (startTime.isWithinPeriod(purchaseRule.purchasePeriod, lastUpdateTime)) cumulativeTotal = purchasedWithinPeriod + amount;
+                    else cumulativeTotal = amount;
+                    if (cumulativeTotal > purchaseRule.purchaseAmount) revert TxnInFreezeWindow();
+                }
+                unchecked {
+                    ++i;
+                }
             }
         }
         return cumulativeTotal;
@@ -280,15 +282,17 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         fromTags.checkMaxTags();
         uint64 startTime = getSellRuleStartByIndex(ruleId);
         uint256 cumulativeSalesTotal;
-        for (uint i = 0; i < fromTags.length; ) {
-            TaggedRules.SellRule memory sellRule = getSellRuleByIndex(ruleId, fromTags[i]);
-            if (sellRule.sellPeriod > 0) {
-                if (startTime.isWithinPeriod(sellRule.sellPeriod, lastUpdateTime)) cumulativeSalesTotal = salesWithinPeriod + amount;
-                else cumulativeSalesTotal = amount;
-                if (cumulativeSalesTotal > sellRule.sellAmount) revert TemporarySellRestriction();
-            }
-            unchecked {
-                ++i;
+        if (startTime <= block.timestamp){
+            for (uint i = 0; i < fromTags.length; ) {
+                TaggedRules.SellRule memory sellRule = getSellRuleByIndex(ruleId, fromTags[i]);
+                if (sellRule.sellPeriod > 0) {
+                    if (startTime.isWithinPeriod(sellRule.sellPeriod, lastUpdateTime)) cumulativeSalesTotal = salesWithinPeriod + amount;
+                    else cumulativeSalesTotal = amount;
+                    if (cumulativeSalesTotal > sellRule.sellAmount) revert TemporarySellRestriction();
+                }
+                unchecked {
+                    ++i;
+                }
             }
         }
         return cumulativeSalesTotal;
