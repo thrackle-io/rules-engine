@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "./IProtocolAMMFactoryCalculator.sol";
 import {LinearWholeB, LinearInput, Curve} from "./libraries/Curve.sol";
 import {CurveErrors} from "../../interfaces/IErrors.sol";
+import {IAMMFactoryEvents} from "src/interfaces/IEvents.sol";
 
 /**
  * @title Automated Market Maker Swap Linear Calculator for NFT Pools
@@ -11,7 +12,7 @@ import {CurveErrors} from "../../interfaces/IErrors.sol";
  *      as needed. It contains an example linear. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErrors {
+contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErrors, IAMMFactoryEvents {
 
     using Curve for LinearWholeB;
 
@@ -47,6 +48,7 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
             buyCurve.fromInput(_buyCurve, M_PRECISION_DECIMALS);
             sellCurve.fromInput(_sellCurve, M_PRECISION_DECIMALS);
             appManagerAddress = _appManagerAddress;
+            emit AMMCalculatorDeployed();
     }
 
     /**

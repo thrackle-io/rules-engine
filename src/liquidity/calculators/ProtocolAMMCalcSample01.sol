@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "./IProtocolAMMFactoryCalculator.sol";
 import {Sample01Struct, Curve, AMMMath} from "./libraries/Curve.sol";
+import {IAMMFactoryEvents} from "src/interfaces/IEvents.sol";
 
 /**
  * @title Automated Market Maker Swap Constant Calculator
@@ -11,7 +12,7 @@ import {Sample01Struct, Curve, AMMMath} from "./libraries/Curve.sol";
  *      as needed. It contains an example constant that uses ratio x/y. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolAMMCalcSample01 is IProtocolAMMFactoryCalculator {
+contract ProtocolAMMCalcSample01 is IProtocolAMMFactoryCalculator, IAMMFactoryEvents {
     using Curve for Sample01Struct;
     using AMMMath for uint256;
     int256 f_tracker;
@@ -28,6 +29,7 @@ contract ProtocolAMMCalcSample01 is IProtocolAMMFactoryCalculator {
         f_tracker = _f_tracker;
         g_tracker = _g_tracker;
         appManagerAddress = _appManagerAddress;
+        emit AMMCalculatorDeployed();
     }
 
 

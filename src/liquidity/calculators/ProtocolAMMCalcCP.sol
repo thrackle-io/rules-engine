@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "./IProtocolAMMFactoryCalculator.sol";
 import {ConstantProduct, Curve} from "./libraries/Curve.sol";
-
+import {IAMMFactoryEvents} from "src/interfaces/IEvents.sol";
 
 /**
  * @title Automated Market Maker Swap Constant Product Calculator
@@ -12,7 +12,7 @@ import {ConstantProduct, Curve} from "./libraries/Curve.sol";
  *      as needed. It contains an example Constant Product xy = k. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolAMMCalcCP is IProtocolAMMFactoryCalculator {
+contract ProtocolAMMCalcCP is IProtocolAMMFactoryCalculator, IAMMFactoryEvents {
     using Curve for ConstantProduct;
     /**
      * @dev Set up the calculator and appManager for permissions
@@ -21,6 +21,7 @@ contract ProtocolAMMCalcCP is IProtocolAMMFactoryCalculator {
     constructor(address _appManagerAddress) {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
+        emit AMMCalculatorDeployed();
     }
 
     /**

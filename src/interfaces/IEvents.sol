@@ -151,7 +151,9 @@ interface IApplicationEvents {
     ///ProtocolERC721 & ERC721A
     event NewNFTDeployed(address indexed applicationNFT, address indexed appManagerAddress);
     ///AMM
-    event AMMDeployed(address indexed ammAddress, address token0, address token1, address appManager, address calculatorAddress);
+    event AMMDeployed(address indexed ammAddress, address token0, address token1, address appManager);
+    /// Amm Calculator Assigned
+    event AMMCalculatorAssigned(address indexed ammCalculator); 
     event Swap(address indexed tokenIn, uint256 amountIn, uint256 amountOut);
     event AddLiquidity(address token0, address token1, uint256 amount0, uint256 amount1);
     event RemoveLiquidity(address token, uint256 amount);
@@ -178,6 +180,6 @@ interface IAMMFactoryEvents {
     event AMMFactoryDeployed(address indexed ammAddress);
     /// AMM Calculator Factory
     event AMMCalculatorFactoryDeployed(address indexed ammAddress);
-    ///AMM Factory Deployment
-    event AMMDeployedFromFactory(address indexed ammAddress, address token0, address token1, address appManager, address calculatorAddress);
+    /// AMM Calculator Deployed
+    event AMMCalculatorDeployed();
 }

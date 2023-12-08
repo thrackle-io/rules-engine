@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "./IProtocolAMMFactoryCalculator.sol";
 import {ConstantRatio, Curve} from "./libraries/Curve.sol";
+import {IAMMFactoryEvents} from "src/interfaces/IEvents.sol";
 
 /**
  * @title Automated Market Maker Swap Constant Calculator
@@ -11,7 +12,7 @@ import {ConstantRatio, Curve} from "./libraries/Curve.sol";
  *      as needed. It contains an example constant that uses ratio x/y. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolAMMCalcConst is IProtocolAMMFactoryCalculator {
+contract ProtocolAMMCalcConst is IProtocolAMMFactoryCalculator, IAMMFactoryEvents {
     ConstantRatio public constRatio;
     using Curve for ConstantRatio;
 
@@ -25,6 +26,7 @@ contract ProtocolAMMCalcConst is IProtocolAMMFactoryCalculator {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         _setRatio(_constRatio);
         appManagerAddress = _appManagerAddress;
+        emit AMMCalculatorDeployed(); 
     }
 
     /**
