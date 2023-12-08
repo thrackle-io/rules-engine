@@ -172,13 +172,14 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
             for (uint i = 0;  i < toTags.length; ) {
                 if (toTags[i] != "") {
                     TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
+                    uint256 holdPeriod = minBalByDateRule.holdPeriod;
                     uint256 holdAmount = minBalByDateRule.holdAmount;
-                /// check if holdAmount = 0, 0 means there is no sub rule for this tag
-                if(holdAmount != 0) {
-                    /// first check to see if still in the hold period
-                    if ((block.timestamp - (holdPeriod * 1 hours)) < minBalByDateRule.startTimeStamp) {
+                    /// check if holdAmount = 0, 0 means there is no sub rule for this tag
+                    if(holdAmount != 0) {
+                        if ((block.timestamp - (holdPeriod * 1 hours)) < startTime) {
                         /// If the transaction will violate the rule, then revert
                         if (finalBalance < holdAmount) revert TxnInFreezeWindow();
+                        }
                     }
                 }
                 unchecked {
