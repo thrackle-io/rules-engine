@@ -296,7 +296,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _accountTags Types of Accounts
      * @param _holdAmounts Allowed total purchase limits
      * @param _holdPeriods Hours purchases allowed
-     * @param _startTimestamps Timestamp that the check should start
+     * @param _startTimestamp Timestamp that the check should start
      * @return ruleId of new rule in array
      */
     function addMinBalByDateRule(
@@ -304,13 +304,13 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         bytes32[] calldata _accountTags,
         uint256[] calldata _holdAmounts,
         uint16[] calldata _holdPeriods,
-        uint64[] calldata _startTimestamps
+        uint64 _startTimestamp
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_accountTags.length != _holdAmounts.length || _accountTags.length != _holdPeriods.length || _accountTags.length != _startTimestamps.length) revert InputArraysMustHaveSameLength();
+        if (_accountTags.length != _holdAmounts.length || _accountTags.length != _holdPeriods.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTags.length == 0) revert InvalidRuleInput();
-        return _addMinBalByDateRule(_accountTags, _holdAmounts, _holdPeriods, _startTimestamps);
+        return _addMinBalByDateRule(_accountTags, _holdAmounts, _holdPeriods, _startTimestamp);
     }
 
     /**
@@ -318,27 +318,23 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _accountTags Types of Accounts
      * @param _holdAmounts Allowed total purchase limits
      * @param _holdPeriods Hours purhchases allowed
-     * @param _startTimestamps Timestamp that the check should start
+     * @param _startTimestamp Timestamp that the check should start
      * @return ruleId of new rule in array
      */
-    function _addMinBalByDateRule(bytes32[] calldata _accountTags, uint256[] calldata _holdAmounts, uint16[] calldata _holdPeriods, uint64[] memory _startTimestamps) internal returns (uint32) {
+    function _addMinBalByDateRule(bytes32[] calldata _accountTags, uint256[] calldata _holdAmounts, uint16[] calldata _holdPeriods, uint64 _startTimestamp) internal returns (uint32) {
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         uint32 index = data.minBalByDateRulesIndex;
         /// if defaults sent for timestamp, start them with current block time
-        for (uint256 i; i < _startTimestamps.length; ) {
-            if (_startTimestamps[i] == 0) _startTimestamps[i] = uint64(block.timestamp);
-            unchecked {
-                ++i;
-            }
-        }
+        if (_startTimestamp == 0) _startTimestamp = uint64(block.timestamp);
         for (uint256 i; i < _accountTags.length; ) {
             if (_accountTags[i] == bytes32("")) revert BlankTag();
             if (_holdAmounts[i] == 0 || _holdPeriods[i] == 0) revert ZeroValueNotPermited();
-            data.minBalByDateRulesPerUser[index][_accountTags[i]] = TaggedRules.MinBalByDateRule(_holdAmounts[i], _holdPeriods[i], _startTimestamps[i]);
+            data.minBalByDateRulesPerUser[index][_accountTags[i]] = TaggedRules.MinBalByDateRule(_holdAmounts[i], _holdPeriods[i]);
             unchecked {
                 ++i;
             }
         }
+        data.startTimes[index] = _startTimestamp;
         emit ProtocolRuleCreated(MIN_ACCT_BAL_BY_DATE, index, _accountTags);
         ++data.minBalByDateRulesIndex;
         return index;
