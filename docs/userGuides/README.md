@@ -11,7 +11,7 @@ Relevant Documentation:
 - [Architecture Overview][archOverview-url]
 
 ## API 
-API documentation can be found [here](../src/src/README.md).
+API documentation can be found [here](src/src/README.md).
 
 ## Tooling
 ##### This is designed to be tested and deployed with Foundry. All that should be required is to install python, then install [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run:

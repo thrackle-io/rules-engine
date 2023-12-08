@@ -6,11 +6,11 @@ import "forge-std/Test.sol";
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
 import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
-import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "../src/economic/ruleProcessor/RuleProcessorDiamond.sol";
+import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/protocol/economic/ruleProcessor/RuleProcessorDiamond.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
-import {TaggedRuleDataFacet} from "../src/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {RuleDataFacet} from "../src/economic/ruleProcessor/RuleDataFacet.sol";
+import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 
 /**
  * @title The deployment script for the Protocol. It deploys the processor diamond and all protocol facets.
