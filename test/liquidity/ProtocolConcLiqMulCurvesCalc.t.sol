@@ -191,12 +191,12 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         calc.addCurveToSection(constProductSection); 
    }
 
-    /// encapsulation of previous tests for future buildings
+    /// encapsulation of all previous positive tests for future buildings
    function _setSectionsA() internal{
-        _addSectionLinearAToIndex0();
-        _addSectionConstRatioAToIndex1();
         _addSectionConstProductToIndex2();
    }
 
+    /// Math Tests
 
+    
 }

@@ -63,37 +63,47 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
      * @param _amount1 amount of token1 coming to the pool
      * @return price
      */
-    function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public view override returns (uint256) {
-        if (_amount0 == 0 && _amount1 == 0) 
-            revert AmountsAreZero();
-        uint256 current_x;
-        for(uint i; i < sectionUpperLimits.length;){
-            /// find curve for current value of x
-            if(current_x < sectionUpperLimits[i]){
-                /// we calculate depending on the curve
-                /// constant ratio
-                if(sectionCurves[i].curveType == CurveTypes.CONST_RATIO){
-                    ConstantRatio memory curve = constRatios[i];
-                    return curve.getY( _amount0, _amount1);
-                /// constant product
-                }else if(sectionCurves[i].curveType == CurveTypes.CONST_PRODUCT){
-                    ConstantProduct memory curve = ConstantProduct(_reserve0, _reserve1);
-                    return curve.getY(_amount0, _amount1);
-                /// linear
-                }else if(sectionCurves[i].curveType == CurveTypes.LINEAR_FRACTION_B){
-                    LinearFractionB memory curve = linears[i];
-                    return curve.getY(_reserve0, _reserve1, _amount0, _amount1);
-                /// revert if type was none of the above
-                }else{
-                    revert InvalidCurveType();
+    function simulateSwap(
+            uint256 _reserve0, 
+            uint256 _reserve1, 
+            uint256 _amount0, 
+            uint256 _amount1
+        )
+         public 
+         view 
+         override 
+         returns (uint256) 
+         {
+            _validateAreNotZero(_amount0, _amount1);
+            uint256 current_x;
+            for(uint i; i < sectionUpperLimits.length;){
+                /// find curve for current value of x
+                if(current_x < sectionUpperLimits[i]){
+                    /// we calculate depending on the curve
+                    uint256 _index = sectionCurves[i].index;
+                    /// constant ratio
+                    if(sectionCurves[i].curveType == CurveTypes.CONST_RATIO){
+                        return _getConstantRatioY(_index, _amount0, _amount1);
+
+                    /// constant product
+                    }else if(sectionCurves[i].curveType == CurveTypes.CONST_PRODUCT){
+                        return _getConstantProductY(_reserve0, _reserve1,_amount0, _amount1);
+
+                    /// linear
+                    }else if(sectionCurves[i].curveType == CurveTypes.LINEAR_FRACTION_B){
+                        return _getLinearY(_index, _reserve0, _reserve1, _amount0, _amount1);
+                    
+                    /// revert if type was none of the above
+                    }else{
+                        revert InvalidCurveType();
+                    }
+                }
+                unchecked{
+                    ++i;
                 }
             }
-            unchecked{
-                ++i;
-            }
-        }
-        /// if we made it here that means that x is out of range
-        revert InvalidCurveType();
+            /// if we made it here that means that x is out of range
+            revert InvalidCurveType();
     }
 
     /**
@@ -102,7 +112,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
      */
     function addLinear(LinearInput memory _curve) external appAdministratorOnly(appManagerAddress) {
         _validateSingleCurve(_curve);
-        linears.push(LinearFractionB(1,1,1,1));/// we add a dummy linear to be able to build it from library with the input
+        linears.push(LinearFractionB(1,1,1,1));/// we add a dummy linear to be able to build it from library
         linears[linears.length - 1].fromInput(_curve, M_PRECISION_DECIMALS, B_PRECISION_DECIMALS);
     }
 
@@ -111,7 +121,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     * @param _constRatio the definition of the ratio
      */
     function addConstantRatio(ConstantRatio memory _constRatio) external appAdministratorOnly(appManagerAddress) {
-        if (_constRatio.x == 0 || _constRatio.y == 0) revert AmountsAreZero(); // neither can be 0
+        _validateAreNotZero(_constRatio.x, _constRatio.y); // neither can be 0
         constRatios.push(_constRatio);
     }
 
@@ -131,7 +141,8 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
 
     function setUpperLimits(uint256[] calldata upperLimits) external appAdministratorOnly(appManagerAddress) {
         for(uint i=1; i < upperLimits.length;){
-            if(upperLimits[i] <= upperLimits[i - 1]) revert WrongArrayOrder();
+            if(upperLimits[i] <= upperLimits[i - 1]) 
+                revert WrongArrayOrder();
             unchecked{
                 ++i;
             }
@@ -139,14 +150,20 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
         sectionUpperLimits = upperLimits;
     }
 
-    function addCurveToSection(SectionCurve calldata selectedCurve) external appAdministratorOnly(appManagerAddress) {
+    function addCurveToSection(SectionCurve calldata selectedCurve) external appAdministratorOnly(appManagerAddress){
          _validateSectionCurve(selectedCurve);
         sectionCurves.push(selectedCurve);
     }
 
-    function setCurveToSection(SectionCurve calldata selectedCurve, uint8 index) external appAdministratorOnly(appManagerAddress) {
-         _validateSectionCurve(selectedCurve);
-        sectionCurves[index] = selectedCurve;
+    function setCurveToSection(
+            SectionCurve calldata selectedCurve, 
+            uint8 index
+        ) 
+        external
+        appAdministratorOnly(appManagerAddress)
+        {
+            _validateSectionCurve(selectedCurve);
+            sectionCurves[index] = selectedCurve;
     }
 
     function _validateSectionCurve(SectionCurve calldata selectedCurve) internal view{
@@ -162,14 +179,49 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
             revert InvalidCurveType();
     }
 
+    function _getConstantRatioY(uint256 _index, uint256 _amount0, uint256 _amount1) internal view returns(uint256){
+            return constRatios[_index].getY(_amount0, _amount1);
+    }
+
+    function _getConstantProductY(
+            uint256 _reserve0, 
+            uint256 _reserve1,
+            uint256 _amount0, 
+            uint256 _amount1
+        ) 
+        internal 
+        view
+        returns(uint256)
+        {
+            return ConstantProduct(_reserve0,_reserve1).getY(_amount0, _amount1);
+    }
+
+    function _getLinearY(
+            uint256 _index 
+            uint256 _reserve0, 
+            uint256 _reserve1,
+            uint256 _amount0, 
+            uint256 _amount1
+        ) 
+        internal 
+        view
+        returns(uint256)
+        {
+            return linears[_index].getY(_reserve0, _reserve1,_amount0, _amount1);
+    }
 
     /**
     * @dev validates that the definition of a curve is within the safe mathematical limits
     * @param _curve the definition of the curve
     */
-    function _validateSingleCurve(LinearInput memory _curve) internal pure {
+    function _validateSingleCurve(LinearInput memory _curve) internal pure { // good candidate to move up to common
         if (_curve.m > M_MAX) revert ValueOutOfRange(_curve.m);
         if (_curve.b > Y_MAX) revert ValueOutOfRange(_curve.b);
+    }
+
+    function _validateAreNotZero(uint256 a, uint256 b) internal view { // good candidate to move up to common
+        if (a == 0 || b == 0) 
+            revert AmountsAreZero();
     }
 
 }
