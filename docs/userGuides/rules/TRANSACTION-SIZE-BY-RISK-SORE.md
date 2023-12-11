@@ -48,7 +48,7 @@ maxSize = [500, 250, 50];
     }
 ```
 
-###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 
 These rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
@@ -61,7 +61,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
     }
 ```
 
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -78,7 +78,7 @@ The rule will be evaluated with the following logic:
 2. The asset handler then sends these values along with the rule Id of the transaction-size-by-risk-score rule set in the handler to the protocol.
 3. The protocol evaluates the amount being transferred against the rule's maximum allowed for the risk segment in which the account is in. The protocol reverts the transaction if the amount being transferred exceeds this rule risk-segment's maximum.
 
-###### *see [RiskTaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/RiskTaggedRuleProcessorFacet.sol) -> checkTransactionLimitByRiskScore*
+###### *see [RiskTaggedRuleProcessorFacet](../../src/protocol/economic/ruleProcessor/RiskTaggedRuleProcessorFacet.sol) -> checkTransactionLimitByRiskScore*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -109,7 +109,7 @@ function addTransactionLimitByRiskScore(
         ruleAdministratorOnly(_appManagerAddr)
         returns (uint32);
 ```
-###### *see [AppRuleDataFacet](../../../src/economic/ruleProcessor/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -132,11 +132,11 @@ The following validation will be carried out by the create function in order to 
 - `_riskScores` elements are in ascending order and no greater than 99.
 - `_txnLimits` elements are in descending order.
 
-###### *see [AppRuleDataFacet](../../../src/economic/ruleProcessor/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function to get a rule by its Id:
         ```c
         function getTransactionLimitByRiskRule(uint32 _index) external view returns (AppRules.TransactionSizeToRiskRule memory);
@@ -145,12 +145,12 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalTransactionLimitByRiskRules() external view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkTransactionLimitByRiskScore(uint32 _ruleId, uint8 _riskScore, uint256 _amountToTransfer) external view;
         ```
-- In the [Asset Handler](../../../src/token/ERC20/ProtocolERC20Handler.sol):
+- In the [Asset Handler](../../src/client/token/ERC20/ProtocolERC20Handler.sol):
     - Function to set and activate at the same time the rule in the asset handler:
         ```c
         function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);

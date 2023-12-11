@@ -6,7 +6,7 @@
 1. Ensure the [environment variable][environment-url] is set correctly.
     1. Manual deployment of Handler contract for upgrading to new handler only. Handler Contract 
     will automatically deploy from the ERC721 contract. 
-2. Copy the template from _src/example/ERC721/ApplicationERC721Handler.sol_ to your desired location
+2. Copy the template from _example/ERC721/ApplicationERC721Handler.sol_ to your desired location
 3. Change the name of the contract to suit your naming standards
     1. *Do not change the import or parent contract*
 4. Compile the contract
@@ -21,7 +21,7 @@
     4. _upgradeMode_ - The bool representing if this is an upgraded handler contract
 6. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
     ````
-    forge create src/example/deploy/FrankensteinERC721Handler.sol:FrankensteinERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC721_1 false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+    forge create example/deploy/FrankensteinERC721Handler.sol:FrankensteinERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC721_1 false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
     ````
 7. Use the output from the deployment to set an environment variable for NFT Handler's address.

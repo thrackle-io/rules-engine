@@ -30,7 +30,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
         uint16 purchasePeriod; /// hours        
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 Additionally, each one of these data structures will be under a tag (bytes32):
 
@@ -40,7 +40,7 @@ Additionally, each one of these data structures will be under a tag (bytes32):
         /// ruleIndex => userType => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.PurchaseRule)) 
 ```
-###### *see [IRuleProcessor](../../../src/economic/ruleProcessor/IRuleProcessor.sol)*
+###### *see [IRuleProcessor](../../../src/protocol/economic/ruleProcessor/IRuleProcessor.sol)*
 
 The collection of these tagged sub-rules composes an account-purchase-controller rule.
 
@@ -53,7 +53,7 @@ The collection of these tagged sub-rules composes an account-purchase-controller
         uint32 purchaseRulesIndex; /// increments every time someone adds a rule
     }
 ```
-###### *see [IRuleProcessor](../../../src/economic/ruleProcessor/IRuleProcessor.sol)*
+###### *see [IRuleProcessor](../../../src/protocol/economic/ruleProcessor/IRuleProcessor.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -77,7 +77,7 @@ The rule will be evaluated with the following logic:
 7. Steps 4 and 5 are repeated for each of the account's tags. In the case where multiple tags apply, the most restrictive is applied.
 8. Returns the cumulative purchases amount.
 
-###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkPurchaseLimit*
+###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkPurchaseLimit*
 
 ## Evaluation Exceptions 
 - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
@@ -105,7 +105,7 @@ function addPurchaseRule(
         uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)* 
+###### *see [TaggedRuleDataFacet](../../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)* 
 
 The create function will return the protocol ID of the rule.
 
@@ -134,11 +134,11 @@ The following validation will be carried out by the create function in order to 
 
 
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getPurchaseRule(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.PurchaseRule memory, uint64 startTime);
@@ -147,7 +147,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalPurchaseRule() public view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkPurchaseLimit(uint32 ruleId, uint256 purchasedWithinPeriod, uint256 amount, bytes32[] calldata toTags, uint64 lastUpdateTime) external view returns (uint256);
@@ -178,7 +178,7 @@ This rule returns the value:
 uint256 cumulativeTotal;
 ```
 
-*see [AMMHandler](../../../src/liquidity/ProtocolAMMHandler.sol)*
+*see [AMMHandler](../../../src/client/liquidity/ProtocolAMMHandler.sol)*
 
 ## Data Recorded
 
@@ -192,7 +192,7 @@ mapping(address => uint256) purchasedWithinPeriod;
 mapping(address => uint64) lastPurchaseTime;
 ```
 
-*see [AMMHandler](../../../src/liquidity/ProtocolAMMHandler.sol)*
+*see [AMMHandler](../../../src/client/liquidity/ProtocolAMMHandler.sol)*
 
 ## Events
 
