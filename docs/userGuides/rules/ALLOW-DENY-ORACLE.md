@@ -2,11 +2,11 @@
 
 ## Purpose
 
-The purpose of the allow-deny-oracle rule is to check if the receiver address in the transaction is an allowed or restricted address. Addresses are added to the oracle lists by the owner of the oracle contract for any reason that the owner deems necessary. 
+The purpose of the allow-deny-oracle rule is to check if the receiver address in the transaction is an allowed or denied address. Addresses are added to the oracle lists by the owner of the oracle contract for any reason that the owner deems necessary. 
 
-If an address is not on an allowed oracle list, they will be restricted from receiving application tokens. This rule can be used to restrict transfers to only specific contract addresses or wallets that are approved by the oracle owner. An example is NFT exchanges that support ERC2981 royalty payments. 
+If an address is not on an allowed oracle list, they will be denied from receiving application tokens. This rule can be used to restrict transfers to only specific contract addresses or wallets that are approved by the oracle owner. An example is NFT exchanges that support ERC2981 royalty payments. 
 
-The deny list is designed as a tool to reduce the risk of malicious actors in the ecosystem. If an address is on the deny oracle list they are restricted receiving tokens. Any address not on the deny list will pass this rule check.
+The deny list is designed as a tool to reduce the risk of malicious actors in the ecosystem. If an address is on the deny oracle list they are denied receiving tokens. Any address not on the deny list will pass this rule check.
 
 ## Applies To:
 
@@ -28,7 +28,7 @@ An allow-deny-oracle rule is composed of 2 components:
 ```c
 /// ******** Oracle ********
 struct OracleRule {
-    uint8 oracleType; /// enum value --> 0 = restricted; 1 = allowed
+    uint8 oracleType; /// enum value --> 0 = denied; 1 = allowed
     address oracleAddress;
 }
 ```
@@ -60,7 +60,7 @@ The rule will be evaluated with the following logic:
 3. The processor will determine the type of oracle based on the rule id. 
 4. The processor will then call the oracle address to check if the address to be checked is on the oracle's list: 
 - Allow list: check if the receiver address is an allowed address. If the address is not on the allowed list the transaction will revert. 
-- Deny list: check if the sender is a denied address. If the address is restricted the transaction will revert. 
+- Deny list: check if the sender is a denied address. If the address is denied the transaction will revert. 
 
 ###### *see [ERC20RuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkOraclePasses*
 
@@ -79,10 +79,10 @@ error AddressNotOnAllowedList();
 The selector for this error is `0x7304e213`.
 
 ```
-error AddressIsRestricted();
+error AddressIsDenied();
 ```
 
-The selector for this error is `0x6bdfffc0`.
+The selector for this error is `0x2767bda4`.
 
 ## Create Function
 
@@ -200,7 +200,7 @@ This rule does not require any data to be recorded.
 - This rule is dependant on a deployed oracle with either of the function signatures:
 
 ```c
-function isRestricted(address _address) external view returns (bool)
+function isDenied(address _address) external view returns (bool)
 ```
 ```c
 function isAllowed(address _address) external view returns (bool)

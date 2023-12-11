@@ -60,7 +60,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x5b2790b5 | AmountsAreZero()                                                 |
 | 0xd4c6aa81 | TokenInvalid(address)                                            |
 | 0xf1ec5eb7 | AmountExceedsBalance(uint256)                                    |
-| 0x6bdfffc0 | AddressIsRestricted()                                            |
+| 0x2767bda4 | AddressIsDenied()                                            |
 | 0x7304e213 | AddressNotOnAllowedList()                                        |
 | 0x2a15491e | OracleTypeInvalid()                                              |
 | 0x930bba61 | NotAnNFTContract(address)                                        |

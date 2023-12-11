@@ -10,7 +10,7 @@ import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/rulePr
 import {INonTaggedRules as NonTaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
 import "test/util/TestCommonFoundry.sol";
@@ -18,7 +18,7 @@ import "test/util/TestCommonFoundry.sol";
 contract ApplicationERC20Test is TestCommonFoundry {
     ApplicationERC20Handler applicationCoinHandler2;
 
-    OracleRestricted oracleRestricted;
+    OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
 
     ApplicationAssetHandlerMod newAssetHandler;
@@ -44,7 +44,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         switchToAppAdministrator();
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleDenied = new OracleDenied();
         applicationCoin.mint(appAdministrator, 10_000_000_000_000_000_000_000 * (10 ** 18));
         vm.warp(Blocktime);
     }
@@ -160,7 +160,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
     }
 
     /**
-     * @dev Test the oracle rule, both allow and restrict types
+     * @dev Test the oracle rule, both allow and deny types
      */
     function testOracleERC20() public {
         /// set up a non admin user with tokens
@@ -169,17 +169,17 @@ contract ApplicationERC20Test is TestCommonFoundry {
 
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
-        assertEq(rule.oracleAddress, address(oracleRestricted));
+        assertEq(rule.oracleAddress, address(oracleDenied));
         /// connect the rule to this handler
         applicationCoinHandler.setOracleRuleId(_index);
         switchToAppAdministrator();
         // add a blocked address
         badBoys.push(address(69));
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -189,7 +189,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(user2), 10);
         ///perform transfer that checks rule
         // This one should fail
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         applicationCoin.transfer(address(69), 10);
         assertEq(applicationCoin.balanceOf(address(69)), 0);
         // check the allowed list type
@@ -233,12 +233,26 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoinHandler.setOracleRuleId(_index);
         switchToAppAdministrator();
         badBoys.push(address(0));
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         /// attempt to burn (should fail)
         vm.stopPrank();
         vm.startPrank(user5);
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         applicationCoin.burn(5000);
+
+        switchToAppAdministrator();
+        oracleAllowed.addAddressToAllowList(address(60));
+    }
+
+    /**
+     * @dev Test the oracle rule, both allow and deny types
+     */
+    function testOracleAddSingleAddressERC20() public {
+        /// Test adding single address to allow list 
+
+
+        /// Test adding single address to deny list 
+
     }
 
     /**

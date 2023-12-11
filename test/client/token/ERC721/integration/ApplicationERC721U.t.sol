@@ -13,7 +13,7 @@ import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/rulePr
 import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import "test/util/TestCommonFoundry.sol";
@@ -25,7 +25,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
     ApplicationERC721UExtra2 applicationNFTExtra2;
     ApplicationERC721UProxy applicationNFTProxy;
     ApplicationERC721Handler applicationNFTHandler2;
-    OracleRestricted oracleRestricted;
+    OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
     ApplicationERC721HandlerMod newAssetHandler;
 
@@ -44,7 +44,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         switchToAppAdministrator();
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleDenied = new OracleDenied();
 
         applicationNFTU = new ApplicationERC721Upgradeable();
         applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFTU), proxyOwner, "");
@@ -61,7 +61,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
         /// create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleDenied = new OracleDenied();
         vm.warp(Blocktime); // set block.timestamp
     }
 
@@ -215,7 +215,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
     }
 
     /**
-     * @dev Test the oracle rule, both allow and restrict types
+     * @dev Test the oracle rule, both allow and deny types
      */
     function testNFTOracleUpgradeable() public {
         /// set up a non admin user an nft
@@ -229,15 +229,15 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
-        assertEq(rule.oracleAddress, address(oracleRestricted));
+        assertEq(rule.oracleAddress, address(oracleDenied));
         // add a blocked address
         switchToAppAdministrator();
         badBoys.push(address(69));
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
         applicationNFTHandler.setOracleRuleId(_index);
@@ -250,7 +250,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user2), 1);
         ///perform transfer that checks rule
         // This one should fail
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user1, address(69), 1);
         assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(address(69)), 0);
         // check the allowed list type

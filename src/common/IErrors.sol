@@ -38,7 +38,7 @@ interface IRiskErrors {
 
 interface IERC20Errors {
     error BelowMinTransfer();
-    error AddressIsRestricted();
+    error AddressIsDenied();
     error AddressNotOnAllowedList();
     error OracleTypeInvalid();
     error PurchasePercentageReached();
