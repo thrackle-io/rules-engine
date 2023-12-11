@@ -32,7 +32,7 @@ struct TokenPercentagePurchaseRule {
     uint64 startTime; ///start of time period for the rule
 }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 The token-percentage-purchase rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
@@ -43,7 +43,7 @@ struct PctPurchaseRuleS {
     uint32 percentagePurchaseRuleIndex;
 }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -67,7 +67,7 @@ The rule will be evaluated with the following logic:
     - If yes, the transaction reverts. 
     - If no, the processor returns the `token percentage` value for the current `period` to the handler.
 
-###### *see [ERC20RuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkPurchasePercentagePasses*
+###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkPurchasePercentagePasses*
 
 ## Evaluation Exceptions 
 - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
@@ -95,7 +95,7 @@ function addPercentagePurchaseRule(
     uint64 _startTimestamp
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [RuleDataFacet](../../../src/economic/ruleProcessor/RuleDataFacet.sol)* 
+###### *see [RuleDataFacet](../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)* 
 
 The create function will return the protocol ID of the rule.
 
@@ -123,11 +123,11 @@ The following validation will be carried out by the create function in order to 
 - `_startTimestamp` is not zero and is not more than 52 weeks in the future.
 
 
-###### *see [RuleDataFacet](../../../src/economic/ruleProcessor/RuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getPctPurchaseRule(
@@ -142,7 +142,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalPctPurchaseRule() public view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkPurchasePercentagePasses(
@@ -156,7 +156,7 @@ The following validation will be carried out by the create function in order to 
             view 
             returns (uint256);
         ```
-- in [AMM Handler](../../../src/liquidity/ProtocolAMMHandler.sol):
+- in [AMM Handler](../../../src/client/liquidity/ProtocolAMMHandler.sol):
     - Function to set and activate at the same time the rule in an asset handler:
         ```c
         function setPurchasePercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
@@ -182,7 +182,7 @@ This rule returns the value:
 uint256 private totalPurchasedWithinPeriod;
 ```
 
-*see [AMMHandler](../../../src/liquidity/ProtocolAMMHandler.sol)*
+*see [AMMHandler](../../../src/client/liquidity/ProtocolAMMHandler.sol)*
 
 ## Data Recorded
 
@@ -196,7 +196,7 @@ uint64 private previousPurchaseTime;
 uint256 private totalPurchasedWithinPeriod;
 ```
 
-*see [AMMHandler](../../../src/liquidity/ProtocolAMMHandler.sol)*
+*see [AMMHandler](../../../src/client/liquidity/ProtocolAMMHandler.sol)*
 
 ## Events
 
