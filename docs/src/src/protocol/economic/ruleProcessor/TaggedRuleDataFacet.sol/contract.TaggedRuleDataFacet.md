@@ -1,5 +1,5 @@
 # TaggedRuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/ee06788a23623ed28309de5232eaff934d34a0fe/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/common/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IRiskInputErrors](/src/common/IErrors.sol/interface.IRiskInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [ITagRuleInputErrors](/src/common/IErrors.sol/interface.ITagRuleInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
@@ -31,7 +31,7 @@ function addPurchaseRule(
     bytes32[] calldata _accountTypes,
     uint256[] calldata _purchaseAmounts,
     uint16[] calldata _purchasePeriods,
-    uint64[] calldata _startTimes
+    uint64 _startTime
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -42,7 +42,7 @@ function addPurchaseRule(
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_purchaseAmounts`|`uint256[]`|Allowed total purchase limits|
 |`_purchasePeriods`|`uint16[]`|Hours purhchases allowed|
-|`_startTimes`|`uint64[]`|timestamp period to start|
+|`_startTime`|`uint64`|timestamp period to start|
 
 **Returns**
 
@@ -61,7 +61,7 @@ function _addPurchaseRule(
     bytes32[] calldata _accountTypes,
     uint256[] calldata _purchaseAmounts,
     uint16[] calldata _purchasePeriods,
-    uint64[] calldata _startTimes
+    uint64 _startTime
 ) internal returns (uint32);
 ```
 **Parameters**
@@ -71,7 +71,7 @@ function _addPurchaseRule(
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_purchaseAmounts`|`uint256[]`|Allowed total purchase limits|
 |`_purchasePeriods`|`uint16[]`|Hours purhchases allowed|
-|`_startTimes`|`uint64[]`|timestamps for first period to start|
+|`_startTime`|`uint64`|timestamp for first period to start|
 
 **Returns**
 
@@ -93,7 +93,7 @@ function addSellRule(
     bytes32[] calldata _accountTypes,
     uint192[] calldata _sellAmounts,
     uint16[] calldata _sellPeriod,
-    uint64[] calldata _startTimes
+    uint64 _startTime
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -104,7 +104,7 @@ function addSellRule(
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_sellAmounts`|`uint192[]`|Allowed total sell limits|
 |`_sellPeriod`|`uint16[]`|Period for sales|
-|`_startTimes`|`uint64[]`|rule starts|
+|`_startTime`|`uint64`|rule starts|
 
 **Returns**
 
@@ -123,7 +123,7 @@ function _addSellRule(
     bytes32[] calldata _accountTypes,
     uint192[] calldata _sellAmounts,
     uint16[] calldata _sellPeriod,
-    uint64[] calldata _startTimes
+    uint64 _startTime
 ) internal returns (uint32);
 ```
 **Parameters**
@@ -133,7 +133,7 @@ function _addSellRule(
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_sellAmounts`|`uint192[]`|Allowed total sell limits|
 |`_sellPeriod`|`uint16[]`|Period for sales|
-|`_startTimes`|`uint64[]`|rule starts|
+|`_startTime`|`uint64`|rule starts|
 
 **Returns**
 
@@ -358,7 +358,7 @@ function addMinBalByDateRule(
     bytes32[] calldata _accountTags,
     uint256[] calldata _holdAmounts,
     uint16[] calldata _holdPeriods,
-    uint64[] calldata _startTimestamps
+    uint64 _startTimestamp
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -369,7 +369,7 @@ function addMinBalByDateRule(
 |`_accountTags`|`bytes32[]`|Types of Accounts|
 |`_holdAmounts`|`uint256[]`|Allowed total purchase limits|
 |`_holdPeriods`|`uint16[]`|Hours purchases allowed|
-|`_startTimestamps`|`uint64[]`|Timestamp that the check should start|
+|`_startTimestamp`|`uint64`|Timestamp that the check should start|
 
 **Returns**
 
@@ -388,7 +388,7 @@ function _addMinBalByDateRule(
     bytes32[] calldata _accountTags,
     uint256[] calldata _holdAmounts,
     uint16[] calldata _holdPeriods,
-    uint64[] memory _startTimestamps
+    uint64 _startTimestamp
 ) internal returns (uint32);
 ```
 **Parameters**
@@ -398,7 +398,7 @@ function _addMinBalByDateRule(
 |`_accountTags`|`bytes32[]`|Types of Accounts|
 |`_holdAmounts`|`uint256[]`|Allowed total purchase limits|
 |`_holdPeriods`|`uint16[]`|Hours purhchases allowed|
-|`_startTimestamps`|`uint64[]`|Timestamp that the check should start|
+|`_startTimestamp`|`uint64`|Timestamp that the check should start|
 
 **Returns**
 

@@ -183,7 +183,7 @@ This rule returns the value:
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../src/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
 
 ## Data Recorded
 
@@ -197,7 +197,7 @@ uint64 private lastTransferTs;
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../src/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
 
 ## Events
 

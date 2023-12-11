@@ -1,5 +1,5 @@
 # ERC20RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/ee06788a23623ed28309de5232eaff934d34a0fe/src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
 
 **Inherits:**
 [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IERC20Errors](/src/common/IErrors.sol/interface.IERC20Errors.md)
@@ -121,6 +121,138 @@ function getTotalOracleRules() public view returns (uint32);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint32`|total oracleRules array length|
+
+
+### checkPurchasePercentagePasses
+
+*Function receives a rule id, retrieves the rule data and checks if the Purchase Percentage Rule passes*
+
+
+```solidity
+function checkPurchasePercentagePasses(
+    uint32 ruleId,
+    uint256 currentTotalSupply,
+    uint256 amountToTransfer,
+    uint64 lastPurchaseTime,
+    uint256 purchasedWithinPeriod
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|id of the rule to be checked|
+|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
+|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
+|`lastPurchaseTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`purchasedWithinPeriod`|`uint256`|total amount of tokens purchased in current period|
+
+
+### getPctPurchaseRule
+
+resets value for purchases outside of purchase period
+check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
+we perform the rule check
+update totalPurchasedWithinPeriod to include the amountToTransfer when inside purchase period
+perform rule check if amountToTransfer + purchasedWithinPeriod is over allowed amount of total supply
+
+*Function get Token Purchase Percentage by index*
+
+
+```solidity
+function getPctPurchaseRule(uint32 _index) public view returns (NonTaggedRules.TokenPercentagePurchaseRule memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`NonTaggedRules.TokenPercentagePurchaseRule`|percentagePurchaseRules rule at index position|
+
+
+### getTotalPctPurchaseRule
+
+*Function to get total Token Purchase Percentage*
+
+
+```solidity
+function getTotalPctPurchaseRule() public view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|Total length of array|
+
+
+### checkSellPercentagePasses
+
+
+```solidity
+function checkSellPercentagePasses(
+    uint32 ruleId,
+    uint256 currentTotalSupply,
+    uint256 amountToTransfer,
+    uint64 lastSellTime,
+    uint256 soldWithinPeriod
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|id of the rule to be checked|
+|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
+|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
+|`lastSellTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`soldWithinPeriod`|`uint256`|total amount of tokens sold within current period|
+
+
+### getPctSellRule
+
+resets value for purchases outside of purchase period
+check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
+we perform the rule check
+update soldWithinPeriod to include the amountToTransfer when inside purchase period
+perform rule check if amountToTransfer + soldWithinPeriod is over allowed amount of total supply
+
+*Function get Token sell Percentage by index*
+
+
+```solidity
+function getPctSellRule(uint32 _index) public view returns (NonTaggedRules.TokenPercentageSellRule memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`NonTaggedRules.TokenPercentageSellRule`|percentageSellRules rule at index position|
+
+
+### getTotalPctSellRule
+
+*Function to get total Token Percentage Sell*
+
+
+```solidity
+function getTotalPctSellRule() public view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|Total length of array|
 
 
 ### checkTokenTransferVolumePasses

@@ -11,7 +11,7 @@ In order for US-Dollar-based application rules to function properly, the protoco
 1.  Protocol provided example:
     1.  Ensure the [environment variables][environment-url] are set correctly.
     2.  It allows for setting the prices on a collection and also for individual NFT's. To use the example:
-        1.  Copy the template from _src/example/pricing/ApplicationERC721Pricing.sol_ to your desired location
+        1.  Copy the template from _example/pricing/ApplicationERC721Pricing.sol_ to your desired location
         2.  Change the name of the contract to suit your naming standards
             - *Do not change the import or parent contract*
         3.  Compile the contract
@@ -22,7 +22,7 @@ In order for US-Dollar-based application rules to function properly, the protoco
         4.  Deploy the contract. (no parameters required)
 
             ````
-            forge create src/example/pricing/ApplicationERC721Pricing.sol:ApplicationERC721Pricing --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+            forge create example/pricing/ApplicationERC721Pricing.sol:ApplicationERC721Pricing --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
             ````
         5. locate the address from the output, example:

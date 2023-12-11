@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/ee06788a23623ed28309de5232eaff934d34a0fe/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md)
@@ -276,15 +276,6 @@ mapping(address => uint256) stakingToIndex;
 
 ```solidity
 mapping(address => bool) isStakingRegistered;
-```
-
-
-### appName
-Application name string
-
-
-```solidity
-string appName;
 ```
 
 

@@ -15,6 +15,7 @@ import "example/ERC20/ApplicationERC20.sol";
 import "example/ERC20/ApplicationERC20Handler.sol";
 import "example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import "example/ERC721/ApplicationERC721Handler.sol";
+import "example/liquidity/ApplicationAMMHandler.sol";
 import "src/client/token/IAdminWithdrawalRuleCapable.sol";
 import "test/util/TestCommonFoundry.sol";
 

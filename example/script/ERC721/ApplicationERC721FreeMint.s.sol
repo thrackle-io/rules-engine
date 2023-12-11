@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "../../ERC721/ApplicationERC721FreeMint.sol";
-import "../src/client/tokenapplication/IAppManager.sol";
+import "src/client/tokenapplication/IAppManager.sol";
 import {ApplicationERC721Handler} from "../../ERC721/ApplicationERC721Handler.sol";
 
 /**

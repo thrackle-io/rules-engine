@@ -29,7 +29,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
         uint256 maximum;
     }
 ```
-###### *see [RuleDataInterfaces](../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../src/protocol/economic/ruleStorage/RuleDataInterfaces.sol)*
 
 Additionally, each one of these data structures will be under a tag (bytes32):
 
@@ -39,7 +39,7 @@ Additionally, each one of these data structures will be under a tag (bytes32):
     //      tag     =>   sub-rule
     mapping(bytes32 => ITaggedRules.MinMaxBalanceRule)
 ```
-###### *see [IRuleStorage](../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleStorage/IRuleStorage.sol)*
 
 The collection of these tagged sub-rules composes a minumum-maximum-account-balance rule.
 
@@ -52,7 +52,7 @@ struct MinMaxBalanceRuleS {
     uint32 minMaxBalanceRuleIndex; /// increments every time someone adds a rule
 }
 ```
-###### *see [IRuleStorage](../../src/economic/ruleStorage/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleStorage/IRuleStorage.sol)*
 
 A minumum-maximum-account-balance rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
@@ -105,7 +105,7 @@ function addMinMaxBalanceRule(
         uint256[] calldata _maximum
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [TaggedRuleDataFacet](../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../src/protocol/economic/ruleStorage/TaggedRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -134,7 +134,7 @@ The following validation will be carried out by the create function in order to 
 - `minimum`is not greater than `maximum`
 
 
-###### *see [TaggedRuleDataFacet](../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../src/protocol/economic/ruleStorage/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 

@@ -37,12 +37,12 @@ deployTaggedRuleProcessor:; forge script script/TaggedRuleProcessor.s.sol --ffi 
 # Deploy contracts(full protocol)
 deployAll:;	forge script script/DeployAllModules.s.sol --ffi --broadcast -vvv
 # Deploy Application Contracts(singles)
-deployApplicationAppManager:; forge script src/example/script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
-deployApplicationERC20Handler:; forge script src/example/script/ApplicationERC20Handler.s.sol --ffi --broadcast -vvv
-deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol --ffi --broadcast -vvv
+deployApplicationAppManager:; forge script example/script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
+deployApplicationERC20Handler:; forge script example/script/ApplicationERC20Handler.s.sol --ffi --broadcast -vvv
+deployApplicationERC20:; forge script example/script/ApplicationERC20.s.sol --ffi --broadcast -vvv
 # Deploy Application Contracts(entire application implementation)
-deployAllApp:; forge script src/example/script/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv
-deployNewApp:; forge script src/example/script/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvv
+deployAllApp:; forge script example/script/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv
+deployNewApp:; forge script example/script/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvv
 # Using a different env ref for pipeline deploy command.
 # Note from RK -- Outside the scope of what I'm doing right now, but
 # This could also be accomplished by creating a "pipeline" profile in foundry.toml which
@@ -441,7 +441,7 @@ tokenFee_checkTokenFeeRuleUpgrade2:; cast call ${APPLICATION_ERC20_HANDLER_ADDRE
 
 #			<><><><><><><><><><><><><><><> Narrative <><><><><><><><><><><><><><><>
 # Deploy the Application App Manager
-applicationDeployAppManager:;	forge script src/example/script/ApplicationAppManager.s.sol --ffi --fork-url http://localhost:8545  --broadcast --verify -vvvv			
+applicationDeployAppManager:;	forge script example/script/ApplicationAppManager.s.sol --ffi --fork-url http://localhost:8545  --broadcast --verify -vvvv			
 applicationAddAppAdministrator:; cast send ${APPLICATION_APP_MANAGER} "addAppAdministrator(address)" ${CLU}  --private-key ${QUORRA_PRIVATE_KEY}
 applicationCheckAppAdministrator:; cast call ${APPLICATION_APP_MANAGER} "isAppAdministrator(address)(bool)" ${CLU}  --private-key ${QUORRA_PRIVATE_KEY}
 
@@ -458,7 +458,7 @@ applicationAddGeneralTagGem:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTa
 applicationCheckGeneralTag:; cast call ${APPLICATION_APP_MANAGER} "hasTag(address,bytes32)(bool)" ${GEM} 0x4b4e49475448  --private-key ${CLU_PRIVATE_KEY}
 
 # Deploy the Application Token
-applicationDeployToken:;	forge script src/example/script/ApplicationERC20.s.sol --ffi --fork-url http://localhost:8545  --broadcast --verify -vvvv			
+applicationDeployToken:;	forge script example/script/ApplicationERC20.s.sol --ffi --fork-url http://localhost:8545  --broadcast --verify -vvvv			
 applicationTokenCheckBalance:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${QUORRA} --from ${QUORRA}
 applicationTokenTransferKevin:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 2000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 applicationTokenCheckKevinBalance:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${KEVIN} --from ${QUORRA}

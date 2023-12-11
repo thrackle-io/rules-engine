@@ -6,7 +6,7 @@
 NOTE: NFT Batch minting and burning is not supported in this release.
 
 1. Ensure the [environment variables][environment-url] are set correctly.
-2. Copy the template from src/example/ApplicationERC721.sol to your desired location
+2. Copy the template from example/ApplicationERC721.sol to your desired location
 3. Change the name of the contract to suit your naming standards
     1. Do not change the import or parent contract
 4. Compile the contract
@@ -21,7 +21,7 @@ NOTE: NFT Batch minting and burning is not supported in this release.
     4. _BaseURI_ - Desired baseURI of the ERC721(see [ERC721][ERC721-url] standards for more information)
     5. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
          ````
-         forge create src/example/deploy/FrankensteinNFT.sol:Frankenstein --constructor-args "Frankenstein" "FRANKPIC" $APPLICATION_APP_MANAGER "baseURI" --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+         forge create example/deploy/FrankensteinNFT.sol:Frankenstein --constructor-args "Frankenstein" "FRANKPIC" $APPLICATION_APP_MANAGER "baseURI" --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
          ````
      6. Use the output from the deployment to set an environment variable for NFT's address.
