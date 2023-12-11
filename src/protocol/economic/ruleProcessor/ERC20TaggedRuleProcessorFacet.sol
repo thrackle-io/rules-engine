@@ -91,7 +91,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         fromTags.checkMaxTags();
         for (uint i = 0; i < fromTags.length; ) {
             uint256 min = getMinMaxBalanceRule(ruleId, fromTags[i]).minimum;
-            /// if a min is 0 then no need to check.
+            /// if a min is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
             if (min > 0 && balanceFrom - amount < min) revert BalanceBelowMin();
             unchecked {
                 ++i;
@@ -173,11 +173,14 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
                 if (toTags[i] != "") {
                     TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
                     uint256 holdPeriod = minBalByDateRule.holdPeriod;
-                    /// first check to see if still in the hold period
-                    if ((block.timestamp - (holdPeriod * 1 hours)) < startTime) {
-                        uint256 holdAmount = minBalByDateRule.holdAmount;
+                    /// check if holdPeriod is 0, 0 means it is an empty-rule/no-rule. a holdAmount should be greater than 0
+                    if(holdPeriod != 0) {
+                        /// Check to see if still in the hold period
+                        if ((block.timestamp - (holdPeriod * 1 hours)) < startTime) {
+                            uint256 holdAmount = minBalByDateRule.holdAmount;
                         /// If the transaction will violate the rule, then revert
                         if (finalBalance < holdAmount) revert TxnInFreezeWindow();
+                        }
                     }
                 }
                 unchecked {
@@ -194,7 +197,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @return Min BalanceByDate rule at index position
      */
     function getMinBalByDateRule(uint32 _index, bytes32 _accountTag) public view returns (TaggedRules.MinBalByDateRule memory) {
-        // No need to check the rule existence or index since it was already checked in getSellRuleStartByIndex
+        // No need to check the rule existence or index since it was already checked in getMinBalByDateRuleStart
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         return data.minBalByDateRulesPerUser[_index][_accountTag];
     }
