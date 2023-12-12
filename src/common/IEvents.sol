@@ -151,7 +151,7 @@ interface IApplicationEvents {
     ///ProtocolERC721 & ERC721A
     event NewNFTDeployed(address indexed appManagerAddress);
     ///AMM
-    event AMMDeployed(address token0, address token1, address appManager);
+    event AMMDeployed(uint ammType, address token0, address token1, address appManager);
     /// Amm Calculator Assigned
     event AMMCalculatorAssigned(address indexed ammCalculator); 
     event Swap(address indexed tokenIn, uint256 amountIn, uint256 amountOut);

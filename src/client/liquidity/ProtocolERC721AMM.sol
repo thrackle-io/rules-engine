@@ -9,6 +9,7 @@ import "../liquidity/IProtocolAMMHandler.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "./IProtocolAMMCalculator.sol";
 import "src/client/liquidity/IProtocolAMMHandler.sol";
+import "src/common/AMMTypes.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
 import {AMMCalculatorErrors, AMMErrors, IZeroAddressError } from "src/common/IErrors.sol";
 
@@ -48,7 +49,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         appManagerAddress = _appManagerAddress;
         /// Set the calculator and create the variable for it.
         _setCalculatorAddress(_calculatorAddress);
-        emit AMMDeployed(_ERC20Token, _ERC721Token, _appManagerAddress);
+        emit AMMDeployed(uint(AMM_TYPE.ERC721AMM), _ERC20Token, _ERC721Token, _appManagerAddress);
     }
 
     /**
