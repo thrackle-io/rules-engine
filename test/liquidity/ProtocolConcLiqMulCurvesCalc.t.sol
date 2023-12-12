@@ -19,13 +19,13 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
     uint256 constant Y_MAX = 100_000 * 10 ** 18;
     uint256 constant M_MAX = 100 * 10 ** 8;
 
-    LinearInput linearA = LinearInput(1 * 10 ** (M_PRECISION_DECIMALS - 1), 50 * (10 ** B_PRECISION_DECIMALS)); //m=0.1; b=50.0
+    LinearInput linearA = LinearInput(4 * 10 ** (M_PRECISION_DECIMALS - 1), 75 * (10 ** (B_PRECISION_DECIMALS - 2))); //m=0.4; b=0.75
     LinearInput linearB = LinearInput(1 * 10 ** (M_PRECISION_DECIMALS - 2), 100 * (10 ** B_PRECISION_DECIMALS)); //m=0.01; b=100.0
     LinearInput linearC = LinearInput(1 * 10 ** (M_PRECISION_DECIMALS), 10 * (10 ** B_PRECISION_DECIMALS)); //m=1.0; b=10.0
-    ConstantRatio constRatioA = ConstantRatio(30_000, 20_000); // ratio = 3x per 2y
+    ConstantRatio constRatioA = ConstantRatio(20_000, 30_000); // ratio = 3y per 2x
     ConstantRatio constRatioB = ConstantRatio(100, 1); // ratio = 100x per 1y
     ConstantRatio constRatioC = ConstantRatio(1, 20); // ratio = 1x per 20y
-    uint256[] upperLimitsA = [1_000 * ATTO, 10_000 * ATTO, 30_000 * ATTO];
+    uint256[] upperLimitsA = [1 * ATTO, 2 * ATTO, 10 * ATTO]; // 1y per 1x; 2ys per 1x; 3ys per 1x.
     ProtocolAMMCalcConcLiqMulCurves calc;
 
     function setUp() public {
@@ -197,6 +197,33 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
    }
 
     /// Math Tests
+    function _setupLinearReserves() internal returns(uint256 reserves0, uint256 reserves1) {
+        _setSectionsA();
+        /// According to desmos
+        reserves0 = 100_000 * ATTO;
+        reserves1 = 40_000_75 * ATTO / 100;
+    }
 
+    function _linearRegionExchange1() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupLinearReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 1 * ATTO, 0);
+    }
+
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchange1() public {
+        uint256 amountOut = _linearRegionExchange1();
+        /// according to desmos result should be 4.000095 * 10 ^ 22
+        assertEq(amountOut, 4_000095 * (10 ** (22 - 6)));
+    }
+
+    function _linearRegionExchange2() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupLinearReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 2 * ATTO, 0);
+    }
+
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchange2() public {
+        uint256 amountOut = _linearRegionExchange2();
+        /// according to desmos result should be 8.00023 * 10 ^ 22
+        assertEq(amountOut, 8_00023 * (10 ** (22 - 5)));
+    }
     
 }

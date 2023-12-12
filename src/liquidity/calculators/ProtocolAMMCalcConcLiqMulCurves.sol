@@ -23,7 +23,8 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     using Curve for ConstantRatio;
     using Curve for ConstantProduct;
 
-    uint256 constant Y_MAX = 100_000 * 10 ** 18;
+    uint256 constant ATTO = 10 ** 18;
+    uint256 constant Y_MAX = 100_000 * ATTO;
     uint256 constant M_MAX = 100 * 10 ** 8;
     uint8 constant M_PRECISION_DECIMALS = 8;
     uint8 constant B_PRECISION_DECIMALS = 18;
@@ -31,6 +32,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     LinearFractionB[] public linears;
     ConstantRatio[] public constRatios;
 
+    /// in terms of token1 per token0 in ATTOs
     SectionCurve[] public sectionCurves;
     uint256[] public sectionUpperLimits;
 
@@ -74,11 +76,13 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
          override 
          returns (uint256) 
          {
-            _validateAreNotZero(_amount0, _amount1);
-            uint256 current_x;
+            _validateNoneAreZero(_amount0, _amount1);
+            /// spotPrice will be x/y or y/x. If buying token0 (x), then x/y. If buying token1 (y) then y/x
+            uint256 spotPriceNumerator = _amount0 == 0 ? (_reserve0 * ATTO) / _reserve1 : (_reserve1 * ATTO) / _reserve0;
+            //uint256 spotPriceDenominator = ATTO;
             for(uint i; i < sectionUpperLimits.length;){
                 /// find curve for current value of x
-                if(current_x < sectionUpperLimits[i]){
+                if(spotPriceNumerator < (_amount0 == 0 ? ATTO ** 2 / sectionUpperLimits[i] : sectionUpperLimits[i] )){
                     /// we calculate depending on the curve
                     uint256 _index = sectionCurves[i].index;
                     /// constant ratio
@@ -190,14 +194,14 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
             uint256 _amount1
         ) 
         internal 
-        view
+        pure
         returns(uint256)
         {
             return ConstantProduct(_reserve0,_reserve1).getY(_amount0, _amount1);
     }
 
     function _getLinearY(
-            uint256 _index 
+            uint256 _index, 
             uint256 _reserve0, 
             uint256 _reserve1,
             uint256 _amount0, 
@@ -219,8 +223,13 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
         if (_curve.b > Y_MAX) revert ValueOutOfRange(_curve.b);
     }
 
-    function _validateAreNotZero(uint256 a, uint256 b) internal view { // good candidate to move up to common
+    function _validateAreNotZero(uint256 a, uint256 b) internal pure { // good candidate to move up to common
         if (a == 0 || b == 0) 
+            revert AmountsAreZero();
+    }
+
+    function _validateNoneAreZero(uint256 a, uint256 b) internal pure { // good candidate to move up to common
+        if (a == 0 && b == 0) 
             revert AmountsAreZero();
     }
 
