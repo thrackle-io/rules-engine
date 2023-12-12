@@ -39,7 +39,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         setBaseURI(_baseUri);
-        emit NewNFTDeployed(address(this), _appManagerAddress);
+        emit NewNFTDeployed(_appManagerAddress);
     }
 
     /********** setters and getters for rules  **********/
@@ -151,7 +151,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolERC721Handler(_deployedHandlerAddress);
-        emit HandlerConnected(_deployedHandlerAddress, address(this));
+        emit HandlerConnected(_deployedHandlerAddress);
     }
 
     /**

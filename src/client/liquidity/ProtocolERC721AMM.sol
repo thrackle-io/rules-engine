@@ -9,8 +9,9 @@ import "../liquidity/IProtocolAMMHandler.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "./IProtocolAMMCalculator.sol";
 import "src/client/liquidity/IProtocolAMMHandler.sol";
+import "src/common/AMMTypes.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
-import { AMMCalculatorErrors, AMMErrors, IZeroAddressError } from "src/common/IErrors.sol";
+import {AMMCalculatorErrors, AMMErrors, IZeroAddressError } from "src/common/IErrors.sol";
 
 /**
  * @title ProtocolERC721AMM Base Contract
@@ -48,7 +49,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         appManagerAddress = _appManagerAddress;
         /// Set the calculator and create the variable for it.
         _setCalculatorAddress(_calculatorAddress);
-        emit AMMDeployed(address(this));
+        emit AMMDeployed(uint(AMM_TYPE.ERC721AMM), _ERC20Token, _ERC721Token, _appManagerAddress);
     }
 
     /**
@@ -231,6 +232,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         require(_calculatorAddress != address(0), "Address cannot be default address");
         calculatorAddress = _calculatorAddress;
         calculator = IProtocolAMMCalculator(calculatorAddress);
+        emit AMMCalculatorAssigned(_calculatorAddress); 
     }
 
     /**
@@ -313,7 +315,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     function connectHandlerToAMM(address _handlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
         handler = IProtocolAMMHandler(_handlerAddress);
-        emit HandlerConnected(_handlerAddress, address(this));
+        emit HandlerConnected(_handlerAddress);
     }
 
     /**

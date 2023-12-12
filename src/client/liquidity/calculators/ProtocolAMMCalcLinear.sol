@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "./IProtocolAMMFactoryCalculator.sol";
 import {LinearFractionB, LinearInput, Curve} from "./libraries/Curve.sol";
 import {CurveErrors} from "src/common/IErrors.sol";
+import {IAMMCalculatorEvents} from "src/common//IEvents.sol";
 
 /**
  * @title Automated Market Maker Swap Linear Calculator
@@ -14,7 +15,7 @@ import {CurveErrors} from "src/common/IErrors.sol";
  *      as needed. It contains an example linear. It is built through ProtocolAMMCalculationFactory
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
+contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator, IAMMCalculatorEvents {
 
     using Curve for LinearFractionB;
 
@@ -33,6 +34,7 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         _setCurve(_curve);
         appManagerAddress = _appManagerAddress;
+        emit AMMCalculatorDeployed(); 
     }
 
     /**

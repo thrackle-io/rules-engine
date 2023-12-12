@@ -78,9 +78,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         transferOwnership(_assetAddress);
         if (!_upgradeMode) {
             deployDataContract();
-            emit HandlerDeployed(address(this), _appManagerAddress);
+            emit HandlerDeployed(_appManagerAddress);
         } else {
-            emit HandlerDeployed(address(this), _appManagerAddress);
+            emit HandlerDeployed(_appManagerAddress);
         }
     }
 
@@ -337,7 +337,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateMinMaxAccountBalance(_ruleId);
         minMaxBalanceRuleId = _ruleId;
         minMaxBalanceRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, _ruleId);
     }
 
     /**
@@ -347,9 +347,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function activateMinMaxBalanceRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minMaxBalanceRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT, address(this));
+            emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT);
         } else {
-            emit ApplicationHandlerDeactivated(MIN_MAX_BALANCE_LIMIT, address(this));
+            emit ApplicationHandlerDeactivated(MIN_MAX_BALANCE_LIMIT);
         }
     }
 
@@ -378,7 +378,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateMinTransfer(_ruleId);
         minTransferRuleId = _ruleId;
         minTransferRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_TRANSFER, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_TRANSFER, _ruleId);
     }
 
     /**
@@ -388,9 +388,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function activateMinTransfereRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minTransferRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MIN_TRANSFER, address(this));
+            emit ApplicationHandlerActivated(MIN_TRANSFER);
         } else {
-            emit ApplicationHandlerDeactivated(MIN_TRANSFER, address(this));
+            emit ApplicationHandlerDeactivated(MIN_TRANSFER);
         }
     }
 
@@ -419,7 +419,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateOracle(_ruleId);
         oracleRuleId = _ruleId;
         oracleRuleActive = true;
-        emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(ORACLE, _ruleId);
     }
 
     /**
@@ -429,9 +429,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         oracleRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ORACLE, address(this));
+            emit ApplicationHandlerActivated(ORACLE);
         } else {
-            emit ApplicationHandlerDeactivated(ORACLE, address(this));
+            emit ApplicationHandlerDeactivated(ORACLE);
         }
     }
 
@@ -468,7 +468,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateTransactionLimitByRiskScore(_ruleId);
         transactionLimitByRiskRuleId = _ruleId;
         transactionLimitByRiskRuleActive = true;
-        emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, address(this), _ruleId);
+        emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, _ruleId);
     }
 
     /**
@@ -478,9 +478,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         transactionLimitByRiskRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(TX_SIZE_BY_RISK, address(this));
+            emit ApplicationHandlerActivated(TX_SIZE_BY_RISK);
         } else {
-            emit ApplicationHandlerDeactivated(TX_SIZE_BY_RISK, address(this));
+            emit ApplicationHandlerDeactivated(TX_SIZE_BY_RISK);
         }
     }
 
@@ -506,7 +506,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
         adminWithdrawalRuleId = _ruleId;
         adminWithdrawalActive = true;
-        emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, address(this), _ruleId);
+        emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, _ruleId);
     }
 
     /**
@@ -534,9 +534,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         }
         adminWithdrawalActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ADMIN_WITHDRAWAL, address(this));
+            emit ApplicationHandlerActivated(ADMIN_WITHDRAWAL);
         } else {
-            emit ApplicationHandlerDeactivated(ADMIN_WITHDRAWAL, address(this));
+            emit ApplicationHandlerDeactivated(ADMIN_WITHDRAWAL);
         }
     }
 
@@ -573,7 +573,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateMinBalByDate(_ruleId);
         minBalByDateRuleId = _ruleId;
         minBalByDateRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, _ruleId);
     }
 
     /**
@@ -583,9 +583,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minBalByDateRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE, address(this));
+            emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE);
         } else {
-            emit ApplicationHandlerDeactivated(MIN_ACCT_BAL_BY_DATE, address(this));
+            emit ApplicationHandlerDeactivated(MIN_ACCT_BAL_BY_DATE);
         }
     }
 
@@ -614,7 +614,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateTokenTransferVolume(_ruleId);
         tokenTransferVolumeRuleId = _ruleId;
         tokenTransferVolumeRuleActive = true;
-        emit ApplicationHandlerApplied(TRANSFER_VOLUME, address(this), _ruleId);
+        emit ApplicationHandlerApplied(TRANSFER_VOLUME, _ruleId);
     }
 
     /**
@@ -624,13 +624,13 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function activateTokenTransferVolumeRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         tokenTransferVolumeRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(TRANSFER_VOLUME, address(this));
+            emit ApplicationHandlerActivated(TRANSFER_VOLUME);
         } else {
-            emit ApplicationHandlerDeactivated(TRANSFER_VOLUME, address(this));
+            emit ApplicationHandlerDeactivated(TRANSFER_VOLUME);
         }
     }
 
-    /**
+    /** 
      * @dev Tells you if the token transfer volume rule is active or not.
      * @return boolean representing if the rule is active
      */
@@ -655,7 +655,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateSupplyVolatility(_ruleId);
         totalSupplyVolatilityRuleId = _ruleId;
         totalSupplyVolatilityRuleActive = true;
-        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, address(this), _ruleId);
+        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, _ruleId);
     }
 
     /**
@@ -665,9 +665,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function activateTotalSupplyVolatilityRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         totalSupplyVolatilityRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(SUPPLY_VOLATILITY, address(this));
+            emit ApplicationHandlerActivated(SUPPLY_VOLATILITY);
         } else {
-            emit ApplicationHandlerDeactivated(SUPPLY_VOLATILITY, address(this));
+            emit ApplicationHandlerDeactivated(SUPPLY_VOLATILITY);
         }
     }
 

@@ -6,7 +6,7 @@ import "src/client/liquidity/ProtocolERC20AMM.sol";
 import "src/client/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/client/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/client/liquidity/calculators/ProtocolAMMCalcCP.sol";
-import "src/client/liquidity/calculators/ProtocolAMMCalcLinear.sol";
+import {ProtocolAMMCalcLinear} from "src/client/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "test/util/TestCommonFoundry.sol";
 import {LinearInput} from "src/client/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 import "src/client/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
