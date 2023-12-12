@@ -68,7 +68,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         transferOwnership(_assetAddress);
         ruleProcessorAddress = _ruleProcessorProxyAddress;
-        emit HandlerDeployed(address(this), _appManagerAddress);
+        emit HandlerDeployed(_appManagerAddress);
     }
 
     /**
@@ -231,7 +231,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     function setPurchaseLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         purchaseLimitRuleId = _ruleId;
         purchaseLimitRuleActive = true;
-        emit ApplicationHandlerApplied(PURCHASE_LIMIT, address(this), _ruleId);
+        emit ApplicationHandlerApplied(PURCHASE_LIMIT, _ruleId);
     }
 
     /**
@@ -266,7 +266,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     function setSellLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         sellLimitRuleId = _ruleId;
         sellLimitRuleActive = true;
-        emit ApplicationHandlerApplied(SELL_LIMIT, address(this), _ruleId);
+        emit ApplicationHandlerApplied(SELL_LIMIT, _ruleId);
     }
 
     /**
@@ -333,7 +333,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     function setMinTransferRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         minTransferRuleId = _ruleId;
         minTransferRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_TRANSFER, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_TRANSFER, _ruleId);
     }
 
     /**
@@ -378,7 +378,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     function setMinMaxBalanceRuleIdToken1(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         minMaxBalanceRuleIdToken1 = _ruleId;
         minMaxBalanceRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, _ruleId);
     }
 
     /**
@@ -421,7 +421,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         oracleRuleId = _ruleId;
         oracleRuleActive = true;
-        emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(ORACLE, _ruleId);
     }
 
     /**
@@ -456,7 +456,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     function setAMMFeeRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ammFeeRuleId = _ruleId;
         ammFeeRuleActive = true;
-        emit ApplicationHandlerApplied(AMM_FEE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(AMM_FEE, _ruleId);
     }
 
     /**
@@ -491,7 +491,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     function setPurchasePercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         purchasePercentageRuleId = _ruleId;
         purchasePercentageRuleActive = true;
-        emit ApplicationHandlerApplied(PURCHASE_PERCENTAGE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(PURCHASE_PERCENTAGE, _ruleId);
     }
 
     /**
@@ -526,7 +526,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     function setSellPercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         sellPercentageRuleId = _ruleId;
         sellPercentageRuleActive = true;
-        emit ApplicationHandlerApplied(SELL_PERCENTAGE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(SELL_PERCENTAGE, _ruleId);
     }
 
     /**

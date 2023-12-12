@@ -21,7 +21,7 @@ contract ProtocolAMMFactory is AppAdministratorOnly, IZeroAddressError, IAMMFact
     constructor(address _protocolAMMCalculatorFactory) {
         if (_protocolAMMCalculatorFactory == address(0)) revert ZeroAddress();
         protocolAMMCalculatorFactory = ProtocolAMMCalculatorFactory(_protocolAMMCalculatorFactory);
-        emit AMMFactoryDeployed(address(this));
+        emit AMMFactoryDeployed();
     }
 
     /**

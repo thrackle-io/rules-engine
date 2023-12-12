@@ -48,7 +48,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
         appManagerAddress = _appManagerAddress;
         /// Set the calculator and create the variable for it.
         _setCalculatorAddress(_calculatorAddress);
-        emit AMMDeployed(address(this), _ERC20Token, _ERC721Token, _appManagerAddress);
+        emit AMMDeployed(_ERC20Token, _ERC721Token, _appManagerAddress);
     }
 
     /**
@@ -314,7 +314,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
     function connectHandlerToAMM(address _handlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
         handler = IProtocolAMMHandler(_handlerAddress);
-        emit HandlerConnected(_handlerAddress, address(this));
+        emit HandlerConnected(_handlerAddress);
     }
 
     /**

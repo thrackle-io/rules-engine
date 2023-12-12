@@ -81,9 +81,9 @@ interface IApplicationHandlerEvents {
  */
 interface ICommonApplicationHandlerEvents {
     /// Rule deactivated
-    event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
+    event ApplicationHandlerDeactivated(bytes32 indexed ruleType);
     /// Rule activated
-    event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
+    event ApplicationHandlerActivated(bytes32 indexed ruleType);
 }
 
 /**
@@ -119,12 +119,12 @@ interface IEconomicEvents {
  */
 interface ITokenHandlerEvents {
     ///Handler
-    event HandlerDeployed(address indexed applicationHandler, address indexed appManager);
+    event HandlerDeployed(address indexed appManager);
     /// Rule applied
-    event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId);
-    event ApplicationHandlerSimpleApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint256 indexed param1);
+    event ApplicationHandlerApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
+    event ApplicationHandlerSimpleApplied(bytes32 indexed ruleType, uint256 indexed param1);
     /// NFT Valuation Limit Updated
-    event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit, address indexed handlerAddress);
+    event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
     event AppManagerAddressSet(address indexed _address);
     event AppManagerAddressProposed(address indexed _address);
     /// Fees
@@ -145,13 +145,13 @@ interface ITokenHandlerEvents {
 
 interface IApplicationEvents {
     /// Application Handler
-    event HandlerConnected(address indexed handlerAddress, address indexed assetAddress); // ...in favor of this one since regular deploy and upgrade now looks the same?
+    event HandlerConnected(address indexed handlerAddress);
     ///ProtocolERC20
-    event NewTokenDeployed(address indexed applicationCoin, address indexed appManagerAddress);
+    event NewTokenDeployed(address indexed appManagerAddress);
     ///ProtocolERC721 & ERC721A
-    event NewNFTDeployed(address indexed applicationNFT, address indexed appManagerAddress);
+    event NewNFTDeployed(address indexed appManagerAddress);
     ///AMM
-    event AMMDeployed(address indexed ammAddress, address token0, address token1, address appManager);
+    event AMMDeployed(address token0, address token1, address appManager);
     /// Amm Calculator Assigned
     event AMMCalculatorAssigned(address indexed ammCalculator); 
     event Swap(address indexed tokenIn, uint256 amountIn, uint256 amountOut);
@@ -177,9 +177,9 @@ interface IApplicationEvents {
 
 interface IAMMFactoryEvents {
     /// AMM Factory
-    event AMMFactoryDeployed(address indexed ammAddress);
+    event AMMFactoryDeployed();
     /// AMM Calculator Factory
-    event AMMCalculatorFactoryDeployed(address indexed ammAddress);
+    event AMMCalculatorFactoryDeployed();
 }
 
 /**

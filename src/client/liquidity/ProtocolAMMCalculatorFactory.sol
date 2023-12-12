@@ -21,7 +21,7 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
     address appManagerAddress;
 
     constructor() {
-        emit AMMCalculatorFactoryDeployed(address(this));
+        emit AMMCalculatorFactoryDeployed();
     }
 
     /**
