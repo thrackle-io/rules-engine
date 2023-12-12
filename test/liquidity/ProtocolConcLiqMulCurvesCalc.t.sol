@@ -217,6 +217,17 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry {
         assertEq(amountOut, 4_000095 * (10 ** (22 - 6)));
     }
 
+    function _linearRegionExchange1YtoX() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupLinearReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 0, 1 * ATTO);
+    }
+
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchange1YtoX() public {
+        uint256 amountOut = _linearRegionExchange1YtoX();
+        /// according to desmos result should be 0.005590103343414776 * 10 ^ 18
+        assertLe(5590103343414776 - amountOut, 1);
+    }
+
     function _linearRegionExchange2XtoY() internal returns(uint256 amountOut){
         (uint256 reserves0, uint256 reserves1) = _setupLinearReserves();
         amountOut = calc.calculateSwap(reserves0, reserves1, 2 * ATTO, 0);
@@ -226,6 +237,17 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry {
         uint256 amountOut = _linearRegionExchange2XtoY();
         /// according to desmos result should be 8.00023 * 10 ^ 22
         assertEq(amountOut, 8_00023 * (10 ** (22 - 5)));
+    }
+
+    function _linearRegionExchange2YtoX() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupLinearReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 0, 2 * ATTO);
+    }
+
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchange2YtoX() public {
+        uint256 amountOut = _linearRegionExchange2YtoX();
+        /// according to desmos result should be 0.011180276562766516 * 10 ^ 18
+        assertLe(11180276562766516 - amountOut, 3); /// here the error is 3
     }
 
     /// Constant Ratio Region
