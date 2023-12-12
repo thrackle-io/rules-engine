@@ -19,12 +19,12 @@ import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/rulePr
 import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC721FuzzTest is TestCommonFoundry {
-    OracleRestricted oracleRestricted;
+    OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
     address[] badBoys;
     address[] goodBoys;
@@ -37,7 +37,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         switchToAppAdministrator();
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleDenied = new OracleDenied();
 
         //activateBalanceByAccessLevelRule
         applicationCoin.mint(appAdministrator, type(uint256).max);
@@ -188,7 +188,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
     }
 
     /**
-     * @dev Test the oracle rule, both allow and restrict types
+     * @dev Test the oracle rule, both allow and deny types
      */
     function testNFTOracleFuzz(uint8 _addressIndex) public {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
@@ -208,15 +208,15 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
 
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
-        assertEq(rule.oracleAddress, address(oracleRestricted));
+        assertEq(rule.oracleAddress, address(oracleDenied));
         switchToAppAdministrator();
         // add a blacklist address
         badBoys.push(user3);
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
         applicationNFTHandler.setOracleRuleId(_index);
@@ -229,7 +229,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user2), 1);
         ///perform transfer that checks rule
         // This one should fail
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         applicationNFT.transferFrom(user1, user3, 1);
         assertEq(applicationNFT.balanceOf(user3), 0);
         // check the allowed list type
@@ -1158,9 +1158,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         {
             if (priceA % 2 == 0) {
                 badBoys.push(_user4);
-                oracleRestricted.addToSanctionsList(badBoys);
+                oracleDenied.addToDeniedList(badBoys);
                 switchToRuleAdmin();
-                uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+                uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
                 applicationNFTHandler.setOracleRuleId(_index);
             } else {
                 goodBoys.push(_user1);

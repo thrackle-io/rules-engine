@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import {ApplicationERC721 as MintForAFeeERC721} from "example/ERC721/ApplicationERC721MintForAFee.sol";
 import {ApplicationERC721 as WhitelistMintERC721} from "example/ERC721/ApplicationERC721WhitelistMint.sol";
@@ -45,7 +45,7 @@ contract DummyTreasury {
 }
 
 contract ApplicationERC721ExampleTest is TestCommonFoundry {
-    OracleRestricted oracleRestricted;
+    OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
     ApplicationERC721HandlerMod newAssetHandler;
     MintForAFeeERC721 mintForAFeeNFT;
@@ -127,7 +127,7 @@ contract ApplicationERC721ExampleTest is TestCommonFoundry {
 
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleDenied = new OracleDenied();
     }
 
     function testERC721AndHandlerVersions() public {

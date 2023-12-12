@@ -31,6 +31,6 @@ bytes32 constant PAUSE_RULE = "PAUSE_RULE";
 
 
 enum ORACLE_TYPE {
-    RESTRICTED_LIST,
+    DENIED_LIST,
     ALLOWED_LIST
 }
