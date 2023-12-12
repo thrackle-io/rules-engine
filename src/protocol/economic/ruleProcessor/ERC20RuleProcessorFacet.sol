@@ -63,10 +63,10 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
                     }
                 }
                 /// Deny List type
-            } else if (oType == uint(ORACLE_TYPE.RESTRICTED_LIST)) {
+            } else if (oType == uint(ORACLE_TYPE.DENIED_LIST)) {
                 /// If Deny List Oracle rule active all transactions to addresses registered to deny list (including address(0)) will be denied.
-                if (IOracle(oracleAddress).isRestricted(_address)) {
-                    revert AddressIsRestricted();
+                if (IOracle(oracleAddress).isDenied(_address)) {
+                    revert AddressIsDenied();
                 }
                 /// Invalid oracle type
             } else {

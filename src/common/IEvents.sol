@@ -54,9 +54,9 @@ interface IOracleEvents {
     event AllowedAddress(address indexed addr);
     event NotAllowedAddress(address indexed addr);
     event AllowListOracleDeployed();
-    event SanctionedAddress(address indexed addr);
-    event NonSanctionedAddress(address indexed addr);
-    event SanctionedListOracleDeployed();
+    event DeniedAddress(address indexed addr);
+    event NonDeniedAddress(address indexed addr);
+    event DeniedListOracleDeployed();
     event OracleListChanged(bool indexed add, address[] addresses); // new event
 }
 

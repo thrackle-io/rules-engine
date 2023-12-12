@@ -17,7 +17,7 @@ import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {VersionFacet} from "src/protocol/diamond/VersionFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
 
@@ -44,7 +44,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
     address[] badBoys;
     address[] goodBoys;
     bool forkTest;
-    OracleRestricted oracleRestricted;
+    OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
 
     function setUp() public {
@@ -67,7 +67,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         vm.startPrank(superAdmin);
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleDenied = new OracleDenied();
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
     }
@@ -1344,15 +1344,15 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
 
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
-        assertEq(rule.oracleAddress, address(oracleRestricted));
+        assertEq(rule.oracleAddress, address(oracleDenied));
         // add a blocked address
         switchToSuperAdmin();
         badBoys.push(address(69));
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
         applicationNFTHandler.setOracleRuleId(_index);
@@ -1365,7 +1365,7 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         assertEq(applicationNFT.balanceOf(user2), 1);
         ///perform transfer that checks rule
         // This one should fail
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         applicationNFT.transferFrom(user1, address(69), 1);
         assertEq(applicationNFT.balanceOf(address(69)), 0);
         // check the allowed list type
@@ -1400,15 +1400,15 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
         applicationNFT.burn(4);
         /// set oracle to deny and add address(0) to list to deny burns
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         applicationNFTHandler.setOracleRuleId(_index);
         switchToSuperAdmin();
         badBoys.push(address(0));
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         /// user attempts burn
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         applicationNFT.burn(3);
     }
 

@@ -9,12 +9,13 @@ import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC20FuzzTest is TestCommonFoundry {
-    OracleRestricted oracleRestricted;
+    ApplicationERC20Handler applicationCoinHandler2;
+    OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
 
     address rich_user = address(44);
@@ -33,7 +34,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         switchToAppAdministrator();
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleDenied = new OracleDenied();
     }
 
     // Test balance
@@ -171,7 +172,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
     }
 
     /**
-     * @dev Test the oracle rule, both allow and restrict types
+     * @dev Test the oracle rule, both allow and deny types
      */
     function testOracleFuzz(uint8 _addressIndex) public {
         applicationCoin.mint(appAdministrator, type(uint256).max);
@@ -187,15 +188,15 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
 
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
-        assertEq(rule.oracleAddress, address(oracleRestricted));
+        assertEq(rule.oracleAddress, address(oracleDenied));
         switchToAppAdministrator();
         // add a blocked address
         badBoys.push(_user3);
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
         applicationCoinHandler.setOracleRuleId(_index);
@@ -208,7 +209,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(_user2), 10);
         ///perform transfer that checks rule
         // This one should fail
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         applicationCoin.transfer(_user3, 10);
         assertEq(applicationCoin.balanceOf(_user3), 0);
         // check the allowed list type

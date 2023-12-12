@@ -10,14 +10,14 @@ import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcesso
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import "test/util/ApplicationERC721WithBatchMintBurn.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC721Test is TestCommonFoundry {
-    OracleRestricted oracleRestricted;
+    OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
     ApplicationERC721HandlerMod newAssetHandler;
     address rich_user = address(44);
@@ -36,7 +36,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         switchToAppAdministrator();
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleDenied = new OracleDenied();
     }
 
     function testERC721AndHandlerVersions() public {
@@ -188,7 +188,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
     }
 
     /**
-     * @dev Test the oracle rule, both allow and restrict types
+     * @dev Test the oracle rule, both allow and denied types
      */
     function testNFTOracle() public {
         /// set up a non admin user an nft
@@ -202,15 +202,15 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
-        assertEq(rule.oracleAddress, address(oracleRestricted));
+        assertEq(rule.oracleAddress, address(oracleDenied));
         // add a blocked address
         switchToAppAdministrator();
         badBoys.push(address(69));
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
         applicationNFTHandler.setOracleRuleId(_index);
@@ -223,7 +223,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user2), 1);
         ///perform transfer that checks rule
         // This one should fail
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         applicationNFT.transferFrom(user1, address(69), 1);
         assertEq(applicationNFT.balanceOf(address(69)), 0);
         // check the allowed list type
@@ -258,15 +258,15 @@ contract ApplicationERC721Test is TestCommonFoundry {
         applicationNFT.burn(4);
         /// set oracle to deny and add address(0) to list to deny burns
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         applicationNFTHandler.setOracleRuleId(_index);
         switchToAppAdministrator();
         badBoys.push(address(0));
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         /// user attempts burn
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         applicationNFT.burn(3);
     }
 

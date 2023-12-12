@@ -11,7 +11,7 @@ import {INonTaggedRules as NonTaggedRules} from "src/protocol/economic/ruleProce
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import "src/client/token/data/Fees.sol";
 import "test/util/TestCommonFoundry.sol";
@@ -27,11 +27,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
     address accessTier = address(3);
     address[] badBoys;
     address[] goodBoys;
-    address user1 = address(0x111);
-    address user2 = address(0x222);
-    address user3 = address(0x333);
-    address user4 = address(0x444);
-    OracleRestricted oracleRestricted;
+    OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
     ApplicationERC20Handler applicationCoinHandlerSpecialOwner;
 
@@ -51,7 +47,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleDenied = new OracleDenied();
     }
 
     ///Test Fee Data setting/getting
@@ -275,15 +271,15 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
     function testOracleERC20Handler() public {
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         switchToAppAdministrator();
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
-        assertEq(rule.oracleAddress, address(oracleRestricted));
+        assertEq(rule.oracleAddress, address(oracleDenied));
         // add a blocked address
         badBoys.push(address(69));
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
         applicationCoinHandlerSpecialOwner.setOracleRuleId(_index);
@@ -292,7 +288,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         // This one should pass
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
         // This one should fail
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
 
         // check the allowed list type
@@ -364,15 +360,15 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
-        assertEq(rule.oracleAddress, address(oracleRestricted));
+        assertEq(rule.oracleAddress, address(oracleDenied));
         // add a blocked address
         switchToAppAdministrator();
         badBoys.push(address(69));
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
         applicationCoinHandlerSpecialOwner.setOracleRuleId(_index);
@@ -381,7 +377,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         // This one should pass
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
         // This one should fail
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
 
         // check the allowed list type

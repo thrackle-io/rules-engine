@@ -16,7 +16,7 @@ import "example/application/ApplicationHandler.sol";
 import "test/protocol/economic/util/RuleProcessorDiamondTestUtil.sol";
 import "src/client/application/AppManager.sol";
 import "src/client/application/AppManager.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import "example/ERC20/ApplicationERC20Handler.sol";
 import "example/ERC20/ApplicationERC20.sol";
@@ -34,7 +34,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
     RuleProcessorDiamond ruleProcessor;
     ApplicationERC20Handler applicationCoinHandler;
     ApplicationERC20 applicationCoin;
-    OracleRestricted oracleRestricted;
+    OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
     ApplicationAppManager appManager;
     ApplicationERC20Pricing erc20Pricer;
@@ -70,7 +70,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(applicationCoin), false);
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleDenied = new OracleDenied();
 
         /// set the token pricer address
         erc20Pricer = new ApplicationERC20Pricing();
@@ -422,7 +422,7 @@ contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTes
         /// oracle rules
         {
             /// adding the banning oracle rule
-            uint32 banOracle = NonTaggedRuleFacet(address(ruleProcessor)).addOracleRule(ac, 0, address(oracleRestricted));
+            uint32 banOracle = NonTaggedRuleFacet(address(ruleProcessor)).addOracleRule(ac, 0, address(oracleDenied));
             /// adding the whitelisting oracle rule
             uint32 whitelistOracle = NonTaggedRuleFacet(address(ruleProcessor)).addOracleRule(ac, 1, address(oracleAllowed));
             /// to simulate randomness in the oracle rule to pick, we grab the transferAmount%2
