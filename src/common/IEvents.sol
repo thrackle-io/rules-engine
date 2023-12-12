@@ -92,9 +92,9 @@ interface ICommonApplicationHandlerEvents {
  * @dev This library for all events in the Rule Processor Module for the protocol. Each contract in the access module should inherit this library for emitting events.
  * @notice Rule Processor Module Events Library
  */
-interface IRuleStorageDiamondEvents {
+interface IRuleProcessorDiamondEvents {
     ///RuleStorageDiamond
-    event RuleStorageDiamondDeployed(address indexed econRuleDiamond);
+    event RuleProcessorDiamondDeployed();
 }
 
 /**
