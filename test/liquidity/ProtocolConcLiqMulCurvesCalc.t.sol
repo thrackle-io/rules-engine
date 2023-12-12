@@ -7,12 +7,12 @@ import {LinearInput, LinearFractionB, ConstantRatio} from "../../src/liquidity/c
 import "src/liquidity/calculators/ProtocolAMMCalcConcLiqMulCurves.sol";
 
 /**
- * @title Test all AMM Calculator Factory related functions
+ * @title Test AMM Calculator with Concentrated Liquidity Regions with Multiple Curves
  * @notice This tests every function related to the AMM Calculator Factory including the different types of calculators
  * @dev A substantial amount of set up work is needed for each test.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
+contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry {
 
     uint256 constant M_PRECISION_DECIMALS = 8;
     uint256 constant B_PRECISION_DECIMALS = 18;
@@ -197,59 +197,130 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
    }
 
     /// Math Tests
+
+    /// Linear Region
     function _setupLinearReserves() internal returns(uint256 reserves0, uint256 reserves1) {
         _setSectionsA();
-        /// According to desmos
+        /// According to desmos. Spot price should be 0.4
         reserves0 = 100_000 * ATTO;
         reserves1 = 40_000_75 * ATTO / 100;
     }
 
-    function _linearRegionExchange1() internal returns(uint256 amountOut){
+    function _linearRegionExchange1XtoY() internal returns(uint256 amountOut){
         (uint256 reserves0, uint256 reserves1) = _setupLinearReserves();
         amountOut = calc.calculateSwap(reserves0, reserves1, 1 * ATTO, 0);
     }
 
-    function testAMMCalcConcLiqMulCurves_LinearRegionExchange1() public {
-        uint256 amountOut = _linearRegionExchange1();
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchange1XtoY() public {
+        uint256 amountOut = _linearRegionExchange1XtoY();
         /// according to desmos result should be 4.000095 * 10 ^ 22
         assertEq(amountOut, 4_000095 * (10 ** (22 - 6)));
     }
 
-    function _linearRegionExchange2() internal returns(uint256 amountOut){
+    function _linearRegionExchange2XtoY() internal returns(uint256 amountOut){
         (uint256 reserves0, uint256 reserves1) = _setupLinearReserves();
         amountOut = calc.calculateSwap(reserves0, reserves1, 2 * ATTO, 0);
     }
 
-    function testAMMCalcConcLiqMulCurves_LinearRegionExchange2() public {
-        uint256 amountOut = _linearRegionExchange2();
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchange2XtoY() public {
+        uint256 amountOut = _linearRegionExchange2XtoY();
         /// according to desmos result should be 8.00023 * 10 ^ 22
         assertEq(amountOut, 8_00023 * (10 ** (22 - 5)));
     }
 
+    /// Constant Ratio Region
     function _setupConstantRatioReserves() internal returns(uint256 reserves0, uint256 reserves1) {
         _setSectionsA();
-        /// According to desmos
+        /// spot price should be 1.5
         reserves0 = 100_000 * ATTO;
         reserves1 = 150_000 * ATTO;
     }
 
-    function _ConstantRatioRegionExchange1() internal returns(uint256 amountOut){
+    function _ConstantRatioRegionExchange1XtoY() internal returns(uint256 amountOut){
         (uint256 reserves0, uint256 reserves1) = _setupConstantRatioReserves();
         amountOut = calc.calculateSwap(reserves0, reserves1, 1 * ATTO, 0);
     }
 
-    function testAMMCalcConcLiqMulCurves_ConstantRatioRegionExchange1() public {
-        uint256 amountOut = _linearRegionExchange1();
+    function testAMMCalcConcLiqMulCurves_ConstantRatioRegionExchange1XtoY() public {
+        uint256 amountOut = _ConstantRatioRegionExchange1XtoY();
         assertEq(amountOut, 15 * ATTO / 10);
     }
 
-    function _ConstantRatioRegionExchange2() internal returns(uint256 amountOut){
+    function _ConstantRatioRegionExchange1point5YtoX() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupConstantRatioReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 0, 15 * (ATTO / 10));
+    }
+
+    function testAMMCalcConcLiqMulCurves_ConstantRatioRegionExchange1point5YtoX() public {
+        uint256 amountOut = _ConstantRatioRegionExchange1point5YtoX();
+        assertLt(1 * ATTO - amountOut, 2); // we test that the difference is not more than 1 ATTO
+    }
+
+    function _ConstantRatioRegionExchange2XtoY() internal returns(uint256 amountOut){
         (uint256 reserves0, uint256 reserves1) = _setupConstantRatioReserves();
         amountOut = calc.calculateSwap(reserves0, reserves1, 2 * ATTO, 0);
     }
 
-    function testAMMCalcConcLiqMulCurves_ConstantRatioRegionExchange2() public {
-        uint256 amountOut = _linearRegionExchange1();
+    function testAMMCalcConcLiqMulCurves_ConstantRatioRegionExchange2XtoY() public {
+        uint256 amountOut = _ConstantRatioRegionExchange2XtoY();
         assertEq(amountOut, 3 * ATTO);
+    }
+
+    function _ConstantRatioRegionExchange3YtoX() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupConstantRatioReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 0, 3 * ATTO);
+    }
+
+    function testAMMCalcConcLiqMulCurves_ConstantRatioRegionExchange3YtoX() public {
+        uint256 amountOut = _ConstantRatioRegionExchange3YtoX();
+        assertLt(2 * ATTO - amountOut , 2); // we test that the difference is not more than 1 ATTO
+    }
+
+    /// Constant Product Region
+    function _setupConstantProductReserves() internal returns(uint256 reserves0, uint256 reserves1) {
+        _setSectionsA();
+        /// spot price should be 2.1 -> region 2 according to upperLimitsA
+        reserves0 = 100_000_000_000 * ATTO;
+        reserves1 = 210_000_000_000 * ATTO;
+    }
+
+    function _ConstantProductRegionExchange1xtoY() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupConstantProductReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 1 , 0);
+    }
+
+    function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange1xtoY() public {
+        uint256 amountOut = _ConstantProductRegionExchange1xtoY();
+        assertEq(amountOut, 2);
+    }
+
+    function _ConstantProductRegionExchange1point21kytoX() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupConstantProductReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 0, 21_000);
+    }
+
+    function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange1point21kytoX() public {
+        uint256 amountOut = _ConstantProductRegionExchange1point21kytoX();
+        assertLe(10_000 - amountOut, 1 ); // we test that the difference is not more than 1 ATTO
+    }
+
+    function _ConstantProductRegionExchange2xtoY() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupConstantProductReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 2, 0);
+    }
+
+    function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange2xtoY() public {
+        uint256 amountOut = _ConstantProductRegionExchange2xtoY();
+        assertEq(amountOut, 4);
+    }
+
+    function _ConstantProductRegionExchange42kytoX() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupConstantProductReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 0, 42_000);
+    }
+
+    function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange42kytoX() public {
+        uint256 amountOut = _ConstantProductRegionExchange42kytoX();
+        assertLe(20_000 - amountOut , 1); // we test that the difference is not more than 1 ATTO
     }
 }

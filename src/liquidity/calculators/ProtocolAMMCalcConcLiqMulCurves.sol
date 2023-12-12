@@ -78,11 +78,11 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
          {
             _validateNoneAreZero(_amount0, _amount1);
             /// spotPrice will be x/y or y/x. If buying token0 (x), then x/y. If buying token1 (y) then y/x
-            uint256 spotPriceNumerator = _amount0 == 0 ? (_reserve0 * ATTO) / _reserve1 : (_reserve1 * ATTO) / _reserve0;
+            uint256 spotPriceNumerator = (_reserve1 * ATTO) / _reserve0;
             //uint256 spotPriceDenominator = ATTO;
             for(uint i; i < sectionUpperLimits.length;){
                 /// find curve for current value of x
-                if(spotPriceNumerator < (_amount0 == 0 ? ATTO ** 2 / sectionUpperLimits[i] : sectionUpperLimits[i] )){
+                if( spotPriceNumerator < sectionUpperLimits[i] ){
                     /// we calculate depending on the curve
                     uint256 _index = sectionCurves[i].index;
                     /// constant ratio
