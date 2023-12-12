@@ -239,20 +239,57 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(user5);
         vm.expectRevert(0x2767bda4);
         applicationCoin.burn(5000);
-
-        switchToAppAdministrator();
-        oracleAllowed.addAddressToAllowList(address(60));
     }
 
     /**
      * @dev Test the oracle rule, both allow and deny types
      */
     function testOracleAddSingleAddressERC20() public {
-        /// Test adding single address to allow list 
+        /// set up a non admin user with tokens
+        applicationCoin.transfer(user1, 100000);
+        assertEq(applicationCoin.balanceOf(user1), 100000);
 
+        /// Test adding single address to allow list 
+        switchToRuleAdmin();
+        uint32 _indexAllowed = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        /// connect the rule to this handler
+        applicationCoinHandler.setOracleRuleId(_indexAllowed);
+        switchToAppAdministrator();
+        oracleAllowed.addAddressToAllowList(address(59));
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        ///perform transfer that checks rule
+        applicationCoin.transfer(address(59), 10);
+        assertEq(applicationCoin.balanceOf(address(59)), 10);
+        // This one should fail
+        vm.expectRevert(0x7304e213);
+        applicationCoin.transfer(address(60), 11);
+        assertEq(applicationCoin.balanceOf(address(60)), 0);
 
         /// Test adding single address to deny list 
 
+        // add the rule.
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
+        assertEq(rule.oracleType, 0);
+        assertEq(rule.oracleAddress, address(oracleDenied));
+        /// connect the rule to this handler
+        applicationCoinHandler.setOracleRuleId(_index);
+        switchToAppAdministrator();
+
+        oracleDenied.addAddressToDeniedList(address(60)); 
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.transfer(user2, 10);
+        assertEq(applicationCoin.balanceOf(user2), 10);
+        ///perform transfer that checks rule
+        // This one should fail
+        vm.expectRevert(0x2767bda4);
+        applicationCoin.transfer(address(60), 25);
+        assertEq(applicationCoin.balanceOf(address(60)), 0);
     }
 
     /**
