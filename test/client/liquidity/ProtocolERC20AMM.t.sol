@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "forge-std/Test.sol";
 import "src/client/liquidity/ProtocolERC20AMM.sol";
 import "src/client/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
 import {ApplicationAMMHandler} from "example/liquidity/ApplicationAMMHandler.sol";
@@ -26,7 +26,7 @@ import {ConstantRatio} from "src/client/liquidity/calculators/dataStructures/Cur
  */
 contract ProtocolERC20AMMTest is TestCommonFoundry {
     ApplicationAMMHandler handler;
-    OracleRestricted oracleRestricted;
+    OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
     ApplicationAMMHandler applicationAMMHandler;
     ApplicationAMMHandlerMod newAssetHandler;
@@ -73,7 +73,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
 
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleDenied = new OracleDenied();
     }
 
     //Test adding liquidity to the AMM
@@ -615,15 +615,15 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
 
         // BLOCKLIST ORACLE
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         assertEq(_index, 0);
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
-        assertEq(rule.oracleAddress, address(oracleRestricted));
+        assertEq(rule.oracleAddress, address(oracleDenied));
         switchToAppAdministrator();
         // add a blocked address
         badBoys.push(targetedTrader);
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         switchToRuleAdmin();
         /// connect the rule to this handler
         applicationAMMHandler.setOracleRuleId(_index);
@@ -635,7 +635,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         uint reserves1 = protocolAMM.getReserve1();
         console.log(protocolAMM.getReserve1());
         applicationCoin.approve(address(protocolAMM), amount1);
-        if (targetedTrader == user1) vm.expectRevert(0x6bdfffc0);
+        if (targetedTrader == user1) vm.expectRevert(0x2767bda4);
         protocolAMM.swap(address(applicationCoin), amount1);
         if (targetedTrader != user1) {
             assertEq(applicationCoin.balanceOf(user1), balanceABefore - amount1);

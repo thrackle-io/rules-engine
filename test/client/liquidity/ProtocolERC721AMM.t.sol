@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "src/client/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import {ApplicationAMMHandler} from "example/liquidity/ApplicationAMMHandler.sol";
 import {ApplicationAMMHandlerMod} from "test/util/ApplicationAMMHandlerMod.sol";
@@ -26,7 +26,7 @@ import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor
  */
 contract ProtocolERC721AMMTest is TestCommonFoundry {
     ApplicationAMMHandler handler;
-    OracleRestricted oracleRestricted;
+    OracleDenied oracleRestricted;
     OracleAllowed oracleAllowed;
     ApplicationAMMHandler applicationAMMHandler;
     ApplicationAMMHandlerMod newAssetHandler;
@@ -70,7 +70,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
 
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleRestricted = new OracleDenied();
     }
 
 
@@ -251,7 +251,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         _fundThreeAccounts();
         // add a blocked address
         badBoys.push(user2);
-        oracleRestricted.addToSanctionsList(badBoys);
+        oracleRestricted.addToDeniedList(badBoys);
         // add an allowed address
         goodBoys.push(user1);
         oracleAllowed.addToAllowList(goodBoys);
@@ -266,7 +266,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(user2);
         _approveTokens(5 * 10 ** 8 * ATTO, true);
-        vm.expectRevert(0x6bdfffc0);
+        vm.expectRevert(0x2767bda4);
         _buy(pricePlusFeesA, 345);
         /// this should go through since user is not a bad boy
         switchToUser();

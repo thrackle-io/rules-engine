@@ -27,6 +27,10 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
     address accessTier = address(3);
     address[] badBoys;
     address[] goodBoys;
+    address user1 = address(0x111);
+    address user2 = address(0x222);
+    address user3 = address(0x333);
+    address user4 = address(0x444);
     OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
     ApplicationERC20Handler applicationCoinHandlerSpecialOwner;

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "src/client/liquidity/ProtocolERC20AMM.sol";
-import "example/OracleRestricted.sol";
+import "example/OracleDenied.sol";
 import "example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
 import {ApplicationAMMHandler} from "example/liquidity/ApplicationAMMHandler.sol";
@@ -31,7 +31,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
     address[] badBoys;
     address[] goodBoys;
     ApplicationAMMHandler applicationAMMHandler;
-    OracleRestricted oracleRestricted;
+    OracleDenied oracleRestricted;
     OracleAllowed oracleAllowed;
 
     function setUp() public {
@@ -41,7 +41,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
 
         // create the oracles
         oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleRestricted();
+        oracleRestricted = new OracleDenied();
 
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();

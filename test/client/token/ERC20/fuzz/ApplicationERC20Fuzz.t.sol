@@ -14,7 +14,7 @@ import "example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC20FuzzTest is TestCommonFoundry {
-    ApplicationERC20Handler applicationCoinHandler2;
+    ApplicationERC20Handler applicationCoinHandler3;
     OracleDenied oracleDenied;
     OracleAllowed oracleAllowed;
 
@@ -510,9 +510,9 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         /// create secondary token, mint, and transfer to user
         switchToAppAdministrator();
         ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(draculaCoin), false);
-        draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
-        applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
+        applicationCoinHandler3 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(draculaCoin), false);
+        draculaCoin.connectHandlerToToken(address(applicationCoinHandler3));
+        applicationCoinHandler3.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         applicationAppManager.registerToken("DRAC", address(draculaCoin));
         draculaCoin.mint(appAdministrator, type(uint256).max);
