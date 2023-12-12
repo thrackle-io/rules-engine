@@ -68,7 +68,7 @@ library Curve {
     */
     function getY(LinearFractionB memory line, uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
         if (_amount0 != 0) {
-            y = (((line.b_num * _amount0) / line.b_den) + ((line.m_num * ((2 * _reserve0 * _amount0) + _amount0 ** 2))) / ((2 * 10 ** 18) * line.m_den)); 
+            y = (((line.b_num * _amount0) / line.b_den) + ((line.m_num * ((2 * _reserve0 * _amount0) + _amount0 ** 2))) / ((2 * ATTO) * line.m_den)); 
         } else {
             y = ((2 * (10 ** 9)) * (_amount1 * line.b_den) * line.m_den.sqrt()) /
                 ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * _reserve1 * line.m_num * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (_reserve1 - _amount1) * line.m_num * (line.b_den ** 2)).sqrt());

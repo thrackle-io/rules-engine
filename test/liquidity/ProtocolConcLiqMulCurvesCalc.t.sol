@@ -225,5 +225,31 @@ contract ProtocolNFTAMMFactoryTest is TestCommonFoundry {
         /// according to desmos result should be 8.00023 * 10 ^ 22
         assertEq(amountOut, 8_00023 * (10 ** (22 - 5)));
     }
-    
+
+    function _setupConstantRatioReserves() internal returns(uint256 reserves0, uint256 reserves1) {
+        _setSectionsA();
+        /// According to desmos
+        reserves0 = 100_000 * ATTO;
+        reserves1 = 150_000 * ATTO;
+    }
+
+    function _ConstantRatioRegionExchange1() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupConstantRatioReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 1 * ATTO, 0);
+    }
+
+    function testAMMCalcConcLiqMulCurves_ConstantRatioRegionExchange1() public {
+        uint256 amountOut = _linearRegionExchange1();
+        assertEq(amountOut, 15 * ATTO / 10);
+    }
+
+    function _ConstantRatioRegionExchange2() internal returns(uint256 amountOut){
+        (uint256 reserves0, uint256 reserves1) = _setupConstantRatioReserves();
+        amountOut = calc.calculateSwap(reserves0, reserves1, 2 * ATTO, 0);
+    }
+
+    function testAMMCalcConcLiqMulCurves_ConstantRatioRegionExchange2() public {
+        uint256 amountOut = _linearRegionExchange1();
+        assertEq(amountOut, 3 * ATTO);
+    }
 }
