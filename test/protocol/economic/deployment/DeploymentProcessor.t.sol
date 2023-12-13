@@ -1,24 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Script.sol";
-import "forge-std/Test.sol";
-import "test/util/GenerateSelectors.sol";
-import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
-import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
-import {SampleUpgradeFacet} from "src/protocol/diamond/SampleUpgradeFacet.sol";
-import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
-import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import {VersionFacet} from "src/protocol/diamond/VersionFacet.sol";
-import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
 
 /**
@@ -27,7 +9,7 @@ import "test/util/TestCommonFoundry.sol";
  * This test suite contains if checks that assume you have followed the deployment guide docs and have added an NFTTransferCounter and AccountBalanceByAccessLevel rule when testing forked contracts.
  */
 
-contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry {
+contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     // Store the FacetCut struct for each facet that is being deployed.
     // NOTE: using storage array to easily "push" new FacetCut as we
     // process the facets,
@@ -38,14 +20,10 @@ contract RuleProcessorDiamondTest is Test, GenerateSelectors, TestCommonFoundry 
     address user3 = address(33);
     address rich_user = address(44);
     address accessTier = address(3);
-    address ac;
-    uint256 totalSupply = 100_000_000_000;
-    uint32 startTime = 12;
+
     address[] badBoys;
     address[] goodBoys;
     bool forkTest;
-    OracleDenied oracleDenied;
-    OracleAllowed oracleAllowed;
 
     function setUp() public {
         if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {

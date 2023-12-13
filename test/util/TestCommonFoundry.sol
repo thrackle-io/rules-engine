@@ -149,6 +149,9 @@ abstract contract TestCommonFoundry is TestCommon {
         applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
         applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
         applicationCoinHandler.setNFTPricingAddress(address(erc721Pricer));
+
+        oracleAllowed = _createOracleAllowed();
+        oracleDenied = _createOracleDenied();
         /// reset the user to the original
         switchToOriginalUser();
     }

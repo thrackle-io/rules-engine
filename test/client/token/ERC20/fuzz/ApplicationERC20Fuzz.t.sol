@@ -9,14 +9,11 @@ import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
+
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC20FuzzTest is TestCommonFoundry {
     ApplicationERC20Handler applicationCoinHandler2;
-    OracleDenied oracleDenied;
-    OracleAllowed oracleAllowed;
     address user1 = address(11);
     address user2 = address(22);
     address user3 = address(33);
@@ -32,9 +29,6 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         vm.startPrank(superAdmin);
         setUpProtocolAndAppManagerAndTokens();
         switchToAppAdministrator();
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleDenied = new OracleDenied();
     }
 
     // Test balance

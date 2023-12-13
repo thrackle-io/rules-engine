@@ -19,13 +19,11 @@ import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/rulePr
 import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
+
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC721FuzzTest is TestCommonFoundry {
-    OracleDenied oracleDenied;
-    OracleAllowed oracleAllowed;
+
     address[] badBoys;
     address[] goodBoys;
     event Log(string eventString, bytes32[] tag);
@@ -35,9 +33,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         vm.startPrank(appAdministrator);
         setUpProtocolAndAppManagerAndTokens();
         switchToAppAdministrator();
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleDenied = new OracleDenied();
 
         //activateBalanceByAccessLevelRule
         applicationCoin.mint(appAdministrator, type(uint256).max);
