@@ -132,7 +132,7 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
     }
 
     /**
-    * @dev creates the input array specifically for the linear_calculator.py script.
+    * @dev creates the input array specifically for the linear_calculator_ERC721.py script.
     * @param lineInput the lineIput struct that defines the curve function ƒ.
     * @param decimals the amount of decimals of precision for *m*.
     * @param q in this case, the value of x to solve ƒ(x).
@@ -140,7 +140,7 @@ contract ProtocolNFTAMMFactoryFuzzTest is TestCommonFoundry, Utils {
     function _buildFFILinearCalculator(LinearInput memory lineInput, uint256 decimals, uint88 q) internal pure returns(string[] memory) {
         string[] memory inputs = new string[](7);
         inputs[0] = "python3";
-        inputs[1] = "script/python/linear_calculator.py"; 
+        inputs[1] = "script/python/linear_calculator_ERC721.py"; 
         inputs[2] = lineInput.m.toString();
         inputs[3] = decimals.toString(); 
         inputs[4] = lineInput.b.toString();
