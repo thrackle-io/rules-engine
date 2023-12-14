@@ -2,23 +2,23 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "example/ERC20/ApplicationERC20Handler.sol";
-import {ApplicationERC721Handler} from "example/ERC721/ApplicationERC721Handler.sol";
-import "example/ERC20/ApplicationERC20.sol";
-import {ApplicationERC721} from "example/ERC721/ApplicationERC721FreeMint.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
+import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
+import "src/example/ERC20/ApplicationERC20.sol";
+import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
 import "src/client/liquidity/ProtocolAMMFactory.sol";
 import "src/client/liquidity/ProtocolAMMCalculatorFactory.sol";
-import "example/liquidity/ApplicationAMMHandler.sol";
-import {ApplicationAppManager} from "example/application/ApplicationAppManager.sol";
-import "example/application/ApplicationHandler.sol";
-import "example/OracleRestricted.sol";
-import "example/OracleAllowed.sol";
-import "example/pricing/ApplicationERC20Pricing.sol";
-import "example/pricing/ApplicationERC721Pricing.sol";
-import "example/staking/ERC20Staking.sol";
-import "example/staking/ERC20AutoMintStaking.sol";
-import "example/staking/ERC721Staking.sol";
-import "example/staking/ERC721AutoMintStaking.sol";
+import "src/example/liquidity/ApplicationAMMHandler.sol";
+import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
+import "src/example/pricing/ApplicationERC20Pricing.sol";
+import "src/example/pricing/ApplicationERC721Pricing.sol";
+import "src/example/staking/ERC20Staking.sol";
+import "src/example/staking/ERC20AutoMintStaking.sol";
+import "src/example/staking/ERC721Staking.sol";
+import "src/example/staking/ERC721AutoMintStaking.sol";
 import {LinearInput} from "src/client/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
 /**
@@ -59,7 +59,7 @@ contract ApplicationDeployAllScript is Script {
         amm.connectHandlerToAMM(address(applicationAMMHandler));
         /// oracles
         new OracleAllowed();
-        new OracleRestricted();
+        new OracleDenied();
         /// create NFT
         ApplicationERC721 nft1 = new ApplicationERC721("Frankenstein", "FRANKPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
         applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1), false);

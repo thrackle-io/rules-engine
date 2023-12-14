@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "example/liquidity/ApplicationAMMHandler.sol";
+import "src/example/liquidity/ApplicationAMMHandler.sol";
 
 /**
  * @title This is the deployment script for the Application AMM Handler.
