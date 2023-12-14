@@ -10,8 +10,8 @@ import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/rulePr
 import {INonTaggedRules as NonTaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
 import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
 import "test/util/TestCommonFoundry.sol";
 

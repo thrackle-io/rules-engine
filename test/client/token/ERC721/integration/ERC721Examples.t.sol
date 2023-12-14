@@ -2,17 +2,17 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
-import {ApplicationERC721 as MintForAFeeERC721} from "example/ERC721/ApplicationERC721MintForAFee.sol";
-import {ApplicationERC721 as WhitelistMintERC721} from "example/ERC721/ApplicationERC721WhitelistMint.sol";
-import {ApplicationERC721 as FreeForAllERC721} from "example/ERC721/ApplicationERC721FreeMint.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
+import {ApplicationERC721 as MintForAFeeERC721} from "src/example/ERC721/ApplicationERC721MintForAFee.sol";
+import {ApplicationERC721 as WhitelistMintERC721} from "src/example/ERC721/ApplicationERC721WhitelistMint.sol";
+import {ApplicationERC721 as FreeForAllERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
-import {ApplicationERC721Upgradeable as MintForAFeeERC721Upgradeable} from "example/ERC721/upgradeable/ApplicationERC721UpgMintForAFee.sol";
-import {ApplicationERC721Upgradeable as WhitelistMintERC721Upgradeable} from "example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
-import {ApplicationERC721Upgradeable as FreeForAllERC721Upgradeable} from "example/ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol";
+import {ApplicationERC721Upgradeable as MintForAFeeERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgMintForAFee.sol";
+import {ApplicationERC721Upgradeable as WhitelistMintERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
+import {ApplicationERC721Upgradeable as FreeForAllERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
-import "example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
+import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
 import "test/util/ApplicationERC721WithBatchMintBurn.sol";
 import "test/util/TestCommonFoundry.sol";
 

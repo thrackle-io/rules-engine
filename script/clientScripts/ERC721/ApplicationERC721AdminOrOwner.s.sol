@@ -2,9 +2,9 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "../../ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import "../src/client/tokenapplication/IAppManager.sol"; 
-import {ApplicationERC721Handler} from "../../ERC721/ApplicationERC721Handler.sol";
+import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import "src/client/application/IAppManager.sol"; 
+import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
 
 /**
  * @title This is the deployment script for the Application NFT.

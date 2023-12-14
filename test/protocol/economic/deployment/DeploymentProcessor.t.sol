@@ -17,8 +17,8 @@ import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {VersionFacet} from "src/protocol/diamond/VersionFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
 
 /**
