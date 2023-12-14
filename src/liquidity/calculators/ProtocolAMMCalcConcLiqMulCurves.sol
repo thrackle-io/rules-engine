@@ -86,8 +86,9 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
             uint256 amount1 = _amount1;
             uint256 amountInLeft = isAmount0Not0 ? _amount0 : _amount1;
             uint256 regionOut;
+            uint256 i;
             
-            for(uint i; i < sectionUpperLimits.length;){
+            while(amountInLeft != 0 && i < sectionUpperLimits.length){
                 /// spotPrice will be y/x
                 uint256 spotPriceNumerator = (reserve1 * ATTO) / reserve0;
                 /// find curve for current value of x
@@ -139,16 +140,24 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
                     }
 
                     if(isAmount0Not0){
+                        unchecked{
+                            --i;
+                        }
                         reserve0 += amount0;
                         reserve1 -= regionOut;
                     }else{
+                        unchecked{
+                            ++i;
+                        }
                         reserve0 -= regionOut;
                         reserve1 += amount1;
                     }
                     amountOut += regionOut;
-                }
-                unchecked{
-                    ++i;
+
+                }else{
+                    unchecked{
+                        ++i;
+                    }
                 }
             }
             if((reserve1 * ATTO) / reserve0 > sectionUpperLimits[ sectionUpperLimits.length - 1])
