@@ -1,31 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ApplicationERC20} from "example/ERC20/ApplicationERC20.sol";
-import {ApplicationERC721} from "example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import "example/application/ApplicationAppManager.sol";
-import "example/application/ApplicationHandler.sol";
-import "test/protocol/diamond/util/DiamondTestUtil.sol";
-import {ApplicationERC721Handler} from "example/ERC721/ApplicationERC721Handler.sol";
-import {ApplicationERC20Handler} from "example/ERC20/ApplicationERC20Handler.sol";
-import "test/protocol/economic/util/RuleProcessorDiamondTestUtil.sol";
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
-import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC721FuzzTest is TestCommonFoundry {
 
-    address[] badBoys;
-    address[] goodBoys;
     event Log(string eventString, bytes32[] tag);
 
     function setUp() public {
@@ -34,7 +13,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         setUpProtocolAndAppManagerAndTokens();
         switchToAppAdministrator();
 
-        //activateBalanceByAccessLevelRule
         applicationCoin.mint(appAdministrator, type(uint256).max);
     }
 

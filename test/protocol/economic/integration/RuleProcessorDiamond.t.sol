@@ -5,10 +5,6 @@ import "test/util/TestCommonFoundry.sol";
 
 
 contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
-    // Store the FacetCut struct for each facet that is being deployed.
-    // NOTE: using storage array to easily "push" new FacetCut as we
-    // process the facets.
-
 
     function setUp() public {
         vm.startPrank(superAdmin);

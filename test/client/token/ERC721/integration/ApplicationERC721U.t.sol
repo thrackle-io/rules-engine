@@ -1,21 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
 import "example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
 import "example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
 import "test/util/ApplicationERC721UExtra.sol";
 import "test/util/ApplicationERC721UExtra2.sol";
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
-import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
-import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC721UTest is TestCommonFoundry {
@@ -24,17 +13,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
     ApplicationERC721UExtra applicationNFTExtra;
     ApplicationERC721UExtra2 applicationNFTExtra2;
     ApplicationERC721UProxy applicationNFTProxy;
-    ApplicationERC721Handler applicationNFTHandler2;
-    OracleDenied oracleDenied;
-    OracleAllowed oracleAllowed;
-    ApplicationERC721HandlerMod newAssetHandler;
 
-    address user1 = address(11);
-    address user2 = address(22);
-    address user3 = address(33);
-    address rich_user = address(44);
-    address[] badBoys;
-    address[] goodBoys;
     address proxyOwner = address(787);
 
     function setUp() public {
@@ -42,9 +21,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         vm.startPrank(superAdmin);
         setUpProtocolAndAppManagerAndTokens();
         switchToAppAdministrator();
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleDenied = new OracleDenied();
+
 
         applicationNFTU = new ApplicationERC721Upgradeable();
         applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFTU), proxyOwner, "");
@@ -59,9 +36,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
         erc20Pricer = new ApplicationERC20Pricing();
         applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
-        /// create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleDenied = new OracleDenied();
+
         vm.warp(Blocktime); // set block.timestamp
     }
 

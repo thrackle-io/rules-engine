@@ -1,37 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC20Test is TestCommonFoundry {
-    ApplicationERC20Handler applicationCoinHandler2;
-
-    ApplicationAssetHandlerMod newAssetHandler;
-    address user1 = address(11);
-    address user2 = address(22);
-    address user3 = address(33);
-    address user4 = address(44);
-    address user5 = address(55);
-    address user6 = address(66);
-    address user7 = address(77);
-    address user8 = address(88);
-    address user9 = address(99);
-    address user10 = address(100);
-    address transferFromUser = address(110);
-    address accessTier = address(3);
-    address rich_user = address(45);
-    address[] badBoys;
-    address[] goodBoys;
 
     function setUp() public {
         vm.startPrank(superAdmin);

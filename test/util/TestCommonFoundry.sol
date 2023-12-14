@@ -157,8 +157,31 @@ abstract contract TestCommonFoundry is TestCommon {
     }
 
     /**
-     * @dev Deploy and set up a protocol supported ERC721
+     * @dev Deploy and set up the protocol with app manager and 2 supported ERC721 tokens with pricing contract 
+     * ERC721 tokens and Pricing contract are named for Pricing.t.sol 
      */
+    
+    function setUpProtocolAndAppManagerAndPricingAndTokens() public {
+        switchToSuperAdminWithSave();
+        // create the rule processor diamond
+        ruleProcessor = _createRulesProcessorDiamond();
+        // create the app manager
+        applicationAppManager = _createAppManager();
+        switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
+        // create the app handler and connect it to the appManager
+        applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
+        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
+        
+        boredWhaleNFT = _createERC721("Bored Whale Island Club", "BWYC", applicationAppManager);
+        boredWhaleHandler = _createERC721Handler(ruleProcessor, applicationAppManager, boredWhaleNFT);
+        boredWhaleNFT.connectHandlerToToken(address(boredWhaleHandler));
+        boredReptilianNFT = _createERC721("Board Reptilian Spaceship Club", "BRSC", applicationAppManager);
+        boredReptileHandler = _createERC721Handler(ruleProcessor, applicationAppManager, boredReptilianNFT);
+        boredReptilianNFT.connectHandlerToToken(address(boredReptileHandler));
+
+        /// Deploy the pricing contract
+        openOcean = _createERC721Pricing();
+    }
 
     /**
      * @dev this function ensures that unique addresses can be randomly retrieved from the address array.
@@ -266,9 +289,9 @@ abstract contract TestCommonFoundry is TestCommon {
 
     function switchToUser() public {
         vm.stopPrank(); //stop interacting as the default admin
-        vm.startPrank(user); //interact as the created AccessLevel admin
+        vm.startPrank(user); //interact as the user
     }
-
+    
     /**
      * @dev Function to set the super admin as the calling address. It stores the current address for future resetting
      *

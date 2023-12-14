@@ -2,8 +2,6 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
 import {ApplicationERC721 as MintForAFeeERC721} from "example/ERC721/ApplicationERC721MintForAFee.sol";
 import {ApplicationERC721 as WhitelistMintERC721} from "example/ERC721/ApplicationERC721WhitelistMint.sol";
 import {ApplicationERC721 as FreeForAllERC721} from "example/ERC721/ApplicationERC721FreeMint.sol";
@@ -45,9 +43,7 @@ contract DummyTreasury {
 }
 
 contract ApplicationERC721ExampleTest is TestCommonFoundry {
-    OracleDenied oracleDenied;
-    OracleAllowed oracleAllowed;
-    ApplicationERC721HandlerMod newAssetHandler;
+
     MintForAFeeERC721 mintForAFeeNFT;
     WhitelistMintERC721 whitelistMintNFT;
     FreeForAllERC721 freeNFT;
@@ -64,14 +60,7 @@ contract ApplicationERC721ExampleTest is TestCommonFoundry {
     ApplicationERC721Handler WhitelistNFTHandlerUp;
     ApplicationERC721Handler FreeForAllnNFTHandlerUp;
 
-    address rich_user = address(44);
     address proxyOwner = address(0xBABE666);
-    address user1 = address(0xa1);
-    address user2 = address(0xb2);
-    address user3 = address(0xc3);
-    address ac;
-    address[] badBoys;
-    address[] goodBoys;
 
     function setUp() public {
         vm.warp(Blocktime);
@@ -125,9 +114,6 @@ contract ApplicationERC721ExampleTest is TestCommonFoundry {
         applicationAppManager.registerToken("MonkeysPlayingInBonsaiTreesUp", address(whitelistMintNFTUp));
         applicationAppManager.registerToken("ParkinsonBarbersUp", address(freeNFTUp));
 
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleDenied = new OracleDenied();
     }
 
     function testERC721AndHandlerVersions() public {

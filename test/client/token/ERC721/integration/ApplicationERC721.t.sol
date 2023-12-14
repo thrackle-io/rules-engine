@@ -1,42 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
-import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
-import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
-import "test/util/ApplicationERC721WithBatchMintBurn.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC721Test is TestCommonFoundry {
-    OracleDenied oracleDenied;
-    OracleAllowed oracleAllowed;
-    ApplicationERC721HandlerMod newAssetHandler;
-    address user1 = address(11);
-    address user2 = address(22);
-    address user3 = address(33);
-    address rich_user = address(44);
-    address accessTier = address(3);
-    address ac;
-    address[] badBoys;
-    address[] goodBoys;
 
     function setUp() public {
         vm.warp(Blocktime);
         vm.startPrank(appAdministrator);
         setUpProtocolAndAppManagerAndTokens();
         switchToAppAdministrator();
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleDenied = new OracleDenied();
     }
 
     function testERC721AndHandlerVersions() public {
@@ -95,9 +68,9 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
         /// test both address checks in constructor
         vm.expectRevert();
-        new ApplicationERC721Handler(address(0x0), ac, address(applicationNFT), false);
+        new ApplicationERC721Handler(address(0x0), address(applicationAppManager), address(applicationNFT), false);
         vm.expectRevert();
-        new ApplicationERC721Handler(address(ruleProcessor), ac, address(applicationNFT), false);
+        new ApplicationERC721Handler(address(ruleProcessor), address(0x0), address(applicationNFT), false);
         vm.expectRevert();
         new ApplicationERC721Handler(address(ruleProcessor), address(0x0), address(0x0), false);
 
@@ -962,14 +935,14 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
     function testUpgradingHandlersERC721() public {
         ///deploy new modified appliction asset handler contract
-        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), true);
+        ApplicationERC721HandlerMod ERC721AssetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), true);
         ///connect to apptoken
-        applicationNFT.connectHandlerToToken(address(assetHandler));
+        applicationNFT.connectHandlerToToken(address(ERC721AssetHandler));
         /// in order to handle upgrades and handler registrations, deregister and re-register with new
         applicationAppManager.deregisterToken("FRANKENSTEIN");
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
-        assetHandler.setNFTPricingAddress(address(erc721Pricer));
-        assetHandler.setERC20PricingAddress(address(erc20Pricer));
+        ERC721AssetHandler.setNFTPricingAddress(address(erc721Pricer));
+        ERC721AssetHandler.setERC20PricingAddress(address(erc20Pricer));
 
         ///Set transaction limit rule params
         uint8[] memory riskScores = new uint8[](5);
@@ -1002,7 +975,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        assetHandler.setTransactionLimitByRiskRuleId(index);
+        ERC721AssetHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
@@ -1072,8 +1045,8 @@ contract ApplicationERC721Test is TestCommonFoundry {
         vm.startPrank(user2);
         applicationNFT.safeTransferFrom(user2, user3, 4);
 
-        address testAddress = assetHandler.newTestFunction();
-        console.log(assetHandler.newTestFunction(), testAddress);
+        address testAddress = ERC721AssetHandler.newTestFunction();
+        console.log(ERC721AssetHandler.newTestFunction(), testAddress);
     }
 
     function testUpgradeAppManager721() public {

@@ -24,12 +24,24 @@ import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "sr
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
 /// Client Contract imports 
+import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
+import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import "example/application/ApplicationAppManager.sol";
 import "example/application/ApplicationHandler.sol";
 import "example/ERC20/ApplicationERC20.sol";
 import "example/ERC20/ApplicationERC20Handler.sol";
 import "example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import "example/ERC721/ApplicationERC721Handler.sol";
+import "test/util/ApplicationERC721WithBatchMintBurn.sol";
+import "src/client/application/data/IPauseRules.sol";
+import "src/client/token/data/Fees.sol";
+import "src/client/application/data/GeneralTags.sol";
+import "src/client/application/data/PauseRules.sol";
+import "src/client/application/data/AccessLevels.sol";
+import "src/client/application/data/RiskScores.sol";
+import "src/client/application/data/Accounts.sol";
+import "src/client/application/data/IDataModule.sol";
+import "src/client/token/IAdminWithdrawalRuleCapable.sol";
 /// common imports 
 import "example/pricing/ApplicationERC20Pricing.sol";
 import "example/pricing/ApplicationERC721Pricing.sol";
@@ -56,28 +68,57 @@ abstract contract TestCommon is Test, GenerateSelectors {
     address riskAdmin = address(0xCCC);
     address user = address(0xDDD);
     address priorAddress;
+    address user1 = address(11);
+    address user2 = address(22);
+    address user3 = address(33);
+    address user4 = address(44);
+    address user5 = address(55);
+    address user6 = address(66);
+    address user7 = address(77);
+    address user8 = address(88);
+    address user9 = address(99);
+    address user10 = address(100);
+    address transferFromUser = address(110);
+    address accessTier = address(3);
+    address rich_user = address(45);
+    address[] badBoys;
+    address[] goodBoys;
 
     // shared objects
-    ApplicationAppManager public applicationAppManager;
     RuleProcessorDiamond public ruleProcessor;
+
+    ApplicationAppManager public applicationAppManager;
     ApplicationHandler public applicationHandler;
+    ApplicationAppManager public applicationAppManager2;
+    ApplicationHandler public applicationHandler2;
+    ApplicationAssetHandlerMod public newAssetHandler;
+
     ApplicationERC20 public applicationCoin;
     ApplicationERC20Handler public applicationCoinHandler;
+    ApplicationERC20Handler public applicationCoinHandler2;
     ApplicationERC20Pricing public erc20Pricer;
+
     ApplicationERC721 public applicationNFT;
     ApplicationERC721Handler public applicationNFTHandler;
+    ApplicationERC721Handler public applicationNFTHandler2;
+    ApplicationERC721HandlerMod public ERC721AssetHandler;
     ApplicationERC721Pricing public erc721Pricer;
+
     OracleAllowed public oracleAllowed;
     OracleDenied public oracleDenied; 
+
+    ApplicationERC721 public boredWhaleNFT;
+    ApplicationERC721Handler public boredWhaleHandler;
+    ApplicationERC721 public boredReptilianNFT;
+    ApplicationERC721Handler public boredReptileHandler;
+    ApplicationERC721Pricing public openOcean; 
+
 
     // common block time
     uint64 Blocktime = 1769924800;
 
     // common starting time 
     uint32 startTime = 12;
-
-    // common roles 
-    //bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
 
     // common starting supply 
     uint256 totalSupply = 100_000_000_000;

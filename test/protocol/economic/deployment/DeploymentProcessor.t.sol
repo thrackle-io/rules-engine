@@ -10,19 +10,8 @@ import "test/util/TestCommonFoundry.sol";
  */
 
 contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
-    // Store the FacetCut struct for each facet that is being deployed.
-    // NOTE: using storage array to easily "push" new FacetCut as we
-    // process the facets,
-    address ruleProcessorDiamondAddress;
-    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    address user1 = address(11);
-    address user2 = address(22);
-    address user3 = address(33);
-    address rich_user = address(44);
-    address accessTier = address(3);
 
-    address[] badBoys;
-    address[] goodBoys;
+    address ruleProcessorDiamondAddress;
     bool forkTest;
 
     function setUp() public {
@@ -42,12 +31,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
             forkTest = false;
             vm.stopPrank();
         }
-        vm.startPrank(superAdmin);
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleDenied = new OracleDenied();
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
+        switchToRuleAdmin();
     }
 
     /// Test to make sure that the Diamond will upgrade
@@ -1356,7 +1340,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleDenied));
         // add a blocked address
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         badBoys.push(address(69));
         oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
@@ -1380,7 +1364,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         /// connect the rule to this handler
         applicationNFTHandler.setOracleRuleId(_index);
         // add an allowed address
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
         vm.stopPrank();
@@ -1408,7 +1392,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         applicationNFTHandler.setOracleRuleId(_index);
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         badBoys.push(address(0));
         oracleDenied.addToDeniedList(badBoys);
         /// user attempts burn

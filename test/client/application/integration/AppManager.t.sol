@@ -15,14 +15,12 @@ contract AppManagerBaseTest is TestCommonFoundry {
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     bytes32 public constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
     bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
-    bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
-    uint64 public constant TEST_DATE = 1666706998;
-
+    bytes32 public constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
     function setUp() public {
         vm.startPrank(superAdmin); //set up as the default admin
         setUpProtocolAndAppManager();
         switchToAppAdministrator();
-        vm.warp(TEST_DATE); // set block.timestamp
+        vm.warp(Blocktime); // set block.timestamp
     }
 
     ///---------------DEFAULT ADMIN--------------------
@@ -44,7 +42,8 @@ contract AppManagerBaseTest is TestCommonFoundry {
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ccc is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
         /// now let's propose some superAdmins to make sure that only one will ever be in the app
-        switchToSuperAdmin();
+        switchToSuperAdmin(); 
+        assertEq(applicationAppManager.getRoleMemberCount(SUPER_ADMIN_ROLE), 1);
         /// let's test that superAdmin can't just renounce to his/her role
         vm.expectRevert(abi.encodeWithSignature("BelowMinAdminThreshold()"));
         applicationAppManager.renounceRole(SUPER_ADMIN_ROLE, superAdmin);
@@ -56,7 +55,7 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
-        /// no let's test that the proposed super admin can't just revoke the super admin role.
+        /// now let's test that the proposed super admin can't just revoke the super admin role.
         vm.stopPrank();
         vm.startPrank(newSuperAdmin);
         vm.expectRevert(abi.encodeWithSignature("BelowMinAdminThreshold()"));
@@ -357,7 +356,7 @@ contract AppManagerBaseTest is TestCommonFoundry {
     // Test setting/listing/removing pause rules
     function testAddPauseRule() public {
         switchToRuleAdmin();
-        applicationAppManager.addPauseRule(1769924800, 1769984800);
+        applicationAppManager.addPauseRule(1769955500, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         PauseRule[] memory noRule = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
@@ -366,86 +365,86 @@ contract AppManagerBaseTest is TestCommonFoundry {
 
     function testRemovePauseRule() public {
         switchToRuleAdmin();
-        applicationAppManager.addPauseRule(1769924800, 1769984800);
+        applicationAppManager.addPauseRule(1769955500, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
-        applicationAppManager.removePauseRule(1769924800, 1769984800);
+        applicationAppManager.removePauseRule(1769955500, 1769984800);
         PauseRule[] memory removeTest = applicationAppManager.getPauseRules();
         assertTrue(removeTest.length == 0);
     }
 
     function testAutoCleaningRules() public {
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
 
         switchToRuleAdmin();
-        applicationAppManager.addPauseRule(TEST_DATE + 100, TEST_DATE + 200);
+        applicationAppManager.addPauseRule(Blocktime + 100, Blocktime + 200);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         PauseRule[] memory noRule = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
         assertTrue(noRule.length == 1);
 
-        vm.warp(TEST_DATE + 201);
+        vm.warp(Blocktime + 201);
         console.log("block's timestamp", block.timestamp);
-        assertEq(block.timestamp, TEST_DATE + 201);
-        applicationAppManager.addPauseRule(TEST_DATE + 300, TEST_DATE + 400);
+        assertEq(block.timestamp, Blocktime + 201);
+        applicationAppManager.addPauseRule(Blocktime + 300, Blocktime + 400);
         test = applicationAppManager.getPauseRules();
         console.log("test2 length", test.length);
         noRule = applicationAppManager.getPauseRules();
         console.log("noRule2 length", noRule.length);
         assertTrue(test.length == 1);
         assertTrue(noRule.length == 1);
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
     }
 
     function testRuleSizeLimit() public {
         switchToRuleAdmin();
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
         for (uint8 i; i < 15; i++) {
-            applicationAppManager.addPauseRule(TEST_DATE + (i + 1) * 10, TEST_DATE + (i + 2) * 10);
+            applicationAppManager.addPauseRule(Blocktime + (i + 1) * 10, Blocktime + (i + 2) * 10);
         }
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 15);
         vm.expectRevert(0xd30bd9c5);
-        applicationAppManager.addPauseRule(TEST_DATE + 150, TEST_DATE + 160);
-        vm.warp(TEST_DATE);
+        applicationAppManager.addPauseRule(Blocktime + 150, Blocktime + 160);
+        vm.warp(Blocktime);
     }
 
     function testManualCleaning() public {
         switchToRuleAdmin();
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
         for (uint8 i; i < 15; i++) {
-            applicationAppManager.addPauseRule(TEST_DATE + (i + 1) * 10, TEST_DATE + (i + 2) * 10);
+            applicationAppManager.addPauseRule(Blocktime + (i + 1) * 10, Blocktime + (i + 2) * 10);
         }
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 15);
-        vm.warp(TEST_DATE + 200);
+        vm.warp(Blocktime + 200);
         applicationAppManager.cleanOutdatedRules();
         test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 0);
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
     }
 
     function testAnotherManualCleaning() public {
         switchToRuleAdmin();
-        vm.warp(TEST_DATE);
-        applicationAppManager.addPauseRule(TEST_DATE + 1000, TEST_DATE + 1010);
-        applicationAppManager.addPauseRule(TEST_DATE + 1020, TEST_DATE + 1030);
-        applicationAppManager.addPauseRule(TEST_DATE + 40, TEST_DATE + 45);
-        applicationAppManager.addPauseRule(TEST_DATE + 1060, TEST_DATE + 1070);
-        applicationAppManager.addPauseRule(TEST_DATE + 1080, TEST_DATE + 1090);
-        applicationAppManager.addPauseRule(TEST_DATE + 10, TEST_DATE + 20);
-        applicationAppManager.addPauseRule(TEST_DATE + 2000, TEST_DATE + 2010);
-        applicationAppManager.addPauseRule(TEST_DATE + 2020, TEST_DATE + 2030);
-        applicationAppManager.addPauseRule(TEST_DATE + 55, TEST_DATE + 66);
-        applicationAppManager.addPauseRule(TEST_DATE + 2060, TEST_DATE + 2070);
-        applicationAppManager.addPauseRule(TEST_DATE + 2080, TEST_DATE + 2090);
+        vm.warp(Blocktime);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1030);
+        applicationAppManager.addPauseRule(Blocktime + 40, Blocktime + 45);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1070);
+        applicationAppManager.addPauseRule(Blocktime + 1080, Blocktime + 1090);
+        applicationAppManager.addPauseRule(Blocktime + 10, Blocktime + 20);
+        applicationAppManager.addPauseRule(Blocktime + 2000, Blocktime + 2010);
+        applicationAppManager.addPauseRule(Blocktime + 2020, Blocktime + 2030);
+        applicationAppManager.addPauseRule(Blocktime + 55, Blocktime + 66);
+        applicationAppManager.addPauseRule(Blocktime + 2060, Blocktime + 2070);
+        applicationAppManager.addPauseRule(Blocktime + 2080, Blocktime + 2090);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 11);
-        vm.warp(TEST_DATE + 150);
+        vm.warp(Blocktime + 150);
         applicationAppManager.cleanOutdatedRules();
         test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 8);
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
     }
 
     ///--------------- PROVIDER UPGRADES ---------------
@@ -525,7 +524,7 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertTrue(applicationAppManager.hasTag(upgradeUser2, "TAG2"));
         /// Pause Rule Data
         switchToRuleAdmin();
-        applicationAppManager.addPauseRule(1769924800, 1769984800);
+        applicationAppManager.addPauseRule(1769955500, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
 

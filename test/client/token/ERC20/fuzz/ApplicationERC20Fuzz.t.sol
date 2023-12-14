@@ -1,27 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC20FuzzTest is TestCommonFoundry {
-    ApplicationERC20Handler applicationCoinHandler2;
-    address user1 = address(11);
-    address user2 = address(22);
-    address user3 = address(33);
-    address user4 = address(44);
-    address accessTier = address(3);
-    address rich_user = address(44);
-    address[] badBoys;
-    address[] goodBoys;
     event Log(string eventString, uint256 number);
 
     function setUp() public {

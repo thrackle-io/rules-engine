@@ -1,19 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Script.sol";
-import "forge-std/Test.sol";
-
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
-import "src/client/token/data/Fees.sol";
 import "test/util/TestCommonFoundry.sol";
 
 /**
@@ -24,13 +11,7 @@ import "test/util/TestCommonFoundry.sol";
  * @notice It simulates the input from a token contract
  */
 contract ApplicationERC20HandlerTest is TestCommonFoundry {
-    address user1 = address(1);
-    address user2 = address(2);
-    address accessTier = address(3);
-    address[] badBoys;
-    address[] goodBoys;
-    OracleDenied oracleDenied;
-    OracleAllowed oracleAllowed;
+
     ApplicationERC20Handler applicationCoinHandlerSpecialOwner;
 
     function setUp() public {
@@ -47,9 +28,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoin.connectHandlerToToken(address(applicationCoinHandlerSpecialOwner));
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleDenied = new OracleDenied();
     }
 
     ///Test Fee Data setting/getting
