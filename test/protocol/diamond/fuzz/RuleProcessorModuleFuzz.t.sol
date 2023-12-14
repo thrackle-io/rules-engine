@@ -12,18 +12,18 @@ import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor
 import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
 import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
 import "src/client/application/AppManager.sol";
-import "example/application/ApplicationHandler.sol";
+import "src/example/application/ApplicationHandler.sol";
 import "test/protocol/economic/util/RuleProcessorDiamondTestUtil.sol";
 import "src/client/application/AppManager.sol";
 import "src/client/application/AppManager.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
-import "example/ERC20/ApplicationERC20Handler.sol";
-import "example/ERC20/ApplicationERC20.sol";
-import "example/application/ApplicationAppManager.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
+import "src/example/ERC20/ApplicationERC20.sol";
+import "src/example/application/ApplicationAppManager.sol";
 import "../util/DiamondTestUtil.sol";
-import "example/pricing/ApplicationERC20Pricing.sol";
-import "example/pricing/ApplicationERC721Pricing.sol";
+import "src/example/pricing/ApplicationERC20Pricing.sol";
+import "src/example/pricing/ApplicationERC721Pricing.sol";
 
 contract RuleProcessorModuleFuzzTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
     // Store the FacetCut struct for each NonTaggedRuleFacetthat is being deployed.
