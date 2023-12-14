@@ -11,11 +11,11 @@ import "src/client/application/data/AccessLevels.sol";
 import "src/client/application/data/RiskScores.sol";
 import "src/client/application/data/Accounts.sol";
 import "src/client/application/data/IDataModule.sol";
-import "example/ERC20/ApplicationERC20.sol";
-import "example/ERC20/ApplicationERC20Handler.sol";
-import "example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import "example/ERC721/ApplicationERC721Handler.sol";
-import "example/liquidity/ApplicationAMMHandler.sol";
+import "src/example/ERC20/ApplicationERC20.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
+import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import "src/example/ERC721/ApplicationERC721Handler.sol";
+import "src/example/liquidity/ApplicationAMMHandler.sol";
 import "src/client/token/IAdminWithdrawalRuleCapable.sol";
 import "test/util/TestCommonFoundry.sol";
 

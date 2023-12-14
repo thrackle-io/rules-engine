@@ -2,8 +2,8 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "../../ERC20/ApplicationERC20.sol";
-import "src/client/tokenapplication/IAppManager.sol";
+import "src/example/ERC20/ApplicationERC20.sol";
+import "src/client/application/IAppManager.sol";
 
 /**
  * @title This is the deployment script for the Application Coin ERC20.

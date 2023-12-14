@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/client/application/ApplicationHandler.sol";
-import {ApplicationERC721Handler} from "../ERC721/ApplicationERC721Handler.sol";
-import {ApplicationERC721} from "../ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import {ApplicationAppManager} from "src/client/application/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
+import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
+import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 
 /**
  * @title Application Deploy 04 Application Non-Fungible Token  Script

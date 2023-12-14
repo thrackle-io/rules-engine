@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "../ERC20/ApplicationERC20Handler.sol";
-import "../ERC20/ApplicationERC20.sol";
-import {ApplicationAppManager} from "src/client/application/ApplicationAppManager.sol";
-import "src/client/application/ApplicationHandler.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
+import "src/example/ERC20/ApplicationERC20.sol";
+import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
 
 /**
  * @title Application Deploy 08 App Manager For Upgrade Script

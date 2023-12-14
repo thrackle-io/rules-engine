@@ -11,8 +11,8 @@ import {INonTaggedRules as NonTaggedRules} from "src/protocol/economic/ruleProce
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
 import "src/client/token/data/Fees.sol";
 import "test/util/TestCommonFoundry.sol";
 

@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/client/application/ApplicationHandler.sol";
-import "../ERC20/ApplicationERC20Handler.sol";
-import "../ERC20/ApplicationERC20.sol";
-import {ApplicationAppManager} from "src/client/application/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
+import "src/example/ERC20/ApplicationERC20.sol";
+import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 
 /**
  * @title Application Deploy 03 Application Fungible Token 2 Script

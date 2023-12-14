@@ -2,8 +2,8 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/client/application/ApplicationHandler.sol";
-import {ApplicationAppManager} from "src/client/application/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
+import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 
 /**
  * @title Application Deploy 07 Admin Roles Script

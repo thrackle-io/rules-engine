@@ -41,8 +41,8 @@ deployApplicationAppManager:; forge script example/script/ApplicationAppManager.
 deployApplicationERC20Handler:; forge script example/script/ApplicationERC20Handler.s.sol --ffi --broadcast -vvv
 deployApplicationERC20:; forge script example/script/ApplicationERC20.s.sol --ffi --broadcast -vvv
 # Deploy Application Contracts(entire application implementation)
-deployAllApp:; forge script example/script/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv
-deployNewApp:; forge script example/script/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvv
+deployAllApp:; forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv
+deployNewApp:; forge script script/clientScripts/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvv
 # Using a different env ref for pipeline deploy command.
 # Note from RK -- Outside the scope of what I'm doing right now, but
 # This could also be accomplished by creating a "pipeline" profile in foundry.toml which

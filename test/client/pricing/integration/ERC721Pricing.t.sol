@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
-import "example/pricing/ApplicationERC721Pricing.sol";
-import "example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import "example/application/ApplicationAppManager.sol";
-import "example/application/ApplicationHandler.sol";
+import "src/example/pricing/ApplicationERC721Pricing.sol";
+import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import "src/example/application/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
 import "test/protocol/diamond/util/DiamondTestUtil.sol";
-import "example/ERC721/ApplicationERC721Handler.sol";
+import "src/example/ERC721/ApplicationERC721Handler.sol";
 import "test/protocol/economic/util/RuleProcessorDiamondTestUtil.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 

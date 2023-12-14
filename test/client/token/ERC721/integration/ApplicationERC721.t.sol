@@ -10,8 +10,8 @@ import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcesso
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import "test/util/ApplicationERC721WithBatchMintBurn.sol";
 import "test/util/TestCommonFoundry.sol";
