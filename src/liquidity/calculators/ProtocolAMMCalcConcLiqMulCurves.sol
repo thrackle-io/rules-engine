@@ -88,11 +88,11 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
             uint256 regionOut;
             
             for(uint i; i < sectionUpperLimits.length;){
-                /// spotPrice will be x/y or y/x. If buying token0 (x), then x/y. If buying token1 (y) then y/x
+                /// spotPrice will be y/x
                 uint256 spotPriceNumerator = (reserve1 * ATTO) / reserve0;
                 /// find curve for current value of x
                 if( spotPriceNumerator < sectionUpperLimits[i] ){
-                    /// adding to reserve0 will always make the price go down. So we check for lower limit
+                    /// adding to reserve0 (x) will always make the price go down. We check for lower limit
                     if ( isAmount0Not0){
                         /// we only check if there is a lower limit
                         if(i != 0){
@@ -105,8 +105,10 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
                                 amount0 = amountInLeft;
                                 amountInLeft = 0;
                             }
+                        }else{
+                            amountInLeft=0;
                         }
-                    /// ading to reserve1 will always make the price go up. We check for upper limit    
+                    /// ading to reserve1 (y) will always make the price go up. We check for upper limit    
                     }else{
                         uint256 maxY = _getRegionsYmax(i, reserve0, reserve1);
                         if(amountInLeft + reserve1 > maxY){
@@ -143,8 +145,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
                         reserve0 -= regionOut;
                         reserve1 += amount1;
                     }
-                    // amountOut += regionOut;
-                    return regionOut;
+                    amountOut += regionOut;
                 }
                 unchecked{
                     ++i;
@@ -280,7 +281,6 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
       function _getRegionsXmax(uint256 _regionIndex, uint256 _reserve0, uint256 _reserve1) internal view returns(uint256){
         uint256 maxRegionPrice = sectionUpperLimits[_regionIndex];
         return (((_reserve0 * _reserve1 * ATTO) / maxRegionPrice)).sqrt() * ATTO.sqrt(); 
-        // return 222 * (10 ** 28);
     }
 
     function _getRegionsYmax(uint256 _regionIndex, uint256 _reserve0, uint256 _reserve1) internal view returns(uint256){
