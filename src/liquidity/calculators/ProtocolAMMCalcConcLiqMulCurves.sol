@@ -7,7 +7,8 @@ import {
     LinearInput, 
     ConstantRatio, 
     ConstantProduct, 
-    Curve
+    Curve,
+    AMMMath
 } from "./libraries/Curve.sol";
 import "./dataStructures/CurveTypes.sol";
 import {CurveErrors} from "../../interfaces/IErrors.sol";
@@ -22,6 +23,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     using Curve for LinearFractionB;
     using Curve for ConstantRatio;
     using Curve for ConstantProduct;
+    using AMMMath for uint256;
 
     uint256 constant ATTO = 10 ** 18;
     uint256 constant Y_MAX = 100_000 * ATTO;
@@ -63,7 +65,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
      * @param _reserve1 amount of token1 in the pool
      * @param _amount0 amount of token1 coming to the pool
      * @param _amount1 amount of token1 coming to the pool
-     * @return price
+     * @return amountOut
      */
     function simulateSwap(
             uint256 _reserve0, 
@@ -74,40 +76,82 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
          public 
          view 
          override 
-         returns (uint256) 
+         returns (uint256 amountOut) 
          {
             _validateNoneAreZero(_amount0, _amount1);
-            /// spotPrice will be x/y or y/x. If buying token0 (x), then x/y. If buying token1 (y) then y/x
-            uint256 spotPriceNumerator = (_reserve1 * ATTO) / _reserve0;
-            //uint256 spotPriceDenominator = ATTO;
+            bool isAmount0Not0 = _amount0 != 0;
+            uint256 reserve0 = _reserve0;
+            uint256 reserve1 = _reserve1; 
+            uint256 amount0 = _amount0; 
+            uint256 amount1 = _amount1;
+            uint256 amountInLeft = isAmount0Not0 ? _amount0 : _amount1;
+            uint256 regionOut;
+            
             for(uint i; i < sectionUpperLimits.length;){
+                /// spotPrice will be x/y or y/x. If buying token0 (x), then x/y. If buying token1 (y) then y/x
+                uint256 spotPriceNumerator = (reserve1 * ATTO) / reserve0;
                 /// find curve for current value of x
                 if( spotPriceNumerator < sectionUpperLimits[i] ){
+                    /// adding to reserve0 will always make the price go down. So we check for lower limit
+                    if ( isAmount0Not0){
+                        /// we only check if there is a lower limit
+                        if(i != 0){
+                            /// lower limit is simply the upper limit of the past region
+                            uint256 maxX = _getRegionsXmax( i - 1, reserve0, reserve1);
+                            if(amountInLeft + reserve0 > maxX){
+                                amount0 = maxX - reserve0;
+                                amountInLeft -= amount0;
+                            }else{
+                                amount0 = amountInLeft;
+                                amountInLeft = 0;
+                            }
+                        }
+                    /// ading to reserve1 will always make the price go up. We check for upper limit    
+                    }else{
+                        uint256 maxY = _getRegionsYmax(i, reserve0, reserve1);
+                        if(amountInLeft + reserve1 > maxY){
+                            amount1 = maxY - reserve1;
+                            amountInLeft -= amount1;
+                        }else{
+                            amount1 = amountInLeft;
+                            amountInLeft = 0;
+                        }
+                    }
                     /// we calculate depending on the curve
                     uint256 _index = sectionCurves[i].index;
                     /// constant ratio
                     if(sectionCurves[i].curveType == CurveTypes.CONST_RATIO){
-                        return _getConstantRatioY(_index, _amount0, _amount1);
-
+                        regionOut = _getConstantRatioY(_index, amount0, amount1);
+                        
                     /// constant product
                     }else if(sectionCurves[i].curveType == CurveTypes.CONST_PRODUCT){
-                        return _getConstantProductY(_reserve0, _reserve1,_amount0, _amount1);
+                        regionOut = _getConstantProductY(reserve0, reserve1, amount0, amount1);
 
                     /// linear
                     }else if(sectionCurves[i].curveType == CurveTypes.LINEAR_FRACTION_B){
-                        return _getLinearY(_index, _reserve0, _reserve1, _amount0, _amount1);
+                        regionOut = _getLinearY(_index, reserve0, reserve1, amount0, amount1);
                     
                     /// revert if type was none of the above
                     }else{
                         revert InvalidCurveType();
                     }
+
+                    if(isAmount0Not0){
+                        reserve0 += amount0;
+                        reserve1 -= regionOut;
+                    }else{
+                        reserve0 -= regionOut;
+                        reserve1 += amount1;
+                    }
+                    // amountOut += regionOut;
+                    return regionOut;
                 }
                 unchecked{
                     ++i;
                 }
             }
-            /// if we made it here that means that x is out of range
-            revert InvalidCurveType();
+            if((reserve1 * ATTO) / reserve0 > sectionUpperLimits[ sectionUpperLimits.length - 1])
+                revert("OUT OF LIMITS");
     }
 
     /**
@@ -231,6 +275,17 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     function _validateNoneAreZero(uint256 a, uint256 b) internal pure { // good candidate to move up to common
         if (a == 0 && b == 0) 
             revert AmountsAreZero();
+    }
+
+      function _getRegionsXmax(uint256 _regionIndex, uint256 _reserve0, uint256 _reserve1) internal view returns(uint256){
+        uint256 maxRegionPrice = sectionUpperLimits[_regionIndex];
+        return (((_reserve0 * _reserve1 * ATTO) / maxRegionPrice)).sqrt() * ATTO.sqrt(); 
+        // return 222 * (10 ** 28);
+    }
+
+    function _getRegionsYmax(uint256 _regionIndex, uint256 _reserve0, uint256 _reserve1) internal view returns(uint256){
+        uint256 maxRegionPrice = sectionUpperLimits[_regionIndex];
+        return ((_reserve0 * 10_000).sqrt() * (_reserve1 * 10_000).sqrt() * maxRegionPrice.sqrt()) / (10_000 * ATTO.sqrt());
     }
 
 }

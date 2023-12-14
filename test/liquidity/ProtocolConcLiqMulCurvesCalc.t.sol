@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import "test/helpers/TestCommonFoundry.sol";
 import {LinearInput, LinearFractionB, ConstantRatio} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcConcLiqMulCurves.sol";
+import "../helpers/Utils.sol";
 
 /**
  * @title Test AMM Calculator with Concentrated Liquidity Regions with Multiple Curves
@@ -12,14 +13,14 @@ import "src/liquidity/calculators/ProtocolAMMCalcConcLiqMulCurves.sol";
  * @dev A substantial amount of set up work is needed for each test.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry {
+contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
 
     uint256 constant M_PRECISION_DECIMALS = 8;
     uint256 constant B_PRECISION_DECIMALS = 18;
     uint256 constant Y_MAX = 100_000 * 10 ** 18;
     uint256 constant M_MAX = 100 * 10 ** 8;
 
-    LinearInput linearA = LinearInput(4 * 10 ** (M_PRECISION_DECIMALS - 1), 75 * (10 ** (B_PRECISION_DECIMALS - 2))); //m=0.4; b=0.75
+    LinearInput linearA = LinearInput(1 * 10 ** (M_PRECISION_DECIMALS - 4), 5 * (10 ** (B_PRECISION_DECIMALS - 1))); //m=0.0001; b=0.5
     LinearInput linearB = LinearInput(1 * 10 ** (M_PRECISION_DECIMALS - 2), 100 * (10 ** B_PRECISION_DECIMALS)); //m=0.01; b=100.0
     LinearInput linearC = LinearInput(1 * 10 ** (M_PRECISION_DECIMALS), 10 * (10 ** B_PRECISION_DECIMALS)); //m=1.0; b=10.0
     ConstantRatio constRatioA = ConstantRatio(20_000, 30_000); // ratio = 3y per 2x
@@ -201,9 +202,9 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry {
     /// Linear Region
     function _setupLinearReserves() internal returns(uint256 reserves0, uint256 reserves1) {
         _setSectionsA();
-        /// According to desmos. Spot price should be 0.4
-        reserves0 = 100_000 * ATTO;
-        reserves1 = 40_000_75 * ATTO / 100;
+        /// According to desmos. Spot price should be 0.6
+        reserves0 = 1_000 * ATTO;
+        reserves1 = 550 * ATTO;
     }
 
     function _linearRegionExchange1XtoY() internal returns(uint256 amountOut){
@@ -213,8 +214,8 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry {
 
     function testAMMCalcConcLiqMulCurves_LinearRegionExchange1XtoY() public {
         uint256 amountOut = _linearRegionExchange1XtoY();
-        /// according to desmos result should be 4.000095 * 10 ^ 22
-        assertEq(amountOut, 4_000095 * (10 ** (22 - 6)));
+        /// according to desmos result should be 6.0005 * 10 ^ 17
+        assertEq(amountOut, 6_0005 * (10 ** (17 - 4)));
     }
 
     function _linearRegionExchange1YtoX() internal returns(uint256 amountOut){
@@ -224,8 +225,8 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry {
 
     function testAMMCalcConcLiqMulCurves_LinearRegionExchange1YtoX() public {
         uint256 amountOut = _linearRegionExchange1YtoX();
-        /// according to desmos result should be 0.005590103343414776 * 10 ^ 18
-        assertLe(5590103343414776 - amountOut, 1);
+        /// according to desmos result should be 1.666898212470894848 * 10^18
+        assertLe(absoluteDiff(1666898212470894848, amountOut), 40);
     }
 
     function _linearRegionExchange2XtoY() internal returns(uint256 amountOut){
@@ -235,8 +236,8 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry {
 
     function testAMMCalcConcLiqMulCurves_LinearRegionExchange2XtoY() public {
         uint256 amountOut = _linearRegionExchange2XtoY();
-        /// according to desmos result should be 8.00023 * 10 ^ 22
-        assertEq(amountOut, 8_00023 * (10 ** (22 - 5)));
+        /// according to desmos result should be 1.2002 * 10 ^ 18
+        assertEq(amountOut, 1_2002 * (10 ** (18 - 4)));
     }
 
     function _linearRegionExchange2YtoX() internal returns(uint256 amountOut){
@@ -246,8 +247,8 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry {
 
     function testAMMCalcConcLiqMulCurves_LinearRegionExchange2YtoX() public {
         uint256 amountOut = _linearRegionExchange2YtoX();
-        /// according to desmos result should be 0.011180276562766516 * 10 ^ 18
-        assertLe(11180276562766516 - amountOut, 3); /// here the error is 3
+        /// according to desmos result should be 3.33425977420053504 * 10 ^ 18
+        assertLe(absoluteDiff(3334259774020053504, amountOut), 517); /// here the error is 3
     }
 
     /// Constant Ratio Region
