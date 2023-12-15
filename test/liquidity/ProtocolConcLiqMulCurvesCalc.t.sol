@@ -43,6 +43,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         assertEq(calc.appManagerAddress(),address(applicationAppManager));
     }
 
+
     /// Add LinearA Test
 
     /// build + execution block 
@@ -72,6 +73,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         calc.addLinear(linearMTooLarge);
     }
 
+
     /// Add ConstRatioA Test
 
     /// build + execution block 
@@ -92,6 +94,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         calc.addConstantRatio(ConstantRatio(0, 0));
     }
     
+
     /// Add ConstProductA Test
 
     /// build + execution block 
@@ -110,6 +113,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         vm.expectRevert(abi.encodeWithSignature("AmountsAreZero()"));
         calc.addConstantProduct(0);
     }
+
 
     /// setting upperLimitsA Test
 
@@ -140,6 +144,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         _setUpperLimitsA();
     }
 
+
     /// setting sectionLinearA Test
 
     /// build + execution block 
@@ -164,6 +169,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         calc.addCurveToSection(linearASection); 
     }
 
+
     /// setting sectionConstantRatioA Test
 
     /// build + execution block 
@@ -187,6 +193,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         vm.expectRevert(abi.encodeWithSignature("IndexOutOfRange()"));
         calc.addCurveToSection(constRatioASection);
     }
+
 
     /// setting sectionConstantProductA Test
 
@@ -225,9 +232,11 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         _addSectionConstProductToIndex2();
    }
 
-    /// Math Tests
+
+    /// ################## Math Tests ########################
 
     /// Linear Region
+
     function _setupLinearReserves() internal {
         _setSectionsA();
         /// According to desmos. Spot price should be 0.6
@@ -247,15 +256,15 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         assertEq(amountOut, 6_0005 * (10 ** (17 - 4)));
     }
 
-    function _linearRegionExchange1YtoX() internal returns(uint256 amountOut){
-        _setupLinearReserves();
-        amountOut = calc.calculateSwap(0, 0, 0, 1 * ATTO);
+    function _linearRegionExchangesomeYto1X() internal returns(uint256 amountOut){
+        _linearRegionExchange1XtoY();
+        amountOut = calc.calculateSwap(0, 0, 0, 6_0005 * (10 ** (17 - 4)));
     }
 
-    function testAMMCalcConcLiqMulCurves_LinearRegionExchange1YtoX() public {
-        uint256 amountOut = _linearRegionExchange1YtoX();
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchangeSomeYto1X() public {
+        uint256 amountOut = _linearRegionExchangesomeYto1X();
         /// according to desmos result should be 1.666898212470894848 * 10^18
-        assertLe(absoluteDiff(1666898212470894848, amountOut), 40);
+        assertLe(absoluteDiff(1 * ATTO, amountOut), 1);
     }
 
     function _linearRegionExchange2XtoY() internal returns(uint256 amountOut){
@@ -269,18 +278,20 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         assertEq(amountOut, 1_2002 * (10 ** (18 - 4)));
     }
 
-    function _linearRegionExchange2YtoX() internal returns(uint256 amountOut){
-        _setupLinearReserves();
-        amountOut = calc.calculateSwap(0, 0, 0, 2 * ATTO);
+    function _linearRegionExchangeSomeYto2X() internal returns(uint256 amountOut){
+        _linearRegionExchange2XtoY();
+        amountOut = calc.calculateSwap(0, 0, 0, 1_2002 * (10 ** (18 - 4)));
     }
 
-    function testAMMCalcConcLiqMulCurves_LinearRegionExchange2YtoX() public {
-        uint256 amountOut = _linearRegionExchange2YtoX();
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchangeSomeYto2X() public {
+        uint256 amountOut = _linearRegionExchangeSomeYto2X();
         /// according to desmos result should be 3.33425977420053504 * 10 ^ 18
-        assertLe(absoluteDiff(3334259774020053504, amountOut), 517); /// here the error is 3
+        assertLe(absoluteDiff( 2 * ATTO, amountOut), 1); /// here the error is 3
     }
+
 
     /// Constant Ratio Region
+
     function _setupConstantRatioReserves() internal {
         _setSectionsA();
         /// spot price should be 1.5
@@ -300,7 +311,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
     }
 
     function _ConstantRatioRegionExchange1point5YtoX() internal returns(uint256 amountOut){
-        _setupConstantRatioReserves();
+        _ConstantRatioRegionExchange1XtoY();
         amountOut = calc.calculateSwap(0, 0, 0, 15 * (ATTO / 10));
     }
 
@@ -320,7 +331,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
     }
 
     function _ConstantRatioRegionExchange3YtoX() internal returns(uint256 amountOut){
-        _setupConstantRatioReserves();
+        _ConstantRatioRegionExchange2XtoY();
         amountOut = calc.calculateSwap(0, 0, 0, 3 * ATTO);
     }
 
@@ -340,16 +351,16 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
 
     function _ConstantProductRegionExchange1xtoY() internal returns(uint256 amountOut){
         _setupConstantProductReserves();
-        amountOut = calc.calculateSwap(0, 0, 1 , 0);
+        amountOut = calc.calculateSwap(0, 0, 10_000 , 0);
     }
 
     function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange1xtoY() public {
         uint256 amountOut = _ConstantProductRegionExchange1xtoY();
-        assertEq(amountOut, 2);
+        assertEq(amountOut, 20_999);
     }
 
     function _ConstantProductRegionExchange1point21kytoX() internal returns(uint256 amountOut){
-        _setupConstantProductReserves();
+        _ConstantProductRegionExchange1xtoY();
         amountOut = calc.calculateSwap(0, 0, 0, 21_000);
     }
 
@@ -360,16 +371,16 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
 
     function _ConstantProductRegionExchange2xtoY() internal returns(uint256 amountOut){
         _setupConstantProductReserves();
-        amountOut = calc.calculateSwap(0, 0, 2, 0);
+        amountOut = calc.calculateSwap(0, 0, 20_000, 0);
     }
 
     function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange2xtoY() public {
         uint256 amountOut = _ConstantProductRegionExchange2xtoY();
-        assertEq(amountOut, 4);
+        assertEq(amountOut, 41_999);
     }
 
     function _ConstantProductRegionExchange42kytoX() internal returns(uint256 amountOut){
-        _setupConstantProductReserves();
+        _ConstantProductRegionExchange2xtoY();
         amountOut = calc.calculateSwap(0, 0, 0, 42_000);
     }
 
@@ -377,4 +388,9 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         uint256 amountOut = _ConstantProductRegionExchange42kytoX();
         assertLe(20_000 - amountOut , 1); // we test that the difference is not more than 1 ATTO
     }
+
+
+    /// testing swaps that cross regions
+
+
 }

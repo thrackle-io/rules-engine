@@ -31,7 +31,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     uint8 constant M_PRECISION_DECIMALS = 8;
     uint8 constant B_PRECISION_DECIMALS = 18;
     uint256 x_trackerOffset;
-    int256 x_tracker;
+    uint256 x_tracker;
 
     LinearFractionB[] public linears;
     ConstantRatio[] public constRatios;
@@ -62,9 +62,9 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     function calculateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) external override returns (uint256 amountOut) {
         amountOut = simulateSwap( _reserve0, _reserve1, _amount0, _amount1);  
         if(_amount0 == 0)
-            x_tracker -= int(amountOut);
+            x_tracker -= amountOut;
         else
-            x_tracker += int(_amount0);
+            x_tracker += _amount0;
     }
 
     /**
@@ -98,7 +98,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
             
             while(amountInLeft != 0 && i < sectionUpperLimits.length){
                 /// spotPrice will be y/x
-                uint256 currentX = uint(x_tracker + int(x_trackerOffset));
+                uint256 currentX = x_tracker + x_trackerOffset;
                 uint256 maxX = sectionUpperLimits[i];
 
                 /// find curve for current value of x
@@ -254,11 +254,11 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     }
 
     function _getConstantProductY(uint256 _index, uint256 amount0, uint256 amount1) internal view returns(uint256){
-        return constProducts[_index].getY(uint(x_tracker + int(x_trackerOffset)), amount0, amount1);
+        return constProducts[_index].getY(x_tracker + x_trackerOffset, amount0, amount1);
     }
 
     function _getLinearY(uint256 _index, uint256 _amount0, uint256 _amount1) internal view returns(uint256){
-            return linears[_index].getY(uint(x_tracker + int(x_trackerOffset)), _amount0, _amount1);
+            return linears[_index].getY(x_tracker + x_trackerOffset, _amount0, _amount1);
     }
 
     /**
@@ -283,7 +283,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     function _determinAmountLeftY(uint256 amount0, uint256 amount1, uint256 amountInLeft, CurveTypes _type, uint256 i) internal view returns(uint256 newAmountInLeft, uint256 newAmount1){
         bool isAmount0Not0 = amount0 != 0;
         uint256 _index = sectionCurves[i].index;
-        uint256 currentX = uint(x_tracker + int(x_trackerOffset));
+        uint256 currentX = x_tracker + x_trackerOffset;
         if(i != 0 && !isAmount0Not0){
             uint256 maxY;
             if(_type == CurveTypes.LINEAR_FRACTION_B) maxY = _getLinearY(_index, currentX - (sectionUpperLimits[i - 1] + 1), 0);
