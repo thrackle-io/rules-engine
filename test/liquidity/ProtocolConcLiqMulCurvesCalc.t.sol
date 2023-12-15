@@ -27,7 +27,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
     ConstantRatio constRatioB = ConstantRatio(100, 1); // ratio = 100x per 1y
     ConstantRatio constRatioC = ConstantRatio(1, 20); // ratio = 1x per 20y
     uint256 constProductA = 100_000_000_000 * ATTO * 210_000_000_000 * ATTO;
-    uint256[] upperLimitsA = [10_000 * ATTO, 1000_000 * ATTO, 1_000_000_000_000 * ATTO]; // 1y per 1x; 2ys per 1x; 3ys per 1x.
+    uint256[] upperLimitsA = [10_000 * ATTO, 1_000_000 * ATTO, 10_000_000 * ATTO]; // 1y per 1x; 2ys per 1x; 3ys per 1x.
     ProtocolAMMCalcConcLiqMulCurves calc;
 
     function setUp() public {
@@ -242,7 +242,6 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         /// According to desmos. Spot price should be 0.6
         uint256 reserves0 = 1_000 * ATTO;
         calc.set_x_offset(reserves0);
-        // reserves1 = 550 * ATTO;
     }
 
     function _linearRegionExchange1XtoY() internal returns(uint256 amountOut){
@@ -344,9 +343,8 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
     function _setupConstantProductReserves() internal {
         _setSectionsA();
         /// spot price should be 2.1 -> region 2 according to upperLimitsA
-        uint256 reserves0 = 100_000_000_000 * ATTO;
+        uint256 reserves0 = 5_000_000 * ATTO;
         calc.set_x_offset(reserves0);
-        // reserves1 = 210_000_000_000 * ATTO;
     }
 
     function _ConstantProductRegionExchange1xtoY() internal returns(uint256 amountOut){
@@ -356,41 +354,82 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
 
     function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange1xtoY() public {
         uint256 amountOut = _ConstantProductRegionExchange1xtoY();
-        assertEq(amountOut, 20_999);
+        assertEq(absoluteDiff(amountOut, 8_400_000_000_000), 1);
     }
 
-    function _ConstantProductRegionExchange1point21kytoX() internal returns(uint256 amountOut){
+    function _ConstantProductRegionExchangeYbackto10kx() internal returns(uint256 amountOut){
         _ConstantProductRegionExchange1xtoY();
-        amountOut = calc.calculateSwap(0, 0, 0, 21_000);
+        amountOut = calc.calculateSwap(0, 0, 0, 8_400_000_000_000);
     }
 
-    function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange1point21kytoX() public {
-        uint256 amountOut = _ConstantProductRegionExchange1point21kytoX();
+    function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchangeYbackto10kx() public {
+        uint256 amountOut = _ConstantProductRegionExchangeYbackto10kx();
         assertLe(10_000 - amountOut, 1 ); // we test that the difference is not more than 1 ATTO
     }
 
-    function _ConstantProductRegionExchange2xtoY() internal returns(uint256 amountOut){
+    function _ConstantProductRegionExchange20kxtoY() internal returns(uint256 amountOut){
         _setupConstantProductReserves();
         amountOut = calc.calculateSwap(0, 0, 20_000, 0);
     }
 
-    function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange2xtoY() public {
-        uint256 amountOut = _ConstantProductRegionExchange2xtoY();
-        assertEq(amountOut, 41_999);
+    function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange20kxtoY() public {
+        uint256 amountOut = _ConstantProductRegionExchange20kxtoY();
+        assertEq(absoluteDiff(amountOut, 16_800_000_000_000), 1);
     }
 
-    function _ConstantProductRegionExchange42kytoX() internal returns(uint256 amountOut){
-        _ConstantProductRegionExchange2xtoY();
-        amountOut = calc.calculateSwap(0, 0, 0, 42_000);
+    function _ConstantProductRegionExchangeYbackto20kx() internal returns(uint256 amountOut){
+        _ConstantProductRegionExchange20kxtoY();
+        amountOut = calc.calculateSwap(0, 0, 0, 16_800_000_000_000);
     }
 
-    function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange42kytoX() public {
-        uint256 amountOut = _ConstantProductRegionExchange42kytoX();
+    function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchangeYbackto20kx() public {
+        uint256 amountOut = _ConstantProductRegionExchangeYbackto20kx();
         assertLe(20_000 - amountOut , 1); // we test that the difference is not more than 1 ATTO
     }
 
 
-    /// testing swaps that cross regions
+    /// ################## testing swaps that cross regions ##################
 
+    function _goFromX5000ToHighestUpperLimitMinus1() internal returns(uint256 amountOut){
+        _setSectionsA();
+        uint256 reserves0 = 5_000 * ATTO;
+        calc.set_x_offset(reserves0);
+        /// we move x from 5_000 ATTOs to the very edge of the last region - 1. This way, we cross all 
+        /// liquidity regions with a single swap
+        amountOut = calc.calculateSwap(0, 0, upperLimitsA[upperLimitsA.length - 1] -  reserves0 - 1, 0);
+    }
+
+    function testAMMCalcConcLiqMulCurves_GoFromX5000ToHighestUpperLimitMinus1() public{
+        /**
+        * Linear region: 6250 * ATTO (x_0 = 5000, x_change = upperLimitsA[0])
+        * Constant Ratio region:  1485000 * ATTO (x_0 = upperLimitsA[0], x_change = upperLimitsA[1])
+        * SubTotal: 1491250 * ATTO (x_0 = upperLimitsA[1], x_change = upperLimitsA[2] - 1)
+        * Constant Product region: 1.89e+34
+        * TOTAL: 18900000001491250 * ATTO
+        */
+         uint256 amountOut = _goFromX5000ToHighestUpperLimitMinus1();
+        assertLe(absoluteDiff(18900000001491250 * ATTO, amountOut) , 1_000_000_000); 
+        
+    }
+
+    function _goFromHighestUpperLimitMinus1ToX5000() internal returns(uint256 amountOut){
+        _goFromX5000ToHighestUpperLimitMinus1();
+        /// we move x from 5_000 ATTOs to the very edge of the last region - 1. This way, we cross all 
+        /// liquidity regions with a single swap
+        amountOut = calc.calculateSwap(0, 0, 0, 18900000001491250 * ATTO);
+    }
+
+    function testAMMCalcConcLiqMulCurves_GoFromHighestUpperLimitMinus1ToX5000() public{
+        /**
+        * Linear region: 6250 * ATTO (x_0 = 5000, x_change = upperLimitsA[0])
+        * Constant Ratio region:  1485000 * ATTO (x_0 = upperLimitsA[0], x_change = upperLimitsA[1])
+        * SubTotal: 1491250 * ATTO (x_0 = upperLimitsA[1], x_change = upperLimitsA[2] - 1)
+        * Constant Product region: 1.89e+34
+        * TOTAL: 18900000001491250 * ATTO
+        */
+         uint256 amountOut = _goFromHighestUpperLimitMinus1ToX5000();
+        assertLe(absoluteDiff(upperLimitsA[upperLimitsA.length - 1] -  5_000 * ATTO - 1, amountOut) , 1_000_000_000); 
+        
+    }
 
 }

@@ -24,7 +24,8 @@ library Curve {
     using AMMMath for uint256;
     uint256 constant ATTO = 10 ** 18;
     error InsufficientPoolDepth();
-
+    // event Log(string,uint256);
+    error Log(string,uint256);
 
 
     /// ~~~~~~~~~~~~~~ LinearWholeB ~~~~~~~~~~~~~~
@@ -150,16 +151,16 @@ library Curve {
     *      b = _amount1
     *      k = _reserve0 * _reserve1
     *
-    * @param constatProduct the values of x and y for the constant product.
+    * @param constantProduct the values of x and y for the constant product.
     * @param _amount0 the amount received of token0
     * @param _amount1 the amount received of token1
     * @return amountOut
     */
-    function getY(ConstantProduct memory constatProduct, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 amountOut){
+    function getY(ConstantProduct memory constantProduct, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 amountOut){
         if (_amount0 == 0) {
-            amountOut =  (_amount1 * constatProduct.x ) / (constatProduct.y + _amount1);
+            amountOut =  (_amount1 * constantProduct.x ) / (constantProduct.y + _amount1);
         } else {
-            amountOut = (_amount0 * constatProduct.y ) / (constatProduct.x + _amount0);
+            amountOut = (_amount0 * constantProduct.y ) / (constantProduct.x + _amount0);
         }
     }
 
@@ -178,6 +179,10 @@ library Curve {
     */
     function getY(ConstantProductK memory cp, uint256 x, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 amountOut){
         uint y = cp.k / x;
+        // revert Log("k",cp.k);
+        //revert Log("x",x);
+        // emit Log("y",y);
+        // emit Log("_amount0",_amount0);
         if (_amount0 == 0) {
             amountOut =  (_amount1 * x ) / (y + _amount1);
         } else {

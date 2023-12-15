@@ -95,18 +95,18 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
             uint256 amountInLeft = isAmount0Not0 ? _amount0 : _amount1;
             uint256 regionOut;
             uint256 i;
+            uint256 _x_tracker = x_tracker + x_trackerOffset;
             
             while(amountInLeft != 0 && i < sectionUpperLimits.length){
                 /// spotPrice will be y/x
-                uint256 currentX = x_tracker + x_trackerOffset;
                 uint256 maxX = sectionUpperLimits[i];
 
                 /// find curve for current value of x
-                if( currentX < maxX ){
+                if( _x_tracker < maxX ){
                     if ( isAmount0Not0){
                         /// if the trade will trespass current region, then only trade until max for this curve
-                        if(amountInLeft + currentX > maxX){
-                            amount0 = maxX - currentX;
+                        if(amountInLeft + _x_tracker > maxX){
+                            amount0 = maxX - _x_tracker;
                             amountInLeft -= amount0;
                         /// if the trade won't trespass current region, then simply trade and reset amountInLeft
                         }else{
@@ -119,20 +119,20 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
                     /// constant ratio
                     if(sectionCurves[i].curveType == CurveTypes.CONST_RATIO){
                         if(!isAmount0Not0)
-                            (amountInLeft, amount1 ) = _determinAmountLeftY( amount0, amount1, amountInLeft, CurveTypes.CONST_RATIO, i);
+                            (amountInLeft, amount1 ) = _determinAmountLeftY(_x_tracker, amount0, amount1, amountInLeft, CurveTypes.CONST_RATIO, i);
                         regionOut = _getConstantRatioY(_index, amount0, amount1);
                         
                     /// constant product
                     }else if(sectionCurves[i].curveType == CurveTypes.CONST_PRODUCT){
                         if(!isAmount0Not0)
-                            (amountInLeft, amount1 ) = _determinAmountLeftY( amount0, amount1, amountInLeft, CurveTypes.CONST_PRODUCT, i);
-                        regionOut = _getConstantProductY(_index, amount0, amount1);
+                            (amountInLeft, amount1 ) = _determinAmountLeftY(_x_tracker, amount0, amount1, amountInLeft, CurveTypes.CONST_PRODUCT, i);
+                        regionOut = _getConstantProductY(_index, _x_tracker, amount0, amount1);
 
                     /// linear
                     }else if(sectionCurves[i].curveType == CurveTypes.LINEAR_FRACTION_B){
                         if(!isAmount0Not0)
-                            (amountInLeft, amount1 ) = _determinAmountLeftY( amount0, amount1, amountInLeft, CurveTypes.LINEAR_FRACTION_B, i);
-                        regionOut = _getLinearY(_index, amount0, amount1);
+                            (amountInLeft, amount1 ) = _determinAmountLeftY(_x_tracker, amount0, amount1, amountInLeft, CurveTypes.LINEAR_FRACTION_B, i);
+                        regionOut = _getLinearY(_index, _x_tracker, amount0, amount1);
 
                     /// revert if type was none of the above
                     }else{
@@ -140,13 +140,19 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
                     }
                     /// if we are in here, we modify i depending on the direction fo the swap
                     if(isAmount0Not0){
+                        _x_tracker += amount0;
                         unchecked{
                             ++i;
                         }
                     }
                     else{
+                        _x_tracker -= amountOut;
                         unchecked{
                             if(i > 0) --i;
+                            else{
+                                if(amountInLeft > 0)
+                                    revert("OUT OF LIMITS");
+                            }
                         }
                     }
                     amountOut += regionOut;
@@ -253,12 +259,12 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
             return constRatios[_index].getY(_amount0, _amount1);
     }
 
-    function _getConstantProductY(uint256 _index, uint256 amount0, uint256 amount1) internal view returns(uint256){
-        return constProducts[_index].getY(x_tracker + x_trackerOffset, amount0, amount1);
+    function _getConstantProductY(uint256 _index, uint256 x, uint256 amount0, uint256 amount1) internal view returns(uint256){
+        return constProducts[_index].getY(x, amount0, amount1);
     }
 
-    function _getLinearY(uint256 _index, uint256 _amount0, uint256 _amount1) internal view returns(uint256){
-            return linears[_index].getY(x_tracker + x_trackerOffset, _amount0, _amount1);
+    function _getLinearY(uint256 _index,  uint256 x, uint256 _amount0, uint256 _amount1) internal view returns(uint256){
+            return linears[_index].getY(x, _amount0, _amount1);
     }
 
     /**
@@ -280,15 +286,14 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
             revert AmountsAreZero();
     }
 
-    function _determinAmountLeftY(uint256 amount0, uint256 amount1, uint256 amountInLeft, CurveTypes _type, uint256 i) internal view returns(uint256 newAmountInLeft, uint256 newAmount1){
+    function _determinAmountLeftY(uint256 _x_tracker, uint256 amount0, uint256 amount1, uint256 amountInLeft, CurveTypes _type, uint256 i) internal view returns(uint256 newAmountInLeft, uint256 newAmount1){
         bool isAmount0Not0 = amount0 != 0;
         uint256 _index = sectionCurves[i].index;
-        uint256 currentX = x_tracker + x_trackerOffset;
         if(i != 0 && !isAmount0Not0){
             uint256 maxY;
-            if(_type == CurveTypes.LINEAR_FRACTION_B) maxY = _getLinearY(_index, currentX - (sectionUpperLimits[i - 1] + 1), 0);
-            else if(_type == CurveTypes.CONST_PRODUCT) maxY = _getConstantProductY(_index, currentX - (sectionUpperLimits[i - 1] + 1), 0);
-            else if(_type == CurveTypes.CONST_RATIO) maxY = _getConstantRatioY(_index, currentX - (sectionUpperLimits[i - 1] + 1), 0); /// this has to have its own equation where x_0 is the upper limit
+            if(_type == CurveTypes.LINEAR_FRACTION_B) maxY = _getLinearY(_index, _x_tracker, _x_tracker - (sectionUpperLimits[i - 1] + 1), 0);
+            else if(_type == CurveTypes.CONST_PRODUCT) maxY = _getConstantProductY(_index, _x_tracker, _x_tracker - (sectionUpperLimits[i - 1] + 1), 0);
+            else if(_type == CurveTypes.CONST_RATIO) maxY = _getConstantRatioY(_index, _x_tracker - (sectionUpperLimits[i - 1] + 1), 0); /// this has to have its own equation where x_0 is the upper limit
             if(maxY < amount1){
                 amount1 = amountInLeft - maxY;
                 amountInLeft -= amount1;
