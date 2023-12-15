@@ -3,13 +3,13 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ApplicationERC20} from "example/ERC20/ApplicationERC20.sol";
-import {ApplicationERC721} from "example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import "example/application/ApplicationAppManager.sol";
-import "example/application/ApplicationHandler.sol";
+import {ApplicationERC20} from "src/example/ERC20/ApplicationERC20.sol";
+import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import "src/example/application/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
 import "test/protocol/diamond/util/DiamondTestUtil.sol";
-import {ApplicationERC721Handler} from "example/ERC721/ApplicationERC721Handler.sol";
-import {ApplicationERC20Handler} from "example/ERC20/ApplicationERC20Handler.sol";
+import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
+import {ApplicationERC20Handler} from "src/example/ERC20/ApplicationERC20Handler.sol";
 import "test/protocol/economic/util/RuleProcessorDiamondTestUtil.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
@@ -19,8 +19,8 @@ import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/rulePr
 import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC721FuzzTest is TestCommonFoundry {

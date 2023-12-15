@@ -9,8 +9,8 @@ import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC20FuzzTest is TestCommonFoundry {

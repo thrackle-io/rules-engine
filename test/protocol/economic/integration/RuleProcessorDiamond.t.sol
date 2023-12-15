@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "../util/RuleProcessorDiamondTestUtil.sol";
 import "src/client/application/AppManager.sol";
-import "example/ERC20/ApplicationERC20Handler.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {SampleUpgradeFacet} from "src/protocol/diamond/SampleUpgradeFacet.sol";
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
@@ -18,7 +18,7 @@ import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/rulePr
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {RuleDataFacet as Facet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {ApplicationERC20} from "example/ERC20/ApplicationERC20.sol";
+import {ApplicationERC20} from "src/example/ERC20/ApplicationERC20.sol";
 
 contract RuleProcessorDiamondTest is Test, RuleProcessorDiamondTestUtil {
     // Store the FacetCut struct for each facet that is being deployed.

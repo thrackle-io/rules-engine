@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "src/client/liquidity/ProtocolERC20AMM.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
-import {ApplicationAMMHandler} from "example/liquidity/ApplicationAMMHandler.sol";
+import {ApplicationAMMHandler} from "src/example/liquidity/ApplicationAMMHandler.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";

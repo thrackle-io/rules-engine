@@ -2,8 +2,8 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import "example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
-import "example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
+import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
+import "src/example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
 import "test/util/ApplicationERC721UExtra.sol";
 import "test/util/ApplicationERC721UExtra2.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
@@ -13,8 +13,8 @@ import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/rulePr
 import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import "test/util/TestCommonFoundry.sol";
 
