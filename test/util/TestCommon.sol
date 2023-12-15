@@ -23,16 +23,33 @@ import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRul
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
+/// ERC721 Example test imports 
+import {ApplicationERC721 as MintForAFeeERC721} from "example/ERC721/ApplicationERC721MintForAFee.sol";
+import {ApplicationERC721 as WhitelistMintERC721} from "example/ERC721/ApplicationERC721WhitelistMint.sol";
+import {ApplicationERC721 as FreeForAllERC721} from "example/ERC721/ApplicationERC721FreeMint.sol";
+import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
+import {ApplicationERC721Upgradeable as MintForAFeeERC721Upgradeable} from "example/ERC721/upgradeable/ApplicationERC721UpgMintForAFee.sol";
+import {ApplicationERC721Upgradeable as WhitelistMintERC721Upgradeable} from "example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
+import {ApplicationERC721Upgradeable as FreeForAllERC721Upgradeable} from "example/ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol";
+import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
+
 /// Client Contract imports 
 import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import "example/application/ApplicationAppManager.sol";
 import "example/application/ApplicationHandler.sol";
+
 import "example/ERC20/ApplicationERC20.sol";
 import "example/ERC20/ApplicationERC20Handler.sol";
+
 import "example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import "example/ERC721/ApplicationERC721Handler.sol";
 import "test/util/ApplicationERC721WithBatchMintBurn.sol";
+import "example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
+import "example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
+import "test/util/ApplicationERC721UExtra.sol";
+import "test/util/ApplicationERC721UExtra2.sol";
+
 import "src/client/application/data/IPauseRules.sol";
 import "src/client/token/data/Fees.sol";
 import "src/client/application/data/GeneralTags.sol";
@@ -67,7 +84,7 @@ abstract contract TestCommon is Test, GenerateSelectors {
     address accessLevelAdmin = address(0xBBB);
     address riskAdmin = address(0xCCC);
     address user = address(0xDDD);
-    address priorAddress;
+    address bob = address(0xB0B);
     address user1 = address(11);
     address user2 = address(22);
     address user3 = address(33);
@@ -81,6 +98,8 @@ abstract contract TestCommon is Test, GenerateSelectors {
     address transferFromUser = address(110);
     address accessTier = address(3);
     address rich_user = address(45);
+    address proxyOwner = address(787);
+    address priorAddress;
     address[] badBoys;
     address[] goodBoys;
 
@@ -96,6 +115,7 @@ abstract contract TestCommon is Test, GenerateSelectors {
     ApplicationERC20 public applicationCoin;
     ApplicationERC20Handler public applicationCoinHandler;
     ApplicationERC20Handler public applicationCoinHandler2;
+    ApplicationERC20Handler public applicationCoinHandlerSpecialOwner;
     ApplicationERC20Pricing public erc20Pricer;
 
     ApplicationERC721 public applicationNFT;
@@ -103,6 +123,12 @@ abstract contract TestCommon is Test, GenerateSelectors {
     ApplicationERC721Handler public applicationNFTHandler2;
     ApplicationERC721HandlerMod public ERC721AssetHandler;
     ApplicationERC721Pricing public erc721Pricer;
+
+    ApplicationERC721Upgradeable public applicationNFTU;
+    ApplicationERC721Upgradeable public applicationNFT2;
+    ApplicationERC721UExtra public applicationNFTExtra;
+    ApplicationERC721UExtra2 public applicationNFTExtra2;
+    ApplicationERC721UProxy public applicationNFTProxy;
 
     OracleAllowed public oracleAllowed;
     OracleDenied public oracleDenied; 
@@ -112,6 +138,22 @@ abstract contract TestCommon is Test, GenerateSelectors {
     ApplicationERC721 public boredReptilianNFT;
     ApplicationERC721Handler public boredReptileHandler;
     ApplicationERC721Pricing public openOcean; 
+
+    MintForAFeeERC721 public mintForAFeeNFT;
+    WhitelistMintERC721 public whitelistMintNFT;
+    FreeForAllERC721 public freeNFT;
+    MintForAFeeERC721Upgradeable public mintForAFeeNFTUpImplementation;
+    WhitelistMintERC721Upgradeable public whitelistMintNFTUpImplementation;
+    FreeForAllERC721Upgradeable public freeNFTUpImplementation;
+    ApplicationERC721UProxy public mintForAFeeNFTUp;
+    ApplicationERC721UProxy public whitelistMintNFTUp;
+    ApplicationERC721UProxy public freeNFTUp;
+    ApplicationERC721Handler public MintForAFeeNFTHandler;
+    ApplicationERC721Handler public WhitelistNFTHandler;
+    ApplicationERC721Handler public FreeForAllnNFTHandler;
+    ApplicationERC721Handler public MintForAFeeNFTHandlerUp;
+    ApplicationERC721Handler public WhitelistNFTHandlerUp;
+    ApplicationERC721Handler public FreeForAllnNFTHandlerUp;
 
 
     // common block time
@@ -169,6 +211,20 @@ abstract contract TestCommon is Test, GenerateSelectors {
     }
 
     /**
+     * @dev Deploy and set up an ERC20Handler specialized for Handler Testing 
+     * @param _ruleProcessor rule processor
+     * @param _appManager previously created appManager
+     * @param _token ERC20
+     * @param _appAdmin App Admin Address 
+     * @return _handler ERC20 handler
+     */
+    function _createERC20HandlerSpecialized(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager,ApplicationERC20 _token, address _appAdmin) public returns (ApplicationERC20Handler _handler) {
+        _handler = new ApplicationERC20Handler(address(_ruleProcessor), address(_appManager), address(_appAdmin), false);
+        _token.connectHandlerToToken(address(_handler));
+        return _handler;
+    }
+
+    /**
      * @dev Deploy and set up an ERC20Handler
      * @return _pricer ERC20 pricer
      */
@@ -188,6 +244,82 @@ abstract contract TestCommon is Test, GenerateSelectors {
     }
 
     /**
+     * @dev Deploy and set up an ERC721 Mint Fee 
+     * @param _name token name
+     * @param _symbol token symbol
+     * @param _appManager previously created appManager
+     * @return _token token
+     */
+    function _createERC721MintFee(string memory _name, string memory _symbol, ApplicationAppManager _appManager, uint256 price) public returns (MintForAFeeERC721 _token) {
+        return new MintForAFeeERC721(_name, _symbol, address(_appManager), "blindsailers.com/iseeyou", price);
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721 free for all 
+     * @param _name token name
+     * @param _symbol token symbol
+     * @param _appManager previously created appManager
+     * @return _token token
+     */
+    function _createERC721Free(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (FreeForAllERC721 _token) {
+        return new FreeForAllERC721(_name, _symbol, address(_appManager), "bloodinmyhands.com/bookyourcut");
+    
+    }
+    /**
+     * @dev Deploy and set up an ERC721 allowList 
+     * @param _name token name
+     * @param _symbol token symbol
+     * @param _appManager previously created appManager
+     * @return _token token
+     */
+    function _createERC721Whitelist(string memory _name, string memory _symbol, ApplicationAppManager _appManager, uint8 _mintsAllowed) public returns (WhitelistMintERC721 _token) {
+        return new WhitelistMintERC721(_name, _symbol, address(_appManager), "monkeysdontknowwhattodo.com/havingfun", _mintsAllowed);
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721 Upgradeable
+     * @return _token token
+     */
+    function _createERC721Upgradeable() public returns (ApplicationERC721Upgradeable _token) {
+        return new ApplicationERC721Upgradeable();
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721 Upgradeable Fee Mint 
+     * @return _token token
+     */
+    function _createERC721UpgradeableFeeMint() public returns (MintForAFeeERC721Upgradeable _token) {
+        return new MintForAFeeERC721Upgradeable();
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721 Upgradeable AllowList
+     * @return _token token
+     */
+    function _createERC721UpgradeableAllowList() public returns (WhitelistMintERC721Upgradeable _token) {
+        return new WhitelistMintERC721Upgradeable();
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721 Upgradeable Free For All 
+     * @return _token token
+     */
+    function _createERC721UpgradeableFreeForAll() public returns (FreeForAllERC721Upgradeable _token) {
+        return new FreeForAllERC721Upgradeable();
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721 Upgradeable Proxy  
+     * @param _applicationNFTU logic contract 
+     * @param _proxyOwner address of the proxy owner 
+     * @return _proxy token
+     */
+    function _createERC721UpgradeableProxy(address _applicationNFTU, address _proxyOwner) public returns (ApplicationERC721UProxy _proxy) {
+        return new ApplicationERC721UProxy(address(_applicationNFTU), _proxyOwner, "");
+        
+    }
+
+    /**
      * @dev Deploy and set up an ERC721Handler
      * @param _ruleProcessor rule processor
      * @param _appManager previously created appManager
@@ -197,6 +329,58 @@ abstract contract TestCommon is Test, GenerateSelectors {
     function _createERC721Handler(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, ApplicationERC721 _token) public returns (ApplicationERC721Handler _handler) {
         _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
         _token.connectHandlerToToken(address(_handler));
+        return _handler;
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721Handler Mint Fee 
+     * @param _ruleProcessor rule processor
+     * @param _appManager previously created appManager
+     * @param _token ERC721
+     * @return _handler ERC721 handler
+     */
+    function _createERC721HandlerMintFee(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, MintForAFeeERC721 _token) public returns (ApplicationERC721Handler _handler) {
+        _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
+        _token.connectHandlerToToken(address(_handler));
+        return _handler;
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721Handler Allow List 
+     * @param _ruleProcessor rule processor
+     * @param _appManager previously created appManager
+     * @param _token ERC721
+     * @return _handler ERC721 handler
+     */
+    function _createERC721HandlerAllowList(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, WhitelistMintERC721 _token) public returns (ApplicationERC721Handler _handler) {
+        _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
+        _token.connectHandlerToToken(address(_handler));
+        return _handler;
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721Handler Free Mint 
+     * @param _ruleProcessor rule processor
+     * @param _appManager previously created appManager
+     * @param _token ERC721
+     * @return _handler ERC721 handler
+     */
+    function _createERC721HandlerFreeMint(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, FreeForAllERC721 _token) public returns (ApplicationERC721Handler _handler) {
+        _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
+        _token.connectHandlerToToken(address(_handler));
+        return _handler;
+    }
+
+    /**
+     * @dev Deploy and set up an ERC721HandlerForProxy
+     * @param _ruleProcessor rule processor
+     * @param _appManager previously created appManager
+     * @param _token ERC721
+     * @return _handler ERC721 handler
+     */
+    function _createERC721HandlerForProxy(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, ApplicationERC721UProxy _token) public returns (ApplicationERC721Handler _handler) {
+        _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
+        ApplicationERC721Upgradeable(address(_token)).connectHandlerToToken(address(_handler));
         return _handler;
     }
 

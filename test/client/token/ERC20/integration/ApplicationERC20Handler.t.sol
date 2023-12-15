@@ -12,22 +12,13 @@ import "test/util/TestCommonFoundry.sol";
  */
 contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
-    ApplicationERC20Handler applicationCoinHandlerSpecialOwner;
 
     function setUp() public {
         vm.warp(Blocktime);
         vm.startPrank(superAdmin);
-        setUpProtocolAndAppManagerAndTokens();
+        setUpProcotolAndCreateERC20AndHandlerSpecialOwner();
         switchToAppAdministrator();
-        /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
-        /// requires a token be attached and registered for permissions in appManager
-        // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
-        applicationCoinHandlerSpecialOwner = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), appAdministrator, false);
-        // create the ERC20 and connect it to its handler
-        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        applicationCoin.connectHandlerToToken(address(applicationCoinHandlerSpecialOwner));
-        /// register the token
-        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+
     }
 
     ///Test Fee Data setting/getting

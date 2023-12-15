@@ -1,42 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
-import "example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
-import "test/util/ApplicationERC721UExtra.sol";
-import "test/util/ApplicationERC721UExtra2.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC721UTest is TestCommonFoundry {
-    ApplicationERC721Upgradeable applicationNFTU;
-    ApplicationERC721Upgradeable applicationNFT2;
-    ApplicationERC721UExtra applicationNFTExtra;
-    ApplicationERC721UExtra2 applicationNFTExtra2;
-    ApplicationERC721UProxy applicationNFTProxy;
-
-    address proxyOwner = address(787);
 
     function setUp() public {
         vm.warp(Blocktime);
         vm.startPrank(superAdmin);
-        setUpProtocolAndAppManagerAndTokens();
+        setUpProtocolAndAppManagerAndTokensUpgradeable();
         switchToAppAdministrator();
-
-
-        applicationNFTU = new ApplicationERC721Upgradeable();
-        applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFTU), proxyOwner, "");
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Prime Eternal", "CHAMP", address(applicationAppManager), "dummy.uri.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), false);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
-        /// register the token
-        applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
-
-        ///Pricing Contracts
-        erc721Pricer = new ApplicationERC721Pricing();
-        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
-        erc20Pricer = new ApplicationERC20Pricing();
-        applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
-
         vm.warp(Blocktime); // set block.timestamp
     }
 

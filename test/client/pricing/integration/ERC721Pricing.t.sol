@@ -12,7 +12,6 @@ import "test/util/TestCommonFoundry.sol";
  * @notice It simulates an NFT-marketplace price source.
  */
 contract ERC721PricingTest is TestCommonFoundry {
-    address bob = address(0xB0B);
 
     function setUp() public {
         vm.startPrank(superAdmin);
