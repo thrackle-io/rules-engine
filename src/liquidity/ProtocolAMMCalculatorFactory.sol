@@ -92,7 +92,7 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
      * @return _calculatorAddress
      */
     function createConcLiqMulCurves(address _appManagerAddress) external returns(address){
-        ProtocolAMMCalcConcLiqMulCurves protocolAMMCalcConcLiqMulCurves = new ProtocolAMMCalcConcLiqMulCurves(_appManagerAddress);
+        ProtocolAMMCalcConcLiqMulCurves protocolAMMCalcConcLiqMulCurves = new ProtocolAMMCalcConcLiqMulCurves(0, _appManagerAddress);
         return address(protocolAMMCalcConcLiqMulCurves);
     }
 }

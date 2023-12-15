@@ -56,9 +56,10 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
      * @return price
      */
     function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public view override returns (uint256) {
+        _reserve1;
         if (_amount0 == 0 && _amount1 == 0) 
             revert AmountsAreZero();
-        return curve.getY(_reserve0, _reserve1, _amount0, _amount1);
+        return curve.getY(_reserve0, _amount0, _amount1);
     }
 
     /**

@@ -54,11 +54,19 @@ struct ConstantRatio{
 
 
 /** 
-* @dev Constant Ratio.
+* @dev Constant Product from reserves.
+* @notice this should be deprecated. Simply use reserves values instead.
 */ 
 struct ConstantProduct{
     uint256 x;
     uint256 y;
+}
+
+/** 
+* @dev Constant Product from k.
+*/ 
+struct ConstantProductK{
+    uint256 k;
 }
 
 
