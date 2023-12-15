@@ -2,13 +2,15 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/client/application/ApplicationHandler.sol";
-import {ApplicationAppManager} from "src/client/application/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
+import "src/example/ERC20/ApplicationERC20.sol";
+import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 
 /**
- * @title Application Deploy 07 Admin Roles Script
- * @dev This Script sets the admin roles for Application.
- * @notice This Script sets the admin roles for Application.
+ * @title Application Deploy 02 Application Fungible Token 1 Script
+ * @dev This script will deploy an ERC20 fungible token and Handler.
+ * @notice Deploys an application ERC20 and Handler.
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
  * Deploy Scripts:
  * forge script example/script/Application_Deploy_01_AppManger.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
@@ -22,7 +24,8 @@ import {ApplicationAppManager} from "src/client/application/ApplicationAppManage
  * forge script example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract ApplicationAdminRolesScript is Script {
+contract ApplicationDeployFT1Script is Script {
+    ApplicationERC20Handler applicationCoinHandler;
     uint256 privateKey;
     address ownerAddress;
 
@@ -32,21 +35,17 @@ contract ApplicationAdminRolesScript is Script {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
+        /// Retrieve the App Manager from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
-        /**
-         * Admin set up:
-         * SuperAdmin sets app admin
-         * AppAdmin sets:
-         * RULE_ADMIN = Rule admin
-         * ACCESS_TIER_ADMIN = Access Tier admin
-         * RISK_ADMIN = Risk admin
-         */
-        applicationAppManager.addAppAdministrator(vm.envAddress("APP_ADMIN"));
-        vm.stopBroadcast();
-        vm.startBroadcast(vm.envUint("APP_ADMIN_PRIVATE_KEY"));
-        applicationAppManager.addRuleAdministrator(vm.envAddress("RULE_ADMIN"));
-        applicationAppManager.addAccessTier(vm.envAddress("ACCESS_TIER_ADMIN"));
-        applicationAppManager.addRiskAdmin(vm.envAddress("RISK_ADMIN"));
+
+        /// Create ERC20 token 1
+        ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
+        applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), false);
+        coin1.connectHandlerToToken(address(applicationCoinHandler));
+
+        /// Register the tokens with the application's app manager
+        applicationAppManager.registerToken("Frankenstein Coin", address(coin1));
+
         vm.stopBroadcast();
     }
 }

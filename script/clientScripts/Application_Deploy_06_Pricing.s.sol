@@ -2,16 +2,16 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/client/application/ApplicationHandler.sol";
-import "../ERC20/ApplicationERC20Handler.sol";
-import "../ERC20/ApplicationERC20.sol";
-import {ApplicationERC721Handler} from "../ERC721/ApplicationERC721Handler.sol";
-import {ApplicationERC721} from "../ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import {ApplicationAppManager} from "src/client/application/ApplicationAppManager.sol";
-import "../OracleRestricted.sol";
-import "../OracleAllowed.sol";
-import "src/client/pricing/ApplicationERC20Pricing.sol";
-import "src/client/pricing/ApplicationERC721Pricing.sol";
+import "src/example/application/ApplicationHandler.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
+import "src/example/ERC20/ApplicationERC20.sol";
+import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
+import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
+import "src/example/pricing/ApplicationERC20Pricing.sol";
+import "src/example/pricing/ApplicationERC721Pricing.sol";
 
 /**
  * @title Application Deploy 06 Pricing Script

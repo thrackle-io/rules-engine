@@ -2,15 +2,15 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "../ERC20/ApplicationERC20Handler.sol";
-import "../ERC20/ApplicationERC20.sol";
-import {ApplicationAppManager} from "src/client/application/ApplicationAppManager.sol";
-import "src/client/application/ApplicationHandler.sol";
+import "src/example/application/ApplicationHandler.sol";
+import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
+import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 
 /**
- * @title Application Deploy 08 App Manager For Upgrade Script
- * @dev This script will deploy the App Manager and an ERC20 token Handler.
- * @notice Deploys a new application App Manager and ERC20 handler. This is for upgrade testing only.
+ * @title Application Deploy 04 Application Non-Fungible Token  Script
+ * @dev This script will deploy an ERC721 non-fungible token and Handler.
+ * @notice Deploys an application ERC721 non-fungible token and Handler..
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
  * Deploy Scripts:
  * forge script example/script/Application_Deploy_01_AppManger.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
@@ -24,7 +24,8 @@ import "src/client/application/ApplicationHandler.sol";
  * forge script example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract ApplicationDeployAppManagerForUpgradeScript is Script {
+contract ApplicationDeployNFTScript is Script {
+    ApplicationERC721Handler applicationNFTHandler;
     uint256 privateKey;
     address ownerAddress;
 
@@ -34,10 +35,17 @@ contract ApplicationDeployAppManagerForUpgradeScript is Script {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
+        /// Retrieve the App Manager from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
-        /// This is a new app manager used for upgrade testing
-        new ApplicationAppManager(vm.envAddress("DEPLOYMENT_OWNER"), "Castlevania", true);
-        new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), vm.envAddress("APPLICATION_ERC20_ADDRESS"), true);
+
+        /// Create NFT
+        ApplicationERC721 nft1 = new ApplicationERC721("Clyde", "CLYDEPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
+        applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1), false);
+        nft1.connectHandlerToToken(address(applicationNFTHandler));
+
+        /// Register the tokens with the application's app manager
+        applicationAppManager.registerToken("Clyde Picture", address(nft1));
+
         vm.stopBroadcast();
     }
 }

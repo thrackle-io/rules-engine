@@ -2,13 +2,13 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/client/application/ApplicationHandler.sol";
-import {ApplicationAppManager} from "src/client/application/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
+import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 
 /**
- * @title Application Deploy 01 AppManger Script
- * @dev This script will deploy the App Manager, App Handler an ERC20 token and Handler and an ERC721 token and Handler Contract.
- * @notice Deploys the application App Manager, AppHandler, ERC20, ERC721, and associated handlers.
+ * @title Application Deploy 07 Admin Roles Script
+ * @dev This Script sets the admin roles for Application.
+ * @notice This Script sets the admin roles for Application.
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
  * Deploy Scripts:
  * forge script example/script/Application_Deploy_01_AppManger.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
@@ -22,7 +22,7 @@ import {ApplicationAppManager} from "src/client/application/ApplicationAppManage
  * forge script example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract ApplicationDeployAppManagerAndAssetsScript is Script {
+contract ApplicationAdminRolesScript is Script {
     uint256 privateKey;
     address ownerAddress;
 
@@ -32,9 +32,21 @@ contract ApplicationDeployAppManagerAndAssetsScript is Script {
         privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
-        ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("DEPLOYMENT_OWNER"), "Castlevania", false);
-        ApplicationHandler applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
-        applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
+        ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
+        /**
+         * Admin set up:
+         * SuperAdmin sets app admin
+         * AppAdmin sets:
+         * RULE_ADMIN = Rule admin
+         * ACCESS_TIER_ADMIN = Access Tier admin
+         * RISK_ADMIN = Risk admin
+         */
+        applicationAppManager.addAppAdministrator(vm.envAddress("APP_ADMIN"));
+        vm.stopBroadcast();
+        vm.startBroadcast(vm.envUint("APP_ADMIN_PRIVATE_KEY"));
+        applicationAppManager.addRuleAdministrator(vm.envAddress("RULE_ADMIN"));
+        applicationAppManager.addAccessTier(vm.envAddress("ACCESS_TIER_ADMIN"));
+        applicationAppManager.addRiskAdmin(vm.envAddress("RISK_ADMIN"));
         vm.stopBroadcast();
     }
 }

@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "../../ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol";
-import "../../ERC721/upgradeable/ApplicationERC721UProxy.sol";
-import "../src/client/tokenapplication/IAppManager.sol";
-import {ApplicationERC721Handler} from "../../ERC721/ApplicationERC721Handler.sol";
+import "src/example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
+import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
+import "src/client/application/IAppManager.sol";
+import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
 
 /**
  * @title This is the deployment script for the ApplicationERC721U.
@@ -23,7 +23,7 @@ contract ApplicationERC721UScript is Script {
         vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
         ApplicationERC721Upgradeable applicationNFT = new ApplicationERC721Upgradeable();
         ApplicationERC721UProxy applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFT), vm.envAddress("APPLICATIONERC721U_PROXY_OWNER_ADDRESS"), "");
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), "dummy.uri.io");
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), "dummy.uri.io", 1);
         ApplicationERC721Handler applicationNFTHandler = new ApplicationERC721Handler(
             vm.envAddress("RULE_PROCESSOR_DIAMOND"),
             vm.envAddress("APPLICATION_APP_MANAGER"),

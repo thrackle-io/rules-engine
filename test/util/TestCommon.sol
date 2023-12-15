@@ -24,29 +24,29 @@ import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "sr
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
 /// ERC721 Example test imports 
-import {ApplicationERC721 as MintForAFeeERC721} from "example/ERC721/ApplicationERC721MintForAFee.sol";
-import {ApplicationERC721 as WhitelistMintERC721} from "example/ERC721/ApplicationERC721WhitelistMint.sol";
-import {ApplicationERC721 as FreeForAllERC721} from "example/ERC721/ApplicationERC721FreeMint.sol";
+import {ApplicationERC721 as MintForAFeeERC721} from "src/example/ERC721/ApplicationERC721MintForAFee.sol";
+import {ApplicationERC721 as WhitelistMintERC721} from "src/example/ERC721/ApplicationERC721WhitelistMint.sol";
+import {ApplicationERC721 as FreeForAllERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
-import {ApplicationERC721Upgradeable as MintForAFeeERC721Upgradeable} from "example/ERC721/upgradeable/ApplicationERC721UpgMintForAFee.sol";
-import {ApplicationERC721Upgradeable as WhitelistMintERC721Upgradeable} from "example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
-import {ApplicationERC721Upgradeable as FreeForAllERC721Upgradeable} from "example/ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol";
+import {ApplicationERC721Upgradeable as MintForAFeeERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgMintForAFee.sol";
+import {ApplicationERC721Upgradeable as WhitelistMintERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
+import {ApplicationERC721Upgradeable as FreeForAllERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 
 /// Client Contract imports 
 import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
-import "example/application/ApplicationAppManager.sol";
-import "example/application/ApplicationHandler.sol";
+import "src/example/application/ApplicationAppManager.sol";
+import "src/example/application/ApplicationHandler.sol";
 
-import "example/ERC20/ApplicationERC20.sol";
-import "example/ERC20/ApplicationERC20Handler.sol";
+import "src/example/ERC20/ApplicationERC20.sol";
+import "src/example/ERC20/ApplicationERC20Handler.sol";
 
-import "example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import "example/ERC721/ApplicationERC721Handler.sol";
+import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import "src/example/ERC721/ApplicationERC721Handler.sol";
 import "test/util/ApplicationERC721WithBatchMintBurn.sol";
-import "example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
-import "example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
+import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
+import "src/example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
 import "test/util/ApplicationERC721UExtra.sol";
 import "test/util/ApplicationERC721UExtra2.sol";
 
@@ -60,10 +60,10 @@ import "src/client/application/data/Accounts.sol";
 import "src/client/application/data/IDataModule.sol";
 import "src/client/token/IAdminWithdrawalRuleCapable.sol";
 /// common imports 
-import "example/pricing/ApplicationERC20Pricing.sol";
-import "example/pricing/ApplicationERC721Pricing.sol";
-import "example/OracleDenied.sol";
-import "example/OracleAllowed.sol";
+import "src/example/pricing/ApplicationERC20Pricing.sol";
+import "src/example/pricing/ApplicationERC721Pricing.sol";
+import "src/example/OracleDenied.sol";
+import "src/example/OracleAllowed.sol";
 
 
 /**
