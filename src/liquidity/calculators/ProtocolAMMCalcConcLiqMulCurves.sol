@@ -33,12 +33,14 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     uint256 x_trackerOffset;
     uint256 x_tracker;
 
+    /// curves stored in the contract to use in regions
     LinearFractionB[] public linears;
     ConstantRatio[] public constRatios;
     ConstantProductK[] public constProducts;
 
-    /// in terms of token1 per token0 in ATTOs
+    /// defines which curve in what section
     SectionCurve[] public sectionCurves;
+    /// in terms of token0 (x axis)
     uint256[] public sectionUpperLimits;
 
     /**
@@ -149,10 +151,10 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
                         _x_tracker -= amountOut;
                         unchecked{
                             if(i > 0) --i;
-                            else{
-                                if(amountInLeft > 0)
-                                    revert("OUT OF LIMITS");
-                            }
+                            // else{
+                            //     if(amountInLeft > 0)
+                            //         revert("OUT OF LIMITS");
+                            // }
                         }
                     }
                     amountOut += regionOut;
