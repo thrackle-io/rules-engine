@@ -121,19 +121,19 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
                     /// constant ratio
                     if(sectionCurves[i].curveType == CurveTypes.CONST_RATIO){
                         if(!isAmount0Not0)
-                            (amountInLeft, amount1 ) = _determinAmountLeftY(_x_tracker, amount0, amount1, amountInLeft, CurveTypes.CONST_RATIO, i);
+                            (amountInLeft, amount1 ) = _determinAmountLeftY(_x_tracker, amount1, amountInLeft, CurveTypes.CONST_RATIO, i);
                         regionOut = _getConstantRatioY(_index, amount0, amount1);
                         
                     /// constant product
                     }else if(sectionCurves[i].curveType == CurveTypes.CONST_PRODUCT){
                         if(!isAmount0Not0)
-                            (amountInLeft, amount1 ) = _determinAmountLeftY(_x_tracker, amount0, amount1, amountInLeft, CurveTypes.CONST_PRODUCT, i);
+                            (amountInLeft, amount1 ) = _determinAmountLeftY(_x_tracker, amount1, amountInLeft, CurveTypes.CONST_PRODUCT, i);
                         regionOut = _getConstantProductY(_index, _x_tracker, amount0, amount1);
 
                     /// linear
                     }else if(sectionCurves[i].curveType == CurveTypes.LINEAR_FRACTION_B){
                         if(!isAmount0Not0)
-                            (amountInLeft, amount1 ) = _determinAmountLeftY(_x_tracker, amount0, amount1, amountInLeft, CurveTypes.LINEAR_FRACTION_B, i);
+                            (amountInLeft, amount1 ) = _determinAmountLeftY(_x_tracker, amount1, amountInLeft, CurveTypes.LINEAR_FRACTION_B, i);
                         regionOut = _getLinearY(_index, _x_tracker, amount0, amount1);
 
                     /// revert if type was none of the above
@@ -288,27 +288,28 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
             revert AmountsAreZero();
     }
 
-    function _determinAmountLeftY(uint256 _x_tracker, uint256 amount0, uint256 amount1, uint256 amountInLeft, CurveTypes _type, uint256 i) internal view returns(uint256 newAmountInLeft, uint256 newAmount1){
-        bool isAmount0Not0 = amount0 != 0;
+    function _determinAmountLeftY(uint256 _x_tracker, uint256 amount1, uint256 amountInLeft, CurveTypes _type, uint256 i) internal view returns(uint256 newAmountInLeft, uint256 newAmount1){
         uint256 _index = sectionCurves[i].index;
-        if(i != 0 && !isAmount0Not0){
+        
+        if(i != 0){
             uint256 maxY;
+
             if(_type == CurveTypes.LINEAR_FRACTION_B) maxY = _getLinearY(_index, _x_tracker, _x_tracker - (sectionUpperLimits[i - 1] + 1), 0);
             else if(_type == CurveTypes.CONST_PRODUCT) maxY = _getConstantProductY(_index, _x_tracker, _x_tracker - (sectionUpperLimits[i - 1] + 1), 0);
             else if(_type == CurveTypes.CONST_RATIO) maxY = _getConstantRatioY(_index, _x_tracker - (sectionUpperLimits[i - 1] + 1), 0); /// this has to have its own equation where x_0 is the upper limit
+            
             if(maxY < amount1){
-                amount1 = amountInLeft - maxY;
-                amountInLeft -= amount1;
+                newAmount1 = amountInLeft - maxY;
+                newAmountInLeft -= amount1;
             }else{
-                amount1 = amountInLeft;
-                amountInLeft = 0;
+                newAmount1 = amountInLeft;
+                newAmountInLeft = 0;
             }
-        }else if(i == 0 && !isAmount0Not0){
-            amount1 = amountInLeft;
-            amountInLeft = 0;
         }
-        newAmountInLeft = amountInLeft;
-        newAmount1 = amount1;
+        else{
+            newAmount1 = amountInLeft;
+            newAmountInLeft = 0;
+        }
     }
 
 }

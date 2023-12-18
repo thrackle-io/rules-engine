@@ -251,6 +251,13 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         calc.set_x_offset(reserves0);
     }
 
+    function _setupLinearReservesAt9k() internal {
+        _setSectionsA();
+        /// According to desmos. Spot price should be 0.6
+        uint256 reserves0 = 9_000 * ATTO;
+        calc.set_x_offset(reserves0);
+    }
+
     function _linearRegionExchange1XtoY() internal returns(uint256 amountOut){
         _setupLinearReserves();
         amountOut = calc.calculateSwap(0, 0, 1 * ATTO, 0);
@@ -295,26 +302,48 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         assertLe(absoluteDiff( 2 * ATTO, amountOut), 1); /// here the error is 3
     }
 
-    function _linearRegionExchangeUntilFirstUpperLimit() internal returns(uint256 amountOut){
+    function _linearRegionExchangeFrom5KUntilFirstUpperLimit() internal returns(uint256 amountOut){
         _setupLinearReservesAt5k();
         amountOut = calc.calculateSwap(0, 0, upperLimitsA[0] - 5_000 * ATTO, 0);
     }
 
-    function testAMMCalcConcLiqMulCurves__LinearRegionExchangeUntilFirstUpperLimit() public {
-        uint256 amountOut = _linearRegionExchangeUntilFirstUpperLimit();
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchangeFrom5KUntilFirstUpperLimit() public {
+        uint256 amountOut = _linearRegionExchangeFrom5KUntilFirstUpperLimit();
         /// according to desmos result should be 6250 * ATTO
         assertEq(amountOut, 6250 * ATTO);
     }
 
-    function _linearRegionExchangeBackFromFirstUpperLimit() internal returns(uint256 amountOut){
-        _linearRegionExchangeUntilFirstUpperLimit();
+    function _linearRegionExchangeBackFromFirstUpperLimitTo5k() internal returns(uint256 amountOut){
+        _linearRegionExchangeFrom5KUntilFirstUpperLimit();
         amountOut = calc.calculateSwap(0, 0, 0, 6250 * ATTO);
     }
 
-    function testAMMCalcConcLiqMulCurves__LinearRegionExchangeBackFromFirstUpperLimit() public {
-        uint256 amountOut = _linearRegionExchangeBackFromFirstUpperLimit();
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchangeBackFromFirstUpperLimitTo5k() public {
+        uint256 amountOut = _linearRegionExchangeBackFromFirstUpperLimitTo5k();
         /// result should be the initial amount 
         assertEq(amountOut, upperLimitsA[0] - 5_000 * ATTO);
+    }
+
+    function _linearRegionExchangeFrom9KUntilFirstUpperLimit() internal returns(uint256 amountOut){
+        _setupLinearReservesAt5k();
+        amountOut = calc.calculateSwap(0, 0, upperLimitsA[0] - 9_000 * ATTO, 0);
+    }
+
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchangeFrom9KUntilFirstUpperLimit() public {
+        uint256 amountOut = _linearRegionExchangeFrom9KUntilFirstUpperLimit();
+        /// according to desmos result should be 1050 * ATTO
+        assertEq(amountOut, 1050 * ATTO);
+    }
+
+    function _linearRegionExchangeBackFromFirstUpperLimitTo9K() internal returns(uint256 amountOut){
+        _linearRegionExchangeFrom9KUntilFirstUpperLimit();
+        amountOut = calc.calculateSwap(0, 0, 0, 1050 * ATTO);
+    }
+
+    function testAMMCalcConcLiqMulCurves_LinearRegionExchangeBackFromFirstUpperLimitTo9K() public {
+        uint256 amountOut = _linearRegionExchangeBackFromFirstUpperLimitTo9K();
+        /// result should be the initial amount 
+        assertEq(amountOut, upperLimitsA[0] - 9_000 * ATTO);
     }
 
 
