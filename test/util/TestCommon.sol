@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "test/util/GenerateSelectors.sol";
+import "test/util/TestArrays.sol";
 /// common diamond imports 
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/protocol/economic/ruleProcessor/RuleProcessorDiamond.sol";
@@ -74,7 +75,7 @@ import "src/example/OracleAllowed.sol";
  * create = set to proper user, deploy contracts, reset user, return the contract
  * _create = deploy contract, return the contract
  */
-abstract contract TestCommon is Test, GenerateSelectors {
+abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     FacetCut[] _ruleProcessorFacetCuts;
 
     // common addresses

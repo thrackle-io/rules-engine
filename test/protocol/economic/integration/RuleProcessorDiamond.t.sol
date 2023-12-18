@@ -121,22 +121,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         applicationCoin.mint(superAdmin, totalSupply);
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        bytes32[] memory accs = new bytes32[](3);
-        uint256[] memory min = new uint256[](3);
-        uint256[] memory max = new uint256[](3);
-
-        // add the actual rule
-
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        min[0] = uint256(10);
-        min[1] = uint256(20);
-        min[2] = uint256(30);
-        max[0] = uint256(10000000000000000000000000);
-        max[1] = uint256(10000000000000000000000000000);
-        max[2] = uint256(1000000000000000000000000000000);
-        // add empty rule at ruleId 0
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256SizeThreeArray(10, 20, 30);
+        uint256[] memory max = createUint256SizeThreeArray(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
+        // add rule at ruleId 0
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         vm.stopPrank();
@@ -156,22 +144,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         applicationCoin.mint(superAdmin, totalSupply);
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        bytes32[] memory accs = new bytes32[](3);
-        uint256[] memory min = new uint256[](3);
-        uint256[] memory max = new uint256[](3);
-
-        // add the actual rule
-
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        min[0] = uint256(10);
-        min[1] = uint256(20);
-        min[2] = uint256(30);
-        max[0] = uint256(10000000000000000000000000);
-        max[1] = uint256(10000000000000000000000000000);
-        max[2] = uint256(1000000000000000000000000000000);
-        // add empty rule at ruleId 0
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256SizeThreeArray(10, 20, 30);
+        uint256[] memory max = createUint256SizeThreeArray(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
+        // add rule at ruleId 0
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         vm.stopPrank();
@@ -197,21 +173,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testFailsMinAccountBalanceCheck() public {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        // add empty rule at ruleId 0
-        bytes32[] memory accs = new bytes32[](3);
-        uint256[] memory min = new uint256[](3);
-        uint256[] memory max = new uint256[](3);
-
-        // add the actual rule
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        min[0] = uint256(10);
-        min[1] = uint256(20);
-        min[2] = uint256(30);
-        max[0] = uint256(10000000000000000000000000);
-        max[1] = uint256(10000000000000000000000000000);
-        max[2] = uint256(1000000000000000000000000000000);
+        // add rule at ruleId 0
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256SizeThreeArray(10, 20, 30);
+        uint256[] memory max = createUint256SizeThreeArray(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         vm.stopPrank();
@@ -231,21 +196,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testMaxAccountBalanceCheck() public {
         applicationCoin.mint(superAdmin, totalSupply);
         
-        // add empty rule at ruleId 0
-        bytes32[] memory accs = new bytes32[](3);
-        uint256[] memory min = new uint256[](3);
-        uint256[] memory max = new uint256[](3);
-
-        // add the actual rule
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        min[0] = uint256(10);
-        min[1] = uint256(20);
-        min[2] = uint256(30);
-        max[0] = uint256(10000000000000000000000000);
-        max[1] = uint256(10000000000000000000000000000);
-        max[2] = uint256(1000000000000000000000000000000);
+        // add rule at ruleId 0
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256SizeThreeArray(10, 20, 30);
+        uint256[] memory max = createUint256SizeThreeArray(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         vm.stopPrank();
@@ -264,21 +218,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testFailsMaxAccountBalanceCheck() public {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        // add empty rule at ruleId 0
-        bytes32[] memory accs = new bytes32[](3);
-        uint256[] memory min = new uint256[](3);
-        uint256[] memory max = new uint256[](3);
-
-        // add the actual rule
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        min[0] = uint256(10);
-        min[1] = uint256(20);
-        min[2] = uint256(30);
-        max[0] = uint256(10000000000000000000000000);
-        max[1] = uint256(10000000000000000000000000000);
-        max[2] = uint256(1000000000000000000000000000000);
+        // add rule at ruleId 0
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256SizeThreeArray(10, 20, 30);
+        uint256[] memory max = createUint256SizeThreeArray(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         vm.stopPrank();
@@ -303,22 +246,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint256[] memory pAmounts = new uint256[](3);
-        pAmounts[0] = uint256(1000);
-        pAmounts[1] = uint256(2000);
-        pAmounts[2] = uint256(3000);
-        uint16[] memory pPeriods = new uint16[](3);
-        pPeriods[0] = uint16(100);
-        pPeriods[1] = uint16(101);
-        pPeriods[2] = uint16(102);
-        uint64[] memory sTimes = new uint64[](3);
-        sTimes[0] = uint64(8);
-        sTimes[1] = uint64(12);
-        sTimes[2] = uint64(16);
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
+        uint256[] memory pAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
+        uint16[] memory pPeriods = createUint16SizeThreeArray(100, 101, 102);
+        uint64[] memory sTimes = createUint64SizeThreeArray(8, 12, 16);
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         // uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTimes);
@@ -350,22 +281,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.warp(Blocktime);
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint256[] memory pAmounts = new uint256[](3);
-        pAmounts[0] = uint256(1000);
-        pAmounts[1] = uint256(2000);
-        pAmounts[2] = uint256(3000);
-        uint16[] memory pPeriods = new uint16[](3);
-        pPeriods[0] = uint16(100);
-        pPeriods[1] = uint16(101);
-        pPeriods[2] = uint16(102);
-        uint64[] memory sTimes = new uint64[](3);
-        sTimes[0] = uint64(10);
-        sTimes[1] = uint64(12);
-        sTimes[2] = uint64(16);
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
+        uint256[] memory pAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
+        uint16[] memory pPeriods = createUint16SizeThreeArray(100, 101, 102);
+        uint64[] memory sTimes = createUint64SizeThreeArray(8, 12, 16);
         // set user to the super admin
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -387,21 +306,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Tayler");
-        uint256[] memory pAmounts = new uint256[](3);
-        pAmounts[0] = uint256(1000);
-        pAmounts[1] = uint256(2000);
-        pAmounts[2] = uint256(3000);
-        uint16[] memory pPeriods = new uint16[](3);
-        pPeriods[0] = uint16(100);
-        pPeriods[1] = uint16(101);
-        pPeriods[2] = uint16(102);
-        uint64[] memory sTimes = new uint64[](2);
-        sTimes[0] = uint64(24);
-        sTimes[1] = uint64(36);
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
+        uint256[] memory pAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
+        uint16[] memory pPeriods = createUint16SizeThreeArray(100, 101, 102);
+        uint64[] memory sTimes = createUint64SizeTwoArray(24, 36);
 
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTimes);
@@ -414,14 +322,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
         uint256[101] memory _indexes;
-        bytes32[] memory accs = new bytes32[](1);
-        accs[0] = bytes32("Oscar");
-        uint256[] memory pAmounts = new uint256[](1);
-        pAmounts[0] = uint192(1000);
-        uint16[] memory pPeriods = new uint16[](1);
-        pPeriods[0] = uint16(100);
-        uint64[] memory sTimes = new uint64[](1);
-        sTimes[0] = uint32(12);
+        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");   
+        uint256[] memory pAmounts = createUint256SizeOneArray(1000);
+        uint16[] memory pPeriods = createUint16SizeOneArray(100);
+        uint64[] memory sTimes = createUint64SizeOneArray(12);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTimes);
         }
@@ -436,23 +340,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint192[] memory sAmounts = new uint192[](3);
-        sAmounts[0] = uint192(1000);
-        sAmounts[1] = uint192(2000);
-        sAmounts[2] = uint192(3000);
-        uint16[] memory sPeriod = new uint16[](3);
-        sPeriod[0] = uint16(24);
-        sPeriod[1] = uint16(36);
-        sPeriod[2] = uint16(48);
-        uint64[] memory sTimes = new uint64[](3);
-        sTimes[0] = Blocktime;
-        sTimes[1] = Blocktime;
-        sTimes[2] = Blocktime;
-
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
+        uint192[] memory sAmounts = createUint192SizeThreeArray(1000, 2000, 3000);
+        uint16[] memory sPeriod = createUint16SizeThreeArray(24, 36, 48);
+        uint64[] memory sTimes = createUint64SizeThreeArray(Blocktime, Blocktime, Blocktime);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
         assertEq(_index, 0);
 
@@ -460,16 +351,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // TaggedRules.SellRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, "Oscar");
         // assertEq(rule.sellAmount, 1000);
         // assertEq(rule.sellPeriod, 24);
-
-        // accs[0] = bytes32("Oscar");
-        // accs[1] = bytes32("Tayler");
-        // accs[2] = bytes32("Shane");
-        // sAmounts[0] = uint192(100000000);
-        // sAmounts[1] = uint192(20000000);
-        // sAmounts[2] = uint192(3000000);
-        // sPeriod[0] = uint16(11);
-        // sPeriod[1] = uint16(22);
-        // sPeriod[2] = uint16(33);
+        // bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
+        // uint192[] memory pAmounts = createUint192SizeThreeArray(100000000, 20000000, 3000000);
+        // uint16[] memory pPeriods = createUint16SizeThreeArray(11, 22, 33);
         // _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
         // assertEq(_index, 1);
         // rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, "Tayler");
@@ -482,22 +366,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     /// testing only appAdministrators can add Purchase Rule
     function testSettingSellRuleWithoutAppAdministratorAccount() public {
         vm.warp(Blocktime);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint192[] memory sAmounts = new uint192[](3);
-        sAmounts[0] = uint192(1000);
-        sAmounts[1] = uint192(2000);
-        sAmounts[2] = uint192(3000);
-        uint16[] memory sPeriod = new uint16[](3);
-        sPeriod[0] = uint16(24);
-        sPeriod[1] = uint16(36);
-        sPeriod[2] = uint16(48);
-        uint64[] memory sTimes = new uint64[](3);
-        sTimes[0] = Blocktime;
-        sTimes[1] = Blocktime;
-        sTimes[2] = Blocktime;
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
+        uint192[] memory sAmounts = createUint192SizeThreeArray(1000, 2000, 3000);
+        uint16[] memory sPeriod = createUint16SizeThreeArray(24, 36, 48);
+        uint64[] memory sTimes = createUint64SizeThreeArray(Blocktime, Blocktime, Blocktime);
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -519,21 +391,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
-        bytes32[] memory accs = new bytes32[](2);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        uint192[] memory sAmounts = new uint192[](3);
-        sAmounts[0] = uint192(1000);
-        sAmounts[1] = uint192(2000);
-        sAmounts[2] = uint192(3000);
-        uint16[] memory sPeriod = new uint16[](3);
-        sPeriod[0] = uint16(24);
-        sPeriod[1] = uint16(36);
-        sPeriod[2] = uint16(48);
-        uint64[] memory sTimes = new uint64[](3);
-        sTimes[0] = Blocktime;
-        sTimes[1] = Blocktime;
-        sTimes[2] = Blocktime;
+        bytes32[] memory accs = createBytes32SizeTwoArray("Oscar","Tayler");   
+        uint192[] memory sAmounts = createUint192SizeThreeArray(1000, 2000, 3000);
+        uint16[] memory sPeriod = createUint16SizeThreeArray(24, 36, 48);
+        uint64[] memory sTimes = createUint64SizeThreeArray(Blocktime, Blocktime, Blocktime);
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
     }
@@ -545,16 +406,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
         uint256[101] memory _indexes;
-        bytes32[] memory accs = new bytes32[](1);
-        accs[0] = bytes32("Oscar");
-        uint192[] memory sAmounts = new uint192[](1);
-        sAmounts[0] = uint192(1000);
-        uint32[] memory pPeriods = new uint32[](1);
-        pPeriods[0] = uint32(100);
-        uint16[] memory sPeriod = new uint16[](1);
-        sPeriod[0] = uint16(24);
-        uint64[] memory sTimes = new uint64[](1);
-        sTimes[0] = uint64(Blocktime);
+        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");
+        uint192[] memory sAmounts = createUint192SizeOneArray(1000);
+        uint16[] memory sPeriod = createUint16SizeOneArray(24);
+        uint64[] memory sTimes = createUint64SizeOneArray(Blocktime);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
         }
@@ -777,34 +632,26 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint256[] memory min = new uint256[](3);
-        min[0] = uint256(1000);
-        min[1] = uint256(2000);
-        min[2] = uint256(3000);
-        uint256[] memory max = new uint256[](3);
-        max[0] = uint256(10000000000000000000000000000000000000);
-        max[1] = uint256(100000000000000000000000000000000000000000);
-        max[2] = uint256(100000000000000000000000000000000000000000000000000000000000000000000000000);
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256SizeThreeArray(1000, 2000, 3000);
+        uint256[] memory max = createUint256SizeThreeArray(
+            10000000000000000000000000000000000000, 
+            100000000000000000000000000000000000000000, 
+            100000000000000000000000000000000000000000000000000000000000000000000000000
+            );
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         assertEq(_index, 0);
         TaggedRules.MinMaxBalanceRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, "Oscar");
         assertEq(rule.minimum, 1000);
         assertEq(rule.maximum, 10000000000000000000000000000000000000);
-
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        min[0] = uint256(100000000);
-        min[1] = uint256(20000000);
-        min[2] = uint256(3000000);
-        max[0] = uint256(100000000000000000000000000000000000000000000000000000000000000000000000000);
-        max[1] = uint256(20000000000000000000000000000000000000);
-        max[2] = uint256(900000000000000000000000000000000000000000000000000000000000000000000000000);
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        bytes32[] memory accs2 = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory min2 = createUint256SizeThreeArray(100000000, 20000000, 3000000);
+        uint256[] memory max2 = createUint256SizeThreeArray(
+            100000000000000000000000000000000000000000000000000000000000000000000000000, 
+            20000000000000000000000000000000000000, 
+            900000000000000000000000000000000000000000000000000000000000000000000000000
+            );
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs2, min2, max2);
         assertEq(_index, 1);
         rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, "Tayler");
         assertEq(rule.minimum, 20000000);
@@ -815,18 +662,13 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
     /// testing only appAdministrators can add Balance Limit Rule
     function testSettingMinMaxBalanceRuleWithoutAppAdministratorAccount() public {
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint256[] memory min = new uint256[](3);
-        min[0] = uint256(1000);
-        min[1] = uint256(2000);
-        min[2] = uint256(3000);
-        uint256[] memory max = new uint256[](3);
-        max[0] = uint256(10000000000000000000000000000000000000);
-        max[1] = uint256(100000000000000000000000000000000000000000);
-        max[2] = uint256(100000000000000000000000000000000000000000000000000000000000000000000000000);
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256SizeThreeArray(1000, 2000, 3000);
+        uint256[] memory max = createUint256SizeThreeArray(
+            10000000000000000000000000000000000000, 
+            100000000000000000000000000000000000000000, 
+            100000000000000000000000000000000000000000000000000000000000000000000000000
+            );
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -849,17 +691,13 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint256[] memory min = new uint256[](2);
-        min[0] = uint256(1000);
-        min[1] = uint256(3000);
-        uint256[] memory max = new uint256[](3);
-        max[0] = uint256(10000000000000000000000000000000000000);
-        max[1] = uint256(100000000000000000000000000000000000000000);
-        max[2] = uint256(100000000000000000000000000000000000000000000000000000000000000000000000000);
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256SizeTwoArray(1000, 2000);
+        uint256[] memory max = createUint256SizeThreeArray(
+            10000000000000000000000000000000000000, 
+            100000000000000000000000000000000000000000, 
+            100000000000000000000000000000000000000000000000000000000000000000000000000
+            );
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
     }
@@ -869,12 +707,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        bytes32[] memory accs = new bytes32[](1);
-        accs[0] = bytes32("Oscar");
-        uint256[] memory min = new uint256[](1);
-        min[0] = uint256(999999000000000000000000000000000000000000000000000000000000000000000000000);
-        uint256[] memory max = new uint256[](1);
-        max[0] = uint256(100);
+        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");
+        uint256[] memory min = createUint256SizeOneArray(999999000000000000000000000000000000000000000000000000000000000000000000000);
+        uint256[] memory max = createUint256SizeOneArray(100);
         vm.expectRevert(0xeeb9d4f7);
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
     }
@@ -885,12 +720,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         uint256[101] memory _indexes;
-        bytes32[] memory accs = new bytes32[](1);
-        accs[0] = bytes32("Oscar");
-        uint256[] memory min = new uint256[](1);
-        min[0] = uint256(1000);
-        uint256[] memory max = new uint256[](1);
-        max[0] = uint256(999999000000000000000000000000000000000000000000000000000000000000000000000);
+        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");
+        uint256[] memory max = createUint256SizeOneArray(999999000000000000000000000000000000000000000000000000000000000000000000000);
+        uint256[] memory min = createUint256SizeOneArray(100);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         }
@@ -1000,12 +832,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        bytes32[] memory nftTags = new bytes32[](2);
-        nftTags[0] = bytes32("BoredGrape");
-        nftTags[1] = bytes32("DiscoPunk");
-        uint8[] memory tradesAllowed = new uint8[](2);
-        tradesAllowed[0] = 1;
-        tradesAllowed[1] = 5;
+        bytes32[] memory nftTags = createBytes32SizeTwoArray("BoredGrape", "DiscoPunk"); 
+        uint8[] memory tradesAllowed = createUint8SizeTwoArray(1, 5);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
         TaggedRules.NFTTradeCounterRule memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
@@ -1016,12 +844,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
     /// testing only appAdministrators can add NFT Trade Counter Rule
     function testSettingNFTCounterRuleWithoutAppAdministratorAccount() public {
-        bytes32[] memory nftTags = new bytes32[](2);
-        nftTags[0] = bytes32("BoredGrape");
-        nftTags[1] = bytes32("DiscoPunk");
-        uint8[] memory tradesAllowed = new uint8[](2);
-        tradesAllowed[0] = 1;
-        tradesAllowed[1] = 5;
+        bytes32[] memory nftTags = createBytes32SizeTwoArray("BoredGrape", "DiscoPunk"); 
+        uint8[] memory tradesAllowed = createUint8SizeTwoArray(1, 5);
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -1045,12 +869,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        bytes32[] memory nftTags = new bytes32[](2);
-        nftTags[0] = bytes32("BoredGrape");
-        nftTags[1] = bytes32("DiscoPunk");
-        uint8[] memory tradesAllowed = new uint8[](2);
-        tradesAllowed[0] = 1;
-        tradesAllowed[1] = 5;
+        bytes32[] memory nftTags = createBytes32SizeTwoArray("BoredGrape", "DiscoPunk"); 
+        uint8[] memory tradesAllowed = createUint8SizeTwoArray(1, 5);
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
@@ -1064,18 +884,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint256[] memory amounts = new uint256[](3);
-        amounts[0] = uint256(1000);
-        amounts[1] = uint256(5000);
-        amounts[2] = uint256(9000);
-        uint256[] memory releaseDate = new uint256[](3);
-        releaseDate[0] = uint256(block.timestamp + 222);
-        releaseDate[1] = uint256(block.timestamp + 444);
-        releaseDate[2] = uint256(block.timestamp + 888);
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory amounts = createUint256SizeThreeArray(1000, 5000, 9000);
+        uint256[] memory releaseDate = createUint256SizeThreeArray((block.timestamp + 222), (block.timestamp + 444), (block.timestamp + 888));
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
         assertEq(_index, 0);
 
@@ -1083,17 +894,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // TaggedRules.WithdrawalRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Tayler");
         // assertEq(rule.amount, 5000);
         // assertEq(rule.releaseDate, block.timestamp + 444);
-
-        // accs[0] = bytes32("Oscar");
-        // accs[1] = bytes32("Tayler");
-        // accs[2] = bytes32("Shane");
-        // amounts[0] = uint256(500);
-        // amounts[1] = uint256(1500);
-        // amounts[2] = uint256(3000);
-        // releaseDate[0] = uint256(block.timestamp + 10000);
-        // releaseDate[1] = uint256(block.timestamp + 888);
-        // releaseDate[2] = uint256(block.timestamp + 666);
-        // _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
+        // bytes32[] memory accs2 = bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        // uint256[] memory amounts2 = createUint256SizeThreeArray(500, 1500, 3000);
+        // uint256[] memory releaseDate2 = createUint256SizeThreeArray((block.timestamp + 10000), (block.timestamp + 888), (block.timestamp + 666));
+        // _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs2, amounts2, releaseDate2);
         // assertEq(_index, 1);
         // rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Oscar");
         // assertEq(rule.amount, 500);
@@ -1106,12 +910,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         //Set Rule
-        bytes32[] memory accs = new bytes32[](1);
-        accs[0] = bytes32("Shane");
-        uint256[] memory amounts = new uint256[](1);
-        amounts[0] = uint256(1000);
-        uint256[] memory releaseDate = new uint256[](1);
-        releaseDate[0] = uint256(block.timestamp + 10000);
+        bytes32[] memory accs = createBytes32SizeOneArray("Shane");
+        uint256[] memory amounts = createUint256SizeOneArray(1000);
+        uint256[] memory releaseDate = createUint256SizeOneArray((block.timestamp + 10000));
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
         assertEq(_index, 0);
         // TaggedRules.WithdrawalRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Shane");
@@ -1125,18 +926,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         uint256[3] memory _indexes;
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint256[] memory amounts = new uint256[](3);
-        amounts[0] = uint256(1000);
-        amounts[1] = uint256(5000);
-        amounts[2] = uint256(9000);
-        uint256[] memory releaseDate = new uint256[](3);
-        releaseDate[0] = uint256(block.timestamp + 222);
-        releaseDate[1] = uint256(block.timestamp + 444);
-        releaseDate[2] = uint256(block.timestamp + 888);
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory amounts = createUint256SizeThreeArray(1000, 5000, 9000);
+        uint256[] memory releaseDate = createUint256SizeThreeArray((block.timestamp + 222), (block.timestamp + 444), (block.timestamp + 888));
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
         }
@@ -1151,12 +943,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        uint48[] memory balanceAmounts = new uint48[](5);
-        balanceAmounts[0] = 10;
-        balanceAmounts[1] = 100;
-        balanceAmounts[2] = 500;
-        balanceAmounts[3] = 1000;
-        balanceAmounts[4] = 10000;
+        uint48[] memory balanceAmounts = createUint48SizeFiveArray(10, 100, 500, 1000, 1000);
         uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         uint256 testBalance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccessLevelBalanceRule(_index, 2);
         assertEq(testBalance, 500);
@@ -1179,12 +966,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         uint256[101] memory _indexes;
-        uint48[] memory balanceAmounts = new uint48[](5);
-        balanceAmounts[0] = 10;
-        balanceAmounts[1] = 100;
-        balanceAmounts[2] = 500;
-        balanceAmounts[3] = 1000;
-        balanceAmounts[4] = 10000;
+        uint48[] memory balanceAmounts = createUint48SizeFiveArray(10, 100, 500, 1000, 1000);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         }
@@ -1239,29 +1021,20 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint256[] memory holdAmounts = new uint256[](3);
-        holdAmounts[0] = uint256(1000);
-        holdAmounts[1] = uint256(2000);
-        holdAmounts[2] = uint256(3000);
-        uint16[] memory holdPeriods = new uint16[](3);
-        holdPeriods[0] = uint16(100);
-        holdPeriods[1] = uint16(101);
-        holdPeriods[2] = uint16(102);
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory holdAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
+        uint16[] memory holdPeriods = createUint16SizeThreeArray(100, 101, 102);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
         TaggedRules.MinBalByDateRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Oscar");
         assertEq(rule.holdAmount, 1000);
         assertEq(rule.holdPeriod, 100);
 
-        accs[1] = bytes32("Tayler");
-        holdAmounts[1] = uint192(20000000);
-        holdPeriods[1] = uint16(2);
+        bytes32[] memory accs2 = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory holdAmounts2 = createUint256SizeThreeArray(1000, 20000000, 3000);
+        uint16[] memory holdPeriods2 = createUint16SizeThreeArray(100, 2, 102);
 
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs2, holdAmounts2, holdPeriods2, uint64(Blocktime));
         assertEq(_index, 1);
         rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Tayler");
         assertEq(rule.holdAmount, 20000000);
@@ -1272,18 +1045,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.warp(Blocktime);
         vm.stopPrank();
         vm.startPrank(address(0xDEAD));
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint256[] memory holdAmounts = new uint256[](3);
-        holdAmounts[0] = uint256(1000);
-        holdAmounts[1] = uint256(2000);
-        holdAmounts[2] = uint256(3000);
-        uint16[] memory holdPeriods = new uint16[](3);
-        holdPeriods[0] = uint16(100);
-        holdPeriods[1] = uint16(101);
-        holdPeriods[2] = uint16(102);
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory holdAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
+        uint16[] memory holdPeriods = createUint16SizeThreeArray(100, 101, 102);
         vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
     }
@@ -1294,17 +1058,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         vm.warp(Blocktime);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("Oscar");
-        accs[1] = bytes32("Tayler");
-        accs[2] = bytes32("Shane");
-        uint256[] memory holdAmounts = new uint256[](3);
-        holdAmounts[0] = uint256(1000);
-        holdAmounts[1] = uint256(2000);
-        holdAmounts[2] = uint256(3000);
-        uint16[] memory holdPeriods = new uint16[](2);
-        holdPeriods[0] = uint16(100);
-        holdPeriods[1] = uint16(101);
+        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+        uint256[] memory holdAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
+        uint16[] memory holdPeriods = createUint16SizeTwoArray(100, 101);
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
     }

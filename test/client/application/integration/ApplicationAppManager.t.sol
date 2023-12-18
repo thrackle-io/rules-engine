@@ -432,15 +432,9 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         assertEq(applicationAppManager.getAccessLevel(address(user)), 0);
 
         /// create mismatch tag array
-        uint8[] memory misMatchArray = new uint8[](2);
-        misMatchArray[0] = uint8(3);
-        misMatchArray[1] = uint8(77);
-
+        uint8[] memory misMatchArray = createUint8SizeTwoArray(3, 77);
         /// create mistmatch address array
-        address[] memory misMatchAddressArray = new address[](3);
-        misMatchAddressArray[0] = address(user);
-        misMatchAddressArray[1] = address(0xFF77);
-        misMatchAddressArray[2] = address(0xFF88);
+        address[] memory misMatchAddressArray = createAddressSizeThreeArray(user, address(0xFF77), address(0xFF88));
 
         vm.expectRevert(0x028a6c58);
         applicationAppManager.addMultipleAccessLevels(misMatchAddressArray, RISKSCORES);
@@ -493,15 +487,9 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         }
 
         /// create mismatch tag array
-        uint8[] memory misMatchArray = new uint8[](2);
-        misMatchArray[0] = uint8(3);
-        misMatchArray[1] = uint8(77);
-
+        uint8[] memory misMatchArray = createUint8SizeTwoArray(3, 77);
         /// create mistmatch address array
-        address[] memory misMatchAddressArray = new address[](3);
-        misMatchAddressArray[0] = address(user);
-        misMatchAddressArray[1] = address(0xFF77);
-        misMatchAddressArray[2] = address(0xFF88);
+        address[] memory misMatchAddressArray = createAddressSizeThreeArray(user, address(0xFF77), address(0xFF88));
         vm.expectRevert(0x028a6c58);
         applicationAppManager.addMultipleRiskScores(misMatchAddressArray, RISKSCORES);
         vm.expectRevert(0x028a6c58);
@@ -684,25 +672,11 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
 
         /// Create Tag Array
-        bytes32[] memory genTags = new bytes32[](8);
-        genTags[0] = bytes32("TAG");
-        genTags[1] = bytes32("TAG1");
-        genTags[2] = bytes32("TAG2");
-        genTags[3] = bytes32("TAG3");
-        genTags[4] = bytes32("TAG4");
-        genTags[5] = bytes32("TAG5");
-        genTags[6] = bytes32("TAG6");
-        genTags[7] = bytes32("TAG7");
+        bytes32[] memory genTags = createBytes32SizeEightArray(bytes32("TAG"), bytes32("TAG1"), bytes32("TAG2"), bytes32("TAG3"), bytes32("TAG4"), bytes32("TAG5"), bytes32("TAG6"), bytes32("TAG7"));
         /// create mismatch tag array
-        bytes32[] memory misMatchArray = new bytes32[](2);
-        misMatchArray[0] = bytes32("TAG");
-        misMatchArray[1] = bytes32("TAG1");
-
+        bytes32[] memory misMatchArray = createBytes32SizeTwoArray("TAG1", "TAG2");
         /// create mistmatch address array
-        address[] memory misMatchAddressArray = new address[](3);
-        misMatchAddressArray[0] = address(user);
-        misMatchAddressArray[1] = address(0xFF77);
-        misMatchAddressArray[2] = address(0xFF88);
+        address[] memory misMatchAddressArray = createAddressSizeThreeArray(user, address(0xFF77), address(0xFF88));
 
         applicationAppManager.addMultipleGeneralTagToMultipleAccounts(ADDRESSES, genTags); //add tags
         assertTrue(applicationAppManager.hasTag(address(0xFF1), "TAG"));
@@ -750,12 +724,8 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         /// add one tag to multiple addresses
         applicationAppManager.addGeneralTagToMultipleAccounts(ADDRESSES, "TAG2"); //add tags
         /// add multiple tags to multiple addresses
-        address[] memory addresses = new address[](2);
-        addresses[0] = address(0xBABE);
-        addresses[1] = address(0xDADD);
-        bytes32[] memory tags = new bytes32[](2);
-        tags[0] = bytes32("BABE");
-        tags[1] = bytes32("DADD");
+        address[] memory addresses = createAddressSizeTwoArray(address(0xBABE), address(0xDADD));
+        bytes32[] memory tags = createBytes32SizeTwoArray(bytes32("BABE"), bytes32("DADD"));
 
         applicationAppManager.addMultipleGeneralTagToMultipleAccounts(addresses, tags);
 

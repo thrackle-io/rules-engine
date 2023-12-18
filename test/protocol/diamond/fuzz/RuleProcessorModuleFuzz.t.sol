@@ -71,18 +71,18 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
     /*********************** Token Transfer Volume ************************/
     /// Simple setting and getting
 
-    function testSettingTransferVolumeFuzz(uint8 addressIndex, uint16 maxVolume, uint8 hPeriod, uint64 startTime) public {
+    function testSettingTransferVolumeFuzz(uint8 addressIndex, uint16 maxVolume, uint8 hPeriod, uint64 _startTime) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
 
         /// test only admin can add rule, and values are withing acceptable range
-        if ((sender != ruleAdmin) || maxVolume == 0 || maxVolume > 100000 || hPeriod == 0 || startTime == 0 || startTime > (block.timestamp + (52 * 1 weeks))) vm.expectRevert();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addTransferVolumeRule(address(applicationAppManager), maxVolume, hPeriod, startTime, 0);
-        if ((sender == ruleAdmin) && maxVolume > 0 && maxVolume <= 100000 && hPeriod > 0 && startTime > 0 && startTime < 24) {
+        if ((sender != ruleAdmin) || maxVolume == 0 || maxVolume > 100000 || hPeriod == 0 || _startTime == 0 || _startTime > (block.timestamp + (52 * 1 weeks))) vm.expectRevert();
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addTransferVolumeRule(address(applicationAppManager), maxVolume, hPeriod, _startTime, 0);
+        if ((sender == ruleAdmin) && maxVolume > 0 && maxVolume <= 100000 && hPeriod > 0 && _startTime > 0 && _startTime < 24) {
             assertEq(_index, 0);
             NonTaggedRules.TokenTransferVolumeRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
-            assertEq(rule.startTime, startTime);
+            assertEq(rule.startTime, _startTime);
 
             /// testing adding a second rule
             _index = RuleDataFacet(address(ruleProcessor)).addTransferVolumeRule(address(applicationAppManager), 2000, 1, Blocktime, 0);
@@ -146,15 +146,9 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
 
-        bytes32[] memory accs = new bytes32[](2);
-        accs[0] = accA;
-        accs[1] = accB;
-        uint256[] memory min = new uint256[](2);
-        min[0] = minA;
-        min[1] = minB;
-        uint256[] memory max = new uint256[](2);
-        max[0] = maxA;
-        max[1] = maxB;
+        bytes32[] memory accs = createBytes32SizeTwoArray(accA, accB);
+        uint256[] memory min = createUint256SizeTwoArray(minA, minB);
+        uint256[] memory max = createUint256SizeTwoArray(maxA, maxB);
         if ((sender != ruleAdmin) || minA == 0 || minB == 0 || maxA == 0 || maxB == 0 || minA > maxA || minB > maxB) vm.expectRevert();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         if ((sender == ruleAdmin) && minA > 0 && minB > 0 && maxA > 0 && maxB > 0 && !(minA > maxA || minB > maxB)) {
@@ -169,18 +163,13 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), invalidAccs, min, max);
 
             /// testing adding a second rule
-            bytes32[] memory accs2 = new bytes32[](3);
-            uint256[] memory min2 = new uint256[](3);
-            uint256[] memory max2 = new uint256[](3);
-            accs2[0] = bytes32("Oscar");
-            accs2[1] = bytes32("Tayler");
-            accs2[2] = bytes32("Shane");
-            min2[0] = uint256(100000000);
-            min2[1] = uint256(20000000);
-            min2[2] = uint256(3000000);
-            max2[0] = uint256(100000000000000000000000000000000000000000000000000000000000000000000000000);
-            max2[1] = uint256(20000000000000000000000000000000000000);
-            max2[2] = uint256(900000000000000000000000000000000000000000000000000000000000000000000000000);
+            bytes32[] memory accs2 = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+            uint256[] memory min2 = createUint256SizeThreeArray(100000000, 20000000, 3000000);
+            uint256[] memory max2 = createUint256SizeThreeArray(
+                100000000000000000000000000000000000000000000000000000000000000000000000000, 
+                20000000000000000000000000000000000000, 
+                900000000000000000000000000000000000000000000000000000000000000000000000000
+                );
             _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs2, min2, max2);
             assertEq(_index, 1);
             rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, "Tayler");
@@ -329,15 +318,10 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             applicationAppManager.addGeneralTag(to, tagTo); ///add tag
             /// add a minMaxBalance rule
             if (bMin == 0 || bMax == 0 || bMin > bMax) vm.expectRevert();
-            bytes32[] memory _accountTypes = new bytes32[](1);
-            uint256[] memory _minimum = new uint256[](1);
-            uint256[] memory _maximum = new uint256[](1);
-
-            // Set the rule data
-            _accountTypes[0] = tagTo;
+            bytes32[] memory _accountTypes = createBytes32SizeOneArray(tagTo);
             /// we receive uint128 to avoid overflow, so we convert to uint256
-            _minimum[0] = uint256(bMin);
-            _maximum[0] = uint256(bMax);
+            uint256[] memory _minimum = createUint256SizeOneArray(uint256(bMin));
+            uint256[] memory _maximum = createUint256SizeOneArray(uint256(bMax));
             // add the rule.
             vm.stopPrank();
             vm.startPrank(ruleAdmin);
@@ -368,18 +352,10 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
         /// manual tag necessary because of memory issue.
-        bytes32[] memory accs = new bytes32[](2);
-        accs[0] = "tagA";
-        accs[1] = "tagB";
-        uint256[] memory pAmounts = new uint256[](2);
-        pAmounts[0] = amountA;
-        pAmounts[1] = amountB;
-        uint16[] memory pPeriods = new uint16[](2);
-        pPeriods[0] = pPeriodA;
-        pPeriods[1] = pPeriodB;
-        uint64[] memory startTimes = new uint64[](2);
-        startTimes[0] = Blocktime;
-        startTimes[1] = Blocktime;
+        bytes32[] memory accs = createBytes32SizeTwoArray("tagA", "tagB");
+        uint256[] memory pAmounts = createUint256SizeTwoArray(amountA, amountB);
+        uint16[] memory pPeriods = createUint16SizeTwoArray(pPeriodA, pPeriodB);
+        uint64[] memory startTimes = createUint64SizeTwoArray(Blocktime, Blocktime);
         if ((sender != ruleAdmin) || amountA == 0 || amountB == 0 || pPeriodA == 0 || pPeriodB == 0) vm.expectRevert();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, startTimes);
         if ((sender == ruleAdmin) && amountA > 0 && amountB > 0 && pPeriodA > 0 && pPeriodB > 0) {
@@ -423,18 +399,10 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
-        bytes32[] memory accs = new bytes32[](2);
-        accs[0] = accA;
-        accs[1] = accB;
-        uint192[] memory sAmounts = new uint192[](2);
-        sAmounts[0] = amountA;
-        sAmounts[1] = amountB;
-        uint16[] memory dFrozen = new uint16[](2);
-        dFrozen[0] = dFrozenA;
-        dFrozen[1] = dFrozenB;
-        uint64[] memory startTimes = new uint64[](2);
-        startTimes[0] = sTimeA;
-        startTimes[1] = sTimeB;
+        bytes32[] memory accs = createBytes32SizeTwoArray("tagA", "tagB");
+        uint192[] memory sAmounts = createUint192SizeTwoArray(amountA, amountB);
+        uint16[] memory dFrozen = createUint16SizeTwoArray(dFrozenA, dFrozenB);
+        uint64[] memory startTimes = createUint64SizeTwoArray(sTimeA, sTimeB);
         uint32 _index;
         if (
             (sender != ruleAdmin) ||
@@ -489,15 +457,9 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
     //     address sender = ADDRESSES[addressIndex % ADDRESSES.length];
     //     vm.startPrank(sender);
 
-    //     bytes32[] memory accs = new bytes32[](2);
-    //     accs[0] = accA;
-    //     accs[1] = accB;
-    //     uint256[] memory amounts = new uint256[](2);
-    //     amounts[0] = amountA;
-    //     amounts[1] = amountB;
-    //     uint256[] memory releaseDate = new uint256[](2);
-    //     releaseDate[0] = dateA;
-    //     releaseDate[1] = dateB;
+    //     bytes32[] memory accs = createBytes32SizeTwoArray(accA, accB);
+    //     uint256[] memory amounts = createUint256SizeTwoArray(amountA, amountB);
+    //     uint256[] memory releaseDate = createUint256SizeTwoArray(dateA, dateB);
 
     //     vm.warp(forward);
     //     if ((sender != ruleAdmin) || amountA == 0 || amountB == 0 || dateA <= block.timestamp || dateB <= block.timestamp) vm.expectRevert();
@@ -509,19 +471,9 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
     //         assertEq(rule.releaseDate, dateA);
 
     //         /// we create other parameters for next tests
-    //         bytes32[] memory accs2 = new bytes32[](3);
-    //         uint256[] memory amounts2 = new uint256[](3);
-    //         uint256[] memory releaseDate2 = new uint256[](3);
-    //         accs2[0] = bytes32("Oscar");
-    //         accs2[1] = bytes32("Tayler");
-    //         accs2[2] = bytes32("Shane");
-    //         amounts2[0] = uint256(500);
-    //         amounts2[1] = uint256(1500);
-    //         amounts2[2] = uint256(3000);
-    //         releaseDate2[0] = uint256(block.timestamp + 1100);
-    //         releaseDate2[1] = uint256(block.timestamp + 2200);
-    //         releaseDate2[2] = uint256(block.timestamp + 3300);
-
+    //         bytes32[] memory accs2 = bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
+    //         uint256[] memory amounts2 = createUint256SizeThreeArray(500, 1500, 3000);
+    //         uint256[] memory releaseDate2 = createUint256SizeThreeArray((block.timestamp + 1100), (block.timestamp + 2200), (block.timestamp + 3300));
     //         /// testing wrong size of patameters
     //         vm.expectRevert();
     //         _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs2, amounts, releaseDate);

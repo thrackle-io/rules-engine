@@ -355,15 +355,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
 
-        bytes32[] memory genTags = new bytes32[](8);
-        genTags[0] = Tag1;
-        genTags[1] = Tag1;
-        genTags[2] = Tag2;
-        genTags[3] = Tag2;
-        genTags[4] = Tag3;
-        genTags[5] = Tag3;
-        genTags[6] = Tag4;
-        genTags[7] = Tag4;
+        bytes32[] memory genTags = createBytes32SizeEightArray(Tag1, Tag1, Tag2, Tag2, Tag3, Tag3, Tag4, Tag4);
 
         vm.startPrank(sender);
         if (sender != superAdmin) vm.expectRevert();

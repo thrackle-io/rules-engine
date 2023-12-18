@@ -89,13 +89,9 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
 
-        bytes32[] memory accs = new bytes32[](1);
-        uint256[] memory min = new uint256[](1);
-        uint256[] memory max = new uint256[](1);
-        accs[0] = bytes32("Oscar");
-        min[0] = uint256(1);
-        max[0] = uint256(6);
-
+        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");
+        uint256[] memory min = createUint256SizeOneArray(1);
+        uint256[] memory max = createUint256SizeOneArray(6);
         /// set up a non admin user with tokens
         switchToAppAdministrator();
         ///transfer tokenId 1 and 2 to rich_user
@@ -268,12 +264,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user1), 5);
 
         // add the rule.
-        bytes32[] memory nftTags = new bytes32[](2);
-        nftTags[0] = bytes32("BoredGrape");
-        nftTags[1] = bytes32("DiscoPunk");
-        uint8[] memory tradesAllowed = new uint8[](2);
-        tradesAllowed[0] = 1;
-        tradesAllowed[1] = 5;
+        bytes32[] memory nftTags = createBytes32SizeTwoArray("BoredGrape", "DiscoPunk"); 
+        uint8[] memory tradesAllowed = createUint8SizeTwoArray(1, 5);
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
@@ -343,18 +335,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
     function testTransactionLimitByRiskScoreNFTUpgradeable() public {
         ///Set transaction limit rule params
-        uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory txnLimits = new uint48[](5);
-        riskScores[0] = 1;
-        riskScores[1] = 10;
-        riskScores[2] = 40;
-        riskScores[3] = 80;
-        riskScores[4] = 99;
-        txnLimits[0] = 17;
-        txnLimits[1] = 15;
-        txnLimits[2] = 12;
-        txnLimits[3] = 11;
-        txnLimits[4] = 10;
+        uint8[] memory riskScores = createUint8SizeFiveArray(0, 10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48SizeFiveArray(17, 15, 12, 11, 10);
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
@@ -520,18 +502,10 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         /// Create Rule Params and create rule
         // Set up the rule conditions
         vm.warp(Blocktime);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("MIN1");
-        accs[1] = bytes32("MIN2");
-        accs[2] = bytes32("MIN3");
-        uint256[] memory holdAmounts = new uint256[](3); /// Represent min number of tokens held by user for Collection address
-        holdAmounts[0] = uint256(1);
-        holdAmounts[1] = uint256(2);
-        holdAmounts[2] = uint256(3);
-        uint16[] memory holdPeriods = new uint16[](3);
-        holdPeriods[0] = uint16(720); // one month
-        holdPeriods[1] = uint16(4380); // six months
-        holdPeriods[2] = uint16(17520); // two years
+        bytes32[] memory accs = createBytes32SizeThreeArray("MIN1", "MIN2", "MIN3");
+        uint256[] memory holdAmounts = createUint256SizeThreeArray(1, 2, 3); /// Represent min number of tokens held by user for Collection address
+        // 720 = one month 4380 = six months 17520 = two years
+        uint16[] memory holdPeriods = createUint16SizeThreeArray(720, 4380, 17520);
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
@@ -666,13 +640,13 @@ contract ApplicationERC721UTest is TestCommonFoundry {
     function testUpgradeAppManager721u() public {
         address newAdmin = address(75);
         /// create a new app manager
-        ApplicationAppManager applicationAppManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
+        ApplicationAppManager _applicationAppManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
         /// propose a new AppManager
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).proposeAppManagerAddress(address(applicationAppManager2));
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).proposeAppManagerAddress(address(_applicationAppManager2));
         /// confirm the app manager
         vm.stopPrank();
         vm.startPrank(newAdmin);
-        applicationAppManager2.confirmAppManager(address(applicationNFTProxy));
+        _applicationAppManager2.confirmAppManager(address(applicationNFTProxy));
         /// test to ensure it still works
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
         switchToAppAdministrator();
@@ -688,9 +662,9 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).proposeAppManagerAddress(address(0));
         // no proposed address
         vm.expectRevert(0x821e0eeb);
-        applicationAppManager2.confirmAppManager(address(applicationNFT));
+        _applicationAppManager2.confirmAppManager(address(applicationNFT));
         // non proposer tries to confirm
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).proposeAppManagerAddress(address(applicationAppManager2));
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).proposeAppManagerAddress(address(_applicationAppManager2));
         ApplicationAppManager applicationAppManager3 = new ApplicationAppManager(newAdmin, "Castlevania3", false);
         vm.expectRevert(0x41284967);
         applicationAppManager3.confirmAppManager(address(applicationNFTProxy));
@@ -708,18 +682,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
 
         ///Set transaction limit rule params
-        uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory txnLimits = new uint48[](5);
-        riskScores[0] = 1;
-        riskScores[1] = 10;
-        riskScores[2] = 40;
-        riskScores[3] = 80;
-        riskScores[4] = 99;
-        txnLimits[0] = 17;
-        txnLimits[1] = 15;
-        txnLimits[2] = 12;
-        txnLimits[3] = 11;
-        txnLimits[4] = 10;
+        uint8[] memory riskScores = createUint8SizeFiveArray(1, 10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48SizeFiveArray(17, 15, 12, 11, 10);
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
@@ -835,18 +799,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
 
         ///Set transaction limit rule params
-        uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory txnLimits = new uint48[](5);
-        riskScores[0] = 1;
-        riskScores[1] = 10;
-        riskScores[2] = 40;
-        riskScores[3] = 80;
-        riskScores[4] = 99;
-        txnLimits[0] = 17;
-        txnLimits[1] = 15;
-        txnLimits[2] = 12;
-        txnLimits[3] = 11;
-        txnLimits[4] = 10;
+        uint8[] memory riskScores = createUint8SizeFiveArray(1, 10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48SizeFiveArray(17, 15, 12, 11, 10);
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();

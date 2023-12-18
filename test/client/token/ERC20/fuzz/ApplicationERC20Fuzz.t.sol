@@ -97,13 +97,10 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
                 applicationCoin.transfer(_user1, maxAmount);
                 assertEq(applicationCoin.balanceOf(_user1), maxAmount);
 
-                bytes32[] memory accs = new bytes32[](1);
-                uint256[] memory min = new uint256[](1);
-                uint256[] memory max = new uint256[](1);
-                accs[0] = bytes32(_tag);
-                min[0] = uint256(minAmount);
-                max[0] = uint256(maxAmount);
-                // add the actual rule
+                bytes32[] memory accs = createBytes32SizeOneArray(_tag);
+                uint256[] memory min = createUint256SizeOneArray(minAmount);
+                uint256[] memory max = createUint256SizeOneArray(maxAmount);
+                // add the rule
                 switchToRuleAdmin();
                 uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
 
@@ -209,18 +206,10 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
     function testMaxTxSizePerPeriodByRiskRuleERC20(uint8 _risk, uint8 _period) public {
         vm.warp(Blocktime);
         /// we create the rule
-        uint48[] memory _maxSize = new uint48[](3);
-        uint8[] memory _riskLevel = new uint8[](3);
+        uint48[] memory _maxSize = createUint48SizeThreeArray(100_000_000, 10_000, 1);
+        uint8[] memory _riskLevel = createUint8SizeThreeArray(25, 50, 75);
         uint8 period = _period > 6 ? _period / 6 + 1 : 1;
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
-
-        _maxSize[0] = 100_000_000;
-        _maxSize[1] = 10_000;
-        _maxSize[2] = 1;
-        _riskLevel[0] = 25;
-        _riskLevel[1] = 50;
-        _riskLevel[2] = 75;
-
         /// we give some trillions to user1 to spend
         applicationCoin.mint(user1, 10_000_000_000_000 * (10 ** 18));
 
@@ -328,16 +317,9 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
     }
 
     function testTransactionLimitByRiskScoreERC20Fuzz(uint8 _risk) public {
-        uint48[] memory _maxSize = new uint48[](3);
-        uint8[] memory _riskLevel = new uint8[](3);
+        uint48[] memory _maxSize = createUint48SizeThreeArray(100_000_000, 10_000, 1);
+        uint8[] memory _riskLevel = createUint8SizeThreeArray(25, 50, 75);
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
-
-        _maxSize[0] = 1000000;
-        _maxSize[1] = 10000;
-        _maxSize[2] = 10;
-        _riskLevel[0] = 25;
-        _riskLevel[1] = 50;
-        _riskLevel[2] = 75;
 
         ///Give tokens to user1 and user2
         applicationCoin.mint(user1, 100000000 * (10 ** 18));
@@ -384,22 +366,13 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         if (_amountSeed > 167770) {
             _amountSeed = 167770;
         }
-        // add the rule.
-        uint8[] memory _riskLevel = new uint8[](4);
-        uint48[] memory balanceAmounts = new uint48[](4);
-        _riskLevel[0] = 25;
-        _riskLevel[1] = 50;
-        _riskLevel[2] = 75;
-        _riskLevel[3] = 90;
         uint48 riskBalance1 = _amountSeed + 1000;
         uint48 riskBalance2 = _amountSeed + 500;
         uint48 riskBalance3 = _amountSeed + 100;
         uint48 riskBalance4 = _amountSeed;
-
-        balanceAmounts[0] = riskBalance1;
-        balanceAmounts[1] = riskBalance2;
-        balanceAmounts[2] = riskBalance3;
-        balanceAmounts[3] = 1;
+        // add the rule.
+        uint8[] memory _riskLevel = createUint8SizeFourArray(25, 50, 75, 90);
+        uint48[] memory balanceAmounts = createUint48SizeFourArray(riskBalance1, riskBalance2, riskBalance3, 1);
 
         ///Register rule with application handler
         switchToRuleAdmin();
@@ -448,18 +421,13 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         if (_amountSeed > 167770) {
             _amountSeed = 167770;
         }
-        // add the rule.
-        uint48[] memory balanceAmounts = new uint48[](5);
         uint48 accessBalance1 = _amountSeed;
         uint48 accessBalance2 = _amountSeed + 100;
         uint48 accessBalance3 = _amountSeed + 500;
         uint48 accessBalance4 = _amountSeed + 1000;
+        // add the rule.
+        uint48[] memory balanceAmounts = createUint48SizeFiveArray(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
 
-        balanceAmounts[0] = 0;
-        balanceAmounts[1] = accessBalance1;
-        balanceAmounts[2] = accessBalance2;
-        balanceAmounts[3] = accessBalance3;
-        balanceAmounts[4] = accessBalance4;
         switchToRuleAdmin();
         uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         /// connect the rule to this handler
@@ -558,18 +526,14 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         user4 = addressList[4];
         // Set up the rule conditions
         vm.warp(Blocktime);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = tag1;
-        accs[1] = tag2;
-        accs[2] = tag3;
-        uint256[] memory holdAmounts = new uint256[](3);
-        holdAmounts[0] = _amountSeed * (10 ** 18);
-        holdAmounts[1] = (_amountSeed + 1000) * (10 ** 18);
-        holdAmounts[2] = (_amountSeed + 2000) * (10 ** 18);
-        uint16[] memory holdPeriods = new uint16[](3);
-        holdPeriods[0] = uint16(720); // one month
-        holdPeriods[1] = uint16(4380); // six months
-        holdPeriods[2] = uint16(17520); // two years
+        bytes32[] memory accs = createBytes32SizeThreeArray(tag1, tag2, tag3);
+        uint256[] memory holdAmounts = createUint256SizeThreeArray(
+            (_amountSeed * (10 ** 18)),
+            (_amountSeed + 1000) * (10 ** 18),
+            (_amountSeed + 2000) * (10 ** 18)
+            );
+        /// 720 = 1 month, 4380 = 6 months, 17520 = 2 years 
+        uint16[] memory holdPeriods = createUint16SizeThreeArray(720, 4380, 17520); 
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
