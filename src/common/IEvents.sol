@@ -11,7 +11,7 @@ pragma solidity ^0.8.17;
 interface IAppLevelEvents {
     ///AppManager
     event HandlerConnected(address indexed handlerAddress, address indexed appManager);
-    event RoleCheck(string indexed contractName, string indexed functionName, address indexed checkedAddress, bytes32 indexed checkedRole);
+    event RoleCheck(string contractName, string indexed functionName, address indexed checkedAddress, bytes32 indexed checkedRole);
     event AppManagerDeployed(address indexed superAndAppAdmin, string indexed appName);
     event AppManagerDeployedForUpgrade(address indexed superAndAppAdmin, string indexed appName);
     event AppManagerUpgrade(address indexed deployedAddress, address replacedAddress);
@@ -151,11 +151,11 @@ interface IApplicationEvents {
     ///ProtocolERC721 & ERC721A
     event NewNFTDeployed(address indexed appManagerAddress);
     ///AMM
-    event AMMDeployed(uint indexed ammType, address indexed token0, address indexed token1, address indexed appManager);
+    event AMMDeployed(uint indexed ammType, address indexed token0, address indexed token1, address appManager);
     /// Amm Calculator Assigned
     event AMMCalculatorAssigned(address indexed ammCalculator); 
     event Swap(address indexed tokenIn, uint256 amountIn, uint256 amountOut);
-    event AddLiquidity(address indexed token0, address indexed token1, uint256 indexed amount0, uint256 indexed amount1);
+    event AddLiquidity(address indexed token0, address indexed token1, uint256 amount0, uint256 amount1);
     event RemoveLiquidity(address indexed token, uint256 indexed amount);
     ///ERC20Pricing
     event TokenPrice(address indexed token, uint256 indexed price);
