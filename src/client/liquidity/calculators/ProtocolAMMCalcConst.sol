@@ -4,6 +4,8 @@ pragma solidity ^0.8.17;
 import "./IProtocolAMMFactoryCalculator.sol";
 import {ConstantRatio, Curve} from "./libraries/Curve.sol";
 import {IAMMCalculatorEvents} from "src/common/IEvents.sol";
+import "src/common/AMMTypes.sol";
+
 
 /**
  * @title Automated Market Maker Swap Constant Calculator
@@ -26,7 +28,7 @@ contract ProtocolAMMCalcConst is IProtocolAMMFactoryCalculator, IAMMCalculatorEv
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         _setRatio(_constRatio);
         appManagerAddress = _appManagerAddress;
-        emit AMMCalculatorDeployed(); 
+        emit AMMCalculatorDeployed(uint(CALC_TYPE.CONSTANT)); 
     }
 
     /**

@@ -191,5 +191,5 @@ interface IAMMFactoryEvents {
 
 interface IAMMCalculatorEvents {
     /// AMM Calculator Deployed
-    event AMMCalculatorDeployed();
+    event AMMCalculatorDeployed(uint256 indexed calcType);
 }
