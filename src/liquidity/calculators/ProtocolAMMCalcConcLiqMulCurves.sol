@@ -25,11 +25,12 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     using Curve for ConstantProductK;
     using AMMMath for uint256;
 
-    uint256 constant ATTO = 10 ** 18;
-    uint256 constant Y_MAX = 100_000 * ATTO;
-    uint256 constant M_MAX = 100 * 10 ** 8;
+
     uint8 constant M_PRECISION_DECIMALS = 8;
-    uint8 constant B_PRECISION_DECIMALS = 18;
+    uint8 constant B_PRECISION_DECIMALS = 8;
+    uint256 constant ATTO = 10 ** 18;
+    uint256 constant Y_MAX = 100_000 * (10 ** B_PRECISION_DECIMALS);
+    uint256 constant M_MAX = 100 * (10 ** M_PRECISION_DECIMALS);
     uint256 x_trackerOffset;
     uint256 x_tracker;
 

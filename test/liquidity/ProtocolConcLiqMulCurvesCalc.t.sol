@@ -16,7 +16,7 @@ import "../helpers/Utils.sol";
 contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
 
     uint256 constant M_PRECISION_DECIMALS = 8;
-    uint256 constant B_PRECISION_DECIMALS = 18;
+    uint256 constant B_PRECISION_DECIMALS = 8;
     uint256 constant Y_MAX = 100_000 * 10 ** B_PRECISION_DECIMALS;
     uint256 constant M_MAX = 100 * 10 ** M_PRECISION_DECIMALS;
 
@@ -414,7 +414,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         amountOut = calc.calculateSwap(0, 0, 1 * ATTO , 0);
     }
 
-    function testAMMCalcConcLiqMulCurves__ConstantProductRegionExchange1XtoY() public {
+    function testAMMCalcConcLiqMulCurves_ConstantProductRegionExchange1XtoY() public {
         uint256 amountOut = _ConstantProductRegionExchange1XtoY();
         assertEq(absoluteDiff(amountOut, 1959999608000078600), 201); 
     }
