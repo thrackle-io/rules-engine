@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "./IProtocolAMMFactoryCalculator.sol";
 import {Sample01Struct, Curve, AMMMath} from "./libraries/Curve.sol";
 import {IAMMCalculatorEvents} from "src/common/IEvents.sol";
+import "src/common/AMMTypes.sol";
 
 /**
  * @title Automated Market Maker Swap Constant Calculator
@@ -29,7 +30,7 @@ contract ProtocolAMMCalcSample01 is IProtocolAMMFactoryCalculator, IAMMCalculato
         f_tracker = _f_tracker;
         g_tracker = _g_tracker;
         appManagerAddress = _appManagerAddress;
-        emit AMMCalculatorDeployed();
+        emit AMMCalculatorDeployed(uint(CALC_TYPE.SAMPLE));
     }
 
 

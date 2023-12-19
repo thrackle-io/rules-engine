@@ -15,5 +15,6 @@ enum CALC_TYPE {
     LINEAR,
     DUAL_LINEAR,
     CONST_PROD,
-    CONSTANT    
+    CONSTANT,
+    SAMPLE
 }
