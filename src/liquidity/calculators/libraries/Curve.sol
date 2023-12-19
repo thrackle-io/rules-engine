@@ -75,11 +75,11 @@ library Curve {
     */
     function getY(LinearFractionB memory line, uint256 x_0, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
         if (_amount0 != 0) {
-            y = (((line.b_num * _amount0) / line.b_den) + ((line.m_num * ((2 * x_0 * _amount0) + _amount0 ** 2))) / ((2 * ATTO) * line.m_den)); 
+            y = (((line.b_num * _amount0) / line.b_den) + ((line.m_num * ((2 * x_0 * _amount0) - _amount0 ** 2))) / ((2 * ATTO) * line.m_den)); 
         } else {
             uint y_0 = (line.b_num * x_0) / (line.b_den) + (((x_0 ** 2) * line.m_num) / (2 * line.m_den)) / ATTO;
-            y = ((2 * (ATTO.sqrt())) * (_amount1 * line.b_den) * line.m_den.sqrt()) /
-                (((ATTO * (line.b_num ** 2) * line.m_den) + 2 * y_0 * line.m_num * (line.b_den ** 2)).sqrt() + ((ATTO * (line.b_num ** 2) * line.m_den) + 2 * (y_0 - _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
+             y = ((2 * (10 ** 9)) * (_amount1 * line.b_den) * (line.m_den).sqrt()) /
+                ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * y_0 * line.m_num * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (y_0 + _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
         }
     }
 
