@@ -237,26 +237,6 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     }
 
     /**
-    * @dev helper function to validate that a SetionCurve input points to an exisiting curve in the contract
-    * @param selectedCurve of SectionCurve type where a pointer to a curve stored in the contract is trying to be added to the sectionCurves list
-    */
-    function _validateSectionCurve(SectionCurve calldata selectedCurve) internal view{
-        if (selectedCurve.curveType == CurveTypes.CONST_RATIO){
-            if(selectedCurve.index >= constRatios.length) 
-                revert IndexOutOfRange();
-        }
-        else if(selectedCurve.curveType == CurveTypes.LINEAR_FRACTION_B){
-            if(selectedCurve.index >= linears.length) 
-                revert IndexOutOfRange();
-        }
-        else if (selectedCurve.curveType == CurveTypes.CONST_PRODUCT){
-            if(selectedCurve.index >= constProducts.length) 
-                revert IndexOutOfRange();
-        }else
-            revert InvalidCurveType();
-    }
-
-    /**
     * @dev calculates constant ratio amountOut and updates the values of the amounts and trackers
     * @param _x_tracker the current value of the x tracker including the offset
     * @param max_x max amount of x for the current region
@@ -374,7 +354,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     }
 
     /**
-    * @dev calculates the amount out for constant ratio
+    * @dev exclusively calculates the amount out for constant ratio
     * @param _index the index of the curve in the constRatios array
     * @param _amount0 amount of token0 being sent to the AMM
     * @param _amount1 amount of token1 being sent to the AMM
@@ -385,7 +365,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     }
 
     /**
-    * @dev calculates the amount out for constant product
+    * @dev exclusively calculates the amount out for constant product
     * @param _index the index of the curve in the constProducts array
     * @param _x_tracker the current value of the x tracker including the offset
     * @param amount0 amount of token0 being sent to the AMM
@@ -397,7 +377,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     }
 
     /**
-    * @dev calculates the amount out for linear
+    * @dev exclusively calculates the amount out for linear
     * @param _index the index of the curve in the linears array
     * @param _x_tracker the current value of the x tracker including the offset
     * @param amount0 amount of token0 being sent to the AMM
@@ -406,6 +386,26 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     */
     function _getLinearY(uint256 _index,  uint256 _x_tracker, uint256 amount0, uint256 amount1) internal view returns(uint256){
             return linears[_index].getY(_x_tracker, amount0, amount1);
+    }
+
+    /**
+    * @dev helper function to validate that a SetionCurve input points to an exisiting curve stored in the contract
+    * @param selectedCurve of SectionCurve type where a pointer to a curve stored in the contract is trying to be added to the sectionCurves list
+    */
+    function _validateSectionCurve(SectionCurve calldata selectedCurve) internal view{
+        if (selectedCurve.curveType == CurveTypes.CONST_RATIO){
+            if(selectedCurve.index >= constRatios.length) 
+                revert IndexOutOfRange();
+        }
+        else if(selectedCurve.curveType == CurveTypes.LINEAR_FRACTION_B){
+            if(selectedCurve.index >= linears.length) 
+                revert IndexOutOfRange();
+        }
+        else if (selectedCurve.curveType == CurveTypes.CONST_PRODUCT){
+            if(selectedCurve.index >= constProducts.length) 
+                revert IndexOutOfRange();
+        }else
+            revert InvalidCurveType();
     }
 
     /**
@@ -428,7 +428,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     }
 
     /**
-    * @dev validates that both numbers are not zero. Only one of them can be
+    * @dev validates that both numbers are not zero at the same time. Only one of them can be
     * @param a first value to check
     * @param b second value to check
     */
@@ -440,7 +440,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     /**
     * @dev calculates how much of the amountIn can be traded under current section before the trade enters into another region, and updates the value for amount1
     * @param _x_tracker the current value of the x tracker including the offset
-    * @param amount1 current vlaue of amount1 
+    * @param amount1 current value of amount1 
     * @param amountInLeft current amount of the input tokens to be exchanged
     * @param _type the type of curve of the section
     * @param i index of the current section 
@@ -472,7 +472,7 @@ contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
     }
 
     /**
-    * @dev calculates how much of the amountIn can be traded under current section before the trade enters into another region, and updates the value for amount1
+    * @dev calculates how much of the amountIn can be traded under current section before the trade enters into another region, and updates the value for amount0
     * @param _x_tracker the current value of the x tracker including the offset
     * @param max_x max value for the _x_tracker for current section
     * @param amountInLeft current amount of the input tokens to be exchanged
