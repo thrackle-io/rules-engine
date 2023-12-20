@@ -14,7 +14,7 @@ import "./dataStructures/CurveTypes.sol";
 import {CurveErrors} from "../../interfaces/IErrors.sol";
 
 /**
- * @title Concentrated Liquidity with Multiple Curve Types Automated Market Maker Calculator
+ * @title Automated Market Maker Calculator with Multiple Curves
  * @notice This calculator supports multiple curve types for different price ranges
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
