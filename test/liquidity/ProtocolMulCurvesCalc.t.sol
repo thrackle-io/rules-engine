@@ -25,10 +25,6 @@ contract ProtocolAMMCalcMulCurvesTest is TestCommonFoundry, Utils {
     uint256 constProductA = 7_000_000 * ATTO * 7_000_000 * ATTO;
     uint256[] upperLimitsA = [10_000 * ATTO, 1_000_000 * ATTO, 10_000_000 * ATTO]; 
     ProtocolAMMCalcMulCurves calc;
-    // LinearInput linearA = LinearInput(1 * 10 ** (M_PRECISION_DECIMALS - 4), 5 * (10 ** (B_PRECISION_DECIMALS - 1))); //m=0.0001; b=0.5
-    // ConstantRatio constRatioA = ConstantRatio(20_000, 30_000); // ratio = 3y per 2x
-    // uint256 constProductA = 7_000 * ATTO * 7_000 * ATTO;
-    // uint256[] upperLimitsA = [1_000 * ATTO, 7_000 * ATTO, 50_000 * ATTO]; 
 
     function setUp() public {
         vm.startPrank(superAdmin);
