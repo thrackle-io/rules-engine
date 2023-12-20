@@ -230,6 +230,7 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
     function setAppManagerAddress(address _appManagerAddress) external appAdministratorOnly(appManagerAddress) {
         require(_appManagerAddress != address(0), "Address cannot be default address");
         appManagerAddress = _appManagerAddress;
+        emit AppManagerAddressSet(appManagerAddress);
     }
 
     /**
