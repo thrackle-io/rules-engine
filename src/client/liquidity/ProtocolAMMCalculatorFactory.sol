@@ -11,7 +11,6 @@ import {LinearInput, ConstantRatio} from "./calculators/dataStructures/CurveData
 import {IZeroAddressError} from "src/common/IErrors.sol";
 import {IAMMFactoryEvents} from "src/common/IEvents.sol";
 import "./calculators/ProtocolAMMCalcMulCurves.sol";
-import "src/protocol/economic/AppAdministratorOnly.sol";
 
 /**
  * @title Automated Market Maker Calculator Factory
