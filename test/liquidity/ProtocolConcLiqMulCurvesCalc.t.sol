@@ -136,6 +136,47 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         calc.setUpperLimits(upperLimitsA);
     }
 
+    function _addAnUpperLimit() internal {
+        _setUpperLimitsA();
+        calc.addAnUpperLimit(upperLimitsA[upperLimitsA.length - 1] + 1_000_000 * ATTO);
+    }
+
+    function testAMMCalcConcLiqMulCurves_AddAnUpperLimit_Positive() public {
+        _addAnUpperLimit();
+        uint256 upperLimit = calc.sectionUpperLimits(3);
+        assertEq(upperLimit, upperLimitsA[upperLimitsA.length - 1] + 1_000_000 * ATTO);
+    }
+
+    function testAMMCalcConcLiqMulCurves_AddAnUpperLimit_Negative() public {
+        _setUpperLimitsA();
+        vm.expectRevert(abi.encodeWithSignature("WrongArrayOrder()"));
+        calc.addAnUpperLimit(upperLimitsA[upperLimitsA.length - 1] - 1_000 * ATTO);
+    }
+
+    function _updateAnUpperLimit() internal {
+        _addAnUpperLimit();
+        calc.updateAnUpperLimit(10 * ATTO, 0);
+    }
+
+    function testAMMCalcConcLiqMulCurves_UpdateAnUpperLimit_Positive() public {
+        _updateAnUpperLimit();
+        uint256 upperLimit = calc.sectionUpperLimits(3);
+        assertEq(upperLimit, upperLimitsA[upperLimitsA.length - 1] + 1_000_000 * ATTO);
+    }
+
+    function testAMMCalcConcLiqMulCurves_UpdateAnUpperLimit_WrongOrder() public {
+        _addAnUpperLimit();
+        vm.expectRevert(abi.encodeWithSignature("WrongArrayOrder()"));
+        calc.updateAnUpperLimit(upperLimitsA[1] + 1, 0);
+    }
+
+    function testAMMCalcConcLiqMulCurves_UpdateAnUpperLimit_OutOfBounds() public {
+        _addAnUpperLimit();
+        vm.expectRevert(abi.encodeWithSignature("WrongArrayOrder()"));
+        calc.updateAnUpperLimit(10 * ATTO, 4);
+    }
+
+
     /// encapsulation of previous steps for future buildings
     function _setCurvesA() internal{
         _addLinearA();
