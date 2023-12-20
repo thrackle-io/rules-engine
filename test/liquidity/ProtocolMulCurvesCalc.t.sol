@@ -4,16 +4,16 @@ pragma solidity ^0.8.17;
 import "forge-std/Test.sol";
 import "test/helpers/TestCommonFoundry.sol";
 import {LinearInput, LinearFractionB, ConstantRatio} from "../../src/liquidity/calculators/dataStructures/CurveDataStructures.sol";
-import "src/liquidity/calculators/ProtocolAMMCalcConcLiqMulCurves.sol";
+import "src/liquidity/calculators/ProtocolAMMCalcMulCurves.sol";
 import "../helpers/Utils.sol";
 
 /**
- * @title Test AMM Calculator with Concentrated Liquidity Regions with Multiple Curves
+ * @title Test AMM Calculator with Multiple Curves
  * @notice This tests every function related to the AMM Calculator Factory including the different types of calculators
  * @dev A substantial amount of set up work is needed for each test.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
+contract ProtocolAMMCalcMulCurvesTest is TestCommonFoundry, Utils {
 
     uint256 constant M_PRECISION_DECIMALS = 8;
     uint256 constant B_PRECISION_DECIMALS = 8;
@@ -24,7 +24,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
     ConstantRatio constRatioA = ConstantRatio(20_000, 30_000); // ratio = 3y per 2x
     uint256 constProductA = 7_000_000 * ATTO * 7_000_000 * ATTO;
     uint256[] upperLimitsA = [10_000 * ATTO, 1_000_000 * ATTO, 10_000_000 * ATTO]; 
-    ProtocolAMMCalcConcLiqMulCurves calc;
+    ProtocolAMMCalcMulCurves calc;
     // LinearInput linearA = LinearInput(1 * 10 ** (M_PRECISION_DECIMALS - 4), 5 * (10 ** (B_PRECISION_DECIMALS - 1))); //m=0.0001; b=0.5
     // ConstantRatio constRatioA = ConstantRatio(20_000, 30_000); // ratio = 3y per 2x
     // uint256 constProductA = 7_000 * ATTO * 7_000 * ATTO;
@@ -35,7 +35,7 @@ contract ProtocolAMMCalcConcLiqMulCurvesTest is TestCommonFoundry, Utils {
         setUpProtocolAndAppManagerAndTokens();
         protocolAMMFactory = createProtocolAMMFactory();
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        calc = ProtocolAMMCalcConcLiqMulCurves(protocolAMMCalculatorFactory.createConcLiqMulCurves(address(applicationAppManager)));
+        calc = ProtocolAMMCalcMulCurves(protocolAMMCalculatorFactory.createConcLiqMulCurves(address(applicationAppManager)));
         switchToAppAdministrator();
     }
 

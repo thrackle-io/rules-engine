@@ -18,7 +18,7 @@ import {CurveErrors} from "../../interfaces/IErrors.sol";
  * @notice This calculator supports multiple curve types for different price ranges
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolAMMCalcConcLiqMulCurves is IProtocolAMMFactoryCalculator {
+contract ProtocolAMMCalcMulCurves is IProtocolAMMFactoryCalculator {
 
     using Curve for LinearFractionB;
     using Curve for ConstantRatio;

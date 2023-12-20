@@ -6,7 +6,7 @@ import "src/liquidity/calculators/ProtocolAMMCalcConst.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcCP.sol";
 import "src/liquidity/calculators/ProtocolNFTAMMCalcDualLinear.sol";
 import "src/liquidity/calculators/ProtocolAMMCalcSample01.sol";
-import "./calculators/ProtocolAMMCalcConcLiqMulCurves.sol";
+import "./calculators/ProtocolAMMCalcMulCurves.sol";
 import "src/economic/AppAdministratorOnly.sol";
 import {LinearInput, ConstantRatio} from "./calculators/dataStructures/CurveDataStructures.sol";
 import {IZeroAddressError} from "src/interfaces/IErrors.sol";
@@ -92,7 +92,7 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
      * @return _calculatorAddress
      */
     function createConcLiqMulCurves(address _appManagerAddress) external returns(address){
-        ProtocolAMMCalcConcLiqMulCurves protocolAMMCalcConcLiqMulCurves = new ProtocolAMMCalcConcLiqMulCurves(0, _appManagerAddress);
+        ProtocolAMMCalcMulCurves protocolAMMCalcConcLiqMulCurves = new ProtocolAMMCalcMulCurves(0, _appManagerAddress);
         return address(protocolAMMCalcConcLiqMulCurves);
     }
 }
