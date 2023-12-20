@@ -122,7 +122,7 @@ The following validation will be carried out by the create function in order to 
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getAccountBalanceByRiskScore(
