@@ -4,9 +4,9 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
-import "../../staking/IERC721Staking.sol";
-import "../../economic/AppAdministratorOnly.sol";
-import "../../application/IAppManager.sol";
+import "src/client/staking/IERC721Staking.sol";
+import "src/protocol/economic/AppAdministratorOnly.sol";
+import "src/client/application/IAppManager.sol";
 
 /**
  * @title ERC721 Staking Contract

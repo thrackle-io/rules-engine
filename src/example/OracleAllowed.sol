@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {IOracleEvents} from "src/interfaces/IEvents.sol";
+import {IOracleEvents} from "src/common/IEvents.sol";
 
 /**
  * @title Example On-chain Allow-List Oracle
@@ -45,7 +45,7 @@ contract OracleAllowed is Ownable, IOracleEvents {
      */
     function addAddressToAllowList(address newAllow) public onlyOwner {
         allowedAddresses[newAllow] = true;
-        address[] memory addresses;
+        address[] memory addresses = new address[](1);
         addresses[0] =  newAllow;
         emit OracleListChanged(true,addresses);
     }

@@ -2,9 +2,9 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/Context.sol";
-import "../../staking/IERC20Staking.sol";
-import "../../economic/AppAdministratorOnly.sol";
-import "../../application/IAppManager.sol";
+import "src/client/staking/IERC20Staking.sol";
+import "src/protocol/economic/AppAdministratorOnly.sol";
+import "src/client/application/IAppManager.sol";
 import "../ERC20/ApplicationERC20.sol";
 
 /**

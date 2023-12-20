@@ -24,7 +24,7 @@ A max-balance-by-access-level rule is composed of a single variable:
  mapping(uint8 => uint48);
 ```
 
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 ***NOTE: access levels are restricted from 0 to 4.***
 
@@ -39,7 +39,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
     }
 ```
 
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -52,10 +52,10 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 The rule will be evaluated with the following logic:
 
-1. The application manager will send to the protocol's rule processor the dollar value sum of all application assets the account holds, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
-2. Then, the rule processor will retrieve the maximum balance allowed for the rule with the ruleId passed, and for the access level of the account. If the balance will exceed the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
+1. The application manager sends to the protocol's rule processor the dollar value sum of all application assets the account holds, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
+2. The processor retrieves the maximum balance allowed for the rule with the ruleId passed, and for the access level of the account. If the balance exceeds the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
 
-###### *see [ApplicationAccessLevelProcessorFacet](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkAccBalanceByAccessLevel*
+###### *see [ApplicationAccessLevelProcessorFacet](../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkAccBalanceByAccessLevel*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -85,14 +85,14 @@ function addAccessLevelBalanceRule(
         ruleAdministratorOnly(_appManagerAddr) 
         returns (uint32);
 ```
-###### *see [AppRuleDataFacet](../../../src/economic/ruleProcessor/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
 ### Parameters:
 
 - **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
-- **_balanceAmounts** (uint48[]): array of balance limits for each 5 levels (levels 0 to 4) in whole USD amounts (1 -> 1 USD; 1000 -> 1000 USD). Note that the position within the array matters. Posotion 0 represents access level 0, and position 4 represents level 4.
+- **_balanceAmounts** (uint48[]): array of balance limits for each 5 levels (levels 0 to 4) in whole USD amounts (1 -> 1 USD; 1000 -> 1000 USD). Note that the position within the array matters. Position 0 represents access level 0, and position 4 represents level 4.
 
 ### Parameter Optionality:
 
@@ -105,11 +105,11 @@ The following validation will be carried out by the create function in order to 
 - The `_balanceAmounts` array has length 5.
 - The elements of the `_balanceAmounts` array are in ascendant order.
 
-###### *see [AppRuleDataFacet](../../../src/economic/ruleProcessor/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function to get a rule by its Id:
         ```c
         function getAccessLevelBalanceRule(uint32 _index, uint8 _accessLevel) external view returns (uint48);
@@ -118,7 +118,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalAccessLevelBalanceRules() external view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkAccBalanceByAccessLevel(
@@ -130,7 +130,7 @@ The following validation will be carried out by the create function in order to 
                 external 
                 view;
         ```
-- In the [Application Handler](../../../src/application/ProtocolApplicationHandler.sol):
+- In the [Application Handler](../../src/client/application/ProtocolApplicationHandler.sol):
     - Function to set and activate at the same time the rule in the application handler:
         ```c
         function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);

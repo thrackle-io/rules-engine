@@ -8,13 +8,13 @@
 ## Script Deployment
 
 1. Ensure the [environment variables][environment-url] are set correctly.
-2. Copy the upgradeable NFT template from src/example/ApplicationERC721U.sol to your desired location
+2. Copy the upgradeable NFT template from example/ApplicationERC721U.sol to your desired location
 3. Change the name of the contract to suit your naming standards
     1. Do not change the import or parent contract   
-4. Copy the upgradeable NFT proxy template from src/example/ApplicationERC721UProxy.sol to your desired location
+4. Copy the upgradeable NFT proxy template from example/ApplicationERC721UProxy.sol to your desired location
 5. Change the name of the contract to suit your naming standards
     1. Do not change the import or parent contract
-6. Modify src/example/script/ApplicaitonERC721U.s.sol so that it points to the desired versions of ApplicationERC721U and ApplicationERC721UProxy.
+6. Modify example/script/ApplicaitonERC721U.s.sol so that it points to the desired versions of ApplicationERC721U and ApplicationERC721UProxy.
 7. Set the following environment variables:
    1. DEPLOYMENT_OWNER_KEY
       1. address responsible for deploying and gas costs
@@ -22,14 +22,14 @@
       1. address set as owner of the proxy contract
 8. Run the script
    ````
-   forge script src/example/script/ApplicationERC721U.s.sol:ApplicationERC721UScript --ffi --broadcast --verify -vvvv
+   forge script example/script/ApplicationERC721U.s.sol:ApplicationERC721UScript --ffi --broadcast --verify -vvvv
    ````
 9. Check the output for success and newly deployed contract addresses.
 
 ## Manual Deployment
 
 1. Ensure the [environment variables][environment-url] are set correctly.
-2. Copy the upgradeable NFT template from src/example/ApplicationERC721U.sol to your desired location
+2. Copy the upgradeable NFT template from example/ApplicationERC721U.sol to your desired location
 3. Change the name of the contract to suit your naming standards
     1. Do not change the import or parent contract
 4. Compile the contract
@@ -37,7 +37,7 @@
    forge build --use solc:0.8.17
 
    ````   
-5. Copy the upgradeable NFT proxy template from src/example/ApplicationERC721UProxy.sol to your desired location
+5. Copy the upgradeable NFT proxy template from example/ApplicationERC721UProxy.sol to your desired location
 6. Change the name of the contract to suit your naming standards
     1. Do not change the import or parent contract
 7. Compile the contract
@@ -47,7 +47,7 @@
    ````
 8. Deploy the upgradeable NFT contract
    ````
-      forge create src/example/deploy/FrankensteinNFTU.sol:Frankenstein --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+      forge create example/deploy/FrankensteinNFTU.sol:Frankenstein --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
    ````
 9.  Use the output from the deployment to set an environment variable for NFT's address.
        1. Locate the address from the output, example:
@@ -61,7 +61,7 @@
           ````
 10. Deploy the upgradeable NFT proxy contract   
       ````
-      forge create src/example/deploy/FrankensteinNFTUProxy.sol:Frankenstein --constructor-args $APPLICATION_ERC721U_1 $APP_ADMIN_1 "" --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+      forge create example/deploy/FrankensteinNFTUProxy.sol:Frankenstein --constructor-args $APPLICATION_ERC721U_1 $APP_ADMIN_1 "" --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
       ```` 
     1. Use the output from the deployment to set an environment variable for NFT's proxy address.
        1. Locate the address from the output, example:

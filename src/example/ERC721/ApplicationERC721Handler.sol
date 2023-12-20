@@ -7,7 +7,7 @@ pragma solidity ^0.8.17;
  * @dev This contract is an example for how to implement the ProtocolERC721Handler. All ERC721 rules are set up through this contract
  * @notice This contract is the interaction point for the application ecosystem to the protocol
  */
-import "../../token/ERC721//ProtocolERC721Handler.sol";
+import "src/client/token/ERC721//ProtocolERC721Handler.sol";
 
 contract ApplicationERC721Handler is ProtocolERC721Handler {
     /**

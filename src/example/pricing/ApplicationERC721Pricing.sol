@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "../../pricing/ProtocolERC721Pricing.sol";
+import "src/client/pricing/ProtocolERC721Pricing.sol";
 
 /**
  * @title NFT Pricing implementation example contract

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "../../application/ProtocolApplicationHandler.sol";
+import "src/client/application/ProtocolApplicationHandler.sol";
 
 /**
  * @title AppManager Contract

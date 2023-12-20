@@ -27,10 +27,9 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
     struct MinBalByDateRule {
         uint256 holdAmount; /// token units
         uint16 holdPeriod; /// hours
-        uint256 startTimeStamp; /// start
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleProcessor/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 Additionally, each one of these data structures will be under a tag (bytes32):
 
@@ -40,7 +39,7 @@ Additionally, each one of these data structures will be under a tag (bytes32):
     //      tag     =>   sub-rule
     mapping(bytes32 => ITaggedRules.MinBalByDateRule)
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 The collection of these tagged sub-rules composes a minumum-account-balance-by-date rule.
 
@@ -49,10 +48,11 @@ The collection of these tagged sub-rules composes a minumum-account-balance-by-d
     struct MinBalByDateRuleS {
         /// ruleIndex => userTag => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.MinBalByDateRule)) minBalByDateRulesPerUser;
+        uint256 startTime; /// start
         uint32 minBalByDateRulesIndex; /// increments every time someone adds a rule
     }
 ```
-###### *see [IRuleStorage](../../../src/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 A minimum-balance-by-date rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
@@ -67,13 +67,13 @@ A minimum-balance-by-date rule must have at least one sub-rule. There is no maxi
 
 The rule will be evaluated with the following logic:
 
-1. The account being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
-2. The processor will receive these tags along with the ID of the minimum-balance-by-date rule set in the token handler. 
-3. The processor will then try to retrieve the sub-rule associated with each tag.
-4. The processor will evaluate whether each sub-rule's hold period is still active (if the current time is within `hold period` from the `starting timestamp`). If it is, the processor will then evaluate if the final balance of the account would be less than the `hold amount` in the case of the transaction succeeding. If yes, then the transaction will revert.
+1. The account being evaluated passes all the tags it has registered to their addresses in the application manager to the protocol.
+2. The processor receives these tags along with the ID of the minimum-balance-by-date rule set in the token handler. 
+3. The processor tries to retrieve the sub-rule associated with each tag.
+4. The processor evaluates whether each sub-rule's hold period is still active (if the current time is within `hold period` from the `starting timestamp`). If it is, the processor then evaluates if the final balance of the account would be less than the `hold amount` in the case of the transaction succeeding. If yes, then the transaction reverts.
 5. Step 4 is repeated for each of the account's tags. 
 
-###### *see [ERC20TaggedRuleProcessorFacet](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
+###### *see [ERC20TaggedRuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -99,10 +99,10 @@ function addMinBalByDateRule(
             bytes32[] calldata _accountTags,
             uint256[] calldata _holdAmounts,
             uint16[] calldata _holdPeriods,
-            uint64[] calldata _startTimestamps
+            uint64 _startTime
         ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -112,14 +112,14 @@ The create function will return the protocol ID of the rule.
 - **_accountTags** (bytes32[]): array of tags that will contain each sub-rule.
 - **_holdAmounts** (uint256[]): array of *hold amounts* for each sub-rule.
 - **_holdPeriods** (uint16[]): array of *hold periods* for each sub-rule.
-- **_startTimestamps** (uint64[]): array of *timestamps* for each sub-rule.
+- **_startTimetamp** (uint64): *timestamp* that applies to each sub-rule.
 
-It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_holdAmounts`, `_holdPeriods` and `_startTimestamps`. Same with tag in posotion *n*.
+It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_holdAmounts` and `_holdPeriods`. Same with tag in position *n*. The `_startTimestamp` applies to all subrules
 
 ### Parameter Optionality:
 
 The parameters where developers have the options are:
-- **_startTimestamps**: developers can pass Unix timestamps or simply 0s. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation. The `_startTimestamps` array can have mixed options.
+- **_startTimestamp**: developers can pass a Unix timestamps or simply 0. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation. 
 
 ### Parameter Validation:
 
@@ -132,11 +132,11 @@ The following validation will be carried out by the create function in order to 
 - Not one `holdAmount` nor `holdPeriod` can have a value of 0.
 
 
-###### *see [TaggedRuleDataFacet](../../../src/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
+###### *see [TaggedRuleDataFacet](../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getMinBalByDateRule(
@@ -146,13 +146,13 @@ The following validation will be carried out by the create function in order to 
                 external 
                 view 
                 returns 
-                (TaggedRules.MinBalByDateRule memory);
+                (TaggedRules.MinBalByDateRule memory, uint64 startTime);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
         function getTotalMinBalByDateRule() public view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../../src/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkMinBalByDatePasses(
@@ -208,5 +208,5 @@ This rule doesn't require of any data to be recorded.
 
 ## Dependencies
 
-- **Tags**: This rules relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
+- **Tags**: This rule relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
 

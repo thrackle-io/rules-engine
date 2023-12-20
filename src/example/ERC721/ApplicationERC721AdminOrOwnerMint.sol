@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "../../token/ERC721/ProtocolERC721.sol";
+import "src/client/token/ERC721/ProtocolERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**

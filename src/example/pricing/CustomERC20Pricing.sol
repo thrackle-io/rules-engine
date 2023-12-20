@@ -2,9 +2,9 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {IApplicationEvents} from "../../interfaces/IEvents.sol";
-import "../../pricing/IProtocolERC20Pricing.sol";
-import "../../economic/AppAdministratorOnly.sol";
+import {IApplicationEvents} from "src/common/IEvents.sol";
+import "src/common/IProtocolERC20Pricing.sol";
+import "src/protocol/economic/AppAdministratorOnly.sol";
 
 /**
  * @title CustomERC20 Pricing example contract
