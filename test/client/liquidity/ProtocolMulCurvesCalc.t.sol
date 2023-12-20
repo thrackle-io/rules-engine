@@ -276,21 +276,18 @@ contract ProtocolAMMCalcMulCurvesTest is TestCommonFoundry, Utils {
 
     function _setupLinearReserves() internal {
         _setSectionsA();
-        /// According to desmos. Spot price should be 0.6
         uint256 reserves0 = 1_000 * ATTO;
         calc.set_x_offset(reserves0);
     }
 
     function _setupLinearReservesAt5k() internal {
         _setSectionsA();
-        /// According to desmos. Spot price should be 0.6
         uint256 reserves0 = 5_000 * ATTO;
         calc.set_x_offset(reserves0);
     }
 
     function _setupLinearReservesAt9k() internal {
         _setSectionsA();
-        /// According to desmos. Spot price should be 0.6
         uint256 reserves0 = 9_000 * ATTO;
         calc.set_x_offset(reserves0);
     }
