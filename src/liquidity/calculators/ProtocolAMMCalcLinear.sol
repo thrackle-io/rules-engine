@@ -18,10 +18,11 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator {
 
     using Curve for LinearFractionB;
 
-    uint256 constant Y_MAX = 100_000 * 10 ** 18;
-    uint256 constant M_MAX = 100 * 10 ** 8;
+    
     uint8 constant M_PRECISION_DECIMALS = 8;
-    uint8 constant B_PRECISION_DECIMALS = 18;
+    uint8 constant B_PRECISION_DECIMALS = 8;
+    uint256 constant Y_MAX = 100_000 * 10 ** 18;
+    uint256 constant M_MAX = 100 * 10 ** M_PRECISION_DECIMALS;
     LinearFractionB public curve;
 
     /**
