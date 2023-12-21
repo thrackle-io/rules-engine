@@ -51,6 +51,7 @@ contract ProtocolAMMCalcMulCurves is IProtocolAMMFactoryCalculator {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         x_trackerOffset = _x_trackerOffset;
+        emit AMMCalculatorDeployed(uint(CALC_TYPE.MULTIPLE_TYPES));
     }
 
     /**
@@ -70,7 +71,7 @@ contract ProtocolAMMCalcMulCurves is IProtocolAMMFactoryCalculator {
     }
 
     /**
-     * @dev This performs the swap from ERC20s to NFTs. It is a linear calculation.
+     * @dev This simulates a swap without changing the state of the contract
      * @param _reserve0 amount of token0 in the pool
      * @param _reserve1 amount of token1 in the pool
      * @param _amount0 amount of token1 coming to the pool
@@ -116,7 +117,7 @@ contract ProtocolAMMCalcMulCurves is IProtocolAMMFactoryCalculator {
                 /// revert if type was none of the above
                 }else
                     revert InvalidCurveType();
-                /// if we are in here, we modify i depending on the direction fo the swap
+                /// if we are in here, we modify i depending on the direction for the swap
                 if(isAmount0Not0){
                     _x_tracker += amount0;
                     unchecked{
@@ -205,7 +206,7 @@ contract ProtocolAMMCalcMulCurves is IProtocolAMMFactoryCalculator {
 
     /**
     * @dev sets the whole upperLimits array at once
-    * @param upperLimits the array which is wished to be used as upperLimits
+    * @param upperLimits the array to be used as upperLimits
     */
     function setUpperLimits(uint256[] calldata upperLimits) external appAdministratorOnly(appManagerAddress) {
         for(uint i=1; i < upperLimits.length;){
