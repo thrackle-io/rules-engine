@@ -68,7 +68,7 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator, IAMMCalculatorE
 
     /**
      * @dev Set the equation variables
-    * @param _curve the definition of the linear ecuation
+     * @param _curve the definition of the linear ecuation
      */
     function setCurve(LinearInput memory _curve) external appAdministratorOnly(appManagerAddress) {
         _setCurve(_curve);

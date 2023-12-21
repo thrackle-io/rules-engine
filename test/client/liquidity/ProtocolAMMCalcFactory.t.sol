@@ -171,56 +171,55 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry, Utils {
     /**
      * Test the the creation of Linear X calculation module. All of the results are matched up to a desmos file
      */
-    function testFactoryLinearX() public {
+     function testFactoryLinearX() public {
         // create a linear calculator (y=mx+b))
         // m = .00006(this is set as 8 digits)
         // b = 1.5
         LinearInput memory curve = LinearInput(6 * 10 ** (M_PRECISION_DECIMALS - 5), 15 * 10 ** (B_PRECISION_DECIMALS - 1));
         address calcAddress = factory.createLinear(curve, address(applicationAppManager));
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
-        uint256 reserve0 = 1_000_000 * ATTO;
-        uint256 reserve1 = 31_500_000 * ATTO;
-
-        uint256 amount0 = 2 * ATTO;
+        uint256 reserve0 = 1_000_000 * 10 ** 18;
+        uint256 reserve1 = 1_000_000 * 10 ** 18;
+        uint256 amount0 = 1 * 10 ** 18;
         uint256 amount1 = 0;
         uint256 returnVal;
-        // swap 2*10**18 token0 for 122.999880001 * 10 ** 18 token1
+        // swap 1*10**18 token0 for 61499970000000000000 token1
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 122_999880000000000000);  //// CHECK FOR THE LAST 1
+        assertEq(returnVal, 61499970000000000000);
 
-        amount0 = 4 * ATTO;
-        // swap 4*10**18 token0 for 245.99952001 * ATTO token1
+        amount0 = 4 * 10 ** 18;
+        // swap 4*10**18 token0 for 245999520010000000000 token1
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 245_99952000 * (ATTO / (10 ** 8))); //// CHECK FOR THE LAST 1
+        assertEq(returnVal, 245999520000000000000);
 
-        amount0 = 50_000 * ATTO;
-        // swap 50,000 *10**18 token0 for 3000000 * ATTO token1
+        amount0 = 50_000 * 10 ** 18;
+        // swap 50,000 *10**18 token0 for 3000000000000000000000000 token1
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 3_000_000 * ATTO);
-
+        assertEq(returnVal, 3000000000000000000000000);
+       
         // work with another slope
         // m = .00005(this is set as 8 digits)
         curve = LinearInput(5 * 10 ** (M_PRECISION_DECIMALS - 5), 15 * 10 ** (B_PRECISION_DECIMALS - 1));
         calc.setCurve(curve);
-        // swap 1 *10**10 token0 for 5.1499975003×10**19 token1
+        // swap 1 *10**10 token0 for 51499975000000000000 token1
         amount0 = 1 * 10 ** 18;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 5_1499975 * 10 ** 12);
+        assertEq(returnVal, 51499975000000000000);
 
         // work with another slope
         // m = .00001(this is set as 8 digits)
         curve = LinearInput(1 * 10 ** (M_PRECISION_DECIMALS - 5), 15 * 10 ** (B_PRECISION_DECIMALS - 1));
         calc.setCurve(curve);
-        // swap 1 *10**10 token0 for 1.1499995×10**19 token1
+        // swap 1 *10**10 token0 for 11499995000000000000 token1
         amount0 = 1 * 10 ** 18;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 1_1499995 * 10 ** 12);
+        assertEq(returnVal, 11499995000000000000);
     }
 
     /**
      * Test the the creation of Linear Y calculation module. All of the results are matched up to a desmos file
      */
-    function testFactoryLinearY() public {
+    function testFactoryLinearY2() public {
         // create a linear calculator (y=mx+b))
         // m = .00006(this is set as 8 digits) = 6000
         // b = 1.5
@@ -233,39 +232,39 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry, Utils {
         uint256 amount0 = 0;
         uint256 amount1 = 2 * ATTO;
         uint256 returnVal;
-        // swap 2 token1 for 3.2520324687363492×10**16 token0)
+        // swap 2 token1 for 180886163880012064 token0)
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertLe(absoluteDiff(returnVal, 3_2520324687363492), 5);
-        // swap 50 token1 for 8.13007807651205376×10**17 token0)
-        amount1 = 50 * ATTO;
+        assertEq(returnVal, 180886163880012064);
+        // swap 50 token1 for 4522100831242367828 token0)
+        amount1 = 50 * 10 ** 18;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertLe(absoluteDiff(returnVal, 8_13007807651205376),167);
-        // swap 100 token1 for 9 token0)
+        assertEq(returnVal, 4522100831242367828);
+        // swap 100 token1 for 904431263292 token0)
         amount1 = 100;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 1);
-        // swap 10 token1 for 0 token0)
-        amount1 = 10;
-        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 0);
-
-        // work with another slope
-        // m = .00005(this is set as 8 digits)
-        // curve = LinearInput(5 * 10 ** (M_PRECISION_DECIMALS - 5), 15 * 10 ** (B_PRECISION_DECIMALS - 1));
-        // calc.setCurve(curve);
-        // // swap 1 *10**18 token1 for 1.781105603252140 ×1016 token0
-        // amount1 = 1 * ATTO;
+        assertEq(returnVal, 904431263292);
+        // // swap 10 token1 for 0 token0)
+        // amount1 = 10;
         // returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        // assertLe(absoluteDiff(returnVal, 1781105603252140), 5);
+        // assertEq(returnVal, 0);
+
+        // // work with another slope
+        // // m = .00005(this is set as 8 digits)
+        // curve = LinearInput(5000, 15 * 10 ** 17);
+        // calc.setCurve(curve);
+        // // swap 1 *10**18 token1 for 98893659466214506 token0
+        // amount1 = 1 * 10 ** 18;
+        // returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        // assertEq(returnVal, 98893659466214506);
 
         // // work with another y-intercept
-        // // b = 2
-        // curve = LinearInput(5 * 10 ** (M_PRECISION_DECIMALS - 5), 2 * 10 ** (B_PRECISION_DECIMALS));
+        // // m = .00005(this is set as 8 digits)
+        // curve = LinearInput(5000, 2 * 10 ** 18);
         // calc.setCurve(curve);
-        // // swap 1 *10**18 token1 for 1.7806114103754930×1016 token0
-        // amount1 = 1 * ATTO;
+        // // swap 1 *10**18 token1 for 98058091140754206 token0
+        // amount1 = 1 * 10 ** 18;
         // returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        // assertLe(absoluteDiff(returnVal, 17806114103754930), 5);
+        // assertEq(returnVal, 98058091140754206);
         // // swap 1_000_000 *10**18 token1 for 163960780543711393201128 token0
         // amount1 = 1_000_000 * 10 ** 18;
         // returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);

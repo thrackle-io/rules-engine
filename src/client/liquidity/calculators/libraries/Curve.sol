@@ -73,13 +73,15 @@ library Curve {
     * @param x_0 tracker of x or amount of reserves in token0
     * @return y the value of ƒ(x) on the ordinate axis in ATTOs
     */
-    function getY(LinearFractionB memory line, uint256 x_0, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
-        if (_amount0 != 0) {
-            y = (((line.b_num * _amount0) / line.b_den) + ((line.m_num * ((2 * x_0 * _amount0) - _amount0 ** 2))) / ((2 * ATTO) * line.m_den)); 
-        } else {
-            uint y_0 = (line.b_num * x_0) / (line.b_den) + (((x_0 ** 2) * line.m_num) / (2 * line.m_den)) / ATTO;
-             y = ((2 * (10 ** 9)) * (_amount1 * line.b_den) * (line.m_den).sqrt()) /
-                ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * y_0 * line.m_num * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (y_0 + _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
+    function getY(LinearFractionB memory line, uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
+        if (_amount0 != 0) {//token0 swapped for token1
+            // y = (((line.b_num * _amount0) / line.b_den) + ((line.m_num * ((2 * _reserve0 * _amount0) + _amount0 ** 2))) / ((2 * 10 ** 18) * line.m_den)); 
+            y = ((line.b_num * _amount0) / line.b_den) + ((line.m_num * ((2 * _reserve0 * _amount0) - ((_amount0 ** 2))) / (2 * line.m_den * ATTO)));
+        } else {//token1 swapped for token0
+            y = ((2 * (10 ** 9)) * (_amount1 * line.b_den) * line.m_den.sqrt()) /
+                ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * _reserve1 * line.m_num * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (_reserve1 + _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
+
+            // y = ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * _reserve1 * line.m_num * (line.b_den ** 2)).sqrt()); 
         }
     }
 
@@ -110,6 +112,8 @@ library Curve {
             line.b_num = 2 * input.b;
             line.b_den = 2 * 10 ** precisionDecimals_b;
         }
+            line.b_num = input.b;
+            line.b_den = 10 ** precisionDecimals_b;
     }
 
 

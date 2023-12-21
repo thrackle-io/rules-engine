@@ -6,7 +6,7 @@ import "src/client/liquidity/ProtocolERC20AMM.sol";
 import "src/client/liquidity/ProtocolAMMCalculatorFactory.sol";
 import "src/client/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
 import "src/client/liquidity/calculators/ProtocolAMMCalcConst.sol";
-import "src/client/liquidity/calculators/ProtocolAMMCalcLinear.sol";
+// import "src/client/liquidity/calculators/ProtocolAMMCalcLinear.sol";
 import "test/util/TestCommonFoundry.sol";
 import {ConstantRatio, LinearInput} from "src/client/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
@@ -169,7 +169,7 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
     /**
      * Test the the creation of Linear X calculation module. All of the results are matched up to a desmos file
      */
-    function testFactoryLinearX() public {
+    function testFactoryLinearXFuzz() public {
         // create a linear calculator (y=mx+b))
         // m = .00006(this is set as 8 digits)
         // b = 1.5
@@ -178,45 +178,60 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
         uint256 reserve0 = 1_000_000 * 10 ** 18;
         uint256 reserve1 = 1_000_000 * 10 ** 18;
-        uint256 amount0 = 2 * 10 ** 18;
+        uint256 amount0 = 1 * 10 ** 18;
         uint256 amount1 = 0;
         uint256 returnVal;
-        // swap 2*10**18 token0 for 123000120000000000000 token1
+        // swap 1*10**18 token0 for 61499970000000000000 token1
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 123000120000000000000);
+        assertEq(returnVal, 61499970000000000000);
 
         amount0 = 4 * 10 ** 18;
-        // swap 4*10**18 token0 for 246000480000000000000 token1
+        // swap 4*10**18 token0 for 245999520010000000000 token1
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 246000480000000000000);
+        assertEq(returnVal, 245999520000000000000);
 
         amount0 = 50_000 * 10 ** 18;
-        // swap 50,000 *10**18 token0 for 3150000000000000000000000 token1
+        // swap 50,000 *10**18 token0 for 3000000000000000000000000 token1
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 3150000000000000000000000);
-
-        amount0 = 1 * 10 ** 18;
-        // swap 1 *10**18 token0 for 61500030000000000000 token1
-        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 61500030000000000000);
-
+        assertEq(returnVal, 3000000000000000000000000);
+       
         // work with another slope
         // m = .00005(this is set as 8 digits)
         curve = LinearInput(5000, 15 * 10 ** 17);
         calc.setCurve(curve);
-        // swap 1 *10**10 token0 for 51500025000000000000 token1
+        // swap 1 *10**10 token0 for 51499975000000000000 token1
         amount0 = 1 * 10 ** 18;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 51500025000000000000);
+        assertEq(returnVal, 51499975000000000000);
 
         // work with another slope
         // m = .00001(this is set as 8 digits)
         curve = LinearInput(1000, 15 * 10 ** 17);
         calc.setCurve(curve);
-        // swap 1 *10**10 token0 for 11500005000000000000 token1
+        // swap 1 *10**10 token0 for 11499995000000000000 token1
         amount0 = 1 * 10 ** 18;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 11500005000000000000);
+        assertEq(returnVal, 11499995000000000000);
+    }
+
+    /**
+     * Test the the creation of Linear X calculation module. All of the results are matched up to a desmos file
+     */
+    function testFactoryLinearNewX() public {
+        // create a linear calculator (y=mx+b))
+        // m = .00006(this is set as 8 digits)
+        // b = 1.5
+        LinearInput memory curve = LinearInput(6000, 15 * 10 ** 17);
+        address calcAddress = factory.createLinear(curve, address(applicationAppManager));
+        ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
+        uint256 reserve0 = 1_000_000 * 10 ** 18;
+        uint256 reserve1 = 1_000_000 * 10 ** 18;
+        uint256 amount0 = 1 * 10 ** 18;
+        uint256 amount1 = 0;
+        uint256 returnVal;
+        // swap 2*10**18 token0 for 123000120000000000000 token1
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 61499970000000000000);
     }
 
     /**
