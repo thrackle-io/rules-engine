@@ -12,13 +12,15 @@ import {
 } from "./libraries/Curve.sol";
 import "./dataStructures/CurveTypes.sol";
 import {CurveErrors} from "../../../common/IErrors.sol";
+import {IAMMCalculatorEvents} from "src/common/IEvents.sol";
+import "src/common/AMMTypes.sol";
 
 /**
  * @title Automated Market Maker Calculator with Multiple Curves
  * @notice This calculator supports multiple curve types for different price ranges
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ProtocolAMMCalcMulCurves is IProtocolAMMFactoryCalculator {
+contract ProtocolAMMCalcMulCurves is IProtocolAMMFactoryCalculator, IAMMCalculatorEvents {
 
     using Curve for LinearFractionB;
     using Curve for ConstantRatio;
