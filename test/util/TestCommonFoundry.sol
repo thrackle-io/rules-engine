@@ -332,7 +332,7 @@ abstract contract TestCommonFoundry is TestCommon {
         /// create an ERC721U
         applicationNFTU = _createERC721Upgradeable();
         applicationNFTProxy = _createERC721UpgradeableProxy(address(applicationNFTU), address(proxyOwner));
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Prime Eternal", "CHAMP", address(applicationAppManager), "dummy.uri.io");
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Dracula Prime", "DRAC", address(applicationAppManager), "dummy.uri.io");
         applicationNFTHandler = _createERC721HandlerForProxy(ruleProcessor, applicationAppManager, applicationNFTProxy);
         /// register the token
         applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
