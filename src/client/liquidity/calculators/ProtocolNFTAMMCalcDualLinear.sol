@@ -5,6 +5,7 @@ import "./IProtocolAMMFactoryCalculator.sol";
 import {LinearWholeB, LinearInput, Curve} from "./libraries/Curve.sol";
 import {CurveErrors} from "src/common/IErrors.sol";
 import {IAMMCalculatorEvents} from "src/common/IEvents.sol";
+import "src/common/AMMTypes.sol";
 
 /**
  * @title Automated Market Maker Swap Linear Calculator for NFT Pools
@@ -48,7 +49,7 @@ contract ProtocolNFTAMMCalcDualLinear is IProtocolAMMFactoryCalculator, CurveErr
             buyCurve.fromInput(_buyCurve, M_PRECISION_DECIMALS);
             sellCurve.fromInput(_sellCurve, M_PRECISION_DECIMALS);
             appManagerAddress = _appManagerAddress;
-            emit AMMCalculatorDeployed();
+            emit AMMCalculatorDeployed(uint(CALC_TYPE.DUAL_LINEAR));
     }
 
     /**

@@ -10,3 +10,11 @@ enum AMM_TYPE {
     ERC20AMM,
     ERC721AMM
 }
+
+enum CALC_TYPE {
+    LINEAR,
+    DUAL_LINEAR,
+    CONST_PROD,
+    CONSTANT,
+    SAMPLE  
+}

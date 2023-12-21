@@ -11,13 +11,13 @@ pragma solidity ^0.8.17;
 interface IAppLevelEvents {
     ///AppManager
     event HandlerConnected(address indexed handlerAddress, address indexed appManager);
-    event RoleCheck(string contractName, string functionName, address checkedAddress, bytes32 checkedRole);
+    event RoleCheck(string contractName, string indexed functionName, address indexed checkedAddress, bytes32 indexed checkedRole);
     event AppManagerDeployed(address indexed superAndAppAdmin, string indexed appName);
     event AppManagerDeployedForUpgrade(address indexed superAndAppAdmin, string indexed appName);
     event AppManagerUpgrade(address indexed deployedAddress, address replacedAddress);
     event AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
     event DataContractsMigrated(address indexed ownerAddress);
-    event RemoveFromRegistry(string contractName, address contractAddress);
+    event RemoveFromRegistry(string indexed contractName, address indexed contractAddress);
     event RuleAdmin(address indexed admin, bool indexed add);
     event RiskAdmin(address indexed admin, bool indexed add);
     event AccessTierAdmin(address indexed admin, bool indexed add);
@@ -151,12 +151,12 @@ interface IApplicationEvents {
     ///ProtocolERC721 & ERC721A
     event NewNFTDeployed(address indexed appManagerAddress);
     ///AMM
-    event AMMDeployed(uint ammType, address token0, address token1, address appManager);
+    event AMMDeployed(uint256 indexed ammType, address indexed token0, address indexed token1, address appManager);
     /// Amm Calculator Assigned
     event AMMCalculatorAssigned(address indexed ammCalculator); 
     event Swap(address indexed tokenIn, uint256 amountIn, uint256 amountOut);
-    event AddLiquidity(address token0, address token1, uint256 amount0, uint256 amount1);
-    event RemoveLiquidity(address token, uint256 amount);
+    event AddLiquidity(address indexed token0, address indexed token1, uint256 amount0, uint256 amount1);
+    event RemoveLiquidity(address indexed token, uint256 indexed amount);
     ///ERC20Pricing
     event TokenPrice(address indexed token, uint256 indexed price);
     ///NFTPricing
@@ -191,5 +191,5 @@ interface IAMMFactoryEvents {
 
 interface IAMMCalculatorEvents {
     /// AMM Calculator Deployed
-    event AMMCalculatorDeployed();
+     event AMMCalculatorDeployed(uint256 indexed calcType);
 }
