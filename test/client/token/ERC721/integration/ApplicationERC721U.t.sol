@@ -48,7 +48,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         applicationNFTU = new ApplicationERC721Upgradeable();
         applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFTU), proxyOwner, "");
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Prime Eternal", "CHAMP", address(applicationAppManager), "dummy.uri.io");
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Dracula Prime", "DRAC", address(applicationAppManager), "dummy.uri.io");
         applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), false);
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
         /// register the token
@@ -995,11 +995,11 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         // Create the upgradeable nft that has extra variables but points to the original ProtocolERC721U
         applicationNFTExtra = new ApplicationERC721UExtra();
         applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFTExtra), proxyOwner, "");
-        ApplicationERC721UExtra(address(applicationNFTProxy)).initialize("Extra", "CHAMP", address(applicationAppManager), "dummy.uri.io");
+        ApplicationERC721UExtra(address(applicationNFTProxy)).initialize("Extra", "DRAC", address(applicationAppManager), "dummy.uri.io");
         applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), false);
         ApplicationERC721UExtra(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
         /// register the token
-        applicationAppManager.registerToken("CHAMP", address(applicationNFTProxy));
+        applicationAppManager.registerToken("DRAC", address(applicationNFTProxy));
 
         ///Pricing Contracts
         applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
