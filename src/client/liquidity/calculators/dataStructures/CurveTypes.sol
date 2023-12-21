@@ -5,7 +5,8 @@ enum CurveTypes{
     LINEAR_WHOLE_B,
     LINEAR_FRACTION_B,
     CONST_RATIO,
-    CONST_PRODUCT
+    CONST_PRODUCT,
+    SAMPLE
 }
 
 struct SectionCurve{

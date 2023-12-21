@@ -92,10 +92,9 @@ contract ProtocolAMMCalcMulCurves is IProtocolAMMFactoryCalculator, IAMMCalculat
     returns (uint256 amountOut) 
     {
         _validateOneIsNotZero(_amount0, _amount1);
-        bool isAmount0Not0 = _amount0 != 0;
         uint256 amount0 = _amount0; 
         uint256 amount1 = _amount1;
-        uint256 amountInLeft = isAmount0Not0 ? _amount0 : _amount1;
+        uint256 amountInLeft = _amount0 != 0 ? _amount0 : _amount1;
         uint256 i;
         uint256 _x_tracker = x_tracker + x_trackerOffset;
         uint256 regionOut;
@@ -120,7 +119,7 @@ contract ProtocolAMMCalcMulCurves is IProtocolAMMFactoryCalculator, IAMMCalculat
                 }else
                     revert InvalidCurveType();
                 /// if we are in here, we modify i depending on the direction for the swap
-                if(isAmount0Not0){
+                if(_amount0 != 0){
                     _x_tracker += amount0;
                     unchecked{
                         ++i;
