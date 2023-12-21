@@ -156,7 +156,6 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationERC721Handler public WhitelistNFTHandlerUp;
     ApplicationERC721Handler public FreeForAllnNFTHandlerUp;
 
-
     // common block time
     uint64 Blocktime = 1769924800;
 
@@ -167,6 +166,13 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     uint256 totalSupply = 100_000_000_000;
 
     address[] ADDRESSES = [address(0xFF1), address(0xFF2), address(0xFF3), address(0xFF4), address(0xFF5), address(0xFF6), address(0xFF7), address(0xFF8)];
+
+    bytes32 public constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
+    bytes32 public constant USER_ROLE = keccak256("USER");
+    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
+    bytes32 public constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
+    bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
+    bytes32 public constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
 
     /**
      * @dev Deploy and set up an AppManager

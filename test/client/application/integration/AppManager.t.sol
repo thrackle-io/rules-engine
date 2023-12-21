@@ -10,12 +10,7 @@ import "src/client/application/data/IDataModule.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract AppManagerBaseTest is TestCommonFoundry {
-    bytes32 public constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
-    bytes32 public constant USER_ROLE = keccak256("USER");
-    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    bytes32 public constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
-    bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
-    bytes32 public constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
+    
     function setUp() public {
         vm.startPrank(superAdmin); //set up as the default admin
         setUpProtocolAndAppManager();
