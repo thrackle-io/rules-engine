@@ -31,7 +31,7 @@ contract ProtocolAMMCalcMulCurvesTest is TestCommonFoundry, Utils {
         setUpProtocolAndAppManagerAndTokens();
         protocolAMMFactory = createProtocolAMMFactory();
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
-        calc = ProtocolAMMCalcMulCurves(protocolAMMCalculatorFactory.createConcLiqMulCurves(address(applicationAppManager)));
+        calc = ProtocolAMMCalcMulCurves(protocolAMMCalculatorFactory.createMulCurves(address(applicationAppManager)));
         switchToAppAdministrator();
     }
 
