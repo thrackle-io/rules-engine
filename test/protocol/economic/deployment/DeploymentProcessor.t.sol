@@ -122,10 +122,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testSettingPurchaseStorage() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
-        uint256[] memory pAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
-        uint16[] memory pPeriods = createUint16SizeThreeArray(100, 101, 102);
-        uint64[] memory sTimes = createUint64SizeThreeArray(8, 12, 16);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
+        uint256[] memory pAmounts = createUint256Array(1000, 2000, 3000);
+        uint16[] memory pPeriods = createUint16Array(100, 101, 102);
+        uint64[] memory sTimes = createUint64Array(8, 12, 16);
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         // uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTimes);
@@ -156,10 +156,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testSettingPurchaseRuleWithoutAppAdministratorAccount() public {
         vm.warp(Blocktime);
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
-        uint256[] memory pAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
-        uint16[] memory pPeriods = createUint16SizeThreeArray(100, 101, 102);
-        uint64[] memory sTimes = createUint64SizeThreeArray(8, 12, 16);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
+        uint256[] memory pAmounts = createUint256Array(1000, 2000, 3000);
+        uint16[] memory pPeriods = createUint16Array(100, 101, 102);
+        uint64[] memory sTimes = createUint64Array(8, 12, 16);
         // set user to the super admin
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -178,10 +178,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testSettingPurchaseWithArraySizeMismatch() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
-        uint256[] memory pAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
-        uint16[] memory pPeriods = createUint16SizeThreeArray(100, 101, 102);
-        uint64[] memory sTimes = createUint64SizeTwoArray(24, 36);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
+        uint256[] memory pAmounts = createUint256Array(1000, 2000, 3000);
+        uint16[] memory pPeriods = createUint16Array(100, 101, 102);
+        uint64[] memory sTimes = createUint64Array(24, 36);
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTimes);
     }
@@ -191,10 +191,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         switchToRuleAdmin();
         vm.warp(Blocktime);
         uint256[101] memory _indexes;
-        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");   
-        uint256[] memory pAmounts = createUint256SizeOneArray(1000);
-        uint16[] memory pPeriods = createUint16SizeOneArray(100);
-        uint64[] memory sTimes = createUint64SizeOneArray(12);
+        bytes32[] memory accs = createBytes32Array("Oscar");   
+        uint256[] memory pAmounts = createUint256Array(1000);
+        uint16[] memory pPeriods = createUint16Array(100);
+        uint64[] memory sTimes = createUint64Array(12);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTimes);
         }
@@ -207,10 +207,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testSettingSell() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
-        uint192[] memory sAmounts = createUint192SizeThreeArray(1000, 2000, 3000);
-        uint16[] memory sPeriod = createUint16SizeThreeArray(24, 36, 48);
-        uint64[] memory sTimes = createUint64SizeThreeArray(Blocktime, Blocktime, Blocktime);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
+        uint192[] memory sAmounts = createUint192Array(1000, 2000, 3000);
+        uint16[] memory sPeriod = createUint16Array(24, 36, 48);
+        uint64[] memory sTimes = createUint64Array(Blocktime, Blocktime, Blocktime);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
         assertEq(_index, 0);
 
@@ -218,9 +218,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // TaggedRules.SellRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, "Oscar");
         // assertEq(rule.sellAmount, 1000);
         // assertEq(rule.sellPeriod, 24);
-        // bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
-        // uint192[] memory pAmounts = createUint192SizeThreeArray(100000000, 20000000, 3000000);
-        // uint16[] memory pPeriods = createUint16SizeThreeArray(11, 22, 33);
+        // bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
+        // uint192[] memory pAmounts = createUint192Array(100000000, 20000000, 3000000);
+        // uint16[] memory pPeriods = createUint16Array(11, 22, 33);
         // _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
         // assertEq(_index, 1);
         // rule = TaggedRuleDataFacet(address(ruleProcessor)).getSellRuleByIndex(_index, "Tayler");
@@ -234,10 +234,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testSettingSellRuleWithoutAppAdministratorAccount() public {
         vm.warp(Blocktime);
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");   
-        uint192[] memory sAmounts = createUint192SizeThreeArray(1000, 2000, 3000);
-        uint16[] memory sPeriod = createUint16SizeThreeArray(24, 36, 48);
-        uint64[] memory sTimes = createUint64SizeThreeArray(Blocktime, Blocktime, Blocktime);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
+        uint192[] memory sAmounts = createUint192Array(1000, 2000, 3000);
+        uint16[] memory sPeriod = createUint16Array(24, 36, 48);
+        uint64[] memory sTimes = createUint64Array(Blocktime, Blocktime, Blocktime);
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -255,10 +255,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testSettingSellWithArraySizeMismatch() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32SizeTwoArray("Oscar","Tayler");   
-        uint192[] memory sAmounts = createUint192SizeThreeArray(1000, 2000, 3000);
-        uint16[] memory sPeriod = createUint16SizeThreeArray(24, 36, 48);
-        uint64[] memory sTimes = createUint64SizeThreeArray(Blocktime, Blocktime, Blocktime);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler");   
+        uint192[] memory sAmounts = createUint192Array(1000, 2000, 3000);
+        uint16[] memory sPeriod = createUint16Array(24, 36, 48);
+        uint64[] memory sTimes = createUint64Array(Blocktime, Blocktime, Blocktime);
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
     }
@@ -268,10 +268,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         switchToRuleAdmin();
         vm.warp(Blocktime);
         uint256[101] memory _indexes;
-        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");
-        uint192[] memory sAmounts = createUint192SizeOneArray(1000);
-        uint16[] memory sPeriod = createUint16SizeOneArray(24);
-        uint64[] memory sTimes = createUint64SizeOneArray(Blocktime);
+        bytes32[] memory accs = createBytes32Array("Oscar");
+        uint192[] memory sAmounts = createUint192Array(1000);
+        uint16[] memory sPeriod = createUint16Array(24);
+        uint64[] memory sTimes = createUint64Array(Blocktime);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
         }
@@ -465,9 +465,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     /// Simple setting and getting
     function testSettingMinMaxBalances() public {
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory min = createUint256SizeThreeArray(1000, 2000, 3000);
-        uint256[] memory max = createUint256SizeThreeArray(
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256Array(1000, 2000, 3000);
+        uint256[] memory max = createUint256Array(
             10000000000000000000000000000000000000, 
             100000000000000000000000000000000000000000, 
             100000000000000000000000000000000000000000000000000000000000000000000000000
@@ -478,9 +478,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(rule.minimum, 1000);
         assertEq(rule.maximum, 10000000000000000000000000000000000000);
 
-        bytes32[] memory accs2 = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory min2 = createUint256SizeThreeArray(100000000, 20000000, 3000000);
-        uint256[] memory max2 = createUint256SizeThreeArray(
+        bytes32[] memory accs2 = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory min2 = createUint256Array(100000000, 20000000, 3000000);
+        uint256[] memory max2 = createUint256Array(
             100000000000000000000000000000000000000000000000000000000000000000000000000, 
             20000000000000000000000000000000000000, 
             900000000000000000000000000000000000000000000000000000000000000000000000000
@@ -496,9 +496,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
     /// testing only appAdministrators can add Balance Limit Rule
     function testSettingMinMaxBalanceRuleWithoutAppAdministratorAccount() public {
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory min = createUint256SizeThreeArray(1000, 2000, 3000);
-        uint256[] memory max = createUint256SizeThreeArray(
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256Array(1000, 2000, 3000);
+        uint256[] memory max = createUint256Array(
             10000000000000000000000000000000000000, 
             100000000000000000000000000000000000000000, 
             100000000000000000000000000000000000000000000000000000000000000000000000000
@@ -521,9 +521,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     /// testing check on input arrays with different sizes
     function testSettingMinMaxBalanceRulesWithArraySizeMismatch() public {
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory min = createUint256SizeTwoArray(1000, 2000);
-        uint256[] memory max = createUint256SizeThreeArray(
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256Array(1000, 2000);
+        uint256[] memory max = createUint256Array(
             10000000000000000000000000000000000000, 
             100000000000000000000000000000000000000000, 
             100000000000000000000000000000000000000000000000000000000000000000000000000
@@ -535,9 +535,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     /// testing inverted limits
     function testAddMinMaxBalanceRuleWithInvertedLimits() public {
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");
-        uint256[] memory min = createUint256SizeOneArray(999999000000000000000000000000000000000000000000000000000000000000000000000);
-        uint256[] memory max = createUint256SizeOneArray(100);
+        bytes32[] memory accs = createBytes32Array("Oscar");
+        uint256[] memory min = createUint256Array(999999000000000000000000000000000000000000000000000000000000000000000000000);
+        uint256[] memory max = createUint256Array(100);
         vm.expectRevert(0xeeb9d4f7);
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
     }
@@ -546,9 +546,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testTotalRulesOnMinMaxBalanceRule() public {
         switchToRuleAdmin();
         uint256[101] memory _indexes;
-        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");
-        uint256[] memory max = createUint256SizeOneArray(999999000000000000000000000000000000000000000000000000000000000000000000000);
-        uint256[] memory min = createUint256SizeOneArray(100);
+        bytes32[] memory accs = createBytes32Array("Oscar");
+        uint256[] memory max = createUint256Array(999999000000000000000000000000000000000000000000000000000000000000000000000);
+        uint256[] memory min = createUint256Array(100);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         }
@@ -643,8 +643,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     /*********************** NFT Trade Counter ************************/
     function testNFTTransferCounterRule() public {
         switchToRuleAdmin();
-        bytes32[] memory nftTags = createBytes32SizeTwoArray("BoredGrape", "DiscoPunk"); 
-        uint8[] memory tradesAllowed = createUint8SizeTwoArray(1, 5);
+        bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
+        uint8[] memory tradesAllowed = createUint8Array(1, 5);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         if (forkTest == true) {
             assertEq(_index, 1);
@@ -663,8 +663,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
     /// testing only appAdministrators can add NFT Trade Counter Rule
     function testSettingNFTCounterRuleWithoutAppAdministratorAccount() public {
-        bytes32[] memory nftTags = createBytes32SizeTwoArray("BoredGrape", "DiscoPunk"); 
-        uint8[] memory tradesAllowed = createUint8SizeTwoArray(1, 5);
+        bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
+        uint8[] memory tradesAllowed = createUint8Array(1, 5);
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -690,8 +690,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     /// testing total rules
     function testTotalRulesOnNFTCounter() public {
         switchToRuleAdmin();
-        bytes32[] memory nftTags = createBytes32SizeTwoArray("BoredGrape", "DiscoPunk"); 
-        uint8[] memory tradesAllowed = createUint8SizeTwoArray(1, 5);
+        bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
+        uint8[] memory tradesAllowed = createUint8Array(1, 5);
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
@@ -702,9 +702,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     //Test Adding Withdrawal Rule
     function testSettingWithdrawalRule() public {
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory amounts = createUint256SizeThreeArray(1000, 5000, 9000);
-        uint256[] memory releaseDate = createUint256SizeThreeArray((block.timestamp + 222), (block.timestamp + 444), (block.timestamp + 888));
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory amounts = createUint256Array(1000, 5000, 9000);
+        uint256[] memory releaseDate = createUint256Array((block.timestamp + 222), (block.timestamp + 444), (block.timestamp + 888));
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
         assertEq(_index, 0);
         /// Lines are removed as the getWithdrawalRule function is gone until rule check function is created
@@ -712,9 +712,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // assertEq(rule.amount, 5000);
         // assertEq(rule.releaseDate, block.timestamp + 444);
 
-        // bytes32[] memory accs2 = bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        // uint256[] memory amounts2 = createUint256SizeThreeArray(500, 1500, 3000);
-        // uint256[] memory releaseDate2 = createUint256SizeThreeArray((block.timestamp + 10000), (block.timestamp + 888), (block.timestamp + 666));
+        // bytes32[] memory accs2 = bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        // uint256[] memory amounts2 = createUint256Array(500, 1500, 3000);
+        // uint256[] memory releaseDate2 = createUint256Array((block.timestamp + 10000), (block.timestamp + 888), (block.timestamp + 666));
         // _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs2, amounts2, releaseDate2);
         // assertEq(_index, 1);
         // rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Oscar");
@@ -726,9 +726,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testGetWithdrawalRuleUpdate() public {
         switchToRuleAdmin();
         //Set Rule
-        bytes32[] memory accs = createBytes32SizeOneArray("Shane");
-        uint256[] memory amounts = createUint256SizeOneArray(1000);
-        uint256[] memory releaseDate = createUint256SizeOneArray((block.timestamp + 10000));
+        bytes32[] memory accs = createBytes32Array("Shane");
+        uint256[] memory amounts = createUint256Array(1000);
+        uint256[] memory releaseDate = createUint256Array((block.timestamp + 10000));
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
         assertEq(_index, 0);
         /// Lines are removed as the getWithdrawalRule function is gone until rule check function is created
@@ -741,9 +741,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testGetTotalWithdrawalRules() public {
         switchToRuleAdmin();
         uint256[3] memory _indexes;
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory amounts = createUint256SizeThreeArray(1000, 5000, 9000);
-        uint256[] memory releaseDate = createUint256SizeThreeArray((block.timestamp + 222), (block.timestamp + 444), (block.timestamp + 888));
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory amounts = createUint256Array(1000, 5000, 9000);
+        uint256[] memory releaseDate = createUint256Array((block.timestamp + 222), (block.timestamp + 444), (block.timestamp + 888));
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
         }
@@ -756,7 +756,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     /// Test Adding Balance by AccessLevel Rule
     function testBalanceByAccessLevelRule() public {
         switchToRuleAdmin();
-        uint48[] memory balanceAmounts = createUint48SizeFiveArray(10, 100, 500, 1000, 1000);
+        uint48[] memory balanceAmounts = createUint48Array(10, 100, 500, 1000, 1000);
         uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         /// account for already deployed contract that has AccessLevelBalanceRule added
         if (forkTest == true) {
@@ -781,7 +781,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testTotalBalanceByAccessLevelRules() public {
         switchToRuleAdmin();
         uint256[101] memory _indexes;
-        uint48[] memory balanceAmounts = createUint48SizeFiveArray(10, 100, 500, 1000, 1000);
+        uint48[] memory balanceAmounts = createUint48Array(10, 100, 500, 1000, 1000);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         }
@@ -834,17 +834,17 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testSettingMinBalByDate() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
-        uint16[] memory holdPeriods = createUint16SizeThreeArray(100, 101, 102);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory holdAmounts = createUint256Array(1000, 2000, 3000);
+        uint16[] memory holdPeriods = createUint16Array(100, 101, 102);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
         TaggedRules.MinBalByDateRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Oscar");
         assertEq(rule.holdAmount, 1000);
         assertEq(rule.holdPeriod, 100);
-        bytes32[] memory accs2 = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts2 = createUint256SizeThreeArray(1000, 20000000, 3000);
-        uint16[] memory holdPeriods2 = createUint16SizeThreeArray(100, 2, 102);
+        bytes32[] memory accs2 = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory holdAmounts2 = createUint256Array(1000, 20000000, 3000);
+        uint16[] memory holdPeriods2 = createUint16Array(100, 2, 102);
 
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs2, holdAmounts2, holdPeriods2, uint64(Blocktime));
         assertEq(_index, 1);
@@ -857,9 +857,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.warp(Blocktime);
         vm.stopPrank();
         vm.startPrank(address(0xDEAD));
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
-        uint16[] memory holdPeriods = createUint16SizeThreeArray(100, 101, 102);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory holdAmounts = createUint256Array(1000, 2000, 3000);
+        uint16[] memory holdPeriods = createUint16Array(100, 101, 102);
         vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
     }
@@ -868,9 +868,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function testSettingMinBalByDateSizeMismatch() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256SizeThreeArray(1000, 2000, 3000);
-        uint16[] memory holdPeriods = createUint16SizeTwoArray(100, 101);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory holdAmounts = createUint256Array(1000, 2000, 3000);
+        uint16[] memory holdPeriods = createUint16Array(100, 101);
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
     }
@@ -899,9 +899,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
     function testMinAccountBalanceCheck() public {
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory min = createUint256SizeThreeArray(10, 20, 30);
-        uint256[] memory max = createUint256SizeThreeArray(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256Array(10, 20, 30);
+        uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
         // add rule at ruleId 0
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
@@ -919,9 +919,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
     function testMaxTagEnforcementThroughMinAccountBalanceCheck() public {
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory min = createUint256SizeThreeArray(10, 20, 30);
-        uint256[] memory max = createUint256SizeThreeArray(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256Array(10, 20, 30);
+        uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
         // add rule at ruleId 0
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
@@ -945,9 +945,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     }
 
     function testNotPassingMinAccountBalanceCheck() public {
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory min = createUint256SizeThreeArray(10, 20, 30);
-        uint256[] memory max = createUint256SizeThreeArray(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256Array(10, 20, 30);
+        uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
         // add rule at ruleId 0
         switchToRuleAdmin();
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
@@ -969,9 +969,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
     function testMaxAccountBalanceCheck() public {
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory min = createUint256SizeThreeArray(10, 20, 30);
-        uint256[] memory max = createUint256SizeThreeArray(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256Array(10, 20, 30);
+        uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
         // add rule at ruleId 0
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
@@ -988,9 +988,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
     function testNotPassingMaxAccountBalanceCheck() public {
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory min = createUint256SizeThreeArray(10, 20, 30);
-        uint256[] memory max = createUint256SizeThreeArray(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory min = createUint256Array(10, 20, 30);
+        uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
         // add rule at ruleId 0
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
@@ -1020,9 +1020,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         applicationNFT.safeMint(appAdministrator);
         applicationNFT.safeMint(appAdministrator);
 
-        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");
-        uint256[] memory min = createUint256SizeOneArray(1);
-        uint256[] memory max = createUint256SizeOneArray(6);
+        bytes32[] memory accs = createBytes32Array("Oscar");
+        uint256[] memory min = createUint256Array(1);
+        uint256[] memory max = createUint256Array(6);
 
         /// set up a non admin user with tokens
         switchToAppAdministrator();
@@ -1184,8 +1184,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user1), 5);
 
         // add the rule.
-        bytes32[] memory nftTags = createBytes32SizeTwoArray("BoredGrape", "DiscoPunk"); 
-        uint8[] memory tradesAllowed = createUint8SizeTwoArray(1, 5);
+        bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
+        uint8[] memory tradesAllowed = createUint8Array(1, 5);
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);

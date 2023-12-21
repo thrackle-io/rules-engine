@@ -147,35 +147,35 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
     ///Test risk score max size of 99 when adding risk rules
     function testRiskScoreRiskLevelMaxSize() public {
-        uint48[] memory _maxSize = createUint48SizeThreeArray(1000000, 10000, 10); 
-        uint8[] memory _riskLevel = createUint8SizeThreeArray(25, 50, 75);
+        uint48[] memory _maxSize = createUint48Array(1000000, 10000, 10); 
+        uint8[] memory _riskLevel = createUint8Array(25, 50, 75);
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
         ///Activate rule
         applicationCoinHandlerSpecialOwner.setTransactionLimitByRiskRuleId(ruleId);
         ///add txnLimit failing (risk level 100)
-        uint48[] memory maxSize = createUint48SizeThreeArray(1000000, 10000, 10);
-        uint8[] memory riskLevel = createUint8SizeThreeArray(25, 75, 100);
+        uint48[] memory maxSize = createUint48Array(1000000, 10000, 10);
+        uint8[] memory riskLevel = createUint8Array(25, 75, 100);
         vm.expectRevert();
         TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskLevel, maxSize);
 
         ///add balanceLimit passing (less than 100)
-        uint8[] memory _riskScores = createUint8SizeThreeArray(25, 50, 75);
-        uint48[] memory _balanceLimits = createUint48SizeThreeArray(1000000, 10000, 10);
+        uint8[] memory _riskScores = createUint8Array(25, 50, 75);
+        uint48[] memory _balanceLimits = createUint48Array(1000000, 10000, 10);
         AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), _riskScores, _balanceLimits);
 
         ///add balanceLimit failing (risk level 100)
-        uint8[] memory riskScores = createUint8SizeThreeArray(25, 50, 100);
-        uint48[] memory balanceLimits = createUint48SizeThreeArray(1000000, 10000, 10);
+        uint8[] memory riskScores = createUint8Array(25, 50, 100);
+        uint48[] memory balanceLimits = createUint48Array(1000000, 10000, 10);
         vm.expectRevert();
         AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
     }
 
     /// now disable since it won't work unless an ERC20 is using it
     function testTaggedCheckForMinMaxBalancePasses() public {
-        bytes32[] memory _accountTypes = createBytes32SizeOneArray("BALLER");
-        uint256[] memory _minimum = createUint256SizeOneArray(10);
-        uint256[] memory _maximum = createUint256SizeOneArray(1000);
+        bytes32[] memory _accountTypes = createBytes32Array("BALLER");
+        uint256[] memory _minimum = createUint256Array(10);
+        uint256[] memory _maximum = createUint256Array(1000);
 
         /// Set the min/max rule data
         applicationAppManager.addGeneralTag(user1, "BALLER");
@@ -246,9 +246,9 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
     /// now disable since it won't work unless an ERC20 is using it
     function testTurningOnOffRules() public {
-        bytes32[] memory _accountTypes = createBytes32SizeOneArray("BALLER");
-        uint256[] memory _minimum = createUint256SizeOneArray(10);
-        uint256[] memory _maximum = createUint256SizeOneArray(1000);
+        bytes32[] memory _accountTypes = createBytes32Array("BALLER");
+        uint256[] memory _minimum = createUint256Array(10);
+        uint256[] memory _maximum = createUint256Array(1000);
 
         /// Set the min/max rule data
         applicationAppManager.addGeneralTag(user1, "BALLER");

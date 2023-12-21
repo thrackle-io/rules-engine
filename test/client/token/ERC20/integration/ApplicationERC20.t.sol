@@ -76,9 +76,9 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoin.transfer(user1, 1000);
         assertEq(applicationCoin.balanceOf(user1), 1000);
 
-        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");
-        uint256[] memory min = createUint256SizeOneArray(10);
-        uint256[] memory max = createUint256SizeOneArray(1000);
+        bytes32[] memory accs = createBytes32Array("Oscar");
+        uint256[] memory min = createUint256Array(10);
+        uint256[] memory max = createUint256Array(1000);
         // add the actual rule
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
@@ -262,7 +262,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(user1), 100000 * (10 ** 18));
 
         // add the rule.
-        uint48[] memory balanceAmounts = createUint48SizeFiveArray(0, 100, 500, 1000, 10000);
+        uint48[] memory balanceAmounts = createUint48Array(0, 100, 500, 1000, 10000);
         switchToRuleAdmin();
         uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         uint256 balance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccessLevelBalanceRule(_index, 2);
@@ -399,8 +399,8 @@ contract ApplicationERC20Test is TestCommonFoundry {
     }
 
     function testTransactionLimitByRiskScoreFT() public {
-        uint8[] memory riskScores = createUint8SizeFourArray(10, 40, 80, 99);
-        uint48[] memory txnLimits = createUint48SizeFourArray(1000000, 100000, 10000, 1000);
+        uint8[] memory riskScores = createUint8Array(10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48Array(1000000, 100000, 10000, 1000);
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
@@ -467,8 +467,8 @@ contract ApplicationERC20Test is TestCommonFoundry {
     }
 
     function testBalanceLimitByRiskScoreERC20() public {
-        uint8[] memory riskScores = createUint8SizeThreeArray(25, 50, 75);
-        uint48[] memory balanceLimits = createUint48SizeThreeArray(500, 250, 100);
+        uint8[] memory riskScores = createUint8Array(25, 50, 75);
+        uint48[] memory balanceLimits = createUint48Array(500, 250, 100);
         switchToRuleAdmin();
         uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
         switchToAppAdministrator();
@@ -591,7 +591,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
         /// create and activate rule
         switchToRuleAdmin();
-        uint48[] memory withdrawalLimits = createUint48SizeFiveArray(10, 100, 1000, 10000, 100000);
+        uint48[] memory withdrawalLimits = createUint48Array(10, 100, 1000, 10000, 100000);
         uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelWithdrawalRule(address(applicationAppManager), withdrawalLimits);
         applicationHandler.setWithdrawalLimitByAccessLevelRuleId(index);
         /// test transfers pass under rule value
@@ -643,10 +643,10 @@ contract ApplicationERC20Test is TestCommonFoundry {
     function testPassesMinBalByDateCoin() public {
         // Set up the rule conditions
         vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256SizeThreeArray((1000 * (10 ** 18)), (2000 * (10 ** 18)), (3000 * (10 ** 18)));
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory holdAmounts = createUint256Array((1000 * (10 ** 18)), (2000 * (10 ** 18)), (3000 * (10 ** 18)));
         // 720 = one month 4380 = six months 17520 = two years
-        uint16[] memory holdPeriods = createUint16SizeThreeArray(720, 4380, 17520);
+        uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
@@ -1202,10 +1202,10 @@ contract ApplicationERC20Test is TestCommonFoundry {
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
         assertEq(1, assetHandler.getFeeTotal());
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256SizeThreeArray((1000 * (10 ** 18)), (2000 * (10 ** 18)), (3000 * (10 ** 18)));
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory holdAmounts = createUint256Array((1000 * (10 ** 18)), (2000 * (10 ** 18)), (3000 * (10 ** 18)));
         // 720 = one month 4380 = six months 17520 = two years
-        uint16[] memory holdPeriods = createUint16SizeThreeArray(720, 4380, 17520);
+        uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
@@ -1264,10 +1264,10 @@ contract ApplicationERC20Test is TestCommonFoundry {
 
         applicationCoinHandler.proposeDataContractMigration(address(assetHandler));
         assetHandler.confirmDataContractMigration(address(applicationCoinHandler));
-        bytes32[] memory accs = createBytes32SizeThreeArray("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256SizeThreeArray((1000 * (10 ** 18)), (2000 * (10 ** 18)), (3000 * (10 ** 18)));
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory holdAmounts = createUint256Array((1000 * (10 ** 18)), (2000 * (10 ** 18)), (3000 * (10 ** 18)));
         // 720 = one month 4380 = six months 17520 = two years
-        uint16[] memory holdPeriods = createUint16SizeThreeArray(720, 4380, 17520);
+        uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);

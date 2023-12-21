@@ -89,9 +89,9 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
 
-        bytes32[] memory accs = createBytes32SizeOneArray("Oscar");
-        uint256[] memory min = createUint256SizeOneArray(1);
-        uint256[] memory max = createUint256SizeOneArray(6);
+        bytes32[] memory accs = createBytes32Array("Oscar");
+        uint256[] memory min = createUint256Array(1);
+        uint256[] memory max = createUint256Array(6);
         /// set up a non admin user with tokens
         switchToAppAdministrator();
         ///transfer tokenId 1 and 2 to rich_user
@@ -264,8 +264,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user1), 5);
 
         // add the rule.
-        bytes32[] memory nftTags = createBytes32SizeTwoArray("BoredGrape", "DiscoPunk"); 
-        uint8[] memory tradesAllowed = createUint8SizeTwoArray(1, 5);
+        bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
+        uint8[] memory tradesAllowed = createUint8Array(1, 5);
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
@@ -335,8 +335,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
     function testTransactionLimitByRiskScoreNFTUpgradeable() public {
         ///Set transaction limit rule params
-        uint8[] memory riskScores = createUint8SizeFiveArray(0, 10, 40, 80, 99);
-        uint48[] memory txnLimits = createUint48SizeFiveArray(17, 15, 12, 11, 10);
+        uint8[] memory riskScores = createUint8Array(0, 10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
@@ -502,10 +502,10 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         /// Create Rule Params and create rule
         // Set up the rule conditions
         vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32SizeThreeArray("MIN1", "MIN2", "MIN3");
-        uint256[] memory holdAmounts = createUint256SizeThreeArray(1, 2, 3); /// Represent min number of tokens held by user for Collection address
+        bytes32[] memory accs = createBytes32Array("MIN1", "MIN2", "MIN3");
+        uint256[] memory holdAmounts = createUint256Array(1, 2, 3); /// Represent min number of tokens held by user for Collection address
         // 720 = one month 4380 = six months 17520 = two years
-        uint16[] memory holdPeriods = createUint16SizeThreeArray(720, 4380, 17520);
+        uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
@@ -682,8 +682,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
 
         ///Set transaction limit rule params
-        uint8[] memory riskScores = createUint8SizeFiveArray(1, 10, 40, 80, 99);
-        uint48[] memory txnLimits = createUint48SizeFiveArray(17, 15, 12, 11, 10);
+        uint8[] memory riskScores = createUint8Array(1, 10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
@@ -799,8 +799,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assetHandler.setERC20PricingAddress(address(erc20Pricer));
 
         ///Set transaction limit rule params
-        uint8[] memory riskScores = createUint8SizeFiveArray(1, 10, 40, 80, 99);
-        uint48[] memory txnLimits = createUint48SizeFiveArray(17, 15, 12, 11, 10);
+        uint8[] memory riskScores = createUint8Array(1, 10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
