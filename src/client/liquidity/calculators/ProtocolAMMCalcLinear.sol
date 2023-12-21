@@ -5,6 +5,7 @@ import "./IProtocolAMMFactoryCalculator.sol";
 import {LinearFractionB, LinearInput, Curve} from "./libraries/Curve.sol";
 import {CurveErrors} from "src/common/IErrors.sol";
 import {IAMMCalculatorEvents} from "src/common//IEvents.sol";
+import "src/common/AMMTypes.sol";
 
 /**
  * @title Automated Market Maker Swap Linear Calculator
@@ -34,7 +35,7 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator, IAMMCalculatorE
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         _setCurve(_curve);
         appManagerAddress = _appManagerAddress;
-        emit AMMCalculatorDeployed(); 
+        emit AMMCalculatorDeployed(uint(CALC_TYPE.LINEAR));  
     }
 
     /**

@@ -74,6 +74,10 @@ contract ApplicationUIDeployAllScript is Script {
         applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(amm));
         /// connect AMM with its handler
         amm.connectHandlerToAMM(address(applicationAMMHandler));
+        /// Set the AMM treasury address account
+        amm.setTreasuryAddress(vm.envAddress("AMM_TREASURY"));
+        applicationAppManager.registerAMM(address(amm));
+        
         applicationCoinHandler3 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2), false);
 
         vm.stopBroadcast();
