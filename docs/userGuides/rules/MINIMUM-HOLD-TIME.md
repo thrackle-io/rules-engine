@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the minimum-hold-time rule is to prevent 
+The purpose of the minimum-hold-time rule is to reduce trade volitility by preventing transfers of tokens for a number of hours after ownership is acquired, either via minting or transfers. This rule allows developers to specifiy a number of hours, up to 43830 (5 years), that each tokenId must be held for.  
 
 ## Applies To:
 
@@ -16,16 +16,24 @@ This rule works at a token level. It must be activated and configured for each d
 
 ## Data Structure
 
-
+The rule is a uint32 variable for number of hours each individual token must be held by the owner of that tokenId, up to a maximum of 43830 hours or 5 years. 
 
 ```c
-
+/// simple rule(with single parameter) variables
+    uint32 private minimumHoldTimeHours;
 ```
-###### *see [RuleDataInterfaces](../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
+
+Additionally, each starting unix timestamp for the ownership of the tokenId is stored in a mapping inside the hanlder. 
+
+```c
+/// Minimum Hold time data
+    mapping(uint256 => uint256) ownershipStart;
+```
+###### *see [ERC721Handler](../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
 
 
 ## Configuration and Enabling/Disabling
-- This rule can only be configured in the protocol by a **rule administrator**.
+- This rule can only be configured in the handler by a **rule administrator**.
 - This rule can only be set in the asset handler by a **rule administrator**.
 - This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
 - This rule can only be updated in the asset handler by a **rule administrator**.
@@ -35,111 +43,63 @@ This rule works at a token level. It must be activated and configured for each d
 
 The rule will be evaluated with the following logic:
 
-1. The 
-2. The 
-3. 
-4. 
-5. 
+1. The handler evaluates the account's `ownershipStart` to check that it is greater than zero.
+2. The handler passes the account's `ownershipStart` and `minimumHoldTimeHours` to the processor. 
+3. The Processor evaluates if the current time minus `ownershipStart` is less than `minimumHoldTimeHours`. If it is the transaction reverts.
 
-###### *see [ERC20TaggedRuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
+###### *see [ERC721RuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkNFTHoldTime*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
-- In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+
 
 ### Revert Message
 
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error TxnInFreezeWindow();
+error MinimumHoldTimePeriodNotReached();
 ```
 
-The selector for this error is `0xa7fb7b4b`.
+The selector for this error is `0x6d12e45a`.
 
 ## Create Function
 
-Adding a minimum-balance-by-date rule is done through the function:
+Adding a minimum-hold-time rule is done through the function:
 
 ```c
-function addMinBalByDateRule(
-            address _appManagerAddr,
-            bytes32[] calldata _accountTags,
-            uint256[] calldata _holdAmounts,
-            uint16[] calldata _holdPeriods,
-            uint64 _startTime
-        ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
+function setMinimumHoldTimeHours(
+            uint32 _minimumHoldTimeHours
+        ) external ruleAdministratorOnly(_appManagerAddr);
 ```
-###### *see [TaggedRuleDataFacet](../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
+###### *see [ERC721Handler](../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
 
-The create function will return the protocol ID of the rule.
 
 ### Parameters:
 
-- **_appManagerAddr** (address): the address of the application manager to verify that the caller has Rule administrator privileges.
-- **_accountTags** (bytes32[]): array of tags that will contain each sub-rule.
-- **_holdAmounts** (uint256[]): array of *hold amounts* for each sub-rule.
-- **_holdPeriods** (uint16[]): array of *hold periods* for each sub-rule.
-- **_startTimetamp** (uint64): *timestamp* that applies to each sub-rule.
+- **_minimumHoldTimeHours** (uint32): Number of hours each tokenId must be held for.
 
-It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_holdAmounts` and `_holdPeriods`. Same with tag in position *n*. The `_startTimestamp` applies to all subrules
 
 ### Parameter Optionality:
 
-The parameters where developers have the options are:
-- **_startTimestamp**: developers can pass a Unix timestamps or simply 0. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation. 
+There is no parameter optionality for this rule.  
 
 ### Parameter Validation:
 
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
-- `_appManagerAddr` is not the zero address.
-- All the parameter arrays have at least one element.
-- All the parameter arrays have the exact same length.
-- Not one `tag` can be a blank tag.
-- Not one `holdAmount` nor `holdPeriod` can have a value of 0.
+- `_minimumHoldTimeHours` is greater than zero.
+- `_minimumHoldTimeHours` is less than `MAX_HOLD_TIME_HOURS`.
 
 
-###### *see [TaggedRuleDataFacet](../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
+###### *see [ERC721Handler](../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
-    -  Function to get a rule by its ID:
-        ```c
-        function getMinBalByDateRule(
-                    uint32 _index, 
-                    bytes32 _accountTag
-                ) 
-                external 
-                view 
-                returns 
-                (TaggedRules.MinBalByDateRule memory, uint64 startTime);
-        ```
-    - Function to get current amount of rules in the protocol:
-        ```c
-        function getTotalMinBalByDateRule() public view returns (uint32);
-        ```
-- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
-    - Function that evaluates the rule:
-        ```c
-        function checkMinBalByDatePasses(
-                    uint32 ruleId, 
-                    uint256 balance, 
-                    uint256 amount, 
-                    bytes32[] calldata toTags
-                ) 
-                external 
-                view;
-        ```
 - in Asset Handler:
-    - Function to set and activate at the same time the rule in an asset handler:
-        ```c
-        function setMinBalByDateRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
-        ```
     - Function to activate/deactivate the rule in an asset handler:
         ```c
-        function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateMinimumHoldTimeRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule in an asset handler:
         ```c
@@ -147,7 +107,7 @@ The following validation will be carried out by the create function in order to 
         ```
     - Function to get the rule Id from an asset handler:
         ```c
-        function getMinBalByDateRule() external view returns (uint32);
+        function getMinimumHoldTimeHours() external view returns (uint256);
         ```
 ## Return Data
 
@@ -155,26 +115,25 @@ This rule doesn't return any data.
 
 ## Data Recorded
 
-This rule doesn't require of any data to be recorded.
+This rule requires the unix timestamp for each tokenId each time the ownership of the token is transferred.
 
 ## Events
 
 - **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "MIN_ACCT_BAL_BY_DATE".
+        - ruleType: "MINIMUM_HOLD_TIME".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: the tags for each sub-rule.
 
 - **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - Parameters: 
-        - ruleType: "MIN_ACCT_BAL_BY_DATE".
+        - ruleType: "MINIMUM_HOLD_TIME".
         - handlerAddress: the address of the asset handler where the rule has been applied.
         - ruleId: the ruleId set for this rule in the handler.
 
-
 ## Dependencies
 
-- **Tags**: This rule relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
+- This rule has no dependencies.
 
