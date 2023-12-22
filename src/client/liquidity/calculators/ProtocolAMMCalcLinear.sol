@@ -20,10 +20,11 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator, IAMMCalculatorE
 
     using Curve for LinearFractionB;
 
-    uint256 constant Y_MAX = 100_000 * 10 ** 18;
-    uint256 constant M_MAX = 100 * 10 ** 8;
+    
     uint8 constant M_PRECISION_DECIMALS = 8;
-    uint8 constant B_PRECISION_DECIMALS = 18;
+    uint8 constant B_PRECISION_DECIMALS = 8;
+    uint256 constant Y_MAX = 100_000 * 10 ** 18;
+    uint256 constant M_MAX = 100 * 10 ** M_PRECISION_DECIMALS;
     LinearFractionB public curve;
 
     /**
@@ -59,9 +60,10 @@ contract ProtocolAMMCalcLinear is IProtocolAMMFactoryCalculator, IAMMCalculatorE
      * @return price
      */
     function simulateSwap(uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1) public view override returns (uint256) {
+        _reserve1;
         if (_amount0 == 0 && _amount1 == 0) 
             revert AmountsAreZero();
-        return curve.getY(_reserve0, _reserve1, _amount0, _amount1);
+        return curve.getY(_reserve0, _amount0, _amount1);
     }
 
     /**

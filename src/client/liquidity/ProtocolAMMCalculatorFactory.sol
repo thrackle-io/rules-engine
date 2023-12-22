@@ -10,6 +10,7 @@ import {ProtocolAMMCalcSample01} from "src/client/liquidity/calculators/Protocol
 import {LinearInput, ConstantRatio} from "./calculators/dataStructures/CurveDataStructures.sol";
 import {IZeroAddressError} from "src/common/IErrors.sol";
 import {IAMMFactoryEvents} from "src/common/IEvents.sol";
+import "./calculators/ProtocolAMMCalcMulCurves.sol";
 
 /**
  * @title Automated Market Maker Calculator Factory
@@ -83,5 +84,15 @@ contract ProtocolAMMCalculatorFactory is AppAdministratorOnly, IZeroAddressError
     function createSample01(int256 _f_tracker, int256 _g_tracker, address _appManagerAddress) external returns (address) {
         ProtocolAMMCalcSample01 protocolAMMCalcSample01 = new ProtocolAMMCalcSample01(_f_tracker, _g_tracker, _appManagerAddress);
         return address(protocolAMMCalcSample01);
+    }
+
+    /**
+     * @dev This creates a concentrated liquidity with multiple curves calculator.
+     * @param _appManagerAddress address of the application's appManager
+     * @return _calculatorAddress
+     */
+    function createMulCurves(address _appManagerAddress) external returns(address){
+        ProtocolAMMCalcMulCurves protocolAMMCalcMulCurves = new ProtocolAMMCalcMulCurves(0, _appManagerAddress);
+        return address(protocolAMMCalcMulCurves);
     }
 }
