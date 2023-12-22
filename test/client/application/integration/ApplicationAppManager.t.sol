@@ -1,66 +1,24 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "src/client/application/data/PauseRule.sol";
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import "src/client/application/data/GeneralTags.sol";
-import "src/client/application/data/PauseRules.sol";
-import "src/client/application/data/AccessLevels.sol";
-import "src/client/application/data/RiskScores.sol";
-import "src/client/application/data/Accounts.sol";
-import "src/client/application/data/IDataModule.sol";
-import "src/example/ERC20/ApplicationERC20.sol";
-import "src/example/ERC20/ApplicationERC20Handler.sol";
-import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import "src/example/ERC721/ApplicationERC721Handler.sol";
-import "src/example/liquidity/ApplicationAMMHandler.sol";
-import "src/client/token/IAdminWithdrawalRuleCapable.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationAppManagerTest is TestCommonFoundry {
-    ApplicationAppManager public applicationAppManager2;
 
-    ApplicationHandler public applicationHandler2;
-    bytes32 public constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
-    bytes32 public constant USER_ROLE = keccak256("USER");
-    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    bytes32 public constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
-    bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
-    bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
-    uint64 public constant TEST_DATE = 1666706998;
     uint8[] RISKSCORES = [10, 20, 30, 40, 50, 60, 70, 80];
     uint8[] ACCESSTIERS = [1, 1, 1, 2, 2, 2, 3, 4];
-    string tokenName = "FEUD";
 
     function setUp() public {
         vm.startPrank(superAdmin);
-        /// Set up the protocol and an applicationAppManager
-        setUpProtocolAndAppManager();
-        vm.stopPrank();
-        vm.startPrank(address(88));
-        applicationAppManager2 = new ApplicationAppManager(address(88), "Castlevania2", false);
-        applicationHandler2 = new ApplicationHandler(address(ruleProcessor), address(applicationAppManager2));
-        applicationAppManager2.setNewApplicationHandlerAddress(address(applicationHandler2));
-
+        setUpProtocolAndAppManagerAndTokens();
         switchToAppAdministrator();
-        /// add Risk Admin
-        applicationAppManager.addRiskAdmin(riskAdmin);
-        /// add rule Admin
-        applicationAppManager.addRuleAdministrator(ruleAdmin);
-
-        vm.warp(TEST_DATE); // set block.timestamp
+        vm.warp(Blocktime); // set block.timestamp
     }
 
     function testAppManagerAndHandlerVersions() public {
         string memory version = applicationAppManager.version();
         assertEq(version, "1.1.0");
         version = applicationHandler.version();
-        assertEq(version, "1.1.0");
-        version = applicationAppManager2.version();
-        assertEq(version, "1.1.0");
-        version = applicationHandler2.version();
         assertEq(version, "1.1.0");
     }
 
@@ -190,26 +148,12 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
 
     /// Test renounce Application Administrators role when Admin Withdrawal rule is active
     function testRenounceAppAdministratorAdminWithdrawalERC20() public {
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
         switchToAppAdministrator(); // create a app administrator and make it the sender.
 
-        // Deploy a fully configured ERC20
-        ApplicationERC20 applicationCoin = new ApplicationERC20("application", "FRANK", address(applicationAppManager));
-        ApplicationERC20Handler applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
-        applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
-        applicationAppManager.registerToken("FRANK", address(applicationCoin));
-
-        // Deploy a fully configured ERC721
-        ApplicationERC721 applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(applicationAppManager), "https://SampleApp.io");
-        ApplicationERC721Handler applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), false);
-        applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
-        applicationAppManager.registerToken("THRK", address(applicationNFT));
-
         // add admin withdrawal rule that covers current time period
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
+        switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
-
         // apply admin withdrawal rule to an ERC20
         applicationCoinHandler.setAdminWithdrawalRuleId(_index);
         switchToAppAdministrator(); // create a app administrator and make it the sender.
@@ -239,26 +183,12 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
 
     /// Test renounce Application Administrators role when Admin Withdrawal rule is active
     function testRenounceAppAdministratorAdminWithdrawalERC721() public {
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
         switchToAppAdministrator(); // create a app administrator and make it the sender.
 
-        // Deploy a fully configured ERC20
-        ApplicationERC20 applicationCoin = new ApplicationERC20("application", "FRANK", address(applicationAppManager));
-        ApplicationERC20Handler applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
-        applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
-        applicationAppManager.registerToken("FRANK", address(applicationCoin));
-
-        // Deploy a fully configured ERC721
-        ApplicationERC721 applicationNFT = new ApplicationERC721("PudgyParakeet", "THRK", address(applicationAppManager), "https://SampleApp.io");
-        ApplicationERC721Handler applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), false);
-        applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
-        applicationAppManager.registerToken("THRK", address(applicationNFT));
-
         // add admin withdrawal rule that covers current time period
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
+        switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
-
         // apply admin withdrawal rule to an ERC721
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
         switchToAppAdministrator(); // create a app administrator and make it the sender.
@@ -495,15 +425,9 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         assertEq(applicationAppManager.getAccessLevel(address(user)), 0);
 
         /// create mismatch tag array
-        uint8[] memory misMatchArray = new uint8[](2);
-        misMatchArray[0] = uint8(3);
-        misMatchArray[1] = uint8(77);
-
+        uint8[] memory misMatchArray = createUint8Array(3, 77);
         /// create mistmatch address array
-        address[] memory misMatchAddressArray = new address[](3);
-        misMatchAddressArray[0] = address(user);
-        misMatchAddressArray[1] = address(0xFF77);
-        misMatchAddressArray[2] = address(0xFF88);
+        address[] memory misMatchAddressArray = createAddressArray(user, address(0xFF77), address(0xFF88));
 
         vm.expectRevert(0x028a6c58);
         applicationAppManager.addMultipleAccessLevels(misMatchAddressArray, RISKSCORES);
@@ -556,15 +480,9 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         }
 
         /// create mismatch tag array
-        uint8[] memory misMatchArray = new uint8[](2);
-        misMatchArray[0] = uint8(3);
-        misMatchArray[1] = uint8(77);
-
+        uint8[] memory misMatchArray = createUint8Array(3, 77);
         /// create mistmatch address array
-        address[] memory misMatchAddressArray = new address[](3);
-        misMatchAddressArray[0] = address(user);
-        misMatchAddressArray[1] = address(0xFF77);
-        misMatchAddressArray[2] = address(0xFF88);
+        address[] memory misMatchAddressArray = createAddressArray(user, address(0xFF77), address(0xFF88));
         vm.expectRevert(0x028a6c58);
         applicationAppManager.addMultipleRiskScores(misMatchAddressArray, RISKSCORES);
         vm.expectRevert(0x028a6c58);
@@ -596,18 +514,18 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
     // Test setting/listing/removing pause rules
     function testAddPauseRule() public {
         switchToRuleAdmin();
-        applicationAppManager.addPauseRule(1769924800, 1769984800);
+        applicationAppManager.addPauseRule(1769955500, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
     }
 
     function testRemovePauseRule() public {
         switchToRuleAdmin();
-        applicationAppManager.addPauseRule(1769924800, 1769984800);
+        applicationAppManager.addPauseRule(1769955500, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
         assertTrue(applicationHandler.isPauseRuleActive() == true);
-        applicationAppManager.removePauseRule(1769924800, 1769984800);
+        applicationAppManager.removePauseRule(1769955500, 1769984800);
         PauseRule[] memory removeTest = applicationAppManager.getPauseRules();
         assertTrue(removeTest.length == 0);
         /// test that when all rules are removed the check is skipped in the handler
@@ -615,32 +533,32 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
     }
 
     function testAutoCleaningRules() public {
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
 
         switchToRuleAdmin();
-        applicationAppManager.addPauseRule(TEST_DATE + 100, TEST_DATE + 200);
+        applicationAppManager.addPauseRule(Blocktime + 100, Blocktime + 200);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         PauseRule[] memory noRule = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
         assertTrue(noRule.length == 1);
 
-        vm.warp(TEST_DATE + 201);
+        vm.warp(Blocktime + 201);
         console.log("block's timestamp", block.timestamp);
-        assertEq(block.timestamp, TEST_DATE + 201);
-        applicationAppManager.addPauseRule(TEST_DATE + 300, TEST_DATE + 400);
+        assertEq(block.timestamp, Blocktime + 201);
+        applicationAppManager.addPauseRule(Blocktime + 300, Blocktime + 400);
         test = applicationAppManager.getPauseRules();
         console.log("test2 length", test.length);
         noRule = applicationAppManager.getPauseRules();
         console.log("noRule2 length", noRule.length);
         assertTrue(test.length == 1);
         assertTrue(noRule.length == 1);
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
     }
 
     function testNonAdminAddingOrActivatingPauseRules() public {
         switchToUser();
         vm.expectRevert();
-        applicationAppManager.addPauseRule(1769924800, 1769984800);
+        applicationAppManager.addPauseRule(1769955500, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 0);
         vm.expectRevert("Ownable: caller is not the owner");
@@ -650,7 +568,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
     function testActivatePauseRulesFromAppManager() public {
         switchToRuleAdmin();
         /// add rule as rule admin
-        applicationAppManager.addPauseRule(1769924800, 1769984800);
+        applicationAppManager.addPauseRule(1769955500, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
         assertTrue(applicationHandler.isPauseRuleActive() == true);
@@ -661,15 +579,15 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         applicationAppManager.activatePauseRuleCheck(true);
         assertTrue(applicationHandler.isPauseRuleActive() == true);
         /// remove rule and ensure pause rule check is false
-        applicationAppManager.removePauseRule(1769924800, 1769984800);
+        applicationAppManager.removePauseRule(1769955500, 1769984800);
         assertTrue(applicationHandler.isPauseRuleActive() == false);
     }
 
     function testRuleSizeLimit() public {
         switchToRuleAdmin();
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
         for (uint8 i; i < 15; ) {
-            applicationAppManager.addPauseRule(TEST_DATE + (i + 1) * 10, TEST_DATE + (i + 2) * 10);
+            applicationAppManager.addPauseRule(Blocktime + (i + 1) * 10, Blocktime + (i + 2) * 10);
             unchecked {
                 ++i;
             }
@@ -677,49 +595,49 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 15);
         vm.expectRevert(0xd30bd9c5);
-        applicationAppManager.addPauseRule(TEST_DATE + 150, TEST_DATE + 160);
-        vm.warp(TEST_DATE);
+        applicationAppManager.addPauseRule(Blocktime + 150, Blocktime + 160);
+        vm.warp(Blocktime);
     }
 
     function testManualCleaning() public {
         switchToRuleAdmin();
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
         for (uint64 i; i < 15; ) {
-            applicationAppManager.addPauseRule(TEST_DATE + (i + 1) * 10, TEST_DATE + (i + 2) * 10);
+            applicationAppManager.addPauseRule(Blocktime + (i + 1) * 10, Blocktime + (i + 2) * 10);
             unchecked {
                 ++i;
             }
         }
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 15);
-        vm.warp(TEST_DATE + 200);
+        vm.warp(Blocktime + 200);
         applicationAppManager.cleanOutdatedRules();
         test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 0);
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
     }
 
     function testAnotherManualCleaning() public {
         switchToRuleAdmin();
-        vm.warp(TEST_DATE);
-        applicationAppManager.addPauseRule(TEST_DATE + 1000, TEST_DATE + 1010);
-        applicationAppManager.addPauseRule(TEST_DATE + 1020, TEST_DATE + 1030);
-        applicationAppManager.addPauseRule(TEST_DATE + 40, TEST_DATE + 45);
-        applicationAppManager.addPauseRule(TEST_DATE + 1060, TEST_DATE + 1070);
-        applicationAppManager.addPauseRule(TEST_DATE + 1080, TEST_DATE + 1090);
-        applicationAppManager.addPauseRule(TEST_DATE + 10, TEST_DATE + 20);
-        applicationAppManager.addPauseRule(TEST_DATE + 2000, TEST_DATE + 2010);
-        applicationAppManager.addPauseRule(TEST_DATE + 2020, TEST_DATE + 2030);
-        applicationAppManager.addPauseRule(TEST_DATE + 55, TEST_DATE + 66);
-        applicationAppManager.addPauseRule(TEST_DATE + 2060, TEST_DATE + 2070);
-        applicationAppManager.addPauseRule(TEST_DATE + 2080, TEST_DATE + 2090);
+        vm.warp(Blocktime);
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1030);
+        applicationAppManager.addPauseRule(Blocktime + 40, Blocktime + 45);
+        applicationAppManager.addPauseRule(Blocktime + 1060, Blocktime + 1070);
+        applicationAppManager.addPauseRule(Blocktime + 1080, Blocktime + 1090);
+        applicationAppManager.addPauseRule(Blocktime + 10, Blocktime + 20);
+        applicationAppManager.addPauseRule(Blocktime + 2000, Blocktime + 2010);
+        applicationAppManager.addPauseRule(Blocktime + 2020, Blocktime + 2030);
+        applicationAppManager.addPauseRule(Blocktime + 55, Blocktime + 66);
+        applicationAppManager.addPauseRule(Blocktime + 2060, Blocktime + 2070);
+        applicationAppManager.addPauseRule(Blocktime + 2080, Blocktime + 2090);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 11);
-        vm.warp(TEST_DATE + 150);
+        vm.warp(Blocktime + 150);
         applicationAppManager.cleanOutdatedRules();
         test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 8);
-        vm.warp(TEST_DATE);
+        vm.warp(Blocktime);
     }
 
     ///---------------GENERAL TAGS--------------------
@@ -747,25 +665,11 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
 
         /// Create Tag Array
-        bytes32[] memory genTags = new bytes32[](8);
-        genTags[0] = bytes32("TAG");
-        genTags[1] = bytes32("TAG1");
-        genTags[2] = bytes32("TAG2");
-        genTags[3] = bytes32("TAG3");
-        genTags[4] = bytes32("TAG4");
-        genTags[5] = bytes32("TAG5");
-        genTags[6] = bytes32("TAG6");
-        genTags[7] = bytes32("TAG7");
+        bytes32[] memory genTags = createBytes32Array(bytes32("TAG"), bytes32("TAG1"), bytes32("TAG2"), bytes32("TAG3"), bytes32("TAG4"), bytes32("TAG5"), bytes32("TAG6"), bytes32("TAG7"));
         /// create mismatch tag array
-        bytes32[] memory misMatchArray = new bytes32[](2);
-        misMatchArray[0] = bytes32("TAG");
-        misMatchArray[1] = bytes32("TAG1");
-
+        bytes32[] memory misMatchArray = createBytes32Array("TAG1", "TAG2");
         /// create mistmatch address array
-        address[] memory misMatchAddressArray = new address[](3);
-        misMatchAddressArray[0] = address(user);
-        misMatchAddressArray[1] = address(0xFF77);
-        misMatchAddressArray[2] = address(0xFF88);
+        address[] memory misMatchAddressArray = createAddressArray(user, address(0xFF77), address(0xFF88));
 
         applicationAppManager.addMultipleGeneralTagToMultipleAccounts(ADDRESSES, genTags); //add tags
         assertTrue(applicationAppManager.hasTag(address(0xFF1), "TAG"));
@@ -813,12 +717,8 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         /// add one tag to multiple addresses
         applicationAppManager.addGeneralTagToMultipleAccounts(ADDRESSES, "TAG2"); //add tags
         /// add multiple tags to multiple addresses
-        address[] memory addresses = new address[](2);
-        addresses[0] = address(0xBABE);
-        addresses[1] = address(0xDADD);
-        bytes32[] memory tags = new bytes32[](2);
-        tags[0] = bytes32("BABE");
-        tags[1] = bytes32("DADD");
+        address[] memory addresses = createAddressArray(address(0xBABE), address(0xDADD));
+        bytes32[] memory tags = createBytes32Array(bytes32("BABE"), bytes32("DADD"));
 
         applicationAppManager.addMultipleGeneralTagToMultipleAccounts(addresses, tags);
 
@@ -918,7 +818,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         // test updating the token's name
         applicationAppManager.registerToken("FRANCISCOSTEIN", address(applicationCoin));
         assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANCISCOSTEIN"));
-        // back to black
+        // // back to black
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
         assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANK"));
 
@@ -926,25 +826,25 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         applicationAppManager.deregisterToken("FRANK");
         assertEq(address(0), applicationAppManager.getTokenAddress("FRANK"));
         address[] memory list = applicationAppManager.getTokenList();
-        assertEq(list.length, 3);
+        assertEq(list.length, 5);
 
-        // deregister the last coin
+        // deregister coinB
         applicationAppManager.deregisterToken("CoinB");
         assertEq(address(0), applicationAppManager.getTokenAddress("CoinB"));
         list = applicationAppManager.getTokenList();
-        assertEq(list.length, 2);
+        assertEq(list.length, 4);
 
-        // deregister the first coin again
+        // deregister CoinC
         applicationAppManager.deregisterToken("CoinC");
         assertEq(address(0), applicationAppManager.getTokenAddress("CoinC"));
         list = applicationAppManager.getTokenList();
-        assertEq(list.length, 1);
+        assertEq(list.length, 3);
 
-        // deregister the only coin
+        // deregister CoinA
         applicationAppManager.deregisterToken("CoinA");
         assertEq(address(0), applicationAppManager.getTokenAddress("CoinA"));
         list = applicationAppManager.getTokenList();
-        assertEq(list.length, 0);
+        assertEq(list.length, 2);
     }
 
     /// Test the register AMM.
@@ -1048,7 +948,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         assertTrue(applicationAppManager.hasTag(upgradeUser2, "TAG2"));
         /// Pause Rule Data
         switchToRuleAdmin();
-        applicationAppManager.addPauseRule(1769924800, 1769984800);
+        applicationAppManager.addPauseRule(1769955500, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
         assertTrue(test.length == 1);
 

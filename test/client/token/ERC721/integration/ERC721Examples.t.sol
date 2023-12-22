@@ -1,19 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "src/example/OracleDenied.sol";
-import "src/example/OracleAllowed.sol";
-import {ApplicationERC721 as MintForAFeeERC721} from "src/example/ERC721/ApplicationERC721MintForAFee.sol";
-import {ApplicationERC721 as WhitelistMintERC721} from "src/example/ERC721/ApplicationERC721WhitelistMint.sol";
-import {ApplicationERC721 as FreeForAllERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
-import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
-import {ApplicationERC721Upgradeable as MintForAFeeERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgMintForAFee.sol";
-import {ApplicationERC721Upgradeable as WhitelistMintERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
-import {ApplicationERC721Upgradeable as FreeForAllERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol";
-import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
-import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
-import "test/util/ApplicationERC721WithBatchMintBurn.sol";
 import "test/util/TestCommonFoundry.sol";
 
 interface NFT {
@@ -45,89 +32,14 @@ contract DummyTreasury {
 }
 
 contract ApplicationERC721ExampleTest is TestCommonFoundry {
-    OracleDenied oracleDenied;
-    OracleAllowed oracleAllowed;
-    ApplicationERC721HandlerMod newAssetHandler;
-    MintForAFeeERC721 mintForAFeeNFT;
-    WhitelistMintERC721 whitelistMintNFT;
-    FreeForAllERC721 freeNFT;
-    MintForAFeeERC721Upgradeable mintForAFeeNFTUpImplementation;
-    WhitelistMintERC721Upgradeable whitelistMintNFTUpImplementation;
-    FreeForAllERC721Upgradeable freeNFTUpImplementation;
-    ApplicationERC721UProxy mintForAFeeNFTUp;
-    ApplicationERC721UProxy whitelistMintNFTUp;
-    ApplicationERC721UProxy freeNFTUp;
-    ApplicationERC721Handler MintForAFeeNFTHandler;
-    ApplicationERC721Handler WhitelistNFTHandler;
-    ApplicationERC721Handler FreeForAllnNFTHandler;
-    ApplicationERC721Handler MintForAFeeNFTHandlerUp;
-    ApplicationERC721Handler WhitelistNFTHandlerUp;
-    ApplicationERC721Handler FreeForAllnNFTHandlerUp;
 
-    address rich_user = address(44);
-    address proxyOwner = address(0xBABE666);
-    address user1 = address(0xa1);
-    address user2 = address(0xb2);
-    address user3 = address(0xc3);
-    address ac;
-    address[] badBoys;
-    address[] goodBoys;
 
     function setUp() public {
         vm.warp(Blocktime);
         vm.startPrank(appAdministrator);
-        setUpProtocolAndAppManagerAndTokens();
+        setUpProtocolAndAppManagerAndTokensForExampleTest();
         switchToAppAdministrator();
 
-        /// create ERC721 examples
-        mintForAFeeNFT = new MintForAFeeERC721("BlindSailers", "BSL", address(applicationAppManager), "blindsailers.com/iseeyou", 1 ether);
-        whitelistMintNFT = new WhitelistMintERC721("MonkeysPlayingInBonsaiTrees", "MBT", address(applicationAppManager), "monkeysdontknowwhattodo.com/havingfun", 2);
-        freeNFT = new FreeForAllERC721("ParkinsonBarbers", "PKB", address(applicationAppManager), "bloodinmyhands.com/bookyourcut");
-
-        MintForAFeeNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(mintForAFeeNFT), false);
-        mintForAFeeNFT.connectHandlerToToken(address(MintForAFeeNFTHandler));
-        WhitelistNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(whitelistMintNFT), false);
-        whitelistMintNFT.connectHandlerToToken(address(WhitelistNFTHandler));
-        FreeForAllnNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(freeNFT), false);
-        freeNFT.connectHandlerToToken(address(FreeForAllnNFTHandler));
-
-        applicationAppManager.registerToken("BlindSailers", address(mintForAFeeNFT));
-        applicationAppManager.registerToken("MonkeysPlayingInBonsaiTrees", address(whitelistMintNFT));
-        applicationAppManager.registerToken("ParkinsonBarbers", address(freeNFT));
-
-        /// create ERC721 examples upgradeable
-        mintForAFeeNFTUpImplementation = new MintForAFeeERC721Upgradeable();
-        whitelistMintNFTUpImplementation = new WhitelistMintERC721Upgradeable();
-        freeNFTUpImplementation = new FreeForAllERC721Upgradeable();
-
-        mintForAFeeNFTUp = new ApplicationERC721UProxy(address(mintForAFeeNFTUpImplementation), proxyOwner, "");
-        whitelistMintNFTUp = new ApplicationERC721UProxy(address(whitelistMintNFTUpImplementation), proxyOwner, "");
-        freeNFTUp = new ApplicationERC721UProxy(address(freeNFTUpImplementation), proxyOwner, "");
-
-        MintForAFeeERC721Upgradeable(payable(address(mintForAFeeNFTUp))).initialize("BlindSailersUp", "BSLU", address(applicationAppManager), "blindsailers.com/iseeyou", 1 ether);
-        WhitelistMintERC721Upgradeable(payable(address(whitelistMintNFTUp))).initialize(
-            "MonkeysPlayingInBonsaiTreesUp",
-            "MBTU",
-            address(applicationAppManager),
-            "monkeysdontknowwhattodo.com/havingfun",
-            2
-        );
-        FreeForAllERC721Upgradeable(payable(address(freeNFTUp))).initialize("ParkinsonBarbersUp", "PKBU", address(applicationAppManager), "bloodinmyhands.com/bookyourcut");
-
-        MintForAFeeNFTHandlerUp = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(mintForAFeeNFTUp), false);
-        MintForAFeeERC721Upgradeable(payable(address(mintForAFeeNFTUp))).connectHandlerToToken(address(MintForAFeeNFTHandlerUp));
-        WhitelistNFTHandlerUp = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(whitelistMintNFTUp), false);
-        WhitelistMintERC721Upgradeable(payable(address(whitelistMintNFTUp))).connectHandlerToToken(address(WhitelistNFTHandlerUp));
-        FreeForAllnNFTHandlerUp = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(freeNFTUp), false);
-        FreeForAllERC721Upgradeable(payable(address(freeNFTUp))).connectHandlerToToken(address(FreeForAllnNFTHandlerUp));
-
-        applicationAppManager.registerToken("BlindSailersUp", address(mintForAFeeNFTUp));
-        applicationAppManager.registerToken("MonkeysPlayingInBonsaiTreesUp", address(whitelistMintNFTUp));
-        applicationAppManager.registerToken("ParkinsonBarbersUp", address(freeNFTUp));
-
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleDenied = new OracleDenied();
     }
 
     function testERC721AndHandlerVersions() public {
