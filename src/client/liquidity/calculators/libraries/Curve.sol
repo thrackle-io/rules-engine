@@ -1,7 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import {LinearWholeB, LinearFractionB, Sample01Struct, LinearInput, ConstantRatio, ConstantProduct} from "../dataStructures/CurveDataStructures.sol";
+import {
+    LinearWholeB, 
+    LinearFractionB, 
+    Sample01Struct, 
+    LinearInput, 
+    ConstantRatio, 
+    ConstantProduct, 
+    ConstantProductK
+} from "../dataStructures/CurveDataStructures.sol";
 import {AMMMath} from "./AMMMath.sol";
 
 /**
@@ -12,12 +20,13 @@ import {AMMMath} from "./AMMMath.sol";
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
 library Curve {
+
     using AMMMath for uint256;
     uint256 constant ATTO = 10 ** 18;
     error InsufficientPoolDepth();
 
 
-    /// <<<<<<<< LinearWholeB >>>>>>>>>>
+    /// ~~~~~~~~~~~~~~ LinearWholeB ~~~~~~~~~~~~~~
     /**
     * @dev calculates ƒ(x) for linear curve. 
     * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den.
@@ -34,7 +43,6 @@ library Curve {
     function integral(LinearWholeB memory line, uint256 x) internal pure returns(uint256 a){
        /// a = (((line.m_num * line.m_num) / (line.m_den * line.m_den)) * (x * x) * ATTO) + (line.b * x);
     }
-
     /**
     * @dev creates a LinearWholeB curve from a user's LinearInput. This mostly means that m is represented now by m_num/m_den.
     * @param line the LinearWholeB in storage that will be built from the input.
@@ -55,28 +63,24 @@ library Curve {
 
 
 
-    /// <<<<<<<< LinearFractionB >>>>>>>>>>
+    /// ~~~~~~~~~~~~~~ LinearFractionB ~~~~~~~~~~~~~~
     /**
     * @dev calculates ƒ(x) for linear curve. 
     * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den.
     * @param line the LinearWholeB curve or function *ƒ*
     * @param _amount0 the token0s received 
     * @param _amount1 the token1s received 
-    * @param _reserve0 reserves of token0  
-    * @param _reserve1 reserves of token1 
+    * @param x_0 tracker of x or amount of reserves in token0
     * @return y the value of ƒ(x) on the ordinate axis in ATTOs
     */
-    function getY(LinearFractionB memory line, uint256 _reserve0, uint256 _reserve1, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
+    function getY(LinearFractionB memory line, uint256 x_0, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
         if (_amount0 != 0) {
-            y = (((3 * _amount0) / 2) + ((line.m_num * ((2 * _reserve0 * _amount0) + _amount0 ** 2))) / ((2 * 10 ** 18) * line.m_den)); 
+            y = (((line.b_num * _amount0) / line.b_den) + ((line.m_num * ((2 * x_0 * _amount0) - _amount0 ** 2))) / ((2 * ATTO) * line.m_den)); 
         } else {
-            y = ((2 * (10 ** 9)) * (_amount1 * line.b_den) * line.m_den.sqrt()) /
-                ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * _reserve1 * line.m_num * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (_reserve1 - _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
+            uint y_0 = (line.b_num * x_0) / (line.b_den) + (((x_0 ** 2) * line.m_num) / (2 * line.m_den)) / ATTO;
+             y = ((2 * (10 ** 9)) * (_amount1 * line.b_den) * (line.m_den).sqrt()) /
+                ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * y_0 * line.m_num * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (y_0 + _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
         }
-    }
-    
-    function integral(LinearFractionB memory line, uint256 x) internal pure returns(uint256 a){
-       /// a = (((line.m_num * line.m_num) / (line.m_den * line.m_den)) * (x * x) * ATTO) + (line.b * x);
     }
 
     /**
@@ -87,7 +91,6 @@ library Curve {
     * @param precisionDecimals_b the amount of precision decimals that the input's intersection with the Y axis is formatted with.
     */
     function fromInput(LinearFractionB storage line, LinearInput memory input, uint256 precisionDecimals_m, uint256 precisionDecimals_b) internal {
-
         // if precisionDecimals is even, then we simply save input's m as numerator, and we make the denominator to have as many
         // zeros as *precisionDecimals*. This will make sure that m is a perfect square
         if (precisionDecimals_m % 2 == 0) {
@@ -111,7 +114,7 @@ library Curve {
 
 
 
-    /// <<<<<<<< ConstantRatio >>>>>>>>>>
+    /// ~~~~~~~~~~~~~~ ConstantRatio ~~~~~~~~~~~~~~
     /**
     * @dev calculates ƒ(amountIn) for a constant-ratio AMM. 
     * @param cr the values of x and y for the constant ratio.
@@ -135,7 +138,7 @@ library Curve {
 
 
 
-    /// <<<<<<<< ConstantProduct >>>>>>>>>>
+    /// ~~~~~~~~~~~~~~ ConstantProduct ~~~~~~~~~~~~~~
     /**
     * @dev calculates ƒ(amountIn) for a constant-product AMM. 
     *      Based on (x + a) * (y - b) = x * y
@@ -146,22 +149,44 @@ library Curve {
     *      b = _amount1
     *      k = _reserve0 * _reserve1
     *
-    * @param constatProduct the values of x and y for the constant product.
+    * @param constantProduct the values of x and y for the constant product.
     * @param _amount0 the amount received of token0
     * @param _amount1 the amount received of token1
     * @return amountOut
     */
-    function getY(ConstantProduct memory constatProduct, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 amountOut){
+    function getY(ConstantProduct memory constantProduct, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 amountOut){
         if (_amount0 == 0) {
-            amountOut =  (_amount1 * constatProduct.x ) / (constatProduct.y + _amount1);
+            amountOut =  (_amount1 * constantProduct.x ) / (constantProduct.y + _amount1);
         } else {
-            amountOut = (_amount0 * constatProduct.y ) / (constatProduct.x + _amount0);
+            amountOut = (_amount0 * constantProduct.y ) / (constantProduct.x + _amount0);
         }
     }
 
 
 
-    /// <<<<<<<< Sample01Struct >>>>>>>>>>
+    /* @dev calculates x or y from a constant k:
+    *
+    *       x * y = k
+    * x = k / y  - or -  y = k / x
+    *
+    * @param cp ConstantProductK that represents the curve of the constant product
+    * @param x the known value of reserves0
+    * @param _amount0 the amount received of token0
+    * @param _amount1 the amount received of token1
+    * @return amountOut 
+    */
+    function getY(ConstantProductK memory cp, uint256 x, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 amountOut){
+        uint y = cp.k / x;
+        if (_amount0 == 0) {
+            amountOut =  (_amount1 * x ) / (y + _amount1);
+        } else {
+            amountOut = (_amount0 * y ) / (x + _amount0);
+        }
+    }
+
+
+
+    /// ~~~~~~~~~~~~~~ Sample01Struct ~~~~~~~~~~~~~~
     function getY(Sample01Struct memory curve, bool isSwap1For0)  internal pure returns(uint256 amountOut){
         if (isSwap1For0) {
             uint256 deltaYSquareRoot = uint(curve.tracker + int(curve.amountIn )).sqrt();

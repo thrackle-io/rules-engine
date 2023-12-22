@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import {AMMCalculatorErrors, IZeroAddressError} from "src/common/IErrors.sol";
+import {AMMCalculatorErrors, IZeroAddressError, IInputErrors} from "src/common/IErrors.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 
 /**
@@ -11,7 +11,7 @@ import "src/protocol/economic/AppAdministratorOnly.sol";
  *      as needed.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-abstract contract IProtocolAMMFactoryCalculator is AppAdministratorOnly, AMMCalculatorErrors, IZeroAddressError {
+abstract contract IProtocolAMMFactoryCalculator is AppAdministratorOnly, AMMCalculatorErrors, IZeroAddressError, IInputErrors {
     address public appManagerAddress;
 
     /**

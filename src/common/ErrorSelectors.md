@@ -136,3 +136,4 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x4127494b | NotTheOwnerOfNFT(uint256)                                        |
 | 0x899f98c8 | NotEnoughTokensForSwap(uint256,uint256)                          |
 | 0xad13466c | NotEnumerable()                                                  |
+| 0xfdea7c09 | InvalidCurveType()                                               |
