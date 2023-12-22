@@ -1,19 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Script.sol";
-import "forge-std/Test.sol";
-
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import "src/example/OracleDenied.sol";
-import "src/example/OracleAllowed.sol";
-import "src/client/token/data/Fees.sol";
 import "test/util/TestCommonFoundry.sol";
 
 /**
@@ -24,32 +11,14 @@ import "test/util/TestCommonFoundry.sol";
  * @notice It simulates the input from a token contract
  */
 contract ApplicationERC20HandlerTest is TestCommonFoundry {
-    address user1 = address(1);
-    address user2 = address(2);
-    address accessTier = address(3);
-    address[] badBoys;
-    address[] goodBoys;
-    OracleDenied oracleDenied;
-    OracleAllowed oracleAllowed;
-    ApplicationERC20Handler applicationCoinHandlerSpecialOwner;
+
 
     function setUp() public {
         vm.warp(Blocktime);
         vm.startPrank(superAdmin);
-        setUpProtocolAndAppManagerAndTokens();
+        setUpProcotolAndCreateERC20AndHandlerSpecialOwner();
         switchToAppAdministrator();
-        /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
-        /// requires a token be attached and registered for permissions in appManager
-        // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
-        applicationCoinHandlerSpecialOwner = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), appAdministrator, false);
-        // create the ERC20 and connect it to its handler
-        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        applicationCoin.connectHandlerToToken(address(applicationCoinHandlerSpecialOwner));
-        /// register the token
-        applicationAppManager.registerToken("FRANK", address(applicationCoin));
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleDenied = new OracleDenied();
+
     }
 
     ///Test Fee Data setting/getting
@@ -178,79 +147,39 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
     ///Test risk score max size of 99 when adding risk rules
     function testRiskScoreRiskLevelMaxSize() public {
-        ///add txnLimit passing (less than 100)
-        uint48[] memory _maxSize = new uint48[](3);
-        uint8[] memory _riskLevel = new uint8[](3);
-
-        _maxSize[0] = 1000000;
-        _maxSize[1] = 10000;
-        _maxSize[2] = 10;
-        _riskLevel[0] = 25;
-        _riskLevel[1] = 50;
-        _riskLevel[2] = 75;
+        uint48[] memory _maxSize = createUint48Array(1000000, 10000, 10); 
+        uint8[] memory _riskLevel = createUint8Array(25, 50, 75);
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
         ///Activate rule
         applicationCoinHandlerSpecialOwner.setTransactionLimitByRiskRuleId(ruleId);
         ///add txnLimit failing (risk level 100)
-        uint48[] memory maxSize = new uint48[](3);
-        uint8[] memory riskLevel = new uint8[](3);
-
-        maxSize[0] = 1000000;
-        maxSize[1] = 10000;
-        maxSize[2] = 10;
-        riskLevel[0] = 25;
-        riskLevel[1] = 75;
-        riskLevel[2] = 100;
+        uint48[] memory maxSize = createUint48Array(1000000, 10000, 10);
+        uint8[] memory riskLevel = createUint8Array(25, 75, 100);
         vm.expectRevert();
         TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskLevel, maxSize);
 
         ///add balanceLimit passing (less than 100)
-        uint8[] memory _riskScores = new uint8[](5);
-        uint48[] memory _balanceLimits = new uint48[](5);
-        _riskScores[0] = 0;
-        _riskScores[1] = 10;
-        _riskScores[2] = 40;
-        _riskScores[3] = 80;
-        _riskScores[4] = 99;
-        _balanceLimits[0] = 100000;
-        _balanceLimits[1] = 10000;
-        _balanceLimits[2] = 1000;
-        _balanceLimits[3] = 100;
-        _balanceLimits[4] = 1;
-
+        uint8[] memory _riskScores = createUint8Array(25, 50, 75);
+        uint48[] memory _balanceLimits = createUint48Array(1000000, 10000, 10);
         AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), _riskScores, _balanceLimits);
 
         ///add balanceLimit failing (risk level 100)
-        uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory balanceLimits = new uint48[](5);
-        riskScores[0] = 0;
-        riskScores[1] = 10;
-        riskScores[2] = 40;
-        riskScores[3] = 80;
-        riskScores[4] = 100;
-        balanceLimits[0] = 100000;
-        balanceLimits[1] = 10000;
-        balanceLimits[2] = 1000;
-        balanceLimits[3] = 100;
-        balanceLimits[4] = 1;
-
+        uint8[] memory riskScores = createUint8Array(25, 50, 100);
+        uint48[] memory balanceLimits = createUint48Array(1000000, 10000, 10);
         vm.expectRevert();
         AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
     }
 
     /// now disable since it won't work unless an ERC20 is using it
     function testTaggedCheckForMinMaxBalancePasses() public {
-        bytes32[] memory _accountTypes = new bytes32[](1);
-        uint256[] memory _minimum = new uint256[](1);
-        uint256[] memory _maximum = new uint256[](1);
+        bytes32[] memory _accountTypes = createBytes32Array("BALLER");
+        uint256[] memory _minimum = createUint256Array(10);
+        uint256[] memory _maximum = createUint256Array(1000);
 
         /// Set the min/max rule data
         applicationAppManager.addGeneralTag(user1, "BALLER");
         applicationAppManager.addGeneralTag(user2, "BALLER");
-        _accountTypes[0] = "BALLER";
-        _minimum[0] = 10;
-        _maximum[0] = 1000;
         // add the rule.
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
@@ -317,16 +246,13 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
     /// now disable since it won't work unless an ERC20 is using it
     function testTurningOnOffRules() public {
-        bytes32[] memory _accountTypes = new bytes32[](1);
-        uint256[] memory _minimum = new uint256[](1);
-        uint256[] memory _maximum = new uint256[](1);
+        bytes32[] memory _accountTypes = createBytes32Array("BALLER");
+        uint256[] memory _minimum = createUint256Array(10);
+        uint256[] memory _maximum = createUint256Array(1000);
 
         /// Set the min/max rule data
         applicationAppManager.addGeneralTag(user1, "BALLER");
         applicationAppManager.addGeneralTag(user2, "BALLER");
-        _accountTypes[0] = "BALLER";
-        _minimum[0] = 10;
-        _maximum[0] = 1000;
         // add the rule.
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
