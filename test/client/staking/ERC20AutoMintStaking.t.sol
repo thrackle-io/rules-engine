@@ -1,15 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "src/example/ERC20/ApplicationERC20.sol";
-import "src/example/application/ApplicationAppManager.sol";
-import "src/example/application/ApplicationHandler.sol";
-import "test/protocol/diamond/util/DiamondTestUtil.sol";
-import "src/example/ERC20/ApplicationERC20Handler.sol";
-import "test/protocol/economic/util/RuleProcessorDiamondTestUtil.sol";
 import "src/example/staking/ERC20AutoMintStaking.sol";
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
+import "test/util/TestCommonFoundry.sol";
 
 /**
  * @title Test ERC20 Auto Mint Rewards Staking Contract
@@ -17,55 +10,36 @@ import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRul
  * @dev Rewards are calculated at stake and minted to user at claim.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract ERC20AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestUtil {
+contract ERC20AutoMintStakingTest is TestCommonFoundry {
     ApplicationERC20 stakingCoin;
     ApplicationERC20 rewardCoin;
-    RuleProcessorDiamond ruleProcessor;
-    ApplicationERC20Handler applicationCoinHandler;
-    ApplicationERC20Handler applicationCoinHandler2;
-    ApplicationAppManager appManager;
-
-    ApplicationHandler public applicationHandler;
-
     ERC20AutoMintStaking stakingContract;
 
-    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    address user1 = address(0xAAA);
-    address user2 = address(0xBBB);
-    address user3 = address(0xCCC);
-    address rich_user = address(0xDDD);
-    uint256 Blocktime = 1675723152;
     uint128[7] ruleAArray = [1, 60, 3600, 86400, 604800, 2592000, 31536000];
     uint128[7] ruleBArray = [0, 1, 60, 1440, 10080, 43200, 525600];
     uint256[7] timeUnits = [1, 1 minutes, 1 hours, 1 days, 1 weeks, 30 days, 365 days];
 
     function setUp() public {
         vm.startPrank(superAdmin);
-        // Deploy the token rule processor diamond
-        ruleProcessor = getRuleProcessorDiamond();
-        // Deploy app manager
-        appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
-        // add the DEAD address as a app administrator
-        appManager.addAppAdministrator(appAdministrator);
-        applicationHandler = new ApplicationHandler(address(ruleProcessor), address(appManager));
-        appManager.setNewApplicationHandlerAddress(address(applicationHandler));
+        setUpProtocolAndAppManagerAndTokens();
+        switchToAppAdministrator();
         // Create two tokens and mint a bunch
-        stakingCoin = new ApplicationERC20("stakingCoin", "STK", address(appManager));
-        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(stakingCoin), false);
+        stakingCoin = new ApplicationERC20("stakingCoin", "STK", address(applicationAppManager));
+        applicationCoinHandler = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(stakingCoin), false);
         stakingCoin.connectHandlerToToken(address(applicationCoinHandler));
-        appManager.registerToken("stakingCoin", address(stakingCoin));
+        applicationAppManager.registerToken("stakingCoin", address(stakingCoin));
         stakingCoin.mint(user1, 2_000_000_000_000_000_000_000_000);
 
-        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(appManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(appManager), address(rewardCoin), false);
+        rewardCoin = new ApplicationERC20("rewardCoin", "RWD", address(applicationAppManager));
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(rewardCoin), false);
         rewardCoin.connectHandlerToToken(address(applicationCoinHandler2));
-        appManager.registerToken("rewardCoin", address(rewardCoin));
-        stakingContract = new ERC20AutoMintStaking(address(rewardCoin), address(stakingCoin), address(appManager));
+        applicationAppManager.registerToken("rewardCoin", address(rewardCoin));
+        stakingContract = new ERC20AutoMintStaking(address(rewardCoin), address(stakingCoin), address(applicationAppManager));
 
         stakingContract.updateMinStakeAllowed(1000);
         stakingContract.updateRewardsPerMillStakedPerTimeUnit(ruleAArray); //1 per mill per sec -> 3153% APY
         /// Register stakingContract for Minting
-        appManager.registerStaking(address(stakingContract));
+        applicationAppManager.registerStaking(address(stakingContract));
         vm.warp(Blocktime);
     }
 
@@ -155,10 +129,13 @@ contract ERC20AutoMintStakingTest is DiamondTestUtil, RuleProcessorDiamondTestUt
 
         if (amountA < 1000 || rewardsA == 0) vm.expectRevert();
         stakingContract.stake(amountA, unitsOfTime, forXUnitsOfTime);
+        switchToAppAdministrator();
         /// making sure that updating the rule after staking doesn't affect the past one
         stakingContract.updateMinStakeAllowed(2_000_000);
         stakingContract.updateRewardsPerMillStakedPerTimeUnit(ruleBArray); //1 per mill per minute -> 52.5%APY
 
+        vm.stopPrank();
+        vm.startPrank(user1);
         if (amountA >= 1000 && rewardsA != 0) {
             stakingContract.stakesPerAddress(user1, 0);
             assertEq(stakingCoin.balanceOf(user1), 2_000_000_000_000_000_000_000_000 - amountA);

@@ -23,25 +23,11 @@ import {ConstantRatio} from "src/client/liquidity/calculators/dataStructures/Cur
  * @notice It simulates the input from a token contract and the AMM contract
  */
 contract ApplicationAMMHandlerTest is TestCommonFoundry {
-    address rich_user = address(44);
-    address user1 = address(0x111);
-    address user2 = address(0x222);
-    address user3 = address(0x333);
-    address user4 = address(0x444);
-    address[] badBoys;
-    address[] goodBoys;
-    ApplicationAMMHandler applicationAMMHandler;
-    OracleDenied oracleRestricted;
-    OracleAllowed oracleAllowed;
 
     function setUp() public {
         vm.startPrank(superAdmin);
         setUpProtocolAndAppManagerAndTokens();
         switchToAppAdministrator();
-
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleDenied();
 
         /// Set up the AMM
         protocolAMMFactory = createProtocolAMMFactory();

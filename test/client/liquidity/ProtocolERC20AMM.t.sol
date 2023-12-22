@@ -1,21 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "src/client/liquidity/ProtocolERC20AMM.sol";
 import "src/client/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
-import "src/example/OracleDenied.sol";
-import "src/example/OracleAllowed.sol";
 import "test/util/TestCommonFoundry.sol";
 import {ApplicationAMMHandler} from "src/example/liquidity/ApplicationAMMHandler.sol";
 import {ApplicationAMMHandlerMod} from "test/util/ApplicationAMMHandlerMod.sol";
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {FeeRuleDataFacet} from "src/protocol/economic/ruleProcessor/FeeRuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import {ConstantRatio} from "src/client/liquidity/calculators/dataStructures/CurveDataStructures.sol";
 
 /**
@@ -25,22 +14,6 @@ import {ConstantRatio} from "src/client/liquidity/calculators/dataStructures/Cur
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
 contract ProtocolERC20AMMTest is TestCommonFoundry {
-    ApplicationAMMHandler handler;
-    OracleDenied oracleDenied;
-    OracleAllowed oracleAllowed;
-    ApplicationAMMHandler applicationAMMHandler;
-    ApplicationAMMHandlerMod newAssetHandler;
-    ProtocolAMMCalculatorFactory factory;
-
-    address rich_user = address(44);
-    address treasuryAddress = address(55);
-    address user1 = address(0x111);
-    address user2 = address(0x222);
-    address user3 = address(0x333);
-    address user4 = address(0x444);
-    address[] badBoys;
-    address[] goodBoys;
-    address[] addresses = [user1, user2, user3, rich_user];
 
     function setUp() public {
         vm.startPrank(superAdmin);

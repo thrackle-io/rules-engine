@@ -17,7 +17,6 @@ import {ConstantRatio, LinearInput} from "src/client/liquidity/calculators/dataS
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
 contract ProtocolAMMCalcFactoryTest is TestCommonFoundry {
-    ProtocolAMMCalculatorFactory factory;
 
     function setUp() public {
         vm.startPrank(superAdmin);

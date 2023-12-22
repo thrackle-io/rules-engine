@@ -125,7 +125,6 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
         uint256[] memory pAmounts = createUint256Array(1000, 2000, 3000);
         uint16[] memory pPeriods = createUint16Array(100, 101, 102);
-        uint64[] memory sTimes = createUint64Array(8, 12, 16);
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         // uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTimes);
@@ -159,7 +158,6 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
         uint256[] memory pAmounts = createUint256Array(1000, 2000, 3000);
         uint16[] memory pPeriods = createUint16Array(100, 101, 102);
-        uint64[] memory sTimes = createUint64Array(8, 12, 16);
         // set user to the super admin
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -180,8 +178,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
         uint256[] memory pAmounts = createUint256Array(1000, 2000, 3000);
-        uint16[] memory pPeriods = createUint16Array(100, 101, 102);
-        uint64[] memory sTimes = createUint64Array(24, 36);
+        uint16[] memory pPeriods = createUint16Array(100, 102);
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, uint64(Blocktime));
     }
@@ -194,7 +191,6 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar");   
         uint256[] memory pAmounts = createUint256Array(1000);
         uint16[] memory pPeriods = createUint16Array(100);
-        uint64[] memory sTimes = createUint64Array(12);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, uint64(Blocktime));
         }
@@ -210,7 +206,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
         uint192[] memory sAmounts = createUint192Array(1000, 2000, 3000);
         uint16[] memory sPeriod = createUint16Array(24, 36, 48);
-        uint64[] memory sTimes = createUint64Array(Blocktime, Blocktime, Blocktime);
+        uint64 sTimes = Blocktime;
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, sTimes);
         assertEq(_index, 0);
 
@@ -237,7 +233,6 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
         uint192[] memory sAmounts = createUint192Array(1000, 2000, 3000);
         uint16[] memory sPeriod = createUint16Array(24, 36, 48);
-        uint64[] memory sTimes = createUint64Array(Blocktime, Blocktime, Blocktime);
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -258,7 +253,6 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler");   
         uint192[] memory sAmounts = createUint192Array(1000, 2000, 3000);
         uint16[] memory sPeriod = createUint16Array(24, 36, 48);
-        uint64[] memory sTimes = createUint64Array(Blocktime, Blocktime, Blocktime);
         vm.expectRevert(0x028a6c58);
         TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, uint64(Blocktime));
     }
@@ -271,7 +265,6 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar");
         uint192[] memory sAmounts = createUint192Array(1000);
         uint16[] memory sPeriod = createUint16Array(24);
-        uint64[] memory sTimes = createUint64Array(Blocktime);
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sAmounts, sPeriod, uint64(Blocktime));
         }

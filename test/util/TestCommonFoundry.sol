@@ -459,6 +459,26 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToOriginalUser();
     }
 
+    /**
+     * @dev Deploy and set up a ProtocolAMMFactory
+     * @return _ammFactory fully configured app manager
+     */
+    function createProtocolAMMFactory() public returns (ProtocolAMMFactory _ammFactory) {
+        switchToAppAdministrator();
+        _ammFactory = _createProtocolAMMFactory();
+        return _ammFactory;
+    }
+
+    /**
+     * @dev Deploy and set up a ProtocolAMMCalculatorFactory
+     * @return _ammCalcFactory fully configured app manager
+     */
+    function createProtocolAMMCalculatorFactory() public returns (ProtocolAMMCalculatorFactory _ammCalcFactory) {
+        switchToAppAdministrator();
+        _ammCalcFactory = _createProtocolAMMCalculatorFactory();
+        return _ammCalcFactory;
+    }
+
     ///---------------USER SWITCHING--------------------
     function switchToAppAdministrator() public {
         vm.stopPrank();

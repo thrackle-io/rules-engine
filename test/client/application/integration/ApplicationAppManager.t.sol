@@ -134,7 +134,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
 
         vm.stopPrank(); //stop interacting as the default admin
         vm.startPrank(user); //interact as a user
-        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000aaa is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
         applicationAppManager.revokeRole(APP_ADMIN_ROLE, address(77)); // try to revoke other app administrator
     }
 

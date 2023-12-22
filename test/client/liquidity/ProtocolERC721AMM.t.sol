@@ -1,22 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "src/client/liquidity/calculators/IProtocolAMMFactoryCalculator.sol";
-import "src/example/OracleDenied.sol";
-import "src/example/OracleAllowed.sol";
 import {ApplicationAMMHandler} from "src/example/liquidity/ApplicationAMMHandler.sol";
 import {ApplicationAMMHandlerMod} from "test/util/ApplicationAMMHandlerMod.sol";
 import "test/util/TestCommonFoundry.sol";
 import {LinearInput} from "src/client/liquidity/calculators/dataStructures/CurveDataStructures.sol";
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {FeeRuleDataFacet} from "src/protocol/economic/ruleProcessor/FeeRuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
+
 
 /**
  * @title Test all AMM related functions
@@ -25,22 +15,6 @@ import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
 contract ProtocolERC721AMMTest is TestCommonFoundry {
-    ApplicationAMMHandler handler;
-    OracleDenied oracleRestricted;
-    OracleAllowed oracleAllowed;
-    ApplicationAMMHandler applicationAMMHandler;
-    ApplicationAMMHandlerMod newAssetHandler;
-    ProtocolAMMCalculatorFactory factory;
-
-    address rich_user = address(44);
-    address treasuryAddress = address(55);
-    address user1 = address(0x111);
-    address user2 = address(0x222);
-    address user3 = address(0x333);
-    address user4 = address(0x444);
-    address[] badBoys;
-    address[] goodBoys;
-    address[] addresses = [user1, user2, user3, rich_user];
     uint256 erc20Liq = 1_000; // there will be no NFTs left outside the AMM. ERC20 liquidity should get filled by swaps. We only add some for tests (1 * 10 ** (-14)).
     uint256 erc721Liq = 10_000;
     LinearInput buy = LinearInput(1 * 10 ** 6, 30 * ATTO); /// buy slope = 0.01; b = 30
@@ -67,10 +41,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         applicationAppManager.registerTreasury(treasuryAddress);
 
         vm.warp(Blocktime);
-
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleRestricted = new OracleDenied();
     }
 
 
@@ -251,7 +221,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         _fundThreeAccounts();
         // add a blocked address
         badBoys.push(user2);
-        oracleRestricted.addToDeniedList(badBoys);
+        oracleDenied.addToDeniedList(badBoys);
         // add an allowed address
         goodBoys.push(user1);
         oracleAllowed.addToAllowList(goodBoys);
@@ -573,10 +543,10 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
 
     function _setSanctionOracleRule() internal returns(uint32 ruleId){
         switchToRuleAdmin();
-        ruleId = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleRestricted));
+        ruleId = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(ruleId);
         assertEq(rule.oracleType, 0);
-        assertEq(rule.oracleAddress, address(oracleRestricted));
+        assertEq(rule.oracleAddress, address(oracleDenied));
         applicationAMMHandler.setOracleRuleId(ruleId);
     }
 
