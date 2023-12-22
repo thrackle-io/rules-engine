@@ -1,42 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
-import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
-import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
-import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
-import "src/example/OracleDenied.sol";
-import "src/example/OracleAllowed.sol";
-import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
-import "test/util/ApplicationERC721WithBatchMintBurn.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC721Test is TestCommonFoundry {
-    OracleDenied oracleDenied;
-    OracleAllowed oracleAllowed;
-    ApplicationERC721HandlerMod newAssetHandler;
-    address rich_user = address(44);
-    address ac;
-    address[] badBoys;
-    address[] goodBoys;
-    address user1 = address(0x111);
-    address user2 = address(0x222);
-    address user3 = address(0x333);
-    address user4 = address(0x444);
 
     function setUp() public {
         vm.warp(Blocktime);
         vm.startPrank(appAdministrator);
         setUpProtocolAndAppManagerAndTokens();
         switchToAppAdministrator();
-        // create the oracles
-        oracleAllowed = new OracleAllowed();
-        oracleDenied = new OracleDenied();
     }
 
     function testERC721AndHandlerVersions() public {
@@ -95,9 +68,9 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
         /// test both address checks in constructor
         vm.expectRevert();
-        new ApplicationERC721Handler(address(0x0), ac, address(applicationNFT), false);
+        new ApplicationERC721Handler(address(0x0), address(applicationAppManager), address(applicationNFT), false);
         vm.expectRevert();
-        new ApplicationERC721Handler(address(ruleProcessor), ac, address(applicationNFT), false);
+        new ApplicationERC721Handler(address(ruleProcessor), address(0x0), address(applicationNFT), false);
         vm.expectRevert();
         new ApplicationERC721Handler(address(ruleProcessor), address(0x0), address(0x0), false);
 
@@ -116,12 +89,9 @@ contract ApplicationERC721Test is TestCommonFoundry {
         applicationNFT.safeMint(appAdministrator);
         applicationNFT.safeMint(appAdministrator);
 
-        bytes32[] memory accs = new bytes32[](1);
-        uint256[] memory min = new uint256[](1);
-        uint256[] memory max = new uint256[](1);
-        accs[0] = bytes32("Oscar");
-        min[0] = uint256(1);
-        max[0] = uint256(6);
+        bytes32[] memory accs = createBytes32Array("Oscar");
+        uint256[] memory min = createUint256Array(1);
+        uint256[] memory max = createUint256Array(6);
 
         /// set up a non admin user with tokens
         switchToAppAdministrator();
@@ -304,12 +274,8 @@ contract ApplicationERC721Test is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user1), 5);
 
         // add the rule.
-        bytes32[] memory nftTags = new bytes32[](2);
-        nftTags[0] = bytes32("BoredGrape");
-        nftTags[1] = bytes32("DiscoPunk");
-        uint8[] memory tradesAllowed = new uint8[](2);
-        tradesAllowed[0] = 1;
-        tradesAllowed[1] = 5;
+        bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
+        uint8[] memory tradesAllowed = createUint8Array(1, 5);
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         assertEq(_index, 0);
@@ -368,19 +334,8 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
     function testTransactionLimitByRiskScoreNFT() public {
         ///Set transaction limit rule params
-        uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory txnLimits = new uint48[](5);
-        riskScores[0] = 1;
-        riskScores[1] = 10;
-        riskScores[2] = 40;
-        riskScores[3] = 80;
-        riskScores[4] = 99;
-
-        txnLimits[0] = 17;
-        txnLimits[1] = 15;
-        txnLimits[2] = 12;
-        txnLimits[3] = 11;
-        txnLimits[4] = 10;
+        uint8[] memory riskScores = createUint8Array(0, 10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
@@ -541,18 +496,10 @@ contract ApplicationERC721Test is TestCommonFoundry {
         /// Create Rule Params and create rule
         // Set up the rule conditions
         vm.warp(Blocktime);
-        bytes32[] memory accs = new bytes32[](3);
-        accs[0] = bytes32("MIN1");
-        accs[1] = bytes32("MIN2");
-        accs[2] = bytes32("MIN3");
-        uint256[] memory holdAmounts = new uint256[](3); /// Represent min number of tokens held by user for Collection address
-        holdAmounts[0] = uint256(1);
-        holdAmounts[1] = uint256(2);
-        holdAmounts[2] = uint256(3);
-        uint16[] memory holdPeriods = new uint16[](3);
-        holdPeriods[0] = uint16(720); // one month
-        holdPeriods[1] = uint16(4380); // six months
-        holdPeriods[2] = uint16(17520); // two years
+        bytes32[] memory accs = createBytes32Array("MIN1", "MIN2", "MIN3");
+        uint256[] memory holdAmounts = createUint256Array(1, 2, 3); /// Represent min number of tokens held by user for Collection address
+        // 720 = one month 4380 = six months 17520 = two years
+        uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
@@ -835,12 +782,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         switchToAppAdministrator();
         applicationNFTHandler.setNFTValuationLimit(20);
         /// activate rule that calls valuation
-        uint48[] memory balanceAmounts = new uint48[](5);
-        balanceAmounts[0] = 0;
-        balanceAmounts[1] = 1;
-        balanceAmounts[2] = 10;
-        balanceAmounts[3] = 50;
-        balanceAmounts[4] = 100;
+        uint48[] memory balanceAmounts = createUint48Array(0, 1, 10, 50, 100);
         switchToRuleAdmin();
         uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         /// connect the rule to this handler
@@ -865,30 +807,30 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
         switchToAppAdministrator();
         /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
-        ApplicationERC721 applicationNFT2 = new ApplicationERC721("ToughTurtles", "THTR", address(applicationAppManager), "https://SampleApp.io");
-        console.log("applicationNFT2", address(applicationNFT2));
-        ApplicationERC721Handler applicationNFTHandler2 = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFT2), false);
-        applicationNFT2.connectHandlerToToken(address(applicationNFTHandler2));
+        ApplicationERC721 _applicationNFT2 = new ApplicationERC721("ToughTurtles", "THTR", address(applicationAppManager), "https://SampleApp.io");
+        console.log("applicationNFT2", address(_applicationNFT2));
+        ApplicationERC721Handler _applicationNFTHandler2 = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(_applicationNFT2), false);
+        _applicationNFT2.connectHandlerToToken(address(_applicationNFTHandler2));
         /// register the token
-        applicationAppManager.registerToken("THTR", address(applicationNFT2));
+        applicationAppManager.registerToken("THTR", address(_applicationNFT2));
         ///Pricing Contracts
-        applicationNFTHandler2.setNFTPricingAddress(address(erc721Pricer));
-        applicationNFTHandler2.setERC20PricingAddress(address(erc20Pricer));
+        _applicationNFTHandler2.setNFTPricingAddress(address(erc721Pricer));
+        _applicationNFTHandler2.setERC20PricingAddress(address(erc20Pricer));
         for (uint i = 0; i < 40; i++) {
-            applicationNFT2.safeMint(appAdministrator);
-            applicationNFT2.transferFrom(appAdministrator, user1, i);
-            erc721Pricer.setSingleNFTPrice(address(applicationNFT2), i, 1 * (10 ** 18));
+            _applicationNFT2.safeMint(appAdministrator);
+            _applicationNFT2.transferFrom(appAdministrator, user1, i);
+            erc721Pricer.setSingleNFTPrice(address(_applicationNFT2), i, 1 * (10 ** 18));
         }
-        uint256 testPrice2 = erc721Pricer.getNFTPrice(address(applicationNFT2), 35);
+        uint256 testPrice2 = erc721Pricer.getNFTPrice(address(_applicationNFT2), 35);
         assertEq(testPrice2, 1 * (10 ** 18));
         /// set the nftHandler nftValuationLimit variable
         switchToAppAdministrator();
-        applicationNFTHandler2.setNFTValuationLimit(20);
+        _applicationNFTHandler2.setNFTValuationLimit(20);
         /// set specific tokens in NFT 2 to higher prices. Expect this value to be ignored by rule check as it is checking collection price.
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT2), 36, 100 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT2), 37, 50 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT2), 40, 25 * (10 ** 18));
-        erc721Pricer.setNFTCollectionPrice(address(applicationNFT2), 1 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(_applicationNFT2), 36, 100 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(_applicationNFT2), 37, 50 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(_applicationNFT2), 40, 25 * (10 ** 18));
+        erc721Pricer.setNFTCollectionPrice(address(_applicationNFT2), 1 * (10 ** 18));
         /// calc expected valuation for user based on tokens * collection price
         /** 
         expected calculated total should be $50 USD since we take total number of tokens owned * collection price 
@@ -940,7 +882,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(user1);
         applicationNFT.burn(3);
-        applicationNFT2.burn(36);
+        _applicationNFT2.burn(36);
     }
 
     /// test batch mint and burn
@@ -962,28 +904,18 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
     function testUpgradingHandlersERC721() public {
         ///deploy new modified appliction asset handler contract
-        ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), true);
+        ApplicationERC721HandlerMod _ERC721AssetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), true);
         ///connect to apptoken
-        applicationNFT.connectHandlerToToken(address(assetHandler));
+        applicationNFT.connectHandlerToToken(address(_ERC721AssetHandler));
         /// in order to handle upgrades and handler registrations, deregister and re-register with new
         applicationAppManager.deregisterToken("FRANKENSTEIN");
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
-        assetHandler.setNFTPricingAddress(address(erc721Pricer));
-        assetHandler.setERC20PricingAddress(address(erc20Pricer));
+        _ERC721AssetHandler.setNFTPricingAddress(address(erc721Pricer));
+        _ERC721AssetHandler.setERC20PricingAddress(address(erc20Pricer));
 
         ///Set transaction limit rule params
-        uint8[] memory riskScores = new uint8[](5);
-        uint48[] memory txnLimits = new uint48[](5);
-        riskScores[0] = 1;
-        riskScores[1] = 10;
-        riskScores[2] = 40;
-        riskScores[3] = 80;
-        riskScores[4] = 99;
-        txnLimits[0] = 17;
-        txnLimits[1] = 15;
-        txnLimits[2] = 12;
-        txnLimits[3] = 11;
-        txnLimits[4] = 10;
+        uint8[] memory riskScores = createUint8Array(1, 10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
         switchToRuleAdmin();
         uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
@@ -1002,7 +934,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        assetHandler.setTransactionLimitByRiskRuleId(index);
+        _ERC721AssetHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
@@ -1072,20 +1004,20 @@ contract ApplicationERC721Test is TestCommonFoundry {
         vm.startPrank(user2);
         applicationNFT.safeTransferFrom(user2, user3, 4);
 
-        address testAddress = assetHandler.newTestFunction();
-        console.log(assetHandler.newTestFunction(), testAddress);
+        address testAddress = _ERC721AssetHandler.newTestFunction();
+        console.log(_ERC721AssetHandler.newTestFunction(), testAddress);
     }
 
     function testUpgradeAppManager721() public {
         address newAdmin = address(75);
         /// create a new app manager
-        ApplicationAppManager applicationAppManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
+        ApplicationAppManager _applicationAppManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
         /// propose a new AppManager
-        applicationNFT.proposeAppManagerAddress(address(applicationAppManager2));
+        applicationNFT.proposeAppManagerAddress(address(_applicationAppManager2));
         /// confirm the app manager
         vm.stopPrank();
         vm.startPrank(newAdmin);
-        applicationAppManager2.confirmAppManager(address(applicationNFT));
+        _applicationAppManager2.confirmAppManager(address(applicationNFT));
         /// test to ensure it still works
         applicationNFT.safeMint(appAdministrator);
         vm.stopPrank();
@@ -1102,9 +1034,9 @@ contract ApplicationERC721Test is TestCommonFoundry {
         applicationNFT.proposeAppManagerAddress(address(0));
         // no proposed address
         vm.expectRevert(0x821e0eeb);
-        applicationAppManager2.confirmAppManager(address(applicationNFT));
+        _applicationAppManager2.confirmAppManager(address(applicationNFT));
         // non proposer tries to confirm
-        applicationNFT.proposeAppManagerAddress(address(applicationAppManager2));
+        applicationNFT.proposeAppManagerAddress(address(_applicationAppManager2));
         ApplicationAppManager applicationAppManager3 = new ApplicationAppManager(newAdmin, "Castlevania3", false);
         vm.expectRevert(0x41284967);
         applicationAppManager3.confirmAppManager(address(applicationNFT));

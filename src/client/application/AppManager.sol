@@ -86,7 +86,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param upgradeMode specifies whether this is a fresh AppManager or an upgrade replacement.
      */
     constructor(address root, string memory _appName, bool upgradeMode) {
-        // deployer is set as both an AppAdmin and the Default Admin
+        // deployer is set as both an AppAdmin and the Super Admin
         _grantRole(SUPER_ADMIN_ROLE, root);
         _grantRole(APP_ADMIN_ROLE, root);
         _setRoleAdmin(APP_ADMIN_ROLE, SUPER_ADMIN_ROLE);

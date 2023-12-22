@@ -18,7 +18,6 @@ import {ConstantRatio, LinearInput} from "src/client/liquidity/calculators/dataS
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
 contract ProtocolAMMCalcFactoryTest is TestCommonFoundry, Utils {
-    ProtocolAMMCalculatorFactory factory;
     uint8 constant M_PRECISION_DECIMALS = 8;
     uint8 constant B_PRECISION_DECIMALS = 8;
 

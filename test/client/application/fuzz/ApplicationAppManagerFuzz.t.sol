@@ -1,25 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "src/client/application/data/IPauseRules.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
-    bytes32 public constant SUPER_ADMIN_ROLE = ("SUPER_ADMIN_ROLE");
-    bytes32 public constant USER_ROLE = keccak256("USER");
-    bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    bytes32 public constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
-    bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
-    uint256 public constant TEST_DATE = 1666706998;
-    string tokenName = "FEUD";
 
     function setUp() public {
-        vm.startPrank(superAdmin); //set up as the default admin
-        /// Set up the protocol and an applicationAppManager
-        setUpProtocolAndAppManager();
-        console.log(applicationHandler.owner());
-
-        vm.warp(TEST_DATE); // set block.timestamp
+        vm.startPrank(superAdmin);
+        setUpProtocolAndAppManager();            
+        vm.warp(Blocktime); // set block.timestamp
     }
 
     /**
@@ -359,15 +348,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
 
-        bytes32[] memory genTags = new bytes32[](8);
-        genTags[0] = Tag1;
-        genTags[1] = Tag1;
-        genTags[2] = Tag2;
-        genTags[3] = Tag2;
-        genTags[4] = Tag3;
-        genTags[5] = Tag3;
-        genTags[6] = Tag4;
-        genTags[7] = Tag4;
+        bytes32[] memory genTags = createBytes32Array(Tag1, Tag1, Tag2, Tag2, Tag3, Tag3, Tag4, Tag4);
 
         vm.startPrank(sender);
         if (sender != superAdmin) vm.expectRevert();
