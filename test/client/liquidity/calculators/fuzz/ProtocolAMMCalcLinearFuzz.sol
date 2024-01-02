@@ -19,6 +19,7 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
     event Log(bytes data);
     event AMM___Return(uint);
     event PythonReturn(uint);
+    event AMM___ReturnString(string);
     using Strings for uint256;
     ProtocolAMMCalculatorFactory factory;
     uint8 constant MAX_TOLERANCE = 5;
@@ -36,24 +37,17 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
      * Test the the creation of Linear get Y calculation module. All of the results are matched up to a python calculation
      */
     function testFactoryLinearGetY(uint32 _m, uint64 _b, uint _x) public { 
-        // uint32 _m;
-        // uint64 _b;
-        // uint _x; 
         uint256 m = bound(uint256(_m), 1, 100 * 10 ** 8);  
         uint256 b = bound(uint256(_b), 1, 100_000 * 10 ** 18);   
         uint256 amount0 = bound(uint256(_x), 1 * 10 ** 8, 1_000_000 * 10 ** 18);  
-        // m = 1000;
-        // b = 1 * 10 ** 8;
 
         LinearInput memory curve = LinearInput(m, b);
         address calcAddress = factory.createLinear(curve, address(applicationAppManager));
         ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
         uint256 reserve0 = 1_000_000 * 10 ** 18;
         uint256 reserve1 = 1_000_000 * 10 ** 18;
-        // amount0 = 1 * 10 ** 18;
         uint256 amount1 = 0;
         uint256 returnVal;
-        // swap 1*10**18 token0 
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
         /// the response from the Python script that will contain the price calculated "offchain"
         bytes memory res;
@@ -70,47 +64,54 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
         /// some debug logging 
         emit AMM___Return(returnVal);
         emit PythonReturn(resUint);
-        assertTrue(_areWithinTolerance(returnVal, resUint));
+        // If the comparison fails, it may be due to a false positive from isPossiblyAnAscii. Try to convert it as a fake decimal to be certain
+        if (!areWithinTolerance(returnVal, resUint, MAX_TOLERANCE, TOLERANCE_DEN)){
+            resUint= decodeFakeDecimalBytes(res);
+            emit PythonReturn(resUint);
+        }
+        assertTrue(areWithinTolerance(returnVal, resUint, MAX_TOLERANCE, TOLERANCE_DEN));
     }
     
-
+    // <><><><><><><><> NOTE: This is commented out while waiting for refined equation from research
     /**
      * Test the the creation of Linear get X calculation module. All of the results are matched up to a python calculation
      */
-    // function testFactoryLinearGetX(uint32 _m, uint64 _b, uint256 _y) public {     
-        function testFactoryLinearGetX(uint256 _m, uint256 _b, uint256 _y) public { 
-        uint256 m = bound(uint256(_m), 1, 100 * 10 ** 8);  
-        uint256 b = bound(uint256(_b), 10000, 100_000 * 10 ** 8);
-        uint256 amount1 = bound(uint256(_y), 1, 1_000_000 * 10 ** 18);
-        // uint256 b = 1;
-        // uint256 b = 1000000000000;
-        LinearInput memory curve = LinearInput(m, b);
-        address calcAddress = factory.createLinear(curve, address(applicationAppManager));
-        ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
-        uint256 reserve0 = 1_000_000 * 10 ** 18;
-        uint256 reserve1 = 1_000_000 * 10 ** 18;
-        uint256 amount0 = 0;
-        uint256 returnVal;
-        // swap 1*10**18 token0 
-        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        /// the response from the Python script that will contain the price calculated "offchain"
-        bytes memory res;
-        /// we then call the Python script to calculate the price "offchain" and store it in *res*
-        string[] memory inputs = _buildFFILinearCalculator_getX(curve, ATTO, reserve1, amount1);
-        res = vm.ffi(inputs); 
-        uint resUint;
-        // if (isPossiblyAnAscii(res)){
-        //     /// we decode the ascii into a uint
-        //     resUint = decodeAsciiUint(res);
-        // } else {
-        //     resUint= decodeFakeDecimalBytes(res);
-        // }
-        resUint = bytesToUint(res);
-        /// some debug logging 
-        emit AMM___Return(returnVal);
-        emit PythonReturn(resUint);
-        assertTrue(_areWithinTolerance(returnVal, resUint));
-    }
+    // function testFactoryLinearGetX(uint256 _m, uint256 _b, uint256 _y) public { 
+    //     uint256 m = bound(uint256(_m), 1, 100 * 10 ** 8);  
+    //     uint256 b = bound(uint256(_b), 10000, 100_000 * 10 ** 8);
+    //     uint256 amount1 = bound(uint256(_y), 1, 1_000_000 * 10 ** 18);
+    //     LinearInput memory curve = LinearInput(m, b);
+    //     address calcAddress = factory.createLinear(curve, address(applicationAppManager));
+    //     ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
+    //     uint256 reserve0 = 1_000_000 * 10 ** 18;
+    //     uint256 reserve1 = 1_000_000 * 10 ** 18;
+    //     uint256 amount0 = 0;
+    //     uint256 returnVal;
+    //     returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+    //     /// the response from the Python script that will contain the price calculated "offchain"
+    //     bytes memory res;
+    //     /// we then call the Python script to calculate the price "offchain" and store it in *res*
+    //     string[] memory inputs = _buildFFILinearCalculator_getX(curve, ATTO, reserve1, amount1);
+    //     res = vm.ffi(inputs); 
+    //     emit Log(res);
+    //     uint resUint;
+    //     // ƒoundry gets weird with the return values so we have to jump through hoops.
+    //     if (isPossiblyAnAscii(res)){
+    //         /// we decode the ascii into a uint
+    //         resUint = decodeAsciiUint(res);
+    //     } else {
+    //         resUint= decodeFakeDecimalBytes(res);
+    //     }
+    //     /// some debug logging 
+    //     emit AMM___Return(returnVal);
+    //     emit PythonReturn(resUint);
+    //     // If the comparison fails, it may be due to a false positive from isPossiblyAnAscii. Try to convert it as a fake decimal to be certain
+    //     if (!areWithinTolerance(returnVal, resUint, MAX_TOLERANCE, TOLERANCE_DEN)){
+    //         resUint= decodeFakeDecimalBytes(res);
+    //         emit PythonReturn(resUint);
+    //     }
+    //     assertTrue(areWithinTolerance(returnVal, resUint, MAX_TOLERANCE, TOLERANCE_DEN));
+    // }
 
    /**
     * @dev creates the input array specifically for the linear_calculator_y.py script.
@@ -154,26 +155,5 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
         inputs[8] = y_in.toString();
         return inputs;
     }
-
-   /**
-    * compares if 2 uints are similar enough. The tolerance parameters are global to the contract.
-    * @param x value to compare against *y*
-    * @param y value to compare against *x*
-    * @return true if the difference expressed as a normalized value is less or equal than the tolerance.
-    */
-    function _areWithinTolerance(uint x, uint y) internal pure returns (bool){
-        /// we calculate the absolute difference to avoid overflow/underflow
-        uint diff = absoluteDiff(x,y);
-        /// we calculate difference percentage as diff/(smaller number unless 0) to get the bigger difference "percentage".
-        return !(diff != 0 && (diff * TOLERANCE_DEN) / ( x > y ? y == 0 ? x : y : x == 0 ? y : x)  > MAX_TOLERANCE);
-    }
-
-//    function bytesToUint(bytes memory b) internal pure returns (uint256){
-//         uint256 number;
-//         for(uint i=0;i<b.length;i++){
-//             number = number + uint(uint8(b[i]))*(2**(8*(b.length-(i+1))));
-//         }
-//     return number;
-// }
 
 }

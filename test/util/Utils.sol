@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 contract Utils{
 
-    /**
+   /**
     * @dev calculates the difference between 2 uints without risk of overflow/underflow
     * @param x uint
     * @param y uint
@@ -13,7 +13,7 @@ contract Utils{
         diff = x > y ? x - y : y - x;
     }
 
-    /**
+   /**
     * @dev gets a bytes variable and checks if it is an ascii value or not.
     * @notice this algorithm is 100% accurate in the negative case, but false
     * positives are possible. This is because if all the bytes are between 0x30
@@ -34,7 +34,7 @@ contract Utils{
         return isAscii;
     }
 
-    /**
+   /**
     * @dev decodes a byte variable trying to express a decimal number. For instance 0x297462 = 297462.
     * @param bytesDecimal the byte variable to convert to uint.
     * @return decodedUint the uint that the bytes variable was trying to imply.
@@ -47,8 +47,8 @@ contract Utils{
             else decodedUint += ( tens + units);
         }
     }
-
-    /**
+  
+   /**
     * @dev decodes an ascii number to return the uint
     * @param ascii the number to convert to uint
     * @return decodedUint 
@@ -60,8 +60,8 @@ contract Utils{
             else decodedUint +=  units;
         }
     }
-
-    /**
+   
+   /**
     * @dev checks if 2 bytes variables are identical
     * @param x first bytes variable to compare
     * @param y second bytes variable to compare 
@@ -69,5 +69,21 @@ contract Utils{
     */
     function areBytesEqual(bytes memory x, bytes memory y) public pure returns(bool) {
         return keccak256(x) == keccak256(y);
+    }
+
+
+   /**
+    * compares if 2 uints are similar enough. 
+    * @param x value to compare against *y*
+    * @param y value to compare against *x*
+    * @param maxTolerance the maximum allowed difference tolerance based on the precision
+    * @param toleranceDenom the denom of the tolerance value. For instance, 10 ** 11.
+    * @return true if the difference expressed as a normalized value is less or equal than the tolerance.
+    */
+    function areWithinTolerance(uint x, uint y, uint8 maxTolerance, uint256 toleranceDenom) internal pure returns (bool){
+        /// we calculate the absolute difference to avoid overflow/underflow
+        uint diff = absoluteDiff(x,y);
+        /// we calculate difference percentage as diff/(smaller number unless 0) to get the bigger difference "percentage".
+        return !(diff != 0 && (diff * toleranceDenom) / ( x > y ? y == 0 ? x : y : x == 0 ? y : x)  > maxTolerance);
     }
 }

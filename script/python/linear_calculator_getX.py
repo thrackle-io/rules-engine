@@ -3,7 +3,6 @@ from decimal import *
 from math import sqrt
 
 def calculate_x(args):
-    
     # x_0 = reserve of token x
     # x_change = amount of x being swapped in
     # m = slope
@@ -18,9 +17,9 @@ def calculate_x(args):
     b_den = Decimal(args.b_denom)
     d = Decimal(args.token_decimals)   
 
-    y = (Decimal(2) * (Decimal(10) ** Decimal(9)) * y_change * b_den * Decimal(sqrt(m_den))) / (Decimal(sqrt((Decimal(10) ** Decimal(18)) * (b ** Decimal(2)) * m_den + Decimal(2) * y_0 * m * (b_den ** Decimal(2)))) + Decimal(sqrt((Decimal(10) ** Decimal(18)) * (b ** Decimal(2)) * m_den + (2 * (y_0 + y_change) * m * (b_den ** Decimal(2)))))) 
-    # print(hex(int(y)))
-    print(int(y))
+    x = (Decimal(2) * (Decimal(10) ** Decimal(9)) * y_change * b_den * Decimal(sqrt(m_den))) / (Decimal(sqrt((Decimal(10) ** Decimal(18)) * (b ** Decimal(2)) * m_den + Decimal(2) * y_0 * m * (b_den ** Decimal(2)))) + Decimal(sqrt((Decimal(10) ** Decimal(18)) * (b ** Decimal(2)) * m_den + (2 * (y_0 + y_change) * m * (b_den ** Decimal(2)))))) 
+    
+    print(int(x))
 
 def parse_args():
     parser = argparse.ArgumentParser()

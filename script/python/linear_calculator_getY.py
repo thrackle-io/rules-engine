@@ -19,8 +19,6 @@ def calculate_y(args):
     b = Decimal(args.b)
     b_den = Decimal(args.b_decimals)
     d = Decimal(args.token_decimals)   
-    # y = b * x_change - ((Decimal(.5) * m * (x_0 + x_change) ** Decimal(2)) / d) - ((Decimal(.5) * m * (x_0 ** Decimal(2))) / d)
-    # y = b * x_change - ((Decimal(.5) * m * ((x_0 - x_change) ** Decimal(2))) / d) + ((Decimal(.5) * m * (x_0 ** Decimal(2))) / d)
     y = ((b * x_change) / b_den) + (m * ((Decimal(2) * x_0 * x_change ) - (x_change ** 2)) / (Decimal(2) * m_den * d))
     print(int(y))
 
