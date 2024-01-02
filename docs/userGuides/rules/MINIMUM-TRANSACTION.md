@@ -52,7 +52,7 @@ The rule will be evaluated with the following logic:
 
 1. The processor receives the ID of the minimum-transaction rule set in the token handler. 
 2. The processor receives the `amount` of tokens from the handler.
-3. The processor evaluates the `amount` against the rule `minTransferAmount` and reverts if the `amount` does not exceed the rule minimum. 
+3. The processor evaluates the `amount` against the rule `minTransferAmount` and reverts if the `amount` less than the rule minimum. 
 
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkMinTransferPasses*
