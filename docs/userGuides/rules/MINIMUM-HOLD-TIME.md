@@ -29,7 +29,7 @@ Additionally, each starting unix timestamp for the ownership of the tokenId is s
 /// Minimum Hold time data
     mapping(uint256 => uint256) ownershipStart;
 ```
-###### *see [ERC721Handler](../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
+###### *see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
 
 
 ## Configuration and Enabling/Disabling
@@ -47,7 +47,7 @@ The rule will be evaluated with the following logic:
 2. The handler passes the account's `ownershipStart` and `minimumHoldTimeHours` to the processor. 
 3. The Processor evaluates if the current time minus `ownershipStart` is less than `minimumHoldTimeHours`. If it is the transaction reverts.
 
-###### *see [ERC721RuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkNFTHoldTime*
+###### *see [ERC721RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkNFTHoldTime*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -72,7 +72,7 @@ function setMinimumHoldTimeHours(
             uint32 _minimumHoldTimeHours
         ) external ruleAdministratorOnly(_appManagerAddr);
 ```
-###### *see [ERC721Handler](../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
+###### *see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
 
 
 ### Parameters:
@@ -92,7 +92,7 @@ The following validation will be carried out by the create function in order to 
 - `_minimumHoldTimeHours` is less than `MAX_HOLD_TIME_HOURS`.
 
 
-###### *see [ERC721Handler](../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
+###### *see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
 
 ## Other Functions:
 
