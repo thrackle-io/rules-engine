@@ -103,7 +103,7 @@ The following validation will be carried out by the create function in order to 
         ```
     - Function to know the activation state of the rule in an asset handler:
         ```c
-        function isMinBalByDateActive() external view returns (bool);
+        function isMinimumHoldTimeActive() external view returns (bool);
         ```
     - Function to get the rule Id from an asset handler:
         ```c
