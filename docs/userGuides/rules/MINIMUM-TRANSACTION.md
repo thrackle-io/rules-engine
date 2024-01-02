@@ -1,13 +1,13 @@
-# Token Transfer Volume Rule
+# Minimum Transaction Rule
 
 ## Purpose
 
-The purpose of the token-transfer-volume rule is to reduce high trading volatility periods by allowing developers to set a maximum volume (as a percentage of the token's total supply) that can be traded within a period of time. When the trading volume maximum is reached, transfers are suspended until the next period begins. Trading volume is the accumulated total number of tokens transferred during each period, and reset with each new period by the first transaction of that period. 
+The purpose of the minimum-transaction rule is to prevent micro-trades or dust trades within an ecosystem. A developer can set the minimum number of tokens required per transfer to prevent these types of trades from occuring. 
 
 ## Applies To:
 
 - [x] ERC20
-- [x] ERC721
+- [ ] ERC721
 - [ ] AMM
 
 ## Scope 
@@ -16,20 +16,14 @@ This rule works at a token level. It must be activated and configured for each d
 
 ## Data Structure
 
-A token-transfer-volume rule is composed of 4 components:
+A minimum-transfer rule is composed of 1 component:
 
-- **Max Volume** (uint24): The maximum percent in basis units of total supply to be traded during the *period*.
-- **Period** (uint16): The amount of hours that defines a period.
-- **Starting Timestamp** (uint64): The timestamp of the date when the *period* starts counting.
-- **Total Supply** (uint256): if not zero, this value will always be used as the token's total supply for rule evaluation. This can be used when the amount of circulating supply is much smaller than the amount of the token totalSupply due to some tokens being locked in a dev account or a vesting contract, etc. Only use this value in such cases.
+- **Min Transfer Amount**  (uint256): minimum number of tokens that must be transferred for each transaction. 
 
 ```c
-/// ******** Token Transfer Volume ********
-    struct TokenTransferVolumeRule {
-        uint24 maxVolume; // this is a percentage with 2 decimals of precision (2500 = 25%)
-        uint16 period; // hours
-        uint64 startTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024
-        uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to token's totalSupply.
+    /// ******** Token Minimum Transfer Rules ********
+    struct TokenMinimumTransferRule {
+        uint256 minTransferAmount;
     }
 ```
 ###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
@@ -37,10 +31,10 @@ A token-transfer-volume rule is composed of 4 components:
 The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
  ```c
-/// ******** Token Transfer Volume ********
-    struct TransferVolRuleS {
-        mapping(uint32 => INonTaggedRules.TokenTransferVolumeRule) transferVolumeRules;
-        uint32 transferVolRuleIndex;
+    /// ******** Minimum Transaction ********
+    struct MinTransferRuleS {
+        mapping(uint32 => INonTaggedRules.TokenMinimumTransferRule) minimumTransferRules;
+        uint32 minimumTransferRuleIndex; /// increments every time someone adds a rule
     }
 ```
 ###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
@@ -125,11 +119,11 @@ The following validation will be carried out by the create function in order to 
 - `_startTimestamp` is not zero and is not more than 52 weeks in the future.
 
 
-###### *see [RuleDataFacet](../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getTransferVolumeRule(
@@ -183,7 +177,7 @@ This rule returns the value:
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../src/token/ERC20/ProtocolERC20Handler.sol)*
 
 ## Data Recorded
 
@@ -197,7 +191,7 @@ uint64 private lastTransferTs;
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../../../src/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../src/token/ERC20/ProtocolERC20Handler.sol)*
 
 ## Events
 

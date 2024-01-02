@@ -29,7 +29,7 @@ struct PauseRule {
     uint256 pauseStop;
 }
 ```
-###### *see [PauseRule](../../src/data/PauseRule.sol)*
+###### *see [PauseRule](../../../src/client/application/data/PauseRule.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -45,7 +45,7 @@ The rule will be evaluated with the following logic:
 1. The protocol's rule processor retrieves all the pause rules stored in the data contract of the appManager. 
 2. The processor loops through all these pause rules, and evaluates if current timestamp is greater or equal to `pauseStart` and less than `pauseStop`. If the condition is true for at least one rule, then the transaction reverts.
 
-###### *see [ApplicationPauseProcessorFacet](../../src/protocol/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol) -> checkPauseRules*
+###### *see [ApplicationPauseProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol) -> checkPauseRules*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -69,7 +69,7 @@ Adding a pause rule is done through the function:
 ```c
 function addPauseRule(uint256 _pauseStart, uint256 _pauseStop) external onlyRole(RULE_ADMIN_ROLE);
 ```
-###### *see [AppManager](../../src/client/application/AppManager.sol)*
+###### *see [AppManager](../../../src/client/application/AppManager.sol)*
 
 ### Parameters:
 
@@ -99,15 +99,15 @@ The following validation will be carried out by the create function in order to 
 - `pauseStart` timestamp is greater than current timestamp.
 
 
-###### *see [PauseRules](../../src/data/PauseRules.sol)*
+###### *see [PauseRules](../../../src/data/PauseRules.sol)*
 
 It is worth noting that this rule is special in the sense that it is not stored in the protocol but in the AppManager data contracts. Therefore, this rule doesn't have an ID like the other rules. This fact also makes this rule unreachable by other applications.
 
-###### *see [ProtocolApplicationHandler](../../src/client/application/ProtocolApplicationHandler.sol)*
+###### *see [ProtocolApplicationHandler](../../../src/client/application/ProtocolApplicationHandler.sol)*
 
 ## Other Functions:
 
-- In [AppManager](../../src/client/application/AppManager.sol):
+- In [AppManager](../../../src/client/application/AppManager.sol):
     -  Function to remove a rule:
         ```c
         function removePauseRule(
