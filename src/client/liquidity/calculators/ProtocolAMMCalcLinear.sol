@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "./IProtocolAMMFactoryCalculator.sol";
 import {LinearFractionB, LinearInput, Curve} from "./libraries/Curve.sol";
 import {CurveErrors} from "src/common/IErrors.sol";
-import {IAMMCalculatorEvents} from "src/common//IEvents.sol";
+import {IAMMCalculatorEvents} from "src/common/IEvents.sol";
 import "src/common/AMMTypes.sol";
 
 /**

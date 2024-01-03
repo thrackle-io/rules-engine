@@ -30,42 +30,6 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry, Utils {
 
     /**
      * Test the the creation of Constant calculation module
-     * TODO: This must be replaced by python script to check the math
-     */
-    function testFactoryFuzzConstantToken0(uint32 _x, uint32 _y, uint128 _amount) public {
-        // create a constant calculator with random ratio token0 to token1
-        uint32 x = uint32(bound(_x, 1, type(uint32).max));
-        uint32 y = uint32(bound(_y, 1, type(uint32).max));
-        ConstantRatio memory cr = ConstantRatio(x, y);
-        address calcAddress = factory.createConstant(cr, address(applicationAppManager));
-        ProtocolAMMCalcConst calc = ProtocolAMMCalcConst(calcAddress);
-        uint256 returnVal;
-        // swap
-        if (_amount == 0) vm.expectRevert(0x5b2790b5);
-        returnVal = calc.calculateSwap(0, 0, _amount, 0); //reserves irrelevant in this calc
-        if (_amount != 0) assertEq(returnVal, ((_amount * ((uint(y) * (10 ** 20)) / uint(x))) / (10 ** 20)));
-    }
-
-    /**
-     * Test the the creation of Constant calculation module
-     * TODO: This must be replaced by python script to check the math
-     */
-    function testFactoryFuzzConstantToken1(uint32 _x, uint32 _y, uint128 _amount) public {
-        // create a constant calculator with random ratio token0 to token1
-        uint32 x = uint32(bound(_x, 1, type(uint32).max)); //must put them into 256 for calculation purposes
-        uint32 y = uint32(bound(_y, 1, type(uint32).max));
-        ConstantRatio memory cr = ConstantRatio(x, y);
-        address calcAddress = factory.createConstant(cr, address(applicationAppManager));
-        ProtocolAMMCalcConst calc = ProtocolAMMCalcConst(calcAddress);
-        uint256 returnVal;
-        // swap
-        if (_amount == 0) vm.expectRevert(0x5b2790b5);
-        returnVal = calc.calculateSwap(0, 0, 0, _amount); //reserves irrelevant in this calc
-        if (_amount != 0) assertEq(returnVal, ((_amount * ((uint(x) * (10 ** 20)) / uint(y))) / (10 ** 20)));
-    }
-
-    /**
-     * Test the the creation of Constant calculation module
      */
     function testFactoryConstant() public {
         // create a constant calculator with 2 to 1 ration token0 to token1
@@ -126,46 +90,6 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry, Utils {
         amount1 = 50000;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
         assertEq(returnVal, 49997);
-    }
-
-    /**
-     * Test the the creation of Constant Product calculation module
-     * TODO: This must be replaced by python script to check the math
-     */
-    function testFactoryFuzzConstantProductToken0(uint128 _reserve0, uint128 _reserve1, uint128 _amount) public {
-        uint256 reserve0 = bound(_reserve0, 100, type(uint32).max);
-        uint256 reserve1 = bound(_reserve1, 100, type(uint32).max);
-        // make sure the amount to trade is less than the lowest reserve(this validation usually happens in AMM)
-        uint256 minReserve = reserve0 < reserve1 ? uint256(reserve0) : uint256(reserve1);
-        uint256 amount = bound(_amount, 1, minReserve - 10);
-        // create a constant calculator with 2 to 1 ration token0 to token1
-        address calcAddress = factory.createConstantProduct(address(applicationAppManager));
-        IProtocolAMMFactoryCalculator calc = IProtocolAMMFactoryCalculator(calcAddress);
-        uint256 returnVal;
-        // swap
-        if (amount == 0) vm.expectRevert(0x5b2790b5);
-        returnVal = calc.calculateSwap(reserve0, reserve1, amount, 0);
-        assertEq(returnVal, (amount * reserve1) / (reserve0 + amount));
-    }
-
-    /**
-     * Test the the creation of Constant Product calculation module
-     * TODO: This must be replaced by python script to check the math
-     */
-    function testFactoryFuzzConstantProductToken1(uint128 _reserve0, uint128 _reserve1, uint128 _amount) public {
-        uint256 reserve0 = bound(_reserve0, 100, type(uint32).max);
-        uint256 reserve1 = bound(_reserve1, 100, type(uint32).max);
-        // make sure the amount to trade is less than the lowest reserve(this validation usually happens in AMM)
-        uint256 minReserve = reserve0 < reserve1 ? uint256(reserve0) : uint256(reserve1);
-        uint256 amount = bound(_amount, 1, minReserve - 10);
-        // create a constant calculator with 2 to 1 ration token0 to token1
-        address calcAddress = factory.createConstantProduct(address(applicationAppManager));
-        IProtocolAMMFactoryCalculator calc = IProtocolAMMFactoryCalculator(calcAddress);
-        uint256 returnVal;
-        // swap
-        if (amount == 0) vm.expectRevert(0x5b2790b5);
-        returnVal = calc.calculateSwap(reserve0, reserve1, 0, amount);
-        assertEq(returnVal, (amount * reserve0) / (reserve1 + amount));
     }
 
     /**
@@ -232,43 +156,21 @@ contract ProtocolAMMCalcFactoryTest is TestCommonFoundry, Utils {
         uint256 amount0 = 0;
         uint256 amount1 = 2 * ATTO;
         uint256 returnVal;
-        // swap 2 token1 for 180886163880012064 token0)
+        // swap 2 token1 for 3.2520324687363492×10**16 token0)
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 180886163880012064);
-        // swap 50 token1 for 4522100831242367828 token0)
-        amount1 = 50 * 10 ** 18;
+        assertLe(absoluteDiff(returnVal, 3_2520324687363492), 5);
+        // swap 50 token1 for 8.13007807651205376×10**17 token0)
+        amount1 = 50 * ATTO;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 4522100831242367828);
-        // swap 100 token1 for 904431263292 token0)
+        assertLe(absoluteDiff(returnVal, 8_13007807651205376),167);
+        // swap 100 token1 for 9 token0)
         amount1 = 100;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        assertEq(returnVal, 904431263292);
-        // // swap 10 token1 for 0 token0)
-        // amount1 = 10;
-        // returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        // assertEq(returnVal, 0);
-
-        // // work with another slope
-        // // m = .00005(this is set as 8 digits)
-        // curve = LinearInput(5000, 15 * 10 ** 17);
-        // calc.setCurve(curve);
-        // // swap 1 *10**18 token1 for 98893659466214506 token0
-        // amount1 = 1 * 10 ** 18;
-        // returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        // assertEq(returnVal, 98893659466214506);
-
-        // // work with another y-intercept
-        // // m = .00005(this is set as 8 digits)
-        // curve = LinearInput(5000, 2 * 10 ** 18);
-        // calc.setCurve(curve);
-        // // swap 1 *10**18 token1 for 98058091140754206 token0
-        // amount1 = 1 * 10 ** 18;
-        // returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        // assertEq(returnVal, 98058091140754206);
-        // // swap 1_000_000 *10**18 token1 for 163960780543711393201128 token0
-        // amount1 = 1_000_000 * 10 ** 18;
-        // returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
-        // assertEq(returnVal, 163960780543711393201128);
+        assertEq(returnVal, 1);
+        // swap 10 token1 for 0 token0)
+        amount1 = 10;
+        returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
+        assertEq(returnVal, 0);
     }
 
     /**

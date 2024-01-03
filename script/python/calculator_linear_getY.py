@@ -2,9 +2,7 @@ import argparse
 from decimal import *
 
 def calculate_y(args):
-    #                        .5m(x_0 + x_change)^2   .5mx_0^2
-    # y_change = bx_change + --------------------- - --------
-    #                                 d                 d
+    # y = mx + b
     
     # x_0 = reserve of token x
     # x_change = amount of x being swapped in
