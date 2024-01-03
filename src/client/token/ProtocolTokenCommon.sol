@@ -49,4 +49,5 @@ abstract contract ProtocolTokenCommon is AppAdministratorOnly, IApplicationEvent
      * @return handlerAddress
      */
     function getHandlerAddress() external view virtual returns (address);
+
 }

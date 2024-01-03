@@ -681,14 +681,13 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Check Application Rules for valid transactions.
-     * @param _action Action to be checked
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external onlyHandler {
-        applicationHandler.checkApplicationRules(_action, _from, _to, _usdBalanceTo, _usdAmountTransferring);
+    function checkApplicationRules( address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external onlyHandler {
+        applicationHandler.checkApplicationRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
     }
 
     /**

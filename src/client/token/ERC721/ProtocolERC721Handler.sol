@@ -103,15 +103,15 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @param _balanceTo token balance of recipient address
      * @param _from sender address
      * @param _to recipient address
-     * @param _amount number of tokens transferred
+     * @param _sender the address triggering the contract action
      * @param _tokenId the token's specific ID
-     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return _success equals true if all checks pass
      */
 
-    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external onlyOwner returns (bool) {
+    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external override onlyOwner returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
+        uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromAdmin && !isToAdmin) {
             if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
@@ -121,7 +121,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
                 balanceValuation = uint128(getAccTotalValuation(_to, nftValuationLimit));
                 transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
             }
-            appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
+            appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation);
             _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);

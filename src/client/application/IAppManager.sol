@@ -141,13 +141,12 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
 
     /**
      * @dev Jump through to the gobal rules to see if the requested action is valid.
-     * @param _action Action to be checked
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external;
+    function checkApplicationRules(address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external;
 
     /**
      * @dev checks if any of the balance prerequisite rules are active

@@ -100,11 +100,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @param balanceTo token balance of recipient address
      * @param _from sender address
      * @param _to recipient address
+     * @param _sender the address triggering the contract action
      * @param amount number of tokens transferred
-     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, ActionTypes _action) external onlyOwner returns (bool) {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 amount) external override onlyOwner returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         // // All transfers to treasury account are allowed
@@ -119,7 +119,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
                     price = uint128(_getERC20Price(msg.sender));
                     transferValuation = uint128((price * amount) / (10 ** IToken(msg.sender).decimals()));
                 }
-                appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
+                appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation);
                 _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
                 _checkNonTaggedRules(_from, _to, amount);
             } else {

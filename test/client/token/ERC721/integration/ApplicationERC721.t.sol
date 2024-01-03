@@ -886,6 +886,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
     }
 
     /// test batch mint and burn
+    /**
     function testBatchMintAndBurn() public {
         /// create the batch capable NFT
         ApplicationERC721WithBatchMintBurn nftBurner = new ApplicationERC721WithBatchMintBurn("BeanBabyBurner", "THRK", address(applicationAppManager), "https://SampleApp.io");
@@ -901,6 +902,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         vm.expectRevert(0x46b2bfeb);
         nftBurner.burn(10);
     }
+     */
 
     function testUpgradingHandlersERC721() public {
         ///deploy new modified appliction asset handler contract

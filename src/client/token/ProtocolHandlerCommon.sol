@@ -15,6 +15,7 @@ import "src/protocol/economic/AppAdministratorOnly.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "src/client/application/IAppManagerUser.sol";
 import "./IAdminWithdrawalRuleCapable.sol";
+import "./IProtocolTokenHandler.sol";
 
 /**
  * @title Protocol Handler Common
@@ -22,7 +23,7 @@ import "./IAdminWithdrawalRuleCapable.sol";
  * @notice This contract contains common variables and functions for all Protocol Asset Handlers
  */
 
-abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZeroAddressError, ITokenHandlerEvents, ICommonApplicationHandlerEvents, IAssetHandlerErrors, AppAdministratorOrOwnerOnly {
+abstract contract ProtocolHandlerCommon is IAppManagerUser, IProtocolTokenHandler, IOwnershipErrors, IZeroAddressError, ITokenHandlerEvents, ICommonApplicationHandlerEvents, IAssetHandlerErrors, AppAdministratorOrOwnerOnly {
     string private constant VERSION="1.1.0";
     address private newAppManagerAddress;
     address public appManagerAddress;
