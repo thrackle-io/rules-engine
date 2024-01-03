@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the minimum-transaction rule is to prevent micro-trades or dust trades within an ecosystem. A developer can set the minimum number of tokens required per transfer to prevent these types of trades from occuring. 
+The purpose of the minimum-transaction rule is to prevent micro-trades or dust trades within an ecosystem. A developer can set the minimum number of tokens required per transfer to prevent these types of trades. 
 
 ## Applies To:
 
