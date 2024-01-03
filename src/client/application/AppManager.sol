@@ -15,11 +15,11 @@ import "src/client/application/data/IPauseRules.sol";
 import "src/client/application/data/PauseRules.sol";
 import "src/client/application/ProtocolApplicationHandler.sol";
 import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
-import {IAppLevelEvents} from "src/common/IEvents.sol";
 import "src/client/application/IAppManagerUser.sol";
 import "src/client/application/data/IDataModule.sol";
-import "../token/IAdminWithdrawalRuleCapable.sol";
-import "../token/ProtocolTokenCommon.sol";
+import "src/client/token/IAdminWithdrawalRuleCapable.sol";
+import "src/client/token/ProtocolTokenCommon.sol";
+import {IAppLevelEvents} from "src/common/IEvents.sol";
 
 /**
  * @title App Manager Contract
@@ -30,11 +30,12 @@ import "../token/ProtocolTokenCommon.sol";
 contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     string private constant VERSION = "1.1.0";
     using ERC165Checker for address;
+    bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
+    bytes32 constant RULE_ADMIN_ROLE = keccak256("RULE_ADMIN_ROLE");
     bytes32 constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
     bytes32 constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
-    bytes32 constant RULE_ADMIN_ROLE = keccak256("RULE_ADMIN_ROLE");
-    bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
+    bytes32 constant RULE_BYPASS_ACCOUNT = keccak256("RULE_BYPASS_ACCOUNT");
     bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
 
     /// Data contracts
@@ -89,6 +90,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         _setRoleAdmin(ACCESS_TIER_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RISK_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RULE_ADMIN_ROLE, APP_ADMIN_ROLE);
+        _setRoleAdmin(RULE_BYPASS_ACCOUNT, APP_ADMIN_ROLE);
         _setRoleAdmin(SUPER_ADMIN_ROLE, PROPOSED_SUPER_ADMIN_ROLE);
         _setRoleAdmin(PROPOSED_SUPER_ADMIN_ROLE, SUPER_ADMIN_ROLE);
         appName = _appName;
@@ -101,7 +103,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev This function overrides the parent's grantRole function. This basically disables its public nature to make it private.
+     * @dev This function overrides the parent's grantRole function. This disables its public nature to make it private.
      * @param role the role to grant to an acount.
      * @param account address being granted the role.
      * @notice this is purposely going to fail every time it will be invoked in order to force users to only use the appropiate 
@@ -117,7 +119,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev This function overrides the parent's renounceRole function. Its purpose is to prevent superAdmins from renouncing through
-     * this "backdoor", so they are forced to find another superAdmin through the function proposeNewSuperAdmin.
+     * this "backdoor", so they are forced to set another superAdmin through the function proposeNewSuperAdmin.
      * @param role the role to renounce.
      * @param account address renouncing to the role.
      */
@@ -286,6 +288,51 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function renounceRuleAdministrator() external {
         renounceRole(RULE_ADMIN_ROLE, _msgSender());
         emit RuleAdmin(_msgSender(), false);
+    }
+
+    /// -------------RULE BYPASS ACCOUNT ---------------
+
+    /**
+     * @dev This function is where the rule bypass account role is actually checked
+     * @param account address to be checked
+     * @return success true if RULE_BYPASS_ACCOUNT, false if not
+     */
+    function isRuleBypassAccount(address account) public view returns (bool) {
+        return hasRole(RULE_BYPASS_ACCOUNT, account);
+    }
+
+    /**
+     * @dev Add an account to the rule bypass account role. Restricted to app administrators.
+     * @param account address to be added as a rule bypass account
+     */
+    function addRuleBypassAccount(address account) external onlyRole(APP_ADMIN_ROLE) {
+        if (account == address(0)) revert ZeroAddress();
+        super.grantRole(RULE_BYPASS_ACCOUNT, account);
+        emit RuleBypassAccount(account, true);
+    }
+
+    /**
+     * @dev Add a list of accounts to the rule bypass account role. Restricted to app administrators.
+     * @param account address to be added as a rule bypass account
+     */
+    function addMultipleRuleBypassAccounts(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
+        for (uint256 i; i < account.length; ) {
+            super.grantRole(RULE_BYPASS_ACCOUNT, account[i]);
+            emit RuleBypassAccount(account[i], true);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev Remove oneself from the rule bypass account role.
+     * @notice This function checks for the AdminWithdrawalRule status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active. 
+     */
+    function renounceRuleBypassAccount() external {
+        checkForAdminWithdrawal();
+        renounceRole(RULE_BYPASS_ACCOUNT, _msgSender());
+        emit RuleBypassAccount(_msgSender(), false);
     }
 
     /// -------------ACCESS TIER---------------

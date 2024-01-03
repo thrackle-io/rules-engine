@@ -161,8 +161,9 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoinHandler.setOracleRuleId(_indexAllowed);
         switchToAppAdministrator();
 
-        // add an allowed address
+        // add allowed addresses
         goodBoys.push(address(59));
+        goodBoys.push(address(user5));
         oracleAllowed.addToAllowList(goodBoys);
         vm.stopPrank();
         vm.startPrank(user1);
@@ -267,7 +268,24 @@ contract ApplicationERC20Test is TestCommonFoundry {
         uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         uint256 balance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccessLevelBalanceRule(_index, 2);
         assertEq(balance, 500);
+
+        /// create secondary token, mint, and transfer to user
+        switchToSuperAdmin();
+        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
+        switchToAppAdministrator();
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(draculaCoin), false);
+        draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
+        applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
+        /// register the token
+        applicationAppManager.registerToken("DRAC", address(draculaCoin));
+        draculaCoin.mint(appAdministrator, 10000000000000000000000 * (10 ** 18));
+        draculaCoin.transfer(user1, 100000 * (10 ** 18));
+        assertEq(draculaCoin.balanceOf(user1), 100000 * (10 ** 18));
+        erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * (10 ** 18)); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * (10 ** 18));
+
         /// connect the rule to this handler
+        switchToRuleAdmin();
         applicationHandler.setAccountBalanceByAccessLevelRuleId(_index);
 
         ///perform transfer that checks rule when account does not have AccessLevel(should fail)
@@ -290,20 +308,6 @@ contract ApplicationERC20Test is TestCommonFoundry {
         /// this one is within the limit and should pass
         applicationCoin.transfer(whale, 10000 * (10 ** 18));
 
-        /// create secondary token, mint, and transfer to user
-        switchToSuperAdmin();
-        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
-        switchToAppAdministrator();
-        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(draculaCoin), false);
-        draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
-        applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
-        /// register the token
-        applicationAppManager.registerToken("DRAC", address(draculaCoin));
-        draculaCoin.mint(appAdministrator, 10000000000000000000000 * (10 ** 18));
-        draculaCoin.transfer(user1, 100000 * (10 ** 18));
-        assertEq(draculaCoin.balanceOf(user1), 100000 * (10 ** 18));
-        erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * (10 ** 18)); //setting at $1
-        assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * (10 ** 18));
         // set the access levellevel for the user4
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user4, 3);
@@ -344,6 +348,8 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoin.transfer(user1, 100000);
         assertEq(applicationCoin.balanceOf(user1), 100000);
         applicationCoin.transfer(appAdministrator, 100000);
+        applicationCoin.transfer(address(0x0B455), 100000);
+        assertEq(applicationCoin.balanceOf(address(0x0B455)), 100000);
         vm.stopPrank();
         vm.startPrank(user1);
         applicationCoin.transfer(user2, 1000);
@@ -358,8 +364,12 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.expectRevert();
         applicationCoin.transfer(user2, 1000);
 
-        ///Check that appAdministrators can still transfer within pausePeriod
+        ///Check that rule bypass accounts can still transfer within pausePeriod
         switchToAppAdministrator();
+        applicationAppManager.addRuleBypassAccount(address(0x0B455));
+        vm.stopPrank();
+        vm.startPrank(address(0x0B455));
+
         applicationCoin.transfer(superAdmin, 1000);
         ///move blocktime after pause to resume transfers
         vm.warp(Blocktime + 1600);
@@ -409,6 +419,10 @@ contract ApplicationERC20Test is TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(user1), 10000000 * (10 ** 18));
         applicationCoin.transfer(user2, 10000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
+        applicationCoin.transfer(user3, 1500 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 1500 * (10 ** 18));
+        applicationCoin.transfer(user4, 1000000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user4), 1000000 * (10 ** 18));
         applicationCoin.transfer(user5, 10000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user5), 10000 * (10 ** 18));
 
@@ -439,11 +453,6 @@ contract ApplicationERC20Test is TestCommonFoundry {
         ///Test in between Risk Score Values
         applicationAppManager.addRiskScore(user3, 49);
         applicationAppManager.addRiskScore(user4, 81);
-
-        switchToAppAdministrator();
-        applicationCoin.transfer(user3, 1500 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 1500 * (10 ** 18));
-        applicationCoin.transfer(user4, 1000000 * (10 ** 18));
 
         vm.stopPrank();
         vm.startPrank(user3);
@@ -993,12 +1002,13 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
         applicationCoin.mint(appAdministrator, 100_000 * (10 ** 18));
         /// load non admin users with game coin
-        /// apply the rule
-        switchToRuleAdmin();
-        applicationCoinHandler.setTokenTransferVolumeRuleId(_index);
         switchToAppAdministrator();
         applicationCoin.transfer(rich_user, 100_000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(rich_user), 100_000 * (10 ** 18));
+        /// apply the rule
+        switchToRuleAdmin();
+        applicationCoinHandler.setTokenTransferVolumeRuleId(_index);
+        ///switch to rich user 
         vm.stopPrank();
         vm.startPrank(rich_user);
         /// make sure that transfer under the threshold works
