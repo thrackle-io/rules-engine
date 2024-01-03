@@ -612,8 +612,16 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @dev Get the minimum hold time rule hold hours
      * @return minimumHoldTimeHours minimum amount of time to hold the asset
      */
-    function getMinimumHoldTimeHours() external view returns (uint256) {
+    function getMinimumHoldTimeHours() external view returns (uint32) {
         return minimumHoldTimeHours;
+    }
+
+    /**  
+     * @dev function to check if Minumum Hold Time is active 
+     * @return bool 
+     */
+    function isMinimumHoldTimeActive() external view returns (bool) {
+        return minimumHoldTimeRuleActive; 
     }
 
     /**

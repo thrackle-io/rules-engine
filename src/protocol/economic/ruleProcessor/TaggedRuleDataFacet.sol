@@ -171,53 +171,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         return index;
     }
 
-    /************ Account Withdrawal Getters/Setters ***********/
-    /**
-     * @dev Function adds Withdrawal Rule
-     * @param _appManagerAddr Address of App Manager
-     * @param _accountTypes Types of Accounts
-     * @param _amount Transaction total
-     * @param _releaseDate Date of release
-     * @return _addWithdrawalRule which returns position of new rule in array
-     */
-    function addWithdrawalRule(
-        address _appManagerAddr,
-        bytes32[] calldata _accountTypes,
-        uint256[] calldata _amount,
-        uint256[] calldata _releaseDate
-    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_accountTypes.length != _amount.length || _accountTypes.length != _releaseDate.length) revert InputArraysMustHaveSameLength();
-        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
-        if (_accountTypes.length == 0) revert InvalidRuleInput();
-        return _addWithdrawalRule(_accountTypes, _amount, _releaseDate);
-    }
-
-    /**
-     * @dev Internal function to avoid stack-too-deep error
-     * @param _accountTypes Types of Accounts
-     * @param _amount Transaction total
-     * @param _releaseDate Date of release
-     * @return position of new rule in array
-     */
-    function _addWithdrawalRule(bytes32[] calldata _accountTypes, uint256[] calldata _amount, uint256[] calldata _releaseDate) internal returns (uint32) {
-        RuleS.WithdrawalRuleS storage data = Storage.withdrawalStorage();
-        uint32 index = data.withdrawalRulesIndex;
-        for (uint256 i; i < _accountTypes.length; ) {
-            if (_accountTypes[i] == bytes32("")) revert BlankTag();
-            if (_amount[i] == 0) revert ZeroValueNotPermited();
-            if (_releaseDate[i] <= block.timestamp) revert DateInThePast(_releaseDate[i]);
-            TaggedRules.WithdrawalRule memory rule = TaggedRules.WithdrawalRule(_amount[i], _releaseDate[i]);
-            data.withdrawalRulesPerToken[index][_accountTypes[i]] = rule;
-            unchecked {
-                ++i;
-            }
-        }
-        emit ProtocolRuleCreated(WITHDRAWAL, index, _accountTypes);
-        ++data.withdrawalRulesIndex;
-        return index;
-    }
-
     /************ Admin Account Withdrawal Getters/Setters ***********/
 
     /**

@@ -18,7 +18,6 @@ library RuleStoragePositionLib {
     bytes32 constant PURCHASE_FEE_BY_VOLUME_RULE_POSITION = bytes32(uint256(keccak256("amm.fee-by-volume")) - 1);
     bytes32 constant PRICE_VOLATILITY_RULE_POSITION = bytes32(uint256(keccak256("amm.price.volatility")) - 1);
     bytes32 constant VOLUME_RULE_POSITION = bytes32(uint256(keccak256("amm.volume")) - 1);
-    bytes32 constant WITHDRAWAL_RULE_POSITION = bytes32(uint256(keccak256("vault.withdrawal")) - 1);
     bytes32 constant ADMIN_WITHDRAWAL_RULE_POSITION = bytes32(uint256(keccak256("vault.admin-withdrawal")) - 1);
     bytes32 constant MIN_TRANSFER_RULE_POSITION = bytes32(uint256(keccak256("token.min-transfer")) - 1);
     bytes32 constant MIN_MAX_BALANCE_RULE_POSITION = bytes32(uint256(keccak256("token.min-max-balance-limit")) - 1);
@@ -105,17 +104,6 @@ library RuleStoragePositionLib {
      */
     function volumeStorage() internal pure returns (IRuleStorage.TransferVolRuleS storage ds) {
         bytes32 position = VOLUME_RULE_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
-
-    /**
-     * @dev Function to store Withdrawal rules
-     * @return ds Data Storage of Withdrawal Rule
-     */
-    function withdrawalStorage() internal pure returns (IRuleStorage.WithdrawalRuleS storage ds) {
-        bytes32 position = WITHDRAWAL_RULE_POSITION;
         assembly {
             ds.slot := position
         }

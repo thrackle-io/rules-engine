@@ -876,64 +876,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         }
         assertEq(ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalNFTTransferCounterRules(), _indexes.length);
     }
-
-    /**************** Tagged Withdrawal Rule Testing  ****************/
-    //Test Adding Withdrawal Rule
-    function testSettingWithdrawalRule() public {
-        // set user to the rule admin
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
-        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory amounts = createUint256Array(1000, 5000, 9000);
-        uint256[] memory releaseDate = createUint256Array((block.timestamp + 222), (block.timestamp + 444), (block.timestamp + 888));
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
-        assertEq(_index, 0);
-
-        /// Withdrawal rule getter no longer exists until rule is written 
-        // TaggedRules.WithdrawalRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Tayler");
-        // assertEq(rule.amount, 5000);
-        // assertEq(rule.releaseDate, block.timestamp + 444);
-        // bytes32[] memory accs2 = bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        // uint256[] memory amounts2 = createUint256Array(500, 1500, 3000);
-        // uint256[] memory releaseDate2 = createUint256Array((block.timestamp + 10000), (block.timestamp + 888), (block.timestamp + 666));
-        // _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs2, amounts2, releaseDate2);
-        // assertEq(_index, 1);
-        // rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Oscar");
-        // assertEq(rule.amount, 500);
-        // assertEq(rule.releaseDate, block.timestamp + 10000);
-    }
-
-    //Test Get Withdrawal Rule
-    function testGetWithdrawalRuleUpdate() public {
-        // set user to the rule admin
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
-        //Set Rule
-        bytes32[] memory accs = createBytes32Array("Shane");
-        uint256[] memory amounts = createUint256Array(1000);
-        uint256[] memory releaseDate = createUint256Array((block.timestamp + 10000));
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
-        assertEq(_index, 0);
-        // TaggedRules.WithdrawalRule memory rule = TaggedRuleDataFacet(address(ruleProcessor)).getWithdrawalRule(_index, "Shane");
-        // assertEq(rule.amount, 1000);
-        // assertEq(rule.releaseDate, block.timestamp + 10000);
-    }
-
-    //Test Get Total Withdrawal Rules
-    function testGetTotalWithdrawalRules() public {
-        // set user to the rule admin
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
-        uint256[3] memory _indexes;
-        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory amounts = createUint256Array(1000, 5000, 9000);
-        uint256[] memory releaseDate = createUint256Array((block.timestamp + 222), (block.timestamp + 444), (block.timestamp + 888));
-        for (uint8 i = 0; i < _indexes.length; i++) {
-            _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addWithdrawalRule(address(applicationAppManager), accs, amounts, releaseDate);
-        }
-        /// Withdrawal getter no longer exists until rule is written 
-        //assertEq(TaggedRuleDataFacet(address(ruleProcessor)).getTotalWithdrawalRule(), _indexes.length);
-    }
+    
 
     /**************** Balance by AccessLevel Rule Testing  ****************/
 
