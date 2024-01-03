@@ -57,14 +57,6 @@ interface IRuleStorage {
         uint32 transferVolRuleIndex;
     }
 
-    /// ******** Withdrawal Rules ********
-
-    struct WithdrawalRuleS {
-        /// ruleIndex => taggedAccount => SupplyVolatilityRules
-        mapping(uint32 => mapping(bytes32 => ITaggedRules.WithdrawalRule)) withdrawalRulesPerToken;
-        uint32 withdrawalRulesIndex; /// increments every time someone adds a rule
-    }
-
     /// ******** Admin Withdrawal Rules ********
 
     struct AdminWithdrawalRuleS {

@@ -162,24 +162,6 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateWithdrawal(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllWithdrawalRule());
-    }
-    
-    /**
-     * @dev Function to get total withdrawal rules
-     * @return withdrawalRulesIndex total length of array
-     */
-    function getAllWithdrawalRule() internal view returns (uint32) {
-        RuleS.WithdrawalRuleS storage data = Storage.withdrawalStorage();
-        return data.withdrawalRulesIndex;
-    }
-
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
     function validateMinBalByDate(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getAllMinBalByDateRule());

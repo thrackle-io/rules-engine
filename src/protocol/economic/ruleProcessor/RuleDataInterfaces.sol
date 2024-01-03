@@ -79,11 +79,6 @@ interface ITaggedRules {
         uint16 sellPeriod; /// hours
         uint64 startTime; /// Time the rule is created
     }
-    /// ******** Account Withdrawal Rules ********
-    struct WithdrawalRule {
-        uint256 amount;
-        uint256 releaseDate; /// timestamp
-    }
 
     /// ******** Minimum/Maximum Account Balances ********
     struct MinMaxBalanceRule {
