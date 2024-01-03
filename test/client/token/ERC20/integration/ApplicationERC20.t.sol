@@ -366,9 +366,10 @@ contract ApplicationERC20Test is TestCommonFoundry {
 
         ///Check that rule bypass accounts can still transfer within pausePeriod
         switchToAppAdministrator();
+        //TODO update to common functions i.e. switchToRuleBypassAccount(); 
         applicationAppManager.addRuleBypassAccount(address(0x0B455));
         vm.stopPrank();
-        vm.startPrank(address(0x0B455));
+        vm.startPrank(address(0x0B455)); 
 
         applicationCoin.transfer(superAdmin, 1000);
         ///move blocktime after pause to resume transfers
