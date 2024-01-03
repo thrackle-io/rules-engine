@@ -208,4 +208,105 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
         return data.supplyVolatilityRuleIndex;
     }
+
+    /**
+     * @dev Function receives a rule id, retrieves the rule data and checks if the Purchase Percentage Rule passes
+     * @param ruleId id of the rule to be checked
+     * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
+     * @param amountToTransfer total number of tokens to be transferred in transaction.
+     * @param lastPurchaseTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
+     * @param purchasedWithinPeriod total amount of tokens purchased in current period
+     */
+    function checkPurchasePercentagePasses(
+        uint32 ruleId,
+        uint256 currentTotalSupply,
+        uint256 amountToTransfer,
+        uint64 lastPurchaseTime,
+        uint256 purchasedWithinPeriod
+    ) external view returns (uint256) {
+        NonTaggedRules.TokenPercentagePurchaseRule memory percentagePurchaseRule = getPctPurchaseRule(ruleId);
+        uint256 totalPurchasedWithinPeriod = amountToTransfer; /// resets value for purchases outside of purchase period
+        uint256 totalSupply = percentagePurchaseRule.totalSupply;
+        /// check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
+        if (percentagePurchaseRule.totalSupply == 0) totalSupply = currentTotalSupply;
+        uint16 percentOfTotalSupply = uint16(((amountToTransfer + purchasedWithinPeriod) * 10000) / totalSupply);
+        // check if within current purchase period
+        /// we perform the rule check
+        if (percentagePurchaseRule.startTime.isWithinPeriod(percentagePurchaseRule.purchasePeriod, lastPurchaseTime)) {
+            /// update totalPurchasedWithinPeriod to include the amountToTransfer when inside purchase period
+            totalPurchasedWithinPeriod = amountToTransfer + purchasedWithinPeriod;
+            /// perform rule check if amountToTransfer + purchasedWithinPeriod is over allowed amount of total supply
+            if (percentOfTotalSupply >= percentagePurchaseRule.tokenPercentage) revert PurchasePercentageReached();
+        }
+        return totalPurchasedWithinPeriod;
+    }
+
+    /**
+     * @dev Function get Token Purchase Percentage by index
+     * @param _index position of rule in array
+     * @return percentagePurchaseRules rule at index position
+     */
+    function getPctPurchaseRule(uint32 _index) public view returns (NonTaggedRules.TokenPercentagePurchaseRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalPctPurchaseRule());
+        RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
+        return data.percentagePurchaseRules[_index];
+    }
+
+    /**
+     * @dev Function to get total Token Purchase Percentage
+     * @return Total length of array
+     */
+    function getTotalPctPurchaseRule() public view returns (uint32) {
+        RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
+        return data.percentagePurchaseRuleIndex;
+    }
+
+    /**
+     *
+     * @param ruleId id of the rule to be checked
+     * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
+     * @param amountToTransfer total number of tokens to be transferred in transaction.
+     * @param lastSellTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
+     * @param soldWithinPeriod total amount of tokens sold within current period
+     */
+    function checkSellPercentagePasses(uint32 ruleId, uint256 currentTotalSupply, uint256 amountToTransfer, uint64 lastSellTime, uint256 soldWithinPeriod) external view returns (uint256) {
+        NonTaggedRules.TokenPercentageSellRule memory percentageSellRule = getPctSellRule(ruleId);
+        uint256 totalSoldWithinPeriod = amountToTransfer; /// resets value for purchases outside of purchase period
+        uint256 totalSupply = percentageSellRule.totalSupply;
+        /// check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
+        if (percentageSellRule.totalSupply == 0) totalSupply = currentTotalSupply;
+        uint16 percentOfTotalSupply = uint16(((amountToTransfer + soldWithinPeriod) * 10000) / totalSupply);
+        // check if within current purchase period
+        /// we perform the rule check
+        if (percentageSellRule.startTime.isWithinPeriod(percentageSellRule.sellPeriod, lastSellTime)) {
+            /// update soldWithinPeriod to include the amountToTransfer when inside purchase period
+            totalSoldWithinPeriod = amountToTransfer + soldWithinPeriod;
+            /// perform rule check if amountToTransfer + soldWithinPeriod is over allowed amount of total supply
+            if (percentOfTotalSupply >= percentageSellRule.tokenPercentage) revert SellPercentageReached();
+        }
+        return totalSoldWithinPeriod;
+    }
+
+    /**
+     * @dev Function get Token sell Percentage by index
+     * @param _index position of rule in array
+     * @return percentageSellRules rule at index position
+     */
+    function getPctSellRule(uint32 _index) public view returns (NonTaggedRules.TokenPercentageSellRule memory) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalPctSellRule());
+        RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
+        return data.percentageSellRules[_index];
+    }
+
+    /**
+     * @dev Function to get total Token Percentage Sell
+     * @return Total length of array
+     */
+    function getTotalPctSellRule() public view returns (uint32) {
+        RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
+        return data.percentageSellRuleIndex;
+    }
+
 }
