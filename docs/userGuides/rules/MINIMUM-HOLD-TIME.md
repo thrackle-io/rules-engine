@@ -1,4 +1,4 @@
-# Minimum Account Balance By Date Rule
+# Minimum Hold Time Rule
 
 ## Purpose
 
@@ -23,7 +23,7 @@ The rule is a uint32 variable for number of hours each individual token must be 
     uint32 private minimumHoldTimeHours;
 ```
 
-Additionally, each starting unix timestamp for the ownership of the tokenId is stored in a mapping inside the hanlder. 
+Additionally, each starting unix timestamp for the ownership of the tokenId is stored in a mapping inside the handler. 
 
 ```c
 /// Minimum Hold time data
