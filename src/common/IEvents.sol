@@ -121,7 +121,7 @@ interface ITokenHandlerEvents {
     ///Handler
     event HandlerDeployed(address indexed applicationHandler, address indexed appManager);
     /// Rule applied
-    event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId);
+    event ApplicationHandlerApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
     event ApplicationHandlerSimpleApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint256 indexed param1);
     /// NFT Valuation Limit Updated
     event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit, address indexed handlerAddress);

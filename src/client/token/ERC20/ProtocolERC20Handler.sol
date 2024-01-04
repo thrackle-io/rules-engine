@@ -9,6 +9,7 @@ import "../data/Fees.sol";
 import {IZeroAddressError, IAssetHandlerErrors} from "src/common/IErrors.sol";
 import "../ProtocolHandlerCommon.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract
@@ -45,6 +46,10 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     uint32 private minBalByDateRuleId;
     uint32 private tokenTransferVolumeRuleId;
     uint32 private totalSupplyVolatilityRuleId;
+    uint32 private purchaseLimitRuleId;
+    uint32 private sellLimitRuleId;
+    uint32 private purchasePercentageRuleId;
+    uint32 private sellPercentageRuleId;
 
     /// on-off switches for rules
     bool private minTransferRuleActive;
@@ -55,6 +60,10 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     bool private minBalByDateRuleActive;
     bool private tokenTransferVolumeRuleActive;
     bool private totalSupplyVolatilityRuleActive;
+    bool private purchaseLimitRuleActive;
+    bool private sellLimitRuleActive;
+    bool private purchasePercentageRuleActive;
+    bool private sellPercentageRuleActive;
 
     /// token level accumulators
     uint256 private transferVolume;
@@ -62,6 +71,17 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     uint64 private lastSupplyUpdateTime;
     int256 private volumeTotalForPeriod;
     uint256 private totalSupplyForPeriod;
+
+    /// purchase/sell data
+    uint64 public previousPurchaseTime;
+    uint64 public previousSellTime;
+    uint256 private totalPurchasedWithinPeriod; /// total number of tokens purchased in period
+    uint256 private totalSoldWithinPeriod; /// total number of tokens purchased in period
+    /// Mapping lastUpdateTime for most recent previous tranaction through Protocol
+    mapping(address => uint64) lastPurchaseTime;
+    mapping(address => uint256) purchasedWithinPeriod;
+    mapping(address => uint256) salesWithinPeriod;
+    mapping(address => uint64) lastSellTime;
 
     /**
      * @dev Constructor sets params
@@ -101,29 +121,40 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @param _from sender address
      * @param _to recipient address
      * @param _sender the address triggering the contract action
-     * @param amount number of tokens transferred
+     * @param _amount number of tokens transferred
      * @return true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 amount) external override onlyOwner returns (bool) {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _amount) external override onlyOwner returns (bool) {
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         // // All transfers to treasury account are allowed
         if (!appManager.isTreasury(_to)) {
             /// standard rules do not apply when either to or from is an admin
             if (!isFromAdmin && !isToAdmin) {
+                /// pure transfer rules
                 uint128 balanceValuation;
                 uint128 price;
                 uint128 transferValuation;
                 if (appManager.requireValuations()) {
                     balanceValuation = uint128(getAccTotalValuation(_to, 0));
                     price = uint128(_getERC20Price(msg.sender));
-                    transferValuation = uint128((price * amount) / (10 ** IToken(msg.sender).decimals()));
+                    transferValuation = uint128((price * _amount) / (10 ** IToken(msg.sender).decimals()));
                 }
                 appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation);
-                _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
-                _checkNonTaggedRules(_from, _to, amount);
+                _checkTaggedRules(balanceFrom, balanceTo, _from, _to, _amount);
+                _checkNonTaggedRules(_from, _to, _amount);
+                /// trade rules
+                if(!(_sender == _from || address(0) == _from || address(0) == _to)){
+                    /// purchase
+                    if(_isAMM(_from)){
+                        _checkNonTaggedPurchaseRules(_amount);
+                    /// sell
+                    }else{
+                        _checkNonTaggedSellRules(_amount);
+                    }
+                }
             } else {
-                if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
+                if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, _amount);
             }
         }
         /// If all rule checks pass, return true
@@ -208,6 +239,39 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
                 ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _transferValuation);
             }
         }
+    }
+
+    /**
+     * @dev Rule tracks all purchases by account for purchase Period, the timestamp of the most recent purchase and purchases are within the purchase period.
+     * @param _amount number of tokens transferred
+     */
+    function _checkNonTaggedPurchaseRules(uint256 _amount) internal {
+        /// Check rule is active and action taken is a purchase
+        if (purchasePercentageRuleActive) {
+            totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(purchasePercentageRuleId, IERC20(msg.sender).totalSupply(), _amount, previousPurchaseTime, totalPurchasedWithinPeriod);
+            previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
+        }
+    }
+
+    /**
+     * @dev Rule tracks all sales by account for sell Period, the timestamp of the most recent sale and sales are within the sell period.
+     * @param _amount number of tokens transferred
+     */
+    function _checkNonTaggedSellRules(uint256 _amount) internal {
+        /// Check rule is active and action taken is a sell
+        if (sellPercentageRuleActive) {
+            totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(sellPercentageRuleId,  IERC20(msg.sender).totalSupply(), _amount, previousSellTime, totalSoldWithinPeriod);
+            previousSellTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
+        }
+    }
+
+    /**
+     * @dev checks the appManager to determine if an address is an AMM or not
+     * @param _address the address to check if is an AMM
+     * @return true if the _address is an AMM
+     */
+    function _isAMM(address _address) internal view returns (bool){
+        return appManager.isRegisteredAMM(_address);
     }
 
     /* <><><><><><><><><><><> Fee functions <><><><><><><><><><><><><><> */
@@ -340,7 +404,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateMinMaxAccountBalance(_ruleId);
         minMaxBalanceRuleId = _ruleId;
         minMaxBalanceRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, _ruleId);
     }
 
     /**
@@ -381,7 +445,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateMinTransfer(_ruleId);
         minTransferRuleId = _ruleId;
         minTransferRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_TRANSFER, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_TRANSFER, _ruleId);
     }
 
     /**
@@ -422,7 +486,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateOracle(_ruleId);
         oracleRuleId = _ruleId;
         oracleRuleActive = true;
-        emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(ORACLE, _ruleId);
     }
 
     /**
@@ -471,7 +535,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateTransactionLimitByRiskScore(_ruleId);
         transactionLimitByRiskRuleId = _ruleId;
         transactionLimitByRiskRuleActive = true;
-        emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, address(this), _ruleId);
+        emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, _ruleId);
     }
 
     /**
@@ -509,7 +573,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
         adminWithdrawalRuleId = _ruleId;
         adminWithdrawalActive = true;
-        emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, address(this), _ruleId);
+        emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, _ruleId);
     }
 
     /**
@@ -576,7 +640,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateMinBalByDate(_ruleId);
         minBalByDateRuleId = _ruleId;
         minBalByDateRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, _ruleId);
     }
 
     /**
@@ -617,7 +681,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateTokenTransferVolume(_ruleId);
         tokenTransferVolumeRuleId = _ruleId;
         tokenTransferVolumeRuleActive = true;
-        emit ApplicationHandlerApplied(TRANSFER_VOLUME, address(this), _ruleId);
+        emit ApplicationHandlerApplied(TRANSFER_VOLUME, _ruleId);
     }
 
     /**
@@ -658,7 +722,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateSupplyVolatility(_ruleId);
         totalSupplyVolatilityRuleId = _ruleId;
         totalSupplyVolatilityRuleActive = true;
-        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, address(this), _ruleId);
+        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, _ruleId);
     }
 
     /**
@@ -680,6 +744,116 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      */
     function isTotalSupplyVolatilityActive() external view returns (bool) {
         return totalSupplyVolatilityRuleActive;
+    }
+
+    /**
+     *@dev this function gets the total supply of the address.
+     *@param _token address of the token to call totalSupply() of.
+     */
+    function getTotalSupply(address _token) internal view returns (uint256) {
+        return IERC20(_token).totalSupply();
+    }
+
+    /**
+     * @dev Set the PurchaseLimitRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setPurchaseLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        purchaseLimitRuleId = _ruleId;
+        purchaseLimitRuleActive = true;
+        emit ApplicationHandlerApplied(PURCHASE_LIMIT, _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activatePurchaseLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        purchaseLimitRuleActive = _on;
+    }
+
+    /**
+     * @dev Retrieve the Purchase Limit rule id
+     * @return purchaseLimitRuleId
+     */
+    function getPurchaseLimitRuleId() external view returns (uint32) {
+        return purchaseLimitRuleId;
+    }
+
+    /**
+     * @dev Tells you if the Purchase Limit Rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isPurchaseLimitActive() external view returns (bool) {
+        return purchaseLimitRuleActive;
+    }
+
+    /**
+     * @dev Set the SellLimitRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setSellLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        sellLimitRuleId = _ruleId;
+        sellLimitRuleActive = true;
+        emit ApplicationHandlerApplied(SELL_LIMIT, _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateSellLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        sellLimitRuleActive = _on;
+    }
+
+    /**
+     * @dev Retrieve the Purchase Limit rule id
+     * @return oracleRuleId
+     */
+    function getSellLimitRuleId() external view returns (uint32) {
+        return sellLimitRuleId;
+    }
+
+    /**
+     * @dev Tells you if the Purchase Limit Rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isSellLimitActive() external view returns (bool) {
+        return sellLimitRuleActive;
+    }
+
+    /**
+     * @dev Get the block timestamp of the last purchase for account.
+     * @return LastPurchaseTime for account
+     */
+    function getLastPurchaseTime(address account) external view ruleAdministratorOnly(appManagerAddress) returns (uint256) {
+        return lastPurchaseTime[account];
+    }
+
+    /**
+     * @dev Get the block timestamp of the last Sell for account.
+     * @return LastSellTime for account
+     */
+    function getLastSellTime(address account) external view returns (uint256) {
+        return lastSellTime[account];
+    }
+
+    /**
+     * @dev Get the cumulative total of the purchases for account in purchase period.
+     * @return purchasedWithinPeriod for account
+     */
+    function getPurchasedWithinPeriod(address account) external view returns (uint256) {
+        return purchasedWithinPeriod[account];
+    }
+
+    /**
+     * @dev Get the cumulative total of the Sales for account during sell period.
+     * @return salesWithinPeriod for account
+     */
+    function getSalesWithinPeriod(address account) external view  returns (uint256) {
+        return salesWithinPeriod[account];
     }
 
     /// -------------DATA CONTRACT DEPLOYMENT---------------
