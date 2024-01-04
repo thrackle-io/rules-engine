@@ -12,18 +12,11 @@ pragma solidity ^0.8.17;
  */
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "../ProtocolHandlerCommon.sol";
 
 contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
-    /**
-     * Functions added so far:
-     * minAccountBalance
-     * Min Max Balance
-     * Oracle
-     * Trade Counter
-     * Balance By AccessLevel
-     */
+    
     address public erc721Address;
     /// RuleIds for implemented tagged rules of the ERC721
     uint32 private minMaxBalanceRuleId;
@@ -35,6 +28,10 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     uint32 private adminWithdrawalRuleId;
     uint32 private tokenTransferVolumeRuleId;
     uint32 private totalSupplyVolatilityRuleId;
+    uint32 private purchaseLimitRuleId;
+    uint32 private sellLimitRuleId;
+    uint32 private purchasePercentageRuleId;
+    uint32 private sellPercentageRuleId;
     /// on-off switches for rules
     bool private oracleRuleActive;
     bool private minMaxBalanceRuleActive;
@@ -45,6 +42,10 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     bool private tokenTransferVolumeRuleActive;
     bool private totalSupplyVolatilityRuleActive;
     bool private minimumHoldTimeRuleActive;
+    bool private purchaseLimitRuleActive;
+    bool private sellLimitRuleActive;
+    bool private purchasePercentageRuleActive;
+    bool private sellPercentageRuleActive;
 
     /// simple rule(with single parameter) variables
     uint32 private minimumHoldTimeHours;
@@ -57,6 +58,12 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     uint256 private totalSupplyForPeriod;
     /// NFT Collection Valuation Limit
     uint256 private nftValuationLimit = 100;
+
+    /// purchase/sell data
+    uint64 public previousPurchaseTime;
+    uint64 public previousSellTime;
+    uint256 private totalPurchasedWithinPeriod; /// total number of tokens purchased in period
+    uint256 private totalSoldWithinPeriod; /// total number of tokens purchased in period
 
     /// Trade Counter data
     // map the tokenId of this NFT to the number of trades in the period
@@ -114,17 +121,28 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromAdmin && !isToAdmin) {
-            if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
-            uint128 balanceValuation;
-            uint128 transferValuation;
-            if (appManager.requireValuations()) {
-                balanceValuation = uint128(getAccTotalValuation(_to, nftValuationLimit));
-                transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
+            /// pure transfer
+            if(_sender == _from || address(0) == _from || address(0) == _to){
+                uint128 balanceValuation;
+                uint128 transferValuation;
+                if (appManager.requireValuations()) {
+                    balanceValuation = uint128(getAccTotalValuation(_to, nftValuationLimit));
+                    transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
+                }
+                appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation);
+                _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
+                _checkNonTaggedRules(_from, _to, _amount, _tokenId);
+                _checkSimpleRules(_tokenId);
+            /// trade
+            }else{
+                /// purchase
+                if(isAMM(_from)){
+                    _checkNonTaggedPurchaseRules(_amount);
+                /// sell
+                }else{
+                    _checkNonTaggedSellRules(_amount);
+                }
             }
-            appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation);
-            _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
-            _checkNonTaggedRules(_from, _to, _amount, _tokenId);
-            _checkSimpleRules(_tokenId);
         } else {
             if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
         }
@@ -222,11 +240,44 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     }
 
     /**
+     * @dev Rule tracks all purchases by account for purchase Period, the timestamp of the most recent purchase and purchases are within the purchase period.
+     * @param _amount number of tokens transferred
+     */
+    function _checkNonTaggedPurchaseRules(uint256 _amount) internal {
+        /// Check rule is active and action taken is a purchase
+        if (purchasePercentageRuleActive) {
+            totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(purchasePercentageRuleId, IERC721Enumerable(erc721Address).totalSupply(), _amount, previousPurchaseTime, totalPurchasedWithinPeriod);
+            previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
+        }
+    }
+
+    /**
+     * @dev Rule tracks all sales by account for sell Period, the timestamp of the most recent sale and sales are within the sell period.
+     * @param _amount number of tokens transferred
+     */
+    function _checkNonTaggedSellRules(uint256 _amount) internal {
+        /// Check rule is active and action taken is a sell
+        if (sellPercentageRuleActive) {
+            totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(sellPercentageRuleId, IERC721Enumerable(erc721Address).totalSupply(), _amount, previousSellTime, totalSoldWithinPeriod);
+            previousSellTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
+        }
+    }
+
+    /**
      * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
      * @param _tokenId the specific token in question
      */
     function _checkSimpleRules(uint256 _tokenId) internal view {
         if (minimumHoldTimeRuleActive && ownershipStart[_tokenId] > 0) ruleProcessor.checkNFTHoldTime(minimumHoldTimeHours, ownershipStart[_tokenId]);
+    }
+
+    /**
+     * @dev checks the appManager to determine if an address is an AMM or not
+     * @param _address the address to check if is an AMM
+     * @return true if the _address is an AMM
+     */
+    function isAMM(address _address) internal returns (bool){
+        return appManager.isRegisteredAMM(_address);
     }
 
     /**
