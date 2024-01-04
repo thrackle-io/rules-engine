@@ -138,7 +138,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// enforcing the min-1-admin requirement.
         if(role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
-        if(role == APP_ADMIN_ROLE) checkForAdminWithdrawal();
+        if(role == RULE_BYPASS_ACCOUNT) checkForAdminWithdrawal();
         AccessControl.revokeRole(role, account);
     }
     // /// -------------ADMIN---------------
@@ -224,27 +224,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the app administrator role.
      */
     function renounceAppAdministrator() external {
-        /// If the AdminWithdrawal rule is active, App Admins are not allowed to renounce their role to prevent manipulation of the rule
-        checkForAdminWithdrawal();
         renounceRole(APP_ADMIN_ROLE, _msgSender());
         emit AppAdministrator(_msgSender(), false);
-    }
-
-    /**
-     * @dev Loop through all the registered tokens, if they are capable of admin withdrawal, see if it's active. If so, revert
-     */
-    function checkForAdminWithdrawal() internal {
-        for (uint256 i; i < tokenList.length; ) {
-            // check to see if supports the rule first
-            if (ProtocolTokenCommon(tokenList[i]).getHandlerAddress().supportsInterface(type(IAdminWithdrawalRuleCapable).interfaceId)) {
-                if (IAdminWithdrawalRuleCapable(ProtocolTokenCommon(tokenList[i]).getHandlerAddress()).isAdminWithdrawalActiveAndApplicable()) {
-                    revert AdminWithdrawalRuleisActive();
-                }
-            }
-            unchecked {
-                ++i;
-            }
-        }
     }
 
     /// -------------RULE ADMIN---------------
@@ -330,9 +311,28 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @notice This function checks for the AdminWithdrawalRule status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active. 
      */
     function renounceRuleBypassAccount() external {
+        /// If the AdminWithdrawal rule is active, Rule Bypass Accounts are not allowed to renounce their role to prevent manipulation of the rule
         checkForAdminWithdrawal();
         renounceRole(RULE_BYPASS_ACCOUNT, _msgSender());
         emit RuleBypassAccount(_msgSender(), false);
+    }
+
+    /**
+     * @dev Loop through all the registered tokens, if they are capable of admin withdrawal, see if it's active. If so, revert
+     * @dev ruleBypassAccount is the only RBAC Role subjected to this rule as this role bypasses all other rules. 
+     */
+    function checkForAdminWithdrawal() internal {
+        for (uint256 i; i < tokenList.length; ) {
+            // check to see if supports the rule first
+            if (ProtocolTokenCommon(tokenList[i]).getHandlerAddress().supportsInterface(type(IAdminWithdrawalRuleCapable).interfaceId)) {
+                if (IAdminWithdrawalRuleCapable(ProtocolTokenCommon(tokenList[i]).getHandlerAddress()).isAdminWithdrawalActiveAndApplicable()) {
+                    revert AdminWithdrawalRuleisActive();
+                }
+            }
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /// -------------ACCESS TIER---------------

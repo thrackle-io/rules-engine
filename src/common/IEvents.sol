@@ -86,7 +86,7 @@ interface ICommonApplicationHandlerEvents {
     /// Rule activated
     event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
     //// Rule Bypassed Via Rule Bypass Account 
-    event RuleBypassedViaRuleBypassAccount(address indexed ruleBypassAccount, address indexed appManager);
+    event RulesBypassedViaRuleBypassAccount(address indexed ruleBypassAccount, address indexed appManager);
 }
 
 /**

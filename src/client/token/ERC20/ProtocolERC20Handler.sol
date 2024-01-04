@@ -124,7 +124,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
                 _checkNonTaggedRules(_from, _to, amount);
             } else {
                 if (adminWithdrawalActive && isFromBypassAccount) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
-                emit RuleBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress); 
+                emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress); 
             }
         }
         /// If all rule checks pass, return true

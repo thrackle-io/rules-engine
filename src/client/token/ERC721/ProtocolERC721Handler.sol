@@ -111,10 +111,10 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      */
 
     function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external onlyOwner returns (bool) {
-        bool isFromAdmin = appManager.isAppAdministrator(_from);
-        bool isToAdmin = appManager.isAppAdministrator(_to);
+        bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
+        bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
-        if (!isFromAdmin && !isToAdmin) {
+        if (!isFromBypassAccount && !isToBypassAccount) {
             if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
             uint128 balanceValuation;
             uint128 transferValuation;
@@ -127,7 +127,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
         } else {
-            if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
+            if (adminWithdrawalActive && isFromBypassAccount) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
         }
         /// set the ownership start time for the token if the Minimum Hold time rule is active
         if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;

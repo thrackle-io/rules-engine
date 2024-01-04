@@ -347,9 +347,8 @@ contract ApplicationERC20Test is TestCommonFoundry {
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 100000);
         assertEq(applicationCoin.balanceOf(user1), 100000);
-        applicationCoin.transfer(appAdministrator, 100000);
-        applicationCoin.transfer(address(0x0B455), 100000);
-        assertEq(applicationCoin.balanceOf(address(0x0B455)), 100000);
+        applicationCoin.transfer(ruleBypassAccount, 100000);
+        assertEq(applicationCoin.balanceOf(ruleBypassAccount), 100000);
         vm.stopPrank();
         vm.startPrank(user1);
         applicationCoin.transfer(user2, 1000);
@@ -365,11 +364,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoin.transfer(user2, 1000);
 
         ///Check that rule bypass accounts can still transfer within pausePeriod
-        switchToAppAdministrator();
-        //TODO update to common functions i.e. switchToRuleBypassAccount(); 
-        applicationAppManager.addRuleBypassAccount(address(0x0B455));
-        vm.stopPrank();
-        vm.startPrank(address(0x0B455)); 
+        switchToRuleBypassAccount();
 
         applicationCoin.transfer(superAdmin, 1000);
         ///move blocktime after pause to resume transfers
