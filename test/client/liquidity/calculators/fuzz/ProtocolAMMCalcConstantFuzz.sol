@@ -22,7 +22,12 @@ contract ProtocolAMMCalcConstantFuzzTest is TestCommonFoundry, Utils {
     uint8 constant MAX_TOLERANCE = 5;
     uint8 constant TOLERANCE_PRECISION = 11;
     uint256 constant TOLERANCE_DEN = 10 ** TOLERANCE_PRECISION;
-
+    uint256 constant MAX_TRADE_AMOUNT = 1_000_000 * ATTO;
+    ConstantRatio curve;
+    address calcAddress;
+    ProtocolAMMCalcConst calc;
+    uint256 returnVal;
+    uint resUint;
 
     function setUp() public {
         vm.startPrank(superAdmin);
@@ -33,17 +38,14 @@ contract ProtocolAMMCalcConstantFuzzTest is TestCommonFoundry, Utils {
     /**
      * Test the the creation of Constant get Y calculation module. All of the results are matched up to a python calculation
      */
-    function testFactoryConstantGetY(uint32 _x, uint32 _y, uint256 _x_in) public { 
+    function testFactoryConstantFuzzGetY(uint32 _x, uint32 _y, uint256 _x_in) public { 
         uint32 x = uint32(bound(uint256(_x), 1, uint256(type(uint32).max)));  
         uint32 y = uint32(bound(uint256(_y), 1, uint256(type(uint32).max)));
-        uint256 amount0 = bound(uint256(_x_in), 1, 1_000_000 * 10 ** 18);
-        ConstantRatio memory curve = ConstantRatio(x, y);
-        address calcAddress = ammCalcfactory.createConstant(curve, address(applicationAppManager));
-        ProtocolAMMCalcConst calc = ProtocolAMMCalcConst(calcAddress);
-        uint256 reserve0 = 1_000_000 * 10 ** 18;
-        uint256 reserve1 = 1_000_000 * 10 ** 18;
+        uint256 amount0 = bound(uint256(_x_in), 1, MAX_TRADE_AMOUNT);
+        setCurve(x,y);        
+        uint256 reserve0 = MAX_TRADE_AMOUNT;
+        uint256 reserve1 = MAX_TRADE_AMOUNT;
         uint256 amount1 = 0;
-        uint256 returnVal;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
         /// the response from the Python script that will contain the price calculated "offchain"
         bytes memory res;
@@ -51,7 +53,7 @@ contract ProtocolAMMCalcConstantFuzzTest is TestCommonFoundry, Utils {
         string[] memory inputs = _buildFFICalculator_getY(curve, amount0);
         res = vm.ffi(inputs); 
         emit Log(res);
-        uint resUint;
+        
         // ƒoundry gets weird with the return values so we have to jump through hoops.
         if (isPossiblyAnAscii(res)){
             /// we decode the ascii into a uint
@@ -60,8 +62,7 @@ contract ProtocolAMMCalcConstantFuzzTest is TestCommonFoundry, Utils {
             resUint= decodeFakeDecimalBytes(res);
         }
         /// some debug logging 
-        emit AMM___Return(returnVal);
-        emit PythonReturn(resUint);
+        logSwap();
         // If the comparison fails, it may be due to a false positive from isPossiblyAnAscii. Try to convert it as a fake decimal to be certain
         if (!areWithinTolerance(returnVal, resUint, MAX_TOLERANCE, TOLERANCE_DEN)){
             resUint= decodeFakeDecimalBytes(res);
@@ -74,17 +75,15 @@ contract ProtocolAMMCalcConstantFuzzTest is TestCommonFoundry, Utils {
     /**
      * Test the the creation of Constant get X calculation module. All of the results are matched up to a python calculation
      */
-    function testFactoryConstantGetX(uint32 _x, uint32 _y, uint256 _y_in) public { 
+    function testFactoryConstantFuzzGetX(uint32 _x, uint32 _y, uint256 _y_in) public { 
         uint32 x = uint32(bound(uint256(_x), 1, uint256(type(uint32).max)));  
         uint32 y = uint32(bound(uint256(_y), 1, uint256(type(uint32).max)));
-        uint256 amount1 = bound(uint256(_y_in), 1, 1_000_000 * 10 ** 18);
-        ConstantRatio memory curve = ConstantRatio(x, y);
-        address calcAddress = ammCalcfactory.createConstant(curve, address(applicationAppManager));
-        ProtocolAMMCalcConst calc = ProtocolAMMCalcConst(calcAddress);
-        uint256 reserve0 = 1_000_000 * 10 ** 18;
-        uint256 reserve1 = 1_000_000 * 10 ** 18;
+        uint256 amount1 = bound(uint256(_y_in), 1, MAX_TRADE_AMOUNT);
+        setCurve(x,y);  
+        uint256 reserve0 = MAX_TRADE_AMOUNT;
+        uint256 reserve1 = MAX_TRADE_AMOUNT;
         uint256 amount0 = 0;
-        uint256 returnVal;
+        
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
         /// the response from the Python script that will contain the price calculated "offchain"
         bytes memory res;
@@ -92,7 +91,6 @@ contract ProtocolAMMCalcConstantFuzzTest is TestCommonFoundry, Utils {
         string[] memory inputs = _buildFFICalculator_getX(curve, amount1);
         res = vm.ffi(inputs); 
         emit Log(res);
-        uint resUint;
         // ƒoundry gets weird with the return values so we have to jump through hoops.
         if (isPossiblyAnAscii(res)){
             /// we decode the ascii into a uint
@@ -101,8 +99,7 @@ contract ProtocolAMMCalcConstantFuzzTest is TestCommonFoundry, Utils {
             resUint= decodeFakeDecimalBytes(res);
         }
         /// some debug logging 
-        emit AMM___Return(returnVal);
-        emit PythonReturn(resUint);
+        logSwap();
         // If the comparison fails, it may be due to a false positive from isPossiblyAnAscii. Try to convert it as a fake decimal to be certain
         if (!areWithinTolerance(returnVal, resUint, MAX_TOLERANCE, TOLERANCE_DEN)){
             resUint= decodeFakeDecimalBytes(res);
@@ -139,6 +136,22 @@ contract ProtocolAMMCalcConstantFuzzTest is TestCommonFoundry, Utils {
         inputs[3] = curveInput.y.toString();
         inputs[4] = y_in.toString();
         return inputs;
+    }
+    /**
+     * Create the calculator objects and set the curve
+     */
+    function setCurve(uint32 x, uint32 y) internal {
+        curve = ConstantRatio(x, y);
+        calcAddress = ammCalcfactory.createConstant(curve, address(applicationAppManager));
+        calc = ProtocolAMMCalcConst(calcAddress);
+    }
+
+    /**
+     * Log the pertinent swap results from python and the amm
+     */
+    function logSwap() internal{
+        emit AMM___Return(returnVal);
+        emit PythonReturn(resUint);
     }
 
 }

@@ -26,6 +26,17 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
     uint8 constant TOLERANCE_PRECISION_Y = 5;
     uint256 constant TOLERANCE_DEN_Y = 10 ** TOLERANCE_PRECISION_Y;
 
+    LinearInput curve;
+    address calcAddress;
+    ProtocolAMMCalcLinear calc;
+    uint256 returnVal;
+    uint resUint;
+    uint256 constant MAX_TRADE_AMOUNT = 1_000_000 * ATTO;
+    uint256 constant MAX_SLOPE = 100 * 10 ** 8;
+    uint256 constant MAX_Y_INTERCEPT = 100_000 * 10 ** 18;
+    uint256 constant RESERVE = 1_000_000 * ATTO;
+    
+
     function setUp() public {
         vm.startPrank(superAdmin);
         setUpProtocolAndAppManager();
@@ -37,26 +48,22 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
     /**
      * Test the the creation of Linear get Y calculation module. All of the results are matched up to a python calculation
      */
-    function testFactoryLinearGetY(uint32 _m, uint64 _b, uint _x) public { 
+    function testFactoryLinearFuzzGetY(uint32 _m, uint64 _b, uint _x) public { 
         
-        uint256 m = bound(uint256(_m), 1, 100 * 10 ** 8);  
-        uint256 b = bound(uint256(_b), 1, 100_000 * 10 ** 18);   
-        uint256 amount0 = bound(uint256(_x), 1 * 10 ** 8, 1_000_000 * 10 ** 18);  
+        uint256 m = bound(uint256(_m), 1, MAX_SLOPE);  
+        uint256 b = bound(uint256(_b), 1, MAX_Y_INTERCEPT);   
+        uint256 amount0 = bound(uint256(_x), 1 * 10 ** 8, MAX_TRADE_AMOUNT);  
 
-        LinearInput memory curve = LinearInput(m, b);
-        address calcAddress = ammCalcfactory.createLinear(curve, address(applicationAppManager));
-        ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
-        uint256 reserve0 = 1_000_000 * 10 ** 18;
-        uint256 reserve1 = 1_000_000 * 10 ** 18;
+        setCurve(m,b);
+        uint256 reserve0 = RESERVE;
+        uint256 reserve1 = RESERVE;
         uint256 amount1 = 0;
-        uint256 returnVal;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
         /// the response from the Python script that will contain the price calculated "offchain"
         bytes memory res;
         /// we then call the Python script to calculate the price "offchain" and store it in *res*
         string[] memory inputs = _buildFFILinearCalculator_getY(curve, ATTO, reserve0, amount0);
         res = vm.ffi(inputs); 
-        uint resUint;
         if (isPossiblyAnAscii(res)){
             /// we decode the ascii into a uint
             resUint = decodeAsciiUint(res);
@@ -64,8 +71,7 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
             resUint= decodeFakeDecimalBytes(res);
         }
         /// some debug logging 
-        emit AMM___Return(returnVal);
-        emit PythonReturn(resUint);
+        logSwap();
         // If the comparison fails, it may be due to a false positive from isPossiblyAnAscii. Try to convert it as a fake decimal to be certain
         if (!areWithinTolerance(returnVal, resUint, MAX_TOLERANCE_Y, TOLERANCE_DEN_Y)){
             resUint= decodeFakeDecimalBytes(res);
@@ -77,17 +83,14 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
     /**
      * Test the the creation of Linear get X calculation module. All of the results are matched up to a python calculation
      */
-    function testFactoryLinearGetX(uint256 _m, uint256 _b, uint256 _y) public { 
-        uint256 m = bound(uint256(_m), 1, 100 * 10 ** 8);  
-        uint256 b = bound(uint256(_b), 10000, 100_000 * 10 ** 8);
-        uint256 amount1 = bound(uint256(_y), 1, 1_000_000 * 10 ** 18);
-        LinearInput memory curve = LinearInput(m, b);
-        address calcAddress = ammCalcfactory.createLinear(curve, address(applicationAppManager));
-        ProtocolAMMCalcLinear calc = ProtocolAMMCalcLinear(calcAddress);
-        uint256 reserve0 = 1_000_000 * 10 ** 18;
-        uint256 reserve1 = 1_000_000 * 10 ** 18;
+    function testFactoryLinearFuzzGetX(uint256 _m, uint256 _b, uint256 _y) public { 
+        uint256 m = bound(uint256(_m), 1, MAX_SLOPE);  
+        uint256 b = bound(uint256(_b), 10000, MAX_Y_INTERCEPT);
+        uint256 amount1 = bound(uint256(_y), 1, MAX_TRADE_AMOUNT);
+        setCurve(m,b);
+        uint256 reserve0 = RESERVE;
+        uint256 reserve1 = RESERVE;
         uint256 amount0 = 0;
-        uint256 returnVal;
         returnVal = calc.calculateSwap(reserve0, reserve1, amount0, amount1);
         /// the response from the Python script that will contain the price calculated "offchain"
         bytes memory res;
@@ -95,7 +98,6 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
         string[] memory inputs = _buildFFILinearCalculator_getX(curve, ATTO, reserve1, amount1);
         res = vm.ffi(inputs); 
         emit Log(res);
-        uint resUint;
         // ƒoundry gets weird with the return values so we have to jump through hoops.
         if (isPossiblyAnAscii(res)){
             /// we decode the ascii into a uint
@@ -104,8 +106,7 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
             resUint= decodeFakeDecimalBytes(res);
         }
         /// some debug logging 
-        emit AMM___Return(returnVal);
-        emit PythonReturn(resUint);
+        logSwap();
         // If the comparison fails, it may be due to a false positive from isPossiblyAnAscii. Try to convert it as a fake decimal to be certain
         if (!areWithinTolerance(returnVal, resUint, MAX_TOLERANCE, TOLERANCE_DEN)){
             resUint= decodeFakeDecimalBytes(res);
@@ -126,10 +127,10 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
         inputs[0] = "python3";
         inputs[1] = "script/python/calculator_linear_getY.py"; 
         inputs[2] = lineInput.m.toString();   
-        inputs[3] = "100000000";     
+        inputs[3] = "100000000";// m denominator = 10**8     
         inputs[4] = decimals.toString(); 
         inputs[5] = lineInput.b.toString();
-        inputs[6] = "100000000";   
+        inputs[6] = "100000000";// b denominator = 10**8   
         inputs[7] = x_reserve.toString();
         inputs[8] = x_in.toString();
         return inputs;
@@ -156,4 +157,21 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
         return inputs;
     }
 
+    /**
+     * Create the calculator objects and set the curve
+     */
+    function setCurve(uint256 m, uint256 b) internal {
+        curve = LinearInput(m, b);
+        calcAddress = ammCalcfactory.createLinear(curve, address(applicationAppManager));
+        calc = ProtocolAMMCalcLinear(calcAddress);
+    }
+
+
+    /**
+     * Log the pertinent swap results from python and the amm
+     */
+    function logSwap() internal{
+        emit AMM___Return(returnVal);
+        emit PythonReturn(resUint);
+    }
 }
