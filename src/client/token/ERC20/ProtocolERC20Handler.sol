@@ -254,6 +254,71 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     }
 
     /**
+     * @dev Rule tracks all purchases by account for purchase Period, the timestamp of the most recent purchase and purchases are within the purchase period.
+     * @param _token0BalanceFrom token balance of sender address
+     * @param _token1BalanceFrom token balance of sender address
+     * @param _from address of the from account
+     * @param _to address of the to account
+     * @param _token_amount_0 number of tokens transferred
+     * @param _token_amount_1 number of tokens received
+     */
+    function _checkTaggedPurchaseRules(
+        uint256 _token0BalanceFrom,
+        uint256 _token1BalanceFrom,
+        address _from,
+        address _to,
+        uint256 _token_amount_0,
+        uint256 _token_amount_1,
+        ActionTypes _action
+    ) internal {
+        /// We get all tags for sender and recipient
+        bytes32[] memory toTags = appManager.getAllTags(_to);
+        bytes32[] memory fromTags = appManager.getAllTags(_from);
+        address purchaseAccount = _to;
+        address sellerAccount = _from;
+        if (purchaseLimitRuleActive) {
+            purchasedWithinPeriod[purchaseAccount] = ruleProcessor.checkPurchaseLimit(
+                purchaseLimitRuleId,
+                purchasedWithinPeriod[purchaseAccount],
+                _token_amount_0,
+                toTags,
+                lastPurchaseTime[purchaseAccount]
+            );
+            lastPurchaseTime[purchaseAccount] = uint64(block.timestamp);
+        }
+    }
+
+    /**
+     * @dev Rule tracks all purchases by account for purchase Period, the timestamp of the most recent purchase and purchases are within the purchase period.
+     * @param _token0BalanceFrom token balance of sender address
+     * @param _token1BalanceFrom token balance of sender address
+     * @param _from address of the from account
+     * @param _to address of the to account
+     * @param _token_amount_0 number of tokens transferred
+     * @param _token_amount_1 number of tokens received
+     */
+    function _checkTaggedSellRules(
+        uint256 _token0BalanceFrom,
+        uint256 _token1BalanceFrom,
+        address _from,
+        address _to,
+        uint256 _token_amount_0,
+        uint256 _token_amount_1,
+        ActionTypes _action
+    ) internal {
+        /// We get all tags for sender and recipient
+        bytes32[] memory toTags = appManager.getAllTags(_to);
+        bytes32[] memory fromTags = appManager.getAllTags(_from);
+        address purchaseAccount = _to;
+        address sellerAccount = _from;
+        if (sellLimitRuleActive) {
+            salesWithinPeriod[sellerAccount] = ruleProcessor.checkSellLimit(sellLimitRuleId, salesWithinPeriod[sellerAccount], _token_amount_0, fromTags, lastSellTime[sellerAccount]);
+            lastSellTime[sellerAccount] = uint64(block.timestamp);
+        }
+    }
+
+
+    /**
      * @dev Rule tracks all sales by account for sell Period, the timestamp of the most recent sale and sales are within the sell period.
      * @param _amount number of tokens transferred
      */

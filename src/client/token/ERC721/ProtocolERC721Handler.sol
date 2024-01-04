@@ -126,20 +126,19 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromAdmin && !isToAdmin) {
-            /// pure transfer
-            if(_sender == _from || address(0) == _from || address(0) == _to){
-                uint128 balanceValuation;
-                uint128 transferValuation;
-                if (appManager.requireValuations()) {
-                    balanceValuation = uint128(getAccTotalValuation(_to, nftValuationLimit));
-                    transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
-                }
-                appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation);
-                _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
-                _checkNonTaggedRules(_from, _to, _amount, _tokenId);
-                _checkSimpleRules(_tokenId);
-            /// trade
-            }else{
+            /// pure transfer rules
+            uint128 balanceValuation;
+            uint128 transferValuation;
+            if (appManager.requireValuations()) {
+                balanceValuation = uint128(getAccTotalValuation(_to, nftValuationLimit));
+                transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
+            }
+            appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation);
+            _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
+            _checkNonTaggedRules(_from, _to, _amount, _tokenId);
+            _checkSimpleRules(_tokenId);
+            /// trade rules
+            if(!(_sender == _from || address(0) == _from || address(0) == _to)){
                 /// purchase
                 if(_isAMM(_from)){
                     _checkNonTaggedPurchaseRules(_amount);
@@ -253,6 +252,70 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         if (purchasePercentageRuleActive) {
             totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(purchasePercentageRuleId, IERC721Enumerable(erc721Address).totalSupply(), _amount, previousPurchaseTime, totalPurchasedWithinPeriod);
             previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
+        }
+    }
+
+     /**
+     * @dev Rule tracks all purchases by account for purchase Period, the timestamp of the most recent purchase and purchases are within the purchase period.
+     * @param _token0BalanceFrom token balance of sender address
+     * @param _token1BalanceFrom token balance of sender address
+     * @param _from address of the from account
+     * @param _to address of the to account
+     * @param _token_amount_0 number of tokens transferred
+     * @param _token_amount_1 number of tokens received
+     */
+    function _checkTaggedPurchaseRules(
+        uint256 _token0BalanceFrom,
+        uint256 _token1BalanceFrom,
+        address _from,
+        address _to,
+        uint256 _token_amount_0,
+        uint256 _token_amount_1,
+        ActionTypes _action
+    ) internal {
+        /// We get all tags for sender and recipient
+        bytes32[] memory toTags = appManager.getAllTags(_to);
+        bytes32[] memory fromTags = appManager.getAllTags(_from);
+        address purchaseAccount = _to;
+        address sellerAccount = _from;
+        if (purchaseLimitRuleActive) {
+            purchasedWithinPeriod[purchaseAccount] = ruleProcessor.checkPurchaseLimit(
+                purchaseLimitRuleId,
+                purchasedWithinPeriod[purchaseAccount],
+                _token_amount_0,
+                toTags,
+                lastPurchaseTime[purchaseAccount]
+            );
+            lastPurchaseTime[purchaseAccount] = uint64(block.timestamp);
+        }
+    }
+
+    /**
+     * @dev Rule tracks all purchases by account for purchase Period, the timestamp of the most recent purchase and purchases are within the purchase period.
+     * @param _token0BalanceFrom token balance of sender address
+     * @param _token1BalanceFrom token balance of sender address
+     * @param _from address of the from account
+     * @param _to address of the to account
+     * @param _token_amount_0 number of tokens transferred
+     * @param _token_amount_1 number of tokens received
+     */
+    function _checkTaggedSellRules(
+        uint256 _token0BalanceFrom,
+        uint256 _token1BalanceFrom,
+        address _from,
+        address _to,
+        uint256 _token_amount_0,
+        uint256 _token_amount_1,
+        ActionTypes _action
+    ) internal {
+        /// We get all tags for sender and recipient
+        bytes32[] memory toTags = appManager.getAllTags(_to);
+        bytes32[] memory fromTags = appManager.getAllTags(_from);
+        address purchaseAccount = _to;
+        address sellerAccount = _from;
+        if (sellLimitRuleActive) {
+            salesWithinPeriod[sellerAccount] = ruleProcessor.checkSellLimit(sellLimitRuleId, salesWithinPeriod[sellerAccount], _token_amount_0, fromTags, lastSellTime[sellerAccount]);
+            lastSellTime[sellerAccount] = uint64(block.timestamp);
         }
     }
 
