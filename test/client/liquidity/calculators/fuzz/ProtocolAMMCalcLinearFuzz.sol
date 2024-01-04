@@ -33,6 +33,8 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
     uint resUint;
     uint256 constant MAX_TRADE_AMOUNT = 1_000_000 * ATTO;
     uint256 constant MAX_SLOPE = 100 * 10 ** 8;
+    string constant SLOPE_DENOM = "100000000";
+    string constant Y_INTERCEPT_DENOM = "100000000";
     uint256 constant MAX_Y_INTERCEPT = 100_000 * ATTO;
     uint256 constant RESERVE = 1_000_000 * ATTO;
     
@@ -127,10 +129,10 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
         inputs[0] = "python3";
         inputs[1] = "script/python/calculator_linear_getY.py"; 
         inputs[2] = lineInput.m.toString();   
-        inputs[3] = "100000000";// m denominator = 10**8     
+        inputs[3] = SLOPE_DENOM;// m denominator = 10**8     
         inputs[4] = decimals.toString(); 
         inputs[5] = lineInput.b.toString();
-        inputs[6] = "100000000";// b denominator = 10**8   
+        inputs[6] = Y_INTERCEPT_DENOM;// b denominator = 10**8   
         inputs[7] = x_reserve.toString();
         inputs[8] = x_in.toString();
         return inputs;
@@ -148,10 +150,10 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
         inputs[0] = "python3";
         inputs[1] = "script/python/calculator_linear_getX.py"; 
         inputs[2] = lineInput.m.toString();   
-        inputs[3] = "100000000";     
+        inputs[3] = SLOPE_DENOM;     
         inputs[4] = decimals.toString(); 
         inputs[5] = lineInput.b.toString();
-        inputs[6] = "100000000";   
+        inputs[6] = Y_INTERCEPT_DENOM;   
         inputs[7] = x_reserve.toString();
         inputs[8] = y_in.toString();
         return inputs;
