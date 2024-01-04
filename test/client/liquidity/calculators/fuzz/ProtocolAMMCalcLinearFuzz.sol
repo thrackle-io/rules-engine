@@ -33,7 +33,7 @@ contract ProtocolAMMCalcLinearFuzzTest is TestCommonFoundry, Utils {
     uint resUint;
     uint256 constant MAX_TRADE_AMOUNT = 1_000_000 * ATTO;
     uint256 constant MAX_SLOPE = 100 * 10 ** 8;
-    uint256 constant MAX_Y_INTERCEPT = 100_000 * 10 ** 18;
+    uint256 constant MAX_Y_INTERCEPT = 100_000 * ATTO;
     uint256 constant RESERVE = 1_000_000 * ATTO;
     
 
