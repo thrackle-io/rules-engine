@@ -1408,12 +1408,56 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(user1);
         applicationCoin.approve(address(amm), 10000 * ATTO);
         applicationCoin2.approve(address(amm), 10000 * ATTO);
-        // amm.swap(address(applicationCoin2), 1);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 1, 1, false);
 
         vm.expectRevert(0xb634aad9);
-        // amm.swap(address(applicationCoin2), 9);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 9, 9, false);
+    }
+
+    function testSellPercentageRule() public {
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = initializeAMMAndUsers();
+        applicationCoin2.transfer(user1, 50_000_000 * ATTO);
+        applicationCoin2.transfer(user2, 30_000_000 * ATTO);
+        applicationCoin.transfer(user1, 50_000_000 * ATTO);
+        applicationCoin.transfer(user2, 30_000_000 * ATTO);
+        assertEq(applicationCoin2.balanceOf(user1), 50_001_000 * ATTO);
+        /// set up rule
+        uint16 tokenPercentage = 5000; /// 50%
+        uint16 sellPeriod = 24; /// 24 hour periods
+        uint256 _totalSupply = 100_000_000;
+        uint64 ruleStartTime = Blocktime;
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addPercentageSellRule(address(applicationAppManager), tokenPercentage, sellPeriod, _totalSupply, ruleStartTime);
+        /// add and activate rule
+        applicationCoinHandler.setSellPercentageRuleId(ruleId);
+        vm.warp(Blocktime + 36 hours);
+        /// test swap below percentage
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true); /// percentage limit hit now
+        /// test swaps after we hit limit
+        vm.expectRevert(0xb17ff693);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
+        /// switch users and test rule still fails
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        vm.expectRevert(0xb17ff693);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
+        /// wait until new period
+        vm.warp(Blocktime + 72 hours);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
+
+        /// check that rule does not apply to coin 0 as this would be a sell
+        // amm.swap(address(applicationCoin2), 60_000_000);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, false);
     }
 
      function initializeAMMAndUsers() public returns (DummyAMM amm){
@@ -1422,7 +1466,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoinHandler2 = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin2);
         /// register the token
         applicationAppManager.registerToken("application2", address(applicationCoin2));
-        applicationCoin2.mint(appAdministrator, 1_000_000_000_000 * (10 ** 18));
+        applicationCoin2.mint(appAdministrator, 1_000_000_000_000 * (ATTO));
         /// Approve the transfer of tokens into AMM
         applicationCoin.approve(address(amm), 1_000_000 * ATTO);
         applicationCoin2.approve(address(amm), 1_000_000 * ATTO);
