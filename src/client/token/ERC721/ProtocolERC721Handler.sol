@@ -120,7 +120,20 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @return _success equals true if all checks pass
      */
 
-    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external override onlyOwner returns (bool) {
+    function checkAllRules(
+        uint256 _balanceFrom, 
+        uint256 _balanceTo, 
+        address _from, 
+        address _to,  
+        address _sender, 
+        uint256 _tokenId
+    ) 
+    external 
+    override 
+    onlyOwner 
+    returns (bool) 
+    {
+        ActionTypes action = determineTransferAction(_from, _to, _sender);
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
@@ -134,22 +147,13 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
                 transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
             }
             appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation);
-            _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
-            _checkNonTaggedRules(_from, _to, _amount, _tokenId);
+            _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId, action);
+            _checkNonTaggedRules(_from, _to, _amount, _tokenId, action);
             _checkSimpleRules(_tokenId);
-            /// trade rules
-            if(!(_sender == _from || address(0) == _from || address(0) == _to)){
-                /// purchase
-                if(_isAMM(_from)){
-                    _checkNonTaggedPurchaseRules(_amount);
-                /// sell
-                }else{
-                    _checkNonTaggedSellRules(_amount);
-                }
-            }
-        } else {
-            if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
-        }
+            
+        } else if (adminWithdrawalActive && isFromAdmin) 
+            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
+        
         /// set the ownership start time for the token if the Minimum Hold time rule is active
         if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
         /// If all rule checks pass, return true
@@ -163,7 +167,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @param _amount number of tokens transferred
      * @param tokenId the token's specific ID
      */
-    function _checkNonTaggedRules(address _from, address _to, uint256 _amount, uint256 tokenId) internal {
+    function _checkNonTaggedRules(address _from, address _to, uint256 _amount, uint256 tokenId, ActionTypes action) internal {
         if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _to);
         if (tradeCounterRuleActive) {
             // get all the tags for this NFT
@@ -187,6 +191,27 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
             );
             lastSupplyUpdateTime = uint64(block.timestamp);
         }
+        /// trade rules
+        if(action == ActionTypes.PURCHASE && purchasePercentageRuleActive){
+            totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(
+                purchasePercentageRuleId, 
+                IERC20(msg.sender).totalSupply(), 
+                _amount, 
+                previousPurchaseTime, 
+                totalPurchasedWithinPeriod
+            );
+            previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
+        /// sell
+        }else if(action == ActionTypes.SELL && sellPercentageRuleActive){
+            totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(
+                sellPercentageRuleId,  
+                IERC20(msg.sender).totalSupply(), 
+                _amount, 
+                previousSellTime, 
+                totalSoldWithinPeriod
+            );
+            previousSellTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
+        }
     }
 
     /**
@@ -197,8 +222,18 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @param _to address of the to account
      * @param _amount number of tokens transferred
      */
-    function _checkTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 tokenId) internal view {
-        _checkTaggedIndividualRules(_from, _to, _balanceFrom, _balanceTo, _amount);
+    function _checkTaggedRules(
+        uint256 _balanceFrom, 
+        uint256 _balanceTo, 
+        address _from, 
+        address _to, 
+        uint256 _amount, 
+        uint256 tokenId, 
+        ActionTypes action
+    )
+    internal 
+    {
+        _checkTaggedIndividualRules(_from, _to, _balanceFrom, _balanceTo, _amount, action);
         if (transactionLimitByRiskRuleActive) {
             /// If more rules need these values, then this can be moved above.
             uint256 thisNFTValuation = nftPricer.getNFTPrice(msg.sender, tokenId);
@@ -214,13 +249,48 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @param _balanceTo token balance of recipient address
      * @param _amount number of tokens transferred
      */
-    function _checkTaggedIndividualRules(address _from, address _to, uint256 _balanceFrom, uint256 _balanceTo, uint256 _amount) internal view {
-        if (minMaxBalanceRuleActive || minBalByDateRuleActive) {
+    function _checkTaggedIndividualRules(
+        address _from, 
+        address _to, 
+        uint256 _balanceFrom, 
+        uint256 _balanceTo, 
+        uint256 _amount, 
+        ActionTypes action
+    ) 
+    internal 
+    {
+        if (minMaxBalanceRuleActive || minBalByDateRuleActive || 
+            (action == ActionTypes.PURCHASE && purchaseLimitRuleActive) || 
+            (action == ActionTypes.SELL && sellLimitRuleActive)
+        ) 
+        {
             // We get all tags for sender and recipient
             bytes32[] memory toTags = appManager.getAllTags(_to);
             bytes32[] memory fromTags = appManager.getAllTags(_from);
-            if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
-            if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+            if (minMaxBalanceRuleActive) 
+                ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+            if (minBalByDateRuleActive) 
+                ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+            if (action == ActionTypes.PURCHASE && purchaseLimitRuleActive) {
+                purchasedWithinPeriod[_to] = ruleProcessor.checkPurchaseLimit(
+                    purchaseLimitRuleId,
+                    purchasedWithinPeriod[_to],
+                    _amount,
+                    toTags,
+                    lastPurchaseTime[_to]
+                );
+                lastPurchaseTime[_to] = uint64(block.timestamp);
+            }
+            else if (action == ActionTypes.SELL && sellLimitRuleActive) {
+                salesWithinPeriod[_from] = ruleProcessor.checkSellLimit(
+                    sellLimitRuleId, 
+                    salesWithinPeriod[_from], 
+                    _amount, 
+                    fromTags, 
+                    lastSellTime[_from]
+                );
+                lastSellTime[_from] = uint64(block.timestamp);
+            }
         }
     }
 
@@ -244,108 +314,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     }
 
     /**
-     * @dev Rule tracks all purchases by account for purchase Period, the timestamp of the most recent purchase and purchases are within the purchase period.
-     * @param _amount number of tokens transferred
-     */
-    function _checkNonTaggedPurchaseRules(uint256 _amount) internal {
-        /// Check rule is active and action taken is a purchase
-        if (purchasePercentageRuleActive) {
-            totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(purchasePercentageRuleId, IERC721Enumerable(erc721Address).totalSupply(), _amount, previousPurchaseTime, totalPurchasedWithinPeriod);
-            previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
-        }
-    }
-
-     /**
-     * @dev Rule tracks all purchases by account for purchase Period, the timestamp of the most recent purchase and purchases are within the purchase period.
-     * @param _token0BalanceFrom token balance of sender address
-     * @param _token1BalanceFrom token balance of sender address
-     * @param _from address of the from account
-     * @param _to address of the to account
-     * @param _token_amount_0 number of tokens transferred
-     * @param _token_amount_1 number of tokens received
-     */
-    function _checkTaggedPurchaseRules(
-        uint256 _token0BalanceFrom,
-        uint256 _token1BalanceFrom,
-        address _from,
-        address _to,
-        uint256 _token_amount_0,
-        uint256 _token_amount_1,
-        ActionTypes _action
-    ) internal {
-        /// We get all tags for sender and recipient
-        bytes32[] memory toTags = appManager.getAllTags(_to);
-        bytes32[] memory fromTags = appManager.getAllTags(_from);
-        address purchaseAccount = _to;
-        address sellerAccount = _from;
-        if (purchaseLimitRuleActive) {
-            purchasedWithinPeriod[purchaseAccount] = ruleProcessor.checkPurchaseLimit(
-                purchaseLimitRuleId,
-                purchasedWithinPeriod[purchaseAccount],
-                _token_amount_0,
-                toTags,
-                lastPurchaseTime[purchaseAccount]
-            );
-            lastPurchaseTime[purchaseAccount] = uint64(block.timestamp);
-        }
-    }
-
-    /**
-     * @dev Rule tracks all purchases by account for purchase Period, the timestamp of the most recent purchase and purchases are within the purchase period.
-     * @param _token0BalanceFrom token balance of sender address
-     * @param _token1BalanceFrom token balance of sender address
-     * @param _from address of the from account
-     * @param _to address of the to account
-     * @param _token_amount_0 number of tokens transferred
-     * @param _token_amount_1 number of tokens received
-     */
-    function _checkTaggedSellRules(
-        uint256 _token0BalanceFrom,
-        uint256 _token1BalanceFrom,
-        address _from,
-        address _to,
-        uint256 _token_amount_0,
-        uint256 _token_amount_1,
-        ActionTypes _action
-    ) internal {
-        /// We get all tags for sender and recipient
-        bytes32[] memory toTags = appManager.getAllTags(_to);
-        bytes32[] memory fromTags = appManager.getAllTags(_from);
-        address purchaseAccount = _to;
-        address sellerAccount = _from;
-        if (sellLimitRuleActive) {
-            salesWithinPeriod[sellerAccount] = ruleProcessor.checkSellLimit(sellLimitRuleId, salesWithinPeriod[sellerAccount], _token_amount_0, fromTags, lastSellTime[sellerAccount]);
-            lastSellTime[sellerAccount] = uint64(block.timestamp);
-        }
-    }
-
-    /**
-     * @dev Rule tracks all sales by account for sell Period, the timestamp of the most recent sale and sales are within the sell period.
-     * @param _amount number of tokens transferred
-     */
-    function _checkNonTaggedSellRules(uint256 _amount) internal {
-        /// Check rule is active and action taken is a sell
-        if (sellPercentageRuleActive) {
-            totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(sellPercentageRuleId, IERC721Enumerable(erc721Address).totalSupply(), _amount, previousSellTime, totalSoldWithinPeriod);
-            previousSellTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
-        }
-    }
-
-    /**
      * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
      * @param _tokenId the specific token in question
      */
     function _checkSimpleRules(uint256 _tokenId) internal view {
         if (minimumHoldTimeRuleActive && ownershipStart[_tokenId] > 0) ruleProcessor.checkNFTHoldTime(minimumHoldTimeHours, ownershipStart[_tokenId]);
-    }
-
-    /**
-     * @dev checks the appManager to determine if an address is an AMM or not
-     * @param _address the address to check if is an AMM
-     * @return true if the _address is an AMM
-     */
-    function _isAMM(address _address) internal view returns (bool){
-        return appManager.isRegisteredAMM(_address);
     }
 
     /**
