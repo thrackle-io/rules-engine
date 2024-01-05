@@ -285,7 +285,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
                 );
                 lastPurchaseTime[_to] = uint64(block.timestamp);
             }
-            else if (action == ActionTypes.SELL && sellLimitRuleActive) {
+            else if (sellLimitRuleActive) {
                 salesWithinPeriod[_from] = ruleProcessor.checkSellLimit(
                     sellLimitRuleId, 
                     salesWithinPeriod[_from], 

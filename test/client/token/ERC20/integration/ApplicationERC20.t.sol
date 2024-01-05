@@ -1348,6 +1348,51 @@ contract ApplicationERC20Test is TestCommonFoundry {
         appManager3.confirmAppManager(address(applicationCoin));
     }
 
+    ///TODO Test Purchase rule through AMM once Purchase functionality is created
+    function testSellRule() public {
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = initializeAMMAndUsers();
+        applicationCoin2.transfer(user1, 50_000_000 * ATTO);
+        applicationCoin2.transfer(user2, 30_000_000 * ATTO);
+        applicationCoin.transfer(user1, 50_000_000 * ATTO);
+        applicationCoin.transfer(user2, 30_000_000 * ATTO);
+        assertEq(applicationCoin2.balanceOf(user1), 50_001_000 * ATTO);
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(amm), 50000);
+
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        ///Add tag to user
+        bytes32[] memory accs = new bytes32[](1);
+        uint192[] memory sellAmounts = new uint192[](1);
+        uint16[] memory sellPeriod = new uint16[](1);
+        accs[0] = bytes32("SellRule");
+        sellAmounts[0] = uint192(600); ///Amount to trigger Sell freeze rules
+        sellPeriod[0] = uint16(36); ///Hours
+
+        /// Set the rule data
+        applicationAppManager.addGeneralTag(user1, "SellRule");
+        applicationAppManager.addGeneralTag(user2, "SellRule");
+        /// add the rule.
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, uint64(Blocktime));
+        ///update ruleId in application AMM rule handler
+        applicationCoinHandler.setSellLimitRuleId(ruleId);
+        /// Swap that passes rule check
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// Approve transfer(1M)
+        applicationCoin.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
+
+        /// Swap that fails
+        vm.expectRevert(0xc11d5f20);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
+    }
+
     function testPurchasePercentageRule() public {
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = initializeAMMAndUsers();

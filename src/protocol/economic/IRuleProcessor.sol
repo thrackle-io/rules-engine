@@ -73,7 +73,7 @@ interface IRuleProcessor {
      * @param fromTags Account tags applied to sender via App Manager
      * @param lastUpdateTime block.timestamp of most recent transaction from sender.
      */
-    function checkSellLimit(uint32 ruleId, uint256 salesWithinPeriod, uint256 amount, bytes32[] calldata fromTags, uint256 lastUpdateTime) external view returns (uint256);
+    function checkSellLimit(uint32 ruleId, uint256 salesWithinPeriod, uint256 amount, bytes32[] calldata fromTags, uint64 lastUpdateTime) external view returns (uint256);
 
     /**
      * @dev Check the minimum/maximum rule through the AMM Swap

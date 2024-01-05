@@ -70,14 +70,12 @@ interface ITaggedRules {
     struct PurchaseRule {
         uint256 purchaseAmount; /// token units
         uint16 purchasePeriod; /// hours
-        uint64 startTime; ///Time the rule is created
     }
 
     /// ******** Account Sell Rules ********
     struct SellRule {
         uint256 sellAmount; /// token units
         uint16 sellPeriod; /// hours
-        uint64 startTime; /// Time the rule is created
     }
 
     /// ******** Minimum/Maximum Account Balances ********
