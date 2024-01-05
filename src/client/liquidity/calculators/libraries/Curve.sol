@@ -11,6 +11,7 @@ import {
     ConstantProductK
 } from "../dataStructures/CurveDataStructures.sol";
 import {AMMMath} from "./AMMMath.sol";
+import {FullMath} from "src/client/liquidity/calculators/libraries/FullMath.sol";
 
 /**
  * @title Curve Library
@@ -22,6 +23,7 @@ import {AMMMath} from "./AMMMath.sol";
 library Curve {
 
     using AMMMath for uint256;
+    using FullMath for uint256;
     uint256 constant ATTO = 10 ** 18;
     error InsufficientPoolDepth();
 
@@ -66,20 +68,25 @@ library Curve {
     /// ~~~~~~~~~~~~~~ LinearFractionB ~~~~~~~~~~~~~~
     /**
     * @dev calculates ƒ(x) for linear curve. 
-    * @notice the original ecuation y = mx + b  is replacing m by m_num/m_den.
+    * @notice the original equation y = mx + b  is replacing m by m_num/m_den.
     * @param line the LinearWholeB curve or function *ƒ*
     * @param _amount0 the token0s received 
     * @param _amount1 the token1s received 
     * @param x_0 tracker of x or amount of reserves in token0
     * @return y the value of ƒ(x) on the ordinate axis in ATTOs
     */
-    function getY(LinearFractionB memory line, uint256 x_0, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y){
-        if (_amount0 != 0) {
-            y = (((line.b_num * _amount0) / line.b_den) + ((line.m_num * ((2 * x_0 * _amount0) - _amount0 ** 2))) / ((2 * ATTO) * line.m_den)); 
-        } else {
-            uint y_0 = (line.b_num * x_0) / (line.b_den) + (((x_0 ** 2) * line.m_num) / (2 * line.m_den)) / ATTO;
-             y = ((2 * (10 ** 9)) * (_amount1 * line.b_den) * (line.m_den).sqrt()) /
-                ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * y_0 * line.m_num * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (y_0 + _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
+    function getY(LinearFractionB memory line, uint256 x_0, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 y)  {
+        if (_amount0 != 0) {//token0 swapped for token1
+            // y = ((line.b_num * _amount0) / line.b_den) + ((line.m_num * ((2 * x_0 * _amount0) - ((_amount0 ** 2))) / (2 * line.m_den * ATTO)));
+             y = (line.b_num.mulDiv(_amount0, line.b_den)) + ((line.m_num.mulDiv((2 * x_0 * _amount0) - ((_amount0 ** 2)),(2 * line.m_den * ATTO))));
+        } else {//token1 swapped for token0        
+            // uint y_0 = (line.b_num * x_0) / (line.b_den) + (((x_0 ** 2) * line.m_num) / (2 * line.m_den)) / ATTO;
+            uint y_0 = line.b_num.mulDiv(x_0,line.b_den) + (x_0 ** 2).mulDiv(line.m_num, (2 * line.m_den)).mulDiv(1, ATTO);
+            // y = ((2 * (10 ** 9)) * (_amount1 * line.b_den) * line.m_den.sqrt()) /
+            //     ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * y_0 * line.m_num * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (y_0 + _amount1) * line.m_num * (line.b_den ** 2)).sqrt());
+            y = uint256((2 * (10 ** 9))).mulDiv(_amount1 * line.b_den * line.m_den.sqrt(),
+                ((((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * y_0 * line.m_num * (line.b_den ** 2)).sqrt() + (((10 ** 18) * (line.b_num ** 2) * line.m_den) + 2 * (y_0 + _amount1) * line.m_num * (line.b_den ** 2)).sqrt()));
+
         }
     }
 
@@ -109,7 +116,7 @@ library Curve {
         } else {
             line.b_num = 2 * input.b;
             line.b_den = 2 * 10 ** precisionDecimals_b;
-        }
+        }            
     }
 
 
@@ -127,11 +134,13 @@ library Curve {
         uint256 y = uint256(cr.y);
         if(_amount0 != 0){
             unchecked{
-                amountOut = (_amount0 * ((y * (10 ** 20)) / x)) / (10 ** 20);
+                // amountOut = (_amount0 * ((y * (10 ** 20)) / x)) / (10 ** 20);
+                amountOut = _amount0.mulDiv(y,x);
             }
         }else{
             unchecked{
-                amountOut = (_amount1 * ((x * (10 ** 20)) / y)) / (10 ** 20);
+                // amountOut = (_amount1 * ((x * (10 ** 20)) / y)) / (10 ** 20);
+                amountOut = _amount1.mulDiv(x,y);
             }
         }
     }
@@ -155,10 +164,12 @@ library Curve {
     * @return amountOut
     */
     function getY(ConstantProduct memory constantProduct, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 amountOut){
-        if (_amount0 == 0) {
-            amountOut =  (_amount1 * constantProduct.x ) / (constantProduct.y + _amount1);
-        } else {
-            amountOut = (_amount0 * constantProduct.y ) / (constantProduct.x + _amount0);
+        if (_amount0 == 0) {// token1 swapped for token0
+            // amountOut =  (_amount1 * constantProduct.x ) / (constantProduct.y + _amount1);
+            amountOut = _amount1.mulDiv(constantProduct.x,constantProduct.y + _amount1);
+        } else {// token0 swapped for token1
+            // amountOut = (_amount0 * constantProduct.y ) / (constantProduct.x + _amount0);
+            amountOut = _amount0.mulDiv(constantProduct.y,constantProduct.x + _amount0);
         }
     }
 
@@ -178,9 +189,11 @@ library Curve {
     function getY(ConstantProductK memory cp, uint256 x, uint256 _amount0, uint256 _amount1)  internal pure returns(uint256 amountOut){
         uint y = cp.k / x;
         if (_amount0 == 0) {
-            amountOut =  (_amount1 * x ) / (y + _amount1);
+            // amountOut =  (_amount1 * x ) / (y + _amount1);
+            amountOut = _amount1.mulDiv(x,y + _amount1);
         } else {
-            amountOut = (_amount0 * y ) / (x + _amount0);
+            // amountOut = (_amount0 * y ) / (x + _amount0);
+            amountOut = _amount0.mulDiv(y,x + _amount0);
         }
     }
 
@@ -194,13 +207,13 @@ library Curve {
             if(deltaYSquareRoot < trackerSquareRoot) 
                 revert InsufficientPoolDepth();
             amountOut = (10 ** 9) * (deltaYSquareRoot - trackerSquareRoot); /// check for tracker sign!!
-        
         } else {
             uint256 tenMinusTrackerSquare = uint((((10 ** 19)) - curve.tracker) ** 2);
             uint256 tenMinusDeltaSquare = uint(((10 ** 19) - ((curve.tracker + int(curve.amountIn)))) ** 2);
             if(tenMinusTrackerSquare < tenMinusDeltaSquare) 
                 revert InsufficientPoolDepth();
-            amountOut = (tenMinusTrackerSquare - tenMinusDeltaSquare) / (2 * (10 ** 18));
+            // amountOut = (tenMinusTrackerSquare - tenMinusDeltaSquare) / (2 * (10 ** 18));
+            amountOut = (tenMinusTrackerSquare - tenMinusDeltaSquare).mulDiv(1,(2 * (10 ** 18)));
         }
     }
 
