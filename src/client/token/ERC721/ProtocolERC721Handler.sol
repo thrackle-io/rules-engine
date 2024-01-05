@@ -126,11 +126,12 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
             _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
+            /// set the ownership start time for the token if the Minimum Hold time rule is active
+            if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
         } else {
             if (adminWithdrawalActive && isFromBypassAccount) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
+            emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress);
         }
-        /// set the ownership start time for the token if the Minimum Hold time rule is active
-        if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
         /// If all rule checks pass, return true
         return true;
     }
