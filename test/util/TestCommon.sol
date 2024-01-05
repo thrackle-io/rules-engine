@@ -78,6 +78,8 @@ import "src/example/OracleAllowed.sol";
 abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     FacetCut[] _ruleProcessorFacetCuts;
 
+    uint256 constant ATTO = 10 ** 18;
+
     // common addresses
     address superAdmin = address(0xDaBEEF);
     address appAdministrator = address(0xDEAD);
@@ -114,6 +116,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationAssetHandlerMod public newAssetHandler;
 
     ApplicationERC20 public applicationCoin;
+    ApplicationERC20 public applicationCoin2;
     ApplicationERC20Handler public applicationCoinHandler;
     ApplicationERC20Handler public applicationCoinHandler2;
     ApplicationERC20Handler public applicationCoinHandlerSpecialOwner;

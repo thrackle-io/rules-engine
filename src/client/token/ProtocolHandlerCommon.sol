@@ -194,7 +194,7 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IProtocolTokenHandle
      */
     function determineTransferAction(address _from, address _to, address _sender) internal view returns (ActionTypes action){
         action = ActionTypes.TRADE;
-        if(_sender == _from || address(0) == _from || address(0) == _to){
+        if(!(_sender == _from || address(0) == _from || address(0) == _to)){
             action = ActionTypes.SELL;
         }else if(isContract(_from))
             action = ActionTypes.PURCHASE;

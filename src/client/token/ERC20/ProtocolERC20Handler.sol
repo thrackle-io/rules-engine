@@ -19,6 +19,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  */
 contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministratorOnly, RuleAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
     using ERC165Checker for address;
+    event Action(ActionTypes action);
     /**
      * Functions added so far:
      * minTransfer
@@ -137,6 +138,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      {
         
         ActionTypes action = determineTransferAction(_from, _to, _sender);
+        emit Action(action);
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         // // All transfers to treasury account are allowed
@@ -902,6 +904,76 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      */
     function getSalesWithinPeriod(address account) external view  returns (uint256) {
         return salesWithinPeriod[account];
+    }
+
+    /**
+     * @dev Set the purchasePercentageRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setPurchasePercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        purchasePercentageRuleId = _ruleId;
+        purchasePercentageRuleActive = true;
+        emit ApplicationHandlerApplied(PURCHASE_PERCENTAGE, _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activatePurchasePercentageRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        purchasePercentageRuleActive = _on;
+    }
+
+    /**
+     * @dev Retrieve the Purchase Percentage Rule Id
+     * @return purchasePercentageRuleId
+     */
+    function getPurchasePercentageRuleId() external view returns (uint32) {
+        return purchasePercentageRuleId;
+    }
+
+    /**
+     * @dev Tells you if the Purchase Percentage Rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isPurchasePercentageRuleActive() external view returns (bool) {
+        return purchasePercentageRuleActive;
+    }
+
+    /**
+     * @dev Set the sellPercentageRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setSellPercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        sellPercentageRuleId = _ruleId;
+        sellPercentageRuleActive = true;
+        emit ApplicationHandlerApplied(SELL_PERCENTAGE, _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateSellPercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        sellPercentageRuleActive = _on;
+    }
+
+    /**
+     * @dev Retrieve the Purchase Percentage Rule Id
+     * @return purchasePercentageRuleId
+     */
+    function getSellPercentageRuleId() external view returns (uint32) {
+        return sellPercentageRuleId;
+    }
+
+    /**
+     * @dev Tells you if the Purchase Percentage Rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isSellPercentageRuleActive() external view returns (bool) {
+        return sellPercentageRuleActive;
     }
 
     /// -------------DATA CONTRACT DEPLOYMENT---------------

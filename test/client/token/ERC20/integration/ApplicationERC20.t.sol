@@ -9,7 +9,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(superAdmin);
         setUpProtocolAndAppManagerAndTokens();
         switchToAppAdministrator();
-        applicationCoin.mint(appAdministrator, 10_000_000_000_000_000_000_000 * (10 ** 18));
+        applicationCoin.mint(appAdministrator, 10_000_000_000_000_000_000_000 * (ATTO));
         vm.warp(Blocktime);
     }
 
@@ -21,7 +21,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
     /// Test balance
     function testBalance() public {
         console.logUint(applicationCoin.totalSupply());
-        assertEq(applicationCoin.balanceOf(appAdministrator), 10000000000000000000000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(appAdministrator), 10000000000000000000000 * (ATTO));
     }
 
     /// Test Mint
@@ -33,9 +33,9 @@ contract ApplicationERC20Test is TestCommonFoundry {
 
     /// Test token transfer
     function testTransfer() public {
-        applicationCoin.transfer(user, 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user), 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(appAdministrator), 9999999999999999999990 * (10 ** 18));
+        applicationCoin.transfer(user, 10 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user), 10 * (ATTO));
+        assertEq(applicationCoin.balanceOf(appAdministrator), 9999999999999999999990 * (ATTO));
     }
 
     function testZeroAddressChecksERC20() public {
@@ -258,8 +258,8 @@ contract ApplicationERC20Test is TestCommonFoundry {
      */
     function testCoinBalanceByAccessLevelRulePasses() public {
         /// set up a non admin user with tokens
-        applicationCoin.transfer(user1, 100000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user1), 100000 * (10 ** 18));
+        applicationCoin.transfer(user1, 100000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user1), 100000 * (ATTO));
 
         // add the rule.
         uint48[] memory balanceAmounts = createUint48Array(0, 100, 500, 1000, 10000);
@@ -274,7 +274,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(user1);
         vm.expectRevert(0xdd76c810);
-        applicationCoin.transfer(user2, 11 * (10 ** 18));
+        applicationCoin.transfer(user2, 11 * (ATTO));
 
         /// Add access levellevel to whale
         address whale = address(99);
@@ -286,9 +286,9 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(user1);
         /// this one is over the limit and should fail
         vm.expectRevert(0xdd76c810);
-        applicationCoin.transfer(whale, 10001 * (10 ** 18));
+        applicationCoin.transfer(whale, 10001 * (ATTO));
         /// this one is within the limit and should pass
-        applicationCoin.transfer(whale, 10000 * (10 ** 18));
+        applicationCoin.transfer(whale, 10000 * (ATTO));
 
         /// create secondary token, mint, and transfer to user
         switchToSuperAdmin();
@@ -299,11 +299,11 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         applicationAppManager.registerToken("DRAC", address(draculaCoin));
-        draculaCoin.mint(appAdministrator, 10000000000000000000000 * (10 ** 18));
-        draculaCoin.transfer(user1, 100000 * (10 ** 18));
-        assertEq(draculaCoin.balanceOf(user1), 100000 * (10 ** 18));
-        erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * (10 ** 18)); //setting at $1
-        assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * (10 ** 18));
+        draculaCoin.mint(appAdministrator, 10000000000000000000000 * (ATTO));
+        draculaCoin.transfer(user1, 100000 * (ATTO));
+        assertEq(draculaCoin.balanceOf(user1), 100000 * (ATTO));
+        erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * (ATTO)); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * (ATTO));
         // set the access levellevel for the user4
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user4, 3);
@@ -312,30 +312,30 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(user1);
         /// perform transfer that checks user with AccessLevel and existing balances(should fail regardless of other balance)
         vm.expectRevert(0xdd76c810);
-        applicationCoin.transfer(user4, 1001 * (10 ** 18));
+        applicationCoin.transfer(user4, 1001 * (ATTO));
         /// perform transfer that checks user with AccessLevel and existing balances(should fail because of other balance)
-        draculaCoin.transfer(user4, 999 * (10 ** 18));
+        draculaCoin.transfer(user4, 999 * (ATTO));
         vm.expectRevert(0xdd76c810);
-        applicationCoin.transfer(user4, 2 * (10 ** 18));
+        applicationCoin.transfer(user4, 2 * (ATTO));
 
         /// perform transfer that checks user with AccessLevel and existing balances(should pass)
-        applicationCoin.transfer(user4, 1 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 1 * (10 ** 18));
+        applicationCoin.transfer(user4, 1 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 1 * (ATTO));
 
         /// test burning is allowed while rule is active
-        applicationCoin.burn(1 * (10 ** 18));
+        applicationCoin.burn(1 * (ATTO));
         /// burn remaining balance to ensure rule limit is not checked on burns
         applicationCoin.burn(89998000000000000000000);
         /// test burn with account that has access level assign
         vm.stopPrank();
         vm.startPrank(user4);
-        applicationCoin.burn(1 * (10 ** 18));
+        applicationCoin.burn(1 * (ATTO));
         /// test the user account balance is decreased from burn and can receive tokens
         vm.stopPrank();
         vm.startPrank(whale);
-        applicationCoin.transfer(user4, 1 * (10 ** 18));
+        applicationCoin.transfer(user4, 1 * (ATTO));
         /// now whale account burns
-        applicationCoin.burn(1 * (10 ** 18));
+        applicationCoin.burn(1 * (ATTO));
     }
 
     function testPauseRulesViaAppManager() public {
@@ -405,12 +405,12 @@ contract ApplicationERC20Test is TestCommonFoundry {
         uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
         /// set up a non admin user with tokens
-        applicationCoin.transfer(user1, 10000000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user1), 10000000 * (10 ** 18));
-        applicationCoin.transfer(user2, 10000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
-        applicationCoin.transfer(user5, 10000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user5), 10000 * (10 ** 18));
+        applicationCoin.transfer(user1, 10000000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user1), 10000000 * (ATTO));
+        applicationCoin.transfer(user2, 10000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user2), 10000 * (ATTO));
+        applicationCoin.transfer(user5, 10000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user5), 10000 * (ATTO));
 
         ///Assign Risk scores to user1 and user 2
         switchToRiskAdmin();
@@ -420,20 +420,20 @@ contract ApplicationERC20Test is TestCommonFoundry {
 
         ///Switch to app admin and set up ERC20Pricer and activate TransactionLimitByRiskScore Rule
         switchToAppAdministrator();
-        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
-        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (ATTO)); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (ATTO));
         switchToRuleAdmin();
         applicationCoinHandler.setTransactionLimitByRiskRuleId(index);
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
         vm.startPrank(user2);
-        applicationCoin.transfer(user1, 1 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * (ATTO));
 
         ///Transfer expected to fail
         vm.stopPrank();
         vm.startPrank(user1);
         vm.expectRevert(0x9fe6aeac);
-        applicationCoin.transfer(user2, 1000001 * (10 ** 18));
+        applicationCoin.transfer(user2, 1000001 * (ATTO));
 
         switchToRiskAdmin();
         ///Test in between Risk Score Values
@@ -441,29 +441,29 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationAppManager.addRiskScore(user4, 81);
 
         switchToAppAdministrator();
-        applicationCoin.transfer(user3, 1500 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 1500 * (10 ** 18));
-        applicationCoin.transfer(user4, 1000000 * (10 ** 18));
+        applicationCoin.transfer(user3, 1500 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 1500 * (ATTO));
+        applicationCoin.transfer(user4, 1000000 * (ATTO));
 
         vm.stopPrank();
         vm.startPrank(user3);
         vm.expectRevert(0x9fe6aeac);
-        applicationCoin.transfer(user4, 10001 * (10 ** 18));
+        applicationCoin.transfer(user4, 10001 * (ATTO));
 
         vm.stopPrank();
         vm.startPrank(user4);
-        applicationCoin.transfer(user3, 10 * (10 ** 18));
+        applicationCoin.transfer(user3, 10 * (ATTO));
 
         //vm.expectRevert(0x9fe6aeac);
-        applicationCoin.transfer(user3, 1001 * (10 ** 18));
+        applicationCoin.transfer(user3, 1001 * (ATTO));
 
         /// test burning tokens while rule is active
         vm.stopPrank();
         vm.startPrank(user5);
-        applicationCoin.burn(999 * (10 ** 18));
+        applicationCoin.burn(999 * (ATTO));
         vm.expectRevert(0x9fe6aeac);
-        applicationCoin.burn(1001 * (10 ** 18));
-        applicationCoin.burn(1000 * (10 ** 18));
+        applicationCoin.burn(1001 * (ATTO));
+        applicationCoin.burn(1000 * (ATTO));
     }
 
     function testBalanceLimitByRiskScoreERC20() public {
@@ -473,16 +473,16 @@ contract ApplicationERC20Test is TestCommonFoundry {
         uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
         switchToAppAdministrator();
         /// set up a non admin user with tokens
-        applicationCoin.transfer(user1, 999 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user1), 999 * (10 ** 18));
-        applicationCoin.transfer(user2, 249 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user2), 249 * (10 ** 18));
-        applicationCoin.transfer(user3, 499 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 499 * (10 ** 18));
-        applicationCoin.transfer(user4, 99 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99 * (10 ** 18));
-        applicationCoin.transfer(user5, 1000000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user5), 1000000 * (10 ** 18));
+        applicationCoin.transfer(user1, 999 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user1), 999 * (ATTO));
+        applicationCoin.transfer(user2, 249 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user2), 249 * (ATTO));
+        applicationCoin.transfer(user3, 499 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 499 * (ATTO));
+        applicationCoin.transfer(user4, 99 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99 * (ATTO));
+        applicationCoin.transfer(user5, 1000000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user5), 1000000 * (ATTO));
 
         ///Assign Risk scores to user1 and user 2
         switchToRiskAdmin();
@@ -493,50 +493,50 @@ contract ApplicationERC20Test is TestCommonFoundry {
 
         ///Switch to Super admin and set up ERC20Pricer and activate AccountBalanceByRiskScore Rule
         switchToAppAdministrator();
-        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
-        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (ATTO)); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (ATTO));
         switchToRuleAdmin();
         applicationHandler.setAccountBalanceByRiskRuleId(index);
 
         ///Transfer funds to all that will put them one from limit(should all pass)
         vm.stopPrank();
         vm.startPrank(user5);
-        applicationCoin.transfer(user1, 1 * (10 ** 18));
-        applicationCoin.transfer(user2, 1 * (10 ** 18));
-        applicationCoin.transfer(user3, 1 * (10 ** 18));
-        applicationCoin.transfer(user4, 1 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * (ATTO));
+        applicationCoin.transfer(user2, 1 * (ATTO));
+        applicationCoin.transfer(user3, 1 * (ATTO));
+        applicationCoin.transfer(user4, 1 * (ATTO));
 
         ///Transfers expected to fail
         vm.expectRevert(0x58b13098);
-        applicationCoin.transfer(user2, 1 * (10 ** 18));
+        applicationCoin.transfer(user2, 1 * (ATTO));
         vm.expectRevert(0x58b13098);
-        applicationCoin.transfer(user3, 1 * (10 ** 18));
+        applicationCoin.transfer(user3, 1 * (ATTO));
         vm.expectRevert(0x58b13098);
-        applicationCoin.transfer(user4, 1 * (10 ** 18));
+        applicationCoin.transfer(user4, 1 * (ATTO));
     }
 
     /// test updating min transfer rule
     function testPassesAccessLevel0RuleCoin() public {
         /// load non admin user with application coin
-        applicationCoin.transfer(rich_user, 1000000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(rich_user), 1000000 * (10 ** 18));
+        applicationCoin.transfer(rich_user, 1000000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(rich_user), 1000000 * (ATTO));
         vm.stopPrank();
         vm.startPrank(rich_user);
         /// check transfer without access level but with the rule turned off
-        applicationCoin.transfer(user3, 5 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 5 * (10 ** 18));
+        applicationCoin.transfer(user3, 5 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 5 * (ATTO));
         /// now turn the rule on so the transfer will fail
         switchToRuleAdmin();
         applicationHandler.activateAccessLevel0Rule(true);
         vm.stopPrank();
         vm.startPrank(rich_user);
         vm.expectRevert(0x3fac082d);
-        applicationCoin.transfer(user3, 5 * (10 ** 18));
+        applicationCoin.transfer(user3, 5 * (ATTO));
 
         vm.stopPrank();
         vm.startPrank(user3);
         vm.expectRevert(0x3fac082d);
-        applicationCoin.transfer(rich_user, 5 * (10 ** 18));
+        applicationCoin.transfer(rich_user, 5 * (ATTO));
 
         // set AccessLevel and try again
         switchToAccessLevelAdmin();
@@ -545,27 +545,27 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(rich_user);
         vm.expectRevert(0x3fac082d); /// this fails because rich_user is still accessLevel0
-        applicationCoin.transfer(user3, 5 * (10 ** 18));
+        applicationCoin.transfer(user3, 5 * (ATTO));
 
         vm.stopPrank();
         vm.startPrank(user3);
         vm.expectRevert(0x3fac082d); /// this fails because rich_user is still accessLevel0
-        applicationCoin.transfer(rich_user, 5 * (10 ** 18));
+        applicationCoin.transfer(rich_user, 5 * (ATTO));
 
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(rich_user, 1);
 
         vm.stopPrank();
         vm.startPrank(rich_user);
-        applicationCoin.transfer(user3, 5 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 10 * (10 ** 18));
+        applicationCoin.transfer(user3, 5 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 10 * (ATTO));
 
         vm.stopPrank();
         vm.startPrank(user3);
-        applicationCoin.transfer(rich_user, 5 * (10 ** 18));
+        applicationCoin.transfer(rich_user, 5 * (ATTO));
 
         /// test that burn works when user has accessLevel above 0
-        applicationCoin.burn(5 * (10 ** 18));
+        applicationCoin.burn(5 * (ATTO));
         /// test burn fails when rule active and user has access level 0
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(rich_user, 0);
@@ -573,22 +573,22 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(rich_user);
         vm.expectRevert(0x3fac082d);
-        applicationCoin.burn(1 * (10 ** 18));
+        applicationCoin.burn(1 * (ATTO));
     }
 
     function testAccessLevelWithdrawalRule() public {
         /// load non admin user with application coin
-        applicationCoin.transfer(user1, 1000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user1), 1000 * (10 ** 18));
+        applicationCoin.transfer(user1, 1000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user1), 1000 * (ATTO));
         vm.stopPrank();
         vm.startPrank(user1);
         /// check transfer without access level with the rule turned off
-        applicationCoin.transfer(user3, 50 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 50 * (10 ** 18));
+        applicationCoin.transfer(user3, 50 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 50 * (ATTO));
         /// price the tokens
         switchToAppAdministrator();
-        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
-        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (ATTO)); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (ATTO));
         /// create and activate rule
         switchToRuleAdmin();
         uint48[] memory withdrawalLimits = createUint48Array(10, 100, 1000, 10000, 100000);
@@ -604,27 +604,27 @@ contract ApplicationERC20Test is TestCommonFoundry {
 
         vm.stopPrank();
         vm.startPrank(user1);
-        applicationCoin.transfer(user3, 50 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 100 * (10 ** 18));
-        applicationCoin.transfer(user4, 50 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 50 * (10 ** 18));
+        applicationCoin.transfer(user3, 50 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 100 * (ATTO));
+        applicationCoin.transfer(user4, 50 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 50 * (ATTO));
         /// User 1 now at "withdrawal" limit for kyc level
         vm.stopPrank();
         vm.startPrank(user3);
-        applicationCoin.transfer(user4, 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 60 * (10 ** 18));
+        applicationCoin.transfer(user4, 10 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 60 * (ATTO));
         /// User3 now at "withdrawal" limit for kyc level
 
         /// test transfers fail over rule value
         vm.stopPrank();
         vm.startPrank(user1);
         vm.expectRevert(0x2bbc9aea);
-        applicationCoin.transfer(user3, 50 * (10 ** 18));
+        applicationCoin.transfer(user3, 50 * (ATTO));
 
         vm.stopPrank();
         vm.startPrank(user3);
         vm.expectRevert(0x2bbc9aea);
-        applicationCoin.transfer(user4, 50 * (10 ** 18));
+        applicationCoin.transfer(user4, 50 * (ATTO));
         /// reduce price and test pass fail situations
         switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 5 * (10 ** 17));
@@ -633,10 +633,10 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(user4);
         /// successful transfer as the new price is $.50USD (can transfer up to $10)
-        applicationCoin.transfer(user4, 20 * (10 ** 18));
+        applicationCoin.transfer(user4, 20 * (ATTO));
         /// transfer fails because user reached KYC limit
         vm.expectRevert(0x2bbc9aea);
-        applicationCoin.transfer(user3, 10 * (10 ** 18));
+        applicationCoin.transfer(user3, 10 * (ATTO));
     }
 
     /// test Minimum Balance By Date rule
@@ -644,7 +644,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         // Set up the rule conditions
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256Array((1000 * (10 ** 18)), (2000 * (10 ** 18)), (3000 * (10 ** 18)));
+        uint256[] memory holdAmounts = createUint256Array((1000 * (ATTO)), (2000 * (ATTO)), (3000 * (ATTO)));
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
@@ -653,12 +653,12 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoinHandler.setMinBalByDateRuleId(_index);
         switchToAppAdministrator();
         /// load non admin users with application coin
-        applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(rich_user), 10000 * (10 ** 18));
-        applicationCoin.transfer(user2, 10000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
-        applicationCoin.transfer(user3, 10000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 10000 * (10 ** 18));
+        applicationCoin.transfer(rich_user, 10000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(rich_user), 10000 * (ATTO));
+        applicationCoin.transfer(user2, 10000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user2), 10000 * (ATTO));
+        applicationCoin.transfer(user3, 10000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 10000 * (ATTO));
         /// tag the user
         applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
@@ -671,14 +671,14 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(rich_user);
         /// attempt a transfer that violates the rule
         vm.expectRevert(0xa7fb7b4b);
-        applicationCoin.transfer(user1, 9001 * (10 ** 18));
+        applicationCoin.transfer(user1, 9001 * (ATTO));
         /// make sure a transfer that is acceptable will still pass within the freeze window.
-        applicationCoin.transfer(user1, 9000 * (10 ** 18));
+        applicationCoin.transfer(user1, 9000 * (ATTO));
         vm.expectRevert(0xa7fb7b4b);
-        applicationCoin.transfer(user1, 1 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * (ATTO));
         /// add enough time so that it should pass
         vm.warp(Blocktime + (720 * 1 hours));
-        applicationCoin.transfer(user1, 1 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * (ATTO));
 
         /// try tier 2
         /// switch to the user
@@ -686,14 +686,14 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(user2);
         /// attempt a transfer that violates the rule
         vm.expectRevert(0xa7fb7b4b);
-        applicationCoin.transfer(user1, 8001 * (10 ** 18));
+        applicationCoin.transfer(user1, 8001 * (ATTO));
     }
 
     ///Test transferring coins with fees enabled
     function testTransactionFeeTableCoin() public {
-        applicationCoin.transfer(user4, 100000 * (10 ** 18));
-        uint256 minBalance = 10 * 10 ** 18;
-        uint256 maxBalance = 10000000 * 10 ** 18;
+        applicationCoin.transfer(user4, 100000 * (ATTO));
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
         int24 feePercentage = 300;
         address targetAccount = rich_user;
         address targetAccount2 = user10;
@@ -708,27 +708,27 @@ contract ApplicationERC20Test is TestCommonFoundry {
         assertEq(1, applicationCoinHandler.getFeeTotal());
         // make sure fees don't affect Application Administrators(even if tagged)
         applicationAppManager.addGeneralTag(superAdmin, "cheap"); ///add tag
-        applicationCoin.transfer(user2, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user2), 100 * (10 ** 18));
+        applicationCoin.transfer(user2, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user2), 100 * (ATTO));
 
         // now test the fee assessment
         applicationAppManager.addGeneralTag(user4, "cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works
-        applicationCoin.transfer(user3, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99900 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
+        applicationCoin.transfer(user3, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99900 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (ATTO));
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (ATTO));
 
         // make sure when fees are active, that non qualifying users are not affected
         switchToAppAdministrator();
-        applicationCoin.transfer(user5, 100 * (10 ** 18));
+        applicationCoin.transfer(user5, 100 * (ATTO));
         vm.stopPrank();
         vm.startPrank(user5);
-        applicationCoin.transfer(user6, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user6), 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
+        applicationCoin.transfer(user6, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user6), 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (ATTO));
 
         // make sure multiple fees work by adding additional rule and applying to user4
         switchToRuleAdmin();
@@ -737,11 +737,11 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationAppManager.addGeneralTag(user4, "less cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
-        applicationCoin.transfer(user7, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99800 * (10 ** 18)); //from account decrements properly
-        assertEq(applicationCoin.balanceOf(user7), 91 * (10 ** 18)); // to account gets amount - fees
-        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (10 ** 18)); // treasury gets fees(added from previous)
-        assertEq(applicationCoin.balanceOf(targetAccount2), 6 * (10 ** 18)); // treasury gets fees
+        applicationCoin.transfer(user7, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99800 * (ATTO)); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user7), 91 * (ATTO)); // to account gets amount - fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (ATTO)); // treasury gets fees(added from previous)
+        assertEq(applicationCoin.balanceOf(targetAccount2), 6 * (ATTO)); // treasury gets fees
 
         // make sure discounts work by adding a discount to user4
         switchToRuleAdmin();
@@ -750,29 +750,29 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationAppManager.addGeneralTag(user4, "discount"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
-        applicationCoin.transfer(user8, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99700 * (10 ** 18)); //from account decrements properly
-        assertEq(applicationCoin.balanceOf(user8), 93 * (10 ** 18)); // to account gets amount - fees
-        assertEq(applicationCoin.balanceOf(targetAccount), 8 * (10 ** 18)); // treasury gets fees(added from previous...6 + 2)
-        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury gets fees(added from previous...6 + 5)
+        applicationCoin.transfer(user8, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99700 * (ATTO)); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user8), 93 * (ATTO)); // to account gets amount - fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 8 * (ATTO)); // treasury gets fees(added from previous...6 + 2)
+        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (ATTO)); // treasury gets fees(added from previous...6 + 5)
 
         // make sure deactivation works
         switchToRuleAdmin();
         applicationCoinHandler.setFeeActivation(false);
         vm.stopPrank();
         vm.startPrank(user4);
-        applicationCoin.transfer(user9, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99600 * (10 ** 18)); //from account decrements properly
-        assertEq(applicationCoin.balanceOf(user9), 100 * (10 ** 18)); // to account gets amount while ignoring fees
-        assertEq(applicationCoin.balanceOf(targetAccount), 8 * (10 ** 18)); // treasury remains the same
-        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury remains the same
+        applicationCoin.transfer(user9, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99600 * (ATTO)); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user9), 100 * (ATTO)); // to account gets amount while ignoring fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 8 * (ATTO)); // treasury remains the same
+        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (ATTO)); // treasury remains the same
     }
 
     ///Test transferring coins with fees and discounts where the discounts are greater than the fees
     function testTransactionFeeTableDiscountsCoin() public {
-        applicationCoin.transfer(user4, 100000 * (10 ** 18));
-        uint256 minBalance = 10 * 10 ** 18;
-        uint256 maxBalance = 10000000 * 10 ** 18;
+        applicationCoin.transfer(user4, 100000 * (ATTO));
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
         int24 feePercentage = 100;
         address targetAccount = rich_user;
         // create a fee
@@ -809,17 +809,17 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(user4);
         // discounts are greater than fees so it should put fees to 0
-        applicationCoin.transfer(user3, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99900 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(targetAccount), 0 * (10 ** 18));
+        applicationCoin.transfer(user3, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99900 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(targetAccount), 0 * (ATTO));
     }
 
     ///Test transferring coins with fees enabled using transferFrom
     function testTransactionFeeTableTransferFrom() public {
-        applicationCoin.transfer(user4, 100000 * (10 ** 18));
-        uint256 minBalance = 10 * 10 ** 18;
-        uint256 maxBalance = 10000000 * 10 ** 18;
+        applicationCoin.transfer(user4, 100000 * (ATTO));
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
         int24 feePercentage = 300;
         address targetAccount = rich_user;
         address targetAccount2 = user10;
@@ -834,11 +834,11 @@ contract ApplicationERC20Test is TestCommonFoundry {
         assertEq(1, applicationCoinHandler.getFeeTotal());
         // make sure fees don't affect Application Administrators(even if tagged)
         applicationAppManager.addGeneralTag(appAdministrator, "cheap"); ///add tag
-        applicationCoin.approve(address(transferFromUser), 100 * (10 ** 18));
+        applicationCoin.approve(address(transferFromUser), 100 * (ATTO));
         vm.stopPrank();
         vm.startPrank(transferFromUser);
-        applicationCoin.transferFrom(appAdministrator, user2, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user2), 100 * (10 ** 18));
+        applicationCoin.transferFrom(appAdministrator, user2, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user2), 100 * (ATTO));
 
         // now test the fee assessment
         switchToAppAdministrator();
@@ -846,26 +846,26 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works
-        applicationCoin.approve(address(transferFromUser), 100 * (10 ** 18));
+        applicationCoin.approve(address(transferFromUser), 100 * (ATTO));
         vm.stopPrank();
         vm.startPrank(transferFromUser);
-        applicationCoin.transferFrom(user4, user3, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99900 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
+        applicationCoin.transferFrom(user4, user3, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99900 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (ATTO));
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (ATTO));
 
         // make sure when fees are active, that non qualifying users are not affected
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationCoin.transfer(user5, 100 * (10 ** 18));
+        applicationCoin.transfer(user5, 100 * (ATTO));
         vm.stopPrank();
         vm.startPrank(user5);
-        applicationCoin.approve(address(transferFromUser), 100 * (10 ** 18));
+        applicationCoin.approve(address(transferFromUser), 100 * (ATTO));
         vm.stopPrank();
         vm.startPrank(transferFromUser);
-        applicationCoin.transferFrom(user5, user6, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user6), 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
+        applicationCoin.transferFrom(user5, user6, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user6), 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (ATTO));
 
         // make sure multiple fees work by adding additional rule and applying to user4
         switchToRuleAdmin();
@@ -874,14 +874,14 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationAppManager.addGeneralTag(user4, "less cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
-        applicationCoin.approve(address(transferFromUser), 100 * (10 ** 18));
+        applicationCoin.approve(address(transferFromUser), 100 * (ATTO));
         vm.stopPrank();
         vm.startPrank(transferFromUser);
-        applicationCoin.transferFrom(user4, user7, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99800 * (10 ** 18)); //from account decrements properly
-        assertEq(applicationCoin.balanceOf(user7), 91 * (10 ** 18)); // to account gets amount - fees
-        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (10 ** 18)); // treasury gets fees(added from previous)
-        assertEq(applicationCoin.balanceOf(targetAccount2), 6 * (10 ** 18)); // treasury gets fees
+        applicationCoin.transferFrom(user4, user7, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99800 * (ATTO)); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user7), 91 * (ATTO)); // to account gets amount - fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (ATTO)); // treasury gets fees(added from previous)
+        assertEq(applicationCoin.balanceOf(targetAccount2), 6 * (ATTO)); // treasury gets fees
 
         // make sure discounts work by adding a discount to user4
         switchToRuleAdmin();
@@ -890,35 +890,35 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationAppManager.addGeneralTag(user4, "discount"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
-        applicationCoin.approve(address(transferFromUser), 100 * (10 ** 18));
+        applicationCoin.approve(address(transferFromUser), 100 * (ATTO));
         vm.stopPrank();
         vm.startPrank(transferFromUser);
-        applicationCoin.transferFrom(user4, user8, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99700 * (10 ** 18)); //from account decrements properly
-        assertEq(applicationCoin.balanceOf(user8), 93 * (10 ** 18)); // to account gets amount - fees
-        assertEq(applicationCoin.balanceOf(targetAccount), 8 * (10 ** 18)); // treasury gets fees(added from previous...6 + 2)
-        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury gets fees(added from previous...6 + 5)
+        applicationCoin.transferFrom(user4, user8, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99700 * (ATTO)); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user8), 93 * (ATTO)); // to account gets amount - fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 8 * (ATTO)); // treasury gets fees(added from previous...6 + 2)
+        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (ATTO)); // treasury gets fees(added from previous...6 + 5)
 
         // make sure deactivation works
         switchToRuleAdmin();
         applicationCoinHandler.setFeeActivation(false);
         vm.stopPrank();
         vm.startPrank(user4);
-        applicationCoin.approve(address(transferFromUser), 100 * (10 ** 18));
+        applicationCoin.approve(address(transferFromUser), 100 * (ATTO));
         vm.stopPrank();
         vm.startPrank(transferFromUser);
-        applicationCoin.transferFrom(user4, user9, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99600 * (10 ** 18)); //from account decrements properly
-        assertEq(applicationCoin.balanceOf(user9), 100 * (10 ** 18)); // to account gets amount while ignoring fees
-        assertEq(applicationCoin.balanceOf(targetAccount), 8 * (10 ** 18)); // treasury remains the same
-        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury remains the same
+        applicationCoin.transferFrom(user4, user9, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99600 * (ATTO)); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user9), 100 * (ATTO)); // to account gets amount while ignoring fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 8 * (ATTO)); // treasury remains the same
+        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (ATTO)); // treasury remains the same
     }
 
     ///Test transferring coins with fees enabled
     function testTransactionFeeTableCoinGt100() public {
-        applicationCoin.transfer(user4, 100000 * (10 ** 18));
-        uint256 minBalance = 10 * 10 ** 18;
-        uint256 maxBalance = 10000000 * 10 ** 18;
+        applicationCoin.transfer(user4, 100000 * (ATTO));
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
         int24 feePercentage = 300;
         address targetAccount = rich_user;
         address targetAccount2 = user10;
@@ -937,10 +937,10 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works
-        applicationCoin.transfer(user3, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99900 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
+        applicationCoin.transfer(user3, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99900 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (ATTO));
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (ATTO));
 
         // add a fee to bring it to 100 percent
         switchToRuleAdmin();
@@ -952,11 +952,11 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works(other fee will also be assessed)
-        applicationCoin.transfer(user3, 100 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user4), 99800 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (10 ** 18)); // previous 3 + current 3
-        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * (10 ** 18)); // current 7
+        applicationCoin.transfer(user3, 100 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user4), 99800 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (ATTO));
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (ATTO)); // previous 3 + current 3
+        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * (ATTO)); // current 7
 
         // add a fee to bring it over 100 percent
         switchToRuleAdmin();
@@ -970,12 +970,12 @@ contract ApplicationERC20Test is TestCommonFoundry {
         // make sure standard fee works(other fee will also be assessed)
         bytes4 selector = bytes4(keccak256("FeesAreGreaterThanTransactionAmount(address)"));
         vm.expectRevert(abi.encodeWithSelector(selector, user4));
-        applicationCoin.transfer(user3, 200 * (10 ** 18));
+        applicationCoin.transfer(user3, 200 * (ATTO));
         // make sure nothing changed
-        assertEq(applicationCoin.balanceOf(user4), 99800 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (10 ** 18)); // previous 3 + current 3
-        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * (10 ** 18)); // current 7
+        assertEq(applicationCoin.balanceOf(user4), 99800 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (ATTO));
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * (ATTO)); // previous 3 + current 3
+        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * (ATTO)); // current 7
     }
 
     /// test the token transfer volume rule in erc20
@@ -990,50 +990,50 @@ contract ApplicationERC20Test is TestCommonFoundry {
         assertEq(rule.period, 2);
         assertEq(rule.startTime, Blocktime);
         /// burn all default supply down and mint a manageable number
-        applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
-        applicationCoin.mint(appAdministrator, 100_000 * (10 ** 18));
+        applicationCoin.burn(10_000_000_000_000_000_000_000 * (ATTO));
+        applicationCoin.mint(appAdministrator, 100_000 * (ATTO));
         /// load non admin users with game coin
         /// apply the rule
         switchToRuleAdmin();
         applicationCoinHandler.setTokenTransferVolumeRuleId(_index);
         switchToAppAdministrator();
-        applicationCoin.transfer(rich_user, 100_000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(rich_user), 100_000 * (10 ** 18));
+        applicationCoin.transfer(rich_user, 100_000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(rich_user), 100_000 * (ATTO));
         vm.stopPrank();
         vm.startPrank(rich_user);
         /// make sure that transfer under the threshold works
-        applicationCoin.transfer(user1, 39_000 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 39_000 * (10 ** 18));
+        applicationCoin.transfer(user1, 39_000 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 39_000 * (ATTO));
         /// now take it right up to the threshold(39,999)
-        applicationCoin.transfer(user1, 999 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 39_999 * (10 ** 18));
+        applicationCoin.transfer(user1, 999 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 39_999 * (ATTO));
         /// now violate the rule and ensure revert
         vm.expectRevert(0x3627495d);
-        applicationCoin.transfer(user1, 1 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 39_999 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 39_999 * (ATTO));
         /// now move a little over 2 hours into the future to make sure the next block will work
         vm.warp(Blocktime + 121 minutes);
-        applicationCoin.transfer(user1, 1 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 40_000 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 40_000 * (ATTO));
         /// now violate the rule in this block and ensure revert
         vm.expectRevert(0x3627495d);
-        applicationCoin.transfer(user1, 39_999 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 40_000 * (10 ** 18));
+        applicationCoin.transfer(user1, 39_999 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 40_000 * (ATTO));
         /// now move 1 day into the future and try again
         vm.warp(Blocktime + 1 days);
-        applicationCoin.transfer(user1, 39_999 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 79_999 * (10 ** 18));
+        applicationCoin.transfer(user1, 39_999 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 79_999 * (ATTO));
         /// once again, break the rule
         vm.expectRevert(0x3627495d);
-        applicationCoin.transfer(user1, 1 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 79_999 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 79_999 * (ATTO));
     }
 
     /// test the token transfer volume rule in erc20 when they give a total supply instead of relying on ERC20
     function testTokenTransferVolumeRuleCoinWithSupplySet() public {
         /// set the rule for 40% in 2 hours, starting at midnight
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addTransferVolumeRule(address(applicationAppManager), 4000, 2, Blocktime, 100_000 * (10 ** 18));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addTransferVolumeRule(address(applicationAppManager), 4000, 2, Blocktime, 100_000 * (ATTO));
         assertEq(_index, 0);
         NonTaggedRules.TokenTransferVolumeRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTransferVolumeRule(_index);
         assertEq(rule.maxVolume, 4000);
@@ -1041,47 +1041,47 @@ contract ApplicationERC20Test is TestCommonFoundry {
         assertEq(rule.startTime, Blocktime);
         switchToAppAdministrator();
         /// load non admin users with game coin
-        applicationCoin.transfer(rich_user, 100_000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(rich_user), 100_000 * (10 ** 18));
+        applicationCoin.transfer(rich_user, 100_000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(rich_user), 100_000 * (ATTO));
         /// apply the rule
         switchToRuleAdmin();
         applicationCoinHandler.setTokenTransferVolumeRuleId(_index);
         vm.stopPrank();
         vm.startPrank(rich_user);
         /// make sure that transfer under the threshold works
-        applicationCoin.transfer(user1, 39_000 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 39_000 * (10 ** 18));
+        applicationCoin.transfer(user1, 39_000 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 39_000 * (ATTO));
         /// now take it right up to the threshold(39,999)
-        applicationCoin.transfer(user1, 999 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 39_999 * (10 ** 18));
+        applicationCoin.transfer(user1, 999 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 39_999 * (ATTO));
         /// now violate the rule and ensure revert
         vm.expectRevert(0x3627495d);
-        applicationCoin.transfer(user1, 1 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 39_999 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 39_999 * (ATTO));
         /// now move a little over 2 hours into the future to make sure the next block will work
         vm.warp(Blocktime + 121 minutes);
-        applicationCoin.transfer(user1, 1 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 40_000 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 40_000 * (ATTO));
         /// now violate the rule in this block and ensure revert
         vm.expectRevert(0x3627495d);
-        applicationCoin.transfer(user1, 39_999 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 40_000 * (10 ** 18));
+        applicationCoin.transfer(user1, 39_999 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 40_000 * (ATTO));
         /// now move 1 day into the future and try again
         vm.warp(Blocktime + 1 days);
-        applicationCoin.transfer(user1, 39_999 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 79_999 * (10 ** 18));
+        applicationCoin.transfer(user1, 39_999 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 79_999 * (ATTO));
         /// once again, break the rule
         vm.expectRevert(0x3627495d);
-        applicationCoin.transfer(user1, 1 * 10 ** 18);
-        assertEq(applicationCoin.balanceOf(user1), 79_999 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 79_999 * (ATTO));
     }
 
     /// test supply volatility rule
     function testSupplyVolatilityRule() public {
         /// burn tokens to specific supply
-        applicationCoin.burn(10_000_000_000_000_000_000_000 * (10 ** 18));
-        applicationCoin.mint(appAdministrator, 100_000 * (10 ** 18));
-        applicationCoin.transfer(user1, 5000 * (10 ** 18));
+        applicationCoin.burn(10_000_000_000_000_000_000_000 * (ATTO));
+        applicationCoin.mint(appAdministrator, 100_000 * (ATTO));
+        applicationCoin.transfer(user1, 5000 * (ATTO));
 
         /// create rule params
         uint16 volatilityLimit = 1000; /// 10%
@@ -1101,42 +1101,42 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(user1);
         /// mint tokens to the cap
         applicationCoin.mint(user1, 1);
-        applicationCoin.mint(user1, 1000 * (10 ** 18));
-        applicationCoin.mint(user1, 8000 * (10 ** 18));
+        applicationCoin.mint(user1, 1000 * (ATTO));
+        applicationCoin.mint(user1, 8000 * (ATTO));
         /// fail transactions (mint and burn with passing transfers)
         vm.expectRevert(0x81af27fa);
-        applicationCoin.mint(user1, 6500 * (10 ** 18));
+        applicationCoin.mint(user1, 6500 * (ATTO));
 
         /// move out of rule period
         vm.warp(Blocktime + 40 hours);
-        applicationCoin.mint(user1, 2550 * (10 ** 18));
+        applicationCoin.mint(user1, 2550 * (ATTO));
 
         /// burn tokens
         /// move into fresh period
         vm.warp(Blocktime + 95 hours);
-        applicationCoin.burn(1000 * (10 ** 18));
-        applicationCoin.burn(1000 * (10 ** 18));
-        applicationCoin.burn(8000 * (10 ** 18));
+        applicationCoin.burn(1000 * (ATTO));
+        applicationCoin.burn(1000 * (ATTO));
+        applicationCoin.burn(8000 * (ATTO));
 
         vm.expectRevert(0x81af27fa);
-        applicationCoin.burn(2550 * (10 ** 18));
+        applicationCoin.burn(2550 * (ATTO));
 
-        applicationCoin.mint(user1, 2550 * (10 ** 18));
-        applicationCoin.burn(2550 * (10 ** 18));
-        applicationCoin.mint(user1, 2550 * (10 ** 18));
-        applicationCoin.burn(2550 * (10 ** 18));
-        applicationCoin.mint(user1, 2550 * (10 ** 18));
-        applicationCoin.burn(2550 * (10 ** 18));
-        applicationCoin.mint(user1, 2550 * (10 ** 18));
-        applicationCoin.burn(2550 * (10 ** 18));
+        applicationCoin.mint(user1, 2550 * (ATTO));
+        applicationCoin.burn(2550 * (ATTO));
+        applicationCoin.mint(user1, 2550 * (ATTO));
+        applicationCoin.burn(2550 * (ATTO));
+        applicationCoin.mint(user1, 2550 * (ATTO));
+        applicationCoin.burn(2550 * (ATTO));
+        applicationCoin.mint(user1, 2550 * (ATTO));
+        applicationCoin.burn(2550 * (ATTO));
     }
 
     function testDataContractMigration() public {
         /// put data in the old rule handler
         /// Fees
         bytes32 tag1 = "cheap";
-        uint256 minBalance = 10 * 10 ** 18;
-        uint256 maxBalance = 1000 * 10 ** 18;
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 1000 * ATTO;
         int24 feePercentage = 300;
         address feeCollectorAccount = appAdministrator;
         // create one fee
@@ -1179,8 +1179,8 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationAppManager.deregisterToken("FRANK");
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
         bytes32 tag1 = "cheap";
-        uint256 minBalance = 10 * 10 ** 18;
-        uint256 maxBalance = 1000 * 10 ** 18;
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 1000 * ATTO;
         int24 feePercentage = 300;
         address feeCollectorAccount = appAdministrator;
         // create one fee in old handler
@@ -1203,7 +1203,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         assertEq(fee.maxBalance, maxBalance);
         assertEq(1, assetHandler.getFeeTotal());
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256Array((1000 * (10 ** 18)), (2000 * (10 ** 18)), (3000 * (10 ** 18)));
+        uint256[] memory holdAmounts = createUint256Array((1000 * (ATTO)), (2000 * (ATTO)), (3000 * (ATTO)));
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
@@ -1213,12 +1213,12 @@ contract ApplicationERC20Test is TestCommonFoundry {
         switchToAppAdministrator();
 
         /// load non admin users with application coin
-        applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(rich_user), 10000 * (10 ** 18));
-        applicationCoin.transfer(user2, 10000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
-        applicationCoin.transfer(user3, 10000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 10000 * (10 ** 18));
+        applicationCoin.transfer(rich_user, 10000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(rich_user), 10000 * (ATTO));
+        applicationCoin.transfer(user2, 10000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user2), 10000 * (ATTO));
+        applicationCoin.transfer(user3, 10000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 10000 * (ATTO));
         switchToRuleAdmin();
         assetHandler.setMinBalByDateRuleId(_index);
         switchToAppAdministrator();
@@ -1234,14 +1234,14 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(rich_user);
         /// attempt a transfer that violates the rule
         vm.expectRevert(0xa7fb7b4b);
-        applicationCoin.transfer(user1, 9001 * (10 ** 18));
+        applicationCoin.transfer(user1, 9001 * (ATTO));
         /// make sure a transfer that is acceptable will still pass within the freeze window.
-        applicationCoin.transfer(user1, 9000 * (10 ** 18));
+        applicationCoin.transfer(user1, 9000 * (ATTO));
         vm.expectRevert(0xa7fb7b4b);
-        applicationCoin.transfer(user1, 1 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * (ATTO));
         /// add enough time so that it should pass
         vm.warp(Blocktime + (720 * 1 hours));
-        applicationCoin.transfer(user1, 1 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * (ATTO));
 
         /// try tier 2
         /// switch to the user
@@ -1249,7 +1249,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(user2);
         /// attempt a transfer that violates the rule
         vm.expectRevert(0xa7fb7b4b);
-        applicationCoin.transfer(user1, 8001 * (10 ** 18));
+        applicationCoin.transfer(user1, 8001 * (ATTO));
 
         console.log(assetHandler.newTestFunction());
     }
@@ -1265,7 +1265,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoinHandler.proposeDataContractMigration(address(assetHandler));
         assetHandler.confirmDataContractMigration(address(applicationCoinHandler));
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256Array((1000 * (10 ** 18)), (2000 * (10 ** 18)), (3000 * (10 ** 18)));
+        uint256[] memory holdAmounts = createUint256Array((1000 * (ATTO)), (2000 * (ATTO)), (3000 * (ATTO)));
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
@@ -1275,12 +1275,12 @@ contract ApplicationERC20Test is TestCommonFoundry {
         switchToAppAdministrator();
 
         /// load non admin users with application coin
-        applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(rich_user), 10000 * (10 ** 18));
-        applicationCoin.transfer(user2, 10000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
-        applicationCoin.transfer(user3, 10000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user3), 10000 * (10 ** 18));
+        applicationCoin.transfer(rich_user, 10000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(rich_user), 10000 * (ATTO));
+        applicationCoin.transfer(user2, 10000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user2), 10000 * (ATTO));
+        applicationCoin.transfer(user3, 10000 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user3), 10000 * (ATTO));
         switchToRuleAdmin();
         assetHandler.setMinBalByDateRuleId(_index);
         switchToAppAdministrator();
@@ -1296,14 +1296,14 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(rich_user);
         /// attempt a transfer that violates the rule
         vm.expectRevert(0xa7fb7b4b);
-        applicationCoin.transfer(user1, 9001 * (10 ** 18));
+        applicationCoin.transfer(user1, 9001 * (ATTO));
         /// make sure a transfer that is acceptable will still pass within the freeze window.
-        applicationCoin.transfer(user1, 9000 * (10 ** 18));
+        applicationCoin.transfer(user1, 9000 * (ATTO));
         vm.expectRevert(0xa7fb7b4b);
-        applicationCoin.transfer(user1, 1 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * (ATTO));
         /// add enough time so that it should pass
         vm.warp(Blocktime + (720 * 1 hours));
-        applicationCoin.transfer(user1, 1 * (10 ** 18));
+        applicationCoin.transfer(user1, 1 * (ATTO));
 
         /// try tier 2
         /// switch to the user
@@ -1311,7 +1311,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(user2);
         /// attempt a transfer that violates the rule
         vm.expectRevert(0xa7fb7b4b);
-        applicationCoin.transfer(user1, 8001 * (10 ** 18));
+        applicationCoin.transfer(user1, 8001 * (ATTO));
 
         console.log(assetHandler.newTestFunction());
     }
@@ -1328,9 +1328,9 @@ contract ApplicationERC20Test is TestCommonFoundry {
         appManager2.confirmAppManager(address(applicationCoin));
         /// test to ensure it still works
         switchToAppAdministrator();
-        applicationCoin.transfer(user, 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(user), 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(appAdministrator), 9999999999999999999990 * (10 ** 18));
+        applicationCoin.transfer(user, 10 * (ATTO));
+        assertEq(applicationCoin.balanceOf(user), 10 * (ATTO));
+        assertEq(applicationCoin.balanceOf(appAdministrator), 9999999999999999999990 * (ATTO));
 
         /// Test fail scenarios
         vm.stopPrank();
@@ -1346,5 +1346,114 @@ contract ApplicationERC20Test is TestCommonFoundry {
         ApplicationAppManager appManager3 = new ApplicationAppManager(newAdmin, "Castlevania3", false);
         vm.expectRevert(0x41284967);
         appManager3.confirmAppManager(address(applicationCoin));
+    }
+
+    function testPurchasePercentageRule() public {
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = initializeAMMAndUsers();
+        applicationCoin2.transfer(user1, 50_000_000 * ATTO);
+        applicationCoin2.transfer(user2, 30_000_000 * ATTO);
+        applicationCoin.transfer(user1, 50_000_000 * ATTO);
+        applicationCoin.transfer(user2, 30_000_000 * ATTO);
+        assertEq(applicationCoin2.balanceOf(user1), 50_001_000 * ATTO);
+        /// set up rule
+        uint16 tokenPercentage = 5000; /// 50%
+        uint16 purchasePeriod = 24; /// 24 hour periods
+        uint256 _totalSupply = 100_000_000;
+        uint64 ruleStartTime = Blocktime;
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, _totalSupply, ruleStartTime);
+        /// add and activate rule
+        applicationCoinHandler.setPurchasePercentageRuleId(ruleId);
+        vm.warp(Blocktime + 36 hours);
+        /// test swap below percentage
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        uint256 initialCoinBalance = applicationCoin.balanceOf(user1);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false); /// percentage limit hit now
+        assertEq(applicationCoin.balanceOf(user1), initialCoinBalance + 40_000_000);
+        /// test swaps after we hit limit
+        vm.expectRevert(0xb634aad9);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
+        /// switch users and test rule still fails
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        vm.expectRevert(0xb634aad9);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
+        /// wait until new period
+        vm.warp(Blocktime + 72 hours);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
+
+        /// check that rule does not apply to coin 0 as this would be a sell
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, true);
+
+        /// Low percentage rule checks
+        switchToRuleAdmin();
+        /// create new rule
+        uint16 newTokenPercentage = 1; /// .01%
+        uint256 newTotalSupply = 100_000;
+        uint32 newRuleId = RuleDataFacet(address(ruleProcessor)).addPercentagePurchaseRule(address(applicationAppManager), newTokenPercentage, purchasePeriod, newTotalSupply, ruleStartTime);
+        /// add and activate rule
+        applicationCoinHandler.setPurchasePercentageRuleId(newRuleId);
+        vm.warp(Blocktime + 96 hours);
+        /// test swap below percentage
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        // amm.swap(address(applicationCoin2), 1);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 1, 1, false);
+
+        vm.expectRevert(0xb634aad9);
+        // amm.swap(address(applicationCoin2), 9);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 9, 9, false);
+    }
+
+     function initializeAMMAndUsers() public returns (DummyAMM amm){
+        amm = new DummyAMM();
+        applicationCoin2 = _createERC20("application2", "GMC2", applicationAppManager);
+        applicationCoinHandler2 = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin2);
+        /// register the token
+        applicationAppManager.registerToken("application2", address(applicationCoin2));
+        applicationCoin2.mint(appAdministrator, 1_000_000_000_000 * (10 ** 18));
+        /// Approve the transfer of tokens into AMM
+        applicationCoin.approve(address(amm), 1_000_000 * ATTO);
+        applicationCoin2.approve(address(amm), 1_000_000 * ATTO);
+        /// Transfer the tokens into the AMM
+        applicationCoin.transfer(address(amm), 1_000_000 * ATTO);
+        applicationCoin2.transfer(address(amm), 1_000_000 * ATTO);
+        /// Make sure the tokens made it
+        assertEq(applicationCoin.balanceOf(address(amm)), 1_000_000 * ATTO);
+        assertEq(applicationCoin2.balanceOf(address(amm)), 1_000_000 * ATTO);
+        applicationCoin.transfer(user1, 1000 * ATTO);
+        applicationCoin.transfer(user2, 1000 * ATTO);
+        applicationCoin.transfer(user3, 1000 * ATTO);
+        applicationCoin.transfer(rich_user, 1000 * ATTO);
+        applicationCoin2.transfer(user1, 1000 * ATTO);
+        applicationCoin2.transfer(user2, 1000 * ATTO);
+        applicationCoin.transfer(address(69), 1000 * ATTO);
+        applicationCoin2.transfer(address(69), 1000 * ATTO);
+    }
+
+}
+
+
+contract DummyAMM{
+
+    function dummyTrade(address tokenA, address tokenB, uint256 amountIn, uint256 amountOut, bool isTokenAIn) public {
+        if(isTokenAIn){
+            IERC20(tokenA).transferFrom(msg.sender, address(this), amountIn);
+            IERC20(tokenB).transfer(msg.sender, amountOut);
+        }else{
+            IERC20(tokenB).transferFrom(msg.sender, address(this), amountIn);
+            IERC20(tokenA).transfer(msg.sender, amountOut);
+        }
     }
 }
