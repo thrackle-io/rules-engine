@@ -308,7 +308,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
         uint256[] memory pAmounts = createUint256Array(1000, 2000, 3000);
-        uint16[] memory pPeriods = createUint16Array(100, 101, 102);
+        uint16[] memory pPeriods = createUint16Array(100, 101);
         uint64 sTime = 24;
 
         vm.expectRevert(0x028a6c58);
