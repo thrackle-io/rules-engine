@@ -32,6 +32,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     uint32 private sellLimitRuleId;
     uint32 private purchasePercentageRuleId;
     uint32 private sellPercentageRuleId;
+    uint32 private tradeRuleOracleListId;
     /// on-off switches for rules
     bool private oracleRuleActive;
     bool private minMaxBalanceRuleActive;
@@ -46,6 +47,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     bool private sellLimitRuleActive;
     bool private purchasePercentageRuleActive;
     bool private sellPercentageRuleActive;
+    bool private tradeRuleOracleListActive;
 
     /// simple rule(with single parameter) variables
     uint32 private minimumHoldTimeHours;
@@ -192,7 +194,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
             lastSupplyUpdateTime = uint64(block.timestamp);
         }
         /// trade rules
-        if(action == ActionTypes.PURCHASE && purchasePercentageRuleActive){
+        bool isToByPasser;
+        bool isFromByPasser;
+        if(tradeRuleOracleListActive){
+            bytes memory data;
+            (isToByPasser, data) = address(ruleProcessor).call(abi.encodeWithSignature("checkOraclePasses(uint32,address)",tradeRuleOracleListId, _to));
+            (isFromByPasser, data) = address(ruleProcessor).call(abi.encodeWithSignature("checkOraclePasses(uint32,address)",tradeRuleOracleListId, _from));
+        }
+        if(action == ActionTypes.PURCHASE && purchasePercentageRuleActive && !(tradeRuleOracleListActive && isToByPasser)){
             totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(
                 purchasePercentageRuleId, 
                 IERC20(msg.sender).totalSupply(), 
@@ -202,7 +211,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
             );
             previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
         /// sell
-        }else if(action == ActionTypes.SELL && sellPercentageRuleActive){
+        }else if(action == ActionTypes.SELL && sellPercentageRuleActive && !(tradeRuleOracleListActive && isFromByPasser)){
             totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(
                 sellPercentageRuleId,  
                 IERC20(msg.sender).totalSupply(), 
@@ -271,28 +280,51 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
                 ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
             if (minBalByDateRuleActive) 
                 ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
-            if (action == ActionTypes.PURCHASE && purchaseLimitRuleActive) {
-                purchasedWithinPeriod[_to] = ruleProcessor.checkPurchaseLimit(
-                    purchaseLimitRuleId,
-                    purchasedWithinPeriod[_to],
-                    _amount,
-                    toTags,
-                    lastPurchaseTime[_to]
-                );
-                lastPurchaseTime[_to] = uint64(block.timestamp);
-            }
-            else if (action == ActionTypes.SELL && sellLimitRuleActive) {
-                salesWithinPeriod[_from] = ruleProcessor.checkSellLimit(
-                    sellLimitRuleId, 
-                    salesWithinPeriod[_from], 
-                    _amount, 
-                    fromTags, 
-                    lastSellTime[_from]
-                );
-                lastSellTime[_from] = uint64(block.timestamp);
-            }
+            if((action == ActionTypes.PURCHASE && purchaseLimitRuleActive) || (action == ActionTypes.SELL && sellLimitRuleActive))
+                _checkTaggedIndividualTradeRules(_from, _to, fromTags, toTags, _amount, action);
         }
     }
+
+    function _checkTaggedIndividualTradeRules(
+        address _from, 
+        address _to, 
+        bytes32[] memory fromTags, 
+        bytes32[] memory toTags, 
+        uint256 _amount, 
+        ActionTypes action
+    )
+    internal
+    {
+        bool isToByPasser;
+        bool isFromByPasser;
+        if(tradeRuleOracleListActive){
+            bytes memory data;
+            (isToByPasser, data) = address(ruleProcessor).call(abi.encodeWithSignature("checkOraclePasses(uint32,address)",tradeRuleOracleListId, _to));
+            (isFromByPasser, data) = address(ruleProcessor).call(abi.encodeWithSignature("checkOraclePasses(uint32,address)",tradeRuleOracleListId, _from));
+        }
+        if (action == ActionTypes.PURCHASE && purchaseLimitRuleActive && !(tradeRuleOracleListActive && isToByPasser)) {
+            purchasedWithinPeriod[_to] = ruleProcessor.checkPurchaseLimit(
+                purchaseLimitRuleId,
+                purchasedWithinPeriod[_to],
+                _amount,
+                toTags,
+                lastPurchaseTime[_to]
+            );
+            lastPurchaseTime[_to] = uint64(block.timestamp);
+        }
+        else if (sellLimitRuleActive && !(tradeRuleOracleListActive && isFromByPasser)) {
+            salesWithinPeriod[_from] = ruleProcessor.checkSellLimit(
+                sellLimitRuleId, 
+                salesWithinPeriod[_from], 
+                _amount, 
+                fromTags, 
+                lastSellTime[_from]
+            );
+            lastSellTime[_from] = uint64(block.timestamp);
+        }
+        
+    }
+
 
     /**
      * @dev This function uses the protocol's ruleProcessor to perform the risk rule checks.(Ones that require risk score values)
@@ -853,6 +885,47 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     function isSellPercentageRuleActive() external view returns (bool) {
         return sellPercentageRuleActive;
     }
+
+    /**
+     * @dev Set the tradeRuleOracleListId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setTradeRuleOracleListId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        tradeRuleOracleListId = _ruleId;
+        tradeRuleOracleListActive = true;
+        emit ApplicationHandlerApplied(TRADE_RULE_ORACLE_LIST, _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateTradeRuleOracleList(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        tradeRuleOracleListActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(TRADE_RULE_ORACLE_LIST, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(TRADE_RULE_ORACLE_LIST, address(this));
+        }
+    }
+
+    /**
+     * @dev Retrieve the Trade-Rule Bypass Oracle List Rule Id
+     * @return purchasePercentageRuleId
+     */
+    function getTradeRuleOracleListId() external view returns (uint32) {
+        return tradeRuleOracleListId;
+    }
+
+    /**
+     * @dev Tells you if the Trade-Rule Bypass Oracle List Rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isTradeRuleOracleListActive() external view returns (bool) {
+        return tradeRuleOracleListActive;
+    }
+
 
     /// -------------SIMPLE RULE SETTERS and GETTERS---------------
     /**

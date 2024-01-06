@@ -19,7 +19,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  */
 contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministratorOnly, RuleAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
     using ERC165Checker for address;
-    event Action(ActionTypes action);
     /**
      * Functions added so far:
      * minTransfer
@@ -140,7 +139,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      {
         
         ActionTypes action = determineTransferAction(_from, _to, _sender);
-        emit Action(action);
         bool isFromAdmin = appManager.isAppAdministrator(_from);
         bool isToAdmin = appManager.isAppAdministrator(_to);
         // // All transfers to treasury account are allowed
