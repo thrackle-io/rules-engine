@@ -284,28 +284,51 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
                 ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
             if (minBalByDateRuleActive) 
                 ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
-            if (action == ActionTypes.PURCHASE && purchaseLimitRuleActive) {
-                purchasedWithinPeriod[_to] = ruleProcessor.checkPurchaseLimit(
-                    purchaseLimitRuleId,
-                    purchasedWithinPeriod[_to],
-                    _amount,
-                    toTags,
-                    lastPurchaseTime[_to]
-                );
-                lastPurchaseTime[_to] = uint64(block.timestamp);
-            }
-            else if (sellLimitRuleActive) {
-                salesWithinPeriod[_from] = ruleProcessor.checkSellLimit(
-                    sellLimitRuleId, 
-                    salesWithinPeriod[_from], 
-                    _amount, 
-                    fromTags, 
-                    lastSellTime[_from]
-                );
-                lastSellTime[_from] = uint64(block.timestamp);
-            }
+            if((action == ActionTypes.PURCHASE && purchaseLimitRuleActive) || (action == ActionTypes.SELL && sellLimitRuleActive))
+                _checkTaggedIndividualTradeRules(_from, _to, fromTags, toTags, _amount, action);
         }
     }
+
+    function _checkTaggedIndividualTradeRules(
+        address _from, 
+        address _to, 
+        bytes32[] memory fromTags, 
+        bytes32[] memory toTags, 
+        uint256 _amount, 
+        ActionTypes action
+    )
+    internal
+    {
+        bool isToByPasser;
+        bool isFromByPasser;
+        if(tradeRuleOracleListActive){
+            bytes memory data;
+            (isToByPasser, data) = address(ruleProcessor).call(abi.encodeWithSignature("checkOraclePasses(uint32,address)",tradeRuleOracleListId, _to));
+            (isFromByPasser, data) = address(ruleProcessor).call(abi.encodeWithSignature("checkOraclePasses(uint32,address)",tradeRuleOracleListId, _from));
+        }
+        if (action == ActionTypes.PURCHASE && purchaseLimitRuleActive && !(tradeRuleOracleListActive && isToByPasser)) {
+            purchasedWithinPeriod[_to] = ruleProcessor.checkPurchaseLimit(
+                purchaseLimitRuleId,
+                purchasedWithinPeriod[_to],
+                _amount,
+                toTags,
+                lastPurchaseTime[_to]
+            );
+            lastPurchaseTime[_to] = uint64(block.timestamp);
+        }
+        else if (sellLimitRuleActive && !(tradeRuleOracleListActive && isFromByPasser)) {
+            salesWithinPeriod[_from] = ruleProcessor.checkSellLimit(
+                sellLimitRuleId, 
+                salesWithinPeriod[_from], 
+                _amount, 
+                fromTags, 
+                lastSellTime[_from]
+            );
+            lastSellTime[_from] = uint64(block.timestamp);
+        }
+    }
+
+
 
     /**
      * @dev This function consolidates all the Risk rules that utilize tagged account Risk scores.
