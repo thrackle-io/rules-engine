@@ -51,6 +51,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     uint32 private sellLimitRuleId;
     uint32 private purchasePercentageRuleId;
     uint32 private sellPercentageRuleId;
+    uint32 private tradeRuleOracleListId;
 
     /// on-off switches for rules
     bool private minTransferRuleActive;
@@ -65,6 +66,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     bool private sellLimitRuleActive;
     bool private purchasePercentageRuleActive;
     bool private sellPercentageRuleActive;
+    bool private tradeRuleOracleListActive;
 
     /// token level accumulators
     uint256 private transferVolume;
@@ -196,7 +198,14 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
             lastSupplyUpdateTime = uint64(block.timestamp);
         }
         /// trade rules
-        if(action == ActionTypes.PURCHASE && purchasePercentageRuleActive){
+        bool isToByPasser;
+        bool isFromByPasser;
+        if(tradeRuleOracleListActive){
+            bytes memory data;
+            (isToByPasser, data) = address(ruleProcessor).call(abi.encodeWithSignature("checkOraclePasses(uint32,address)",tradeRuleOracleListId, _to));
+            (isFromByPasser, data) = address(ruleProcessor).call(abi.encodeWithSignature("checkOraclePasses(uint32,address)",tradeRuleOracleListId, _from));
+        }
+        if(action == ActionTypes.PURCHASE && purchasePercentageRuleActive && !(tradeRuleOracleListActive && isToByPasser)){
             totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(
                 purchasePercentageRuleId, 
                 IERC20(msg.sender).totalSupply(), 
@@ -206,7 +215,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
             );
             previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
         /// sell
-        }else if(action == ActionTypes.SELL && sellPercentageRuleActive){
+        }else if(action == ActionTypes.SELL && sellPercentageRuleActive && !(tradeRuleOracleListActive && isFromByPasser)){
             totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(
                 sellPercentageRuleId,  
                 IERC20(msg.sender).totalSupply(), 
@@ -821,6 +830,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      */
     function activatePurchaseLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         purchaseLimitRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(PURCHASE_LIMIT, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(PURCHASE_LIMIT, address(this));
+        }
     }
 
     /**
@@ -856,6 +870,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      */
     function activateSellLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         sellLimitRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(SELL_LIMIT, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(SELL_LIMIT, address(this));
+        }
     }
 
     /**
@@ -923,6 +942,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      */
     function activatePurchasePercentageRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         purchasePercentageRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(PURCHASE_PERCENTAGE, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(PURCHASE_PERCENTAGE, address(this));
+        }
     }
 
     /**
@@ -958,6 +982,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      */
     function activateSellPercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         sellPercentageRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(SELL_PERCENTAGE, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(SELL_PERCENTAGE, address(this));
+        }
     }
 
     /**
@@ -975,6 +1004,47 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function isSellPercentageRuleActive() external view returns (bool) {
         return sellPercentageRuleActive;
     }
+
+    /**
+     * @dev Set the tradeRuleOracleListId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setTradeRuleOracleListId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        tradeRuleOracleListId = _ruleId;
+        tradeRuleOracleListActive = true;
+        emit ApplicationHandlerApplied(TRADE_RULE_ORACLE_LIST, _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateTradeRuleOracleList(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        tradeRuleOracleListActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(TRADE_RULE_ORACLE_LIST, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(TRADE_RULE_ORACLE_LIST, address(this));
+        }
+    }
+
+    /**
+     * @dev Retrieve the Trade-Rule Bypass Oracle List Rule Id
+     * @return purchasePercentageRuleId
+     */
+    function getTradeRuleOracleListId() external view returns (uint32) {
+        return tradeRuleOracleListId;
+    }
+
+    /**
+     * @dev Tells you if the Trade-Rule Bypass Oracle List Rule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isTradeRuleOracleListActive() external view returns (bool) {
+        return tradeRuleOracleListActive;
+    }
+
 
     /// -------------DATA CONTRACT DEPLOYMENT---------------
     /**
