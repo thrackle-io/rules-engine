@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "src/client/application/data/GeneralTags.sol";
-import "src/client/application/data/PauseRules.sol";
-import "src/client/application/data/AccessLevels.sol";
-import "src/client/application/data/RiskScores.sol";
-import "src/client/application/data/Accounts.sol";
-import "src/client/application/data/IDataModule.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract AppManagerBaseTest is TestCommonFoundry {

@@ -849,48 +849,33 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
 
     /// Test the register AMM.
     function testRegisterAMM() public {
-        applicationAppManager.registerAMM(address(0xaaa));
-        assertTrue(applicationAppManager.isRegisteredAMM(address(0xaaa)));
-        applicationAppManager.registerAMM(address(0xbbb));
-        assertTrue(applicationAppManager.isRegisteredAMM(address(0xbbb)));
-        applicationAppManager.registerAMM(address(0xccc));
-        assertTrue(applicationAppManager.isRegisteredAMM(address(0xccc)));
-        applicationAppManager.registerAMM(address(0xddd));
-        assertTrue(applicationAppManager.isRegisteredAMM(address(0xddd)));
-        applicationAppManager.registerAMM(address(0xeee));
-        assertTrue(applicationAppManager.isRegisteredAMM(address(0xeee)));
+        /// Set up the AMM
+        protocolAMMFactory = createProtocolAMMFactory();
+        protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
+        ConstantRatio memory cr = ConstantRatio(1, 1);
+        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(11), address(22),cr , address(applicationAppManager)));
+        ApplicationAMMHandler applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
+        protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));
+        applicationAppManager.registerAMM(address(protocolAMM));
+        assertTrue(applicationAppManager.isRegisteredAMM(address(protocolAMM)));
         /// this is expected to fail because you cannot register same address more than once
         vm.expectRevert();
-        applicationAppManager.registerAMM(address(0xaaa));
-
-        /// deregistering the first address
-        assertTrue(applicationAppManager.isRegisteredAMM(address(0xaaa)));
-        applicationAppManager.deRegisterAMM(address(0xaaa));
-        assertFalse(applicationAppManager.isRegisteredAMM(address(0xaaa)));
-        /// deregistering the last address (it is now the forth one, not the fifth one)
-        assertTrue(applicationAppManager.isRegisteredAMM(address(0xddd)));
-        applicationAppManager.deRegisterAMM(address(0xddd));
-        assertFalse(applicationAppManager.isRegisteredAMM(address(0xddd)));
-        /// deregistering the address in the middle
-        assertTrue(applicationAppManager.isRegisteredAMM(address(0xbbb)));
-        applicationAppManager.deRegisterAMM(address(0xbbb));
-        assertFalse(applicationAppManager.isRegisteredAMM(address(0xbbb)));
-        /// deregistering the last address again
-        assertTrue(applicationAppManager.isRegisteredAMM(address(0xccc)));
-        applicationAppManager.deRegisterAMM(address(0xccc));
-        assertFalse(applicationAppManager.isRegisteredAMM(address(0xccc)));
-        /// deregistering the only address
-        assertTrue(applicationAppManager.isRegisteredAMM(address(0xeee)));
-        applicationAppManager.deRegisterAMM(address(0xeee));
-        assertFalse(applicationAppManager.isRegisteredAMM(address(0xeee)));
+        applicationAppManager.registerAMM(address(protocolAMM));
     }
 
     /// Test the deregister AMM.
     function testDeregisterAMM() public {
-        applicationAppManager.registerAMM(address(77));
-        assertTrue(applicationAppManager.isRegisteredAMM(address(77)));
-        applicationAppManager.deRegisterAMM(address(77));
-        assertFalse(applicationAppManager.isRegisteredAMM(address(77)));
+        /// Set up the AMM
+        protocolAMMFactory = createProtocolAMMFactory();
+        protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
+        ConstantRatio memory cr = ConstantRatio(1, 1);
+        protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(11), address(22),cr , address(applicationAppManager)));
+        ApplicationAMMHandler applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
+        protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));
+        applicationAppManager.registerAMM(address(protocolAMM));
+        assertTrue(applicationAppManager.isRegisteredAMM(address(protocolAMM)));
+        applicationAppManager.deRegisterAMM(address(protocolAMM));
+        assertFalse(applicationAppManager.isRegisteredAMM(address(protocolAMM)));
     }
 
     function testRegisterAddresses() public {

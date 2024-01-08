@@ -89,14 +89,14 @@ This script is responsible for deploying the whole protocol contracts. Take into
 
 #### Deploy Some Test Game Tokens
 
-`src/example/script/ApplicationDeployAll.s.sol`
+`example/script/ApplicationDeployAll.s.sol`
 This script deploys the contracts that are specific for games, emulating the steps that a application dev would follow. This script deploys 2 ERC20s and 2 ERC721 tokens, among the other setup contracts.
 
 If anvil is not listening to the commands in the scripts, make sure you have exported the local foundry profile `export FOUNDRY_PROFILE=local`.
 
 ### Other Relevant Scripts
 
-Besides the deployment of the whole ecosystem, you can also deploy specific parts of the protocol/games through different scripts. When it comes to the protocol scripts, the files can be found in the `script/` directory. On the other hand, `src/example/script/` will hold the files that are related to specific implementations like tokens, AppManager, AppHandler, etc.
+Besides the deployment of the whole ecosystem, you can also deploy specific parts of the protocol/games through different scripts. When it comes to the protocol scripts, the files can be found in the `script/` directory. On the other hand, `example/script/` will hold the files that are related to specific implementations like tokens, AppManager, AppHandler, etc.
 
 ---
 ## Command Tools
@@ -128,7 +128,7 @@ ACTION_INQUIRE=3
 ```
 
 `command_test.txt`
-has some list of commands that are intended to be used with Anvil after using the `make deployAll` command which will execute the `script/ApplicationDeployAll.s.sol` file. These commands are meant to save time when testing live in the Anvil local blockchain. It has tests for positivie and negative cases (where reverts are expected). The above command can be combined with`make gameDeployAll` comand which will execute the `src/example/script/ApplicationDeployAll.s.sol` and deploy a couple ERC20 tokens and a couple NFT contracts with their respective protocol-integration contracts.Take into account that a whole new Anvil blockchain should be deployed between tests since the state of the blockchain changes with every transaction in a test, making other tests fail because the initial conditions are different to the ones expected.
+has some list of commands that are intended to be used with Anvil after using the `make deployAll` command which will execute the `script/ApplicationDeployAll.s.sol` file. These commands are meant to save time when testing live in the Anvil local blockchain. It has tests for positivie and negative cases (where reverts are expected). The above command can be combined with`make gameDeployAll` comand which will execute the `example/script/ApplicationDeployAll.s.sol` and deploy a couple ERC20 tokens and a couple NFT contracts with their respective protocol-integration contracts.Take into account that a whole new Anvil blockchain should be deployed between tests since the state of the blockchain changes with every transaction in a test, making other tests fail because the initial conditions are different to the ones expected.
 
 ---
 ## Prettier Formatter

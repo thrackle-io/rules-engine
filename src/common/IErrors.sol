@@ -58,13 +58,16 @@ interface ITagRuleErrors {
     error TemporarySellRestriction();
 }
 
-interface IInputErrors {
+interface CommonInputErrors{
+    error ValueOutOfRange(uint256 _value);
+    error ZeroValueNotPermited();
+}
+
+interface IInputErrors is CommonInputErrors{
     error IndexOutOfRange();
     error WrongArrayOrder();
     error InputArraysSizesNotValid();
     error InputArraysMustHaveSameLength();
-    error ValueOutOfRange(uint256 _value);
-    error ZeroValueNotPermited();
     error InvertedLimits();
     error InvalidOracleType(uint8 _type);
     error InvalidRuleInput();
@@ -100,11 +103,11 @@ interface IPermissionModifierErrors {
     error BelowMinAdminThreshold();
 }
 
-interface INoAddressToRemove{
+interface INoAddressToRemove {
     error NoAddressToRemove();
 }
 
-interface IAppManagerErrors is INoAddressToRemove{
+interface IAppManagerErrors is INoAddressToRemove {
     error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
     error NotAccessTierAdministrator(address _address);
     error NotRiskAdmin(address _address);
@@ -114,15 +117,25 @@ interface IAppManagerErrors is INoAddressToRemove{
     error NotRegisteredHandler(address);
 }
 
-interface AMMCalculatorErrors {
+interface AMMCalculatorErrors is CommonInputErrors{
     error AmountsAreZero();
-    error InsufficientPoolDepth(uint256 pool, int256 attemptedWithdrawal);
+    error OutOfRange();
+    error InvalidCurveType();
+}
+
+
+interface CurveErrors{
+    error CurvesInvertedOrIntersecting();
 }
 
 interface AMMErrors {
     error TokenInvalid(address);
     error AmountExceedsBalance(uint256);
     error TransferFailed();
+    error NotTheOwnerOfNFT(uint256 _tokenId);
+    error NotEnumerable();
+    error NotEnoughTokensForSwap(uint256 _tokensIn,uint256 _tokensRequired);
+    error InsufficientPoolDepth(uint256 pool, uint256 attemptedWithdrawal);
 }
 
 interface NFTPricingErrors {

@@ -1,0 +1,227 @@
+# Each test most start with a fresh Anvil local blockchain. If you have Anvil already running, then make sure to restart it before each test.
+make deployAll 
+make deployAllApp 
+
+# <><><><><><><><><><><><><><><><><><><><> ERC20 Tests <><><><><><><><><><><><><><><><><><><><>
+
+# test Minimum Transfer Rule (positive cases) with RuleProcessorDiamond directly
+make addAppAdministrator checkAppAdministrator addMinTransferRule checkMinTransferRules checkHandlerAndRulesConnection checkPassMinTransferRule 
+
+# test Minimum Transfer Rule (negative cases. Expect reverts) with RuleProcessorDiamond directly
+make addAppAdministrator checkAppAdministrator addMinTransferRule checkMinTransferRules  checkHandlerAndRulesConnection checkFailMinTransferRule
+
+# test Minimum Transfer Rule (positive cases) through TokenRuleRouter
+make addAppAdministrator checkAppAdministrator addMinTransferRule checkMinTransferRules checkHandlerAndRulesConnection checkPassMinTransferRuleEconCtrl
+
+# test Minimum Transfer Rule (negative cases. Expect reverts) through TokenRuleRouter
+make addAppAdministrator checkAppAdministrator addMinTransferRule checkMinTransferRules checkHandlerAndRulesConnection checkFailMinTransferRuleEconCtrl
+
+# test Balance Limit Rule (positive cases) through TokenRuleRouter
+make addAppAdministrator checkAppAdministrator checkAddAccountBalanceRule checkBalanceRule checkHandlerAndRulesConnection checkIndvchecksMinBalanceRule checkIndvchecksMaxBalanceRule
+
+# test Balance Limit Rule (negative cases. Expect reverts) through TokenRuleRouter
+make addAppAdministrator checkAppAdministrator checkAddAccountBalanceRule checkBalanceRule checkHandlerAndRulesConnection checkFailIndvchecksMinBalanceRule checkFailIndvchecksMaxBalanceRule
+
+# test Minimum Transfer Rule (positive cases) through ERC20
+make addAppAdministrator checkAppAdministrator addMinTransferRule checkMinTransferRules updateMinTransferRule checkHandlerAndRulesConnection checkBalance checkERC20PassRuleEconCtrl
+
+# test Minimum Transfer Rule (negative cases. Expect reverts) through ERC20 (IF YOU HAVE ALREADY RUN THE POSITIVE CASE, then simply run the last command)
+make addAppAdministrator checkAppAdministrator addMinTransferRule checkMinTransferRules updateMinTransferRule checkHandlerAndRulesConnection checkBalance checkERC20FailRuleEconCtrl
+
+# test Oracle Rule (negative case, Expect revert)
+make mintFranks loadUserWithTokensOracle addOracleRule applyOracleRule mintFranks checkBalanceFranks TransferFranksToKevin checkFranksBalanceKevin AddCluToRestrictionOracle TransferFranksFromKevinToClu
+
+# test balanceByAccessLevelRule
+make mintFranksOracle checkBalanceFranks mintDracs checkBalanceDracs loadUserWithFranks loadUserWithDracs checkDracsBalanceSam addBalanceByAccessLevelRule applyBalanceByAccessLevelRule checkBalanceByAccessLevelRuleActive applicationAddCluAsAccessLevelAdmin applicationAddAccessLevel1toKevin applicationGetKevinAccessLevel Transfer1DracToKevin Transfer9FranksToKevin 
+
+##### test MaxTxSizePerPeriodByRisk 
+##for sender #positive case
+make mintFranks loadCluWithFranks addMaxTxSizePerPeriodByRiskRule addSamAsRiskAdminMaxTX assignCluRiskScoreOf55 applyMaxTxSizePerPeriodByRiskRule checkMaxTxSizePerPeriodByRiskIsActive moveForwardInTime6Hours cluTransfers2FrankToKevin cluTransfers9998FrankToKevin
+#negative case
+make kevinTransfers2FrankToClu
+##for recipient #positive case
+make checkMaxTxSizePerPeriodByRiskIsActive && make turnOffMaxTxSizePerPeriodByRiskRule loadKevinWithFranks moveForwardInTime6Hours turnOnMaxTxSizePerPeriodByRiskRule moveForwardInTime6Hours kevinTransfers2FrankToClu kevinTransfers9998FrankToClu
+#negative case
+make neelTransfers2FrankToClu
+
+
+# test BalanceLimitByRisk 
+make mintFranks loadUserWithFranks addAccountBalanceByRiskRule applyAccountBalanceByRiskRule addSamAsRiskAdmin addRiskScoreKevin addRiskScoreClu transferFranksSamtoKevin 
+
+# test TransactionLimitByRisk 
+make mintFranks loadUserWithFranks addTransactionLimitByRiskScore applyTransactionLimitByRiskScore addSamAsRiskAdmin addRiskScoreKevin addRiskScoreClu transferFranksSamtoKevin
+
+# test AdminWithdrawalRule
+# setup
+make mintAMillFranksToQuorra registerAdminWithdrawalRuleA && make registerAdminWithdrawalRuleB applyAdminWithdrawalRuleA
+# test some negative cases (turn rule off or change rule while time is not up, break the rule)
+make turnOffAdminWithdrawalRule && make applyAdminWithdrawalRuleB && make transferFromQuorraToCluToBreakRuleA
+# Continue positive cases
+make moveForwardInTime10Months transferFromQuorraToCluToBreakRuleA turnOffAdminWithdrawalRule applyAdminWithdrawalRuleB moveForwardInTime4Months transferFromQuorraToCluToBreakRuleB
+
+# test AccessLevelWithdrawalRule 
+#passing
+make mintFranks mintDracs loadUserWithFranks loadUserWithDracs sendFranksFromQuorraToKevin sendDracsFromSQuorraToKevin addWithdrawalByAccessLevelRule applyWithdrawalByAccessLevelRule applicationAddCluAsAccessTier applicationAddAccessLevel1toKevin applicationGetKevinAccessLevel transferFranksFromKevintoSamSuccess transferDracsFromKevinToSameSuccess
+#failing transaction
+make transferFranksToSamFromKevinFail transferDracsToSameFromKevinFail
+
+# test Minimum Balance by Date Rule (negative case)
+make mintFranks giveKevin1000Franks addMinBalByDateRule applyMinBalByDateRule addSimpleGeneralTagKevin Transfer999FranksFromKevinToClu
+
+# test Minimum Balance by Date Rule (positive case)
+make mintFranks giveKevin1000Franks addMinBalByDateRule applyMinBalByDateRule addSimpleGeneralTagKevin moveForwardInTime6Months Transfer999FranksFromKevinToCluPass
+
+# test Token Transfer Volume Rule (positive case)
+make mintFranks giveKevin1000Franks addTokenTransferVolumeRule applyTokenTransferVolumeRuleToToken Transfer19FranksFromKevinToClu 
+# NEGATIVE case
+make Transfer1FrankFromKevinToClu
+# Time future to create positive(positive case)
+make moveForwardInTime2Days Transfer1FrankFromKevinToClu
+
+# TEST EVERYTHING (positive cases) through ERC20
+make addAppAdministrator checkAppAdministrator checkAddAccountBalanceRule checkBalanceRule checkAddGeneralTag checkGeneralTag checkAddGeneralTagToAdr1 checkGeneralTagToAdr1 updateAccountBalanceRule addNonTaggedRulesAddMinTransfer checkMinTransferRules updateMinTransferRule checkHandlerAndRulesConnection checkBalance checkERC20PassRuleEconCtrl checkERC20PassMinBalanceCtrl checkERC20PassMaxBalanceCtrl
+
+# TEST EVERYTHING (Min balance negative case. Expect reverts) through ERC20 (IF YOU HAVE ALREADY RUN THE POSITIVE CASE, then simply run the last command)
+make addAppAdministrator checkAppAdministrator checkAddAccountBalanceRule checkBalanceRule checkAddGeneralTag checkGeneralTag checkAddGeneralTagToAdr1 checkGeneralTagToAdr1 updateAccountBalanceRule addNonTaggedRulesAddMinTransfer checkMinTransferRules updateMinTransferRule checkHandlerAndRulesConnection checkBalance checkERC20FailMinBalanceCtrl
+
+# TEST EVERYTHING (Max balance negative cases) through ERC20
+make addAppAdministrator checkAppAdministrator checkAddAccountBalanceRule checkBalanceRule checkAddGeneralTag checkGeneralTag checkAddGeneralTagToAdr1 checkGeneralTagToAdr1 updateAccountBalanceRule addNonTaggedRulesAddMinTransfer checkMinTransferRules updateMinTransferRule checkHandlerAndRulesConnection checkBalance checkERC20FailMaxBalanceCtrl
+
+# TEST EVERYTHING (Min transfer negative cases. Expect reverts) through ERC20 (IF YOU HAVE ALREADY RUN THE POSITIVE CASE, then simply run the last command)
+make addAppAdministrator checkAppAdministrator checkAddAccountBalanceRule checkBalanceRule checkAddGeneralTag checkGeneralTag checkAddGeneralTagToAdr1 checkGeneralTagToAdr1 updateAccountBalanceRule addNonTaggedRulesAddMinTransfer checkMinTransferRules updateMinTransferRule checkHandlerAndRulesConnection checkBalance checkERC20PassMinBalanceCtrl checkERC20PassMaxBalanceCtrl checkERC20FailRuleEconCtrl
+
+# test Token Fees
+make mintFranks tokenFee_createTokenFeeRule tokenFee_createTokenFeeRule tokenFee_transferTokensToUser1 tokenFee_AddGeneralTag tokenFee_transferTokensFromUser1ToUser2 _tokenFee_checkFranksBalanceUser2 _tokenFee_checkFranksBalanceUser1
+
+# test Total Supply Volatility Rule 
+make mintFranksForTotalSupplyRule addTotalSupplyVolatilityRule applyTotalSupplyVolatilityRule moveForwardInTime1Day mintFranksToKevinForVolRule mintFranksToKevinForVolRule 
+#   failed mint
+make mintFranksToCluFailsVolRule
+#   move forward in time and successful mint 
+make moveForwardinTime3days mintFranksToCluFailsVolRule
+#   fail burn 
+make burnFranksKevinForVolRule
+#   move forward and burn successful
+make moveForwardinTime3days burnFranksKevinForVolRule
+
+
+# <><><><><><><><><><><><><><><><><><><><> ERC721 Tests <><><><><><><><><><><><><><><><><><><><>
+
+# Test AccessLevel = 0 Rule - Positive
+make mintFrankNFT transferFrankNFTToKevin mintFranks loadKevinWithFranks transferFrankNFTFromKevinToSam transferFranksFromKevinToSam transferFrankNFTFromSamToKevin turnOnAccessLevel0RuleForNFT turnOnAccessLevel0RuleForCoin addQuorraAsAccessTier addAccessLevel1toSam transferFrankNFTFromKevinToSam transferFranksFromKevinToSam addAccessLevel0toSam
+
+# Test AccessLevel = 0 Rule - Negative
+make mintFrankNFT transferFrankNFTToKevin mintFranks loadKevinWithFranks transferFrankNFTFromKevinToSam transferFranksFromKevinToSam transferFrankNFTFromSamToKevin turnOnAccessLevel0RuleForNFT turnOnAccessLevel0RuleForCoin addQuorraAsAccessTier addAccessLevel1toSam transferFrankNFTFromKevinToSam transferFranksFromKevinToSam addAccessLevel0toSam transferFrankNFTFromKevinToSam transferFranksFromKevinToSam
+
+# Test AccessLevel Balance rule POSITIVE cases
+make mintAnNFTForClu && make mintAnNFTForClu && make mintAnNFTForClu && make mintAnNFTForClu && make mintAnNFTForClu && make mintAnNFTForClu mintCoinsForQuorra send10USDWorthOfCoinsToGem && make send10USDWorthOfCoinsToClu && make send10USDWorthOfCoinsToSam makeKevinAccessLevelAdmin addAccessLevelBalanceRule setNFT0A50USDPrice && make setNFT2A150USDPrice && make setNFT4A200USDPrice giveGemAccessLevel2 giveSamAccessLevel3 applyAccessLevelRule transferNFT1ToGem && make transferNFT0ToSam
+# NEGATIVE cases
+make tryToTransferNFT2ToGem && make tryToTransferNFT4ToSam
+
+##### test NFTTradeCounter POSITIVE
+make mintFrankNFT addNFTTransferCounterRule applyNFTTransferCounterRule tagFrankNFT transferFrankNFTToKevin transferFrankNFTFromKevinToSam
+
+##### test NFTTradeCounter NEGATIVE
+make mintFrankNFT addNFTTransferCounterRule applyNFTTransferCounterRule tagFrankNFT transferFrankNFTToKevin transferFrankNFTFromKevinToSam transferFrankNFTFromSamToClu
+
+# test TransactionLimitByRiskNFT 
+make mintFrankNFT && make mintFrankNFT && make mintFrankNFT && make mintFrankNFT && make mintFrankNFT addTransactionLimitByRiskScoreNFTrule applyTransactionLimitByRiskScoreNFT addSamAsRiskAdmin addRiskScoreGem addRiskScoreCluNFT setNFT0A50USDPrice setNFT2A150USDPrice setNFT4A20000USDPrice getRiskScoreGem getRiskScoreClu transferNFT2ToGem NFT1TransferToGem transferNFT4ToGem 
+# fail case: make tryToTransferNFT4ToCluFail
+
+# test MinMaxBalance NFT
+make mintAnNFTForClu addAccountBalanceRuleNFT  && make mintAnNFTForClu applyAccountBalanceRuleNFT && make mintAnNFTForClu && make mintAnNFTForClu && make mintAnNFTForClu checkAddGeneralTagNFT
+# test negative cases:
+# min-balance violation
+make transferNFT0FromCluToKevin transferNFT1FromCluToKevin transferNFT2FromCluToKevin transferNFT3FromCluToKevin transferNFT4FromCluToKevin 
+# max-balance violation
+make transferNFT0FromKevinToClu transferNFT1FromToKevinClu transferNFT2FromKevinToClu transferNFT3FromKevinToClu 
+
+# test Min Balance By Date ERC721 Rule (positive case)
+make mintFranksNFTMinBalByDateSam && make mintFranksNFTMinBalByDateSam && make addMinBalByDateERC721Rule applyMinBalByERC721Rule addMinBalByDateTagSam addMinBalByDateTagKevin transferFranksNFTSamToKevin
+# failing transfer 
+make transferFranksNFTKevinToSamFails
+# increase time and successfull transfer 
+make moveForwardinTime3days transferFranksNFTKevinToSamPasses
+
+# test AdminWithdrawalRule ERC721 
+make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make addNFTAdminWithdrawalRule applyNFTAdminWithdrawalRule 
+# failing transfer 
+make transferFrankNFTFromQuorraToSamFails
+# passing transfer 
+make moveForwardInTime1Year transferNFTFromQuorraToSam
+
+# test NFT Transfer Volume Rule (positive case)
+make TransferVolumeMintFrankNFT1forKevin TransferVolumeMintFrankNFT2forKevin TransferVolumeAddTokenTransferVolumeRule TransferVolumeApplyTokenTransferVolumeRuleToToken TransferVolumeTransferNFT0ToFromKevinToClu 
+# NEGATIVE case
+make TransferVolumeTransferNFT1ToFromKevinToClu
+# Time future to create positive(positive case)
+make TransferVolumeMoveForwardInTime2Days TransferVolumeTransferNFT1ToFromKevinToClu
+
+# test Total Supply Volatility Rule ERC721 
+#   mint total supply of 20 NFTs to Quorra
+make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin
+make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin && make mintFrankNFTforAdmin
+# create and activate rule and successful mints to limit
+make addTotalSupplyVolatilityRule applyTotalSupplyVolatilityRuleERC721 moveForwardInTime1Day mintFranksNFTToSamVolRule mintFranksNFTToSamVolRule
+#   failed mint
+make mintFranksNFTToSamVolRule mintFranksNFTToSamVolRule mintFranksNFTToSamVolRule
+#   move forward in time and successful mint 
+make moveForwardinTime3days mintFranksNFTToSamVolRule mintFranksNFTToSamVolRule
+#   success burn 
+make burnFranksNFTSamVolRule burnFranksNFTSamVolRule
+
+
+# test the minimum hold time rule in ERC721(positive)
+make MinimumHoldTimeSetHours MinimumHoldTimeGetHours MinimumHoldTimeMintFrankNFT1forKevin 
+# NEGATIVE case
+make MinimumHoldTimeTransferNFT1ToFromKevinToClu1
+# Time future to create positive(positive case)
+make moveForwardInTime24Hours MinimumHoldTimeTransferNFT1ToFromKevinToClu2
+
+# <><><><><><><><><><><><><><><><><><><><> STAKING Tests <><><><><><><><><><><><><><><><><><><><>
+# Test Staking process
+make mintFranksForClu mintRewardTokensForStakingContract eddieApprovesStakingContract eddieStakesSomeFranksForTenMonths moveForwardInTime10Months eddieClaimsRewards 
+
+# test ERC721 Staking 
+make mintRewardERC20ForERC721Staking && make mintFrankNFT && make mintFrankNFT && make mintFrankNFT transferFrankToken0ToKevin transferFrankToken1ToSam transferFrankToken2ToClu approveStakingContractKevin approveStakingContractSam approveStakingContractClu stakeToken0Kevin stakeToken1Sam stakeToken2Clu moveForwardInTime10Months claimKevin claimSam claimClu
+
+# test ERC20AutoMint Staking 
+make mintFranksForStakingSam mintFranksForStakingClu mintFranksForStakingKevin approveAutoMintStakingSam approveAutoMintStakingClu approveAutoMintStakingKevin stakeSam1Days stakeClu2Days stakeKevin3Days moveForwardInTime4Days claimRewardsSam claimRewardsEddi claimRewardsKevin
+# fail case: fails because Sam rewards are 0 
+make claimRewardsSamAgain
+
+# test ERC721AutoMint Staking 
+make mintFrankNFTsForStakingSam mintFrankNFTsForStakingClu mintFrankNFTsForStakingKevin approveNFTAutoMintStakingSam approveNFTAutoMintStakingClu approveNFTAutoMintStakingKevin stakeNFT0Sam1Days stakeNFT1Clu2Days stakeNFT2Kevin3Days moveForwardInTime4DaysNFT claimRewardsSamNFTStaking claimRewardsKevinNFTStaking
+# fail case: fails because Sam rewards are 0 
+make claimRewardsSamAgainNFTStaking
+
+# <><><><><><><><><><><><><><><><><><><><> AMM Tests <><><><><><><><><><><><><><><><><><><><>
+# test AMM
+make mintFranks checkBalanceFranksAMM mintDracs checkBalanceDracs approveFranks approveDracs addLiquidity getAMMReserve0 giveCluFranks approveCluFranksForAMM swap0for1 checkBalanceCluCoin2
+
+# test AMM MinMax 
+make mintFranks checkBalanceFranks mintDracs checkBalanceDracs approveFranks approveDracs addLiquidity getAMMReserve0 giveCluFranks approveCluFranksForAMM addMinMaxBalanceRule addMinMaxBalanceRule2 applyMinMaxBalanceRuleToken0 applyMinMaxBalanceRuleToken1 swap0for1PassMinMax
+
+# test AMM Fees
+make mintFranks checkBalanceFranks mintDracsAmm checkBalanceDracsAMM approveFranksAMM approveDracsAMM addLiquidityAMM AMMReserve0 giveCluFranksAMM approveCluFranksForAMMFees addAMMFeeRule applyAMMFeeRule checkAMMFeeActive swap0for1WithFee checkBalanceCluCoin2 checkBalanceTreasuryCoin2
+
+# test AMM Purchase Percentage Rule Passes
+make mintFranks checkBalanceFranks mintDracs checkBalanceDracs approveFranks approveDracs addLiquidity getAMMReserve0 addPercentagePurchaseRule applyPercentagePurchaseRule giveCluFranks giveCluDracsAMM approveCluFranksForAMM approveCluDracsForAMM moveForwardInTime36Hours swap1for0Clu swap0for1CluePasses
+# fails 
+make swap1for0ClueFails 
+# move blocktime 
+make moveForwardinTime3days swap1for0ClueFails
+
+# test AMM Sell Percentage Rule 
+make mintFranks checkBalanceFranks mintDracs checkBalanceDracs approveFranks approveDracs addLiquidity getAMMReserve0 addSellPercentageRule applySellPercentageRule giveCluFranks giveCluDracsAMM approveCluFranksForAMM approveCluDracsForAMM moveForwardInTime36Hours swap0for1Clue swap1for0CluePasses
+# fails 
+make swap0for1ClueFails 
+# move blocktime 
+make moveForwardinTime3days swap0for1ClueFails
+
+# <><><><><><><><><><><><><><><><><><><><> UPGRADE Tests <><><><><><><><><><><><><><><><><><><><>
+# ApplicationAppManager
+make addAccessLevelAdminUpgrade checkAccessLevelAdminUpgrade setGemAccessLevel3Upgrade getAccessLevelForGemUpgrade migrateDataContractsToNewAppManager connectDataContractsToNewAppManager applicationGetAccessLevelUpgrade2
+
+# ApplicationERC20Handler
+make tokenFee_createTokenFeeRuleUpgrade tokenFee_checkTokenFeeRuleUpgrade migrateDataContractsToNewCoinHandler connectDataContractsToNewCoinHandler tokenFee_checkTokenFeeRuleUpgrade2

@@ -1,5 +1,5 @@
 # IAppLevelEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/ee06788a23623ed28309de5232eaff934d34a0fe/src/common/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -114,6 +114,12 @@ event AMMRegistered(address indexed _address);
 
 ```solidity
 event TreasuryRegistered(address indexed _address);
+```
+
+### StakingRegistered
+
+```solidity
+event StakingRegistered(address indexed _address);
 ```
 
 ### AccountProviderSet

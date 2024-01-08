@@ -1,5 +1,5 @@
 # IRuleProcessor
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/IRuleProcessor.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/ee06788a23623ed28309de5232eaff934d34a0fe/src/protocol/economic/IRuleProcessor.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -155,8 +155,8 @@ function checkSellLimit(
     uint256 salesWithinPeriod,
     uint256 amount,
     bytes32[] calldata fromTags,
-    uint256 lastUpdateTime
-) external view returns (uint256);
+    uint64 lastUpdateTime
+) external view returns (uint64);
 ```
 **Parameters**
 
@@ -166,7 +166,7 @@ function checkSellLimit(
 |`salesWithinPeriod`|`uint256`||
 |`amount`|`uint256`|Number of tokens to be transferred|
 |`fromTags`|`bytes32[]`|Account tags applied to sender via App Manager|
-|`lastUpdateTime`|`uint256`|block.timestamp of most recent transaction from sender.|
+|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
 
 
 ### checkMinMaxAccountBalancePassesAMM
@@ -439,6 +439,56 @@ function checkPauseRules(address _dataServer) external view;
 |Name|Type|Description|
 |----|----|-----------|
 |`_dataServer`|`address`|address of the Application Rule Processor Diamond contract|
+
+
+### checkPurchasePercentagePasses
+
+*Function receives a rule id, retrieves the rule data and checks if the Purchase Percentage Rule passes*
+
+
+```solidity
+function checkPurchasePercentagePasses(
+    uint32 ruleId,
+    uint256 currentTotalSupply,
+    uint256 amountToTransfer,
+    uint64 lastPurchaseTime,
+    uint256 totalPurchasedWithinPeriod
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|id of the rule to be checked|
+|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
+|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
+|`lastPurchaseTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`totalPurchasedWithinPeriod`|`uint256`||
+
+
+### checkSellPercentagePasses
+
+*Function receives a rule id, retrieves the rule data and checks if the Sell Percentage Rule passes*
+
+
+```solidity
+function checkSellPercentagePasses(
+    uint32 ruleId,
+    uint256 currentTotalSupply,
+    uint256 amountToTransfer,
+    uint64 lastSellTime,
+    uint256 totalSoldWithinPeriod
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|id of the rule to be checked|
+|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
+|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
+|`lastSellTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`totalSoldWithinPeriod`|`uint256`|total amount of tokens sold during period.|
 
 
 ### checkTokenTransferVolumePasses

@@ -74,6 +74,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     address[] treasuryList;
     mapping(address => uint) treasuryToIndex;
     mapping(address => bool) isTreasuryRegistered;
+    /// Staking Contracts List (for token level rule exemptions)
+    address[] stakingList;
+    mapping(address => uint) stakingToIndex;
+    mapping(address => bool) isStakingRegistered;
 
     /**
      * @dev This constructor sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.
@@ -290,6 +294,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /// -------------ACCESS TIER---------------
     /**
+     * @dev Checks for if msg.sender is a Access Tier
+     */
+    modifier onlyAccessTierAdministrator() {
+        if (!isAccessTier(msg.sender)) revert NotAccessTierAdministrator(msg.sender);
+        _;
+    }
+
+    /**
      * @dev This function is where the access tier role is actually checked
      * @param account address to be checked
      * @return success true if ACCESS_TIER_ADMIN_ROLE, false if not
@@ -465,7 +477,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Add a pause rule. Restricted to Application Administrators
-     * @notice Adding a pause rule will change the bool to true in the hanlder contract and pause rules will be checked. 
+     * @notice Adding a pause rule will change the bool to true in the hanlder contract and pause rules will be checked.
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
@@ -476,14 +488,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Remove a pause rule. Restricted to Application Administrators
-     * @notice If no pause rules exist after removal bool is set to false in handler and pause rules will not be checked until new rule is added. 
+     * @notice If no pause rules exist after removal bool is set to false in handler and pause rules will not be checked until new rule is added.
      * @param _pauseStart Beginning of the pause window
      * @param _pauseStop End of the pause window
      */
     function removePauseRule(uint64 _pauseStart, uint64 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
         pauseRules.removePauseRule(_pauseStart, _pauseStop);
         /// if length is 0 no pause rules exist
-        if (pauseRules.isPauseRulesEmpty()){
+        if (pauseRules.isPauseRulesEmpty()) {
             /// set handler bool to false to save gas and prevent pause rule checks when non exist
             applicationHandler.activatePauseRule(false);
         }
@@ -491,12 +503,12 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * This function calls the appHandler contract to enable/disable this check.  
+     * This function calls the appHandler contract to enable/disable this check.
      * @param _on boolean representing if a rule must be checked or not.
      */
 
     function activatePauseRuleCheck(bool _on) external onlyRole(RULE_ADMIN_ROLE) {
-        applicationHandler.activatePauseRule(_on); 
+        applicationHandler.activatePauseRule(_on);
     }
 
     /**
@@ -717,14 +729,13 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         if (_tokenAddress == address(0)) revert ZeroAddress();
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
-        if(!isTokenRegistered[_tokenAddress]){  
-            tokenToIndex[_tokenAddress] = tokenList.length;  
+        if (!isTokenRegistered[_tokenAddress]) {
+            tokenToIndex[_tokenAddress] = tokenList.length;
             tokenList.push(_tokenAddress);
             isTokenRegistered[_tokenAddress] = true;
             registeredHandlers[ProtocolTokenCommon(_tokenAddress).getHandlerAddress()] = true;
             emit TokenRegistered(_token, _tokenAddress);
-        }else emit TokenNameUpdated(_token, _tokenAddress);
-        
+        } else emit TokenNameUpdated(_token, _tokenAddress);
     }
 
     /**
@@ -752,7 +763,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     function deregisterToken(string calldata _tokenId) external onlyRole(APP_ADMIN_ROLE) {
         address tokenAddress = tokenToAddress[_tokenId];
-        if(!isTokenRegistered[tokenAddress]) revert NoAddressToRemove();
+        if (!isTokenRegistered[tokenAddress]) revert NoAddressToRemove();
         _removeAddressWithMapping(tokenList, tokenToIndex, isTokenRegistered, tokenAddress);
         delete tokenToAddress[_tokenId];
         delete addressToToken[tokenAddress];
@@ -761,37 +772,31 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         emit RemoveFromRegistry(_tokenId, tokenAddress);
     }
 
-     /**
+    /**
      * @dev This function removes an address from a dynamic address array by putting the last element in the one to remove and then removing last element.
      * @param _addressArray The array to have an address removed
      * @param _addressToIndex mapping that keeps track of the indexes in the list by address
      * @param _registerFlag mapping that keeps track of the addresses that are members of the list
      * @param _address The address to remove
      */
-    function _removeAddressWithMapping(
-        address[] storage  _addressArray, 
-        mapping(address => uint) storage _addressToIndex, 
-        mapping(address => bool) storage _registerFlag, 
-        address _address) 
-        private 
-        {
-            /// we store the last address in the array on a local variable to avoid unnecessary costly memory reads
-            address LastAddress = _addressArray[_addressArray.length -1];
-            /// we check if we're trying to remove the last address in the array since this means we can skip some steps
-            if(_address != LastAddress){
-                /// if it is not the last address in the array, then we store the index of the address to remove
-                uint index = _addressToIndex[_address];
-                /// we remove the address by replacing it in the array with the last address of the array (now duplicated)
-                _addressArray[index] = LastAddress;
-                /// we update the last address index to its new position (the removed-address index)
-                _addressToIndex[LastAddress] = index;
-            }
-            /// we remove the last element of the _addressArray since it is now duplicated
-            _addressArray.pop();
-            /// we set to false the membership mapping for this address in _addressArray
-            delete _registerFlag[_address];
-            /// we set the index to zero for this address in _addressArray
-            delete _addressToIndex[_address];
+    function _removeAddressWithMapping(address[] storage _addressArray, mapping(address => uint) storage _addressToIndex, mapping(address => bool) storage _registerFlag, address _address) private {
+        /// we store the last address in the array on a local variable to avoid unnecessary costly memory reads
+        address LastAddress = _addressArray[_addressArray.length - 1];
+        /// we check if we're trying to remove the last address in the array since this means we can skip some steps
+        if (_address != LastAddress) {
+            /// if it is not the last address in the array, then we store the index of the address to remove
+            uint index = _addressToIndex[_address];
+            /// we remove the address by replacing it in the array with the last address of the array (now duplicated)
+            _addressArray[index] = LastAddress;
+            /// we update the last address index to its new position (the removed-address index)
+            _addressToIndex[LastAddress] = index;
+        }
+        /// we remove the last element of the _addressArray since it is now duplicated
+        _addressArray.pop();
+        /// we set to false the membership mapping for this address in _addressArray
+        delete _registerFlag[_address];
+        /// we set the index to zero for this address in _addressArray
+        delete _addressToIndex[_address];
     }
 
     /**
@@ -803,6 +808,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         if (isRegisteredAMM(_AMMAddress)) revert AddressAlreadyRegistered();
         ammToIndex[_AMMAddress] = ammList.length;
         ammList.push(_AMMAddress);
+        /// Also add their handler to the registry
+        registeredHandlers[ProtocolTokenCommon(_AMMAddress).getHandlerAddress()] = true;
         isAMMRegistered[_AMMAddress] = true;
         emit AMMRegistered(_AMMAddress);
     }
@@ -852,6 +859,37 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (!isTreasury(_treasuryAddress)) revert NoAddressToRemove();
         _removeAddressWithMapping(treasuryList, treasuryToIndex, isTreasuryRegistered, _treasuryAddress);
+    }
+
+    /**
+     * @dev This function allows the devs to register their Staking contract addresses. Allow contracts to check if contract is registered staking contract within ecosystem.
+     * This check is used in minting rewards tokens for example.
+     * @param _stakingAddress Address for the AMM
+     */
+    function registerStaking(address _stakingAddress) external onlyRole(APP_ADMIN_ROLE) {
+        if (_stakingAddress == address(0)) revert ZeroAddress();
+        if (isStaking(_stakingAddress)) revert AddressAlreadyRegistered();
+        stakingToIndex[_stakingAddress] = stakingList.length;
+        stakingList.push(_stakingAddress);
+        isStakingRegistered[_stakingAddress] = true;
+        emit StakingRegistered(_stakingAddress);
+    }
+
+    /**
+     * @dev This function allows the devs to deregister a Staking contract address.
+     * @param _stakingAddress The of the Staking contract to be de-registered
+     */
+    function deRegisterStaking(address _stakingAddress) external onlyRole(APP_ADMIN_ROLE) {
+        if (!isStaking(_stakingAddress)) revert NoAddressToRemove();
+        _removeAddressWithMapping(stakingList, stakingToIndex, isStakingRegistered, _stakingAddress);
+    }
+
+    /**
+     * @dev This function allows the devs to register their staking addresses. This will allow for token level rule exemptions
+     * @param _stakingAddress Address for the staking
+     */
+    function isStaking(address _stakingAddress) public view returns (bool) {
+        return isStakingRegistered[_stakingAddress];
     }
 
     /**

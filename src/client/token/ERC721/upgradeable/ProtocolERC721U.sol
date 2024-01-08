@@ -63,7 +63,7 @@ contract ProtocolERC721U is
     function _initializeProtocol(address _appManagerAddress) private onlyInitializing {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
-        emit NewNFTDeployed(address(this), _appManagerAddress);
+        emit NewNFTDeployed(_appManagerAddress);
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -162,6 +162,6 @@ contract ProtocolERC721U is
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolERC721Handler(handlerAddress);
-        emit HandlerConnected(_deployedHandlerAddress, address(this));
+        emit HandlerConnected(_deployedHandlerAddress);
     }
 }

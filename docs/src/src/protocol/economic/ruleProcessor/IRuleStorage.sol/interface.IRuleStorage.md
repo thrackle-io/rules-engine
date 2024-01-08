@@ -1,5 +1,5 @@
 # IRuleStorage
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/IRuleStorage.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/ee06788a23623ed28309de5232eaff934d34a0fe/src/protocol/economic/ruleProcessor/IRuleStorage.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -18,6 +18,7 @@ made in AMMs rather than at token level.
 ```solidity
 struct PurchaseRuleS {
     mapping(uint32 => mapping(bytes32 => ITaggedRules.PurchaseRule)) purchaseRulesPerUser;
+    mapping(uint32 => uint64) startTimes;
     uint32 purchaseRulesIndex;
 }
 ```
@@ -29,6 +30,7 @@ struct PurchaseRuleS {
 ```solidity
 struct SellRuleS {
     mapping(uint32 => mapping(bytes32 => ITaggedRules.SellRule)) sellRulesPerUser;
+    mapping(uint32 => uint64) startTimes;
     uint32 sellRulesIndex;
 }
 ```
@@ -139,6 +141,7 @@ struct MinMaxBalanceRuleS {
 ```solidity
 struct MinBalByDateRuleS {
     mapping(uint32 => mapping(bytes32 => ITaggedRules.MinBalByDateRule)) minBalByDateRulesPerUser;
+    mapping(uint32 => uint64) startTimes;
     uint32 minBalByDateRulesIndex;
 }
 ```

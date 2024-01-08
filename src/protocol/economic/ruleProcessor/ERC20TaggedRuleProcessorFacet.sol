@@ -71,7 +71,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         for (uint i; i < toTags.length; ) {
             uint256 max = getMinMaxBalanceRule(ruleId, toTags[i]).maximum;
             /// if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
-             if (max > 0 && balanceTo + amount > max) revert MaxBalanceExceeded();
+            if (max > 0 && balanceTo + amount > max) revert MaxBalanceExceeded();
             unchecked {
                 ++i;
             }
@@ -222,5 +222,130 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     function getTotalMinBalByDateRules() public view returns (uint32) {
         RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
         return data.minBalByDateRulesIndex;
+    }
+
+    /**
+     * @dev Rule checks if recipient balance + amount exceeded purchaseAmount during purchase period, prevent purchases for freeze period
+     * @param ruleId Rule identifier for rule arguments
+     * @param purchasedWithinPeriod Number of tokens purchased within purchase Period
+     * @param amount Number of tokens to be transferred
+     * @param toTags Account tags applied to sender via App Manager
+     * @param lastUpdateTime block.timestamp of most recent transaction from sender.
+     * @return cumulativePurchaseTotal Total tokens sold within sell period.
+     */
+    function checkPurchaseLimit(uint32 ruleId, uint256 purchasedWithinPeriod, uint256 amount, bytes32[] calldata toTags, uint64 lastUpdateTime) external view returns (uint256) {
+        toTags.checkMaxTags();
+        uint64 startTime = getPurchaseRuleStart(ruleId);
+        uint256 cumulativeTotal;
+        if (startTime <= block.timestamp){
+            for (uint i = 0; i < toTags.length; ) {
+                TaggedRules.PurchaseRule memory purchaseRule = getPurchaseRule(ruleId, toTags[i]);
+                if (purchaseRule.purchasePeriod > 0) {
+                    if (startTime.isWithinPeriod(purchaseRule.purchasePeriod, lastUpdateTime)) cumulativeTotal = purchasedWithinPeriod + amount;
+                    else cumulativeTotal = amount;
+                    if (cumulativeTotal > purchaseRule.purchaseAmount) revert TxnInFreezeWindow();
+                }
+                unchecked {
+                    ++i;
+                }
+            }
+        }
+        return cumulativeTotal;
+    }
+
+    /**
+     * @dev Function get the purchase rule in the rule set that belongs to an account type
+     * @param _index position of rule in array
+     * @param _accountType Type of account
+     * @return PurchaseRule rule at index position
+     */
+    function getPurchaseRule(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.PurchaseRule memory) {
+        // No need to check the rule existence or index since it was already checked in getPurchaseRuleStart
+        RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
+        return (data.purchaseRulesPerUser[_index][_accountType]);
+    }
+
+    /**
+     * @dev Function get the purchase rule start timestamp
+     * @param _index position of rule in array
+     * @return startTime startTimestamp of rule at index position
+     */
+    function getPurchaseRuleStart(uint32 _index) public view returns (uint64 startTime) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalPurchaseRule());
+        RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
+        if (_index >= data.purchaseRulesIndex) revert IndexOutOfRange();
+        return data.startTimes[_index];
+    }
+
+    /**
+     * @dev Function to get total purchase rules
+     * @return Total length of array
+     */
+    function getTotalPurchaseRule() public view returns (uint32) {
+        RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
+        return data.purchaseRulesIndex;
+    }
+
+    /**
+     * @dev Sell rule functions similar to purchase rule but "resets" at 12 utc after sellAmount is exceeded
+     * @param ruleId Rule identifier for rule arguments
+     * @param amount Number of tokens to be transferred
+     * @param fromTags Account tags applied to sender via App Manager
+     * @param lastUpdateTime block.timestamp of most recent transaction from sender.
+     * @return cumulativeSalesTotal Total tokens sold within sell period.
+     */
+    function checkSellLimit(uint32 ruleId, uint256 salesWithinPeriod, uint256 amount, bytes32[] calldata fromTags, uint64 lastUpdateTime) external view returns (uint256) {
+        fromTags.checkMaxTags();
+        uint64 startTime = getSellRuleStartByIndex(ruleId);
+        uint256 cumulativeSalesTotal;
+        if (startTime <= block.timestamp){
+            for (uint i = 0; i < fromTags.length; ) {
+                TaggedRules.SellRule memory sellRule = getSellRuleByIndex(ruleId, fromTags[i]);
+                if (sellRule.sellPeriod > 0) {
+                    if (startTime.isWithinPeriod(sellRule.sellPeriod, lastUpdateTime)) cumulativeSalesTotal = salesWithinPeriod + amount;
+                    else cumulativeSalesTotal = amount;
+                    if (cumulativeSalesTotal > sellRule.sellAmount) revert TemporarySellRestriction();
+                }
+                unchecked {
+                    ++i;
+                }
+            }
+        }
+        return cumulativeSalesTotal;
+    }
+
+    /**
+     * @dev Function to get Sell rule at index
+     * @param _index Position of rule in array
+     * @param _accountType Types of Accounts
+     * @return SellRule at position in array
+     */
+    function getSellRuleByIndex(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.SellRule memory) {
+        // No need to check the rule existence or index since it was already checked in getSellRuleStartByIndex
+        RuleS.SellRuleS storage data = Storage.sellStorage();
+        return data.sellRulesPerUser[_index][_accountType];
+    }
+
+    /**
+    * @dev Function get the purchase rule start timestamp
+     * @param _index Position of rule in array
+     * @return startTime rule start timestamp.
+     */
+    function getSellRuleStartByIndex(uint32 _index) public view returns (uint64 startTime) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalSellRule());
+        RuleS.SellRuleS storage data = Storage.sellStorage();
+        if (_index >= data.sellRulesIndex) revert IndexOutOfRange();
+        return data.startTimes[_index];
+    }
+
+    /**
+     * @dev Function to get total Sell rules
+     * @return Total length of array
+     */
+    function getTotalSellRule() public view returns (uint32) {
+        RuleS.SellRuleS storage data = Storage.sellStorage();
+        return data.sellRulesIndex;
     }
 }

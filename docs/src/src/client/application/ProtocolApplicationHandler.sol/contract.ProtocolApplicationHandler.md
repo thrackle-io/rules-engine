@@ -1,5 +1,5 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/ee06788a23623ed28309de5232eaff934d34a0fe/src/client/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
 Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
@@ -256,8 +256,9 @@ function _checkAccessLevelRules(
 
 ### setAccountBalanceByRiskRuleId
 
-Check if sender is not AMM and then check sender access level
-Check if receiver is not an AMM or address(0) and then check the recipient access level. Exempting address(0) allows for burning.
+Perform the access level = 0 rule checks if necessary
+If sender is not AMM and then check sender access level
+If receiver is not AMM or AMM treasury and then check receiver access level. Exempting address(0) allows for burning.
 Check that the recipient is not address(0). If it is we do not check this rule as it is a burn.
 
 that setting a rule will automatically activate it.

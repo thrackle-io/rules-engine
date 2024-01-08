@@ -1,10 +1,10 @@
 #!/bin/bash
 
 directories=("./src/application" "./src/interfaces" "./src/data" "./src/example" \
-"./src/example/application" "./src/example/liquidity" "./src/example/pricing" \
-"./src/example/script" "./src/example/staking" "./src/liquidity" "./src/pricing" \
-"./src/staking" "./src/token" "./src/token/data" "./src/economic" \
-"./src/economic/ruleStorage" "./src/economic/ruleProcessor")
+"./example/application" "./example/liquidity" "./example/pricing" \
+"./example/script" "./example/staking" "./src/client/liquidity" "./src/pricing" \
+"./src/staking" "./src/token" "./src/client/token/data" "./src/economic" \
+"./src/protocol/economic/ruleStorage" "./src/protocol/economic/ruleProcessor")
 
 # Replace openzeppelin-contracts for the npm version @openzepellin
 for dir in "${directories[@]}"; do

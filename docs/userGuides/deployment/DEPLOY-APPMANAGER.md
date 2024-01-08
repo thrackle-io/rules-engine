@@ -4,7 +4,7 @@
 ---
 
 1. Ensure the [environment variables][environment-url] are set correctly.
-2. Copy the template from src/example/application/ApplicationAppManager.sol to your desired location
+2. Copy the template from example/application/ApplicationAppManager.sol to your desired location
 3. Change the name of the contract to suit your naming standards
    - Do not change the import or parent contract
 4. Compile the contract
@@ -19,7 +19,7 @@
     4. _upgradeMode_ - This is a boolean value for if this is an upgraded AppManager being deployed. NOTE: Passing in a true boolean value will not deploy new data contracts. 
     5. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
     ````
-    forge create src/example/deploy/CastlevaniaAppManager.sol:CastlevaniaAppManager --constructor-args $APP_ADMIN_1 "Castlevania" false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+    forge create example/deploy/CastlevaniaAppManager.sol:CastlevaniaAppManager --constructor-args $APP_ADMIN_1 "Castlevania" false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
     ````
     6. Locate the address from the output, example:
     ````
@@ -34,7 +34,7 @@
     2. _application app manager address_ - The address of the app manager deployed in previous step.
     3. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
     ````
-    forge create src/example/deploy/ApplicationHandler.sol:CastlevaniaHandler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+    forge create example/deploy/ApplicationHandler.sol:CastlevaniaHandler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
     ````
     4. Locate the address from the output, example:
     ````

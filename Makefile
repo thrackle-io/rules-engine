@@ -37,9 +37,9 @@ deployTaggedRuleProcessor:; forge script script/TaggedRuleProcessor.s.sol --ffi 
 # Deploy contracts(full protocol)
 deployAll:;	forge script script/DeployAllModules.s.sol --ffi --broadcast -vvv
 # Deploy Application Contracts(singles)
-deployApplicationAppManager:; forge script src/example/script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
-deployApplicationERC20Handler:; forge script src/example/script/ApplicationERC20Handler.s.sol --ffi --broadcast -vvv
-deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol --ffi --broadcast -vvv
+deployApplicationAppManager:; forge script example/script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
+deployApplicationERC20Handler:; forge script example/script/ApplicationERC20Handler.s.sol --ffi --broadcast -vvv
+deployApplicationERC20:; forge script example/script/ApplicationERC20.s.sol --ffi --broadcast -vvv
 # Deploy Application Contracts(entire application implementation)
 deployAllApp:; forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv
 deployNewApp:; forge script script/clientScripts/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvv
@@ -105,7 +105,7 @@ checkERC20PassMinTransfer:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(add
 checkERC20FailMinTransfer:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${SAM} 5 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 
 #			<><><><><> Min Max Balance Rule ERC20 <><><><><>
-checkAddAccountBalanceRule:; cast send ${RULE_STORAGE_DIAMOND} "addBalanceLimitRules(address,bytes32[],uint256[],uint256[])(uint256)" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [10] [100000] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+checkAddAccountBalanceRule:; cast send ${RULE_STORAGE_DIAMOND} "addMinMaxBalanceRule(address,bytes32[],uint256[],uint256[])(uint256)" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [10] [100000] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 applyAccountBalanceRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setMinMaxBalanceRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 addGeneralTagMinMax:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTag(address,bytes32)" ${CLU} 0x5461796c65720000000000000000000000000000000000000000000000000000  --private-key ${QUORRA_PRIVATE_KEY}
 checkERC20PassMinMaxBalanceCtrl:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 100 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
@@ -361,7 +361,7 @@ transferNFT4ToGem:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(addr
 tryToTransferNFT4ToCluFail:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${GEM} ${CLU} 4 --private-key ${GEM_PRIVATE_KEY} --from ${GEM}
 
 #			<><><><><> Min Max Balance Rule ERC721 <><><><><>
-addAccountBalanceRuleNFT:; cast send ${RULE_STORAGE_DIAMOND} "addBalanceLimitRules(address,bytes32[],uint256[],uint256[])(uint256)" ${APPLICATION_APP_MANAGER} [0x4f73636172000000000000000000000000000000000000000000000000000000] [1] [4] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addAccountBalanceRuleNFT:; cast send ${RULE_STORAGE_DIAMOND} "addMinMaxBalanceRule(address,bytes32[],uint256[],uint256[])(uint256)" ${APPLICATION_APP_MANAGER} [0x4f73636172000000000000000000000000000000000000000000000000000000] [1] [4] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 applyAccountBalanceRuleNFT:; cast send ${APPLICATION_ERC721_HANDLER} "setMinMaxBalanceRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkAddGeneralTagNFT:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTag(address,bytes32)" ${CLU} 0x4f73636172000000000000000000000000000000000000000000000000000000  --private-key ${QUORRA_PRIVATE_KEY}
 checkERC721PassMinMaxBalanceCtrl:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 100 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
@@ -441,7 +441,7 @@ tokenFee_checkTokenFeeRuleUpgrade2:; cast call ${APPLICATION_ERC20_HANDLER_ADDRE
 
 #			<><><><><><><><><><><><><><><> Narrative <><><><><><><><><><><><><><><>
 # Deploy the Application App Manager
-applicationDeployAppManager:;	forge script src/example/script/ApplicationAppManager.s.sol --ffi --fork-url http://localhost:8545  --broadcast --verify -vvvv			
+applicationDeployAppManager:;	forge script example/script/ApplicationAppManager.s.sol --ffi --fork-url http://localhost:8545  --broadcast --verify -vvvv			
 applicationAddAppAdministrator:; cast send ${APPLICATION_APP_MANAGER} "addAppAdministrator(address)" ${CLU}  --private-key ${QUORRA_PRIVATE_KEY}
 applicationCheckAppAdministrator:; cast call ${APPLICATION_APP_MANAGER} "isAppAdministrator(address)(bool)" ${CLU}  --private-key ${QUORRA_PRIVATE_KEY}
 
@@ -458,7 +458,7 @@ applicationAddGeneralTagGem:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTa
 applicationCheckGeneralTag:; cast call ${APPLICATION_APP_MANAGER} "hasTag(address,bytes32)(bool)" ${GEM} 0x4b4e49475448  --private-key ${CLU_PRIVATE_KEY}
 
 # Deploy the Application Token
-applicationDeployToken:;	forge script src/example/script/ApplicationERC20.s.sol --ffi --fork-url http://localhost:8545  --broadcast --verify -vvvv			
+applicationDeployToken:;	forge script example/script/ApplicationERC20.s.sol --ffi --fork-url http://localhost:8545  --broadcast --verify -vvvv			
 applicationTokenCheckBalance:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${QUORRA} --from ${QUORRA}
 applicationTokenTransferKevin:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 2000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 applicationTokenCheckKevinBalance:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${KEVIN} --from ${QUORRA}
@@ -479,7 +479,7 @@ applicationTokenApplyMinTransferRule:; cast send ${APPLICATION_ERC20_ADDRESS} "s
 applicationTokenTransferSam2:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${SAM} 1 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 
 # Learns from their mistake, add a rule to prevent Kevin/Sam from misbehaving
-applicationAddAccountBalanceRule:; cast send ${RULE_STORAGE_DIAMOND} "addBalanceLimitRules(address,bytes32[],uint256[],uint256[])(uint256)" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [10] [10000] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applicationAddAccountBalanceRule:; cast send ${RULE_STORAGE_DIAMOND} "addMinMaxBalanceRule(address,bytes32[],uint256[],uint256[])(uint256)" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [10] [10000] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 
 # Apply Account Rule to Application Token
 applicationTokenApplyAccountBalanceRule:; cast send ${APPLICATION_ERC20_ADDRESS} "setRuleByIndex(uint8,uint32)" 10 1 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}

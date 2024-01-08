@@ -1,5 +1,5 @@
 # ERC20TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/ee06788a23623ed28309de5232eaff934d34a0fe/src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagRuleErrors](/src/common/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md)
@@ -262,6 +262,27 @@ function getMinBalByDateRule(uint32 _index, bytes32 _accountTag)
 |`<none>`|`TaggedRules.MinBalByDateRule`|Min BalanceByDate rule at index position|
 
 
+### getMinBalByDateRuleStart
+
+*Function get the minimum balance by date rule start timestamp*
+
+
+```solidity
+function getMinBalByDateRuleStart(uint32 _index) public view returns (uint64 startTime);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`startTime`|`uint64`|rule start time|
+
+
 ### getTotalMinBalByDateRules
 
 *Function to get total minimum balance by date rules*
@@ -269,6 +290,184 @@ function getMinBalByDateRule(uint32 _index, bytes32 _accountTag)
 
 ```solidity
 function getTotalMinBalByDateRules() public view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|Total length of array|
+
+
+### checkPurchaseLimit
+
+*Rule checks if recipient balance + amount exceeded purchaseAmount during purchase period, prevent purchases for freeze period*
+
+
+```solidity
+function checkPurchaseLimit(
+    uint32 ruleId,
+    uint256 purchasedWithinPeriod,
+    uint256 amount,
+    bytes32[] calldata toTags,
+    uint64 lastUpdateTime
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|Rule identifier for rule arguments|
+|`purchasedWithinPeriod`|`uint256`|Number of tokens purchased within purchase Period|
+|`amount`|`uint256`|Number of tokens to be transferred|
+|`toTags`|`bytes32[]`|Account tags applied to sender via App Manager|
+|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|cumulativePurchaseTotal Total tokens sold within sell period.|
+
+
+### getPurchaseRule
+
+*Function get the purchase rule in the rule set that belongs to an account type*
+
+
+```solidity
+function getPurchaseRule(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.PurchaseRule memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
+|`_accountType`|`bytes32`|Type of account|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`TaggedRules.PurchaseRule`|PurchaseRule rule at index position|
+
+
+### getPurchaseRuleStart
+
+*Function get the purchase rule start timestamp*
+
+
+```solidity
+function getPurchaseRuleStart(uint32 _index) public view returns (uint64 startTime);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`startTime`|`uint64`|startTimestamp of rule at index position|
+
+
+### getTotalPurchaseRule
+
+*Function to get total purchase rules*
+
+
+```solidity
+function getTotalPurchaseRule() public view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|Total length of array|
+
+
+### checkSellLimit
+
+*Sell rule functions similar to purchase rule but "resets" at 12 utc after sellAmount is exceeded*
+
+
+```solidity
+function checkSellLimit(
+    uint32 ruleId,
+    uint256 salesWithinPeriod,
+    uint256 amount,
+    bytes32[] calldata fromTags,
+    uint64 lastUpdateTime
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|Rule identifier for rule arguments|
+|`salesWithinPeriod`|`uint256`||
+|`amount`|`uint256`|Number of tokens to be transferred|
+|`fromTags`|`bytes32[]`|Account tags applied to sender via App Manager|
+|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|cumulativeSalesTotal Total tokens sold within sell period.|
+
+
+### getSellRuleByIndex
+
+*Function to get Sell rule at index*
+
+
+```solidity
+function getSellRuleByIndex(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.SellRule memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|Position of rule in array|
+|`_accountType`|`bytes32`|Types of Accounts|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`TaggedRules.SellRule`|SellRule at position in array|
+
+
+### getSellRuleStartByIndex
+
+*Function get the purchase rule start timestamp*
+
+
+```solidity
+function getSellRuleStartByIndex(uint32 _index) public view returns (uint64 startTime);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|Position of rule in array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`startTime`|`uint64`|rule start timestamp.|
+
+
+### getTotalSellRule
+
+*Function to get total Sell rules*
+
+
+```solidity
+function getTotalSellRule() public view returns (uint32);
 ```
 **Returns**
 

@@ -45,7 +45,7 @@ function version() external pure returns (string memory);
 
 # Set an ERC20-Pricing Contract in an Asset Handler 
 
-Use the following function in the [asset handler](../../src/token/ProtocolHandlerCommon.sol):
+Use the following function in the [asset handler](../../src/client/token/ProtocolHandlerCommon.sol):
 
 ```c
 function setERC20PricingAddress(

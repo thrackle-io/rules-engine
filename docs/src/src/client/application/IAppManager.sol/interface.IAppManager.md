@@ -1,5 +1,5 @@
 # IAppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/IAppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/ee06788a23623ed28309de5232eaff934d34a0fe/src/client/application/IAppManager.sol)
 
 **Inherits:**
 [IAppManagerErrors](/src/common/IErrors.sol/interface.IAppManagerErrors.md), [IPermissionModifierErrors](/src/common/IErrors.sol/interface.IPermissionModifierErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md)
@@ -343,6 +343,52 @@ function deRegisterAMM(address _AMMAddress) external;
 |Name|Type|Description|
 |----|----|-----------|
 |`_AMMAddress`|`address`|The address of the AMM to be de-registered|
+
+
+### registerStaking
+
+*This function allows the devs to register their Staking contract addresses. Allow contracts to check if contract is registered staking contract within ecosystem.
+This check is used in minting rewards tokens for example.*
+
+
+```solidity
+function registerStaking(address _stakingAddress) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_stakingAddress`|`address`|Address for the AMM|
+
+
+### isStaking
+
+*This function allows the devs to register their staking addresses. This will allow for token level rule exemptions*
+
+
+```solidity
+function isStaking(address _stakingAddress) external view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_stakingAddress`|`address`|Address for the treasury|
+
+
+### deRegisterStaking
+
+*This function allows the devs to deregister an Staking contract address.*
+
+
+```solidity
+function deRegisterStaking(address _stakingAddress) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_stakingAddress`|`address`|The address of the Staking contract to be de-registered|
 
 
 ### isTreasury

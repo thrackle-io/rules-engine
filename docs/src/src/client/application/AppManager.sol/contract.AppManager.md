@@ -1,5 +1,5 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/ee06788a23623ed28309de5232eaff934d34a0fe/src/client/application/AppManager.sol)
 
 **Inherits:**
 [IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md)
@@ -253,6 +253,29 @@ mapping(address => uint256) treasuryToIndex;
 
 ```solidity
 mapping(address => bool) isTreasuryRegistered;
+```
+
+
+### stakingList
+Staking Contracts List (for token level rule exemptions)
+
+
+```solidity
+address[] stakingList;
+```
+
+
+### stakingToIndex
+
+```solidity
+mapping(address => uint256) stakingToIndex;
+```
+
+
+### isStakingRegistered
+
+```solidity
+mapping(address => bool) isStakingRegistered;
 ```
 
 
@@ -523,9 +546,18 @@ function addMultipleRuleAdministrator(address[] memory account) external onlyRol
 function renounceRuleAdministrator() external;
 ```
 
-### isAccessTier
+### onlyAccessTierAdministrator
 
 -------------ACCESS TIER---------------
+
+*Checks for if msg.sender is a Access Tier*
+
+
+```solidity
+modifier onlyAccessTierAdministrator();
+```
+
+### isAccessTier
 
 *This function is where the access tier role is actually checked*
 
@@ -1337,6 +1369,8 @@ function registerAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE);
 
 ### isRegisteredAMM
 
+Also add their handler to the registry
+
 *This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions*
 
 
@@ -1408,6 +1442,52 @@ function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMI
 |Name|Type|Description|
 |----|----|-----------|
 |`_treasuryAddress`|`address`|The of the AMM to be de-registered|
+
+
+### registerStaking
+
+*This function allows the devs to register their Staking contract addresses. Allow contracts to check if contract is registered staking contract within ecosystem.
+This check is used in minting rewards tokens for example.*
+
+
+```solidity
+function registerStaking(address _stakingAddress) external onlyRole(APP_ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_stakingAddress`|`address`|Address for the AMM|
+
+
+### deRegisterStaking
+
+*This function allows the devs to deregister a Staking contract address.*
+
+
+```solidity
+function deRegisterStaking(address _stakingAddress) external onlyRole(APP_ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_stakingAddress`|`address`|The of the Staking contract to be de-registered|
+
+
+### isStaking
+
+*This function allows the devs to register their staking addresses. This will allow for token level rule exemptions*
+
+
+```solidity
+function isStaking(address _stakingAddress) public view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_stakingAddress`|`address`|Address for the staking|
 
 
 ### getAccessLevelDataAddress

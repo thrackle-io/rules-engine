@@ -134,10 +134,13 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function _checkAccessLevelRules(address _from, address _to, uint128 _usdBalanceValuation, uint128 _usdAmountTransferring) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        /// Check if sender is not AMM and then check sender access level
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccessLevel0Passes(fromScore);
-        /// Check if receiver is not an AMM or address(0) and then check the recipient access level. Exempting address(0) allows for burning.
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccessLevel0Passes(score);
+        /// Perform the access level = 0 rule checks if necessary
+        if (AccessLevel0RuleActive) {
+            /// If sender is not AMM and then check sender access level
+            if (!appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccessLevel0Passes(fromScore);
+            /// If receiver is not AMM or AMM treasury and then check receiver access level. Exempting address(0) allows for burning.
+            if (!(appManager.isRegisteredAMM(_to) || appManager.isTreasury(_to) || _to == address(0))) ruleProcessor.checkAccessLevel0Passes(score);
+        }
         /// Check that the recipient is not address(0). If it is we do not check this rule as it is a burn.
         if (accountBalanceByAccessLevelRuleActive && _to != address(0))
             ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
@@ -165,9 +168,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccountBalanceByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountBalanceByRiskRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(BALANCE_BY_RISK, address(this));
+            emit ApplicationHandlerActivated(BALANCE_BY_RISK);
         } else {
-            emit ApplicationHandlerDeactivated(BALANCE_BY_RISK, address(this));
+            emit ApplicationHandlerDeactivated(BALANCE_BY_RISK);
         }
     }
 
@@ -206,9 +209,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccountBalanceByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountBalanceByAccessLevelRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(BALANCE_BY_ACCESSLEVEL, address(this));
+            emit ApplicationHandlerActivated(BALANCE_BY_ACCESSLEVEL);
         } else {
-            emit ApplicationHandlerDeactivated(BALANCE_BY_ACCESSLEVEL, address(this));
+            emit ApplicationHandlerDeactivated(BALANCE_BY_ACCESSLEVEL);
         }
     }
 
@@ -235,9 +238,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccessLevel0Rule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         AccessLevel0RuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ACCESS_LEVEL_0, address(this));
+            emit ApplicationHandlerActivated(ACCESS_LEVEL_0);
         } else {
-            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_0, address(this));
+            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_0);
         }
     }
 
@@ -268,9 +271,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateWithdrawalLimitByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         withdrawalLimitByAccessLevelRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ACCESS_LEVEL_WITHDRAWAL, address(this));
+            emit ApplicationHandlerActivated(ACCESS_LEVEL_WITHDRAWAL);
         } else {
-            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_WITHDRAWAL, address(this));
+            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_WITHDRAWAL);
         }
     }
 
@@ -318,9 +321,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateMaxTxSizePerPeriodByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         maxTxSizePerPeriodByRiskActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MAX_TX_PER_PERIOD, address(this));
+            emit ApplicationHandlerActivated(MAX_TX_PER_PERIOD);
         } else {
-            emit ApplicationHandlerDeactivated(MAX_TX_PER_PERIOD, address(this));
+            emit ApplicationHandlerDeactivated(MAX_TX_PER_PERIOD);
         }
     }
 
@@ -338,13 +341,12 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @notice This function uses the onlyOwner modifier since the appManager contract is calling this function when adding a pause rule or removing the final pause rule of the array. 
      * @param _on boolean representing if a rule must be checked or not.
      */
-
     function activatePauseRule(bool _on) external onlyOwner {
         pauseRuleActive = _on; 
         if (_on) {
-            emit ApplicationHandlerActivated(PAUSE_RULE, address(this));
+            emit ApplicationHandlerActivated(PAUSE_RULE);
         } else {
-            emit ApplicationHandlerDeactivated(PAUSE_RULE, address(this));
+            emit ApplicationHandlerDeactivated(PAUSE_RULE);
         }
     }
 

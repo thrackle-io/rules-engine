@@ -134,6 +134,25 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
     function deRegisterAMM(address _AMMAddress) external;
 
     /**
+     * @dev This function allows the devs to register their Staking contract addresses. Allow contracts to check if contract is registered staking contract within ecosystem.
+     * This check is used in minting rewards tokens for example.
+     * @param _stakingAddress Address for the AMM
+     */
+    function registerStaking(address _stakingAddress) external;
+
+    /**
+     * @dev This function allows the devs to register their staking addresses. This will allow for token level rule exemptions
+     * @param _stakingAddress Address for the treasury
+     */
+    function isStaking(address _stakingAddress) external view returns (bool);
+
+    /**
+     * @dev This function allows the devs to deregister an Staking contract address.
+     * @param _stakingAddress The address of the Staking contract to be de-registered
+     */
+    function deRegisterStaking(address _stakingAddress) external;
+
+    /**
      * @dev This function allows the devs to register their treasury addresses. This will allow for token level rule exemptions
      * @param _treasuryAddress Address for the treasury
      */

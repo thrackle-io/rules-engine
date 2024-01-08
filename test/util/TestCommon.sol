@@ -24,6 +24,8 @@ import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRul
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
+import {FeeRuleDataFacet} from "src/protocol/economic/ruleProcessor/FeeRuleDataFacet.sol";
+
 /// ERC721 Example test imports 
 import {ApplicationERC721 as MintForAFeeERC721} from "src/example/ERC721/ApplicationERC721MintForAFee.sol";
 import {ApplicationERC721 as WhitelistMintERC721} from "src/example/ERC721/ApplicationERC721WhitelistMint.sol";
@@ -60,7 +62,13 @@ import "src/client/application/data/RiskScores.sol";
 import "src/client/application/data/Accounts.sol";
 import "src/client/application/data/IDataModule.sol";
 import "src/client/token/IAdminWithdrawalRuleCapable.sol";
+
+import "src/client/liquidity/ProtocolERC20AMM.sol";
+import "src/client/liquidity/ProtocolAMMFactory.sol";
+import "src/client/liquidity/ProtocolAMMCalculatorFactory.sol";
+
 /// common imports 
+import "src/example/liquidity/ApplicationAMMHandler.sol";
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import "src/example/OracleDenied.sol";
@@ -77,6 +85,8 @@ import "src/example/OracleAllowed.sol";
  */
 abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     FacetCut[] _ruleProcessorFacetCuts;
+
+    uint256 constant ATTO = 10 ** 18;
 
     // common addresses
     address superAdmin = address(0xDaBEEF);
@@ -100,6 +110,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     address accessTier = address(3);
     address rich_user = address(45);
     address proxyOwner = address(787);
+    address treasuryAddress = address(55);
     address priorAddress;
     address[] badBoys;
     address[] goodBoys;
@@ -114,8 +125,10 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationAssetHandlerMod public newAssetHandler;
 
     ApplicationERC20 public applicationCoin;
+    ApplicationERC20 public applicationCoin2;
     ApplicationERC20Handler public applicationCoinHandler;
     ApplicationERC20Handler public applicationCoinHandler2;
+    ApplicationERC20Handler public applicationCoinHandler3;
     ApplicationERC20Handler public applicationCoinHandlerSpecialOwner;
     ApplicationERC20Pricing public erc20Pricer;
 
@@ -156,6 +169,14 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationERC721Handler public WhitelistNFTHandlerUp;
     ApplicationERC721Handler public FreeForAllnNFTHandlerUp;
 
+    ProtocolAMMFactory public protocolAMMFactory;
+    ProtocolAMMCalculatorFactory public protocolAMMCalculatorFactory;
+    ProtocolERC20AMM public protocolAMM;
+    ProtocolERC721AMM public dualLinearERC271AMM;
+    ApplicationAMMHandler public applicationAMMHandler;
+    ApplicationAMMHandler public handler;
+    ProtocolAMMCalculatorFactory public factory;
+
     // common block time
     uint64 Blocktime = 1769924800;
 
@@ -166,6 +187,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     uint256 totalSupply = 100_000_000_000;
 
     address[] ADDRESSES = [address(0xFF1), address(0xFF2), address(0xFF3), address(0xFF4), address(0xFF5), address(0xFF6), address(0xFF7), address(0xFF8)];
+    address[] addresses = [user1, user2, user3, rich_user];
 
     bytes32 public constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
     bytes32 public constant USER_ROLE = keccak256("USER");
@@ -413,5 +435,21 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
      */
     function _createOracleDenied() public returns (OracleDenied _oracleDenied){
         return new OracleDenied(); 
+    }
+
+        /**
+     * @dev Deploy and set up an ProtocolAMMFactory
+     * @return _ammFactory ProtocolAMMFactory
+     */
+    function _createProtocolAMMFactory() public returns (ProtocolAMMFactory _ammFactory) {
+        return new ProtocolAMMFactory(address(_createProtocolAMMCalculatorFactory()));
+    }
+
+    /**
+     * @dev Deploy and set up an ProtocolAMMCalculatorFactory
+     * @return _ammCalcFactory ProtocolAMMCalculatorFactory
+     */
+    function _createProtocolAMMCalculatorFactory() public returns (ProtocolAMMCalculatorFactory _ammCalcFactory) {
+        return new ProtocolAMMCalculatorFactory();
     }
 }

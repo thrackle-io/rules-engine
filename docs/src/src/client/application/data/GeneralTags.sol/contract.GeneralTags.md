@@ -1,5 +1,5 @@
 # GeneralTags
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/data/GeneralTags.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/ee06788a23623ed28309de5232eaff934d34a0fe/src/client/application/data/GeneralTags.sol)
 
 **Inherits:**
 [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md), [IGeneralTags](/src/client/application/data/IGeneralTags.sol/interface.IGeneralTags.md), [INoAddressToRemove](/src/common/IErrors.sol/interface.INoAddressToRemove.md)

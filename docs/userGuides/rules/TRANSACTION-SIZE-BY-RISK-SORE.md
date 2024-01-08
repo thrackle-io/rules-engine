@@ -150,7 +150,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function checkTransactionLimitByRiskScore(uint32 _ruleId, uint8 _riskScore, uint256 _amountToTransfer) external view;
         ```
-- In the [Asset Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol):
+- In the [Asset Handler](../../src/client/token/ERC20/ProtocolERC20Handler.sol):
     - Function to set and activate at the same time the rule in the asset handler:
         ```c
         function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
