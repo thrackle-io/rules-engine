@@ -573,13 +573,9 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
     function testAdminWithdrawal() public {
         /// Mint TokenId 0-6 to super admin
-        applicationNFT.safeMint(ruleBypassAccount);
-        applicationNFT.safeMint(ruleBypassAccount);
-        applicationNFT.safeMint(ruleBypassAccount);
-        applicationNFT.safeMint(ruleBypassAccount);
-        applicationNFT.safeMint(ruleBypassAccount);
-        applicationNFT.safeMint(ruleBypassAccount);
-        applicationNFT.safeMint(ruleBypassAccount);
+        for (uint i; i < 7; i++ ) {
+            applicationNFT.safeMint(ruleBypassAccount);
+        }
         /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);

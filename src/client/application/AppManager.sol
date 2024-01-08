@@ -200,7 +200,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the app administrator role. Restricted to super admins.
      * @param account address to be added
      */
-    function addAppAdministrator(address account) external onlyRole(SUPER_ADMIN_ROLE) {
+    function addAppAdministrator(address account) public onlyRole(SUPER_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(APP_ADMIN_ROLE, account);
         emit AppAdministrator(account, true);
@@ -212,7 +212,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleAppAdministrator(address[] memory _accounts) external onlyRole(SUPER_ADMIN_ROLE) {
         for (uint256 i; i < _accounts.length; ) {
-            super.grantRole(APP_ADMIN_ROLE, _accounts[i]);
+            addAppAdministrator(_accounts[i]);
             emit AppAdministrator(_accounts[i], true);
             unchecked {
                 ++i;
@@ -243,7 +243,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the rule admin role. Restricted to app administrators.
      * @param account address to be added as a rule admin
      */
-    function addRuleAdministrator(address account) external onlyRole(APP_ADMIN_ROLE) {
+    function addRuleAdministrator(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RULE_ADMIN_ROLE, account);
         emit RuleAdmin(account, true);
@@ -255,7 +255,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleRuleAdministrator(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            super.grantRole(RULE_ADMIN_ROLE, account[i]);
+            addRuleAdministrator(account[i]);
             emit RuleAdmin(account[i], true);
             unchecked {
                 ++i;
@@ -286,7 +286,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the rule bypass account role. Restricted to app administrators.
      * @param account address to be added as a rule bypass account
      */
-    function addRuleBypassAccount(address account) external onlyRole(APP_ADMIN_ROLE) {
+    function addRuleBypassAccount(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RULE_BYPASS_ACCOUNT, account);
         emit RuleBypassAccount(account, true);
@@ -298,7 +298,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleRuleBypassAccounts(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            super.grantRole(RULE_BYPASS_ACCOUNT, account[i]);
+            addRuleBypassAccount(account[i]);
             emit RuleBypassAccount(account[i], true);
             unchecked {
                 ++i;
@@ -349,7 +349,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the access tier role. Restricted to app administrators.
      * @param account address to be added as a access tier
      */
-    function addAccessTier(address account) external onlyRole(APP_ADMIN_ROLE) {
+    function addAccessTier(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(ACCESS_TIER_ADMIN_ROLE, account);
         emit AccessTierAdmin(account, true);
@@ -361,7 +361,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleAccessTier(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            super.grantRole(ACCESS_TIER_ADMIN_ROLE, account[i]);
+            addAccessTier(account[i]);
             emit AccessTierAdmin(account[i], true);
             unchecked {
                 ++i;
@@ -392,7 +392,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the risk admin role. Restricted to app administrators.
      * @param account address to be added
      */
-    function addRiskAdmin(address account) external onlyRole(APP_ADMIN_ROLE) {
+    function addRiskAdmin(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RISK_ADMIN_ROLE, account);
         emit RiskAdmin(account, true);
@@ -404,7 +404,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            super.grantRole(RISK_ADMIN_ROLE, account[i]);
+            addRiskAdmin(account[i]);
             emit RiskAdmin(account[i], true);
             unchecked {
                 ++i;
@@ -427,7 +427,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _account address upon which to apply the Access Level
      * @param _level Access Level to add
      */
-    function addAccessLevel(address _account, uint8 _level) external onlyRole(ACCESS_TIER_ADMIN_ROLE) {
+    function addAccessLevel(address _account, uint8 _level) public onlyRole(ACCESS_TIER_ADMIN_ROLE) {
         accessLevels.addLevel(_account, _level);
     }
 
@@ -471,7 +471,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _account address upon which to apply the Risk Score
      * @param _score Risk Score(0-100)
      */
-    function addRiskScore(address _account, uint8 _score) external onlyRole(RISK_ADMIN_ROLE) {
+    function addRiskScore(address _account, uint8 _score) public onlyRole(RISK_ADMIN_ROLE) {
         riskScores.addScore(_account, _score);
     }
 
