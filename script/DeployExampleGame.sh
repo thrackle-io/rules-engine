@@ -268,10 +268,10 @@ else
     echo TAGGED_RULE_DATA=$TAGGED_RULE_DATA
     sed -i '' 's/TAGGED_RULE_DATA=.*/TAGGED_RULE_DATA='$TAGGED_RULE_DATA'/g' $ENV_FILE
 
-    echo APP_RULE_DATA=$APP_RULE_DATA | tee -a $ENV_FILE
+    echo APP_RULE_DATA=$APP_RULE_DATA
     sed -i '' 's/APP_RULE_DATA=.*/APP_RULE_DATA='$APP_RULE_DATA'/g' $ENV_FILE
 
-    echo FEE_RULE_DATA=$FEE_RULE_DATA | tee -a $ENV_FILE
+    echo FEE_RULE_DATA=$FEE_RULE_DATA
     sed -i '' 's/FEE_RULE_DATA=.*/FEE_RULE_DATA='$FEE_RULE_DATA'/g' $ENV_FILE
     echo "################################################################"
     echo
