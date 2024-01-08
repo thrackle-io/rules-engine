@@ -37,8 +37,8 @@ import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod
 /// Client Contract imports 
 import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
+import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import "src/example/application/ApplicationAppManager.sol";
-import "src/example/application/ApplicationHandler.sol";
 
 import "src/example/ERC20/ApplicationERC20.sol";
 import "src/example/ERC20/ApplicationERC20Handler.sol";

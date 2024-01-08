@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/application/ApplicationHandler.sol";
+import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import "src/example/ERC20/ApplicationERC20Handler.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
 import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";

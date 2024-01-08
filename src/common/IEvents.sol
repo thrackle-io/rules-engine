@@ -71,6 +71,9 @@ interface IApplicationHandlerEvents {
     event ApplicationHandlerDeployed(address indexed deployedAddress, address indexed appManager);
     // Rule applied
     event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
+    /// Pricing
+    event ERC721PricingAddressSet(address indexed _address);
+    event ERC20PricingAddressSet(address indexed _address);
 }
 
 /**
@@ -129,9 +132,6 @@ interface ITokenHandlerEvents {
     event AppManagerAddressProposed(address indexed _address);
     /// Fees
     event FeeActivationSet(bool indexed _activation);
-    /// Pricing
-    event ERC721PricingAddressSet(address indexed _address);
-    event ERC20PricingAddressSet(address indexed _address);
     /// Configuration
     event ERC721AddressSet(address indexed _address);
 }

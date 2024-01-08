@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
+import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
 import "src/client/application/data/Accounts.sol";
 import "src/client/application/data/IAccounts.sol";
 import "src/client/application/data/IAccessLevels.sol";
@@ -14,12 +15,11 @@ import "src/client/application/data/GeneralTags.sol";
 import "src/client/application/data/IPauseRules.sol";
 import "src/client/application/data/PauseRules.sol";
 import "src/client/application/ProtocolApplicationHandler.sol";
-import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
-import {IAppLevelEvents} from "src/common/IEvents.sol";
 import "src/client/application/IAppManagerUser.sol";
 import "src/client/application/data/IDataModule.sol";
-import "../token/IAdminWithdrawalRuleCapable.sol";
-import "../token/ProtocolTokenCommon.sol";
+import "src/client/token/IAdminWithdrawalRuleCapable.sol";
+import "src/client/token/ProtocolTokenCommon.sol";
+import {IAppLevelEvents} from "src/common/IEvents.sol";
 
 /**
  * @title App Manager Contract
@@ -665,30 +665,18 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         return address(accessLevels);
     }
 
-    /** APPLICATION CHECKS */
-    /**
-     * @dev checks if any of the balance prerequisite rules are active
-     * @return true if one or more rules are active
-     */
-    function requireValuations() external returns (bool) {
-        if (applicationHandler.requireValuations()) {
-            applicationRulesActive = true;
-        } else {
-            applicationRulesActive = false;
-        }
-        return applicationRulesActive;
-    }
-
     /**
      * @dev Check Application Rules for valid transactions.
      * @param _action Action to be checked
      * @param _from address of the from account
      * @param _to address of the to account
-     * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
-     * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
+     * @param _amount number of tokens to be transferred 
+     * @param _nftValuationLimit number of tokenID's per collection before checking collection price vs individual token price
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external onlyHandler {
-        applicationHandler.checkApplicationRules(_action, _from, _to, _usdBalanceTo, _usdAmountTransferring);
+    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit) external onlyHandler {
+        if (applicationHandler.requireValuations()) {    
+            applicationHandler.checkApplicationRules(_action, _from, _to, _amount, _nftValuationLimit);
+        }
     }
 
     /**

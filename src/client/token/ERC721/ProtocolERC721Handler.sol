@@ -55,8 +55,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     uint64 private lastSupplyUpdateTime;
     int256 private volumeTotalForPeriod;
     uint256 private totalSupplyForPeriod;
-    /// NFT Collection Valuation Limit
-    uint256 private nftValuationLimit = 100;
+    /// NFT Collection Valuation Limit:
+    /// number of tokenID's per collection before checking collection price vs individual token price
+    uint16 private nftValuationLimit = 100;
 
     /// Trade Counter data
     // map the tokenId of this NFT to the number of trades in the period
@@ -115,13 +116,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromAdmin && !isToAdmin) {
             if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
-            uint128 balanceValuation;
-            uint128 transferValuation;
-            if (appManager.requireValuations()) {
-                balanceValuation = uint128(getAccTotalValuation(_to, nftValuationLimit));
-                transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
-            }
-            appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
+            appManager.checkApplicationRules(_action, _from, _to, amount, nftValuationLimit);
             _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);

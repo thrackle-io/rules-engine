@@ -111,15 +111,8 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         if (!appManager.isTreasury(_to)) {
             /// standard rules do not apply when either to or from is an admin
             if (!isFromAdmin && !isToAdmin) {
-                uint128 balanceValuation;
-                uint128 price;
-                uint128 transferValuation;
-                if (appManager.requireValuations()) {
-                    balanceValuation = uint128(getAccTotalValuation(_to, 0));
-                    price = uint128(_getERC20Price(msg.sender));
-                    transferValuation = uint128((price * amount) / (10 ** IToken(msg.sender).decimals()));
-                }
-                appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
+                /// appManager requires uint16 _nftValuationLimit for NFT pricing, 0 is passed for fungible token pricing
+                appManager.checkApplicationRules(_action, _from, _to, amount,  0); 
                 _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
                 _checkNonTaggedRules(_from, _to, amount);
             } else {
