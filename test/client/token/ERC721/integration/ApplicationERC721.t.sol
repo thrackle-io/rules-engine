@@ -1152,6 +1152,76 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
+    function testERC721_TradeRuleByPasserRule() public {
+        DummyNFTAMM amm = setupTradingRuleTests();
+        _fundThreeAccounts();
+        applicationAppManager.approveAddressToTradingRuleWhitelist(user, true);
+
+        /// SELL PERCENTAGE RULE
+        uint16 tokenPercentageSell = 30; /// 0.30%
+        _setSellPercentageRule(tokenPercentageSell, 24); ///  24 hour periods
+        vm.warp(Blocktime + 36 hours);
+        /// WHITELISTED USER
+        switchToUser();
+        _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
+        /// we test going above rule percentage in the period is ok for user (... + 1)
+        for(uint i = erc721Liq / 2; i < erc721Liq / 2 + (erc721Liq * tokenPercentageSell) / 10000 + 1; i++){
+            _testSellNFT(i,  amm);
+        }
+        /// NOT WHITELISTED USER
+        vm.stopPrank();
+        vm.startPrank(user1);
+        _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
+        /// we test going right below the rule percentage in the period (... - 1)
+        for(uint i = erc721Liq / 2 + 100; i < erc721Liq / 2 + 100 + (erc721Liq * tokenPercentageSell) / 10000 - 1; i++){
+            _testSellNFT(i,  amm);
+        }
+        /// and now we test the actual rule with a non-whitelisted address to check it will fail
+        vm.expectRevert(0xb17ff693);
+        _testSellNFT(erc721Liq / 2 + 100 + (erc721Liq * tokenPercentageSell) / 10000,  amm);
+
+        //PURCHASE PERCENTAGE RULE
+        uint16 tokenPercentage = 10; /// 1% 
+        _setPurchasePercentageRule(tokenPercentage, 24); /// 24 hour periods
+        /// we make sure we are in a new period
+        vm.warp(Blocktime + 72 hours);
+        /// WHITELISTED USER
+        switchToUser();
+        /// we test buying the *tokenPercentage* of the NFTs total supply + 1 to prove that *user* can break the rules with no consequences
+        for(uint i = erc721Liq / 2 ; i < erc721Liq / 2 + (erc721Liq * tokenPercentage) / 10000 + 1; i++){
+            _testBuyNFT(i, amm);
+        }
+        /// NOT WHITELISTED USER
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// we test buying the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
+        for(uint i = erc721Liq / 2 + 100; i < erc721Liq / 2 + 100 + (erc721Liq * tokenPercentage) / 10000 - 1; i++){
+            _testBuyNFT(i, amm);
+        }
+        /// now we check that user1 cannot break the rule
+        vm.expectRevert(0xb634aad9);
+        _testBuyNFT(erc721Liq / 2 + 100 + tokenPercentage, amm);
+
+        /// SELL RULE
+        _setSellRule("SellRule", 1, 36); /// tag, maxNFtsPerPeriod, period
+        vm.warp(Blocktime + 108 hours);
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user, "SellRule");
+        applicationAppManager.addGeneralTag(user1, "SellRule");
+        /// WHITELISTED USER
+        switchToUser();
+        /// user can break the rules
+        _testSellNFT(erc721Liq / 2, amm);
+        _testSellNFT(erc721Liq / 2 + 1, amm);
+        /// NOT WHITELISTED USER
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// user1 cannot break the rules
+        _testSellNFT(erc721Liq / 2 + 100, amm);
+        vm.expectRevert(0xc11d5f20);
+        _testSellNFT(erc721Liq / 2 + 100 + 1, amm);
+    }
+
     /// HELPER INTERNAL FUNCTIONS
 
     function _approveTokens(DummyNFTAMM amm, uint256 amountERC20, bool _isApprovalERC721) internal {
@@ -1228,27 +1298,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         uint64 ruleStartTime = Blocktime;
         ruleId = RuleDataFacet(address(ruleProcessor)).addPercentageSellRule(address(applicationAppManager), tokenPercentageSell, sellPeriod, _totalSupply, ruleStartTime);
         applicationNFTHandler.setSellPercentageRuleId(ruleId);
-    }
-
-    function initializeAMMAndUsers() public returns (DummyNFTAMM amm){
-        amm = new DummyNFTAMM();
-        /// Approve the transfer of tokens into AMM
-        applicationCoin.approve(address(amm), 1_000_000 * ATTO);
-        applicationCoin2.approve(address(amm), 1_000_000 * ATTO);
-        /// Transfer the tokens into the AMM
-        applicationCoin.transfer(address(amm), 1_000_000 * ATTO);
-        applicationCoin2.transfer(address(amm), 1_000_000 * ATTO);
-        /// Make sure the tokens made it
-        assertEq(applicationCoin.balanceOf(address(amm)), 1_000_000 * ATTO);
-        assertEq(applicationCoin2.balanceOf(address(amm)), 1_000_000 * ATTO);
-        applicationCoin.transfer(user1, 1000 * ATTO);
-        applicationCoin.transfer(user2, 1000 * ATTO);
-        applicationCoin.transfer(user3, 1000 * ATTO);
-        applicationCoin.transfer(rich_user, 1000 * ATTO);
-        applicationCoin2.transfer(user1, 1000 * ATTO);
-        applicationCoin2.transfer(user2, 1000 * ATTO);
-        applicationCoin.transfer(address(69), 1000 * ATTO);
-        applicationCoin2.transfer(address(69), 1000 * ATTO);
     }
 
     function _fundThreeAccounts() internal {
