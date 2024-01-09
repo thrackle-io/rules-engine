@@ -56,11 +56,12 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(applicationNFT.balanceOf(appAdministrator), 0);
     }
 
-    function testERC721_FailBurnERC721() public {
+    function testERC721_BurnERC721_Negative() public {
         ///Mint and transfer tokenId 0
         applicationNFT.safeMint(appAdministrator);
         switchToUser();
         ///attempt to burn token that user does not own
+        vm.expectRevert("ERC721: caller is not token owner or approved");
         applicationNFT.burn(0);
     }
 
