@@ -5,11 +5,11 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
-import "../data/Fees.sol";
-import {IZeroAddressError, IAssetHandlerErrors} from "src/common/IErrors.sol";
-import "../ProtocolHandlerCommon.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "src/client/token/data/Fees.sol";
+import "src/client/token/ProtocolHandlerCommon.sol";
+import {IZeroAddressError, IAssetHandlerErrors} from "src/common/IErrors.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract
@@ -109,14 +109,12 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawa
      onlyOwner 
      returns (bool) 
      {
-        
-        
-        bool isFromAdmin = appManager.isAppAdministrator(_from);
-        bool isToAdmin = appManager.isAppAdministrator(_to);
+        bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
+        bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
         // // All transfers to treasury account are allowed
         if (!appManager.isTreasury(_to)) {
             /// standard rules do not apply when either to or from is an admin
-            if (!isFromAdmin && !isToAdmin) {
+            if (!isFromBypassAccount && !isToBypassAccount) {
                 uint128 balanceValuation;
                 uint128 price;
                 uint128 transferValuation;
@@ -128,9 +126,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawa
                 appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation);
                 _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _sender, _amount);
                 _checkNonTaggedRules(_from, _to, _amount);
-            }
-            else if (adminWithdrawalActive && isFromAdmin) 
+            } else if (adminWithdrawalActive && isFromBypassAccount) {
                 ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, _amount);
+                emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress); 
+            }
+            
         }
         /// If all rule checks pass, return true
         return true;

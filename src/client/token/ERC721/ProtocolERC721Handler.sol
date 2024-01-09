@@ -3,6 +3,11 @@ pragma solidity ^0.8.17;
 
 /// TODO Create a wizard that creates custom versions of this contract for each implementation.
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "src/client/token/ProtocolHandlerCommon.sol";
+
 /**
  * @title Base NFT Handler Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -109,11 +114,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
     onlyOwner 
     returns (bool) 
     {
-        bool isFromAdmin = appManager.isAppAdministrator(_from);
-        bool isToAdmin = appManager.isAppAdministrator(_to);
+        bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
+        bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
-        if (!isFromAdmin && !isToAdmin) {
+        if (!isFromBypassAccount && !isToBypassAccount) {
             /// pure transfer rules
             uint128 balanceValuation;
             uint128 transferValuation;
@@ -125,12 +130,12 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
             _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to,  _sender, _amount, _tokenId);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
-            
-        } else if (adminWithdrawalActive && isFromAdmin) 
+            /// set the ownership start time for the token if the Minimum Hold time rule is active
+            if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
+        } else if (adminWithdrawalActive && isFromBypassAccount) {
             ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
-        
-        /// set the ownership start time for the token if the Minimum Hold time rule is active
-        if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
+            emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress);
+        }
         /// If all rule checks pass, return true
         return true;
     }

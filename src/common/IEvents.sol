@@ -22,7 +22,8 @@ interface IAppLevelEvents {
     event RiskAdmin(address indexed admin, bool indexed add);
     event AccessTierAdmin(address indexed admin, bool indexed add);
     event AppAdministrator(address indexed admin, bool indexed add); 
-    event SuperAdministrator(address indexed admin, bool indexed add); 
+    event SuperAdministrator(address indexed admin, bool indexed add);
+    event RuleBypassAccount(address indexed bypassAccount, bool indexed add);  
     ///Registrations
     event TokenRegistered(string indexed _token, address indexed _address);
     event TokenNameUpdated(string indexed _token, address indexed _address);
@@ -85,6 +86,8 @@ interface ICommonApplicationHandlerEvents {
     event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
     /// Rule activated
     event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
+    //// Rule Bypassed Via Rule Bypass Account 
+    event RulesBypassedViaRuleBypassAccount(address indexed ruleBypassAccount, address indexed appManager);
 }
 
 /**
