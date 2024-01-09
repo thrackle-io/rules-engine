@@ -74,6 +74,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     address[] treasuryList;
     mapping(address => uint) treasuryToIndex;
     mapping(address => bool) isTreasuryRegistered;
+    /// Whitelist for trading rule exceptions
+    mapping(address => bool) tradingRuleWhiteList;
 
     /**
      * @dev This constructor sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.
@@ -851,6 +853,25 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (!isTreasury(_treasuryAddress)) revert NoAddressToRemove();
         _removeAddressWithMapping(treasuryList, treasuryToIndex, isTreasuryRegistered, _treasuryAddress);
+    }
+
+    /**
+     * @dev manage the whitelist for trading-rule bypasser accounts
+     * @param _address account in the list to manage
+     * @param isApproved set to true to indicate that _address can bypass trading rules.
+     */
+    function approveAddressToTradingRuleWhitelist(address _address, bool isApproved) external onlyRole(APP_ADMIN_ROLE) {
+        tradingRuleWhiteList[_address] = isApproved;
+        emit TradingRuleAddressWhitelist(_address, isApproved);
+    }
+
+    /**
+     * @dev tells if an address can bypass trading rules
+     * @param _address the address to check for
+     * @return true if the address can bypass trading rules, or false otherwise.
+     */
+    function isTradingRuleBypasser(address _address) public view returns (bool) {
+        return tradingRuleWhiteList[_address];
     }
 
     /**

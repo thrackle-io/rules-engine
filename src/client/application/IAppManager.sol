@@ -140,6 +140,20 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
     function isTreasury(address _treasuryAddress) external view returns (bool);
 
     /**
+     * @dev manage the whitelist for trading-rule bypasser accounts
+     * @param _address account in the list to manage
+     * @param isApproved set to true to indicate that _address can bypass trading rules.
+     */
+    function approveAddressToTradingRuleWhitelist(address _address, bool isApproved) external;
+
+    /**
+     * @dev tells if an address can bypass trading rules
+     * @param _address the address to check for
+     * @return true if the address can bypass trading rules, or false otherwise.
+     */
+    function isTradingRuleBypasser(address _address) external view returns (bool);
+
+    /**
      * @dev Jump through to the gobal rules to see if the requested action is valid.
      * @param _from address of the from account
      * @param _to address of the to account

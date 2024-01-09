@@ -1438,10 +1438,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoin.approve(address(amm), 10000 * ATTO);
         applicationCoin2.approve(address(amm), 10000 * ATTO);
         uint256 initialCoinBalance = applicationCoin.balanceOf(user1);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false); /// percentage limit hit now
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 40_000_000, 40_000_000, false); /// percentage limit hit now
         assertEq(applicationCoin.balanceOf(user1), initialCoinBalance + 40_000_000);
         /// test swaps after we hit limit
         vm.expectRevert(0xb634aad9);
@@ -1498,10 +1495,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(user1);
         applicationCoin.approve(address(amm), 10000 * ATTO);
         applicationCoin2.approve(address(amm), 10000 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true); /// percentage limit hit now
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 40_000_000, 40_000_000, true); /// percentage limit hit now
         /// test swaps after we hit limit
         vm.expectRevert(0xb17ff693);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
@@ -1522,16 +1516,8 @@ contract ApplicationERC20Test is TestCommonFoundry {
     }
 
     function testERC20_TradeRuleByPasserRule() public {
-         DummyAMM amm = _tradeRuleSetup();
-        /// set up rule
-        switchToRuleAdmin();
-        uint32 oracleRuleId = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
-        ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(oracleRuleId);
-        /// connect the rule to this handler
-        applicationCoinHandler.setTradeRuleOracleListId(oracleRuleId);
-        switchToAppAdministrator();
-        goodBoys.push(user1);
-        oracleAllowed.addToAllowList(goodBoys);
+        DummyAMM amm = _tradeRuleSetup();
+        applicationAppManager.approveAddressToTradingRuleWhitelist(user1, true);
 
         /// SELL PERCENTAGE RULE
         _setupSellPercentageRule();
@@ -1541,16 +1527,13 @@ contract ApplicationERC20Test is TestCommonFoundry {
         vm.startPrank(user1);
         applicationCoin.approve(address(amm), 10000 * ATTO);
         applicationCoin2.approve(address(amm), 10000 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 20_000_000, 20_000_000, true);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 20_000_000, 20_000_000, true);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 20_000_000, 20_000_000, true);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, true);
         /// NOT WHITELISTED USER
         vm.stopPrank();
         vm.startPrank(user2);
         applicationCoin.approve(address(amm), 10000 * ATTO);
         applicationCoin2.approve(address(amm), 10000 * ATTO);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 20_000_000, 20_000_000, true);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 20_000_000, 20_000_000, true);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 40_000_000, 40_000_000, true);
         vm.expectRevert(0xb17ff693);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 20_000_000, 20_000_000, true);
 
@@ -1559,8 +1542,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         /// WHITELISTED USER
         vm.stopPrank();
         vm.startPrank(user1);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 30_000_000, 30_000_000, false);
-        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 30_000_000, 30_000_000, false);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, false);
         /// NOT WHITELISTED USER
         vm.stopPrank();
         vm.startPrank(user2);
