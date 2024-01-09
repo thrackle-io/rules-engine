@@ -187,7 +187,7 @@ This rule returns the value:
 uint64 salesWithinPeriod;
 ```
 
-*see [ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol), [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
+*see [Token Handler](../../../src/client/token/ProtocolHandlerCommon.sol)*
 
 ## Data Recorded
 
@@ -201,7 +201,7 @@ mapping(address => uint256) salesWithinPeriod;
 mapping(address => uint64) lastSellTime;
 ```
 
-*see [ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol), [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
+*see [Token Handler](../../../src/client/token/ProtocolHandlerCommon.sol)*
 
 ## Events
 
