@@ -15,11 +15,11 @@ import "src/client/application/data/IPauseRules.sol";
 import "src/client/application/data/PauseRules.sol";
 import "src/client/application/ProtocolApplicationHandler.sol";
 import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
-import {IAppLevelEvents} from "src/common/IEvents.sol";
 import "src/client/application/IAppManagerUser.sol";
 import "src/client/application/data/IDataModule.sol";
-import "../token/IAdminWithdrawalRuleCapable.sol";
-import "../token/ProtocolTokenCommon.sol";
+import "src/client/token/IAdminWithdrawalRuleCapable.sol";
+import "src/client/token/ProtocolTokenCommon.sol";
+import {IAppLevelEvents} from "src/common/IEvents.sol";
 
 /**
  * @title App Manager Contract
@@ -30,11 +30,12 @@ import "../token/ProtocolTokenCommon.sol";
 contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     string private constant VERSION = "1.1.0";
     using ERC165Checker for address;
+    bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
     bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
+    bytes32 constant RULE_ADMIN_ROLE = keccak256("RULE_ADMIN_ROLE");
     bytes32 constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
     bytes32 constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
-    bytes32 constant RULE_ADMIN_ROLE = keccak256("RULE_ADMIN_ROLE");
-    bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
+    bytes32 constant RULE_BYPASS_ACCOUNT = keccak256("RULE_BYPASS_ACCOUNT");
     bytes32 constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
 
     /// Data contracts
@@ -89,6 +90,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         _setRoleAdmin(ACCESS_TIER_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RISK_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RULE_ADMIN_ROLE, APP_ADMIN_ROLE);
+        _setRoleAdmin(RULE_BYPASS_ACCOUNT, APP_ADMIN_ROLE);
         _setRoleAdmin(SUPER_ADMIN_ROLE, PROPOSED_SUPER_ADMIN_ROLE);
         _setRoleAdmin(PROPOSED_SUPER_ADMIN_ROLE, SUPER_ADMIN_ROLE);
         appName = _appName;
@@ -101,7 +103,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev This function overrides the parent's grantRole function. This basically disables its public nature to make it private.
+     * @dev This function overrides the parent's grantRole function. This disables its public nature to make it private.
      * @param role the role to grant to an acount.
      * @param account address being granted the role.
      * @notice this is purposely going to fail every time it will be invoked in order to force users to only use the appropiate 
@@ -117,7 +119,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev This function overrides the parent's renounceRole function. Its purpose is to prevent superAdmins from renouncing through
-     * this "backdoor", so they are forced to find another superAdmin through the function proposeNewSuperAdmin.
+     * this "backdoor", so they are forced to set another superAdmin through the function proposeNewSuperAdmin.
      * @param role the role to renounce.
      * @param account address renouncing to the role.
      */
@@ -136,7 +138,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         /// enforcing the min-1-admin requirement.
         if(role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
-        if(role == APP_ADMIN_ROLE) checkForAdminWithdrawal();
+        if(role == RULE_BYPASS_ACCOUNT) checkForAdminWithdrawal();
         AccessControl.revokeRole(role, account);
     }
     // /// -------------ADMIN---------------
@@ -198,7 +200,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the app administrator role. Restricted to super admins.
      * @param account address to be added
      */
-    function addAppAdministrator(address account) external onlyRole(SUPER_ADMIN_ROLE) {
+    function addAppAdministrator(address account) public onlyRole(SUPER_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(APP_ADMIN_ROLE, account);
         emit AppAdministrator(account, true);
@@ -210,8 +212,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleAppAdministrator(address[] memory _accounts) external onlyRole(SUPER_ADMIN_ROLE) {
         for (uint256 i; i < _accounts.length; ) {
-            super.grantRole(APP_ADMIN_ROLE, _accounts[i]);
-            emit AppAdministrator(_accounts[i], true);
+            addAppAdministrator(_accounts[i]);
             unchecked {
                 ++i;
             }
@@ -222,27 +223,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the app administrator role.
      */
     function renounceAppAdministrator() external {
-        /// If the AdminWithdrawal rule is active, App Admins are not allowed to renounce their role to prevent manipulation of the rule
-        checkForAdminWithdrawal();
         renounceRole(APP_ADMIN_ROLE, _msgSender());
         emit AppAdministrator(_msgSender(), false);
-    }
-
-    /**
-     * @dev Loop through all the registered tokens, if they are capable of admin withdrawal, see if it's active. If so, revert
-     */
-    function checkForAdminWithdrawal() internal {
-        for (uint256 i; i < tokenList.length; ) {
-            // check to see if supports the rule first
-            if (ProtocolTokenCommon(tokenList[i]).getHandlerAddress().supportsInterface(type(IAdminWithdrawalRuleCapable).interfaceId)) {
-                if (IAdminWithdrawalRuleCapable(ProtocolTokenCommon(tokenList[i]).getHandlerAddress()).isAdminWithdrawalActiveAndApplicable()) {
-                    revert AdminWithdrawalRuleisActive();
-                }
-            }
-            unchecked {
-                ++i;
-            }
-        }
     }
 
     /// -------------RULE ADMIN---------------
@@ -260,7 +242,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the rule admin role. Restricted to app administrators.
      * @param account address to be added as a rule admin
      */
-    function addRuleAdministrator(address account) external onlyRole(APP_ADMIN_ROLE) {
+    function addRuleAdministrator(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RULE_ADMIN_ROLE, account);
         emit RuleAdmin(account, true);
@@ -272,8 +254,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleRuleAdministrator(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            super.grantRole(RULE_ADMIN_ROLE, account[i]);
-            emit RuleAdmin(account[i], true);
+            addRuleAdministrator(account[i]);
             unchecked {
                 ++i;
             }
@@ -286,6 +267,69 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function renounceRuleAdministrator() external {
         renounceRole(RULE_ADMIN_ROLE, _msgSender());
         emit RuleAdmin(_msgSender(), false);
+    }
+
+    /// -------------RULE BYPASS ACCOUNT ---------------
+
+    /**
+     * @dev This function is where the rule bypass account role is actually checked
+     * @param account address to be checked
+     * @return success true if RULE_BYPASS_ACCOUNT, false if not
+     */
+    function isRuleBypassAccount(address account) public view returns (bool) {
+        return hasRole(RULE_BYPASS_ACCOUNT, account);
+    }
+
+    /**
+     * @dev Add an account to the rule bypass account role. Restricted to app administrators.
+     * @param account address to be added as a rule bypass account
+     */
+    function addRuleBypassAccount(address account) public onlyRole(APP_ADMIN_ROLE) {
+        if (account == address(0)) revert ZeroAddress();
+        super.grantRole(RULE_BYPASS_ACCOUNT, account);
+        emit RuleBypassAccount(account, true);
+    }
+
+    /**
+     * @dev Add a list of accounts to the rule bypass account role. Restricted to app administrators.
+     * @param account address to be added as a rule bypass account
+     */
+    function addMultipleRuleBypassAccounts(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
+        for (uint256 i; i < account.length; ) {
+            addRuleBypassAccount(account[i]);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev Remove oneself from the rule bypass account role.
+     * @notice This function checks for the AdminWithdrawalRule status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active. 
+     */
+    function renounceRuleBypassAccount() external {
+        /// If the AdminWithdrawal rule is active, Rule Bypass Accounts are not allowed to renounce their role to prevent manipulation of the rule
+        checkForAdminWithdrawal();
+        renounceRole(RULE_BYPASS_ACCOUNT, _msgSender());
+        emit RuleBypassAccount(_msgSender(), false);
+    }
+
+    /**
+     * @dev Loop through all the registered tokens, if they are capable of admin withdrawal, see if it's active. If so, revert
+     * @dev ruleBypassAccount is the only RBAC Role subjected to this rule as this role bypasses all other rules. 
+     */
+    function checkForAdminWithdrawal() internal {
+        for (uint256 i; i < tokenList.length; ) {
+            // check to see if supports the rule first
+            if (ProtocolTokenCommon(tokenList[i]).getHandlerAddress().supportsInterface(type(IAdminWithdrawalRuleCapable).interfaceId)) {
+                if (IAdminWithdrawalRuleCapable(ProtocolTokenCommon(tokenList[i]).getHandlerAddress()).isAdminWithdrawalActiveAndApplicable()) {
+                    revert AdminWithdrawalRuleisActive();
+                }
+            }
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /// -------------ACCESS TIER---------------
@@ -302,7 +346,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the access tier role. Restricted to app administrators.
      * @param account address to be added as a access tier
      */
-    function addAccessTier(address account) external onlyRole(APP_ADMIN_ROLE) {
+    function addAccessTier(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(ACCESS_TIER_ADMIN_ROLE, account);
         emit AccessTierAdmin(account, true);
@@ -314,8 +358,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleAccessTier(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            super.grantRole(ACCESS_TIER_ADMIN_ROLE, account[i]);
-            emit AccessTierAdmin(account[i], true);
+            addAccessTier(account[i]);
             unchecked {
                 ++i;
             }
@@ -345,7 +388,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Add an account to the risk admin role. Restricted to app administrators.
      * @param account address to be added
      */
-    function addRiskAdmin(address account) external onlyRole(APP_ADMIN_ROLE) {
+    function addRiskAdmin(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RISK_ADMIN_ROLE, account);
         emit RiskAdmin(account, true);
@@ -357,8 +400,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
-            super.grantRole(RISK_ADMIN_ROLE, account[i]);
-            emit RiskAdmin(account[i], true);
+            addRiskAdmin(account[i]);
             unchecked {
                 ++i;
             }
@@ -380,7 +422,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _account address upon which to apply the Access Level
      * @param _level Access Level to add
      */
-    function addAccessLevel(address _account, uint8 _level) external onlyRole(ACCESS_TIER_ADMIN_ROLE) {
+    function addAccessLevel(address _account, uint8 _level) public onlyRole(ACCESS_TIER_ADMIN_ROLE) {
         accessLevels.addLevel(_account, _level);
     }
 
@@ -424,7 +466,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _account address upon which to apply the Risk Score
      * @param _score Risk Score(0-100)
      */
-    function addRiskScore(address _account, uint8 _score) external onlyRole(RISK_ADMIN_ROLE) {
+    function addRiskScore(address _account, uint8 _score) public onlyRole(RISK_ADMIN_ROLE) {
         riskScores.addScore(_account, _score);
     }
 

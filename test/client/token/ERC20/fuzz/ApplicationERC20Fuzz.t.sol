@@ -453,15 +453,19 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
 
         /// create secondary token, mint, and transfer to user
         switchToAppAdministrator();
+
         ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
         applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(draculaCoin), false);
         draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
         applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         applicationAppManager.registerToken("DRAC", address(draculaCoin));
-        draculaCoin.mint(appAdministrator, type(uint256).max);
+        switchToRuleBypassAccount();
+        draculaCoin.mint(ruleBypassAccount, type(uint256).max);
+
         draculaCoin.transfer(_user1, type(uint256).max);
         assertEq(draculaCoin.balanceOf(_user1), type(uint256).max);
+        switchToAppAdministrator(); 
         erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * (10 ** 18));
         // set the access levellevel for the user4
@@ -485,7 +489,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
 
     function testAdminWithdrawalERC20Fuzz(uint256 amount, uint32 secondsForward) public {
         /// we load the admin with tokens
-        applicationCoin.mint(appAdministrator, type(uint256).max);
+        applicationCoin.mint(ruleBypassAccount, type(uint256).max);
         /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
@@ -499,7 +503,10 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         applicationCoinHandler.setAdminWithdrawalRuleId(_index);
         switchToAppAdministrator();
         vm.warp(block.timestamp + secondsForward);
+        switchToRuleBypassAccount();
+
         if (secondsForward < 365 days && type(uint256).max - amount < 1_000_000 * (10 ** 18)) vm.expectRevert();
+
         applicationCoin.transfer(user1, amount);
         switchToRuleAdmin();
         /// if last rule is expired, we should be able to turn off and update the rule
@@ -776,7 +783,8 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         /// mint initial supply
         uint256 initialSupply = 100_000 * (10 ** 18);
         uint256 volume = uint256(volLimit) * 10;
-        applicationCoin.mint(appAdministrator, initialSupply);
+        applicationCoin.mint(appAdministrator, initialSupply); 
+        applicationAppManager.addRuleBypassAccount(appAdministrator);
         /// create and activate rule
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volLimit, rulePeriod, startingTime, tokenSupply);
