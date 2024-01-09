@@ -11,6 +11,7 @@ import "src/protocol/economic/AppAdministratorOnly.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "src/client/application/IAppManagerUser.sol";
 import "src/client/token/IAdminWithdrawalRuleCapable.sol";
+import "src/client/token/HandlerTypeEnum.sol";
 
 /**
  * @title Protocol Handler Common

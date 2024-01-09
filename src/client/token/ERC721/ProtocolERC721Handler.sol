@@ -108,7 +108,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromAdmin && !isToAdmin) {
             if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
-            appManager.checkApplicationRules(_action, _from, _to, _amount, nftValuationLimit, _tokenId);
+            appManager.checkApplicationRules(_action, address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, HandlerTypes.ERC721HANDLER);
             _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);

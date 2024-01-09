@@ -12,6 +12,7 @@ import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "src/client/application/AppManager.sol";
 import "src/common/IProtocolERC721Pricing.sol";
 import "src/common/IProtocolERC20Pricing.sol";
+import "src/client/token/HandlerTypeEnum.sol";
 import {IApplicationHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
 import {IZeroAddressError, IInputErrors, IAppHandlerErrors} from "src/common/IErrors.sol";
 
@@ -72,58 +73,69 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev checks if any of the balance prerequisite rules are active
-     * @return true if one or more rules are active TODO REMOVE THIS CHECK 
+     * @dev checks if any of the Application level rules are active
+     * @return true if one or more rules are active  
      */
-    function requireValuations() public view returns (bool) {
-        return accountBalanceByRiskRuleActive || accountBalanceByAccessLevelRuleActive || maxTxSizePerPeriodByRiskActive || withdrawalLimitByAccessLevelRuleActive;
+    function requireApplicationRulesChecked() public view returns (bool) {
+        return pauseRuleActive ||
+               accountBalanceByRiskRuleActive || transactionLimitByRiskRuleActive || maxTxSizePerPeriodByRiskActive || 
+               accountBalanceByAccessLevelRuleActive || withdrawalLimitByAccessLevelRuleActive || AccessLevel0RuleActive;
     }
 
     /**
      * @dev Check Application Rules for valid transaction.
      * @param _action Action to be checked. This param is intentially added for future enhancements.
+     * @param _tokenAddress address of the token calling the rule check 
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount amount of tokens to be transferred 
      * @param _nftValuationLimit number of tokenID's per collection before checking collection price vs individual token price
      * @param _tokenId tokenId of the NFT token
+     * @param _handlerType the type of handler, used to direct to correct token pricing
      * @return success Returns true if allowed, false if not allowed
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId) external onlyOwner returns (bool) {
+    function checkApplicationRules(ActionTypes _action, address _tokenAddress, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId, HandlerTypes _handlerType) external onlyOwner returns (bool) {
         _action;
+        uint128 balanceValuation;
+        uint128 price;
+        uint128 transferValuation;
         if (pauseRuleActive) ruleProcessor.checkPauseRules(appManagerAddress);
-        if (requireValuations()) {
-            /// retrieve pricing valuations for account
-            uint128 balanceValuation = uint128(getAccTotalValuation(_to, _nftValuationLimit));
-            uint128 price = uint128(_getERC20Price(msg.sender));
-            uint128 transferValuation = uint128((price * _amount) / (10 ** IToken(msg.sender).decimals()));
-            if (accountBalanceByAccessLevelRuleActive || AccessLevel0RuleActive || withdrawalLimitByAccessLevelRuleActive) {
-                _checkAccessLevelRules(_from, _to, balanceValuation, transferValuation);
-            }
-            if (accountBalanceByRiskRuleActive || maxTxSizePerPeriodByRiskActive) {
-                _checkRiskRules(_from, _to, balanceValuation, transferValuation, _tokenId);
-            }
+        /// Based on the Handler Type set retrieve pricing valuations 
+        if (_handlerType == HandlerTypes.ERC20HANDLER) {
+            balanceValuation = uint128(getAccTotalValuation(_to, 0));
+            price = uint128(_getERC20Price(_tokenAddress));
+            transferValuation = uint128((price * _amount) / (10 ** IToken(_tokenAddress).decimals()));
+        } 
+        if (_handlerType == HandlerTypes.ERC721HANDLER) {
+            balanceValuation = uint128(getAccTotalValuation(_to, _nftValuationLimit));
+            transferValuation = uint128(nftPricer.getNFTPrice(_tokenAddress, _tokenId));
+        }
+        if (accountBalanceByAccessLevelRuleActive || AccessLevel0RuleActive || withdrawalLimitByAccessLevelRuleActive) {
+            _checkAccessLevelRules(_from, _to, balanceValuation, transferValuation);
+        }
+        if (accountBalanceByRiskRuleActive || maxTxSizePerPeriodByRiskActive || transactionLimitByRiskRuleActive) {
+            _checkRiskRules(_from, _to, balanceValuation, transferValuation);
         }
         return true;
     }
 
     /**
-     * @dev This function consolidates all the Risk rules that utilize application level Risk rules.
+     * @dev This function consolidates all the Risk rules that utilize application level Risk rules. 
      * @param _from address of the from account
      * @param _to address of the to account
-     * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
-     * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
+     * @param _balanceValuation recepient address current total application valuation in USD with 18 decimals of precision
+     * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
      */
-    function _checkRiskRules(address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring, uint256 tokenId) internal {
+    function _checkRiskRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation) internal {
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         if (accountBalanceByRiskRuleActive) {
-            ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, _to, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
+            ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
         }
         if (transactionLimitByRiskRuleActive) {
-            uint256 thisNFTValuation = nftPricer.getNFTPrice(msg.sender, tokenId);
+            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _transferValuation);
             if (_to != address(0)) {
-                ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, thisNFTValuation);
+                ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _transferValuation);
             }
         }
         if (maxTxSizePerPeriodByRiskActive) {
@@ -132,7 +144,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
             usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
                 maxTxSizePerPeriodByRiskRuleId,
                 usdValueTransactedInRiskPeriod[_from],
-                _usdAmountTransferring,
+                _transferValuation,
                 lastTxDateRiskRule[_from],
                 riskScoreFrom
             );
@@ -142,7 +154,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
                 usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
                     maxTxSizePerPeriodByRiskRuleId,
                     usdValueTransactedInRiskPeriod[_to],
-                    _usdAmountTransferring,
+                    _transferValuation,
                     lastTxDateRiskRule[_to],
                     riskScoreTo
                 );
@@ -155,10 +167,10 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     /**
      * @dev This function consolidates all the application level AccessLevel rules.
      * @param _to address of the to account
-     * @param _usdBalanceValuation address current balance in USD
-     * @param _usdAmountTransferring number of tokens transferred
+     * @param _balanceValuation recepient address current total application valuation in USD with 18 decimals of precision
+     * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
      */
-    function _checkAccessLevelRules(address _from, address _to, uint128 _usdBalanceValuation, uint128 _usdAmountTransferring) internal {
+    function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
         /// Check if sender is not AMM and then check sender access level
@@ -167,9 +179,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccessLevel0Passes(score);
         /// Check that the recipient is not address(0). If it is we do not check this rule as it is a burn.
         if (accountBalanceByAccessLevelRuleActive && _to != address(0))
-            ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _usdBalanceValuation, _usdAmountTransferring);
+            ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _balanceValuation, _transferValuation);
         if (withdrawalLimitByAccessLevelRuleActive) {
-            usdValueTotalWithrawals[_from] = ruleProcessor.checkwithdrawalLimitsByAccessLevel(withdrawalLimitByAccessLevelRuleId, fromScore, usdValueTotalWithrawals[_from], _usdAmountTransferring);
+            usdValueTotalWithrawals[_from] = ruleProcessor.checkwithdrawalLimitsByAccessLevel(withdrawalLimitByAccessLevelRuleId, fromScore, usdValueTotalWithrawals[_from], _transferValuation);
         }
     }
 

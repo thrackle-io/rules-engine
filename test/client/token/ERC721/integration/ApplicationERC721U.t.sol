@@ -906,8 +906,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationNFTExtra2 = new ApplicationERC721UExtra2();
         applicationNFTProxy.upgradeTo(address(applicationNFTExtra2));
 
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToAppAdministrator();
         ///deploy new modified appliction asset handler contract
         ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), true);
         ///connect to apptoken
@@ -915,9 +914,10 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         /// in order to handle upgrades and handler registrations, deregister and re-register with new
         applicationAppManager.deregisterToken("THRK");
         applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
-
+        switchToRuleAdmin();
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
+        switchToAppAdministrator();
         // check to make sure the storage level variables defined after the memory slot are still fine.
         assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable1(), 14);
         assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable2(), "awesome");
