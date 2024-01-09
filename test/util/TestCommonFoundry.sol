@@ -498,6 +498,15 @@ abstract contract TestCommonFoundry is TestCommon {
         vm.startPrank(accessLevelAdmin); //interact as the created AccessLevel admin
     }
 
+    function switchToRuleBypassAccount() public {
+        switchToAppAdministrator(); 
+
+        applicationAppManager.addRuleBypassAccount(ruleBypassAccount);
+
+        vm.stopPrank();
+        vm.startPrank(ruleBypassAccount);
+    }
+
     function switchToRiskAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
 

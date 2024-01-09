@@ -573,13 +573,9 @@ contract ApplicationERC721Test is TestCommonFoundry {
 
     function testAdminWithdrawal() public {
         /// Mint TokenId 0-6 to super admin
-        applicationNFT.safeMint(appAdministrator);
-        applicationNFT.safeMint(appAdministrator);
-        applicationNFT.safeMint(appAdministrator);
-        applicationNFT.safeMint(appAdministrator);
-        applicationNFT.safeMint(appAdministrator);
-        applicationNFT.safeMint(appAdministrator);
-        applicationNFT.safeMint(appAdministrator);
+        for (uint i; i < 7; i++ ) {
+            applicationNFT.safeMint(ruleBypassAccount);
+        }
         /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
@@ -593,19 +589,19 @@ contract ApplicationERC721Test is TestCommonFoundry {
         applicationNFTHandler.activateAdminWithdrawalRule(false);
         vm.expectRevert();
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
-        switchToAppAdministrator();
+        switchToRuleBypassAccount();
         /// These transfers should pass
-        applicationNFT.safeTransferFrom(appAdministrator, user1, 0);
-        applicationNFT.safeTransferFrom(appAdministrator, user1, 1);
+        applicationNFT.safeTransferFrom(ruleBypassAccount, user1, 0);
+        applicationNFT.safeTransferFrom(ruleBypassAccount, user1, 1);
         /// This one fails
         vm.expectRevert();
-        applicationNFT.safeTransferFrom(appAdministrator, user1, 2);
+        applicationNFT.safeTransferFrom(ruleBypassAccount, user1, 2);
 
         /// Move Time forward 366 days
         vm.warp(Blocktime + 366 days);
 
         /// Transfers and updating rules should now pass
-        applicationNFT.safeTransferFrom(appAdministrator, user1, 2);
+        applicationNFT.safeTransferFrom(ruleBypassAccount, user1, 2);
         switchToRuleAdmin();
         applicationNFTHandler.activateAdminWithdrawalRule(false);
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
@@ -805,6 +801,10 @@ contract ApplicationERC721Test is TestCommonFoundry {
         vm.startPrank(user2);
         applicationNFT.transferFrom(user2, user1, 1);
 
+        /// switch to rule admin to deactive rule for set up 
+        switchToRuleAdmin();
+        applicationHandler.activateAccountBalanceByAccessLevelRule(false);
+
         switchToAppAdministrator();
         /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
         ApplicationERC721 _applicationNFT2 = new ApplicationERC721("ToughTurtles", "THTR", address(applicationAppManager), "https://SampleApp.io");
@@ -816,6 +816,7 @@ contract ApplicationERC721Test is TestCommonFoundry {
         ///Pricing Contracts
         _applicationNFTHandler2.setNFTPricingAddress(address(erc721Pricer));
         _applicationNFTHandler2.setERC20PricingAddress(address(erc20Pricer));
+ 
         for (uint i = 0; i < 40; i++) {
             _applicationNFT2.safeMint(appAdministrator);
             _applicationNFT2.transferFrom(appAdministrator, user1, i);
@@ -831,6 +832,10 @@ contract ApplicationERC721Test is TestCommonFoundry {
         erc721Pricer.setSingleNFTPrice(address(_applicationNFT2), 37, 50 * (10 ** 18));
         erc721Pricer.setSingleNFTPrice(address(_applicationNFT2), 40, 25 * (10 ** 18));
         erc721Pricer.setNFTCollectionPrice(address(_applicationNFT2), 1 * (10 ** 18));
+
+        ///reactivate rule 
+        switchToRuleAdmin();
+        applicationHandler.activateAccountBalanceByAccessLevelRule(true); 
         /// calc expected valuation for user based on tokens * collection price
         /** 
         expected calculated total should be $50 USD since we take total number of tokens owned * collection price 

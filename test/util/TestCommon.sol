@@ -91,6 +91,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     // common addresses
     address superAdmin = address(0xDaBEEF);
     address appAdministrator = address(0xDEAD);
+    address ruleBypassAccount = address(0xAAA);
     address ruleAdmin = address(0xACDC);
     address accessLevelAdmin = address(0xBBB);
     address riskAdmin = address(0xCCC);
@@ -190,6 +191,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     address[] addresses = [user1, user2, user3, rich_user];
 
     bytes32 public constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
+    bytes32 public constant RULE_BYPASS_ACCOUNT = keccak256("RULE_BYPASS_ACCOUNT");
     bytes32 public constant USER_ROLE = keccak256("USER");
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
     bytes32 public constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
