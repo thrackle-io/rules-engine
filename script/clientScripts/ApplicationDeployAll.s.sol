@@ -67,13 +67,10 @@ contract ApplicationDeployAllScript is Script {
         exchange.setSingleTokenPrice(address(coin2), 1 * (10 ** 18));
         openOcean.setNFTCollectionPrice(address(nft1), 5 * (10 ** 18));
         
-        /// Link the pricing module to the Franks ApplicationERC20Handler
-        applicationCoinHandler.setERC20PricingAddress(address(exchange));
-        applicationCoinHandler.setNFTPricingAddress(address(openOcean));
-        applicationCoinHandler2.setERC20PricingAddress(address(exchange));
-        applicationCoinHandler2.setNFTPricingAddress(address(openOcean));
-        applicationNFTHandler.setERC20PricingAddress(address(exchange));
-        applicationNFTHandler.setNFTPricingAddress(address(openOcean));
+        /// Link the pricing module to the Application Handler
+        applicationHandler.setERC20PricingAddress(address(exchange));
+        applicationHandler.setNFTPricingAddress(address(openOcean));
+
         
 
         /// register the coin treasury

@@ -18,19 +18,6 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
  */
 contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministratorOnly, RuleAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
     using ERC165Checker for address;
-    /**
-     * Functions added so far:
-     * minTransfer
-     * MinMaxbalance
-     * oracle
-     * Balance by AccessLevel
-     * Balance Limit by Risk
-     * Transaction Limit by Risk
-     * AccessLevel Account balance
-     * Risk Score Transaction Limit
-     * Risk Score Account Balance Limit
-     */
-    string private riskScoreTokenId;
 
     /// Data contracts
     Fees fees;
@@ -40,7 +27,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     uint32 private minTransferRuleId;
     uint32 private oracleRuleId;
     uint32 private minMaxBalanceRuleId;
-    uint32 private transactionLimitByRiskRuleId;
     uint32 private adminWithdrawalRuleId;
     uint32 private minBalByDateRuleId;
     uint32 private tokenTransferVolumeRuleId;
@@ -50,7 +36,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     bool private minTransferRuleActive;
     bool private oracleRuleActive;
     bool private minMaxBalanceRuleActive;
-    bool private transactionLimitByRiskRuleActive;
     bool private adminWithdrawalActive;
     bool private minBalByDateRuleActive;
     bool private tokenTransferVolumeRuleActive;
@@ -111,8 +96,8 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         if (!appManager.isTreasury(_to)) {
             /// standard rules do not apply when either to or from is an admin
             if (!isFromAdmin && !isToAdmin) {
-                /// appManager requires uint16 _nftValuationLimit for NFT pricing, 0 is passed for fungible token pricing
-                appManager.checkApplicationRules(_action, _from, _to, amount,  0); 
+                /// appManager requires uint16 _nftValuationLimit and uin256 _tokenId for NFT pricing, 0 is passed for fungible token pricing
+                appManager.checkApplicationRules(_action, _from, _to, amount,  0, 0); 
                 _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
                 _checkNonTaggedRules(_from, _to, amount);
             } else {
@@ -160,12 +145,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      */
     function _checkTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount) internal view {
         _checkTaggedIndividualRules(_from, _to, _balanceFrom, _balanceTo, _amount);
-        /// we only ask for price if we need it since this might cause the contract to require setting the pricing contracts when there is no need
-        if (transactionLimitByRiskRuleActive) {
-            uint256 price = _getERC20Price(msg.sender);
-            uint256 transferValuation = (price * _amount) / (10 ** IToken(msg.sender).decimals());
-            _checkRiskRules(_from, _to, transferValuation);
-        }
     }
 
     /**
@@ -183,23 +162,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
             bytes32[] memory fromTags = appManager.getAllTags(_from);
             if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
             if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
-        }
-    }
-
-    /**
-     * @dev This function consolidates all the Risk rules that utilize tagged account Risk scores.
-     * @param _from address of the from account
-     * @param _to address of the to account
-     * @param _transferValuation valuation of all tokens owned by the address in USD
-     */
-    function _checkRiskRules(address _from, address _to, uint256 _transferValuation) internal view {
-        uint8 riskScoreTo = appManager.getRiskScore(_to);
-        uint8 riskScoreFrom = appManager.getRiskScore(_from);
-        if (transactionLimitByRiskRuleActive) {
-            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _transferValuation);
-            if (_to != address(0)) {
-                ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _transferValuation);
-            }
         }
     }
 
@@ -447,46 +409,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         return oracleRuleActive;
     }
 
-    /**
-     * @dev Retrieve the transaction limit by risk rule id
-     * @return transactionLimitByRiskRuleActive rule id
-     */
-    function getTransactionLimitByRiskRule() external view returns (uint32) {
-        return transactionLimitByRiskRuleId;
-    }
-
-    /**
-     * @dev Set the TransactionLimitByRiskRule. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateTransactionLimitByRiskScore(_ruleId);
-        transactionLimitByRiskRuleId = _ruleId;
-        transactionLimitByRiskRuleActive = true;
-        emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, address(this), _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
-     */
-    function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        transactionLimitByRiskRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(TX_SIZE_BY_RISK, address(this));
-        } else {
-            emit ApplicationHandlerDeactivated(TX_SIZE_BY_RISK, address(this));
-        }
-    }
-
-    /**
-     * @dev Tells you if the transactionLimitByRiskRule is active or not.
-     * @return boolean representing if the rule is active
-     */
-    function isTransactionLimitByRiskActive() external view returns (bool) {
-        return transactionLimitByRiskRuleActive;
-    }
 
     /**
      * @dev Set the AdminWithdrawalRule. Restricted to app administrators only.

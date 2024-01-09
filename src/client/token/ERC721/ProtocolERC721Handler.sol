@@ -3,6 +3,11 @@ pragma solidity ^0.8.17;
 
 /// TODO Create a wizard that creates custom versions of this contract for each implementation.
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "../ProtocolHandlerCommon.sol";
+
 /**
  * @title Base NFT Handler Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -10,20 +15,9 @@ pragma solidity ^0.8.17;
  *      Any rule handlers may be updated by modifying this contract, redeploying, and pointing the ERC721 to the new version.
  * @notice This contract is the interaction point for the application ecosystem to the protocol
  */
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "../ProtocolHandlerCommon.sol";
 
 contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
-    /**
-     * Functions added so far:
-     * minAccountBalance
-     * Min Max Balance
-     * Oracle
-     * Trade Counter
-     * Balance By AccessLevel
-     */
+
     address public erc721Address;
     /// RuleIds for implemented tagged rules of the ERC721
     uint32 private minMaxBalanceRuleId;
@@ -31,7 +25,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     uint32 private minAccountRuleId;
     uint32 private oracleRuleId;
     uint32 private tradeCounterRuleId;
-    uint32 private transactionLimitByRiskRuleId;
     uint32 private adminWithdrawalRuleId;
     uint32 private tokenTransferVolumeRuleId;
     uint32 private totalSupplyVolatilityRuleId;
@@ -39,7 +32,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     bool private oracleRuleActive;
     bool private minMaxBalanceRuleActive;
     bool private tradeCounterRuleActive;
-    bool private transactionLimitByRiskRuleActive;
     bool private minBalByDateRuleActive;
     bool private adminWithdrawalActive;
     bool private tokenTransferVolumeRuleActive;
@@ -116,8 +108,8 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromAdmin && !isToAdmin) {
             if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
-            appManager.checkApplicationRules(_action, _from, _to, amount, nftValuationLimit);
-            _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
+            appManager.checkApplicationRules(_action, _from, _to, _amount, nftValuationLimit, _tokenId);
+            _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
         } else {
@@ -170,17 +162,12 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @param _to address of the to account
      * @param _amount number of tokens transferred
      */
-    function _checkTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 tokenId) internal view {
+    function _checkTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount) internal view {
         _checkTaggedIndividualRules(_from, _to, _balanceFrom, _balanceTo, _amount);
-        if (transactionLimitByRiskRuleActive) {
-            /// If more rules need these values, then this can be moved above.
-            uint256 thisNFTValuation = nftPricer.getNFTPrice(msg.sender, tokenId);
-            _checkRiskRules(_from, _to, thisNFTValuation);
-        }
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged non-risk rule checks.
+     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _balanceFrom token balance of sender address
@@ -197,24 +184,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         }
     }
 
-    /**
-     * @dev This function uses the protocol's ruleProcessor to perform the risk rule checks.(Ones that require risk score values)
-     * @param _from address of the from account
-     * @param _to address of the to account
-     * @param _thisNFTValuation valuation of NFT in question
-     */
-    function _checkRiskRules(address _from, address _to, uint256 _thisNFTValuation) internal view {
-        uint8 riskScoreTo = appManager.getRiskScore(_to);
-        uint8 riskScoreFrom = appManager.getRiskScore(_from);
-        /// if rule is active check if the recipient is address(0) for burning tokens
-        if (transactionLimitByRiskRuleActive) {
-            /// if recipient is not address(0) check sender and recipient risk scores to ensure transaction limit is within rule limits
-            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _thisNFTValuation);
-            if (_to != address(0)) {
-                ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _thisNFTValuation);
-            }
-        }
-    }
 
     /**
      * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
@@ -355,47 +324,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         if (_address == address(0)) revert ZeroAddress();
         erc721Address = _address;
         emit ERC721AddressSet(_address);
-    }
-
-    /**
-     * @dev Retrieve the oracle rule id
-     * @return transactionLimitByRiskRuleActive rule id
-     */
-    function getTransactionLimitByRiskRule() external view returns (uint32) {
-        return transactionLimitByRiskRuleId;
-    }
-
-    /**
-     * @dev Set the TransactionLimitByRiskRule. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateTransactionLimitByRiskScore(_ruleId);
-        transactionLimitByRiskRuleId = _ruleId;
-        transactionLimitByRiskRuleActive = true;
-        emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, address(this), _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
-     */
-    function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        transactionLimitByRiskRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(TX_SIZE_BY_RISK, address(this));
-        } else {
-            emit ApplicationHandlerDeactivated(TX_SIZE_BY_RISK, address(this));
-        }
-    }
-
-    /**
-     * @dev Tells you if the transactionLimitByRiskRule is active or not.
-     * @return boolean representing if the rule is active
-     */
-    function isTransactionLimitByRiskActive() external view returns (bool) {
-        return transactionLimitByRiskRuleActive;
     }
 
     /**
@@ -623,7 +551,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @dev Set the NFT Valuation limit that will check collection price vs looping through each tokenId in collections
      * @param _newNFTValuationLimit set the number of NFTs in a wallet that will check for collection price vs individual token prices
      */
-    function setNFTValuationLimit(uint256 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(appManagerAddress) {
+    function setNFTValuationLimit(uint16 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(appManagerAddress) {
         nftValuationLimit = _newNFTValuationLimit;
         emit NFTValuationLimitUpdated(_newNFTValuationLimit, address(this));
     }

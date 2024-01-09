@@ -144,16 +144,12 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
      * @param _action Action to be checked
      * @param _from address of the from account
      * @param _to address of the to account
-     * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
-     * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
+     * @param _amount amount of tokens to be transferred 
+     * @param _nftValuationLimit number of tokenID's per collection before checking collection price vs individual token price
+     * @param _tokenId tokenId of the NFT token 
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external;
+    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId) external;
 
-    /**
-     * @dev checks if any of the balance prerequisite rules are active
-     * @return true if one or more rules are active
-     */
-    function requireValuations() external returns (bool);
 
     /**
      * @dev Part of the two step process to set a new Data Provider within a Protocol AppManager. Final confirmation called by new provider

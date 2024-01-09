@@ -329,7 +329,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
         ///Activate rule
-        applicationCoinHandler.setTransactionLimitByRiskRuleId(ruleId);
+        applicationHandler.setTransactionLimitByRiskRuleId(ruleId);
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, risk);
@@ -456,7 +456,6 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
         applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(draculaCoin), false);
         draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
-        applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         applicationAppManager.registerToken("DRAC", address(draculaCoin));
         draculaCoin.mint(appAdministrator, type(uint256).max);

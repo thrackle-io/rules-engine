@@ -27,12 +27,14 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     address public appManagerAddress;
     IRuleProcessor immutable ruleProcessor;
 
-    /// Application level Rule Ids
+    /// Risk Rule Ids
     uint32 private accountBalanceByRiskRuleId;
     uint32 private maxTxSizePerPeriodByRiskRuleId;
-    /// Application level Rule on-off switches
+    uint32 private transactionLimitByRiskRuleId;
+    /// Risk Rule on-off switches
     bool private accountBalanceByRiskRuleActive;
     bool private maxTxSizePerPeriodByRiskActive;
+    bool private transactionLimitByRiskRuleActive;
     /// AccessLevel Rule Ids
     uint32 private accountBalanceByAccessLevelRuleId;
     uint32 private withdrawalLimitByAccessLevelRuleId;
@@ -84,9 +86,10 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @param _to address of the to account
      * @param _amount amount of tokens to be transferred 
      * @param _nftValuationLimit number of tokenID's per collection before checking collection price vs individual token price
+     * @param _tokenId tokenId of the NFT token
      * @return success Returns true if allowed, false if not allowed
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit) external onlyOwner returns (bool) {
+    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId) external onlyOwner returns (bool) {
         _action;
         if (pauseRuleActive) ruleProcessor.checkPauseRules(appManagerAddress);
         if (requireValuations()) {
@@ -98,7 +101,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
                 _checkAccessLevelRules(_from, _to, balanceValuation, transferValuation);
             }
             if (accountBalanceByRiskRuleActive || maxTxSizePerPeriodByRiskActive) {
-                _checkRiskRules(_from, _to, balanceValuation, transferValuation);
+                _checkRiskRules(_from, _to, balanceValuation, transferValuation, _tokenId);
             }
         }
         return true;
@@ -111,11 +114,17 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      */
-    function _checkRiskRules(address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) internal {
+    function _checkRiskRules(address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring, uint256 tokenId) internal {
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         if (accountBalanceByRiskRuleActive) {
             ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, _to, riskScoreTo, _usdBalanceTo, _usdAmountTransferring);
+        }
+        if (transactionLimitByRiskRuleActive) {
+            uint256 thisNFTValuation = nftPricer.getNFTPrice(msg.sender, tokenId);
+            if (_to != address(0)) {
+                ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, thisNFTValuation);
+            }
         }
         if (maxTxSizePerPeriodByRiskActive) {
             /// if rule is active check if the recipient is address(0) for burning tokens
@@ -459,6 +468,47 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function isMaxTxSizePerPeriodByRiskActive() external view returns (bool) {
         return maxTxSizePerPeriodByRiskActive;
+    }
+
+    /**
+     * @dev Retrieve the transaction limit by risk rule id
+     * @return transactionLimitByRiskRuleActive rule id
+     */
+    function getTransactionLimitByRiskRule() external view returns (uint32) {
+        return transactionLimitByRiskRuleId;
+    }
+
+    /**
+     * @dev Set the TransactionLimitByRiskRule. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _ruleId Rule Id to set
+     */
+    function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateTransactionLimitByRiskScore(_ruleId);
+        transactionLimitByRiskRuleId = _ruleId;
+        transactionLimitByRiskRuleActive = true;
+        emit ApplicationRuleApplied(TX_SIZE_BY_RISK, _ruleId);
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        transactionLimitByRiskRuleActive = _on;
+        if (_on) {
+            emit ApplicationHandlerActivated(TX_SIZE_BY_RISK, address(this));
+        } else {
+            emit ApplicationHandlerDeactivated(TX_SIZE_BY_RISK, address(this));
+        }
+    }
+
+    /**
+     * @dev Tells you if the transactionLimitByRiskRule is active or not.
+     * @return boolean representing if the rule is active
+     */
+    function isTransactionLimitByRiskActive() external view returns (bool) {
+        return transactionLimitByRiskRuleActive;
     }
 
     /**

@@ -296,7 +296,6 @@ contract ApplicationERC20Test is TestCommonFoundry {
         switchToAppAdministrator();
         applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(draculaCoin), false);
         draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
-        applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         applicationAppManager.registerToken("DRAC", address(draculaCoin));
         draculaCoin.mint(appAdministrator, 10000000000000000000000 * (10 ** 18));
@@ -423,7 +422,7 @@ contract ApplicationERC20Test is TestCommonFoundry {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
         switchToRuleAdmin();
-        applicationCoinHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
         vm.startPrank(user2);

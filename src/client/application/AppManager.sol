@@ -672,10 +672,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _to address of the to account
      * @param _amount number of tokens to be transferred 
      * @param _nftValuationLimit number of tokenID's per collection before checking collection price vs individual token price
+     * @param _tokenId tokenId of the NFT token
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit) external onlyHandler {
+    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId) external onlyHandler {
         if (applicationHandler.requireValuations()) {    
-            applicationHandler.checkApplicationRules(_action, _from, _to, _amount, _nftValuationLimit);
+            applicationHandler.checkApplicationRules(_action, _from, _to, _amount, _nftValuationLimit, _tokenId);
         }
     }
 

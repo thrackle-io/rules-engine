@@ -355,7 +355,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        applicationNFTHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
 
         ///Set Risk Scores for users
         switchToRiskAdmin();
@@ -678,9 +678,6 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationAppManager.deregisterToken("THRK");
         applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
-        assetHandler.setNFTPricingAddress(address(erc721Pricer));
-        assetHandler.setERC20PricingAddress(address(erc20Pricer));
-
         ///Set transaction limit rule params
         uint8[] memory riskScores = createUint8Array(1, 10, 40, 80, 99);
         uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
@@ -702,7 +699,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        assetHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
@@ -795,9 +792,6 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationAppManager.deregisterToken("THRK");
         applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
-        assetHandler.setNFTPricingAddress(address(erc721Pricer));
-        assetHandler.setERC20PricingAddress(address(erc20Pricer));
-
         ///Set transaction limit rule params
         uint8[] memory riskScores = createUint8Array(1, 10, 40, 80, 99);
         uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
@@ -819,7 +813,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        assetHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
@@ -903,9 +897,6 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         /// register the token
         applicationAppManager.registerToken("DRAC", address(applicationNFTProxy));
 
-        ///Pricing Contracts
-        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
-        applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
         // Set the extra variables
         ApplicationERC721UExtra(address(applicationNFTProxy)).setTestVariable1(14);
         ApplicationERC721UExtra(address(applicationNFTProxy)).setTestVariable2("awesome");
@@ -925,8 +916,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationAppManager.deregisterToken("THRK");
         applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
-        assetHandler.setNFTPricingAddress(address(erc721Pricer));
-        assetHandler.setERC20PricingAddress(address(erc20Pricer));
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
         // check to make sure the storage level variables defined after the memory slot are still fine.
         assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable1(), 14);
         assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable2(), "awesome");

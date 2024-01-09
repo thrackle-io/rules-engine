@@ -152,7 +152,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
         ///Activate rule
-        applicationCoinHandlerSpecialOwner.setTransactionLimitByRiskRuleId(ruleId);
+        applicationHandler.setTransactionLimitByRiskRuleId(ruleId);
         ///add txnLimit failing (risk level 100)
         uint48[] memory maxSize = createUint48Array(1000000, 10000, 10);
         uint8[] memory riskLevel = createUint8Array(25, 75, 100);
@@ -388,9 +388,5 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         vm.expectRevert();
         new ApplicationERC20Handler(address(ruleProcessor), address(0x0), appAdministrator, false);
 
-        vm.expectRevert();
-        applicationCoinHandlerSpecialOwner.setNFTPricingAddress(address(0x00));
-        vm.expectRevert();
-        applicationCoinHandlerSpecialOwner.setERC20PricingAddress(address(0x00));
     }
 }
