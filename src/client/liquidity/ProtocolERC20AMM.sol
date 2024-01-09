@@ -150,6 +150,12 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
         emit Swap(address(token1), _amountIn, _amountOut);
     }
 
+    /**
+     * @dev Retrieve and handle all fees associated with the swap, then return the fee total for swap amount adjustment
+     * @param _swapper address of the swap initiator
+     * @param _tokenAddress address of the token in which fees will be assessed
+     * @param _amount token amount being swapped
+     */
     function processFees(address _swapper, address _tokenAddress, uint256 _amount) internal returns (uint256 fees) {
         if (handler.isFeeActive()) {
             address[] memory targetAccounts;
