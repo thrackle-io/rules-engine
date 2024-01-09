@@ -1059,7 +1059,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
     }
 
     function testERC721_PurchasePercentageRule() public {
-        /// we pick up from this test
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
@@ -1097,7 +1096,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
     }
 
     function testERC721_SellPercentageRule() public {
-        /// we pick up from this test
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
@@ -1133,25 +1131,26 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
     }
 
-    // function testAMMERC721DualLinearSellRule() public {
-    //      /// we pick up from this test
-    //     testAMMERC721DualLinearBuyAllNFTs();
-    //     /// set the rule
-    //     _setSellRule("SellRule", 1, 36); /// tag, maxNFtsPerPeriod, period
-    //     /// apply tag to user
-    //     switchToAppAdministrator();
-    //     applicationAppManager.addGeneralTag(user, "SellRule");
-    //     /// Swap that passes rule check
-    //     switchToUser();
-    //     applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
-    //     _sell(123);
-    //     /// Swap that fails
-    //     vm.expectRevert(0xc11d5f20);
-    //     _sell(124);
-    //     /// we wait until the next period so user can swap again
-    //     vm.warp(block.timestamp + 36 hours);
-    //     _sell(124);
-    // }
+    function testERC721_SellRule() public {
+        switchToAppAdministrator();
+        DummyNFTAMM amm = setupTradingRuleTests();
+        _fundThreeAccounts();
+        /// set the rule
+        _setSellRule("SellRule", 1, 36); /// tag, maxNFtsPerPeriod, period
+        /// apply tag to user
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user, "SellRule");
+        /// Swap that passes rule check
+        switchToUser();
+        applicationNFT.setApprovalForAll(address(amm), true);
+        _testSellNFT(erc721Liq / 2 + 1, amm);
+        /// Swap that fails
+        vm.expectRevert(0xc11d5f20);
+        _testSellNFT(erc721Liq / 2 + 2, amm);
+        /// we wait until the next period so user can swap again
+        vm.warp(block.timestamp + 36 hours);
+        _testSellNFT(erc721Liq / 2 + 2, amm);
+    }
 
     /// HELPER INTERNAL FUNCTIONS
 
