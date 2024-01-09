@@ -18,7 +18,7 @@ import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.s
  * @dev This script will set contract addresses needed by protocol interaction in connectAndSetUpAll()
  */
 
-contract DeployAllModulesScript is Script {
+contract DeployAllModulesPt2Script is Script {
     /// Store the FacetCut struct for each facet that is being deployed.
     /// NOTE: using storage array to easily "push" new FacetCut as we
     /// process the facets.
