@@ -33,7 +33,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         protocolAMMFactory = createProtocolAMMFactory();
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         dualLinearERC271AMM = ProtocolERC721AMM(protocolAMMFactory.createDualLinearERC721AMM(address(applicationCoin), address(applicationNFT), buy, sell, address(applicationAppManager)));
-        handler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(dualLinearERC271AMM));
+        handler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(dualLinearERC271AMM), false);
         dualLinearERC271AMM.connectHandlerToAMM(address(handler));
         applicationAMMHandler = ApplicationAMMHandler(dualLinearERC271AMM.getHandlerAddress());
         applicationAppManager.registerAMM(address(dualLinearERC271AMM));
@@ -191,29 +191,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         _sell(124);
     }
 
-    function testAMMERC721DualLinearFeeRule() public {
-        uint256 testFees = 300;
-        /// we pick up from this test
-        testAMMERC721DualLinearAddLiquidityBatch();
-        /// we add the rule.
-        _setFeeRule(testFees);
-        /// set the treasury address
-        switchToAppAdministrator();
-        dualLinearERC271AMM.setTreasuryAddress(treasuryAddress);
-        applicationCoin.transfer(user, 500_000_000_000 * ATTO);
-        /// we test
-        switchToUser();
-        /// Approve transfer
-        _approveTokens(5 * 10 ** 9 * ATTO, true);
-        /// we test buying all the NFTs with the testFees
-        for(uint i; i < erc721Liq; i++){
-            _testBuyNFT(i, testFees);
-        }
-        /// we test selling all the NFTs with the testFees
-        for(uint i; i < erc721Liq; i++){
-            _testSellNFT(i, testFees);
-        }
-    }
+    // 
     
     function testAMMERC721DualLinearOracleRule() public {
         /// we pick up from this test
@@ -262,7 +240,7 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
 
     function testAMMERC721DualLinearUpgradeHandler() public {
         /// Deploy the modified AMM Handler contract
-        ApplicationAMMHandlerMod assetHandler = new ApplicationAMMHandlerMod(address(applicationAppManager), address(ruleProcessor), address(dualLinearERC271AMM));
+        ApplicationAMMHandlerMod assetHandler = new ApplicationAMMHandlerMod(address(applicationAppManager), address(ruleProcessor), address(dualLinearERC271AMM), false);
        
         /// connect AMM to new Handler
         dualLinearERC271AMM.connectHandlerToAMM(address(assetHandler));
@@ -527,19 +505,19 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         applicationAMMHandler.setSellLimitRuleId(ruleId);
     }
 
-    function _setFeeRule(uint256 testFees) internal returns (uint32 ruleId){
-        switchToRuleAdmin();
-        /// make sure that no bogus fee percentage can get in
-        bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
-        vm.expectRevert(abi.encodeWithSelector(selector, 10001));
-        ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 10001);
-        vm.expectRevert(abi.encodeWithSelector(selector, 0));
-        ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 0);
-        /// now add the good rule
-        ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), testFees);
-        /// we update the rule id in the token
-        applicationAMMHandler.setAMMFeeRuleId(ruleId);
-    }
+    // function _setFeeRule(uint256 testFees) internal returns (uint32 ruleId){
+    //     switchToRuleAdmin();
+    //     /// make sure that no bogus fee percentage can get in
+    //     bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
+    //     vm.expectRevert(abi.encodeWithSelector(selector, 10001));
+    //     ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 10001);
+    //     vm.expectRevert(abi.encodeWithSelector(selector, 0));
+    //     ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 0);
+    //     /// now add the good rule
+    //     ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), testFees);
+    //     /// we update the rule id in the token
+    //     applicationAMMHandler.setAMMFeeRuleId(ruleId);
+    // }
 
     function _setSanctionOracleRule() internal returns(uint32 ruleId){
         switchToRuleAdmin();

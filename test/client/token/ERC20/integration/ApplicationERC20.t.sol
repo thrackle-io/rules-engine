@@ -773,6 +773,36 @@ contract ApplicationERC20Test is TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * (10 ** 18)); // treasury remains the same
     }
 
+    function testTransactionFeeTableCoinBlankTag() public {
+        applicationCoin.transfer(user4, 100000 * (10 ** 18));
+        uint256 minBalance = 10 * 10 ** 18;
+        uint256 maxBalance = 10000000 * 10 ** 18;
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        address targetAccount2 = user10;
+        // create a fee
+        switchToRuleAdmin();
+        applicationCoinHandler.addFee("", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        Fees.Fee memory fee = applicationCoinHandler.getFee("");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, applicationCoinHandler.getFeeTotal());
+        // make sure fees don't affect Application Administrators(even if tagged)
+        applicationCoin.transfer(user2, 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user2), 100 * (10 ** 18));
+
+        // now test the fee assessment
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works
+        applicationCoin.transfer(user3, 100 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user4), 99900 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 97 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * (10 ** 18));
+    }
+
     ///Test transferring coins with fees and discounts where the discounts are greater than the fees
     function testTransactionFeeTableDiscountsCoin() public {
         applicationCoin.transfer(user4, 100000 * (10 ** 18));

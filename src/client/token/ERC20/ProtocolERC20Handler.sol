@@ -274,9 +274,15 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      */
     function getApplicableFees(address _from, uint256 _balanceFrom) public view returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages) {
         Fees.Fee memory fee;
-        bytes32[] memory _fromTags = appManager.getAllTags(_from);
         int24 totalFeePercent;
         uint24 discount;
+        bytes32[] memory _fromTags;
+        // Only adjust the tags if a default fee exists in order to save gas
+        if (fees.getFee(BLANK_TAG).feePercentage != 0){
+            _fromTags = _getTagsWithDefault(_from);
+        } else {
+            _fromTags = appManager.getAllTags(_from);
+        }
         if (_fromTags.length != 0 && !appManager.isAppAdministrator(_from)) {
             uint feeCount;
             // size the dynamic arrays by maximum possible fees
@@ -286,7 +292,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
             for (uint i; i < _fromTags.length; ) {
                 fee = fees.getFee(_fromTags[i]);
                 // fee must be active and the initiating account must have an acceptable balance
-                if (fee.feePercentage != 0 && _balanceFrom < fee.maxBalance && _balanceFrom > fee.minBalance) {
+                if (fee.feePercentage != 0 && _balanceFrom < fee.maxBalance && _balanceFrom >= fee.minBalance) {
                     // if it's a discount, accumulate it for distribution among all applicable fees
                     if (fee.feePercentage < 0) {
                         discount = uint24((fee.feePercentage * -1)) + discount; // convert to uint
@@ -326,6 +332,26 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
             revert FeesAreGreaterThanTransactionAmount(_from);
         }
         return (feeCollectorAccounts, feePercentages);
+    }
+
+    /**
+     * @dev Get all tags for a user and append blank tag for the default fee to work
+     * @param _from originating address
+     * @return _tags adjusted tag list
+     */
+    function _getTagsWithDefault(address _from) internal view returns(bytes32[] memory _tags){
+        bytes32[] memory _fromTags = appManager.getAllTags(_from);
+        // create an array one element longer
+        _tags = new bytes32[](_fromTags.length+1);
+        // copy the array to larger one
+        for (uint i; i < _fromTags.length; ) {
+            _tags[i] = _fromTags[i];
+            unchecked {
+                ++i;
+            }
+        }
+        // append blank tag
+        _tags[_fromTags.length] = BLANK_TAG;
     }
 
     /// Rule Setters and Getters

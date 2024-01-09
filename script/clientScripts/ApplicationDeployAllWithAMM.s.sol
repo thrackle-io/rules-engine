@@ -54,7 +54,7 @@ contract ApplicationDeployAllScript is Script {
         ProtocolAMMFactory protocolAMMFactory = new ProtocolAMMFactory(address(new ProtocolAMMCalculatorFactory()));
         ProtocolERC20AMM amm = ProtocolERC20AMM(protocolAMMFactory.createLinearAMM(address(coin1), address(coin2), LinearInput(6000, 15 * 10 ** 17), address(applicationAppManager))); 
         /// create AMM handler
-        applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(amm));
+        applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(amm), false);
         /// connect AMM with its handler
         amm.connectHandlerToAMM(address(applicationAMMHandler));
         /// oracles
@@ -71,8 +71,6 @@ contract ApplicationDeployAllScript is Script {
         applicationAppManager.registerToken("Frankenstein Picture", address(nft1));
         /// Register the AMM's with the application's app manager
         applicationAppManager.registerAMM(address(amm));
-        /// Set the AMM treasury address account
-        amm.setTreasuryAddress(vm.envAddress("AMM_TREASURY"));
         /// Set the token's prices
         ApplicationERC721Pricing openOcean = new ApplicationERC721Pricing();
         ApplicationERC20Pricing exchange = new ApplicationERC20Pricing();

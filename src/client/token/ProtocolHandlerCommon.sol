@@ -34,6 +34,7 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
     address public erc20PricingAddress;
     address public nftPricingAddress;
     bytes32 ERC20_PRICER;
+    bytes32 constant BLANK_TAG = bytes32("");
 
     /**
      * @dev this function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process

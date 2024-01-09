@@ -16,8 +16,9 @@ contract ApplicationAMMHandlerMod is ProtocolAMMHandler {
      * @param _appManagerAddress App Manager Address
      * @param _tokenRuleRouterAddress Token Rule Router Proxy Address
      * @param _assetAddress address of the controlling asset
+     * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
-    constructor(address _appManagerAddress, address _tokenRuleRouterAddress, address _assetAddress) ProtocolAMMHandler(_appManagerAddress, _tokenRuleRouterAddress, _assetAddress) {}
+    constructor(address _appManagerAddress, address _tokenRuleRouterAddress, address _assetAddress, bool _upgradeMode) ProtocolAMMHandler(_appManagerAddress, _tokenRuleRouterAddress, _assetAddress, _upgradeMode) {}
 
     /**
      * This function is used for testing the upgradability of the Handler contract.

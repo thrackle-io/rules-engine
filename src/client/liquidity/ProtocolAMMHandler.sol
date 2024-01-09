@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "src/protocol/economic/IRuleProcessor.sol";
 import "./IProtocolAMMHandler.sol";
+import "../token/data/Fees.sol";
 import "src/client/token/ProtocolHandlerCommon.sol";
 
 /**
@@ -41,8 +42,9 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     uint32 private purchasePercentageRuleId;
     uint32 private sellPercentageRuleId;
 
-    /// Fee ID's
-    uint32 private ammFeeRuleId;
+    /// Data contracts
+    Fees fees;
+    bool feeActive;
 
     /// Rule Activation Bools
     bool private purchaseLimitRuleActive;
@@ -53,22 +55,25 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     bool private purchasePercentageRuleActive;
     bool private sellPercentageRuleActive;
 
-    /// Fee Activation Bools
-    bool private ammFeeRuleActive;
-
     /**
      * @dev Constructor sets the App Manager andToken Rule Router Address
      * @param _appManagerAddress Application App Manager Address
      * @param _ruleProcessorProxyAddress Rule Processor Address
      * @param _assetAddress address of the controlling asset
+     * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
-    constructor(address _appManagerAddress, address _ruleProcessorProxyAddress,address _assetAddress) {
+    constructor(address _appManagerAddress, address _ruleProcessorProxyAddress,address _assetAddress, bool _upgradeMode) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         transferOwnership(_assetAddress);
         ruleProcessorAddress = _ruleProcessorProxyAddress;
-        emit HandlerDeployed(_appManagerAddress);
+        if (!_upgradeMode) {
+            deployDataContract();
+            emit HandlerDeployed(_appManagerAddress);
+        } else {
+            emit HandlerDeployed(_appManagerAddress);
+        }
     }
 
     /**
@@ -108,27 +113,150 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
         return true;
     }
 
+   /* <><><><><><><><><><><> Fee functions <><><><><><><><><><><><><><> */
     /**
-     * @dev Assess all the fees for the transaction
-     * @param _balanceFrom Token balance of the sender address
-     * @param _balanceTo Token balance of the recipient address
-     * @param _from Sender address
-     * @param _to Recipient address
-     * @param _amount total number of tokens to be transferred
-     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
-     * @return fees total assessed fee for transaction
+     * @dev This function adds a fee to the token
+     * @param _tag meta data tag for fee
+     * @param _minBalance minimum balance for fee application
+     * @param _maxBalance maximum balance for fee application
+     * @param _feePercentage fee percentage to assess
+     * @param _targetAccount target for the fee proceeds
      */
-    function assessFees(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, ActionTypes _action) external view returns (uint256) {
-        /// this is to silence warning from unused parameters. NOTE: These parameters are in here for parity and possible future use.
-        _balanceFrom;
-        _balanceTo;
-        _from;
-        _to;
-        _amount;
-        _action;
-        uint256 fees;
-        if (ammFeeRuleActive) fees += ruleProcessor.assessAMMFee(ammFeeRuleId, _amount);
-        return fees;
+    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external ruleAdministratorOnly(appManagerAddress) {
+        fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
+        feeActive = true;
+    }
+
+    /**
+     * @dev This function removes a fee to the token
+     * @param _tag meta data tag for fee
+     */
+    function removeFee(bytes32 _tag) external ruleAdministratorOnly(appManagerAddress) {
+        fees.removeFee(_tag);
+    }
+
+    /**
+     * @dev returns the full mapping of fees
+     * @param _tag meta data tag for fee
+     * @return fee struct containing fee data
+     */
+    function getFee(bytes32 _tag) external view returns (Fees.Fee memory) {
+        return fees.getFee(_tag);
+    }
+
+    /**
+     * @dev returns the full mapping of fees
+     * @return feeTotal total number of fees
+     */
+    function getFeeTotal() public view returns (uint256) {
+        return fees.getFeeTotal();
+    }
+
+    /**
+     * @dev Turn fees on/off
+     * @param on_off value for fee status
+     */
+    function setFeeActivation(bool on_off) external ruleAdministratorOnly(appManagerAddress) {
+        feeActive = on_off;
+        emit FeeActivationSet(on_off);
+    }
+
+    /**
+     * @dev returns the full mapping of fees
+     * @return feeActive fee activation status
+     */
+    function isFeeActive() external view returns (bool) {
+        return feeActive;
+    }
+
+    /**
+     * @dev Get all the fees/discounts for the transaction. This is assessed and returned as two separate arrays. This was necessary because the fees may go to
+     * different target accounts. Since struct arrays cannot be function parameters for external functions, two separate arrays must be used.
+     * @param _from originating address
+     * @param _balanceFrom Token balance of the sender address
+     * @return feeCollectorAccounts list of where the fees are sent
+     * @return feePercentages list of all applicable fees/discounts
+     */
+    function getApplicableFees(address _from, uint256 _balanceFrom) public view returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages) {
+        Fees.Fee memory fee;
+        int24 totalFeePercent;
+        uint24 discount;
+        bytes32[] memory _fromTags;
+        // Only adjust the tags if a default fee exists in order to save gas
+        if (fees.getFee(BLANK_TAG).feePercentage != 0){
+            _fromTags = _getTagsWithDefault(_from);
+        } else {
+            _fromTags = appManager.getAllTags(_from);
+        }
+        if (_fromTags.length != 0 && !appManager.isAppAdministrator(_from)) {
+            uint feeCount;
+            // size the dynamic arrays by maximum possible fees
+            feeCollectorAccounts = new address[](_fromTags.length);
+            feePercentages = new int24[](_fromTags.length);
+            /// loop through and accumulate the fee percentages based on tags
+            for (uint i; i < _fromTags.length; ) {
+                fee = fees.getFee(_fromTags[i]);
+                // fee must be active and the initiating account must have an acceptable balance
+                if (fee.feePercentage != 0 && _balanceFrom < fee.maxBalance && _balanceFrom >= fee.minBalance) {
+                    // if it's a discount, accumulate it for distribution among all applicable fees
+                    if (fee.feePercentage < 0) {
+                        discount = uint24((fee.feePercentage * -1)) + discount; // convert to uint
+                    } else {
+                        feePercentages[feeCount] = fee.feePercentage;
+                        feeCollectorAccounts[feeCount] = fee.feeCollectorAccount;
+                        // add to the total fee percentage
+                        totalFeePercent += fee.feePercentage;
+                        unchecked {
+                            ++feeCount;
+                        }
+                    }
+                }
+                unchecked {
+                    ++i;
+                }
+            }
+            /// if an applicable discount(s) was found, then distribute it among all the fees
+            if (discount > 0 && feeCount != 0) {
+                // if there are fees to discount then do so
+                uint24 discountSlice = ((discount * 100) / (uint24(feeCount))) / 100;
+                for (uint i; i < feeCount; ) {
+                    // if discount is greater than fee, then set to zero
+                    if (int24(discountSlice) > feePercentages[i]) {
+                        feePercentages[i] = 0;
+                    } else {
+                        feePercentages[i] -= int24(discountSlice);
+                    }
+                    unchecked {
+                        ++i;
+                    }
+                }
+            }
+        }
+        // if the total fees - discounts is greater than 100 percent, revert
+        if (totalFeePercent - int24(discount) > 10000) {
+            revert FeesAreGreaterThanTransactionAmount(_from);
+        }
+        return (feeCollectorAccounts, feePercentages);
+    }
+
+    /**
+     * @dev Get all tags for a user and append blank tag for the default fee to work
+     * @param _from originating address
+     * @return _tags adjusted tag list
+     */
+    function _getTagsWithDefault(address _from) internal view returns(bytes32[] memory _tags){
+        bytes32[] memory _fromTags = appManager.getAllTags(_from);
+        // create an array one element longer
+        _tags = new bytes32[](_fromTags.length+1);
+        // copy the array to larger one
+        for (uint i; i < _fromTags.length; ) {
+            _tags[i] = _fromTags[i];
+            unchecked {
+                ++i;
+            }
+        }
+        // append blank tag
+        _tags[_fromTags.length] = BLANK_TAG;
     }
 
     /**
@@ -452,40 +580,6 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
         return oracleRuleActive;
     }
 
-    /**
-     * @dev Set the ammFeeRuleId. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setAMMFeeRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ammFeeRuleId = _ruleId;
-        ammFeeRuleActive = true;
-        emit ApplicationHandlerApplied(AMM_FEE, _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param on_off boolean representing if a rule must be checked or not.
-     */
-    function activateAMMFeeRule(bool on_off) external ruleAdministratorOnly(appManagerAddress) {
-        ammFeeRuleActive = on_off;
-    }
-
-    /**
-     * @dev Retrieve the AMM Fee rule id
-     * @return ammFeeRuleId
-     */
-    function getAMMFeeRuleId() external view returns (uint32) {
-        return ammFeeRuleId;
-    }
-
-    /**
-     * @dev Tells you if the AMM Fee Rule is active or not.
-     * @return boolean representing if the rule is active
-     */
-    function isAMMFeeRuleActive() external view returns (bool) {
-        return ammFeeRuleActive;
-    }
 
     /**
      * @dev Set the purchasePercentageRuleId. Restricted to app administrators only.
@@ -555,5 +649,38 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
      */
     function isSellPercentageRuleActive() external view returns (bool) {
         return sellPercentageRuleActive;
+    }
+
+    /// -------------DATA CONTRACT DEPLOYMENT---------------
+    /**
+     * @dev Deploy all the child data contracts. Only called internally from the constructor.
+     */
+    function deployDataContract() private {
+        fees = new Fees();
+    }
+
+    /**
+     * @dev Getter for the fee rules data contract address
+     * @return feesDataAddress
+     */
+    function getFeesDataAddress() external view returns (address) {
+        return address(fees);
+    }
+
+    /**
+     * @dev This function is used to propose the new owner for data contracts.
+     * @param _newOwner address of the new AppManager
+     */
+    function proposeDataContractMigration(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        fees.proposeOwner(_newOwner);
+    }
+
+    /**
+     * @dev This function is used to confirm this contract as the new owner for data contracts.
+     */
+    function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        ProtocolAMMHandler oldHandler = ProtocolAMMHandler(_oldHandlerAddress);
+        fees = Fees(oldHandler.getFeesDataAddress());
+        fees.confirmOwner();
     }
 }
