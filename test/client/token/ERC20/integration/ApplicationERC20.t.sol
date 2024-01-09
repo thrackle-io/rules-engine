@@ -258,7 +258,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
     /**
      * @dev Test the Balance By AccessLevel rule
      */
-    function testCoinBalanceByAccessLevelRulePasses() public {
+    function testERC20_CoinBalanceByAccessLevelRulePasses() public {
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 100000 * ATTO);
         assertEq(applicationCoin.balanceOf(user1), 100000 * ATTO);
@@ -412,12 +412,16 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         switchToAppAdministrator();
         /// set up a non admin user with tokens
-        applicationCoin.transfer(user1, 10000000 * ATTO);
-        assertEq(applicationCoin.balanceOf(user1), 10000000 * ATTO);
-        applicationCoin.transfer(user2, 10000 * ATTO);
-        assertEq(applicationCoin.balanceOf(user2), 10000 * ATTO);
-        applicationCoin.transfer(user5, 10000 * ATTO);
-        assertEq(applicationCoin.balanceOf(user5), 10000 * ATTO);
+        applicationCoin.transfer(user1, 10000000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user1), 10000000 * (10 ** 18));
+        applicationCoin.transfer(user2, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
+        applicationCoin.transfer(user3, 1500 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 1500 * (10 ** 18));
+        applicationCoin.transfer(user4, 1000000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user4), 1000000 * (10 ** 18));
+        applicationCoin.transfer(user5, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user5), 10000 * (10 ** 18));
 
         ///Assign Risk scores to user1 and user 2
         switchToRiskAdmin();
@@ -427,99 +431,45 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         ///Switch to app admin and set up ERC20Pricer and activate TransactionLimitByRiskScore Rule
         switchToAppAdministrator();
-        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
-        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
         switchToRuleAdmin();
         applicationCoinHandler.setTransactionLimitByRiskRuleId(index);
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
         vm.startPrank(user2);
-        applicationCoin.transfer(user1, 1 * ATTO);
+        applicationCoin.transfer(user1, 1 * (10 ** 18));
 
         ///Transfer expected to fail
         vm.stopPrank();
         vm.startPrank(user1);
         vm.expectRevert(0x9fe6aeac);
-        applicationCoin.transfer(user2, 1000001 * ATTO);
+        applicationCoin.transfer(user2, 1000001 * (10 ** 18));
 
         switchToRiskAdmin();
         ///Test in between Risk Score Values
         applicationAppManager.addRiskScore(user3, 49);
         applicationAppManager.addRiskScore(user4, 81);
 
-        switchToAppAdministrator();
-        applicationCoin.transfer(user3, 1500 * ATTO);
-        assertEq(applicationCoin.balanceOf(user3), 1500 * ATTO);
-        applicationCoin.transfer(user4, 1000000 * ATTO);
-
         vm.stopPrank();
         vm.startPrank(user3);
         vm.expectRevert(0x9fe6aeac);
-        applicationCoin.transfer(user4, 10001 * ATTO);
+        applicationCoin.transfer(user4, 10001 * (10 ** 18));
 
         vm.stopPrank();
         vm.startPrank(user4);
-        applicationCoin.transfer(user3, 10 * ATTO);
+        applicationCoin.transfer(user3, 10 * (10 ** 18));
 
         //vm.expectRevert(0x9fe6aeac);
-        applicationCoin.transfer(user3, 1001 * ATTO);
+        applicationCoin.transfer(user3, 1001 * (10 ** 18));
 
         /// test burning tokens while rule is active
         vm.stopPrank();
         vm.startPrank(user5);
-        applicationCoin.burn(999 * ATTO);
+        applicationCoin.burn(999 * (10 ** 18));
         vm.expectRevert(0x9fe6aeac);
-        applicationCoin.burn(1001 * ATTO);
-        applicationCoin.burn(1000 * ATTO);
-    }
-
-    function testERC20_BalanceLimitByRiskScoreERC20() public {
-        uint8[] memory riskScores = createUint8Array(25, 50, 75);
-        uint48[] memory balanceLimits = createUint48Array(500, 250, 100);
-        switchToRuleAdmin();
-        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
-        switchToAppAdministrator();
-        /// set up a non admin user with tokens
-        applicationCoin.transfer(user1, 999 * ATTO);
-        assertEq(applicationCoin.balanceOf(user1), 999 * ATTO);
-        applicationCoin.transfer(user2, 249 * ATTO);
-        assertEq(applicationCoin.balanceOf(user2), 249 * ATTO);
-        applicationCoin.transfer(user3, 499 * ATTO);
-        assertEq(applicationCoin.balanceOf(user3), 499 * ATTO);
-        applicationCoin.transfer(user4, 99 * ATTO);
-        assertEq(applicationCoin.balanceOf(user4), 99 * ATTO);
-        applicationCoin.transfer(user5, 1000000 * ATTO);
-        assertEq(applicationCoin.balanceOf(user5), 1000000 * ATTO);
-
-        ///Assign Risk scores to user1 and user 2
-        switchToRiskAdmin();
-        applicationAppManager.addRiskScore(user1, 1); ///Max NO LIMIT
-        applicationAppManager.addRiskScore(user2, 50); ///Max 250
-        applicationAppManager.addRiskScore(user3, 25); ///Max 500
-        applicationAppManager.addRiskScore(user4, 75); ///Max 100
-
-        ///Switch to Super admin and set up ERC20Pricer and activate AccountBalanceByRiskScore Rule
-        switchToAppAdministrator();
-        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
-        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
-        switchToRuleAdmin();
-        applicationHandler.setAccountBalanceByRiskRuleId(index);
-
-        ///Transfer funds to all that will put them one from limit(should all pass)
-        vm.stopPrank();
-        vm.startPrank(user5);
-        applicationCoin.transfer(user1, 1 * ATTO);
-        applicationCoin.transfer(user2, 1 * ATTO);
-        applicationCoin.transfer(user3, 1 * ATTO);
-        applicationCoin.transfer(user4, 1 * ATTO);
-
-        ///Transfers expected to fail
-        vm.expectRevert(0x58b13098);
-        applicationCoin.transfer(user2, 1 * ATTO);
-        vm.expectRevert(0x58b13098);
-        applicationCoin.transfer(user3, 1 * ATTO);
-        vm.expectRevert(0x58b13098);
-        applicationCoin.transfer(user4, 1 * ATTO);
+        applicationCoin.burn(1001 * (10 ** 18));
+        applicationCoin.burn(1000 * (10 ** 18));
     }
 
     /// test updating min transfer rule

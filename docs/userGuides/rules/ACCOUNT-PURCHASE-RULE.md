@@ -92,7 +92,7 @@ The rule will be evaluated with the following logic:
 ## Evaluation Exceptions 
 This rule doesn't apply when:
 - An approved Trading-Rule Whitelisted address is in the *to* side of the transaction.
-- AppAdmin address is in the *from* or *to* side of the transaction.
+- ruleByapasser account is in the *from* or *to* side of the transaction.
 
 Additionally, in the case of the ERC20, this rule doesn't apply also when registered treasury address is in the *to* side of the transaction.
 
