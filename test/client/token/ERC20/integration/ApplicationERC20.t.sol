@@ -2,8 +2,9 @@
 pragma solidity ^0.8.17;
 
 import "test/util/TestCommonFoundry.sol";
+import "../../TokenCommon.sol";
 
-contract ApplicationERC20Test is TestCommonFoundry {
+contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
     function setUp() public {
         vm.startPrank(superAdmin);
@@ -1587,17 +1588,4 @@ contract ApplicationERC20Test is TestCommonFoundry {
         applicationCoin2.transfer(address(69), 1000 * ATTO);
     }
 
-}
-
-
-contract DummyAMM{
-    function dummyTrade(address tokenA, address tokenB, uint256 amountIn, uint256 amountOut, bool isTokenAIn) public {
-        if(isTokenAIn){
-            IERC20(tokenA).transferFrom(msg.sender, address(this), amountIn);
-            IERC20(tokenB).transfer(msg.sender, amountOut);
-        }else{
-            IERC20(tokenB).transferFrom(msg.sender, address(this), amountIn);
-            IERC20(tokenA).transfer(msg.sender, amountOut);
-        }
-    }
 }

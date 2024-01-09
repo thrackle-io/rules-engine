@@ -2,8 +2,12 @@
 pragma solidity ^0.8.17;
 
 import "test/util/TestCommonFoundry.sol";
+import "../../TokenCommon.sol";
 
-contract ApplicationERC721Test is TestCommonFoundry {
+contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
+
+    uint256 erc721Liq = 10_000;
+     uint256 erc20Liq = 100_000 * ATTO;
 
     function setUp() public {
         vm.warp(Blocktime);
@@ -1043,4 +1047,218 @@ contract ApplicationERC721Test is TestCommonFoundry {
         vm.expectRevert(0x41284967);
         applicationAppManager3.confirmAppManager(address(applicationNFT));
     }
+
+    function setupTradingRuleTests() internal returns(DummyNFTAMM) {
+        DummyNFTAMM amm = new DummyNFTAMM();
+        _safeMintERC721(erc721Liq);
+        _approveTokens(amm, erc20Liq, true);
+        _addLiquidityInBatchERC721(amm, erc721Liq / 2); /// half of total supply
+        applicationCoin.mint(appAdministrator, 1_000_000 * ATTO);
+        applicationCoin.transfer(address(amm), erc20Liq);
+        return amm;
+    }
+
+    function testERC721_PurchasePercentageRule() public {
+        /// we pick up from this test
+        switchToAppAdministrator();
+        DummyNFTAMM amm = setupTradingRuleTests();
+        _fundThreeAccounts();
+        /// set up rule
+        uint16 tokenPercentage = 10; /// 1% 
+        _setPurchasePercentageRule(tokenPercentage, 24); /// 24 hour periods
+        /// we make sure we are in a new period
+        vm.warp(Blocktime + 36 hours);
+        /// test swap below percentage
+        switchToUser();
+        _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
+        /// we test buying the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
+        for(uint i; i < (erc721Liq * tokenPercentage) / 10000 - 1; i++){
+            _testBuyNFT(i, amm);
+        }
+        vm.expectRevert(0xb634aad9);
+        _testBuyNFT(tokenPercentage, amm);
+        /// switch users and test rule still fails
+        vm.stopPrank();
+        vm.startPrank(user1);
+        _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
+        vm.expectRevert(0xb634aad9);
+        _testBuyNFT(tokenPercentage + 1, amm);
+        /// let's go to another period
+        vm.warp(Blocktime + 72 hours);
+        switchToUser();
+        /// now it should work
+        _testBuyNFT(tokenPercentage + 1, amm);
+        /// with another user
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// we have to do this manually since the _testBuyNFT uses the *user* acccount
+        _testBuyNFT(tokenPercentage + 2, amm);
+
+    }
+
+    // function testAMMERC721DualLinearSellPercentageRule() public {
+    //     /// We start the test by running the testAMMERC721DualLinearPurchasePercentageRule so we can have some 
+    //     /// NFTs already bought by the users
+    //     testAMMERC721DualLinearPurchasePercentageRule();
+    //     switchToRuleAdmin();
+    //     /// we turn off the purchase percentage rule
+    //     applicationNFTHandler.activatePurchasePercentageRule(false);
+    //     /// now we setup the sell percentage rule
+    //     uint16 tokenPercentageSell = 30; /// 0.30%
+    //     _setSellPercentageRule(tokenPercentageSell, 24); ///  24 hour periods
+    //     vm.warp(Blocktime + 36 hours);
+    //     /// now we test
+    //     switchToUser();
+    //     /// we test selling the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
+    //     for(uint i; i < (erc721Liq * tokenPercentageSell) / 10000 - 1; i++){
+    //         _testSellNFT(i,  0);
+    //     }
+    //     /// If try to sell one more, it should fail in this period.
+    //     vm.expectRevert(0xb17ff693);
+    //     _sell(30);
+    //     /// switch users and test rule still fails
+    //     vm.stopPrank();
+    //     vm.startPrank(user1);
+    //     vm.expectRevert(0xb17ff693);
+    //     _sell(222);
+    //     /// let's go to another period
+    //     vm.warp(Blocktime + 72 hours);
+    //     switchToUser();
+    //     /// now it should work
+    //     _testSellNFT(30,  0);
+    //     /// with another user
+    //      vm.stopPrank();
+    //     vm.startPrank(user1);
+    //     _sell(222);
+
+    // }
+
+    // function testAMMERC721DualLinearSellRule() public {
+    //      /// we pick up from this test
+    //     testAMMERC721DualLinearBuyAllNFTs();
+    //     /// set the rule
+    //     _setSellRule("SellRule", 1, 36); /// tag, maxNFtsPerPeriod, period
+    //     /// apply tag to user
+    //     switchToAppAdministrator();
+    //     applicationAppManager.addGeneralTag(user, "SellRule");
+    //     /// Swap that passes rule check
+    //     switchToUser();
+    //     applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
+    //     _sell(123);
+    //     /// Swap that fails
+    //     vm.expectRevert(0xc11d5f20);
+    //     _sell(124);
+    //     /// we wait until the next period so user can swap again
+    //     vm.warp(block.timestamp + 36 hours);
+    //     _sell(124);
+    // }
+
+    /// HELPER INTERNAL FUNCTIONS
+
+    function _approveTokens(DummyNFTAMM amm, uint256 amountERC20, bool _isApprovalERC721) internal {
+        applicationCoin.approve(address(amm), amountERC20);
+        applicationNFT.setApprovalForAll(address(amm), _isApprovalERC721);
+    }
+
+    function _safeMintERC721(uint256 amount) internal {
+        for(uint256 i; i < amount; i++){
+            applicationNFT.safeMint(appAdministrator);
+        }
+    }
+
+    function _addLiquidityInBatchERC721(DummyNFTAMM amm, uint256 amount) private {
+        for(uint256 i; i < amount; i++){
+            applicationNFT.safeTransferFrom(appAdministrator, address(amm), i);
+        }
+    }
+
+    function _testBuyNFT(uint256 _tokenId, DummyNFTAMM amm) internal {
+        amm.dummyTrade(address(applicationCoin), address(applicationNFT), 10, _tokenId, true);
+    }
+
+    function _testSellNFT(uint256 _tokenId,  DummyNFTAMM amm) internal {
+        amm.dummyTrade(address(applicationCoin), address(applicationNFT), 10, _tokenId, false);
+    }
+
+    function _setSellRule(bytes32 _tag, uint192 _sellAmount,  uint16 _sellPeriod) internal returns(uint32 ruleId){
+        switchToRuleAdmin();
+        bytes32[] memory accs = new bytes32[](1);
+        uint192[] memory sellAmounts = new uint192[](1);
+        uint16[] memory sellPeriod = new uint16[](1);
+        accs[0] = bytes32(_tag);
+        sellAmounts[0] = _sellAmount; ///Amount to trigger Sell freeze rules
+        sellPeriod[0] = _sellPeriod; ///Hours
+        ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, uint64(Blocktime));
+        applicationNFTHandler.setSellLimitRuleId(ruleId);
+    }
+
+
+    function _setSanctionOracleRule() internal returns(uint32 ruleId){
+        switchToRuleAdmin();
+        ruleId = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(ruleId);
+        assertEq(rule.oracleType, 0);
+        assertEq(rule.oracleAddress, address(oracleDenied));
+        applicationNFTHandler.setOracleRuleId(ruleId);
+    }
+
+    function _setAllowedOracleRule() internal returns(uint32 ruleId){
+        switchToRuleAdmin();
+        ruleId = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(ruleId);
+        assertEq(rule.oracleType, 1);
+        assertEq(rule.oracleAddress, address(oracleAllowed));
+        applicationNFTHandler.setOracleRuleId(ruleId);
+    }
+
+    function _setPurchasePercentageRule(uint16 _tokenPercentage, uint16  _purchasePeriod) internal returns(uint32 ruleId){
+        switchToRuleAdmin();
+        uint16 tokenPercentage = _tokenPercentage; 
+        uint16 purchasePeriod = _purchasePeriod; 
+        uint256 _totalSupply = 0;
+        uint64 ruleStartTime = Blocktime;
+        ruleId = RuleDataFacet(address(ruleProcessor)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, _totalSupply, ruleStartTime);
+        applicationNFTHandler.setPurchasePercentageRuleId(ruleId);
+    }
+
+    function _setSellPercentageRule(uint16 _tokenPercentageSell, uint16  _sellPeriod) internal returns(uint32 ruleId){
+        switchToRuleAdmin();
+        uint16 tokenPercentageSell = _tokenPercentageSell; 
+        uint16 sellPeriod = _sellPeriod;
+        uint256 _totalSupply = 0;
+        uint64 ruleStartTime = Blocktime;
+        ruleId = RuleDataFacet(address(ruleProcessor)).addPercentageSellRule(address(applicationAppManager), tokenPercentageSell, sellPeriod, _totalSupply, ruleStartTime);
+        applicationNFTHandler.setSellPercentageRuleId(ruleId);
+    }
+
+    function initializeAMMAndUsers() public returns (DummyNFTAMM amm){
+        amm = new DummyNFTAMM();
+        /// Approve the transfer of tokens into AMM
+        applicationCoin.approve(address(amm), 1_000_000 * ATTO);
+        applicationCoin2.approve(address(amm), 1_000_000 * ATTO);
+        /// Transfer the tokens into the AMM
+        applicationCoin.transfer(address(amm), 1_000_000 * ATTO);
+        applicationCoin2.transfer(address(amm), 1_000_000 * ATTO);
+        /// Make sure the tokens made it
+        assertEq(applicationCoin.balanceOf(address(amm)), 1_000_000 * ATTO);
+        assertEq(applicationCoin2.balanceOf(address(amm)), 1_000_000 * ATTO);
+        applicationCoin.transfer(user1, 1000 * ATTO);
+        applicationCoin.transfer(user2, 1000 * ATTO);
+        applicationCoin.transfer(user3, 1000 * ATTO);
+        applicationCoin.transfer(rich_user, 1000 * ATTO);
+        applicationCoin2.transfer(user1, 1000 * ATTO);
+        applicationCoin2.transfer(user2, 1000 * ATTO);
+        applicationCoin.transfer(address(69), 1000 * ATTO);
+        applicationCoin2.transfer(address(69), 1000 * ATTO);
+    }
+
+    function _fundThreeAccounts() internal {
+        switchToAppAdministrator();
+        applicationCoin.transfer(user, 1000 * ATTO);
+        applicationCoin.transfer(user2, 1000 * ATTO);
+        applicationCoin.transfer(user1, 1000 * ATTO);
+    }
+    
+
 }
+
