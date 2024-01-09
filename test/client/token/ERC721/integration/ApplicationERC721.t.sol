@@ -1096,42 +1096,42 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
     }
 
-    // function testAMMERC721DualLinearSellPercentageRule() public {
-    //     /// We start the test by running the testAMMERC721DualLinearPurchasePercentageRule so we can have some 
-    //     /// NFTs already bought by the users
-    //     testAMMERC721DualLinearPurchasePercentageRule();
-    //     switchToRuleAdmin();
-    //     /// we turn off the purchase percentage rule
-    //     applicationNFTHandler.activatePurchasePercentageRule(false);
-    //     /// now we setup the sell percentage rule
-    //     uint16 tokenPercentageSell = 30; /// 0.30%
-    //     _setSellPercentageRule(tokenPercentageSell, 24); ///  24 hour periods
-    //     vm.warp(Blocktime + 36 hours);
-    //     /// now we test
-    //     switchToUser();
-    //     /// we test selling the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
-    //     for(uint i; i < (erc721Liq * tokenPercentageSell) / 10000 - 1; i++){
-    //         _testSellNFT(i,  0);
-    //     }
-    //     /// If try to sell one more, it should fail in this period.
-    //     vm.expectRevert(0xb17ff693);
-    //     _sell(30);
-    //     /// switch users and test rule still fails
-    //     vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     vm.expectRevert(0xb17ff693);
-    //     _sell(222);
-    //     /// let's go to another period
-    //     vm.warp(Blocktime + 72 hours);
-    //     switchToUser();
-    //     /// now it should work
-    //     _testSellNFT(30,  0);
-    //     /// with another user
-    //      vm.stopPrank();
-    //     vm.startPrank(user1);
-    //     _sell(222);
+    function testERC721_SellPercentageRule() public {
+        /// we pick up from this test
+        switchToAppAdministrator();
+        DummyNFTAMM amm = setupTradingRuleTests();
+        _fundThreeAccounts();
+        /// now we setup the sell percentage rule
+        uint16 tokenPercentageSell = 30; /// 0.30%
+        _setSellPercentageRule(tokenPercentageSell, 24); ///  24 hour periods
+        vm.warp(Blocktime + 36 hours);
+        /// now we test
+        switchToUser();
+        _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
+        /// we test selling the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
+        for(uint i = erc721Liq / 2; i < erc721Liq / 2 + (erc721Liq * tokenPercentageSell) / 10000 - 1; i++){
+            _testSellNFT(i,  amm);
+        }
+        /// If try to sell one more, it should fail in this period.
+        vm.expectRevert(0xb17ff693);
+        _testSellNFT(erc721Liq / 2 + tokenPercentageSell, amm);
+        /// switch users and test rule still fails
+        vm.stopPrank();
+        vm.startPrank(user1);
+         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
+        vm.expectRevert(0xb17ff693);
+        _testSellNFT(erc721Liq / 2 + 100 + 1, amm);
+        /// let's go to another period
+        vm.warp(Blocktime + 72 hours);
+        switchToUser();
+        /// now it should work
+        _testSellNFT(erc721Liq / 2 + tokenPercentageSell + 1, amm);
+        /// with another user
+         vm.stopPrank();
+        vm.startPrank(user1);
+        _testSellNFT(erc721Liq / 2 + 100 + 2, amm);
 
-    // }
+    }
 
     // function testAMMERC721DualLinearSellRule() public {
     //      /// we pick up from this test
@@ -1257,6 +1257,16 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationCoin.transfer(user, 1000 * ATTO);
         applicationCoin.transfer(user2, 1000 * ATTO);
         applicationCoin.transfer(user1, 1000 * ATTO);
+        for(uint i = erc721Liq / 2; i < erc721Liq / 2 + 50; i++){
+            applicationNFT.safeTransferFrom(appAdministrator, user, i);
+        }
+        for(uint i = erc721Liq / 2 + 100; i < erc721Liq / 2 + 150; i++){
+            applicationNFT.safeTransferFrom(appAdministrator, user1, i);
+        }
+        for(uint i = erc721Liq / 2 + 200; i < erc721Liq / 2 + 250; i++){
+            applicationNFT.safeTransferFrom(appAdministrator, user2, i);
+        }
+        
     }
     
 
