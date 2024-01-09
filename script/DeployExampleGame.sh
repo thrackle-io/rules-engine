@@ -21,6 +21,16 @@ foundryup --version nightly-09fe3e041369a816365a020f715ad6f94dbce9f2 &> /dev/nul
 echo "Is this a local deployment (y or n)?"
 read LOCAL
 
+LOCAL=$(echo "$LOCAL" | tr '[:upper:]' '[:lower:]')
+
+while [ "y" != "$LOCAL" ] && [ "n" != "$LOCAL" ] ; do
+  echo
+  echo "Not a valid answer (y or n)"
+  echo "Is this a local deployment (y or n)?"
+  read LOCAL
+  LOCAL=$(echo "$LOCAL" | tr '[:upper:]' '[:lower:]')  
+done
+
 if [ "$LOCAL" = "y" ]; then
     export FOUNDRY_PROFILE=local
 
@@ -59,10 +69,20 @@ else
 
     echo "Is the Protocol already deployed (y or n)?"
     read ALREADY_DEPLOYED
+
+    ALREADY_DEPLOYED=$(echo "$ALREADY_DEPLOYED" | tr '[:upper:]' '[:lower:]')
+
+    while [ "y" != "$ALREADY_DEPLOYED" ] && [ "n" != "$ALREADY_DEPLOYED" ] ; do
+    echo
+    echo "Not a valid answer (y or n)"
+    echo "Is the Protocol already deployed (y or n)?"
+    read ALREADY_DEPLOYED
+    ALREADY_DEPLOYED=$(echo "$ALREADY_DEPLOYED" | tr '[:upper:]' '[:lower:]')  
+    done
+
     if [ "$ALREADY_DEPLOYED" = "y" ]; then
         echo "Pleast enter the RULE_PROCESSOR_DIAMOND address"
         read RULE_PROCESSOR_DIAMOND
-
     fi
 
 fi
@@ -81,211 +101,24 @@ else
     echo "################################################################"
     echo
 
+    # forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
     forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
-
-    # Parsing the output from the protocol deployment to find the needed addresses
-
-    # Retreive the Version Facet Address
-    if [ "$LOCAL" = "y" ]; then
-        VERSION_FACET_UNCUT=$(jq '.transactions[] | select(.contractName=="VersionFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
-    else
-        VERSION_FACET_UNCUT=$(jq '.transactions[] | select(.contractName=="VersionFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80001/run-latest.json)
-    fi
-    VERSION_FACET="${VERSION_FACET_UNCUT//\"}"
-
-    # Retreive the Protocol Native Facet Address
-    if [ "$LOCAL" = "y" ]; then
-        PROTOCOL_NATIVE_FACET_UNCUT=$(jq '.transactions[] | select(.contractName=="ProtocolNativeFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
-    else
-        PROTOCOL_NATIVE_FACET_UNCUT=$(jq '.transactions[] | select(.contractName=="ProtocolNativeFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80001/run-latest.json)
-    fi
-    PROTOCOL_NATIVE_FACET="${PROTOCOL_NATIVE_FACET_UNCUT//\"}"
-
-    # Retrieve the Protocol Raw Facet
-    if [ "$LOCAL" = "y" ]; then
-        PROTOCOL_RAW_FACET_UNCUT=$(jq '.transactions[] | select(.contractName=="ProtocolRawFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
-    else
-        PROTOCOL_RAW_FACET_UNCUT=$(jq '.transactions[] | select(.contractName=="ProtocolRawFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80001/run-latest.json)
-    fi
-    PROTOCOL_RAW_FACET="${PROTOCOL_RAW_FACET_UNCUT//\"}"
-
-    # Retrieve the ERC20 Rule Processor Facet
-    if [ "$LOCAL" = "y" ]; then
-        ERC20_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ERC20RuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
-    else
-        ERC20_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ERC20RuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80001/run-latest.json)
-    fi
-    ERC20_RULE_PROCESSOR="${ERC20_RULE_PROCESSOR_UNCUT//\"}"
-
-    # Retrieve the ERC721 Rule Processor Facet
-    if [ "$LOCAL" = "y" ]; then
-        ERC721_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ERC721RuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
-    else
-        ERC721_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ERC721RuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80001/run-latest.json)
-    fi
-    ERC721_RULE_PROCESSOR="${ERC721_RULE_PROCESSOR_UNCUT//\"}"
-
-    # Retrieve the Fee Rule Processor Facet
-    if [ "$LOCAL" = "y" ]; then
-        FEE_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="FeeRuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
-    else
-        FEE_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="FeeRuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80001/run-latest.json)
-    fi
-    FEE_RULE_PROCESSOR="${FEE_RULE_PROCESSOR_UNCUT//\"}"
-
-    # Retrieve the Application Risk Processor Facet
-    if [ "$LOCAL" = "y" ]; then
-        APPLICATION_RISK_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ApplicationRiskProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
-    else
-        APPLICATION_RISK_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ApplicationRiskProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80001/run-latest.json)
-    fi
-    APPLICATION_RISK_PROCESSOR="${APPLICATION_RISK_PROCESSOR_UNCUT//\"}"
-
-   # Retrieve the Application Access Level Processor Facet
-    if [ "$LOCAL" = "y" ]; then
-        APPLICATION_ACCESS_LEVEL_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ApplicationAccessLevelProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
-    else
-        APPLICATION_ACCESS_LEVEL_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ApplicationAccessLevelProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80001/run-latest.json)
-    fi
-    APPLICATION_ACCESS_LEVEL_PROCESSOR="${APPLICATION_ACCESS_LEVEL_PROCESSOR_UNCUT//\"}"
-
-   # Retrieve the Application Pause Processor Facet
-    if [ "$LOCAL" = "y" ]; then
-        APPLICATION_PAUSE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ApplicationPauseProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
-    else
-        APPLICATION_PAUSE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ApplicationPauseProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80001/run-latest.json)
-    fi
-    APPLICATION_PAUSE_PROCESSOR="${APPLICATION_PAUSE_PROCESSOR_UNCUT//\"}"
-
-    forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
-
-   # Retrieve the ERC20 Tagged Rule Processor Facet
-    if [ "$LOCAL" = "y" ]; then
-        ERC20_TAGGED_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ERC20TaggedRuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/31337/run-latest.json)
-    else
-        ERC20_TAGGED_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ERC20TaggedRuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/80001/run-latest.json)
-    fi
-    ERC20_TAGGED_RULE_PROCESSOR="${ERC20_TAGGED_RULE_PROCESSOR_UNCUT//\"}"
-
-   # Retrieve the ERC721 Tagged Rule Processor Facet
-    if [ "$LOCAL" = "y" ]; then
-        ERC721_TAGGED_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ERC721TaggedRuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/31337/run-latest.json)
-    else
-        ERC721_TAGGED_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="ERC721TaggedRuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/80001/run-latest.json)
-    fi
-    ERC721_TAGGED_RULE_PROCESSOR="${ERC721_TAGGED_RULE_PROCESSOR_UNCUT//\"}"
-
-   # Retrieve the Risk Tagged Rule Processor Facet
-    if [ "$LOCAL" = "y" ]; then
-        RISK_TAGGED_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="RiskTaggedRuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/31337/run-latest.json)
-    else
-        RISK_TAGGED_RULE_PROCESSOR_UNCUT=$(jq '.transactions[] | select(.contractName=="RiskTaggedRuleProcessorFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/80001/run-latest.json)
-    fi
-    RISK_TAGGED_RULE_PROCESSOR="${RISK_TAGGED_RULE_PROCESSOR_UNCUT//\"}"
-
-   # Retrieve the Rule Application Validation Facet
-    if [ "$LOCAL" = "y" ]; then
-        RULE_APPLICATION_VALIDATION_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleApplicationValidationFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/31337/run-latest.json)
-    else
-        RULE_APPLICATION_VALIDATION_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleApplicationValidationFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/80001/run-latest.json)
-    fi
-    RULE_APPLICATION_VALIDATION="${RULE_APPLICATION_VALIDATION_UNCUT//\"}"
-
-   # Retrieve the Rule Data Facet
-    if [ "$LOCAL" = "y" ]; then
-        RULE_DATA_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleDataFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/31337/run-latest.json)
-    else
-        RULE_DATA_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleDataFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/80001/run-latest.json)
-    fi
-    RULE_DATA="${RULE_DATA_UNCUT//\"}"
-
-   # Retrieve the Tagged Rule Data Facet
-    if [ "$LOCAL" = "y" ]; then
-        TAGGED_RULE_DATA_UNCUT=$(jq '.transactions[] | select(.contractName=="TaggedRuleDataFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/31337/run-latest.json)
-    else
-        TAGGED_RULE_DATA_UNCUT=$(jq '.transactions[] | select(.contractName=="TaggedRuleDataFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/80001/run-latest.json)
-    fi
-    TAGGED_RULE_DATA="${TAGGED_RULE_DATA_UNCUT//\"}"
-
-   # Retrieve the App Rule Data Facet
-    if [ "$LOCAL" = "y" ]; then
-        APP_RULE_DATA_UNCUT=$(jq '.transactions[] | select(.contractName=="AppRuleDataFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/31337/run-latest.json)
-    else
-        APP_RULE_DATA_UNCUT=$(jq '.transactions[] | select(.contractName=="AppRuleDataFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/80001/run-latest.json)
-    fi
-    APP_RULE_DATA="${APP_RULE_DATA_UNCUT//\"}"
-
-   # Retrieve the Fee Rule Data Facet
-    if [ "$LOCAL" = "y" ]; then
-        FEE_RULE_DATA_UNCUT=$(jq '.transactions[] | select(.contractName=="FeeRuleDataFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/31337/run-latest.json)
-    else
-        FEE_RULE_DATA_UNCUT=$(jq '.transactions[] | select(.contractName=="FeeRuleDataFacet") | .contractAddress' broadcast/DeployAllModulesPt2.s.sol/80001/run-latest.json)
-    fi
-    FEE_RULE_DATA="${FEE_RULE_DATA_UNCUT//\"}"
-
-    echo VERSION_FACET=$VERSION_FACET
-    sed -i '' 's/VERSION_FACET=.*/VERSION_FACET='$VERSION_FACET'/g' $ENV_FILE
-
-    echo PROTOCOL_NATIVE_FACET=$PROTOCOL_NATIVE_FACET 
-    sed -i '' 's/PROTOCOL_NATIVE_FACET=.*/PROTOCOL_NATIVE_FACET='$PROTOCOL_NATIVE_FACET'/g' $ENV_FILE
-
-    echo PROTOCOL_RAW_FACET=$PROTOCOL_RAW_FACET 
-    sed -i '' 's/PROTOCOL_RAW_FACET=.*/PROTOCOL_RAW_FACET='$PROTOCOL_RAW_FACET'/g' $ENV_FILE
-
-    echo ERC20_RULE_PROCESSOR=$ERC20_RULE_PROCESSOR
-    sed -i '' 's/ERC20_RULE_PROCESSOR=.*/ERC20_RULE_PROCESSOR='$ERC20_RULE_PROCESSOR'/g' $ENV_FILE
-
-    echo ERC721_RULE_PROCESSOR=$ERC721_RULE_PROCESSOR
-    sed -i '' 's/ERC721_RULE_PROCESSOR=.*/ERC721_RULE_PROCESSOR='$ERC721_RULE_PROCESSOR'/g' $ENV_FILE
-
-    echo FEE_RULE_PROCESSOR=$FEE_RULE_PROCESSOR
-    sed -i '' 's/FEE_RULE_PROCESSOR=.*/FEE_RULE_PROCESSOR='$FEE_RULE_PROCESSOR'/g' $ENV_FILE
-
-    echo APPLICATION_RISK_PROCESSOR=$APPLICATION_RISK_PROCESSOR
-    sed -i '' 's/APPLICATION_RISK_PROCESSOR=.*/APPLICATION_RISK_PROCESSOR='$APPLICATION_RISK_PROCESSOR'/g' $ENV_FILE
-
-    echo APPLICATION_ACCESS_LEVEL_PROCESSOR=$APPLICATION_ACCESS_LEVEL_PROCESSOR
-    sed -i '' 's/APPLICATION_ACCESS_LEVEL_PROCESSOR=.*/APPLICATION_ACCESS_LEVEL_PROCESSOR='$APPLICATION_ACCESS_LEVEL_PROCESSOR'/g' $ENV_FILE
-
-    echo APPLICATION_PAUSE_PROCESSOR=$APPLICATION_PAUSE_PROCESSOR
-    sed -i '' 's/APPLICATION_PAUSE_PROCESSOR=.*/APPLICATION_PAUSE_PROCESSOR='$APPLICATION_PAUSE_PROCESSOR'/g' $ENV_FILE
-
-    echo ERC20_TAGGED_RULE_PROCESSOR=$ERC20_TAGGED_RULE_PROCESSOR 
-    sed -i '' 's/ERC20_TAGGED_RULE_PROCESSOR=.*/ERC20_TAGGED_RULE_PROCESSOR='$ERC20_TAGGED_RULE_PROCESSOR'/g' $ENV_FILE
-
-    echo ERC721_TAGGED_RULE_PROCESSOR=$ERC721_TAGGED_RULE_PROCESSOR 
-    sed -i '' 's/ERC721_TAGGED_RULE_PROCESSOR=.*/ERC721_TAGGED_RULE_PROCESSOR='$ERC721_TAGGED_RULE_PROCESSOR'/g' $ENV_FILE
-
-    echo RISK_TAGGED_RULE_PROCESSOR=$RISK_TAGGED_RULE_PROCESSOR 
-    sed -i '' 's/RISK_TAGGED_RULE_PROCESSOR=.*/RISK_TAGGED_RULE_PROCESSOR='$RISK_TAGGED_RULE_PROCESSOR'/g' $ENV_FILE
-
-    echo RULE_APPLICATION_VALIDATION=$RULE_APPLICATION_VALIDATION
-    sed -i '' 's/RULE_APPLICATION_VALIDATION=.*/RULE_APPLICATION_VALIDATION='$RULE_APPLICATION_VALIDATION'/g' $ENV_FILE
-
-    echo RULE_DATA=$RULE_DATA
-    sed -i '' 's/RULE_DATA=.*/RULE_DATA='$RULE_DATA'/g' $ENV_FILE
-
-    echo TAGGED_RULE_DATA=$TAGGED_RULE_DATA
-    sed -i '' 's/TAGGED_RULE_DATA=.*/TAGGED_RULE_DATA='$TAGGED_RULE_DATA'/g' $ENV_FILE
-
-    echo APP_RULE_DATA=$APP_RULE_DATA
-    sed -i '' 's/APP_RULE_DATA=.*/APP_RULE_DATA='$APP_RULE_DATA'/g' $ENV_FILE
-
-    echo FEE_RULE_DATA=$FEE_RULE_DATA
-    sed -i '' 's/FEE_RULE_DATA=.*/FEE_RULE_DATA='$FEE_RULE_DATA'/g' $ENV_FILE
-    echo "################################################################"
-    echo
-
-    forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
     # Retreive the Rule Processor Diamond Address
     if [ "$LOCAL" = "y" ]; then
-        RULE_PROCESSOR_DIAMOND_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleProcessorDiamond") | .contractAddress' broadcast/DeployAllModulesPt3.s.sol/31337/run-latest.json)
+        RULE_PROCESSOR_DIAMOND_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleProcessorDiamond") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/31337/run-latest.json)
     else
-        RULE_PROCESSOR_DIAMOND_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleProcessorDiamond") | .contractAddress' broadcast/DeployAllModulesPt3.s.sol/80001/run-latest.json)
+        RULE_PROCESSOR_DIAMOND_UNCUT=$(jq '.transactions[] | select(.contractName=="RuleProcessorDiamond") | .contractAddress' broadcast/DeployAllModulesPt1.s.sol/80001/run-latest.json)
     fi
     RULE_PROCESSOR_DIAMOND="${RULE_PROCESSOR_DIAMOND_UNCUT//\"}"
-    # sed -i '2s/.*/RULE_PROCESSOR_DIAMOND='$RULE_PROCESSOR_DIAMOND'/' .env
+
+    echo $RULE_PROCESSOR_DIAMOND
+    echo 
+
+    sed -i '' 's/RULE_PROCESSOR_DIAMOND=.*/RULE_PROCESSOR_DIAMOND='$RULE_PROCESSOR_DIAMOND'/g' $ENV_FILE
+
+    forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
+    forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
     echo "################################################################"
     echo export APP_ADMIN_1=$APP_ADMIN_1 | tee $OUTPUTFILE

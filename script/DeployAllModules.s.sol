@@ -51,7 +51,7 @@ contract DeployAllModulesScript is Script {
         DiamondInit diamondInit = new DiamondInit();
 
         /// Register all facets.
-        string[17] memory facets = [
+        string[5] memory facets = [
             // diamond version
             "VersionFacet",
             /// Native facets,
@@ -60,19 +60,19 @@ contract DeployAllModulesScript is Script {
             "ProtocolRawFacet",
             /// Protocol facets.
             "ERC20RuleProcessorFacet",
-            "ERC721RuleProcessorFacet",
-            "FeeRuleProcessorFacet",
-            "ApplicationRiskProcessorFacet",
-            "ApplicationAccessLevelProcessorFacet",
-            "ApplicationPauseProcessorFacet",
-            "ERC20TaggedRuleProcessorFacet",
-            "ERC721TaggedRuleProcessorFacet",
-            "RiskTaggedRuleProcessorFacet",
-            "RuleApplicationValidationFacet",
-            "RuleDataFacet",
-            "TaggedRuleDataFacet",
-            "AppRuleDataFacet",
-            "FeeRuleDataFacet"
+            "ERC721RuleProcessorFacet"
+            // "FeeRuleProcessorFacet",
+            // "ApplicationRiskProcessorFacet",
+            // "ApplicationAccessLevelProcessorFacet",
+            // "ApplicationPauseProcessorFacet",
+            // "ERC20TaggedRuleProcessorFacet",
+            // "ERC721TaggedRuleProcessorFacet",
+            // "RiskTaggedRuleProcessorFacet",
+            // "RuleApplicationValidationFacet",
+            // "RuleDataFacet",
+            // "TaggedRuleDataFacet",
+            // "AppRuleDataFacet",
+            // "FeeRuleDataFacet"
         ];
 
         string[] memory inputs = new string[](3);

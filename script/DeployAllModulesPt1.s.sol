@@ -12,13 +12,13 @@ import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRul
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 
 /**
- * @title The initial deployment script for the Protocol. It deploys the first group of facets.
+ * @title The initial deployment script for the Protocol. It deploys the rule processor diamond and the initial set of facets.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55
- * @notice This contract deploys the first group of facets
+ * @notice This contract deploys the rule processor diamond and the initial set of facets
  * @dev This script will set contract addresses needed by protocol interaction in connectAndSetUpAll()
  */
 
-contract DeployAllModulesPt1Script is Script {
+contract DeployAllModulesScript is Script {
     /// Store the FacetCut struct for each facet that is being deployed.
     /// NOTE: using storage array to easily "push" new FacetCut as we
     /// process the facets.
@@ -37,18 +37,21 @@ contract DeployAllModulesPt1Script is Script {
         ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
 
-        deployFirstSetOfFacets();
+        ruleProcessorDiamond = deployRuleProcessorDiamond();
 
         vm.stopBroadcast();
     }
 
     /**
      * @dev Deploy the Meta Controls Diamond
+     * @return RuleProcessorDiamond address once deployed
      */
-    function deployFirstSetOfFacets() internal {
+    function deployRuleProcessorDiamond() internal returns (RuleProcessorDiamond) {
+        /// Start by deploying the DiamonInit contract.
+        DiamondInit diamondInit = new DiamondInit();
 
         /// Register all facets.
-        string[9] memory facets = [
+        string[5] memory facets = [
             // diamond version
             "VersionFacet",
             /// Native facets,
@@ -57,11 +60,7 @@ contract DeployAllModulesPt1Script is Script {
             "ProtocolRawFacet",
             /// Protocol facets.
             "ERC20RuleProcessorFacet",
-            "ERC721RuleProcessorFacet",
-            "FeeRuleProcessorFacet",
-            "ApplicationRiskProcessorFacet",
-            "ApplicationAccessLevelProcessorFacet",
-            "ApplicationPauseProcessorFacet"
+            "ERC721RuleProcessorFacet"
         ];
 
         string[] memory inputs = new string[](3);
@@ -78,6 +77,26 @@ contract DeployAllModulesPt1Script is Script {
             assembly {
                 facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
             }
+
+            /// Get the facet selectors.
+            inputs[2] = facet;
+            bytes memory res = vm.ffi(inputs);
+            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
+
+            /// Create the FacetCut struct for this facet.
+            _facetCutsRuleProcessor.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
         }
+
+        /// Build the DiamondArgs.
+        RuleProcessorDiamondArgs memory diamondArgs = RuleProcessorDiamondArgs({
+            init: address(diamondInit),
+            /// NOTE: "interfaceId" can be used since "init" is the only function in IDiamondInit.
+            initCalldata: abi.encode(type(IDiamondInit).interfaceId)
+        });
+
+        /// Deploy the diamond.
+        RuleProcessorDiamond ruleProcessorDiamondDiamond = new RuleProcessorDiamond(_facetCutsRuleProcessor, diamondArgs);
+
+        return ruleProcessorDiamondDiamond;
     }
 }

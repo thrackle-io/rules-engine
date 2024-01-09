@@ -10,24 +10,22 @@ import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 
 /**
- * @title The final deployment script for the Protocol. It deploys the Rule Processor Diamond.
+ * @title The final deployment script for the Protocol. It deploys the final set of facets.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55
- * @notice This contract deploys the Rule Processor Diamond.
+ * @notice This contract deploys the final set of facets for the protocol
  * @dev This script will set contract addresses needed by protocol interaction in connectAndSetUpAll()
  */
 
-contract DeployAllModulesPt3Script is Script {
+contract DeployAllModulesScript is Script {
     /// Store the FacetCut struct for each facet that is being deployed.
     /// NOTE: using storage array to easily "push" new FacetCut as we
     /// process the facets.
+    FacetCut[] private _facetCutsRuleProcessor;
     /// address and private key used to for deployment
     uint256 privateKey;
     address ownerAddress;
-    RuleProcessorDiamond ruleProcessorDiamond;
-    FacetCut[] private _facetCutsRuleProcessor;
 
     /**
      * @dev This is the main function that gets called by the Makefile or CLI
@@ -37,38 +35,18 @@ contract DeployAllModulesPt3Script is Script {
         ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
 
-        ruleProcessorDiamond = deployRuleProcessorDiamond();
+        deployFacets();
 
         vm.stopBroadcast();
     }
 
     /**
-     * @dev Deploy the Meta Controls Diamond
-     * @return RuleProcessorDiamond address once deployed
+     * @dev Deploy the set of facets
      */
-    function deployRuleProcessorDiamond() internal returns (RuleProcessorDiamond) {
-
-        /// Start by deploying the DiamonInit contract.
-        DiamondInit diamondInit = new DiamondInit();
+    function deployFacets() internal {
 
         /// Register all facets.
-        string[17] memory facets = [
-            // diamond version
-            "VersionFacet",
-            /// Native facets,
-            "ProtocolNativeFacet",
-            /// Raw implementation facets.
-            "ProtocolRawFacet",
-            /// Protocol facets.
-            "ERC20RuleProcessorFacet",
-            "ERC721RuleProcessorFacet",
-            "FeeRuleProcessorFacet",
-            "ApplicationRiskProcessorFacet",
-            "ApplicationAccessLevelProcessorFacet",
-            "ApplicationPauseProcessorFacet",
-            "ERC20TaggedRuleProcessorFacet",
-            "ERC721TaggedRuleProcessorFacet",
-            "RiskTaggedRuleProcessorFacet",
+        string[5] memory facets = [
             "RuleApplicationValidationFacet",
             "RuleDataFacet",
             "TaggedRuleDataFacet",
@@ -76,35 +54,20 @@ contract DeployAllModulesPt3Script is Script {
             "FeeRuleDataFacet"
         ];
 
-        string[17] memory facetAddresses = [
-            "VERSION_FACET",
-            "PROTOCOL_NATIVE_FACET",
-            "PROTOCOL_RAW_FACET",
-            "ERC20_RULE_PROCESSOR",
-            "ERC721_RULE_PROCESSOR",
-            "FEE_RULE_PROCESSOR",
-            "APPLICATION_RISK_PROCESSOR",
-            "APPLICATION_ACCESS_LEVEL_PROCESSOR",
-            "APPLICATION_PAUSE_PROCESSOR",
-            "ERC20_TAGGED_RULE_PROCESSOR",
-            "ERC721_TAGGED_RULE_PROCESSOR",
-            "RISK_TAGGED_RULE_PROCESSOR",
-            "RULE_APPLICATION_VALIDATION",
-            "RULE_DATA",
-            "TAGGED_RULE_DATA",
-            "APP_RULE_DATA",
-            "FEE_RULE_DATA"
-        ];
-
         string[] memory inputs = new string[](3);
         inputs[0] = "python3";
         inputs[1] = "script/python/get_selectors.py";
 
-        /// Loop on each facet, grab the address from the appropriate env variable, and create the FacetCut.
+        /// Loop on each facet, deploy them and create the FacetCut.
         for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
             string memory facet = facets[facetIndex];
-            //Retrieve the address
-            address facetAddress = vm.envAddress(facetAddresses[facetIndex]);
+
+            /// Deploy the facet.
+            bytes memory bytecode = vm.getCode(string.concat(facet, ".sol"));
+            address facetAddress;
+            assembly {
+                facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
+            }
 
             /// Get the facet selectors.
             inputs[2] = facet;
@@ -115,18 +78,8 @@ contract DeployAllModulesPt3Script is Script {
             _facetCutsRuleProcessor.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
         }
 
-        /// Build the DiamondArgs.
-        RuleProcessorDiamondArgs memory diamondArgs = RuleProcessorDiamondArgs({
-            init: address(diamondInit),
-            /// NOTE: "interfaceId" can be used since "init" is the only function in IDiamondInit.
-            initCalldata: abi.encode(type(IDiamondInit).interfaceId)
-        });
+        address ruleProcessorAddress = vm.envAddress("RULE_PROCESSOR_DIAMOND");
 
-        // /// Deploy the diamond.
-        RuleProcessorDiamond ruleProcessorDiamondDiamond = new RuleProcessorDiamond(_facetCutsRuleProcessor, diamondArgs);
-
-        return ruleProcessorDiamondDiamond;
-
+        IDiamondCut(ruleProcessorAddress).diamondCut(_facetCutsRuleProcessor, address(0x0), "");
     }
-
 }

@@ -12,13 +12,13 @@ import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRul
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 
 /**
- * @title The second deployment script for the Protocol. It deploys the second group of facets.
+ * @title The second deployment script for the Protocol. It deploys the next set of facets.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55
- * @notice This contract deploys the second group of facets
+ * @notice This contract deploys the second set of facets for the protocol
  * @dev This script will set contract addresses needed by protocol interaction in connectAndSetUpAll()
  */
 
-contract DeployAllModulesPt2Script is Script {
+contract DeployAllModulesScript is Script {
     /// Store the FacetCut struct for each facet that is being deployed.
     /// NOTE: using storage array to easily "push" new FacetCut as we
     /// process the facets.
@@ -26,8 +26,6 @@ contract DeployAllModulesPt2Script is Script {
     /// address and private key used to for deployment
     uint256 privateKey;
     address ownerAddress;
-
-    RuleProcessorDiamond ruleProcessorDiamond;
 
     /**
      * @dev This is the main function that gets called by the Makefile or CLI
@@ -37,26 +35,25 @@ contract DeployAllModulesPt2Script is Script {
         ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
 
-        deploySecondSetOfFacets();
+        deployFacets();
 
         vm.stopBroadcast();
     }
 
     /**
-     * @dev Deploy the Meta Controls Diamond
+     * @dev Deploy the set of facets
      */
-    function deploySecondSetOfFacets() internal {
+    function deployFacets() internal {
 
         /// Register all facets.
-        string[8] memory facets = [
+        string[7] memory facets = [
+            "FeeRuleProcessorFacet",
+            "ApplicationRiskProcessorFacet",
+            "ApplicationAccessLevelProcessorFacet",
+            "ApplicationPauseProcessorFacet",
             "ERC20TaggedRuleProcessorFacet",
             "ERC721TaggedRuleProcessorFacet",
-            "RiskTaggedRuleProcessorFacet",
-            "RuleApplicationValidationFacet",
-            "RuleDataFacet",
-            "TaggedRuleDataFacet",
-            "AppRuleDataFacet",
-            "FeeRuleDataFacet"
+            "RiskTaggedRuleProcessorFacet"
         ];
 
         string[] memory inputs = new string[](3);
@@ -73,6 +70,18 @@ contract DeployAllModulesPt2Script is Script {
             assembly {
                 facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
             }
+
+            /// Get the facet selectors.
+            inputs[2] = facet;
+            bytes memory res = vm.ffi(inputs);
+            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
+
+            /// Create the FacetCut struct for this facet.
+            _facetCutsRuleProcessor.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
         }
+
+        address ruleProcessorAddress = vm.envAddress("RULE_PROCESSOR_DIAMOND");
+
+        IDiamondCut(ruleProcessorAddress).diamondCut(_facetCutsRuleProcessor, address(0x0), "");
     }
 }
