@@ -213,7 +213,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleAppAdministrator(address[] memory _accounts) external onlyRole(SUPER_ADMIN_ROLE) {
         for (uint256 i; i < _accounts.length; ) {
             addAppAdministrator(_accounts[i]);
-            emit AppAdministrator(_accounts[i], true);
             unchecked {
                 ++i;
             }
@@ -256,7 +255,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleRuleAdministrator(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             addRuleAdministrator(account[i]);
-            emit RuleAdmin(account[i], true);
             unchecked {
                 ++i;
             }
@@ -299,7 +297,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleRuleBypassAccounts(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             addRuleBypassAccount(account[i]);
-            emit RuleBypassAccount(account[i], true);
             unchecked {
                 ++i;
             }
@@ -362,7 +359,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleAccessTier(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             addAccessTier(account[i]);
-            emit AccessTierAdmin(account[i], true);
             unchecked {
                 ++i;
             }
@@ -405,7 +401,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function addMultipleRiskAdmin(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
         for (uint256 i; i < account.length; ) {
             addRiskAdmin(account[i]);
-            emit RiskAdmin(account[i], true);
             unchecked {
                 ++i;
             }
