@@ -100,7 +100,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         uint128 price;
         uint128 transferValuation;
         if (pauseRuleActive) ruleProcessor.checkPauseRules(appManagerAddress);
-        /// Based on the Handler Type set retrieve pricing valuations 
+        /// Based on the Handler Type retrieve pricing valuations 
         if (_handlerType == HandlerTypes.ERC20HANDLER) {
             balanceValuation = uint128(getAccTotalValuation(_to, 0));
             price = uint128(_getERC20Price(_tokenAddress));
