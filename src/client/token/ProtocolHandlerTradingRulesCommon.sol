@@ -2,6 +2,12 @@
 pragma solidity ^0.8.17;
 import "./ProtocolHandlerCommon.sol";
 
+/**
+ * @title Protocol Handler Trading-Rules Common
+ * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
+ * @notice This contract contains common variables and functions for all Protocol Asset Handlers
+ * regarding trading rules (Purchase Limit, Purchase Percentage, Sell Limit, Sell Percentage).
+ */
 contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdministratorOnly{
 
     /// RuleIds

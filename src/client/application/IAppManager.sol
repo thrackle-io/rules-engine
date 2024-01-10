@@ -167,7 +167,7 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      */
-    function checkApplicationRules(address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external;
+    function checkApplicationRules(address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring, ActionTypes action) external;
 
     /**
      * @dev checks if any of the balance prerequisite rules are active

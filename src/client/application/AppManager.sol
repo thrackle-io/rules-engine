@@ -731,8 +731,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _to address of the to account
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function checkApplicationRules( address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external onlyHandler {
+    function checkApplicationRules( address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring, ActionTypes action) external onlyHandler {
+        action;
         applicationHandler.checkApplicationRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
     }
 

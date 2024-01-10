@@ -105,6 +105,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external override onlyOwner returns (bool) {
         bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
         bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
+        ActionTypes action = determineTransferAction(_from, _to, _sender);
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
@@ -115,8 +116,8 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
                 balanceValuation = uint128(getAccTotalValuation(_to, nftValuationLimit));
                 transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
             }
-            appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation);
-            _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to,  _sender, _amount, _tokenId);
+            appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation, action);
+            _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId, action);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
             /// set the ownership start time for the token if the Minimum Hold time rule is active
@@ -168,12 +169,12 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
      * @param _to address of the to account
-     * @param _sender address of the sender account
      * @param _amount number of tokens transferred
      * @param tokenId Id of the NFT being transferred
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, address _sender,uint256 _amount, uint256 tokenId) internal {
-        _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _sender, _amount);
+    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, uint256 tokenId, ActionTypes action) internal {
+        _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
         if (transactionLimitByRiskRuleActive) {
             /// If more rules need these values, then this can be moved above.
             uint256 thisNFTValuation = nftPricer.getNFTPrice(msg.sender, tokenId);
@@ -188,11 +189,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _amount number of tokens transferred
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, address _sender,uint256 _amount) internal {
+    function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
         bytes32[] memory toTags;
         bytes32[] memory fromTags;
-        ActionTypes action = determineTransferAction(_from, _to, _sender);
         bool mustCheckPurchaseRules = action == ActionTypes.PURCHASE && !appManager.isTradingRuleBypasser(_to);
         bool mustCheckSellRules = action == ActionTypes.SELL && !appManager.isTradingRuleBypasser(_from);
         if (minMaxBalanceRuleActive || minBalByDateRuleActive || (mustCheckPurchaseRules && purchaseLimitRuleActive) || (mustCheckSellRules && sellLimitRuleActive)) {

@@ -100,6 +100,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _amount)external override onlyOwner returns (bool) {
         bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
         bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
+        ActionTypes action = determineTransferAction(_from, _to, _sender);
         // // All transfers to treasury account are allowed
         if (!appManager.isTreasury(_to)) {
             /// standard rules do not apply when either to or from is an admin
@@ -112,8 +113,8 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
                     price = uint128(_getERC20Price(msg.sender));
                     transferValuation = uint128((price * _amount) / (10 ** IToken(msg.sender).decimals()));
                 }
-                appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation);
-                _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _sender, _amount);
+                appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation, action);
+                _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
                 _checkNonTaggedRules(_from, _to, _amount);
             } else if (adminWithdrawalActive && isFromBypassAccount) {
                 ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, _amount);
@@ -158,11 +159,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
      * @param _to address of the to account
-     * @param _sender address of the sender account
      * @param _amount number of tokens transferred
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, address _sender,uint256 _amount) internal {
-        _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _sender, _amount);
+    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
+        _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
         /// we only ask for price if we need it since this might cause the contract to require setting the pricing contracts when there is no need
         if (transactionLimitByRiskRuleActive) {
             uint256 price = _getERC20Price(msg.sender);
@@ -177,13 +178,12 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
      * @param _to address of the to account
-     * @param _sender address of the sender account
      * @param _amount number of tokens transferred
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, address _sender,uint256 _amount) internal {
+    function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
         bytes32[] memory toTags;
         bytes32[] memory fromTags;
-        ActionTypes action = determineTransferAction(_from, _to, _sender);
         bool mustCheckPurchaseRules = action == ActionTypes.PURCHASE && !appManager.isTradingRuleBypasser(_to);
         bool mustCheckSellRules = action == ActionTypes.SELL && !appManager.isTradingRuleBypasser(_from);
         if ( minMaxBalanceRuleActive || minBalByDateRuleActive || 
