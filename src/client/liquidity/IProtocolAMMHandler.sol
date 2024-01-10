@@ -34,14 +34,18 @@ interface IProtocolAMMHandler {
     ) external returns (bool);
 
     /**
-     * @dev Assess all the fees for the transaction
-     * @param _balanceFrom Token balance of the sender address
-     * @param _balanceTo Token balance of the recipient address
-     * @param _from Sender address
-     * @param _to Recipient address
-     * @param _amount total number of tokens to be transferred
-     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
-     * @return fees total assessed fee for transaction
+     * @dev returns the full mapping of fees
+     * @return feeActive fee activation status
      */
-    function assessFees(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, ActionTypes _action) external view returns (uint256);
+    function isFeeActive() external view returns (bool);
+
+    /**
+     * @dev Get all the fees/discounts for the transaction. This is assessed and returned as two separate arrays. This was necessary because the fees may go to
+     * different target accounts. Since struct arrays cannot be function parameters for external functions, two separate arrays must be used.
+     * @param _from originating address
+     * @param _balanceFrom Token balance of the sender address
+     * @return feeCollectorAccounts list of where the fees are sent
+     * @return feePercentages list of all applicable fees/discounts
+     */
+    function getApplicableFees(address _from, uint256 _balanceFrom) external view returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages);
 }

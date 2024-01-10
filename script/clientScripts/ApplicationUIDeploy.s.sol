@@ -71,11 +71,9 @@ contract ApplicationUIDeployAllScript is Script {
         LinearInput memory curve = LinearInput(6000, 15 * 10 ** 17);
         ProtocolERC20AMM amm = ProtocolERC20AMM(protocolAMMFactory.createLinearAMM(address(coin1), address(coin2), curve, address(applicationAppManager))); 
         /// create AMM handler
-        applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(amm));
+        applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(amm), false);
         /// connect AMM with its handler
         amm.connectHandlerToAMM(address(applicationAMMHandler));
-        /// Set the AMM treasury address account
-        amm.setTreasuryAddress(vm.envAddress("AMM_TREASURY"));
         applicationAppManager.registerAMM(address(amm));
         
         applicationCoinHandler3 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2), false);

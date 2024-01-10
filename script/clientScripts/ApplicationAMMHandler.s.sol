@@ -18,7 +18,7 @@ contract ApplicationAMMHandlerScript is Script {
      */
     function run() public {
         vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
-        new ApplicationAMMHandler(vm.envAddress("APP_MANAGER"), vm.envAddress("RULE_PROCESSOR_DIAMOND"), vm.envAddress("APPLICATION_AMM"));
+        new ApplicationAMMHandler(vm.envAddress("APP_MANAGER"), vm.envAddress("RULE_PROCESSOR_DIAMOND"), vm.envAddress("APPLICATION_AMM"), false);
 
         vm.stopBroadcast();
     }

@@ -34,7 +34,7 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         ConstantRatio memory cr = ConstantRatio(1, 1);
         protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2),cr, address(applicationAppManager)));
         /// Set up the ApplicationAMMHandler
-        applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
+        applicationAMMHandler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM), false);
         protocolAMM.connectHandlerToAMM(address(applicationAMMHandler));
         /// Register AMM
         applicationAppManager.registerAMM(address(protocolAMM));

@@ -2,10 +2,9 @@
 pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../application/IAppManager.sol";
-import "../liquidity/IProtocolAMMHandler.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "./IProtocolAMMCalculator.sol";
-import "src/client/liquidity/IProtocolAMMHandler.sol";
+import "src/client/liquidity/ProtocolAMMHandler.sol";
 import "src/common/AMMTypes.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
 import { AMMCalculatorErrors, AMMErrors, IZeroAddressError } from "src/common/IErrors.sol";
@@ -27,11 +26,9 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
     uint256 public reserve1;
 
     address public appManagerAddress;
-    // Address that will accrue fees
-    address treasuryAddress;
     address public calculatorAddress;
     IProtocolAMMCalculator calculator;
-    IProtocolAMMHandler handler;
+    ProtocolAMMHandler handler;
 
     /**
      * @dev Must provide the addresses for both tokens that will provide liquidity
@@ -109,17 +106,15 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
         /// update the reserves with the proper amounts(adding to token0, subtracting from token1)
         _update(reserve0 += _amountIn, reserve1 - _amountOut);
         /// Assess fees. All fees are always taken out of the collateralized token(token1)
-        uint256 fees = handler.assessFees(token0.balanceOf(msg.sender), token1.balanceOf(msg.sender), msg.sender, address(this), _amountOut, ActionTypes.SELL);
         /// subtract fees from collateralized token
-        _amountOut -= fees;
-        /// add fees to treasury
-        if (!token1.transfer(treasuryAddress, fees)) revert TransferFailed();
+        _amountOut -= processFees(msg.sender, address(token1), _amountOut);
         /// perform swap transfers
         if (!token0.transferFrom(msg.sender, address(this), _amountIn)) revert TransferFailed();
         if (!token1.transfer(msg.sender, _amountOut)) revert TransferFailed();
         emit Swap(address(token0), _amountIn, _amountOut);
     }
 
+    
     /**
      * @dev This performs the swap from token1 to token0
      * @notice This is considered a "Purchase" as the user is trading chain native token 1 and receiving the application native token
@@ -128,11 +123,8 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
      */
     function _swap1For0(uint256 _amountIn) private returns (uint256 _amountOut) {
         /// Assess fees. All fees are always taken out of the collateralized token(token1)
-        uint256 fees = handler.assessFees(token1.balanceOf(msg.sender), token0.balanceOf(msg.sender), msg.sender, address(this), _amountIn, ActionTypes.PURCHASE);
         /// subtract fees from collateralized token
-        _amountIn -= fees;
-        /// add fees to treasury
-        if (!token1.transfer(treasuryAddress, fees)) revert TransferFailed();
+        _amountIn -= processFees(msg.sender, address(token1), _amountIn);
         /// Calculate how much token they get in return
         _amountOut = calculator.calculateSwap(reserve0, reserve1, 0, _amountIn);
         ///Check Rules
@@ -155,6 +147,31 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
         if (!token1.transferFrom(msg.sender, address(this), _amountIn)) revert TransferFailed();
         if (!token0.transfer(msg.sender, _amountOut)) revert TransferFailed();
         emit Swap(address(token1), _amountIn, _amountOut);
+    }
+
+    /**
+     * @dev Retrieve and handle all fees associated with the swap, then return the fee total for swap amount adjustment
+     * @param _swapper address of the swap initiator
+     * @param _tokenAddress address of the token in which fees will be assessed
+     * @param _amount token amount being swapped
+     */
+    function processFees(address _swapper, address _tokenAddress, uint256 _amount) internal returns (uint256 fees) {
+        if (handler.isFeeActive()) {
+            address[] memory targetAccounts;
+            int24[] memory feePercentages;
+            (targetAccounts, feePercentages) = handler.getApplicableFees(_swapper, IERC20(_tokenAddress).balanceOf(_swapper));
+            for (uint i; i < feePercentages.length; ) {
+                if (feePercentages[i] > 0) {
+                    // trim the fee and send it to the target treasury account
+                    if(!IERC20(_tokenAddress).transfer(targetAccounts[i], (_amount * uint24(feePercentages[i])) / 10000)) revert TransferFailed();
+                    // accumulate all fees
+                    fees += (_amount * uint24(feePercentages[i])) / 10000;
+                }
+                unchecked {
+                    ++i;
+                }
+            }
+        }
     }
 
     /**
@@ -268,28 +285,12 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
     }
 
     /**
-     * @dev This function sets the treasury address
-     * @param _treasury address for the treasury
-     */
-    function setTreasuryAddress(address _treasury) external appAdministratorOnly(appManagerAddress) {
-        treasuryAddress = _treasury;
-    }
-
-    /**
-     * @dev This function gets the treasury address
-     * @return _treasury address for the treasury
-     */
-    function getTreasuryAddress() external view appAdministratorOnly(appManagerAddress) returns (address) {
-        return treasuryAddress;
-    }
-
-    /**
      * @dev Connects the AMM with its handler
      * @param _handlerAddress of the rule processor
      */
     function connectHandlerToAMM(address _handlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
-        handler = IProtocolAMMHandler(_handlerAddress);
+        handler = ProtocolAMMHandler(_handlerAddress);
         emit HandlerConnected(_handlerAddress);
     }
 
@@ -299,5 +300,5 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
      */
     function getHandlerAddress() external view returns (address) {
         return address(handler);
-    }
+    }    
 }

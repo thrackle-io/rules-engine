@@ -15,6 +15,11 @@ import {ConstantRatio} from "src/client/liquidity/calculators/dataStructures/Cur
  */
 contract ProtocolERC20AMMTest is TestCommonFoundry {
 
+    uint256 constant MAX_FEE = 10000;
+    uint256 constant MAX_FEE_TRADE = 999999;
+    uint256 constant MIN_FEE_BALANCE = 0;
+    uint256 constant MAX_FEE_BALANCE = type(uint256).max;
+
     function setUp() public {
         vm.startPrank(superAdmin);
         setUpProtocolAndAppManagerAndTokens();
@@ -31,16 +36,11 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         protocolAMMCalculatorFactory = createProtocolAMMCalculatorFactory();
         ConstantRatio memory cr = ConstantRatio(1,1);
         protocolAMM = ProtocolERC20AMM(protocolAMMFactory.createConstantAMM(address(applicationCoin), address(applicationCoin2),cr, address(applicationAppManager)));
-        handler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
+        handler = new ApplicationAMMHandler(address(applicationAppManager), address(ruleProcessor), address(protocolAMM), false);
         protocolAMM.connectHandlerToAMM(address(handler));
         applicationAMMHandler = ApplicationAMMHandler(protocolAMM.getHandlerAddress());
         /// Register AMM
         applicationAppManager.registerAMM(address(protocolAMM));
-        /// set the treasury address
-        protocolAMM.setTreasuryAddress(treasuryAddress);
-        applicationAppManager.registerTreasury(treasuryAddress);
-        // applicationAppManager.addAppAdministrator(treasuryAddress);
-
         applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         vm.warp(Blocktime);
 
@@ -494,19 +494,21 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         initializeAMMAndUsers();
         /// we add the rule.
         switchToRuleAdmin();
-        /// make sure that no bogus fee percentage can get in
-        bytes4 selector = bytes4(keccak256("ValueOutOfRange(uint256)"));
-        vm.expectRevert(abi.encodeWithSelector(selector, 10001));
-        uint32 ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 10001);
-        vm.expectRevert(abi.encodeWithSelector(selector, 0));
-        ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 0);
-        /// now add the good rule
-        ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), 300);
-        /// we update the rule id in the token
-        applicationAMMHandler.setAMMFeeRuleId(ruleId);
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        address targetAccount2 = user10;
+        address targetAccount3 = user9;
+        // create a fee
+        applicationAMMHandler.addFee("cheap", MIN_FEE_BALANCE, MAX_FEE_BALANCE, feePercentage, targetAccount);
         switchToAppAdministrator();
-        /// set the treasury address
-        protocolAMM.setTreasuryAddress(address(99));
+        Fees.Fee memory fee = applicationAMMHandler.getFee("cheap");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, MIN_FEE_BALANCE);
+        assertEq(fee.maxBalance, MAX_FEE_BALANCE);
+        assertEq(1, applicationAMMHandler.getFeeTotal());
+        
+        // now test the fee assessment
+        applicationAppManager.addGeneralTag(user1, "cheap"); ///add tag
         /// Set up this particular swap
         /// Approve transfer
         vm.stopPrank();
@@ -514,7 +516,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         applicationCoin.approve(address(protocolAMM), 100 * 10 ** 18);
         // should get 97% back
         assertEq(protocolAMM.swap(address(applicationCoin), 100 * 10 ** 18), 97 * 10 ** 18);
-        assertEq(applicationCoin2.balanceOf(address(99)), 3 * 10 ** 18);
+        assertEq(applicationCoin2.balanceOf(targetAccount), 3 * 10 ** 18);
         // Now try the other direction. Since only token1 is used for fees, it is worth testing it as well. This
         // is the linear swap so the test is easy. For other styles, it can be more difficult because the fee is
         // assessed prior to the swap calculation
@@ -531,15 +533,79 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         applicationCoin.approve(address(protocolAMM), 7 * 10 ** 12);
         // should get 97% back but not an easy nice token
         assertEq(protocolAMM.swap(address(applicationCoin), 7 * 10 ** 12), 679 * 10 ** 10);
+
+        // Now one with multiple treasuries
+        switchToRuleAdmin();
+        applicationAMMHandler.addFee("expensive1", MIN_FEE_BALANCE, MAX_FEE_BALANCE, feePercentage, targetAccount2);
+        feePercentage = 600;
+        applicationAMMHandler.addFee("expensive2", MIN_FEE_BALANCE, MAX_FEE_BALANCE, feePercentage, targetAccount3);
+        switchToAppAdministrator();
+        applicationAppManager.removeGeneralTag(user1, "cheap"); ///remove tag
+        applicationAppManager.addGeneralTag(user1, "expensive1"); ///add tag
+        applicationAppManager.addGeneralTag(user1, "expensive2"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(protocolAMM), 100 * 10 ** 18);
+        // should get 91% back but not an easy nice token
+        assertEq(protocolAMM.swap(address(applicationCoin), 100 * 10 ** 18), 91 * 10 ** 18);
+        assertEq(applicationCoin2.balanceOf(targetAccount2), 3 * 10 ** 18);
+        assertEq(applicationCoin2.balanceOf(targetAccount3), 6 * 10 ** 18);
+    }
+
+    function testAMMFeesBlankTag() public {
+        /// initialize the AMM
+        initializeAMMAndUsers();
+        /// we add the rule.
+        switchToRuleAdmin();
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        address targetAccount3 = user9;
+        // create a fee
+        applicationAMMHandler.addFee("", MIN_FEE_BALANCE, MAX_FEE_BALANCE, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        Fees.Fee memory fee = applicationAMMHandler.getFee("");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, MIN_FEE_BALANCE);
+        assertEq(fee.maxBalance, MAX_FEE_BALANCE);
+        assertEq(1, applicationAMMHandler.getFeeTotal());
+        
+        // now test the fee assessment
+        /// Set up this particular swap
+        /// Approve transfer
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(protocolAMM), 100 * 10 ** 18);
+        // should get 97% back
+        assertEq(protocolAMM.swap(address(applicationCoin), 100 * 10 ** 18), 97 * 10 ** 18);
+        assertEq(applicationCoin2.balanceOf(targetAccount), 3 * 10 ** 18);
+        // Now try the other direction. Since only token1 is used for fees, it is worth testing it as well. This
+        // is the linear swap so the test is easy. For other styles, it can be more difficult because the fee is
+        // assessed prior to the swap calculation
+        applicationCoin2.approve(address(protocolAMM), 100 * 10 ** 18);
+        // should get 97% back
+        assertEq(protocolAMM.swap(address(applicationCoin2), 100 * 10 ** 18), 97 * 10 ** 18);
+        
+        // Now one with multiple treasuries
+        switchToRuleAdmin();
+        feePercentage = 600;
+        applicationAMMHandler.addFee("expensive", MIN_FEE_BALANCE, MAX_FEE_BALANCE, feePercentage, targetAccount3);
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user1, "expensive"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(protocolAMM), 100 * 10 ** 18);
+        // should get 91% back but not an easy nice token
+        assertEq(protocolAMM.swap(address(applicationCoin), 100 * 10 ** 18), 91 * 10 ** 18);
+        assertEq(applicationCoin2.balanceOf(targetAccount3), 6 * 10 ** 18);
     }
 
     /// test AMM Fees
-    function testAMMFeesFuzz(uint256 feePercentage, uint8 _addressIndex, uint256 swapAmount) public {
-        vm.assume(feePercentage < 10000 && feePercentage > 0);
-        if (swapAmount > 999999) swapAmount = 999999;
+    function testAMMFeesFuzz(uint256 _feePercentage, uint8 _addressIndex, uint256 _swapAmount) public {
+        int24 feePercentage = int24(int256((bound(_feePercentage, 1, MAX_FEE))));  
+        uint256 swapAmount = uint256(bound(_swapAmount, 1, MAX_FEE_TRADE));  
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address ammUser = addressList[0];
-        address treasury = addressList[1];
+        address targetAccount = addressList[1];
         /// Approve the transfer of tokens into AMM
         applicationCoin.approve(address(protocolAMM), 1_000_000_000 * 10 ** 18);
         applicationCoin2.approve(address(protocolAMM), 1_000_000_000 * 10 ** 18);
@@ -554,12 +620,9 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         /// we add the rule.
         switchToRuleAdmin();
         console.logString("Create the Fee Rule");
-        uint32 ruleId = FeeRuleDataFacet(address(ruleProcessor)).addAMMFeeRule(address(applicationAppManager), feePercentage);
-        /// we update the rule id in the token
-        applicationAMMHandler.setAMMFeeRuleId(ruleId);
+        applicationAMMHandler.addFee("cheap", MIN_FEE_BALANCE, MAX_FEE_BALANCE, feePercentage, targetAccount);
         switchToAppAdministrator();
-        /// set the treasury address
-        protocolAMM.setTreasuryAddress(treasury);
+        applicationAppManager.addGeneralTag(ammUser, "cheap"); ///add tag
         /// Set up this particular swap
         /// Approve transfer
         vm.stopPrank();
@@ -567,10 +630,11 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         applicationCoin.approve(address(protocolAMM), swapAmount);
         // should get x% of swap return
         console.logString("Perform the swap");
+        uint256 expectedFee = ((swapAmount * uint24(feePercentage)) / 10000);
         if (swapAmount == 0) vm.expectRevert(0x5b2790b5); // if swap amount is zero, revert correctly
-        assertEq(protocolAMM.swap(address(applicationCoin), swapAmount), swapAmount - ((swapAmount * feePercentage) / 10000));
-        assertEq(applicationCoin2.balanceOf(ammUser), swapAmount - ((swapAmount * feePercentage) / 10000));
-        assertEq(applicationCoin2.balanceOf(treasury), (swapAmount * feePercentage) / 10000);
+        assertEq(protocolAMM.swap(address(applicationCoin), swapAmount), swapAmount - expectedFee);
+        assertEq(applicationCoin2.balanceOf(ammUser), swapAmount - expectedFee);
+        assertEq(applicationCoin2.balanceOf(targetAccount), expectedFee);
     }
 
     /**
@@ -853,7 +917,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
 
     function testUpgradeHandlerAMM() public {
         /// Deploy the modified AMM Handler contract
-        ApplicationAMMHandlerMod assetHandler = new ApplicationAMMHandlerMod(address(applicationAppManager), address(ruleProcessor), address(protocolAMM));
+        ApplicationAMMHandlerMod assetHandler = new ApplicationAMMHandlerMod(address(applicationAppManager), address(ruleProcessor), address(protocolAMM), false);
 
         /// connect AMM to new Handler
         protocolAMM.connectHandlerToAMM(address(assetHandler));

@@ -16,5 +16,7 @@ contract ApplicationAMMHandler is ProtocolAMMHandler {
      * @param _appManagerAddress App Manager Address
      * @param _ruleProcessorProxyAddress Rule Router Proxy Address
      * @param _assetAddress address of the congtrolling address
-     */ constructor(address _appManagerAddress, address _ruleProcessorProxyAddress,address _assetAddress) ProtocolAMMHandler(_appManagerAddress, _ruleProcessorProxyAddress,_assetAddress) {}
+     * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
+     */ 
+     constructor(address _appManagerAddress, address _ruleProcessorProxyAddress, address _assetAddress, bool _upgradeMode) ProtocolAMMHandler(_appManagerAddress, _ruleProcessorProxyAddress, _assetAddress, _upgradeMode) {}
 }

@@ -16,7 +16,7 @@ import "src/client/token/ProtocolHandlerCommon.sol";
  * @notice This contract is the interaction point for the application ecosystem to the protocol
  */
 
-contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
+contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawalRuleCapable, ERC165 {
     /**
      * Functions added so far:
      * minAccountBalance

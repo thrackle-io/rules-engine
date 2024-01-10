@@ -6,7 +6,6 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "src/protocol/economic/IRuleProcessor.sol";
-import "./IProtocolAMMHandler.sol";
 import "src/client/token/ProtocolHandlerCommon.sol";
 
 /**
@@ -16,7 +15,7 @@ import "src/client/token/ProtocolHandlerCommon.sol";
  * @notice Any rules may be updated by modifying this contract and redeploying.
  */
 
-contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandler, RuleAdministratorOnly {
+contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
     /// Mapping lastUpdateTime for most recent previous tranaction through Protocol
     mapping(address => uint64) lastPurchaseTime;
     mapping(address => uint256) purchasedWithinPeriod;
@@ -41,9 +40,6 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     uint32 private purchasePercentageRuleId;
     uint32 private sellPercentageRuleId;
 
-    /// Fee ID's
-    uint32 private ammFeeRuleId;
-
     /// Rule Activation Bools
     bool private purchaseLimitRuleActive;
     bool private sellLimitRuleActive;
@@ -53,22 +49,25 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
     bool private purchasePercentageRuleActive;
     bool private sellPercentageRuleActive;
 
-    /// Fee Activation Bools
-    bool private ammFeeRuleActive;
-
     /**
      * @dev Constructor sets the App Manager andToken Rule Router Address
      * @param _appManagerAddress Application App Manager Address
      * @param _ruleProcessorProxyAddress Rule Processor Address
      * @param _assetAddress address of the controlling asset
+     * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
-    constructor(address _appManagerAddress, address _ruleProcessorProxyAddress,address _assetAddress) {
+    constructor(address _appManagerAddress, address _ruleProcessorProxyAddress,address _assetAddress, bool _upgradeMode) {
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         transferOwnership(_assetAddress);
         ruleProcessorAddress = _ruleProcessorProxyAddress;
-        emit HandlerDeployed(_appManagerAddress);
+        if (!_upgradeMode) {
+            deployDataContract();
+            emit HandlerDeployed(_appManagerAddress);
+        } else {
+            emit HandlerDeployed(_appManagerAddress);
+        }
     }
 
     /**
@@ -106,29 +105,6 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
             }
         }
         return true;
-    }
-
-    /**
-     * @dev Assess all the fees for the transaction
-     * @param _balanceFrom Token balance of the sender address
-     * @param _balanceTo Token balance of the recipient address
-     * @param _from Sender address
-     * @param _to Recipient address
-     * @param _amount total number of tokens to be transferred
-     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
-     * @return fees total assessed fee for transaction
-     */
-    function assessFees(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, ActionTypes _action) external view returns (uint256) {
-        /// this is to silence warning from unused parameters. NOTE: These parameters are in here for parity and possible future use.
-        _balanceFrom;
-        _balanceTo;
-        _from;
-        _to;
-        _amount;
-        _action;
-        uint256 fees;
-        if (ammFeeRuleActive) fees += ruleProcessor.assessAMMFee(ammFeeRuleId, _amount);
-        return fees;
     }
 
     /**
@@ -452,40 +428,6 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
         return oracleRuleActive;
     }
 
-    /**
-     * @dev Set the ammFeeRuleId. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setAMMFeeRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ammFeeRuleId = _ruleId;
-        ammFeeRuleActive = true;
-        emit ApplicationHandlerApplied(AMM_FEE, _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param on_off boolean representing if a rule must be checked or not.
-     */
-    function activateAMMFeeRule(bool on_off) external ruleAdministratorOnly(appManagerAddress) {
-        ammFeeRuleActive = on_off;
-    }
-
-    /**
-     * @dev Retrieve the AMM Fee rule id
-     * @return ammFeeRuleId
-     */
-    function getAMMFeeRuleId() external view returns (uint32) {
-        return ammFeeRuleId;
-    }
-
-    /**
-     * @dev Tells you if the AMM Fee Rule is active or not.
-     * @return boolean representing if the rule is active
-     */
-    function isAMMFeeRuleActive() external view returns (bool) {
-        return ammFeeRuleActive;
-    }
 
     /**
      * @dev Set the purchasePercentageRuleId. Restricted to app administrators only.
@@ -555,5 +497,38 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
      */
     function isSellPercentageRuleActive() external view returns (bool) {
         return sellPercentageRuleActive;
+    }
+
+    /// -------------DATA CONTRACT DEPLOYMENT---------------
+    /**
+     * @dev Deploy all the child data contracts. Only called internally from the constructor.
+     */
+    function deployDataContract() private {
+        fees = new Fees();
+    }
+
+    /**
+     * @dev Getter for the fee rules data contract address
+     * @return feesDataAddress
+     */
+    function getFeesDataAddress() external view returns (address) {
+        return address(fees);
+    }
+
+    /**
+     * @dev This function is used to propose the new owner for data contracts.
+     * @param _newOwner address of the new AppManager
+     */
+    function proposeDataContractMigration(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        fees.proposeOwner(_newOwner);
+    }
+
+    /**
+     * @dev This function is used to confirm this contract as the new owner for data contracts.
+     */
+    function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
+        ProtocolAMMHandler oldHandler = ProtocolAMMHandler(_oldHandlerAddress);
+        fees = Fees(oldHandler.getFeesDataAddress());
+        fees.confirmOwner();
     }
 }
