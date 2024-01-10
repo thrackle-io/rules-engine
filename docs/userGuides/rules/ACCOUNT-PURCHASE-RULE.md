@@ -76,23 +76,24 @@ The collection of these tagged sub-rules plus the startingTime composes an accou
 
 The rule will be evaluated with the following logic:
 
-1. The account is passed to the protocol with all the tags it has registered to its address in the application manager.
-2. The processor receives these tags along with the ID of the account-purchase-controller rule set in the token handler. 
-3. The processor retrieves the sub-rule associated with each tag.
-4. The processor evaluates whether the rule is active based on the `starting timestamp`. If it is not active, the rule aborts the next steps, and returns zero as the accrued cumulative purchases value.
-5. The processor evaluates whether the current time is within a new period.
+1. The token handler decides if the transfer is a Purchase (user perspective). Only if it is, it continues with the next steps.
+2. The account is passed to the protocol with all the tags it has registered to its address in the application manager.
+3. The processor receives these tags along with the ID of the account-purchase-controller rule set in the token handler. 
+4. The processor retrieves the sub-rule associated with each tag.
+5. The processor evaluates whether the rule is active based on the `starting timestamp`. If it is not active, the rule aborts the next steps, and returns zero as the accrued cumulative purchases value.
+6. The processor evaluates whether the current time is within a new period.
    -If it is a new period, the processor sets the cumulative purchases to the current purchase amount.
    -If it is not a new period, the processor adds the current purchase amount to the accrued purchase amount for the rule period. 
-6. The processor checks if the cumulative purchases amount is greater than the `purchase amount` defined in the rule. If true, the transaction reverts.
-7. Steps 4 and 5 are repeated for each of the account's tags. In the case where multiple tags apply, the most restrictive is applied.
-8. Returns the cumulative purchases amount.
+7. The processor checks if the cumulative purchases amount is greater than the `purchase amount` defined in the rule. If true, the transaction reverts.
+8. Steps 4 and 5 are repeated for each of the account's tags. In the case where multiple tags apply, the most restrictive is applied.
+9. Returns the cumulative purchases amount.
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkPurchaseLimit*
 
 ## Evaluation Exceptions 
 This rule doesn't apply when:
 - An approved Trading-Rule Whitelisted address is in the *to* side of the transaction.
-- ruleByapasser account is in the *from* or *to* side of the transaction.
+- rulebypasser account is in the *from* or *to* side of the transaction.
 
 Additionally, in the case of the ERC20, this rule doesn't apply also when registered treasury address is in the *to* side of the transaction.
 

@@ -56,14 +56,15 @@ struct PctSellRuleS {
 
 The rule will be evaluated with the following logic:
 
-1. The processor receives the ID of the token-percentage-sell rule set in the asset handler. 
-2. The processor receives the current total sold within period, token A amount (total amount of token A being transferred in the current transaction), previous sell time, and token's total supply from the handler.
-3. The processor evaluates whether the rule has a set total supply or uses the token's total supply provided by the handler set at the beginning of every new `period`.  
-4. The processor evaluates whether the current time is within a new `period`.
+1. The token handler decides if the transfer is a Sell (user perspective). Only if it is, it continues with the next steps.
+2. The processor receives the ID of the token-percentage-sell rule set in the asset handler. 
+3. The processor receives the current total sold within period, token A amount (total amount of token A being transferred in the current transaction), previous sell time, and token's total supply from the handler.
+4. The processor evaluates whether the rule has a set total supply or uses the token's total supply provided by the handler set at the beginning of every new `period`.  
+5. The processor evaluates whether the current time is within a new `period`.
     - **If it is a new period**, the processor sets the percent of total supply to the token A amount.
     - **If it is not a new period**, the processor sets percent of total supply to the sum of the total sold within period and token A amount. 
-5. The processor calculates the final sell percentage, in basis units, using the percent of total supply calculated in step 4 and the total supply set in step 3.  
-6. The processor evaluates if the final sell percentage of total supply would be greater than the `token percentage`. 
+6. The processor calculates the final sell percentage, in basis units, using the percent of total supply calculated in step 4 and the total supply set in step 3.  
+7. The processor evaluates if the final sell percentage of total supply would be greater than the `token percentage`. 
     - If yes, the transaction reverts. 
     - If no, the processor returns the `token percentage` value for the current `period` to the handler.
 
@@ -72,7 +73,7 @@ The rule will be evaluated with the following logic:
 ## Evaluation Exceptions 
 This rule doesn't apply when:
 - An approved Trading-Rule Whitelisted address is in the *from* side of the transaction.
-- ruleByapasser account is in the *from* or *to* side of the transaction.
+- rulebypasser account is in the *from* or *to* side of the transaction.
 
 Additionally, in the case of the ERC20, this rule doesn't apply also when registered treasury address is in the *to* side of the transaction.
 
