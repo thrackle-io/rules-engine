@@ -779,7 +779,6 @@ contract ApplicationERC20Test is TestCommonFoundry {
         uint256 maxBalance = 10000000 * 10 ** 18;
         int24 feePercentage = 300;
         address targetAccount = rich_user;
-        address targetAccount2 = user10;
         // create a fee
         switchToRuleAdmin();
         applicationCoinHandler.addFee("", minBalance, maxBalance, feePercentage, targetAccount);

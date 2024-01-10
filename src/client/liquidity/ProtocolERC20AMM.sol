@@ -2,10 +2,9 @@
 pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../application/IAppManager.sol";
-import "../liquidity/IProtocolAMMHandler.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "./IProtocolAMMCalculator.sol";
-import "src/client/liquidity/IProtocolAMMHandler.sol";
+import "src/client/liquidity/ProtocolAMMHandler.sol";
 import "src/common/AMMTypes.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
 import { AMMCalculatorErrors, AMMErrors, IZeroAddressError } from "src/common/IErrors.sol";
@@ -29,7 +28,7 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
     address public appManagerAddress;
     address public calculatorAddress;
     IProtocolAMMCalculator calculator;
-    IProtocolAMMHandler handler;
+    ProtocolAMMHandler handler;
 
     /**
      * @dev Must provide the addresses for both tokens that will provide liquidity
@@ -291,7 +290,7 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
      */
     function connectHandlerToAMM(address _handlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
-        handler = IProtocolAMMHandler(_handlerAddress);
+        handler = ProtocolAMMHandler(_handlerAddress);
         emit HandlerConnected(_handlerAddress);
     }
 
