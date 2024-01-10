@@ -227,7 +227,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         NonTaggedRules.TokenPercentagePurchaseRule memory percentagePurchaseRule = getPctPurchaseRule(ruleId);
         uint256 totalPurchasedWithinPeriod = amountToTransfer; /// resets value for purchases outside of purchase period
         uint256 totalSupply = percentagePurchaseRule.totalSupply;
-        /// check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
+        /// check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if > 0 use rule value
         if (percentagePurchaseRule.totalSupply == 0) totalSupply = currentTotalSupply;
         uint16 percentOfTotalSupply = uint16(((amountToTransfer + purchasedWithinPeriod) * 10000) / totalSupply);
         // check if within current purchase period
@@ -274,7 +274,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         NonTaggedRules.TokenPercentageSellRule memory percentageSellRule = getPctSellRule(ruleId);
         uint256 totalSoldWithinPeriod = amountToTransfer; /// resets value for purchases outside of purchase period
         uint256 totalSupply = percentageSellRule.totalSupply;
-        /// check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if < 0 use rule value
+        /// check if totalSupply in rule struct is 0 and if it is use currentTotalSupply, if > 0 use rule value
         if (percentageSellRule.totalSupply == 0) totalSupply = currentTotalSupply;
         uint16 percentOfTotalSupply = uint16(((amountToTransfer + soldWithinPeriod) * 10000) / totalSupply);
         // check if within current purchase period
