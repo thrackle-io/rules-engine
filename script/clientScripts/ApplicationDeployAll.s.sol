@@ -87,6 +87,7 @@ contract ApplicationDeployAllScript is Script {
         /**
          * Kevin as App admin sets:
          * Clu = Rule admin
+         * Clu = Rule Bypass account 
          * Gem = Access Tier admin
          * Sam = Risk admin
          */
@@ -95,6 +96,7 @@ contract ApplicationDeployAllScript is Script {
         applicationAppManager.addRuleAdministrator(vm.envAddress("CLU"));
         applicationAppManager.addAccessTier(vm.envAddress("GEM"));
         applicationAppManager.addRiskAdmin(vm.envAddress("CLU"));
+        applicationAppManager.addRuleBypassAccount(vm.envAddress("CLU"));
         vm.stopBroadcast();
     }
 }

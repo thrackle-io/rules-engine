@@ -40,6 +40,7 @@ contract ApplicationAdminRolesScript is Script {
          * RULE_ADMIN = Rule admin
          * ACCESS_TIER_ADMIN = Access Tier admin
          * RISK_ADMIN = Risk admin
+         * RULE_BYPASS_ACCOUNT = rule bypass account 
          */
         applicationAppManager.addAppAdministrator(vm.envAddress("APP_ADMIN"));
         vm.stopBroadcast();
@@ -47,6 +48,7 @@ contract ApplicationAdminRolesScript is Script {
         applicationAppManager.addRuleAdministrator(vm.envAddress("RULE_ADMIN"));
         applicationAppManager.addAccessTier(vm.envAddress("ACCESS_TIER_ADMIN"));
         applicationAppManager.addRiskAdmin(vm.envAddress("RISK_ADMIN"));
+        applicationAppManager.addRuleBypassAccount(vm.envAddress("RULE_BYPASS_ACCOUNT"));
         vm.stopBroadcast();
     }
 }

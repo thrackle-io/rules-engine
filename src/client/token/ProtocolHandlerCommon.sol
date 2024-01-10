@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
-import {ITokenHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "src/protocol/economic/ruleProcessor/RuleCodeData.sol";
 import "src/protocol/economic/IRuleProcessor.sol";
 import "src/client/application/IAppManager.sol";
@@ -12,6 +12,8 @@ import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "src/client/application/IAppManagerUser.sol";
 import "src/client/token/IAdminWithdrawalRuleCapable.sol";
 import "src/client/token/HandlerTypeEnum.sol";
+import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
+import {ITokenHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
 
 /**
  * @title Protocol Handler Common

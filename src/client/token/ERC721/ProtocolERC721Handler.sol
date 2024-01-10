@@ -6,7 +6,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "../ProtocolHandlerCommon.sol";
+import "src/client/token/ProtocolHandlerCommon.sol";
 
 /**
  * @title Base NFT Handler Contract
@@ -15,6 +15,10 @@ import "../ProtocolHandlerCommon.sol";
  *      Any rule handlers may be updated by modifying this contract, redeploying, and pointing the ERC721 to the new version.
  * @notice This contract is the interaction point for the application ecosystem to the protocol
  */
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "../ProtocolHandlerCommon.sol";
 
 contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
 
@@ -103,20 +107,21 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      */
 
     function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external onlyOwner returns (bool) {
-        bool isFromAdmin = appManager.isAppAdministrator(_from);
-        bool isToAdmin = appManager.isAppAdministrator(_to);
+        bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
+        bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
-        if (!isFromAdmin && !isToAdmin) {
+        if (!isFromBypassAccount && !isToBypassAccount) {
             if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
             appManager.checkApplicationRules(_action, address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, HandlerTypes.ERC721HANDLER);
             _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
+            /// set the ownership start time for the token if the Minimum Hold time rule is active
+            if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
         } else {
-            if (adminWithdrawalActive && isFromAdmin) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
+            if (adminWithdrawalActive && isFromBypassAccount) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
+            emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress);
         }
-        /// set the ownership start time for the token if the Minimum Hold time rule is active
-        if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
         /// If all rule checks pass, return true
         return true;
     }

@@ -36,6 +36,13 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
     function isRuleAdministrator(address account) external view returns (bool);
 
     /**
+     * @dev This function is where the rule bypass account role is actually checked
+     * @param account address to be checked
+     * @return success true if RULE_BYPASS_ACCOUNT, false if not
+     */
+    function isRuleBypassAccount(address account) external view returns (bool);
+
+    /**
      * @dev This function is where the access tier role is actually checked
      * @param account address to be checked
      * @return success true if ACCESS_TIER_ADMIN_ROLE, false if not

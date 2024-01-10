@@ -590,13 +590,9 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
     function testAdminWithdrawalUpgradeable() public {
         /// Mint TokenId 0-6 to default admin
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
+        for (uint i; i < 7; i++ ) {
+            ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(ruleBypassAccount);
+        }
         /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
@@ -610,28 +606,28 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationNFTHandler.activateAdminWithdrawalRule(false);
         vm.expectRevert();
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
-        switchToAppAdministrator();
+        switchToRuleBypassAccount();
         /// These transfers should pass
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(appAdministrator, user1, 0);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(appAdministrator, user1, 1);
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 0);
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 1);
         /// This one fails
         vm.expectRevert();
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(appAdministrator, user1, 2);
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 2);
 
         // upgrade the NFT and make sure it still fails
         vm.stopPrank();
         vm.startPrank(proxyOwner);
         applicationNFT2 = new ApplicationERC721Upgradeable();
         applicationNFTProxy.upgradeTo(address(applicationNFT2));
-        switchToAppAdministrator();
+        switchToRuleBypassAccount();
         vm.expectRevert();
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(appAdministrator, user1, 2);
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 2);
 
         /// Move Time forward 366 days
         vm.warp(Blocktime + 366 days);
 
         /// Transfers and updating rules should now pass
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(appAdministrator, user1, 2);
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 2);
         switchToRuleAdmin();
         applicationNFTHandler.activateAdminWithdrawalRule(false);
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
