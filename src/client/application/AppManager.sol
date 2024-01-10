@@ -725,7 +725,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function checkApplicationRules(address _tokenAddress, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId, ActionTypes _action, HandlerTypes _handlerType) external onlyHandler {
         if (applicationHandler.requireApplicationRulesChecked()) {    
-            applicationHandler.checkApplicationRules(_action, _tokenAddress, _from, _to, _amount, _nftValuationLimit, _tokenId, _handlerType);
+            applicationHandler.checkApplicationRules(_tokenAddress, _from, _to, _amount, _nftValuationLimit, _tokenId, _action, _handlerType);
         }
     }
 

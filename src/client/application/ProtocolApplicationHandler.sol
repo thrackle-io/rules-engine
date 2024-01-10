@@ -84,17 +84,17 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
 
     /**
      * @dev Check Application Rules for valid transaction.
-     * @param _action Action to be checked. This param is intentially added for future enhancements.
      * @param _tokenAddress address of the token calling the rule check 
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount amount of tokens to be transferred 
      * @param _nftValuationLimit number of tokenID's per collection before checking collection price vs individual token price
      * @param _tokenId tokenId of the NFT token
+     * @param _action Action to be checked. This param is intentially added for future enhancements.
      * @param _handlerType the type of handler, used to direct to correct token pricing
      * @return success Returns true if allowed, false if not allowed
      */
-    function checkApplicationRules(ActionTypes _action, address _tokenAddress, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId, HandlerTypes _handlerType) external onlyOwner returns (bool) {
+    function checkApplicationRules(address _tokenAddress, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId, ActionTypes _action, HandlerTypes _handlerType) external onlyOwner returns (bool) {
         _action;
         uint128 balanceValuation;
         uint128 price;
