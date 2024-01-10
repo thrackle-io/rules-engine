@@ -10,6 +10,8 @@ import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "src/client/application/IAppManagerUser.sol";
+import "./IAdminWithdrawalRuleCapable.sol";
+import "./IProtocolTokenHandler.sol";
 import "src/client/token/IAdminWithdrawalRuleCapable.sol";
 import "src/client/token/HandlerTypeEnum.sol";
 import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
@@ -21,12 +23,22 @@ import {ITokenHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/I
  * @notice This contract contains common variables and functions for all Protocol Asset Handlers
  */
 
-abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZeroAddressError, ITokenHandlerEvents, ICommonApplicationHandlerEvents, IAssetHandlerErrors, AppAdministratorOrOwnerOnly {
+abstract contract ProtocolHandlerCommon is 
+    IAppManagerUser, 
+    IOwnershipErrors, 
+    IZeroAddressError, 
+    ITokenHandlerEvents, 
+    ICommonApplicationHandlerEvents, 
+    IAssetHandlerErrors, 
+    AppAdministratorOnly, 
+    AppAdministratorOrOwnerOnly
+{
     string private constant VERSION="1.1.0";
     address private newAppManagerAddress;
     address public appManagerAddress;
     IRuleProcessor ruleProcessor;
     IAppManager appManager;
+
 
     /**
      * @dev this function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process

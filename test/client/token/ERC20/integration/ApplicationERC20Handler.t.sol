@@ -187,15 +187,15 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(ruleId);
         switchToAppAdministrator();
         /// execute a passing check for the minimum
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, msg.sender, 10);
         /// execute a passing check for the maximum
-        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 0, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 0, user1, user2, msg.sender, 500);
         // execute a failing check for the minimum
         vm.expectRevert(0xf1737570);
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, msg.sender, 15);
         // execute a passing check for the maximum
         vm.expectRevert(0x24691f6b);
-        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, msg.sender, 500);
     }
 
     /// now disable since it won't work unless an ERC20 is using it
@@ -217,10 +217,10 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToAppAdministrator();
         // test that the oracle works
         // This one should pass
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, msg.sender, 10);
         // This one should fail
         vm.expectRevert(0x2767bda4);
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(69), msg.sender, 10);
 
         // check the allowed list type
         switchToRuleAdmin();
@@ -232,10 +232,10 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
         // This one should pass
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(59), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(59), msg.sender, 10);
         // This one should fail
         vm.expectRevert(0x7304e213);
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), msg.sender, 10);
 
         // Finally, check the invalid type
         switchToRuleAdmin();
@@ -260,31 +260,31 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(ruleId);
         switchToAppAdministrator();
         /// execute a passing check for the minimum
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, msg.sender, 10);
         /// execute a passing check for the maximum
-        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 0, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 0, user1, user2, msg.sender, 500);
         // execute a failing check for the minimum
         vm.expectRevert(0xf1737570);
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, msg.sender, 15);
         // execute a failing check for the maximum
         vm.expectRevert(0x24691f6b);
-        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, msg.sender, 500);
         /// turning rules off
         switchToRuleAdmin();
         applicationCoinHandlerSpecialOwner.activateMinMaxBalanceRule(false);
         switchToAppAdministrator();
         /// now we can "break" the rules
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
-        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, msg.sender, 15);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, msg.sender, 500);
         /// turning rules back on
         switchToRuleAdmin();
         applicationCoinHandlerSpecialOwner.activateMinMaxBalanceRule(true);
         switchToAppAdministrator();
         /// now we cannot break the rules again
         vm.expectRevert(0xf1737570);
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, 15, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, msg.sender, 15);
         vm.expectRevert(0x24691f6b);
-        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, 500, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, msg.sender, 500);
 
         // add the rule.
         switchToRuleAdmin();
@@ -303,10 +303,10 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToAppAdministrator();
         // test that the oracle works
         // This one should pass
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, msg.sender, 10);
         // This one should fail
         vm.expectRevert(0x2767bda4);
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(69), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(69), msg.sender, 10);
 
         // check the allowed list type
         switchToRuleAdmin();
@@ -318,23 +318,23 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         goodBoys.push(address(59));
         oracleAllowed.addToAllowList(goodBoys);
         // This one should pass
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(59), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(59), msg.sender, 10);
         // This one should fail
         vm.expectRevert(0x7304e213);
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), msg.sender, 10);
 
         /// let's turn the rule off
         switchToRuleAdmin();
         applicationCoinHandlerSpecialOwner.activateOracleRule(false);
         switchToAppAdministrator();
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), msg.sender, 10);
 
         /// let's turn it back on
         switchToRuleAdmin();
         applicationCoinHandlerSpecialOwner.activateOracleRule(true);
         switchToAppAdministrator();
         vm.expectRevert(0x7304e213);
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), 10, ActionTypes.TRADE);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), msg.sender, 10);
     }
 
     ///---------------UPGRADEABILITY---------------

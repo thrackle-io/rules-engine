@@ -17,11 +17,12 @@ import "src/client/token/ProtocolHandlerCommon.sol";
  */
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "../ProtocolHandlerCommon.sol";
+import "../ProtocolHandlerTradingRulesCommon.sol";
 
-contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
-
+contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandlerTradingRulesCommon, IProtocolTokenHandler, IAdminWithdrawalRuleCapable, ERC165 {
+    
     address public erc721Address;
     /// RuleIds for implemented tagged rules of the ERC721
     uint32 private minMaxBalanceRuleId;
@@ -45,15 +46,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
     /// simple rule(with single parameter) variables
     uint32 private minimumHoldTimeHours;
 
-    /// token level accumulators
-    uint256 private transferVolume;
-    uint64 private lastTransferTs;
-    uint64 private lastSupplyUpdateTime;
-    int256 private volumeTotalForPeriod;
-    uint256 private totalSupplyForPeriod;
-    /// NFT Collection Valuation Limit:
-    /// number of tokenID's per collection before checking collection price vs individual token price
-    uint16 private nftValuationLimit = 100;
+    /// NFT Collection Valuation Limit
+    uint256 private nftValuationLimit = 100;
+
 
     /// Trade Counter data
     // map the tokenId of this NFT to the number of trades in the period
@@ -100,26 +95,27 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @param _balanceTo token balance of recipient address
      * @param _from sender address
      * @param _to recipient address
-     * @param _amount number of tokens transferred
+     * @param _sender the address triggering the contract action
      * @param _tokenId the token's specific ID
-     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return _success equals true if all checks pass
      */
 
-    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external onlyOwner returns (bool) {
+    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external override onlyOwner returns (bool) {
         bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
         bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
+        ActionTypes action = determineTransferAction(_from, _to, _sender);
+        uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
             if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
             appManager.checkApplicationRules(_action, address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, HandlerTypes.ERC721HANDLER);
-            _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount);
+            _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId, action);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
             /// set the ownership start time for the token if the Minimum Hold time rule is active
             if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
-        } else {
-            if (adminWithdrawalActive && isFromBypassAccount) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
+        } else if (adminWithdrawalActive && isFromBypassAccount) {
+            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
             emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress);
         }
         /// If all rule checks pass, return true
@@ -166,9 +162,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens transferred
+     * @param tokenId Id of the NFT being transferred
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount) internal view {
-        _checkTaggedIndividualRules(_from, _to, _balanceFrom, _balanceTo, _amount);
+    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
+        _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
     }
 
     /**
@@ -178,15 +176,23 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _amount number of tokens transferred
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedIndividualRules(address _from, address _to, uint256 _balanceFrom, uint256 _balanceTo, uint256 _amount) internal view {
-        if (minMaxBalanceRuleActive || minBalByDateRuleActive) {
+    function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
+        bytes32[] memory toTags;
+        bytes32[] memory fromTags;
+        bool mustCheckPurchaseRules = action == ActionTypes.PURCHASE && !appManager.isTradingRuleBypasser(_to);
+        bool mustCheckSellRules = action == ActionTypes.SELL && !appManager.isTradingRuleBypasser(_from);
+        if (minMaxBalanceRuleActive || minBalByDateRuleActive || (mustCheckPurchaseRules && purchaseLimitRuleActive) || (mustCheckSellRules && sellLimitRuleActive)) {
             // We get all tags for sender and recipient
-            bytes32[] memory toTags = appManager.getAllTags(_to);
-            bytes32[] memory fromTags = appManager.getAllTags(_from);
-            if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
-            if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+            toTags = appManager.getAllTags(_to);
+            fromTags = appManager.getAllTags(_from);
         }
+        if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+        if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+        if((mustCheckPurchaseRules && (purchaseLimitRuleActive || purchasePercentageRuleActive)) || (mustCheckSellRules && (sellLimitRuleActive || sellPercentageRuleActive)))
+            _checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
+        
     }
 
 
@@ -207,7 +213,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         ruleProcessor.validateMinMaxAccountBalance(_ruleId);
         minMaxBalanceRuleId = _ruleId;
         minMaxBalanceRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, _ruleId);
     }
 
     /**
@@ -248,7 +254,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         ruleProcessor.validateOracle(_ruleId);
         oracleRuleId = _ruleId;
         oracleRuleActive = true;
-        emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(ORACLE, _ruleId);
     }
 
     /**
@@ -289,7 +295,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         ruleProcessor.validateNFTTransferCounter(_ruleId);
         tradeCounterRuleId = _ruleId;
         tradeCounterRuleActive = true;
-        emit ApplicationHandlerApplied(NFT_TRANSFER, address(this), _ruleId);
+        emit ApplicationHandlerApplied(NFT_TRANSFER, _ruleId);
     }
 
     /**
@@ -348,7 +354,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         ruleProcessor.validateMinBalByDate(_ruleId);
         minBalByDateRuleId = _ruleId;
         minBalByDateRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, _ruleId);
     }
 
     /**
@@ -386,7 +392,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
         adminWithdrawalRuleId = _ruleId;
         adminWithdrawalActive = true;
-        emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, address(this), _ruleId);
+        emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, _ruleId);
     }
 
     /**
@@ -453,7 +459,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         ruleProcessor.validateTokenTransferVolume(_ruleId);
         tokenTransferVolumeRuleId = _ruleId;
         tokenTransferVolumeRuleActive = true;
-        emit ApplicationHandlerApplied(TRANSFER_VOLUME, address(this), _ruleId);
+        emit ApplicationHandlerApplied(TRANSFER_VOLUME, _ruleId);
     }
 
     /**
@@ -486,7 +492,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
         ruleProcessor.validateSupplyVolatility(_ruleId);
         totalSupplyVolatilityRuleId = _ruleId;
         totalSupplyVolatilityRuleActive = true;
-        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, address(this), _ruleId);
+        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, _ruleId);
     }
 
     /**
@@ -508,6 +514,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, RuleAdministra
      */
     function isTotalSupplyVolatilityActive() external view returns (bool) {
         return totalSupplyVolatilityRuleActive;
+    }
+
+    /**
+     *@dev this function gets the total supply of the address.
+     *@param _token address of the token to call totalSupply() of.
+     */
+    function getTotalSupply(address _token) internal view returns (uint256) {
+        return IERC20(_token).totalSupply();
     }
 
     /// -------------SIMPLE RULE SETTERS and GETTERS---------------
