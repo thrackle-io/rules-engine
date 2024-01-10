@@ -275,7 +275,6 @@ contract ApplicationERC20Test is TestCommonFoundry {
         switchToAppAdministrator();
         applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(draculaCoin), false);
         draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
-        applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         applicationAppManager.registerToken("DRAC", address(draculaCoin));
         draculaCoin.mint(appAdministrator, 10000000000000000000000 * (10 ** 18));

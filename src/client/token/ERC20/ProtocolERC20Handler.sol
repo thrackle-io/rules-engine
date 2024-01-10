@@ -95,7 +95,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         // // All transfers to treasury account are allowed
         if (!appManager.isTreasury(_to)) {
             /// standard rules do not apply when either to or from is an admin
-            if (!isFromAdmin && !isToAdmin) {
+            if (!isFromBypassAccount && !isToBypassAccount) {
                 /// appManager requires uint16 _nftValuationLimit and uin256 _tokenId for NFT pricing, 0 is passed for fungible token pricing
                 appManager.checkApplicationRules(_action, address(msg.sender), _from, _to, amount,  0, 0, HandlerTypes.ERC20HANDLER); 
                 _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
