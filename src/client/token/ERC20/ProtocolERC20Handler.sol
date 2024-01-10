@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "src/client/token/data/Fees.sol";
 import "src/client/token/ProtocolHandlerCommon.sol";
 import {IZeroAddressError, IAssetHandlerErrors} from "src/common/IErrors.sol";
+import "../ProtocolHandlerTradingRulesCommon.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract
@@ -17,7 +18,7 @@ import {IZeroAddressError, IAssetHandlerErrors} from "src/common/IErrors.sol";
  * @dev This contract performs all rule checks related to the the ERC20 that implements it.
  * @notice Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
  */
-contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawalRuleCapable, ERC165 {
+contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandlerTradingRulesCommon, IProtocolTokenHandler, IAdminWithdrawalRuleCapable, ERC165 {
     using ERC165Checker for address;
     /**
      * Functions added so far:

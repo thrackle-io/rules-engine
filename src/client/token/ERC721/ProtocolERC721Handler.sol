@@ -19,8 +19,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "../ProtocolHandlerCommon.sol";
+import "../ProtocolHandlerTradingRulesCommon.sol";
 
-contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawalRuleCapable, ERC165 {
+contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandlerTradingRulesCommon, IProtocolTokenHandler, IAdminWithdrawalRuleCapable, ERC165 {
     
     address public erc721Address;
     /// RuleIds for implemented tagged rules of the ERC721
