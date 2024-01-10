@@ -399,7 +399,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         uint48 accessBalance4 = uint48(_amountSeed) + 200;
         // add the rule.
         uint48[] memory balanceAmounts = createUint48Array(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
-
+ 
+        applicationAppManager.addRuleBypassAccount(appAdministrator);
         switchToRuleAdmin();
         uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         /// connect the rule to this handler
@@ -912,7 +913,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             accessLevel = 4;
         }
         /// create rule params
-        uint48[] memory withdrawalLimits = createUint48Array(0, 10, 20, 50, 250);
+        uint48[] memory withdrawalLimits = createUint48Array(0, 10, 20, 50, 250); 
+        applicationAppManager.addRuleBypassAccount(appAdministrator);
         switchToRuleAdmin();
         uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelWithdrawalRule(address(applicationAppManager), withdrawalLimits);
         applicationHandler.setWithdrawalLimitByAccessLevelRuleId(index);
@@ -1290,7 +1292,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         address _user1 = addressList[2];
         /// Mint TokenId 0-6 to default admin
-        for (uint i; i < 7; i++) applicationNFT.safeMint(appAdministrator);
+        for (uint i; i < 7; i++) applicationNFT.safeMint(ruleBypassAccount);
         /// we create a rule that sets the minimum amount to 5 tokens to be tranferable in 1 year
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
@@ -1302,17 +1304,18 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFTHandler.activateAdminWithdrawalRule(false);
         vm.expectRevert();
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
-        switchToAppAdministrator();
+
+        switchToRuleBypassAccount();
         /// These transfers should pass
-        applicationNFT.safeTransferFrom(appAdministrator, _user1, 0);
-        applicationNFT.safeTransferFrom(appAdministrator, _user1, 1);
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 0);
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 1);
         /// This one fails
         vm.expectRevert();
-        applicationNFT.safeTransferFrom(appAdministrator, _user1, 2);
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 2);
 
         vm.warp(Blocktime + daysForward);
         if (daysForward < 365 days) vm.expectRevert();
-        applicationNFT.safeTransferFrom(appAdministrator, _user1, 2);
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 2);
         switchToRuleAdmin();
         if (daysForward >= 365 days) {
             applicationNFTHandler.activateAdminWithdrawalRule(false);

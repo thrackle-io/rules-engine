@@ -32,7 +32,7 @@ A token-transfer-volume rule is composed of 4 components:
         uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to token's totalSupply.
     }
 ```
-###### *see [RuleDataInterfaces](../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
@@ -43,7 +43,7 @@ The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32
         uint32 transferVolRuleIndex;
     }
 ```
-###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -68,7 +68,7 @@ The rule will be evaluated with the following logic:
     - If yes, then the transaction reverts. 
     - If no, the processor returns the `_volume` value for the current `period` to the handler.
 
-###### *see [ERC20RuleProcessorFacet](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
+###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -97,7 +97,7 @@ function addTransferVolumeRule(
     uint256 _totalSupply
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [RuleDataFacet](../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)* 
+###### *see [RuleDataFacet](../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)* 
 
 The create function will return the protocol ID of the rule.
 
@@ -125,11 +125,11 @@ The following validation will be carried out by the create function in order to 
 - `_startTimestamp` is not zero and is not more than 52 weeks in the future.
 
 
-###### *see [RuleDataFacet](../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
+###### *see [RuleDataFacet](../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
         function getTransferVolumeRule(
@@ -144,7 +144,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalTransferVolumeRules() public view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkTokenTransferVolumePasses(
@@ -183,7 +183,7 @@ This rule returns the value:
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
 
 ## Data Recorded
 
@@ -197,7 +197,7 @@ uint64 private lastTransferTs;
 uint256 private transferVolume;
 ```
 
-*see [ERC721Handler](../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
+*see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)/[ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol)*
 
 ## Events
 

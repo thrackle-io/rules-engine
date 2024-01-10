@@ -36,7 +36,7 @@ struct AccountBalanceToRiskRule {
     uint48[] maxBalance; /// whole US dollar (no cents) -> 1 = 1 US dollar (Max allowed: 281 trillion USD)
 }
 ```
-###### *see [RuleDataInterfaces](../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 The account-balance-by-risk-score rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
@@ -47,7 +47,7 @@ The account-balance-by-risk-score rules are stored in a mapping indexed by ruleI
         uint32 balanceToRiskRuleIndex;
     }
 ```
-###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -65,7 +65,7 @@ The rule will be evaluated with the following logic:
 4. The processor finds the `max balance` value for the risk score.  
 5. The processor checks if the transaction value + current balance total is less than the risk score `max balance`. If total is greater than `max balance`, the rule reverts. 
 
-###### *see [ApplicationRiskProcessorFacet](../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccBalanceByRisk*
+###### *see [ApplicationRiskProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccBalanceByRisk*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -92,7 +92,7 @@ function addAccountBalanceByRiskScore(
     uint48[] calldata _balanceLimits
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
-###### *see [AppRuleDataFacet](../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 The create function will return the protocol ID of the rule.
 
@@ -118,11 +118,11 @@ The following validation will be carried out by the create function in order to 
 - `_balanceLimits` array is in descending order (the next value is always smaller than the previous value in the array). 
 
 
-###### *see [AppRuleDataFacet](../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 ## Other Functions:
 
-- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
+- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)):
     -  Function to get a rule by its ID:
         ```c
         function getAccountBalanceByRiskScore(
@@ -137,7 +137,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalAccountBalanceByRiskScoreRules() public view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkAccBalanceByRisk(

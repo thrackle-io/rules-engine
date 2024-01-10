@@ -149,22 +149,20 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
     /// Test renounce Application Administrators role when Admin Withdrawal rule is active
     function testRenounceAppAdministratorAdminWithdrawalERC20() public {
         vm.warp(Blocktime);
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
         // add admin withdrawal rule that covers current time period
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
         // apply admin withdrawal rule to an ERC20
         applicationCoinHandler.setAdminWithdrawalRuleId(_index);
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-        // try to renounce AppAdmin
+        switchToRuleBypassAccount();
+        // try to renounce ruleBypassAccount
         vm.expectRevert(0x23a87520);
-        applicationAppManager.renounceAppAdministrator();
+        applicationAppManager.renounceRuleBypassAccount();
         // try revoking from superAdmin
         vm.stopPrank();
         vm.startPrank(superAdmin);
         vm.expectRevert(0x23a87520);
-        applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
+        applicationAppManager.revokeRole(RULE_BYPASS_ACCOUNT, appAdministrator);
         // try to deactivate the rule
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
@@ -176,30 +174,28 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         applicationCoinHandler.setAdminWithdrawalRuleId(_index);
         // move a year into the future so that the rule is expired
         vm.warp(block.timestamp + (366 days));
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
+        switchToRuleBypassAccount(); 
         // try to renounce AppAdmin(this one should work)
-        applicationAppManager.renounceAppAdministrator();
+        applicationAppManager.renounceRuleBypassAccount();
     }
 
     /// Test renounce Application Administrators role when Admin Withdrawal rule is active
     function testRenounceAppAdministratorAdminWithdrawalERC721() public {
         vm.warp(Blocktime);
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-
         // add admin withdrawal rule that covers current time period
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
         // apply admin withdrawal rule to an ERC721
         applicationNFTHandler.setAdminWithdrawalRuleId(_index);
-        switchToAppAdministrator(); // create a app administrator and make it the sender.
-        // try to renounce AppAdmin
+        switchToRuleBypassAccount();
+        // try to renounce ruleBypassAccount
         vm.expectRevert(0x23a87520);
-        applicationAppManager.renounceAppAdministrator();
+        applicationAppManager.renounceRuleBypassAccount();
         // try revoking from superAdmin
         vm.stopPrank();
         vm.startPrank(superAdmin);
         vm.expectRevert(0x23a87520);
-        applicationAppManager.revokeRole(APP_ADMIN_ROLE, appAdministrator);
+        applicationAppManager.revokeRole(RULE_BYPASS_ACCOUNT, appAdministrator);
         // try to deactivate the rule
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
@@ -212,8 +208,8 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         // move a year into the future so that the rule is expired
         vm.warp(block.timestamp + (366 days));
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        // try to renounce AppAdmin(this one should work)
-        applicationAppManager.renounceAppAdministrator();
+        // try to renounce RuleBypassAccount(this one should work)
+        applicationAppManager.renounceRuleBypassAccount();
     }
 
     ///---------------Risk ADMIN--------------------

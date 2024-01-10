@@ -5,11 +5,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "src/client/application/AppManager.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "src/protocol/economic/ruleProcessor/RuleCodeData.sol";
-import {IApplicationHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
 import "src/protocol/economic/IRuleProcessor.sol";
 import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
-import {IZeroAddressError, IInputErrors} from "src/common/IErrors.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
+import {IZeroAddressError, IInputErrors} from "src/common/IErrors.sol";
+import {IApplicationHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
 
 /**
  * @title Protocol ApplicationHandler Contract

@@ -92,14 +92,18 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon, IProtocolAMMHandl
         address _tokenAddress,
         ActionTypes _action
     ) external onlyOwner returns (bool) {
-        bool isFromAdmin = appManager.isAppAdministrator(_from);
-        bool isToAdmin = appManager.isAppAdministrator(_to);
+        bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
+        bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
         // // All transfers to treasury account are allowed
         if (!appManager.isTreasury(_to)) {
             /// standard tagged and  rules do not apply when either to or from is an admin
-            if (!isFromAdmin && !isToAdmin) appManager.checkApplicationRules(_action, _to, _from, 0, 0);
+            if (!isFromBypassAccount && !isToBypassAccount) {
+            appManager.checkApplicationRules(_action, _to, _from, 0, 0);
             _checkTaggedRules(token0BalanceFrom, token1BalanceFrom, _from, _to, token_amount_0, token_amount_1, _action);
             _checkNonTaggedRules(token0BalanceFrom, token1BalanceFrom, _from, _to, token_amount_0, token_amount_1, _tokenAddress, _action);
+            } else {
+                emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress);
+            }
         }
         return true;
     }

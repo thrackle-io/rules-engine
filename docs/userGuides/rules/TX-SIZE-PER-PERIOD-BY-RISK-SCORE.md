@@ -51,7 +51,7 @@ struct TxSizePerPeriodToRiskRule {
         uint64 startingTime; 
     }
 ```
-###### *see [RuleDataInterfaces](../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 These rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
@@ -63,7 +63,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
     }
 ```
 
-###### *see [IRuleStorage](../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
+###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -83,7 +83,7 @@ The rule will be evaluated with the following logic:
     - **If it is not a new period**, then the protocol accumulates the amount being currently transferred to the accumulated US Dollar amount transferred during the period. 
 4. The protocol then evaluates the accumulated US Dollar amount transferred during current period against the rule's maximum allowed for the risk segment in which the account is in. The protocol reverts the transaction if the accumulated amount exceeds this rule risk-segment's maximum.
 
-###### *see [ApplicationRiskProcessorFacet](../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkMaxTxSizePerPeriodByRisk*
+###### *see [ApplicationRiskProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkMaxTxSizePerPeriodByRisk*
 
 ## Evaluation Exceptions 
 
@@ -119,7 +119,7 @@ function addMaxTxSizePerPeriodByRiskRule(
         ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 
-###### *see [AppRuleDataFacet](../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 The create function will return the protocol ID of the rule.
 
 ### Parameters:
@@ -144,10 +144,10 @@ The following validation will be carried out by the create function in order to 
 - `period` is not zero.
 - `_startTimestamp` is not zero and is not more than 52 weeks in the future.
 
-###### *see [AppRuleDataFacet](../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
+###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 ## Other Functions:
-- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function to get a rule by its Id:
         ```c
         function getMaxTxSizePerPeriodRule(uint32 _index) external view returns (AppRules.TxSizePerPeriodToRiskRule memory);
@@ -156,7 +156,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function getTotalMaxTxSizePerPeriodRules() external view returns (uint32);
         ```
-- In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
         function checkMaxTxSizePerPeriodByRisk(
@@ -170,7 +170,7 @@ The following validation will be carried out by the create function in order to 
                 view 
                 returns (uint128);
         ```
-- In the [Application Handler](../../src/client/application/ProtocolApplicationHandler.sol):
+- In the [Application Handler](../../../src/client/application/ProtocolApplicationHandler.sol):
     - Function to set and activate at the same time the rule in the asset handler:
         ```c
         function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
@@ -198,7 +198,7 @@ This rule returns 1 value:
 mapping(address => uint128) usdValueTransactedInRiskPeriod;
 ```
 
-*see [ProtocolApplicationHandler](../../src/client/application/ProtocolApplicationHandler.sol)
+*see [ProtocolApplicationHandler](../../../src/client/application/ProtocolApplicationHandler.sol)
 
 
 ## Data Recorded
@@ -211,7 +211,7 @@ mapping(address => uint128) usdValueTransactedInRiskPeriod;
 mapping(address => uint64) lastTxDateRiskRule;
 ```
 
-*see [ProtocolApplicationHandler](../../src/client/application/ProtocolApplicationHandler.sol)
+*see [ProtocolApplicationHandler](../../../src/client/application/ProtocolApplicationHandler.sol)
 
 
 ## Events

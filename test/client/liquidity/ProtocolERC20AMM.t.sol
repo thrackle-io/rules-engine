@@ -742,8 +742,8 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
 
     function testPauseRulesViaAppManagerAMM() public {
         initializeAMMAndUsers();
-        applicationCoin.transfer(appAdministrator, 1000);
-        applicationCoin2.transfer(appAdministrator, 1000);
+        applicationCoin.transfer(ruleBypassAccount, 1000);
+        applicationCoin2.transfer(ruleBypassAccount, 1000);
         ///set pause rule and check check that the transaction reverts
         switchToRuleAdmin();
         applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
@@ -757,7 +757,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         protocolAMM.swap(address(applicationCoin), 100);
 
         //Check that appAdministrators can still transfer within pausePeriod
-        switchToAppAdministrator();
+        switchToRuleBypassAccount();
         applicationCoin.approve(address(protocolAMM), 10000);
         applicationCoin2.approve(address(protocolAMM), 10000);
         protocolAMM.swap(address(applicationCoin), 100);
