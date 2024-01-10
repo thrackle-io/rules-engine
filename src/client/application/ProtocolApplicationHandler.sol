@@ -69,7 +69,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         appManager = AppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         transferOwnership(_appManagerAddress);
-        emit ApplicationHandlerDeployed(address(this), _appManagerAddress);
+        emit ApplicationHandlerDeployed(_appManagerAddress);
     }
 
     /**
@@ -315,9 +315,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccountBalanceByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountBalanceByRiskRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(BALANCE_BY_RISK, address(this));
+            emit ApplicationHandlerActivated(BALANCE_BY_RISK);
         } else {
-            emit ApplicationHandlerDeactivated(BALANCE_BY_RISK, address(this));
+            emit ApplicationHandlerDeactivated(BALANCE_BY_RISK);
         }
     }
 
@@ -356,9 +356,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccountBalanceByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountBalanceByAccessLevelRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(BALANCE_BY_ACCESSLEVEL, address(this));
+            emit ApplicationHandlerActivated(BALANCE_BY_ACCESSLEVEL);
         } else {
-            emit ApplicationHandlerDeactivated(BALANCE_BY_ACCESSLEVEL, address(this));
+            emit ApplicationHandlerDeactivated(BALANCE_BY_ACCESSLEVEL);
         }
     }
 
@@ -385,9 +385,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccessLevel0Rule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         AccessLevel0RuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ACCESS_LEVEL_0, address(this));
+            emit ApplicationHandlerActivated(ACCESS_LEVEL_0);
         } else {
-            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_0, address(this));
+            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_0);
         }
     }
 
@@ -418,9 +418,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateWithdrawalLimitByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         withdrawalLimitByAccessLevelRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ACCESS_LEVEL_WITHDRAWAL, address(this));
+            emit ApplicationHandlerActivated(ACCESS_LEVEL_WITHDRAWAL);
         } else {
-            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_WITHDRAWAL, address(this));
+            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_WITHDRAWAL);
         }
     }
 
@@ -468,9 +468,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateMaxTxSizePerPeriodByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         maxTxSizePerPeriodByRiskActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MAX_TX_PER_PERIOD, address(this));
+            emit ApplicationHandlerActivated(MAX_TX_PER_PERIOD);
         } else {
-            emit ApplicationHandlerDeactivated(MAX_TX_PER_PERIOD, address(this));
+            emit ApplicationHandlerDeactivated(MAX_TX_PER_PERIOD);
         }
     }
 
@@ -509,9 +509,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         transactionLimitByRiskRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(TX_SIZE_BY_RISK, address(this));
+            emit ApplicationHandlerActivated(TX_SIZE_BY_RISK);
         } else {
-            emit ApplicationHandlerDeactivated(TX_SIZE_BY_RISK, address(this));
+            emit ApplicationHandlerDeactivated(TX_SIZE_BY_RISK);
         }
     }
 
@@ -533,9 +533,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activatePauseRule(bool _on) external onlyOwner {
         pauseRuleActive = _on; 
         if (_on) {
-            emit ApplicationHandlerActivated(PAUSE_RULE, address(this));
+            emit ApplicationHandlerActivated(PAUSE_RULE);
         } else {
-            emit ApplicationHandlerDeactivated(PAUSE_RULE, address(this));
+            emit ApplicationHandlerDeactivated(PAUSE_RULE);
         }
     }
 

@@ -76,9 +76,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         transferOwnership(_assetAddress);
         setERC721Address(_assetAddress);
         if (!_upgradeMode) {
-            emit HandlerDeployed(address(this), _appManagerAddress);
+            emit HandlerDeployed(_appManagerAddress);
         } else {
-            emit HandlerDeployed(address(this), _appManagerAddress);
+            emit HandlerDeployed(_appManagerAddress);
         }
     }
 
@@ -222,9 +222,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateMinMaxBalanceRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minMaxBalanceRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT, address(this));
+            emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT);
         } else {
-            emit ApplicationHandlerDeactivated(MIN_MAX_BALANCE_LIMIT, address(this));
+            emit ApplicationHandlerDeactivated(MIN_MAX_BALANCE_LIMIT);
         }
     }
 
@@ -263,9 +263,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         oracleRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ORACLE, address(this));
+            emit ApplicationHandlerActivated(ORACLE);
         } else {
-            emit ApplicationHandlerDeactivated(ORACLE, address(this));
+            emit ApplicationHandlerDeactivated(ORACLE);
         }
     }
 
@@ -304,9 +304,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateTradeCounterRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         tradeCounterRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(NFT_TRANSFER, address(this));
+            emit ApplicationHandlerActivated(NFT_TRANSFER);
         } else {
-            emit ApplicationHandlerDeactivated(NFT_TRANSFER, address(this));
+            emit ApplicationHandlerDeactivated(NFT_TRANSFER);
         }
     }
 
@@ -363,9 +363,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minBalByDateRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE, address(this));
+            emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE);
         } else {
-            emit ApplicationHandlerDeactivated(MIN_ACCT_BAL_BY_DATE, address(this));
+            emit ApplicationHandlerDeactivated(MIN_ACCT_BAL_BY_DATE);
         }
     }
 
@@ -419,9 +419,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         }
         adminWithdrawalActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ADMIN_WITHDRAWAL, address(this));
+            emit ApplicationHandlerActivated(ADMIN_WITHDRAWAL);
         } else {
-            emit ApplicationHandlerDeactivated(ADMIN_WITHDRAWAL, address(this));
+            emit ApplicationHandlerDeactivated(ADMIN_WITHDRAWAL);
         }
     }
 
@@ -468,9 +468,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateTokenTransferVolumeRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         tokenTransferVolumeRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(TRANSFER_VOLUME, address(this));
+            emit ApplicationHandlerActivated(TRANSFER_VOLUME);
         } else {
-            emit ApplicationHandlerDeactivated(TRANSFER_VOLUME, address(this));
+            emit ApplicationHandlerDeactivated(TRANSFER_VOLUME);
         }
     }
 
@@ -501,9 +501,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateTotalSupplyVolatilityRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         totalSupplyVolatilityRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(SUPPLY_VOLATILITY, address(this));
+            emit ApplicationHandlerActivated(SUPPLY_VOLATILITY);
         } else {
-            emit ApplicationHandlerDeactivated(SUPPLY_VOLATILITY, address(this));
+            emit ApplicationHandlerDeactivated(SUPPLY_VOLATILITY);
         }
     }
 
@@ -531,9 +531,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateMinimumHoldTimeRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minimumHoldTimeRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MINIMUM_HOLD_TIME, address(this));
+            emit ApplicationHandlerActivated(MINIMUM_HOLD_TIME);
         } else {
-            emit ApplicationHandlerDeactivated(MINIMUM_HOLD_TIME, address(this));
+            emit ApplicationHandlerDeactivated(MINIMUM_HOLD_TIME);
         }
     }
 
@@ -546,7 +546,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         if (_minimumHoldTimeHours > MAX_HOLD_TIME_HOURS) revert PeriodExceeds5Years();
         minimumHoldTimeHours = _minimumHoldTimeHours;
         minimumHoldTimeRuleActive = true;
-        emit ApplicationHandlerSimpleApplied(MINIMUM_HOLD_TIME, address(this), uint256(minimumHoldTimeHours));
+        emit ApplicationHandlerSimpleApplied(MINIMUM_HOLD_TIME, uint256(minimumHoldTimeHours));
     }
 
     /**
@@ -571,7 +571,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      */
     function setNFTValuationLimit(uint16 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(appManagerAddress) {
         nftValuationLimit = _newNFTValuationLimit;
-        emit NFTValuationLimitUpdated(_newNFTValuationLimit, address(this));
+        emit NFTValuationLimitUpdated(_newNFTValuationLimit);
     }
 
     /**
