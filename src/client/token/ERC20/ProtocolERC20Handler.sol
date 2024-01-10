@@ -6,9 +6,11 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "src/client/token/data/Fees.sol";
 import "src/client/token/ProtocolHandlerCommon.sol";
 import {IZeroAddressError, IAssetHandlerErrors} from "src/common/IErrors.sol";
+import "../ProtocolHandlerTradingRulesCommon.sol";
 
 /**
  * @title Example ApplicationERC20Handler Contract
@@ -16,7 +18,7 @@ import {IZeroAddressError, IAssetHandlerErrors} from "src/common/IErrors.sol";
  * @dev This contract performs all rule checks related to the the ERC20 that implements it.
  * @notice Any rules may be updated by modifying this contract, redeploying, and pointing the ERC20 to the new version.
  */
-contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministratorOnly, RuleAdministratorOnly, IAdminWithdrawalRuleCapable, ERC165 {
+contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandlerTradingRulesCommon, IProtocolTokenHandler, IAdminWithdrawalRuleCapable, ERC165 {
     using ERC165Checker for address;
     /**
      * Functions added so far:
@@ -56,13 +58,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     bool private tokenTransferVolumeRuleActive;
     bool private totalSupplyVolatilityRuleActive;
 
-    /// token level accumulators
-    uint256 private transferVolume;
-    uint64 private lastTransferTs;
-    uint64 private lastSupplyUpdateTime;
-    int256 private volumeTotalForPeriod;
-    uint256 private totalSupplyForPeriod;
-
     /**
      * @dev Constructor sets params
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
@@ -71,14 +66,12 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
     constructor(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress, bool _upgradeMode) {
-        if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) revert ZeroAddress();
+        if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) 
+            revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         transferOwnership(_assetAddress);
-        // register the supported interface, IAdminWithdrawalRuleCapable, ERC165
-        // _registerInterface(type(IAdminWithdrawalRuleCapable).interfaceId);
-        // _registerInterface(type(IAdminWithdrawalRuleCapable).interfaceId);
         if (!_upgradeMode) {
             deployDataContract();
             emit HandlerDeployed(address(this), _appManagerAddress);
@@ -100,13 +93,14 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @param balanceTo token balance of recipient address
      * @param _from sender address
      * @param _to recipient address
-     * @param amount number of tokens transferred
-     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
+     * @param _sender the address triggering the contract action
+     * @param _amount number of tokens transferred
      * @return true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, ActionTypes _action) external onlyOwner returns (bool) {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _amount)external override onlyOwner returns (bool) {
         bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
         bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
+        ActionTypes action = determineTransferAction(_from, _to, _sender);
         // // All transfers to treasury account are allowed
         if (!appManager.isTreasury(_to)) {
             /// standard rules do not apply when either to or from is an admin
@@ -117,15 +111,16 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
                 if (appManager.requireValuations()) {
                     balanceValuation = uint128(getAccTotalValuation(_to, 0));
                     price = uint128(_getERC20Price(msg.sender));
-                    transferValuation = uint128((price * amount) / (10 ** IToken(msg.sender).decimals()));
+                    transferValuation = uint128((price * _amount) / (10 ** IToken(msg.sender).decimals()));
                 }
-                appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
-                _checkTaggedRules(balanceFrom, balanceTo, _from, _to, amount);
-                _checkNonTaggedRules(_from, _to, amount);
-            } else {
-                if (adminWithdrawalActive && isFromBypassAccount) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
+                appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation, action);
+                _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
+                _checkNonTaggedRules(_from, _to, _amount);
+            } else if (adminWithdrawalActive && isFromBypassAccount) {
+                ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, _amount);
                 emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress); 
             }
+            
         }
         /// If all rule checks pass, return true
         return true;
@@ -165,9 +160,10 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens transferred
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount) internal view {
-        _checkTaggedIndividualRules(_from, _to, _balanceFrom, _balanceTo, _amount);
+    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
+        _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
         /// we only ask for price if we need it since this might cause the contract to require setting the pricing contracts when there is no need
         if (transactionLimitByRiskRuleActive) {
             uint256 price = _getERC20Price(msg.sender);
@@ -177,23 +173,39 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     }
 
     /**
-     * @dev This function consolidates all the tagged rules that utilize account tags.
+     * @dev This function consolidates all the tagged rules that utilize account tags plus all trading rules.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens transferred
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedIndividualRules(address _from, address _to, uint256 _balanceFrom, uint256 _balanceTo, uint256 _amount) internal view {
-        if (minMaxBalanceRuleActive || minBalByDateRuleActive) {
+    function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
+        bytes32[] memory toTags;
+        bytes32[] memory fromTags;
+        bool mustCheckPurchaseRules = action == ActionTypes.PURCHASE && !appManager.isTradingRuleBypasser(_to);
+        bool mustCheckSellRules = action == ActionTypes.SELL && !appManager.isTradingRuleBypasser(_from);
+        if ( minMaxBalanceRuleActive || minBalByDateRuleActive || 
+            (mustCheckPurchaseRules && purchaseLimitRuleActive) ||
+            (mustCheckSellRules && sellLimitRuleActive)
+        )
+        {
             // We get all tags for sender and recipient
-            bytes32[] memory toTags = appManager.getAllTags(_to);
-            bytes32[] memory fromTags = appManager.getAllTags(_from);
-            if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
-            if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+            toTags = appManager.getAllTags(_to);
+            fromTags = appManager.getAllTags(_from);
         }
+        if (minMaxBalanceRuleActive) 
+            ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+        if (minBalByDateRuleActive) 
+            ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+        if((mustCheckPurchaseRules && (purchaseLimitRuleActive || purchasePercentageRuleActive)) || 
+            (mustCheckSellRules && (sellLimitRuleActive || sellPercentageRuleActive))
+        )
+            _checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
     }
 
+    
     /**
      * @dev This function consolidates all the Risk rules that utilize tagged account Risk scores.
      * @param _from address of the from account
@@ -341,7 +353,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateMinMaxAccountBalance(_ruleId);
         minMaxBalanceRuleId = _ruleId;
         minMaxBalanceRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, _ruleId);
     }
 
     /**
@@ -382,7 +394,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateMinTransfer(_ruleId);
         minTransferRuleId = _ruleId;
         minTransferRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_TRANSFER, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_TRANSFER, _ruleId);
     }
 
     /**
@@ -423,7 +435,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateOracle(_ruleId);
         oracleRuleId = _ruleId;
         oracleRuleActive = true;
-        emit ApplicationHandlerApplied(ORACLE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(ORACLE, _ruleId);
     }
 
     /**
@@ -472,7 +484,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateTransactionLimitByRiskScore(_ruleId);
         transactionLimitByRiskRuleId = _ruleId;
         transactionLimitByRiskRuleActive = true;
-        emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, address(this), _ruleId);
+        emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, _ruleId);
     }
 
     /**
@@ -510,7 +522,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
         adminWithdrawalRuleId = _ruleId;
         adminWithdrawalActive = true;
-        emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, address(this), _ruleId);
+        emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, _ruleId);
     }
 
     /**
@@ -577,7 +589,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateMinBalByDate(_ruleId);
         minBalByDateRuleId = _ruleId;
         minBalByDateRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, address(this), _ruleId);
+        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, _ruleId);
     }
 
     /**
@@ -618,7 +630,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateTokenTransferVolume(_ruleId);
         tokenTransferVolumeRuleId = _ruleId;
         tokenTransferVolumeRuleActive = true;
-        emit ApplicationHandlerApplied(TRANSFER_VOLUME, address(this), _ruleId);
+        emit ApplicationHandlerApplied(TRANSFER_VOLUME, _ruleId);
     }
 
     /**
@@ -659,7 +671,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
         ruleProcessor.validateSupplyVolatility(_ruleId);
         totalSupplyVolatilityRuleId = _ruleId;
         totalSupplyVolatilityRuleActive = true;
-        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, address(this), _ruleId);
+        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, _ruleId);
     }
 
     /**
@@ -682,6 +694,15 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, AppAdministrato
     function isTotalSupplyVolatilityActive() external view returns (bool) {
         return totalSupplyVolatilityRuleActive;
     }
+
+    /**
+     *@dev this function gets the total supply of the address.
+     *@param _token address of the token to call totalSupply() of.
+     */
+    function getTotalSupply(address _token) internal view returns (uint256) {
+        return IERC20(_token).totalSupply();
+    }
+
 
     /// -------------DATA CONTRACT DEPLOYMENT---------------
     /**

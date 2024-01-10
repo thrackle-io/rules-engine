@@ -69,15 +69,13 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
 
     /**
      * @dev Check Application Rules for valid transaction.
-     * @param _action Action to be checked. This param is intentially added for future enhancements.
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
      * @return success Returns true if allowed, false if not allowed
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external onlyOwner returns (bool) {
-        _action;
+    function checkApplicationRules(address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external onlyOwner returns (bool) {
         if (pauseRuleActive) ruleProcessor.checkPauseRules(appManagerAddress);
         if (requireValuations() || AccessLevel0RuleActive) {
             _checkRiskRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);

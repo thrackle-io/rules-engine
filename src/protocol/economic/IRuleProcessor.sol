@@ -73,7 +73,7 @@ interface IRuleProcessor {
      * @param fromTags Account tags applied to sender via App Manager
      * @param lastUpdateTime block.timestamp of most recent transaction from sender.
      */
-    function checkSellLimit(uint32 ruleId, uint256 salesWithinPeriod, uint256 amount, bytes32[] calldata fromTags, uint256 lastUpdateTime) external view returns (uint256);
+    function checkSellLimit(uint32 ruleId, uint256 salesWithinPeriod, uint256 amount, bytes32[] calldata fromTags, uint64 lastUpdateTime) external view returns (uint256);
 
     /**
      * @dev Check the minimum/maximum rule through the AMM Swap
@@ -200,6 +200,32 @@ interface IRuleProcessor {
      * @param _dataServer address of the Application Rule Processor Diamond contract
      */
     function checkPauseRules(address _dataServer) external view;
+
+    /**
+     * @dev Function receives a rule id, retrieves the rule data and checks if the Purchase Percentage Rule passes
+     * @param ruleId id of the rule to be checked
+     * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
+     * @param amountToTransfer total number of tokens to be transferred in transaction.
+     * @param lastPurchaseTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
+     */
+    function checkPurchasePercentagePasses(
+        uint32 ruleId,
+        uint256 currentTotalSupply,
+        uint256 amountToTransfer,
+        uint64 lastPurchaseTime,
+        uint256 totalPurchasedWithinPeriod
+    ) external view returns (uint256);
+
+    /**
+     * @dev Function receives a rule id, retrieves the rule data and checks if the Sell Percentage Rule passes
+     * @param ruleId id of the rule to be checked
+     * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
+     * @param amountToTransfer total number of tokens to be transferred in transaction.
+     * @param lastSellTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
+     * @param totalSoldWithinPeriod total amount of tokens sold during period.
+     */
+    function checkSellPercentagePasses(uint32 ruleId, uint256 currentTotalSupply, uint256 amountToTransfer, uint64 lastSellTime, uint256 totalSoldWithinPeriod) external view returns (uint256);
+
 
     /**
      * @dev Rule checks if the token transfer volume rule will be violated.
