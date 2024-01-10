@@ -101,19 +101,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @return _success equals true if all checks pass
      */
 
-    function checkAllRules(
-        uint256 _balanceFrom, 
-        uint256 _balanceTo, 
-        address _from, 
-        address _to,  
-        address _sender, 
-        uint256 _tokenId
-    ) 
-    external 
-    override 
-    onlyOwner 
-    returns (bool) 
-    {
+    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external override onlyOwner returns (bool) {
         bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
         bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
@@ -156,13 +144,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
             lastTxDate[tokenId] = uint64(block.timestamp);
         }
         if (tokenTransferVolumeRuleActive) {
-            transferVolume = ruleProcessor.checkTokenTransferVolumePasses(
-                tokenTransferVolumeRuleId, 
-                transferVolume, 
-                IToken(msg.sender).totalSupply(), 
-                _amount, 
-                lastTransferTs
-            );
+            transferVolume = ruleProcessor.checkTokenTransferVolumePasses(tokenTransferVolumeRuleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
             lastTransferTs = uint64(block.timestamp);
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
@@ -189,17 +171,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _amount number of tokens transferred
      * @param tokenId Id of the NFT being transferred
      */
-    function _checkTaggedAndTradingRules(
-        uint256 _balanceFrom, 
-        uint256 _balanceTo, 
-        address _from, 
-        address _to, 
-        address _sender,
-        uint256 _amount, 
-        uint256 tokenId
-    )
-    internal 
-    {
+    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, address _sender,uint256 _amount, uint256 tokenId) internal {
         _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _sender, _amount);
         if (transactionLimitByRiskRuleActive) {
             /// If more rules need these values, then this can be moved above.
@@ -216,37 +188,20 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _balanceTo token balance of recipient address
      * @param _amount number of tokens transferred
      */
-    function _checkTaggedIndividualRules(
-        uint256 _balanceFrom, 
-        uint256 _balanceTo, 
-        address _from, 
-        address _to, 
-        address _sender,
-        uint256 _amount
-    ) 
-    internal 
-    {
+    function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, address _sender,uint256 _amount) internal {
         bytes32[] memory toTags;
         bytes32[] memory fromTags;
         ActionTypes action = determineTransferAction(_from, _to, _sender);
         bool mustCheckPurchaseRules = action == ActionTypes.PURCHASE && !appManager.isTradingRuleBypasser(_to);
         bool mustCheckSellRules = action == ActionTypes.SELL && !appManager.isTradingRuleBypasser(_from);
-        if (minMaxBalanceRuleActive || minBalByDateRuleActive || 
-            (mustCheckPurchaseRules && purchaseLimitRuleActive) ||
-            (mustCheckSellRules && sellLimitRuleActive)
-        ) 
-        {
+        if (minMaxBalanceRuleActive || minBalByDateRuleActive || (mustCheckPurchaseRules && purchaseLimitRuleActive) || (mustCheckSellRules && sellLimitRuleActive)) {
             // We get all tags for sender and recipient
             toTags = appManager.getAllTags(_to);
             fromTags = appManager.getAllTags(_from);
         }
-        if (minMaxBalanceRuleActive) 
-            ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
-        if (minBalByDateRuleActive) 
-            ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
-        if((mustCheckPurchaseRules && (purchaseLimitRuleActive || purchasePercentageRuleActive)) || 
-            (mustCheckSellRules && (sellLimitRuleActive || sellPercentageRuleActive))
-        )
+        if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+        if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+        if((mustCheckPurchaseRules && (purchaseLimitRuleActive || purchasePercentageRuleActive)) || (mustCheckSellRules && (sellLimitRuleActive || sellPercentageRuleActive)))
             _checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
         
     }

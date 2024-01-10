@@ -96,19 +96,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawa
      * @param _amount number of tokens transferred
      * @return true if all checks pass
      */
-    function checkAllRules(
-        uint256 balanceFrom, 
-        uint256 balanceTo, 
-        address _from, 
-        address _to, 
-        address _sender, 
-        uint256 _amount
-    )
-     external 
-     override 
-     onlyOwner 
-     returns (bool) 
-     {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _amount)external override onlyOwner returns (bool) {
         bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
         bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
         // // All transfers to treasury account are allowed
@@ -146,13 +134,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawa
         if (minTransferRuleActive) ruleProcessor.checkMinTransferPasses(minTransferRuleId, _amount);
         if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _to);
         if (tokenTransferVolumeRuleActive) {
-            transferVolume = ruleProcessor.checkTokenTransferVolumePasses(
-                tokenTransferVolumeRuleId, 
-                transferVolume, 
-                IToken(msg.sender).totalSupply(), 
-                _amount, 
-                lastTransferTs
-            );
+            transferVolume = ruleProcessor.checkTokenTransferVolumePasses(tokenTransferVolumeRuleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
             lastTransferTs = uint64(block.timestamp);
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
@@ -178,16 +160,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawa
      * @param _sender address of the sender account
      * @param _amount number of tokens transferred
      */
-    function _checkTaggedAndTradingRules(
-        uint256 _balanceFrom, 
-        uint256 _balanceTo, 
-        address _from, 
-        address _to, 
-        address _sender,
-        uint256 _amount
-    ) 
-    internal 
-    {
+    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, address _sender,uint256 _amount) internal {
         _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _sender, _amount);
         /// we only ask for price if we need it since this might cause the contract to require setting the pricing contracts when there is no need
         if (transactionLimitByRiskRuleActive) {
@@ -206,16 +179,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawa
      * @param _sender address of the sender account
      * @param _amount number of tokens transferred
      */
-    function _checkTaggedIndividualRules(
-        uint256 _balanceFrom, 
-        uint256 _balanceTo, 
-        address _from, 
-        address _to, 
-        address _sender,
-        uint256 _amount
-    ) 
-    internal 
-    {
+    function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, address _sender,uint256 _amount) internal {
         bytes32[] memory toTags;
         bytes32[] memory fromTags;
         ActionTypes action = determineTransferAction(_from, _to, _sender);
@@ -267,16 +231,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawa
      * @param _feePercentage fee percentage to assess
      * @param _targetAccount target for the fee proceeds
      */
-    function addFee(
-        bytes32 _tag, 
-        uint256 _minBalance, 
-        uint256 _maxBalance, 
-        int24 _feePercentage, 
-        address _targetAccount
-    ) 
-    external 
-    ruleAdministratorOnly(appManagerAddress) 
-    {
+    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external ruleAdministratorOnly(appManagerAddress) {
         fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
         feeActive = true;
     }
