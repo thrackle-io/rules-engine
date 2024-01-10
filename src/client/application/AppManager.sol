@@ -714,15 +714,16 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Check Application Rules for valid transactions.
-     * @param _action Action to be checked
      * @param _tokenAddress address of the token calling the rule check 
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens to be transferred 
      * @param _nftValuationLimit number of tokenID's per collection before checking collection price vs individual token price
      * @param _tokenId tokenId of the NFT token
+     * @param _action Action to be checked
+     * @param _handlerType type of handler calling checkApplicationRules function 
      */
-    function checkApplicationRules(ActionTypes _action, address _tokenAddress, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId, HandlerTypes _handlerType) external onlyHandler {
+    function checkApplicationRules(address _tokenAddress, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId, ActionTypes _action, HandlerTypes _handlerType) external onlyHandler {
         if (applicationHandler.requireApplicationRulesChecked()) {    
             applicationHandler.checkApplicationRules(_action, _tokenAddress, _from, _to, _amount, _nftValuationLimit, _tokenId, _handlerType);
         }

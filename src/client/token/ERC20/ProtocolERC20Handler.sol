@@ -91,11 +91,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
             /// standard rules do not apply when either to or from is an admin
             if (!isFromBypassAccount && !isToBypassAccount) {
                 /// appManager requires uint16 _nftValuationLimit and uin256 _tokenId for NFT pricing, 0 is passed for fungible token pricing
-                appManager.checkApplicationRules(_action, address(msg.sender), _from, _to, amount,  0, 0, HandlerTypes.ERC20HANDLER); 
+                appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
                 _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
-                _checkNonTaggedRules(_from, _to, amount);
+                _checkNonTaggedRules(_from, _to, _amount);
             } else if (adminWithdrawalActive && isFromBypassAccount) {
-                ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, amount);
+                ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, balanceFrom, _amount);
                 emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress); 
             }
             

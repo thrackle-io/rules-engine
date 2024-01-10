@@ -47,7 +47,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     uint32 private minimumHoldTimeHours;
 
     /// NFT Collection Valuation Limit
-    uint256 private nftValuationLimit = 100;
+    uint16 private nftValuationLimit = 100;
 
 
     /// Trade Counter data
@@ -108,8 +108,8 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
             if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
-            appManager.checkApplicationRules(_action, address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, HandlerTypes.ERC721HANDLER);
-            _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId, action);
+            appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
+            _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
             /// set the ownership start time for the token if the Minimum Hold time rule is active
@@ -162,7 +162,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens transferred
-     * @param tokenId Id of the NFT being transferred
      * @param action if selling or buying (of ActionTypes type)
      */
     function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {

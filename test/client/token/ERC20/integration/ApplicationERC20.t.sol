@@ -964,7 +964,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
         switchToRuleAdmin();
-        applicationCoinHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
         vm.startPrank(user2);
