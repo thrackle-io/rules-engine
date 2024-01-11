@@ -64,7 +64,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {
         /// Rule Processor Module Check
-        require(handler.checkAllRules(balanceOf(from), balanceOf(to), from, to, amount, ActionTypes.TRADE));
+        require(handler.checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);
     }
 

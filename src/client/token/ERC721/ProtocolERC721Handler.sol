@@ -15,16 +15,14 @@ import "src/client/token/ProtocolHandlerCommon.sol";
  *      Any rule handlers may be updated by modifying this contract, redeploying, and pointing the ERC721 to the new version.
  * @notice This contract is the interaction point for the application ecosystem to the protocol
  */
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+import "../ProtocolHandlerCommon.sol";
+import "../ProtocolHandlerTradingRulesCommon.sol";
 
-contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdrawalRuleCapable, ERC165 {
-    /**
-     * Functions added so far:
-     * minAccountBalance
-     * Min Max Balance
-     * Oracle
-     * Trade Counter
-     * Balance By AccessLevel
-     */
+contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandlerTradingRulesCommon, IProtocolTokenHandler, IAdminWithdrawalRuleCapable, ERC165 {
+    
     address public erc721Address;
     /// RuleIds for implemented tagged rules of the ERC721
     uint32 private minMaxBalanceRuleId;
@@ -50,14 +48,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
     /// simple rule(with single parameter) variables
     uint32 private minimumHoldTimeHours;
 
-    /// token level accumulators
-    uint256 private transferVolume;
-    uint64 private lastTransferTs;
-    uint64 private lastSupplyUpdateTime;
-    int256 private volumeTotalForPeriod;
-    uint256 private totalSupplyForPeriod;
     /// NFT Collection Valuation Limit
     uint256 private nftValuationLimit = 100;
+
 
     /// Trade Counter data
     // map the tokenId of this NFT to the number of trades in the period
@@ -104,32 +97,33 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _balanceTo token balance of recipient address
      * @param _from sender address
      * @param _to recipient address
-     * @param _amount number of tokens transferred
+     * @param _sender the address triggering the contract action
      * @param _tokenId the token's specific ID
-     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return _success equals true if all checks pass
      */
 
-    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external onlyOwner returns (bool) {
+    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external override onlyOwner returns (bool) {
         bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
         bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
+        ActionTypes action = determineTransferAction(_from, _to, _sender);
+        uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
-            if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
+            /// pure transfer rules
             uint128 balanceValuation;
             uint128 transferValuation;
             if (appManager.requireValuations()) {
                 balanceValuation = uint128(getAccTotalValuation(_to, nftValuationLimit));
                 transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
             }
-            appManager.checkApplicationRules(_action, _from, _to, balanceValuation, transferValuation);
-            _checkTaggedRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId);
+            appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation, action);
+            _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId, action);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
             /// set the ownership start time for the token if the Minimum Hold time rule is active
             if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
-        } else {
-            if (adminWithdrawalActive && isFromBypassAccount) ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
+        } else if (adminWithdrawalActive && isFromBypassAccount) {
+            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
             emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress);
         }
         /// If all rule checks pass, return true
@@ -176,9 +170,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens transferred
+     * @param tokenId Id of the NFT being transferred
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 tokenId) internal view {
-        _checkTaggedIndividualRules(_from, _to, _balanceFrom, _balanceTo, _amount);
+    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, uint256 tokenId, ActionTypes action) internal {
+        _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
         if (transactionLimitByRiskRuleActive) {
             /// If more rules need these values, then this can be moved above.
             uint256 thisNFTValuation = nftPricer.getNFTPrice(msg.sender, tokenId);
@@ -193,15 +189,23 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _amount number of tokens transferred
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedIndividualRules(address _from, address _to, uint256 _balanceFrom, uint256 _balanceTo, uint256 _amount) internal view {
-        if (minMaxBalanceRuleActive || minBalByDateRuleActive) {
+    function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
+        bytes32[] memory toTags;
+        bytes32[] memory fromTags;
+        bool mustCheckPurchaseRules = action == ActionTypes.PURCHASE && !appManager.isTradingRuleBypasser(_to);
+        bool mustCheckSellRules = action == ActionTypes.SELL && !appManager.isTradingRuleBypasser(_from);
+        if (minMaxBalanceRuleActive || minBalByDateRuleActive || (mustCheckPurchaseRules && purchaseLimitRuleActive) || (mustCheckSellRules && sellLimitRuleActive)) {
             // We get all tags for sender and recipient
-            bytes32[] memory toTags = appManager.getAllTags(_to);
-            bytes32[] memory fromTags = appManager.getAllTags(_from);
-            if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
-            if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+            toTags = appManager.getAllTags(_to);
+            fromTags = appManager.getAllTags(_from);
         }
+        if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+        if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+        if((mustCheckPurchaseRules && (purchaseLimitRuleActive || purchasePercentageRuleActive)) || (mustCheckSellRules && (sellLimitRuleActive || sellPercentageRuleActive)))
+            _checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
+        
     }
 
     /**
@@ -582,6 +586,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, IAdminWithdraw
      */
     function isTotalSupplyVolatilityActive() external view returns (bool) {
         return totalSupplyVolatilityRuleActive;
+    }
+
+    /**
+     *@dev this function gets the total supply of the address.
+     *@param _token address of the token to call totalSupply() of.
+     */
+    function getTotalSupply(address _token) internal view returns (uint256) {
+        return IERC20(_token).totalSupply();
     }
 
     /// -------------SIMPLE RULE SETTERS and GETTERS---------------

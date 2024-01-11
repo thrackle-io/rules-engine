@@ -10,7 +10,7 @@ pragma solidity ^0.8.17;
 
 interface IAppLevelEvents {
     ///AppManager
-    event HandlerConnected(address indexed handlerAddress, address indexed appManager);
+    event HandlerConnected(address indexed handlerAddress);
     event RoleCheck(string contractName, string indexed functionName, address indexed checkedAddress, bytes32 indexed checkedRole);
     event AppManagerDeployed(address indexed superAndAppAdmin, string indexed appName);
     event AppManagerDeployedForUpgrade(address indexed superAndAppAdmin, string indexed appName);
@@ -30,6 +30,7 @@ interface IAppLevelEvents {
     event AMMRegistered(address indexed _address);
     event TreasuryRegistered(address indexed _address);
     event StakingRegistered(address indexed _address);
+    event TradingRuleAddressWhitelist(address indexed _address, bool indexed isApproved);
     ///Accounts
     event AccountProviderSet(address indexed _address);
     event AccountAdded(address indexed account);

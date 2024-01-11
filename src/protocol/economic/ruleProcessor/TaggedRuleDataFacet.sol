@@ -15,12 +15,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     using RuleProcessorCommonLib for uint32;
     using RuleProcessorCommonLib for uint8; 
 
-    /**
-     * Note that no update method is implemented. Since reutilization of
-     * rules is encouraged, it is preferred to add an extra rule to the
-     * set instead of modifying an existing one.
-     */
-
     /********************** Purchase Getters/Setters ***********************/
     /**
      * @dev Function add a Token Purchase Percentage rule

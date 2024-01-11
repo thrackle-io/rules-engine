@@ -8,17 +8,16 @@ import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
  * @dev This interface provides the ABI for assets to access their handlers in an efficient way
  */
 
-interface IProtocolERC721Handler {
+interface IProtocolTokenHandler {
     /**
      * @dev This function is the one called from the contract that implements this handler. It's the entry point to protocol.
      * @param balanceFrom token balance of sender address
      * @param balanceTo token balance of recipient address
      * @param _from sender address
      * @param _to recipient address
-     * @param amount number of tokens transferred
-     * @param _tokenId the token's specific ID
-     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
+     * @param _sender the address triggering the contract action
+     * @param value for ERC20s: the amount of tokens. For ERC721: the tokenId
      * @return Success equals true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, uint256 amount, uint256 _tokenId, ActionTypes _action) external returns (bool);
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 value) external returns (bool);
 }

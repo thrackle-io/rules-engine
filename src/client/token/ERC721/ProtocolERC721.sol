@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "../ProtocolTokenCommon.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
-import "./IProtocolERC721Handler.sol";
+import "../IProtocolTokenHandler.sol";
 
 /**
  * @title ERC721 Base Contract
@@ -21,7 +21,7 @@ import "./IProtocolERC721Handler.sol";
 contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly {
     using Counters for Counters.Counter;
     address public handlerAddress;
-    IProtocolERC721Handler handler;
+    IProtocolTokenHandler handler;
     Counters.Counter private _tokenIdCounter;
 
     /// Base Contract URI
@@ -108,7 +108,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) whenNotPaused {
         // Rule Processor Module Check
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, batchSize, tokenId, ActionTypes.TRADE));
+        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
 
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
@@ -150,7 +150,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
-        handler = IProtocolERC721Handler(_deployedHandlerAddress);
+        handler = IProtocolTokenHandler(_deployedHandlerAddress);
         emit HandlerConnected(_deployedHandlerAddress);
     }
 

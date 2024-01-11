@@ -41,148 +41,54 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         vm.warp(Blocktime);
     }
 
-    function testTurningOnOffRules() public {
+    // function testTurningOnOffRules() public {
         /// Purchase Rule
-        bytes32[] memory accs = new bytes32[](1);
-        uint256[] memory purchaseAmounts = new uint256[](1);
-        uint16[] memory purchasePeriods = new uint16[](1);
-        uint64[] memory startTime = new uint64[](1);
-        accs[0] = bytes32("PURCHASE_RULE");
-        purchaseAmounts[0] = uint192(600); ///Amount to trigger purchase freeze rules
-        purchasePeriods[0] = uint16(36); ///Hours
-        startTime[0] = uint64(Blocktime); ///Hours
+        // bytes32[] memory accs = new bytes32[](1);
+        // uint256[] memory purchaseAmounts = new uint256[](1);
+        // uint16[] memory purchasePeriods = new uint16[](1);
+        // uint64[] memory startTime = new uint64[](1);
+        // accs[0] = bytes32("PURCHASE_RULE");
+        // purchaseAmounts[0] = uint192(600); ///Amount to trigger purchase freeze rules
+        // purchasePeriods[0] = uint16(36); ///Hours
+        // startTime[0] = uint64(Blocktime); ///Hours
 
         /// Set the rule data
-        applicationAppManager.addGeneralTag(user1, "PURCHASE_RULE");
-        applicationAppManager.addGeneralTag(user2, "PURCHASE_RULE");
-        assertTrue(applicationAppManager.hasTag(user1, "PURCHASE_RULE"));
-        assertTrue(applicationAppManager.hasTag(user2, "PURCHASE_RULE"));
-        accs[0] = bytes32("PURCHASE_RULE");
-        purchaseAmounts[0] = uint256(600); ///Amount to trigger purchase freeze rules
-        purchasePeriods[0] = uint16(36); ///Hours Purchase Period lasts
-        // add the rule.
-        switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, uint64(Blocktime));
+        // applicationAppManager.addGeneralTag(user1, "PURCHASE_RULE");
+        // applicationAppManager.addGeneralTag(user2, "PURCHASE_RULE");
+        // assertTrue(applicationAppManager.hasTag(user1, "PURCHASE_RULE"));
+        // assertTrue(applicationAppManager.hasTag(user2, "PURCHASE_RULE"));
+        // accs[0] = bytes32("PURCHASE_RULE");
+        // purchaseAmounts[0] = uint256(600); ///Amount to trigger purchase freeze rules
+        // purchasePeriods[0] = uint16(36); ///Hours Purchase Period lasts
+        // // add the rule.
+        // switchToRuleAdmin();
+        // uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, uint64(Blocktime));
         ///update ruleId in application AMM rule handler
-        applicationAMMHandler.setPurchaseLimitRuleId(ruleId);
-        applicationAMMHandler.activatePurchaseLimitRule(true);
+        // applicationAMMHandler.setPurchaseLimitRuleId(ruleId);
+        // applicationAMMHandler.activatePurchaseLimitRule(true);
 
         ///Sell Rule
-        bytes32[] memory sellAccs = new bytes32[](1);
-        uint192[] memory sellAmounts = new uint192[](1);
-        uint16[] memory sellPeriod = new uint16[](1);
-        sellAccs[0] = bytes32("SellRule");
-        sellAmounts[0] = uint192(600); ///Amount to trigger Sell freeze rules
-        sellPeriod[0] = uint16(36); ///Hours
+        // bytes32[] memory sellAccs = new bytes32[](1);
+        // uint192[] memory sellAmounts = new uint192[](1);
+        // uint16[] memory sellPeriod = new uint16[](1);
+        // sellAccs[0] = bytes32("SellRule");
+        // sellAmounts[0] = uint192(600); ///Amount to trigger Sell freeze rules
+        // sellPeriod[0] = uint16(36); ///Hours
 
         // add the actual rule
-        uint32 sellRuleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), sellAccs, sellAmounts, sellPeriod, uint64(Blocktime));
-        ///update ruleId in application AMM rule handler
-        applicationAMMHandler.setSellLimitRuleId(sellRuleId);
-        applicationAMMHandler.activateSellLimitRule(true);
-        ///Add GeneralTag to account
-        switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(user1, "SellRule"); ///add tag
-        assertTrue(applicationAppManager.hasTag(user1, "SellRule"));
-        applicationAppManager.addGeneralTag(user2, "SellRule"); ///add tag
-        assertTrue(applicationAppManager.hasTag(user2, "SellRule"));
-    }
+        // uint32 sellRuleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), sellAccs, sellAmounts, sellPeriod, uint64(Blocktime));
+        // ///update ruleId in application AMM rule handler
+        // applicationAMMHandler.setSellLimitRuleId(sellRuleId);
+        // applicationAMMHandler.activateSellLimitRule(true);
+        // ///Add GeneralTag to account
+        // switchToAppAdministrator();
+        // applicationAppManager.addGeneralTag(user1, "SellRule"); ///add tag
+        // assertTrue(applicationAppManager.hasTag(user1, "SellRule"));
+        // applicationAppManager.addGeneralTag(user2, "SellRule"); ///add tag
+        // assertTrue(applicationAppManager.hasTag(user2, "SellRule"));
+    // }
 
-    ///Test setting and checking purchase Rule
-    function testPurchaseLimitRule() public {
-        bytes32[] memory accs = new bytes32[](1);
-        uint256[] memory purchaseAmounts = new uint256[](1);
-        uint16[] memory purchasePeriods = new uint16[](1);
-        accs[0] = bytes32("PurchaseRule");
-        purchaseAmounts[0] = uint256(600); ///Amount to trigger purchase freeze rules
-        purchasePeriods[0] = uint16(12); ///Hours
-
-        // add the actual rule
-        switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, purchaseAmounts, purchasePeriods, uint64(Blocktime));
-        ///update ruleId in application coin rule handler
-        applicationAMMHandler.setPurchaseLimitRuleId(ruleId);
-        applicationAMMHandler.activatePurchaseLimitRule(true);
-        switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(user1, "PurchaseRule"); ///add tag
-        assertTrue(applicationAppManager.hasTag(user1, "PurchaseRule"));
-        applicationAppManager.addGeneralTag(user2, "PurchaseRule"); ///add tag
-        assertTrue(applicationAppManager.hasTag(user2, "PurchaseRule"));
-        //Attempt to turn off rule as non-admin
-        vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0xd66c3008);
-        applicationAMMHandler.activatePurchaseLimitRule(false);
-        vm.expectRevert(0xd66c3008);
-        applicationAMMHandler.setPurchaseLimitRuleId(15);
-
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getPurchaseRule(ruleId, "PurchaseRule");
-        ///1675723152 = Feb 6 2023 22hrs 39min 12 sec
-        /// Check Rule passes
-        vm.stopPrank();
-        vm.startPrank(address(protocolAMM));
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 50, 50, address(applicationCoin), ActionTypes.PURCHASE);
-        uint256 lastPurchaseTotal = applicationAMMHandler.getPurchasedWithinPeriod(user2);
-        assertEq(lastPurchaseTotal, 50);
-        /// Check Rule Fails
-        vm.expectRevert(0xa7fb7b4b);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, address(applicationCoin), ActionTypes.PURCHASE);
-        ///Move into new Purchase Period
-        vm.warp(Blocktime + 14 hours);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, address(applicationCoin), ActionTypes.PURCHASE);
-        uint256 purchaseTotal = applicationAMMHandler.getPurchasedWithinPeriod(user2);
-        assertEq(purchaseTotal, 551);
-    }
-
-    function testSellLimitRule() public {
-        bytes32[] memory accs = new bytes32[](1);
-        uint192[] memory sellAmounts = new uint192[](1);
-        uint16[] memory sellPeriod = new uint16[](1);
-        accs[0] = bytes32("SellRule");
-        sellAmounts[0] = uint192(600); ///Amount to trigger Sell freeze rules
-        sellPeriod[0] = uint16(12); ///Hours
-
-        // add the actual rule
-        switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, uint64(Blocktime));
-        ///update ruleId in application coin rule handler
-        applicationAMMHandler.setSellLimitRuleId(ruleId);
-        applicationAMMHandler.activateSellLimitRule(true);
-        switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(user1, "SellRule"); ///add tag
-        assertTrue(applicationAppManager.hasTag(user1, "SellRule"));
-        applicationAppManager.addGeneralTag(user2, "SellRule"); ///add tag
-        assertTrue(applicationAppManager.hasTag(user2, "SellRule"));
-        //Attempt to turn off rule as non-admin
-        vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0xd66c3008);
-        applicationAMMHandler.activateSellLimitRule(false);
-        vm.expectRevert(0xd66c3008);
-        applicationAMMHandler.setSellLimitRuleId(15);
-
-        /// Check Rule passes
-        vm.stopPrank();
-        vm.startPrank(address(protocolAMM));
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 50, 50, address(applicationCoin), ActionTypes.SELL);
-
-        switchToAppAdministrator();
-        uint256 lastSellTotal = applicationAMMHandler.getSalesWithinPeriod(user1);
-        assertEq(lastSellTotal, 50);
-
-        vm.stopPrank();
-        vm.startPrank(address(protocolAMM));
-        /// Check Rule Fails
-        vm.expectRevert(0xc11d5f20);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, address(applicationCoin), ActionTypes.SELL);
-        ///Move into new Sell Period
-        vm.warp(Blocktime + 14 hours);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 551, 55, address(applicationCoin), ActionTypes.SELL);
-        switchToAppAdministrator();
-        uint256 sellTotal = applicationAMMHandler.getSalesWithinPeriod(user1);
-        assertEq(sellTotal, 551);
-    }
-
+    
     /// test updating min transfer rule
     function testPassesMinTransferRule() public {
         /// We add the empty rule at index 0
@@ -196,13 +102,13 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(address(protocolAMM));
         /// These should all pass
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10, 10, address(applicationCoin), ActionTypes.TRADE));
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 11, 11, address(applicationCoin), ActionTypes.TRADE));
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10000000000, 1000, address(applicationCoin), ActionTypes.TRADE));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10, 10, address(applicationCoin)));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 11, 11, address(applicationCoin)));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10000000000, 1000, address(applicationCoin)));
 
         // now we check for proper failure
         vm.expectRevert(0x70311aa2);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 9, 9, address(applicationCoin), ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 9, 9, address(applicationCoin));
         /// no2 change the rule and recheck
         switchToRuleAdmin();
         ruleId = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), 100);
@@ -211,12 +117,12 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         /// These should all pass
         vm.stopPrank();
         vm.startPrank(address(protocolAMM));
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 100, 100, address(applicationCoin), ActionTypes.TRADE));
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 111, 100, address(applicationCoin), ActionTypes.TRADE));
-        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10000000000, 1000, address(applicationCoin), ActionTypes.TRADE));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 100, 100, address(applicationCoin)));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 111, 100, address(applicationCoin)));
+        assertTrue(applicationAMMHandler.checkAllRules(0, 0, user1, user2, 10000000000, 1000, address(applicationCoin)));
         // now we check for proper failure
         vm.expectRevert(0x70311aa2);
-        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 99, 99, address(applicationCoin), ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(0, 0, user1, user2, 99, 99, address(applicationCoin));
     }
 
     function testMinMaxAccountBalanceRule() public {
@@ -254,16 +160,16 @@ contract ApplicationAMMHandlerTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(address(protocolAMM));
         /// execute a passing check for the minimum
-        applicationAMMHandler.checkAllRules(200, 200, user1, address(protocolAMM), 10, 10, address(applicationCoin), ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(200, 200, user1, address(protocolAMM), 10, 10, address(applicationCoin));
 
         /// execute a passing check for the maximum
-        applicationAMMHandler.checkAllRules(500, 500, user1, address(protocolAMM), 50, 50, address(applicationCoin), ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(500, 500, user1, address(protocolAMM), 50, 50, address(applicationCoin));
 
         // execute a failing check for the minimum
         vm.expectRevert(0xf1737570);
-        applicationAMMHandler.checkAllRules(20, 1000, user1, address(protocolAMM), 15, 15, address(applicationCoin), ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(20, 1000, user1, address(protocolAMM), 15, 15, address(applicationCoin));
         // execute a passing check for the maximum
         vm.expectRevert(0x24691f6b);
-        applicationAMMHandler.checkAllRules(1000, 800, user1, address(protocolAMM), 500, 500, address(applicationCoin), ActionTypes.TRADE);
+        applicationAMMHandler.checkAllRules(1000, 800, user1, address(protocolAMM), 500, 500, address(applicationCoin));
     }
 }

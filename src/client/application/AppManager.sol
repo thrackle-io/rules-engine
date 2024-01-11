@@ -79,6 +79,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     address[] stakingList;
     mapping(address => uint) stakingToIndex;
     mapping(address => bool) isStakingRegistered;
+    /// Whitelist for trading rule exceptions
+    address[] tradingRuleWhiteList;
+    mapping(address => bool) isTradingRuleWhitelisted;
+    mapping(address => uint) tradingRuleWhitelistAddressToIndex;
 
     /**
      * @dev This constructor sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.
@@ -735,14 +739,15 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Check Application Rules for valid transactions.
-     * @param _action Action to be checked
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _usdBalanceTo recepient address current total application valuation in USD with 18 decimals of precision
      * @param _usdAmountTransferring valuation of the token being transferred in USD with 18 decimals of precision
+     * @param action if selling or buying (of ActionTypes type)
      */
-    function checkApplicationRules(ActionTypes _action, address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) external onlyHandler {
-        applicationHandler.checkApplicationRules(_action, _from, _to, _usdBalanceTo, _usdAmountTransferring);
+    function checkApplicationRules( address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring, ActionTypes action) external onlyHandler {
+        action;
+        applicationHandler.checkApplicationRules(_from, _to, _usdBalanceTo, _usdAmountTransferring);
     }
 
     /**
@@ -771,10 +776,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         if (_tokenAddress == address(0)) revert ZeroAddress();
         tokenToAddress[_token] = _tokenAddress;
         addressToToken[_tokenAddress] = _token;
-        if (!isTokenRegistered[_tokenAddress]) {
-            tokenToIndex[_tokenAddress] = tokenList.length;
-            tokenList.push(_tokenAddress);
-            isTokenRegistered[_tokenAddress] = true;
+        if(!isTokenRegistered[_tokenAddress]){  
+            _addAddressWithMapping(tokenList, tokenToIndex, isTokenRegistered, _tokenAddress);
             registeredHandlers[ProtocolTokenCommon(_tokenAddress).getHandlerAddress()] = true;
             emit TokenRegistered(_token, _tokenAddress);
         } else emit TokenNameUpdated(_token, _tokenAddress);
@@ -842,17 +845,33 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
+     * @dev This function adds an address to a dynamic address array and takes care of the mappings.
+     * @param _addressArray The array to have an address added
+     * @param _addressToIndex mapping that keeps track of the indexes in the list by address
+     * @param _registerFlag mapping that keeps track of the addresses that are members of the list
+     * @param _address The address to add
+     */
+    function _addAddressWithMapping(
+        address[] storage  _addressArray, 
+        mapping(address => uint) storage _addressToIndex, 
+        mapping(address => bool) storage _registerFlag, 
+        address _address) 
+        private 
+        {
+            _addressToIndex[_address] = _addressArray.length;
+            _registerFlag[_address] = true;
+            _addressArray.push(_address);
+    }
+
+    /**
      * @dev This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions
      * @param _AMMAddress Address for the AMM
      */
     function registerAMM(address _AMMAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_AMMAddress == address(0)) revert ZeroAddress();
         if (isRegisteredAMM(_AMMAddress)) revert AddressAlreadyRegistered();
-        ammToIndex[_AMMAddress] = ammList.length;
-        ammList.push(_AMMAddress);
-        /// Also add their handler to the registry
         registeredHandlers[ProtocolTokenCommon(_AMMAddress).getHandlerAddress()] = true;
-        isAMMRegistered[_AMMAddress] = true;
+        _addAddressWithMapping(ammList, ammToIndex, isAMMRegistered, _AMMAddress);
         emit AMMRegistered(_AMMAddress);
     }
 
@@ -888,9 +907,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function registerTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE) {
         if (_treasuryAddress == address(0)) revert ZeroAddress();
         if (isTreasury(_treasuryAddress)) revert AddressAlreadyRegistered();
-        treasuryToIndex[_treasuryAddress] = treasuryList.length;
-        treasuryList.push(_treasuryAddress);
-        isTreasuryRegistered[_treasuryAddress] = true;
+        _addAddressWithMapping(treasuryList, treasuryToIndex, isTreasuryRegistered, _treasuryAddress);
         emit TreasuryRegistered(_treasuryAddress);
     }
 
@@ -932,6 +949,34 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function isStaking(address _stakingAddress) public view returns (bool) {
         return isStakingRegistered[_stakingAddress];
+    }
+    
+    /** 
+     * @dev manage the whitelist for trading-rule bypasser accounts
+     * @param _address account in the list to manage
+     * @param isApproved set to true to indicate that _address can bypass trading rules.
+     */
+    function approveAddressToTradingRuleWhitelist(address _address, bool isApproved) external onlyRole(APP_ADMIN_ROLE) {
+        if(!isApproved){
+            if( !isTradingRuleWhitelisted[_address])
+                revert NoAddressToRemove();
+            _removeAddressWithMapping(tradingRuleWhiteList, tradingRuleWhitelistAddressToIndex, isTradingRuleWhitelisted, _address);
+            
+        }else{
+            if( isTradingRuleWhitelisted[_address])
+                revert AddressAlreadyRegistered();
+            _addAddressWithMapping(tradingRuleWhiteList, tradingRuleWhitelistAddressToIndex, isTradingRuleWhitelisted, _address);
+        }
+        emit TradingRuleAddressWhitelist(_address, isApproved);
+    }
+
+    /**
+     * @dev tells if an address can bypass trading rules
+     * @param _address the address to check for
+     * @return true if the address can bypass trading rules, or false otherwise.
+     */
+    function isTradingRuleBypasser(address _address) public view returns (bool) {
+        return isTradingRuleWhitelisted[_address];
     }
 
     /**
@@ -999,7 +1044,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         if (_newApplicationHandler == address(0)) revert ZeroAddress();
         applicationHandler = ProtocolApplicationHandler(_newApplicationHandler);
         applicationHandlerAddress = _newApplicationHandler;
-        emit HandlerConnected(applicationHandlerAddress, address(this));
+        emit HandlerConnected(applicationHandlerAddress);
     }
 
     /**

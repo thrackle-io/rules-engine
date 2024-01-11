@@ -6,6 +6,7 @@ The token-percentage-purchase rule enforces a limit on the purchase of tokens du
 
 ## Applies To:
 
+<<<<<<< HEAD
 - [ ] ERC20
 - [ ] ERC721
 - [x] AMM
@@ -13,6 +14,15 @@ The token-percentage-purchase rule enforces a limit on the purchase of tokens du
 ## Scope 
 
 This rule works at the AMM level. It must be activated and configured for each desired AMM in the corresponding AMM handler. This rule will not be applied at the token level and will only be checked through the AMM swap function. 
+=======
+- [x] ERC20
+- [x] ERC721
+- [ ] AMM
+
+## Scope 
+
+This rule works at the token level. It must be activated and configured for each token in the corresponding token handler.
+>>>>>>> external
 
 ## Data Structure
 
@@ -56,6 +66,7 @@ struct PctPurchaseRuleS {
 
 The rule will be evaluated with the following logic:
 
+<<<<<<< HEAD
 1. The processor receives the ID of the token-percentage-purchase rule set in the asset handler. 
 2. The processor receives the current total purchased within period, token A amount (total amount of token A being transferred in the current transaction), previous purchase time, and token's total supply from the handler.
 3. The processor evaluates whether the rule has a set total supply or uses the token's total supply provided by the handler set at the beginning of every new `period`.  
@@ -64,13 +75,32 @@ The rule will be evaluated with the following logic:
     - **If it is not a new period**, the processor sets percent of total supply to the sum of the total purchased within period and token A amount. 
 5. The processor calculates the final purchase percentage, in basis units, using the percent of total supply calculated in step 4 and the total supply set in step 3.  
 6. The processor evaluates if the final purchase percentage of total supply would be greater than the `token percentage`. 
+=======
+1. The token handler decides if the transfer is a Purchase (user perspective). Only if it is, it continues with the next steps.
+2. The processor receives the ID of the token-percentage-purchase rule set in the asset handler. 
+3. The processor receives the current total purchased within period, token A amount (total amount of token A being transferred in the current transaction), previous purchase time, and token's total supply from the handler.
+4. The processor evaluates whether the rule has a set total supply or uses the token's total supply provided by the handler set at the beginning of every new `period`.  
+5. The processor evaluates whether the current time is within a new `period`.
+    - **If it is a new period**, the processor sets the percent of total supply to the token A amount.
+    - **If it is not a new period**, the processor sets percent of total supply to the sum of the total purchased within period and token A amount. 
+6. The processor calculates the final purchase percentage, in basis units, using the percent of total supply calculated in step 4 and the total supply set in step 3.  
+7. The processor evaluates if the final purchase percentage of total supply would be greater than the `token percentage`. 
+>>>>>>> external
     - If yes, the transaction reverts. 
     - If no, the processor returns the `token percentage` value for the current `period` to the handler.
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkPurchasePercentagePasses*
 
 ## Evaluation Exceptions 
+<<<<<<< HEAD
 - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
+=======
+This rule doesn't apply when:
+- An approved Trading-Rule Whitelisted address is in the *to* side of the transaction.
+- rulebypasser account is in the *from* or *to* side of the transaction.
+
+Additionally, in the case of the ERC20, this rule doesn't apply also when registered treasury address is in the *to* side of the transaction.
+>>>>>>> external
 
 ### Revert Message
 
@@ -156,7 +186,11 @@ The following validation will be carried out by the create function in order to 
             view 
             returns (uint256);
         ```
+<<<<<<< HEAD
 - in [AMM Handler](../../../src/client/liquidity/ProtocolAMMHandler.sol):
+=======
+- in [ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol), [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol):
+>>>>>>> external
     - Function to set and activate at the same time the rule in an asset handler:
         ```c
         function setPurchasePercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
@@ -182,7 +216,11 @@ This rule returns the value:
 uint256 private totalPurchasedWithinPeriod;
 ```
 
+<<<<<<< HEAD
 *see [AMMHandler](../../../src/client/liquidity/ProtocolAMMHandler.sol)*
+=======
+*see [Token Handler](../../../src/client/token/ProtocolHandlerCommon.sol)*
+>>>>>>> external
 
 ## Data Recorded
 
@@ -196,7 +234,11 @@ uint64 private previousPurchaseTime;
 uint256 private totalPurchasedWithinPeriod;
 ```
 
+<<<<<<< HEAD
 *see [AMMHandler](../../../src/client/liquidity/ProtocolAMMHandler.sol)*
+=======
+*see [Token Handler](../../../src/client/token/ProtocolHandlerCommon.sol)*
+>>>>>>> external
 
 ## Events
 
