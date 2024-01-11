@@ -18,7 +18,7 @@ This rule works at the application level which means that all tokens in the app 
 
 A withdrawal-by-access-level rule is composed of a single variable:
 
-- **maxBalance** (mapping(uint8 =>uint48)): the maximum USD worth of application assets that accounts can withdraw per access level.
+- **withdrawalLimit** (mapping(uint8 =>uint48)): the maximum USD worth of application assets that accounts can withdraw per access level.
 
 ```c
  mapping(uint8 => uint48);
@@ -55,7 +55,7 @@ The rule will be evaluated with the following logic:
 1. The application manager sends to the protocol's rule processor the dollar value sum of all application assets the account has already withdrawn, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
 2. The processor retrieves the maximum withdrawal limit allowed for the rule with the ruleId passed, and for the access level of the account. If the withdrawal amount plus already withdrawn amount exceeds the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
 
-###### *see [ApplicationAccessLevelProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkAccBalanceByAccessLevel*
+###### *see [ApplicationAccessLevelProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkeithdrawalLimitsByAccessLevel*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when an **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -103,7 +103,7 @@ There are no options for the parameters of this rule.
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
 - The `_withdrawalAmounts` array has length 5.
-- The elements of the `_balanceAmounts` array are in ascendant order.
+- The elements of the `_withdrawalAmounts` array are in ascendant order.
 
 ###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
