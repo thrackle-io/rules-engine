@@ -85,7 +85,6 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
 
     /**
      * @dev Check Application Rules for valid transaction.
-     * @param _tokenAddress address of the token calling the rule check 
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount amount of tokens to be transferred 
@@ -100,6 +99,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         uint128 balanceValuation;
         uint128 price;
         uint128 transferValuation;
+
         if (pauseRuleActive) ruleProcessor.checkPauseRules(appManagerAddress);
         /// Based on the Handler Type retrieve pricing valuations 
         if (_handlerType == HandlerTypes.ERC20HANDLER) {

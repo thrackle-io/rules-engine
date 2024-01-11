@@ -25,9 +25,14 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     Fees fees;
     bool feeActive;
 
+    struct OracleRule {
+        uint32 oracleRuleId;
+        bool oracleRuleActive;
+    }
+
     /// RuleIds
     uint32 private minTransferRuleId;
-    uint32 private oracleRuleId;
+    OracleRule[] private oracleRules;
     uint32 private minMaxBalanceRuleId;
     uint32 private adminWithdrawalRuleId;
     uint32 private minBalByDateRuleId;
@@ -36,12 +41,13 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
 
     /// on-off switches for rules
     bool private minTransferRuleActive;
-    bool private oracleRuleActive;
     bool private minMaxBalanceRuleActive;
     bool private adminWithdrawalActive;
     bool private minBalByDateRuleActive;
     bool private tokenTransferVolumeRuleActive;
     bool private totalSupplyVolatilityRuleActive;
+
+    uint16 constant MAX_ORACLE_RULES = 10;
 
     /**
      * @dev Constructor sets params
@@ -56,6 +62,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+
         transferOwnership(_assetAddress);
         if (!_upgradeMode) {
             deployDataContract();
@@ -112,7 +119,13 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      */
     function _checkNonTaggedRules(address _from, address _to, uint256 _amount) internal {
         if (minTransferRuleActive) ruleProcessor.checkMinTransferPasses(minTransferRuleId, _amount);
-        if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _to);
+
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            if (oracleRules[oracleRuleIndex].oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRules[oracleRuleIndex].oracleRuleId, _to);
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
         if (tokenTransferVolumeRuleActive) {
             transferVolume = ruleProcessor.checkTokenTransferVolumePasses(tokenTransferVolumeRuleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
             lastTransferTs = uint64(block.timestamp);
@@ -386,22 +399,37 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @param _ruleId Rule Id to set
      */
     function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        if (oracleRules.length >= MAX_ORACLE_RULES) {
+            revert OracleRulesPerAssetLimitReached();
+        }
         ruleProcessor.validateOracle(_ruleId);
-        oracleRuleId = _ruleId;
-        oracleRuleActive = true;
+
+        OracleRule memory newEntity;
+        newEntity.oracleRuleId = _ruleId;
+        newEntity.oracleRuleActive = true;
+        oracleRules.push(newEntity);
         emit ApplicationHandlerApplied(ORACLE, _ruleId);
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
+     * @param ruleId the id of the rule to activate/deactivate
      */
-    function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        oracleRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(ORACLE);
-        } else {
-            emit ApplicationHandlerDeactivated(ORACLE);
+    function activateOracleRule(bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
+                oracleRules[oracleRuleIndex].oracleRuleActive = _on;
+
+                if (_on) {
+                    emit ApplicationHandlerActivated(ORACLE);
+                } else {
+                    emit ApplicationHandlerDeactivated(ORACLE);
+                }
+            }
+            unchecked {
+                ++oracleRuleIndex;
+            }
         }
     }
 
@@ -409,18 +437,56 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @dev Retrieve the oracle rule id
      * @return oracleRuleId
      */
-    function getOracleRuleId() external view returns (uint32) {
-        return oracleRuleId;
+    function getOracleRuleIds() external view returns (uint32[] memory ) {
+        uint32[] memory ruleIds = new uint32[](oracleRules.length);
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            ruleIds[oracleRuleIndex] = oracleRules[oracleRuleIndex].oracleRuleId;
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
+        return ruleIds;
     }
 
     /**
      * @dev Tells you if the Oracle Rule is active or not.
+     * @param ruleId the id of the rule to check
      * @return boolean representing if the rule is active
      */
-    function isOracleActive() external view returns (bool) {
-        return oracleRuleActive;
+    function isOracleActive(uint32 ruleId) external view returns (bool) {
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
+                return oracleRules[oracleRuleIndex].oracleRuleActive;
+            }
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
+        return false;
     }
 
+    /**
+     * @dev Removes an oracle rule from the list.
+     * @param ruleId the id of the rule to remove
+     */
+    function removeOracleRule(uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        OracleRule memory lastId = oracleRules[oracleRules.length -1];
+        if(ruleId != lastId.oracleRuleId){
+            uint index = 0;
+            for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+                if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
+                    index = oracleRuleIndex; 
+                    break;
+                }
+                unchecked {
+                    ++oracleRuleIndex;
+                }
+            }
+            oracleRules[index] = lastId;
+        }
+
+        oracleRules.pop();
+    }
 
     /**
      * @dev Set the AdminWithdrawalRule. Restricted to app administrators only.
@@ -638,14 +704,14 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @dev This function is used to propose the new owner for data contracts.
      * @param _newOwner address of the new AppManager
      */
-    function proposeDataContractMigration(address _newOwner) external appAdministratorOnly(appManagerAddress) {
+    function proposeDataContractMigration(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress) {
         fees.proposeOwner(_newOwner);
     }
 
     /**
      * @dev This function is used to confirm this contract as the new owner for data contracts.
      */
-    function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOnly(appManagerAddress) {
+    function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
         ProtocolERC20Handler oldHandler = ProtocolERC20Handler(_oldHandlerAddress);
         fees = Fees(oldHandler.getFeesDataAddress());
         fees.confirmOwner();

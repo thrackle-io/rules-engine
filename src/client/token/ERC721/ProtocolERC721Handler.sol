@@ -24,17 +24,22 @@ import "../ProtocolHandlerTradingRulesCommon.sol";
 contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandlerTradingRulesCommon, IProtocolTokenHandler, IAdminWithdrawalRuleCapable, ERC165 {
     
     address public erc721Address;
+
+    struct OracleRule {
+        uint32 oracleRuleId;
+        bool oracleRuleActive;
+    }
+
     /// RuleIds for implemented tagged rules of the ERC721
     uint32 private minMaxBalanceRuleId;
     uint32 private minBalByDateRuleId;
     uint32 private minAccountRuleId;
-    uint32 private oracleRuleId;
+    OracleRule[] private oracleRules;
     uint32 private tradeCounterRuleId;
     uint32 private adminWithdrawalRuleId;
     uint32 private tokenTransferVolumeRuleId;
     uint32 private totalSupplyVolatilityRuleId;
     /// on-off switches for rules
-    bool private oracleRuleActive;
     bool private minMaxBalanceRuleActive;
     bool private tradeCounterRuleActive;
     bool private minBalByDateRuleActive;
@@ -50,6 +55,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     uint16 private nftValuationLimit = 100;
 
 
+
     /// Trade Counter data
     // map the tokenId of this NFT to the number of trades in the period
     mapping(uint256 => uint256) tradesInPeriod;
@@ -60,6 +66,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     mapping(uint256 => uint256) ownershipStart;
     /// Max Hold time hours
     uint16 constant MAX_HOLD_TIME_HOURS = 43830;
+    uint16 constant MAX_ORACLE_RULES = 10;
 
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
@@ -73,6 +80,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+
         transferOwnership(_assetAddress);
         setERC721Address(_assetAddress);
         if (!_upgradeMode) {
@@ -109,6 +117,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         if (!isFromBypassAccount && !isToBypassAccount) {
             appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
             _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
+
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
             /// set the ownership start time for the token if the Minimum Hold time rule is active
@@ -129,7 +138,13 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @param tokenId the token's specific ID
      */
     function _checkNonTaggedRules(address _from, address _to, uint256 _amount, uint256 tokenId) internal {
-        if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _to);
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            if (oracleRules[oracleRuleIndex].oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRules[oracleRuleIndex].oracleRuleId, _to);
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
+
         if (tradeCounterRuleActive) {
             // get all the tags for this NFT
             bytes32[] memory tags = appManager.getAllTags(erc721Address);
@@ -165,6 +180,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      */
     function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
         _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
+
     }
 
     /**
@@ -249,22 +265,38 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @param _ruleId Rule Id to set
      */
     function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        if (oracleRules.length >= MAX_ORACLE_RULES) {
+            revert OracleRulesPerAssetLimitReached();
+        }
         ruleProcessor.validateOracle(_ruleId);
-        oracleRuleId = _ruleId;
-        oracleRuleActive = true;
+
+        OracleRule memory newEntity;
+        newEntity.oracleRuleId = _ruleId;
+        newEntity.oracleRuleActive = true;
+        oracleRules.push(newEntity);
         emit ApplicationHandlerApplied(ORACLE, _ruleId);
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
+     * @param ruleId the id of the rule to activate/deactivate
      */
-    function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        oracleRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(ORACLE);
-        } else {
-            emit ApplicationHandlerDeactivated(ORACLE);
+
+    function activateOracleRule(bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
+                oracleRules[oracleRuleIndex].oracleRuleActive = _on;
+
+                if (_on) {
+                    emit ApplicationHandlerActivated(ORACLE);
+                } else {
+                    emit ApplicationHandlerDeactivated(ORACLE);
+                }
+            }
+            unchecked {
+                ++oracleRuleIndex;
+            }
         }
     }
 
@@ -272,17 +304,57 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @dev Retrieve the oracle rule id
      * @return oracleRuleId
      */
-    function getOracleRuleId() external view returns (uint32) {
-        return oracleRuleId;
+    function getOracleRuleIds() external view returns (uint32[] memory ) {
+        uint32[] memory ruleIds = new uint32[](oracleRules.length);
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            ruleIds[oracleRuleIndex] = oracleRules[oracleRuleIndex].oracleRuleId;
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
+        return ruleIds;
     }
 
     /**
-     * @dev Tells you if the oracle rule is active or not.
+     * @dev Tells you if the Oracle Rule is active or not.
+     * @param ruleId the id of the rule to check
      * @return boolean representing if the rule is active
      */
-    function isOracleActive() external view returns (bool) {
-        return oracleRuleActive;
+    function isOracleActive(uint32 ruleId) external view returns (bool) {
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
+                return oracleRules[oracleRuleIndex].oracleRuleActive;
+            }
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
+        return false;
     }
+
+    /**
+     * @dev Removes an oracle rule from the list.
+     * @param ruleId the id of the rule to remove
+     */
+    function removeOracleRule(uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        OracleRule memory lastId = oracleRules[oracleRules.length -1];
+        if(ruleId != lastId.oracleRuleId){
+            uint index = 0;
+            for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+                if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
+                    index = oracleRuleIndex; 
+                    break;
+                }
+                unchecked {
+                    ++oracleRuleIndex;
+                }
+            }
+            oracleRules[index] = lastId;
+        }
+
+        oracleRules.pop();
+    }
+
 
     /**
      * @dev Set the tradeCounterRuleId. Restricted to app administrators only.
@@ -519,7 +591,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      *@param _token address of the token to call totalSupply() of.
      */
     function getTotalSupply(address _token) internal view returns (uint256) {
-        return IERC20(_token).totalSupply();
+        return IERC20Decimals(_token).totalSupply();
     }
 
     /// -------------SIMPLE RULE SETTERS and GETTERS---------------
@@ -556,12 +628,12 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         return minimumHoldTimeHours;
     }
 
-    /**  
-     * @dev function to check if Minumum Hold Time is active 
-     * @return bool 
+    /**
+     * @dev function to check if Minumum Hold Time is active
+     * @return bool
      */
     function isMinimumHoldTimeActive() external view returns (bool) {
-        return minimumHoldTimeRuleActive; 
+        return minimumHoldTimeRuleActive;
     }
 
     /**

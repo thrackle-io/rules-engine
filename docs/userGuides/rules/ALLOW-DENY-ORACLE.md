@@ -159,11 +159,15 @@ The following validation will be carried out by the create function in order to 
         ```
     - Function to know the activation state of the rule in an asset handler:
         ```c
-        function isOracleActive() external view returns (bool);
+        function isOracleActive(uint32 ruleId) external view returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Ids from an asset handler:
         ```c
-        function getOracleRuleId() external view returns (uint32);
+        function getOracleRuleIds() external view returns (uint32);
+        ```
+    - Function to remove a rule:
+        ```c
+        function removeOracleRule(uint32 ruleId) external;
         ```
 ## Return Data
 

@@ -234,6 +234,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         // add the rule.
         switchToRuleAdmin();
+        applicationCoinHandler.activateOracleRule(false, _indexAllowed);
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
@@ -965,6 +966,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
         switchToRuleAdmin();
         applicationHandler.setTransactionLimitByRiskRuleId(index);
+
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
         vm.startPrank(user2);
@@ -1140,7 +1142,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0x2a79d188);
         applicationCoinHandlerNew.confirmDataContractMigration(address(applicationCoinHandler));
     }
 

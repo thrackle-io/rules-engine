@@ -57,7 +57,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
                 lastPurchaseTime[_to] = uint64(block.timestamp);
             }
             if(purchasePercentageRuleActive){
-                totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(purchasePercentageRuleId,  IERC20(msg.sender).totalSupply(),  _amount,  previousPurchaseTime,  totalPurchasedWithinPeriod);
+                totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(purchasePercentageRuleId,  IERC20Decimals(msg.sender).totalSupply(),  _amount,  previousPurchaseTime,  totalPurchasedWithinPeriod);
                 previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
             }
         }else{
@@ -66,7 +66,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
                 lastSellTime[_from] = uint64(block.timestamp);
             }
             if(sellPercentageRuleActive){
-                totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(sellPercentageRuleId,   IERC20(msg.sender).totalSupply(),  _amount,  previousSellTime,  totalSoldWithinPeriod);
+                totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(sellPercentageRuleId,   IERC20Decimals(msg.sender).totalSupply(),  _amount,  previousSellTime,  totalSoldWithinPeriod);
                 previousSellTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
             }
         }
