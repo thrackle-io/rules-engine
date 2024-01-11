@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "src/example/ERC20/ApplicationERC20Handler.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
-import "src/example/application/ApplicationHandler.sol";
+import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 
 /**
  * @title Application Deploy 08 App Manager For Upgrade Script

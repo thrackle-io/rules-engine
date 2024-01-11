@@ -234,6 +234,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         // add the rule.
         switchToRuleAdmin();
+        applicationCoinHandler.activateOracleRule(false, _indexAllowed);
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
@@ -276,7 +277,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToAppAdministrator();
         applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(draculaCoin), false);
         draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
-        applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         /// register the token
         applicationAppManager.registerToken("DRAC", address(draculaCoin));
         draculaCoin.mint(appAdministrator, 10000000000000000000000 * ATTO);
@@ -434,7 +434,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
         switchToRuleAdmin();
-        applicationCoinHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
         vm.startPrank(user2);
@@ -965,7 +965,8 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
         switchToRuleAdmin();
-        applicationCoinHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
+
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
         vm.startPrank(user2);
@@ -1141,7 +1142,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0x2a79d188);
         applicationCoinHandlerNew.confirmDataContractMigration(address(applicationCoinHandler));
     }
 

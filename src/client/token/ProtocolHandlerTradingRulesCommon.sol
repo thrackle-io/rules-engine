@@ -57,7 +57,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
                 lastPurchaseTime[_to] = uint64(block.timestamp);
             }
             if(purchasePercentageRuleActive){
-                totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(purchasePercentageRuleId,  IERC20(msg.sender).totalSupply(),  _amount,  previousPurchaseTime,  totalPurchasedWithinPeriod);
+                totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(purchasePercentageRuleId,  IERC20Decimals(msg.sender).totalSupply(),  _amount,  previousPurchaseTime,  totalPurchasedWithinPeriod);
                 previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
             }
         }else{
@@ -66,7 +66,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
                 lastSellTime[_from] = uint64(block.timestamp);
             }
             if(sellPercentageRuleActive){
-                totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(sellPercentageRuleId,   IERC20(msg.sender).totalSupply(),  _amount,  previousSellTime,  totalSoldWithinPeriod);
+                totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(sellPercentageRuleId,   IERC20Decimals(msg.sender).totalSupply(),  _amount,  previousSellTime,  totalSoldWithinPeriod);
                 previousSellTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
             }
         }
@@ -91,9 +91,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function activatePurchaseLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         purchaseLimitRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(PURCHASE_LIMIT, address(this));
+            emit ApplicationHandlerActivated(PURCHASE_LIMIT);
         } else {
-            emit ApplicationHandlerDeactivated(PURCHASE_LIMIT, address(this));
+            emit ApplicationHandlerDeactivated(PURCHASE_LIMIT);
         }
     }
 
@@ -131,9 +131,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function activateSellLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         sellLimitRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(SELL_LIMIT, address(this));
+            emit ApplicationHandlerActivated(SELL_LIMIT);
         } else {
-            emit ApplicationHandlerDeactivated(SELL_LIMIT, address(this));
+            emit ApplicationHandlerDeactivated(SELL_LIMIT);
         }
     }
 
@@ -203,9 +203,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function activatePurchasePercentageRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         purchasePercentageRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(PURCHASE_PERCENTAGE, address(this));
+            emit ApplicationHandlerActivated(PURCHASE_PERCENTAGE);
         } else {
-            emit ApplicationHandlerDeactivated(PURCHASE_PERCENTAGE, address(this));
+            emit ApplicationHandlerDeactivated(PURCHASE_PERCENTAGE);
         }
     }
 
@@ -243,9 +243,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function activateSellPercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         sellPercentageRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(SELL_PERCENTAGE, address(this));
+            emit ApplicationHandlerActivated(SELL_PERCENTAGE);
         } else {
-            emit ApplicationHandlerDeactivated(SELL_PERCENTAGE, address(this));
+            emit ApplicationHandlerDeactivated(SELL_PERCENTAGE);
         }
     }
 

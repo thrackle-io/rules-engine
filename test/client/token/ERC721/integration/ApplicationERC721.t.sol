@@ -80,9 +80,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         new ApplicationERC721Handler(address(ruleProcessor), address(0x0), address(0x0), false);
 
         vm.expectRevert();
-        applicationNFTHandler.setNFTPricingAddress(address(0x00));
-        vm.expectRevert();
-        applicationNFTHandler.setERC20PricingAddress(address(0x00));
+        applicationHandler.setNFTPricingAddress(address(0x00));
     }
 
     function testERC721_PassMinMaxAccountBalanceRule() public {
@@ -359,7 +357,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        applicationNFTHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
@@ -818,10 +816,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         _applicationNFT2.connectHandlerToToken(address(_applicationNFTHandler2));
         /// register the token
         applicationAppManager.registerToken("THTR", address(_applicationNFT2));
-        ///Pricing Contracts
-        _applicationNFTHandler2.setNFTPricingAddress(address(erc721Pricer));
-        _applicationNFTHandler2.setERC20PricingAddress(address(erc20Pricer));
- 
+
         for (uint i = 0; i < 40; i++) {
             _applicationNFT2.safeMint(appAdministrator);
             _applicationNFT2.transferFrom(appAdministrator, user1, i);
@@ -922,8 +917,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         /// in order to handle upgrades and handler registrations, deregister and re-register with new
         applicationAppManager.deregisterToken("FRANKENSTEIN");
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
-        _AssetHandler.setNFTPricingAddress(address(erc721Pricer));
-        _AssetHandler.setERC20PricingAddress(address(erc20Pricer));
 
         ///Set transaction limit rule params
         uint8[] memory riskScores = createUint8Array(1, 10, 40, 80, 99);
@@ -946,7 +939,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        _AssetHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);

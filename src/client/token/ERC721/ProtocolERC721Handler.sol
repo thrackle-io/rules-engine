@@ -24,21 +24,24 @@ import "../ProtocolHandlerTradingRulesCommon.sol";
 contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandlerTradingRulesCommon, IProtocolTokenHandler, IAdminWithdrawalRuleCapable, ERC165 {
     
     address public erc721Address;
+
+    struct OracleRule {
+        uint32 oracleRuleId;
+        bool oracleRuleActive;
+    }
+
     /// RuleIds for implemented tagged rules of the ERC721
     uint32 private minMaxBalanceRuleId;
     uint32 private minBalByDateRuleId;
     uint32 private minAccountRuleId;
-    uint32 private oracleRuleId;
+    OracleRule[] private oracleRules;
     uint32 private tradeCounterRuleId;
-    uint32 private transactionLimitByRiskRuleId;
     uint32 private adminWithdrawalRuleId;
     uint32 private tokenTransferVolumeRuleId;
     uint32 private totalSupplyVolatilityRuleId;
     /// on-off switches for rules
-    bool private oracleRuleActive;
     bool private minMaxBalanceRuleActive;
     bool private tradeCounterRuleActive;
-    bool private transactionLimitByRiskRuleActive;
     bool private minBalByDateRuleActive;
     bool private adminWithdrawalActive;
     bool private tokenTransferVolumeRuleActive;
@@ -49,7 +52,8 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     uint32 private minimumHoldTimeHours;
 
     /// NFT Collection Valuation Limit
-    uint256 private nftValuationLimit = 100;
+    uint16 private nftValuationLimit = 100;
+
 
 
     /// Trade Counter data
@@ -62,6 +66,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     mapping(uint256 => uint256) ownershipStart;
     /// Max Hold time hours
     uint16 constant MAX_HOLD_TIME_HOURS = 43830;
+    uint16 constant MAX_ORACLE_RULES = 10;
 
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
@@ -75,12 +80,13 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+
         transferOwnership(_assetAddress);
         setERC721Address(_assetAddress);
         if (!_upgradeMode) {
-            emit HandlerDeployed(address(this), _appManagerAddress);
+            emit HandlerDeployed(_appManagerAddress);
         } else {
-            emit HandlerDeployed(address(this), _appManagerAddress);
+            emit HandlerDeployed(_appManagerAddress);
         }
     }
 
@@ -109,15 +115,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
-            /// pure transfer rules
-            uint128 balanceValuation;
-            uint128 transferValuation;
-            if (appManager.requireValuations()) {
-                balanceValuation = uint128(getAccTotalValuation(_to, nftValuationLimit));
-                transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
-            }
-            appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation, action);
-            _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId, action);
+            appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
+            _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
+
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);
             _checkSimpleRules(_tokenId);
             /// set the ownership start time for the token if the Minimum Hold time rule is active
@@ -138,7 +138,13 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @param tokenId the token's specific ID
      */
     function _checkNonTaggedRules(address _from, address _to, uint256 _amount, uint256 tokenId) internal {
-        if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _to);
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            if (oracleRules[oracleRuleIndex].oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRules[oracleRuleIndex].oracleRuleId, _to);
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
+
         if (tradeCounterRuleActive) {
             // get all the tags for this NFT
             bytes32[] memory tags = appManager.getAllTags(erc721Address);
@@ -170,20 +176,15 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens transferred
-     * @param tokenId Id of the NFT being transferred
      * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, uint256 tokenId, ActionTypes action) internal {
+    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
         _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
-        if (transactionLimitByRiskRuleActive) {
-            /// If more rules need these values, then this can be moved above.
-            uint256 thisNFTValuation = nftPricer.getNFTPrice(msg.sender, tokenId);
-            _checkRiskRules(_from, _to, thisNFTValuation);
-        }
+
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged non-risk rule checks.
+     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _balanceFrom token balance of sender address
@@ -208,24 +209,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         
     }
 
-    /**
-     * @dev This function uses the protocol's ruleProcessor to perform the risk rule checks.(Ones that require risk score values)
-     * @param _from address of the from account
-     * @param _to address of the to account
-     * @param _thisNFTValuation valuation of NFT in question
-     */
-    function _checkRiskRules(address _from, address _to, uint256 _thisNFTValuation) internal view {
-        uint8 riskScoreTo = appManager.getRiskScore(_to);
-        uint8 riskScoreFrom = appManager.getRiskScore(_from);
-        /// if rule is active check if the recipient is address(0) for burning tokens
-        if (transactionLimitByRiskRuleActive) {
-            /// if recipient is not address(0) check sender and recipient risk scores to ensure transaction limit is within rule limits
-            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _thisNFTValuation);
-            if (_to != address(0)) {
-                ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _thisNFTValuation);
-            }
-        }
-    }
 
     /**
      * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
@@ -254,9 +237,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateMinMaxBalanceRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minMaxBalanceRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT, address(this));
+            emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT);
         } else {
-            emit ApplicationHandlerDeactivated(MIN_MAX_BALANCE_LIMIT, address(this));
+            emit ApplicationHandlerDeactivated(MIN_MAX_BALANCE_LIMIT);
         }
     }
 
@@ -282,22 +265,38 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @param _ruleId Rule Id to set
      */
     function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        if (oracleRules.length >= MAX_ORACLE_RULES) {
+            revert OracleRulesPerAssetLimitReached();
+        }
         ruleProcessor.validateOracle(_ruleId);
-        oracleRuleId = _ruleId;
-        oracleRuleActive = true;
+
+        OracleRule memory newEntity;
+        newEntity.oracleRuleId = _ruleId;
+        newEntity.oracleRuleActive = true;
+        oracleRules.push(newEntity);
         emit ApplicationHandlerApplied(ORACLE, _ruleId);
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
+     * @param ruleId the id of the rule to activate/deactivate
      */
-    function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        oracleRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(ORACLE, address(this));
-        } else {
-            emit ApplicationHandlerDeactivated(ORACLE, address(this));
+
+    function activateOracleRule(bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
+                oracleRules[oracleRuleIndex].oracleRuleActive = _on;
+
+                if (_on) {
+                    emit ApplicationHandlerActivated(ORACLE);
+                } else {
+                    emit ApplicationHandlerDeactivated(ORACLE);
+                }
+            }
+            unchecked {
+                ++oracleRuleIndex;
+            }
         }
     }
 
@@ -305,17 +304,57 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @dev Retrieve the oracle rule id
      * @return oracleRuleId
      */
-    function getOracleRuleId() external view returns (uint32) {
-        return oracleRuleId;
+    function getOracleRuleIds() external view returns (uint32[] memory ) {
+        uint32[] memory ruleIds = new uint32[](oracleRules.length);
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            ruleIds[oracleRuleIndex] = oracleRules[oracleRuleIndex].oracleRuleId;
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
+        return ruleIds;
     }
 
     /**
-     * @dev Tells you if the oracle rule is active or not.
+     * @dev Tells you if the Oracle Rule is active or not.
+     * @param ruleId the id of the rule to check
      * @return boolean representing if the rule is active
      */
-    function isOracleActive() external view returns (bool) {
-        return oracleRuleActive;
+    function isOracleActive(uint32 ruleId) external view returns (bool) {
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+            if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
+                return oracleRules[oracleRuleIndex].oracleRuleActive;
+            }
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
+        return false;
     }
+
+    /**
+     * @dev Removes an oracle rule from the list.
+     * @param ruleId the id of the rule to remove
+     */
+    function removeOracleRule(uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        OracleRule memory lastId = oracleRules[oracleRules.length -1];
+        if(ruleId != lastId.oracleRuleId){
+            uint index = 0;
+            for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
+                if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
+                    index = oracleRuleIndex; 
+                    break;
+                }
+                unchecked {
+                    ++oracleRuleIndex;
+                }
+            }
+            oracleRules[index] = lastId;
+        }
+
+        oracleRules.pop();
+    }
+
 
     /**
      * @dev Set the tradeCounterRuleId. Restricted to app administrators only.
@@ -336,9 +375,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateTradeCounterRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         tradeCounterRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(NFT_TRANSFER, address(this));
+            emit ApplicationHandlerActivated(NFT_TRANSFER);
         } else {
-            emit ApplicationHandlerDeactivated(NFT_TRANSFER, address(this));
+            emit ApplicationHandlerDeactivated(NFT_TRANSFER);
         }
     }
 
@@ -369,47 +408,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev Retrieve the oracle rule id
-     * @return transactionLimitByRiskRuleActive rule id
-     */
-    function getTransactionLimitByRiskRule() external view returns (uint32) {
-        return transactionLimitByRiskRuleId;
-    }
-
-    /**
-     * @dev Set the TransactionLimitByRiskRule. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateTransactionLimitByRiskScore(_ruleId);
-        transactionLimitByRiskRuleId = _ruleId;
-        transactionLimitByRiskRuleActive = true;
-        emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
-     */
-    function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        transactionLimitByRiskRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(TX_SIZE_BY_RISK, address(this));
-        } else {
-            emit ApplicationHandlerDeactivated(TX_SIZE_BY_RISK, address(this));
-        }
-    }
-
-    /**
-     * @dev Tells you if the transactionLimitByRiskRule is active or not.
-     * @return boolean representing if the rule is active
-     */
-    function isTransactionLimitByRiskActive() external view returns (bool) {
-        return transactionLimitByRiskRuleActive;
-    }
-
-    /**
      * @dev Retrieve the minimum balance by date rule id
      * @return minBalByDateRuleId rule id
      */
@@ -436,9 +434,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minBalByDateRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE, address(this));
+            emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE);
         } else {
-            emit ApplicationHandlerDeactivated(MIN_ACCT_BAL_BY_DATE, address(this));
+            emit ApplicationHandlerDeactivated(MIN_ACCT_BAL_BY_DATE);
         }
     }
 
@@ -492,9 +490,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         }
         adminWithdrawalActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ADMIN_WITHDRAWAL, address(this));
+            emit ApplicationHandlerActivated(ADMIN_WITHDRAWAL);
         } else {
-            emit ApplicationHandlerDeactivated(ADMIN_WITHDRAWAL, address(this));
+            emit ApplicationHandlerDeactivated(ADMIN_WITHDRAWAL);
         }
     }
 
@@ -541,9 +539,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateTokenTransferVolumeRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         tokenTransferVolumeRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(TRANSFER_VOLUME, address(this));
+            emit ApplicationHandlerActivated(TRANSFER_VOLUME);
         } else {
-            emit ApplicationHandlerDeactivated(TRANSFER_VOLUME, address(this));
+            emit ApplicationHandlerDeactivated(TRANSFER_VOLUME);
         }
     }
 
@@ -574,9 +572,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateTotalSupplyVolatilityRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         totalSupplyVolatilityRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(SUPPLY_VOLATILITY, address(this));
+            emit ApplicationHandlerActivated(SUPPLY_VOLATILITY);
         } else {
-            emit ApplicationHandlerDeactivated(SUPPLY_VOLATILITY, address(this));
+            emit ApplicationHandlerDeactivated(SUPPLY_VOLATILITY);
         }
     }
 
@@ -593,7 +591,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      *@param _token address of the token to call totalSupply() of.
      */
     function getTotalSupply(address _token) internal view returns (uint256) {
-        return IERC20(_token).totalSupply();
+        return IERC20Decimals(_token).totalSupply();
     }
 
     /// -------------SIMPLE RULE SETTERS and GETTERS---------------
@@ -604,9 +602,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateMinimumHoldTimeRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         minimumHoldTimeRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MINIMUM_HOLD_TIME, address(this));
+            emit ApplicationHandlerActivated(MINIMUM_HOLD_TIME);
         } else {
-            emit ApplicationHandlerDeactivated(MINIMUM_HOLD_TIME, address(this));
+            emit ApplicationHandlerDeactivated(MINIMUM_HOLD_TIME);
         }
     }
 
@@ -619,7 +617,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         if (_minimumHoldTimeHours > MAX_HOLD_TIME_HOURS) revert PeriodExceeds5Years();
         minimumHoldTimeHours = _minimumHoldTimeHours;
         minimumHoldTimeRuleActive = true;
-        emit ApplicationHandlerSimpleApplied(MINIMUM_HOLD_TIME, address(this), uint256(minimumHoldTimeHours));
+        emit ApplicationHandlerSimpleApplied(MINIMUM_HOLD_TIME, uint256(minimumHoldTimeHours));
     }
 
     /**
@@ -630,21 +628,21 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         return minimumHoldTimeHours;
     }
 
-    /**  
-     * @dev function to check if Minumum Hold Time is active 
-     * @return bool 
+    /**
+     * @dev function to check if Minumum Hold Time is active
+     * @return bool
      */
     function isMinimumHoldTimeActive() external view returns (bool) {
-        return minimumHoldTimeRuleActive; 
+        return minimumHoldTimeRuleActive;
     }
 
     /**
      * @dev Set the NFT Valuation limit that will check collection price vs looping through each tokenId in collections
      * @param _newNFTValuationLimit set the number of NFTs in a wallet that will check for collection price vs individual token prices
      */
-    function setNFTValuationLimit(uint256 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(appManagerAddress) {
+    function setNFTValuationLimit(uint16 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(appManagerAddress) {
         nftValuationLimit = _newNFTValuationLimit;
-        emit NFTValuationLimitUpdated(_newNFTValuationLimit, address(this));
+        emit NFTValuationLimitUpdated(_newNFTValuationLimit);
     }
 
     /**

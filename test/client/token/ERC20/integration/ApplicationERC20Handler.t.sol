@@ -152,7 +152,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
         ///Activate rule
-        applicationCoinHandlerSpecialOwner.setTransactionLimitByRiskRuleId(ruleId);
+        applicationHandler.setTransactionLimitByRiskRuleId(ruleId);
         ///add txnLimit failing (risk level 100)
         uint48[] memory maxSize = createUint48Array(1000000, 10000, 10);
         uint8[] memory riskLevel = createUint8Array(25, 75, 100);
@@ -295,7 +295,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         assertEq(rule.oracleAddress, address(oracleDenied));
         // add a blocked address
         switchToAppAdministrator();
-        badBoys.push(address(69));
+        badBoys.push(address(68));
         oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
@@ -306,16 +306,27 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, msg.sender, 10);
         // This one should fail
         vm.expectRevert(0x2767bda4);
-        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(69), msg.sender, 10);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(68), msg.sender, 10);
+
 
         // check the allowed list type
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        uint32 _indexTwo = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandlerSpecialOwner.setOracleRuleId(_index);
+        applicationCoinHandlerSpecialOwner.setOracleRuleId(_indexTwo);
+
+        NonTaggedRules.OracleRule memory ruleCheck = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
+        assertEq(ruleCheck.oracleType, 0);
+        assertEq(ruleCheck.oracleAddress, address(oracleDenied));
+
+        NonTaggedRules.OracleRule memory ruleCheckTwo = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_indexTwo);
+        assertEq(ruleCheckTwo.oracleType, 1);
+        assertEq(ruleCheckTwo.oracleAddress, address(oracleAllowed));
+
         switchToAppAdministrator();
         // add an allowed address
         goodBoys.push(address(59));
+        goodBoys.push(address(68));
         oracleAllowed.addToAllowList(goodBoys);
         // This one should pass
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(59), msg.sender, 10);
@@ -323,18 +334,28 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         vm.expectRevert(0x7304e213);
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), msg.sender, 10);
 
-        /// let's turn the rule off
+        // let's turn the allowed list rule off
         switchToRuleAdmin();
-        applicationCoinHandlerSpecialOwner.activateOracleRule(false);
+        applicationCoinHandlerSpecialOwner.activateOracleRule(false, _indexTwo);
         switchToAppAdministrator();
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), msg.sender, 10);
 
-        /// let's turn it back on
+        // let's verify that the denied list rule is still active
+        vm.expectRevert(0x2767bda4);
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(68), msg.sender, 10);
+
+        // let's turn it back on
         switchToRuleAdmin();
-        applicationCoinHandlerSpecialOwner.activateOracleRule(true);
+        applicationCoinHandlerSpecialOwner.activateOracleRule(true, _indexTwo);
         switchToAppAdministrator();
         vm.expectRevert(0x7304e213);
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), msg.sender, 10);
+
+        // Remove the denied list rule and verify it no longer fails.
+        switchToRuleAdmin();
+        applicationCoinHandlerSpecialOwner.removeOracleRule(_index);
+        switchToAppAdministrator();
+        applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(68), msg.sender, 10);
     }
 
     ///---------------UPGRADEABILITY---------------
@@ -373,7 +394,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0x2a79d188);
         applicationCoinHandlerSpecialOwnerNew.proposeDataContractMigration(address(applicationCoinHandlerSpecialOwner));
 
         vm.stopPrank();
@@ -388,9 +409,5 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         vm.expectRevert();
         new ApplicationERC20Handler(address(ruleProcessor), address(0x0), appAdministrator, false);
 
-        vm.expectRevert();
-        applicationCoinHandlerSpecialOwner.setNFTPricingAddress(address(0x00));
-        vm.expectRevert();
-        applicationCoinHandlerSpecialOwner.setERC20PricingAddress(address(0x00));
     }
 }
