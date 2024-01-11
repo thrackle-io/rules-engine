@@ -14,6 +14,7 @@ import "./IAdminWithdrawalRuleCapable.sol";
 import "./IProtocolTokenHandler.sol";
 import "src/client/token/IAdminWithdrawalRuleCapable.sol";
 import "src/client/token/HandlerTypeEnum.sol";
+import "src/client/token/ITokenInterface.sol";
 import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
 import {ITokenHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
 
@@ -69,12 +70,4 @@ abstract contract ProtocolHandlerCommon is
     function version() external pure returns (string memory) {
         return VERSION;
     }
-}
-
-interface IToken {
-    function balanceOf(address owner) external view returns (uint256 balance);
-
-    function totalSupply() external view returns (uint256);
-
-    function decimals() external view returns (uint8);
 }

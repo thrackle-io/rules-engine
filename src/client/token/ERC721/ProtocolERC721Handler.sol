@@ -107,7 +107,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
-            if (_amount > 1) revert BatchMintBurnNotSupported(); // Batch mint and burn not supported in this release
             appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
             _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
             _checkNonTaggedRules(_from, _to, _amount, _tokenId);

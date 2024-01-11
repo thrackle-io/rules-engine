@@ -13,6 +13,7 @@ import "src/client/application/AppManager.sol";
 import "src/common/IProtocolERC721Pricing.sol";
 import "src/common/IProtocolERC20Pricing.sol";
 import "src/client/token/HandlerTypeEnum.sol";
+import "src/client/token/ITokenInterface.sol";
 import {IApplicationHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
 import {IZeroAddressError, IInputErrors, IAppHandlerErrors} from "src/common/IErrors.sol";
 
@@ -554,12 +555,4 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function version() external pure returns (string memory) {
         return VERSION;
     }
-}
-
-interface IToken {
-    function balanceOf(address owner) external view returns (uint256 balance);
-
-    function totalSupply() external view returns (uint256);
-
-    function decimals() external view returns (uint8);
 }
