@@ -339,8 +339,7 @@ contract ProtocolERC721AMM is AppAdministratorOnly, IERC721Receiver, IApplicatio
                 address(this),
                 _amountIn,
                 _amountOut,
-                address(ERC721Token),
-                act
+                address(ERC721Token)
             );
     }
 

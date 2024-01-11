@@ -89,7 +89,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
             if (!isFromBypassAccount && !isToBypassAccount) {
             //appManager.checkApplicationRules( _to, _from, 0, 0, _action); /// WE DON'T WANT TO DOUBLE CHECK APP RULES. THIS IS DONE AT THE TOKEN LEVEL
             _checkTaggedRules(token0BalanceFrom, token1BalanceFrom, _from, _to, token_amount_0, token_amount_1);
-            _checkNonTaggedRules(token0BalanceFrom, token1BalanceFrom, _from, _to, token_amount_0, token_amount_1, _tokenAddress);
+            _checkNonTaggedRules(token0BalanceFrom, token1BalanceFrom, _from, _to, token_amount_0, token_amount_1);
             } else {
                 emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress);
             }
@@ -113,12 +113,12 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
         address _to,
         uint256 _token_amount_0,
         uint256 _token_amount_1
-    ) internal {
+    ) 
+    internal
+    view
+     {
         /// We get all tags for sender and recipient
-        bytes32[] memory toTags = appManager.getAllTags(_to);
         bytes32[] memory fromTags = appManager.getAllTags(_from);
-        address purchaseAccount = _to;
-        address sellerAccount = _from;
         /// Pass in fromTags twice because AMM address will not have tags applied (AMM Address is address_to).
         if (minMaxBalanceRuleActive) {
             ///Token 0
@@ -142,9 +142,11 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
         address _from,
         address _to,
         uint256 _token_amount_0,
-        uint256 _token_amount_1,
-        address _tokenAddress
-    ) internal {
+        uint256 _token_amount_1
+    ) 
+    internal
+    view
+    {
         if (minTransferRuleActive) ruleProcessor.checkMinTransferPasses(minTransferRuleId, _token_amount_0);
         if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _from);
         ///silencing unused variable warnings
