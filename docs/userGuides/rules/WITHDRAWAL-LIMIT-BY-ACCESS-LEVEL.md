@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of this rule is to provide withdrawal limits for accounts at the application level based on an application defined segment of users. The segments are defined as the access levels of the accounts. This rule may be used to provide gated withdrawal limits of assets to ensure accounts cannot withdraw more US Dollars or chain native tokens without first permforming other actions defined by the application. or example, the application may decide users may not withdraw without performing specific onboarding activities. The application developer may set a maximum withdraw of $0 for the default access level and $1000 for the next access level. As accounts are introduced to the ecosystem, they may not withdraw from the ecosystem until the application changes their access level to a higher value. This rule does not prevent the accumulation of protocol supported assets. 
+The purpose of this rule is to provide withdrawal limits for accounts at the application level based on an application defined segment of users. The segments are defined as the access levels of the accounts. This rule may be used to provide gated withdrawal limits of assets to ensure accounts cannot withdraw more US Dollars or chain native tokens without first performing other actions defined by the application. For example, the application may decide users may not withdraw without performing specific onboarding activities. The application developer may set a maximum withdraw limit of $0 for the default access level and $1000 for the next access level. As accounts are introduced to the ecosystem, they may not withdraw from the ecosystem until the application changes their access level to a higher value. This rule does not prevent the accumulation of protocol supported assets. 
 
 ## Applies To:
 
@@ -198,5 +198,5 @@ This rule requires recording of the following information in the application han
 
 This rule depends on:
 
-- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the token handlers in order for this rule to work.
+- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be set up in the token handlers in order for this rule to work.
 
