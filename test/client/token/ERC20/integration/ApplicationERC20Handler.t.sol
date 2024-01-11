@@ -394,7 +394,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0x2a79d188);
         applicationCoinHandlerSpecialOwnerNew.proposeDataContractMigration(address(applicationCoinHandlerSpecialOwner));
 
         vm.stopPrank();

@@ -1142,7 +1142,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0xba80c9e5);
+        vm.expectRevert(0x2a79d188);
         applicationCoinHandlerNew.confirmDataContractMigration(address(applicationCoinHandler));
     }
 
