@@ -289,9 +289,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
                 oracleRules[oracleRuleIndex].oracleRuleActive = _on;
 
                 if (_on) {
-                    emit ApplicationHandlerActivated(ORACLE, address(this));
+                    emit ApplicationHandlerActivated(ORACLE);
                 } else {
-                    emit ApplicationHandlerDeactivated(ORACLE, address(this));
+                    emit ApplicationHandlerDeactivated(ORACLE);
                 }
             }
             unchecked {
@@ -591,7 +591,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      *@param _token address of the token to call totalSupply() of.
      */
     function getTotalSupply(address _token) internal view returns (uint256) {
-        return IERC20(_token).totalSupply();
+        return IERC20Decimals(_token).totalSupply();
     }
 
     /// -------------SIMPLE RULE SETTERS and GETTERS---------------

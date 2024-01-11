@@ -385,7 +385,7 @@ echo "################################################################"
 echo
 
 # Comment the following line out to see the oracle rule fail
-# cast send $ORACLE_1_HANDLER "addAddressToAllowList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_1_HANDLER "addAddressToAllowList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 cast send $ORACLE_2_HANDLER "addAddressToAllowList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
@@ -470,10 +470,10 @@ cast send $APPLICATION_ERC20_1_HANDLER "setOracleRuleId(uint32)" $RULE_ID --priv
 # Swap this with the ERC20 call above to run this test on an ERC721
 # cast send $APPLICATION_ERC721_1_HANDLER "setOracleRuleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
-cast call $APPLICATION_ERC20_1_HANDLER "checkAllRules(uint256, uint256, address, address, uint256, uint8)(bool)" 20 10 $APP_ADMIN_3 $APP_ADMIN_2 100 0 --rpc-url $ETH_RPC_URL --from $APPLICATION_ERC20_1
+cast call $APPLICATION_ERC20_1_HANDLER "checkAllRules(uint256, uint256, address, address, address, uint256)(bool)" 20 10 $APP_ADMIN_3 $APP_ADMIN_2 $APP_ADMIN_3 100  --rpc-url $ETH_RPC_URL --from $APPLICATION_ERC20_1
 
 # Swap this with the ERC20 call above to run this test on an ERC721
-# cast call $APPLICATION_ERC721_1_HANDLER "checkAllRules(uint256, uint256, address, address, uint256, uint256, uint8)(bool)" 20 10 $APP_ADMIN_3 $APP_ADMIN_2 1 1 0 --rpc-url $ETH_RPC_URL --from $APPLICATION_ERC721_1
+# cast call $APPLICATION_ERC721_1_HANDLER "checkAllRules(uint256, uint256, address, address, address, uint256)(bool)" 20 10 $APP_ADMIN_3 $APP_ADMIN_2 $APP_ADMIN_3 1  --rpc-url $ETH_RPC_URL --from $APPLICATION_ERC721_1
 
 if [ "$LOCAL" = "y" ]; then
     rm ./anvil_output.txt

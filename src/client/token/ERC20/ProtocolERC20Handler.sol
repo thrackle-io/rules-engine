@@ -422,9 +422,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
                 oracleRules[oracleRuleIndex].oracleRuleActive = _on;
 
                 if (_on) {
-                    emit ApplicationHandlerActivated(ORACLE, address(this));
+                    emit ApplicationHandlerActivated(ORACLE);
                 } else {
-                    emit ApplicationHandlerDeactivated(ORACLE, address(this));
+                    emit ApplicationHandlerDeactivated(ORACLE);
                 }
             }
             unchecked {

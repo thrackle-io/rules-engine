@@ -29,8 +29,7 @@ abstract contract ProtocolHandlerCommon is
     IZeroAddressError, 
     ITokenHandlerEvents, 
     ICommonApplicationHandlerEvents, 
-    IAssetHandlerErrors, 
-    AppAdministratorOnly, 
+    IAssetHandlerErrors,  
     AppAdministratorOrOwnerOnly
 {
     string private constant VERSION="1.1.0";
