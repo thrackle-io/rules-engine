@@ -2,12 +2,11 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "src/client/token/ERC20/IERC20Decimals.sol";
 import "src/protocol/economic/ruleProcessor/RuleCodeData.sol";
 import "src/protocol/economic/IRuleProcessor.sol";
 import "src/client/application/IAppManager.sol";
 import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
-import "src/protocol/economic/AppAdministratorOnly.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "src/client/application/IAppManagerUser.sol";
 import "./IAdminWithdrawalRuleCapable.sol";
@@ -39,6 +38,7 @@ abstract contract ProtocolHandlerCommon is
     address public appManagerAddress;
     IRuleProcessor ruleProcessor;
     IAppManager appManager;
+
 
 
     /**

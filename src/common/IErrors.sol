@@ -160,6 +160,7 @@ interface IAssetHandlerErrors {
     error ZeroValueNotPermited();
     error BatchMintBurnNotSupported();
     error FeesAreGreaterThanTransactionAmount(address);
+    error OracleRulesPerAssetLimitReached();
 }
 
 interface IOwnershipErrors {
