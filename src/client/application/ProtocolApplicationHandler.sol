@@ -106,8 +106,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
             balanceValuation = uint128(getAccTotalValuation(_to, 0));
             price = uint128(_getERC20Price(_tokenAddress));
             transferValuation = uint128((price * _amount) / (10 ** IToken(_tokenAddress).decimals()));
-        } 
-        if (_handlerType == HandlerTypes.ERC721HANDLER) {
+        } else if (_handlerType == HandlerTypes.ERC721HANDLER) {
             balanceValuation = uint128(getAccTotalValuation(_to, _nftValuationLimit));
             transferValuation = uint128(nftPricer.getNFTPrice(_tokenAddress, _tokenId));
         }
