@@ -145,11 +145,11 @@ abstract contract TestCommonFoundry is TestCommon {
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
         /// connect the pricers to both handlers
-        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
-        applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
-        applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
-        applicationCoinHandler.setNFTPricingAddress(address(erc721Pricer));
+        switchToRuleAdmin(); 
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
+        switchToAppAdministrator();
         oracleAllowed = _createOracleAllowed();
         oracleDenied = _createOracleDenied();
         /// reset the user to the original
@@ -288,12 +288,11 @@ abstract contract TestCommonFoundry is TestCommon {
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
-        /// connect the pricers to both handlers
-        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
-        applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
-        applicationCoinHandlerSpecialOwner.setERC20PricingAddress(address(erc20Pricer));
-        applicationCoinHandlerSpecialOwner.setNFTPricingAddress(address(erc721Pricer));
+        switchToRuleAdmin(); 
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
+        switchToAppAdministrator();
 
         oracleAllowed = _createOracleAllowed();
         oracleDenied = _createOracleDenied();
@@ -339,18 +338,18 @@ abstract contract TestCommonFoundry is TestCommon {
 
         ///Pricing Contracts
         erc721Pricer = new ApplicationERC721Pricing();
-        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
         erc20Pricer = new ApplicationERC20Pricing();
-        applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
+
 
         /// set up the pricer for erc721
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFTU), 1 * (10 ** 18)); //setting at $1
-        /// connect the pricers to both handlers
-        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
-        applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
-        applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
-        applicationCoinHandler.setNFTPricingAddress(address(erc721Pricer));
+        /// connect the pricers to handler
+        switchToRuleAdmin(); 
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
+
+        switchToAppAdministrator();
         
         oracleAllowed = _createOracleAllowed();
         oracleDenied = _createOracleDenied();
@@ -392,11 +391,12 @@ abstract contract TestCommonFoundry is TestCommon {
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
-        /// connect the pricers to both handlers
-        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
-        applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
-        applicationCoinHandler.setERC20PricingAddress(address(erc20Pricer));
-        applicationCoinHandler.setNFTPricingAddress(address(erc721Pricer));
+        /// connect pricing contracts to handler 
+        switchToRuleAdmin(); 
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
+
+        switchToAppAdministrator();
 
         oracleAllowed = _createOracleAllowed();
         oracleDenied = _createOracleDenied();

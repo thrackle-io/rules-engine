@@ -70,9 +70,12 @@ interface IOracleEvents{
  */
 
 interface IApplicationHandlerEvents {
-    event ApplicationHandlerDeployed(address indexed deployedAddress, address indexed appManager);
+    event ApplicationHandlerDeployed(address indexed appManager);
     // Rule applied
     event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
+    /// Pricing
+    event ERC721PricingAddressSet(address indexed _address);
+    event ERC20PricingAddressSet(address indexed _address);
 }
 
 /**
@@ -83,9 +86,9 @@ interface IApplicationHandlerEvents {
  */
 interface ICommonApplicationHandlerEvents {
     /// Rule deactivated
-    event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
+    event ApplicationHandlerDeactivated(bytes32 indexed ruleType);
     /// Rule activated
-    event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
+    event ApplicationHandlerActivated(bytes32 indexed ruleType);
     //// Rule Bypassed Via Rule Bypass Account 
     event RulesBypassedViaRuleBypassAccount(address indexed ruleBypassAccount, address indexed appManager);
 }
@@ -123,19 +126,16 @@ interface IEconomicEvents {
  */
 interface ITokenHandlerEvents {
     ///Handler
-    event HandlerDeployed(address indexed applicationHandler, address indexed appManager);
+    event HandlerDeployed(address indexed appManager);
     /// Rule applied
     event ApplicationHandlerApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
-    event ApplicationHandlerSimpleApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint256 indexed param1);
+    event ApplicationHandlerSimpleApplied(bytes32 indexed ruleType, uint256 indexed param1);
     /// NFT Valuation Limit Updated
-    event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit, address indexed handlerAddress);
+    event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
     event AppManagerAddressSet(address indexed _address);
     event AppManagerAddressProposed(address indexed _address);
     /// Fees
     event FeeActivationSet(bool indexed _activation);
-    /// Pricing
-    event ERC721PricingAddressSet(address indexed _address);
-    event ERC20PricingAddressSet(address indexed _address);
     /// Configuration
     event ERC721AddressSet(address indexed _address);
 }

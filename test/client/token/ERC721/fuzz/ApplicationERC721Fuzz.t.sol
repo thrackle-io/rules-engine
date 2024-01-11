@@ -339,7 +339,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         ///Register rule with ERC721Handler
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
-        applicationNFTHandler.setTransactionLimitByRiskRuleId(ruleId);
+        applicationHandler.setTransactionLimitByRiskRuleId(ruleId);
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(_user1, risk);
@@ -555,7 +555,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFT.transferFrom(_user1, _user4, 2);
     }
 
-    function testNFTValuationVariableLimitFuzz(uint8 _addressIndex, uint256 _valuationLimit) public {
+    function testNFTValuationVariableLimitFuzz(uint8 _addressIndex, uint16 _valuationLimit) public {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
         address _user1 = addressList[0];
         address _user2 = addressList[1];
@@ -1129,7 +1129,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             uint8[] memory _riskLevel = createUint8Array(0, 10, 40, 80, 99);
             ///Register rule with ERC721Handler
             uint32 maxTxPerRiskId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
-            applicationNFTHandler.setTransactionLimitByRiskRuleId(maxTxPerRiskId);
+            applicationHandler.setTransactionLimitByRiskRuleId(maxTxPerRiskId);
         }
 
         switchToRiskAdmin();

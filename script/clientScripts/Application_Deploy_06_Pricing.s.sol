@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/application/ApplicationHandler.sol";
+import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import "src/example/ERC20/ApplicationERC20Handler.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
 import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
@@ -42,9 +42,7 @@ contract ApplicationDeployPricingScript is Script {
         vm.startBroadcast(privateKey);
         /// Retrieve App Manager deployed from previous script
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
-        ApplicationERC20Handler applicationCoinHandler = ApplicationERC20Handler(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS"));
-        ApplicationERC20Handler applicationCoinHandler2 = ApplicationERC20Handler(vm.envAddress("APPLICATION_ERC20_HANDLER_ADDRESS_2"));
-        ApplicationERC721Handler applicationNFTHandler = ApplicationERC721Handler(vm.envAddress("APPLICATION_ERC721_HANDLER"));
+        ApplicationHandler applicationHandler = ApplicationHandler(vm.envAddress("APPLICATION_APP_HANDLER"));
 
         /// Set the token's prices
         ApplicationERC721Pricing openOcean = new ApplicationERC721Pricing();
@@ -53,12 +51,9 @@ contract ApplicationDeployPricingScript is Script {
         exchange.setSingleTokenPrice(vm.envAddress("APPLICATION_ERC20_ADDRESS_2"), 1 * (10 ** 18));
         openOcean.setNFTCollectionPrice(vm.envAddress("APPLICATION_ERC721_ADDRESS_1"), 5 * (10 ** 18));
         /// Link the pricing module to the Asset Handlers
-        applicationCoinHandler.setERC20PricingAddress(address(exchange));
-        applicationCoinHandler.setNFTPricingAddress(address(openOcean));
-        applicationCoinHandler2.setERC20PricingAddress(address(exchange));
-        applicationCoinHandler2.setNFTPricingAddress(address(openOcean));
-        applicationNFTHandler.setERC20PricingAddress(address(exchange));
-        applicationNFTHandler.setNFTPricingAddress(address(openOcean));
+        applicationHandler.setERC20PricingAddress(address(exchange));
+        applicationHandler.setNFTPricingAddress(address(openOcean));
+
 
         /// register the coin treasury
         applicationAppManager.registerTreasury(vm.envAddress("FEE_TREASURY"));

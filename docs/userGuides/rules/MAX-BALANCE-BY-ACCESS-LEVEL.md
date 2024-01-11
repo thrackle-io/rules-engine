@@ -43,9 +43,9 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
-- This rule can only be set in the asset handler by a **rule administrator**.
-- This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
-- This rule can only be updated in the asset handler by a **rule administrator**.
+- This rule can only be set in the application handler by a **rule administrator**.
+- This rule can only be activated/deactivated in the application handler by a **rule administrator**.
+- This rule can only be updated in the application handler by a **rule administrator**.
 
 
 ## Rule Evaluation
@@ -139,7 +139,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function activateAccountBalanceByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-     - Function to know the activation state of the rule in an asset handler:
+     - Function to know the activation state of the rule in an application handler:
         ```c
         function isAccountBalanceByAccessLevelActive() external view returns (bool);
         ```
