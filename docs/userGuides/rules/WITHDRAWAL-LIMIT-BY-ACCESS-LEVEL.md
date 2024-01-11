@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of this rule is to provide withdrawal limits for accounts at the application level based on an application defined segment of users. The segments are defined as the access levels of the accounts. This rule may be used to 
+The purpose of this rule is to provide withdrawal limits for accounts at the application level based on an application defined segment of users. The segments are defined as the access levels of the accounts. This rule may be used to provide gated withdrawal limits of assets to ensure accounts cannot withdraw more US Dollars or chain native tokens without first permforming other actions defined by the application. or example, the application may decide users may not withdraw without performing specific onboarding activities. The application developer may set a maximum withdraw of $0 for the default access level and $1000 for the next access level. As accounts are introduced to the ecosystem, they may not withdraw from the ecosystem until the application changes their access level to a higher value. This rule does not prevent the accumulation of protocol supported assets. 
 
 ## Applies To:
 
@@ -52,8 +52,8 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 The rule will be evaluated with the following logic:
 
-1. The application manager sends to the protocol's rule processor the dollar value sum of all application assets the account holds, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
-2. The processor retrieves the maximum withdrawal limit allowed for the rule with the ruleId passed, and for the access level of the account. If the balance exceeds the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
+1. The application manager sends to the protocol's rule processor the dollar value sum of all application assets the account has already withdrawn, the access level of the account, the ruleId, and the dollar amount to be transferred in the transaction.
+2. The processor retrieves the maximum withdrawal limit allowed for the rule with the ruleId passed, and for the access level of the account. If the withdrawal amount plus already withdrawn amount exceeds the maximum allowed by the rule in the case of a successful transactions, then the transaction reverts.
 
 ###### *see [ApplicationAccessLevelProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkAccBalanceByAccessLevel*
 
@@ -66,10 +66,10 @@ The rule will be evaluated with the following logic:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error BalanceExceedsAccessLevelAllowedLimit();
+error WithdrawalExceedsAccessLevelAllowedLimit();
 ```
 
-The selector for this error is `0xdd76c810`.
+The selector for this error is `0x2bbc9aea`.
 
 
 ## Create Function
@@ -77,9 +77,9 @@ The selector for this error is `0xdd76c810`.
 Adding a withdrawal-by-access-level rule is done through the function:
 
 ```c
-function addAccessLevelBalanceRule(
+function addAccessLevelWithdrawalRule(
             address _appManagerAddr, 
-            uint48[] calldata _balanceAmounts
+            uint48[] calldata _withdrawalAmounts
         ) 
         external 
         ruleAdministratorOnly(_appManagerAddr) 
@@ -92,7 +92,7 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
-- **_balanceAmounts** (uint48[]): array of balance limits for each 5 levels (levels 0 to 4) in whole USD amounts (1 -> 1 USD; 1000 -> 1000 USD). Note that the position within the array matters. Position 0 represents access level 0, and position 4 represents level 4.
+- **_withdrawalAmounts** (uint48[]): array of withdrawal limits for each 5 levels (levels 0 to 4) in whole USD amounts (1 -> 1 USD; 1000 -> 1000 USD). Note that the position within the array matters. Position 0 represents access level 0, and position 4 represents level 4.
 
 ### Parameter Optionality:
 
@@ -102,7 +102,7 @@ There are no options for the parameters of this rule.
 
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
-- The `_balanceAmounts` array has length 5.
+- The `_withdrawalAmounts` array has length 5.
 - The elements of the `_balanceAmounts` array are in ascendant order.
 
 ###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
@@ -112,20 +112,20 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function to get a rule by its Id:
         ```c
-        function getAccessLevelBalanceRule(uint32 _index, uint8 _accessLevel) external view returns (uint48);
+        function getAccessLevelWithdrawalRules(uint32 _index, uint8 _accessLevel) external view returns (uint48);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalAccessLevelBalanceRules() external view returns (uint32);
+        function getTotalAccessLevelWithdrawalRule() external view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
-        function checkAccBalanceByAccessLevel(
+        function checkwithdrawalLimitsByAccessLevel(
                     uint32 _ruleId, 
                     uint8 _accessLevel, 
-                    uint128 _balance, 
-                    uint128 _amountToTransfer
+                    uint128 _usdWithdrawalTotal, 
+                    uint128 _usdAmountTransferring
                 ) 
                 external 
                 view;
@@ -133,43 +133,65 @@ The following validation will be carried out by the create function in order to 
 - In the [Application Handler](../../../src/client/application/ProtocolApplicationHandler.sol):
     - Function to set and activate at the same time the rule in the application handler:
         ```c
-        function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule in the application handler:
         ```c
-        function activateAccountBalanceByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateWithdrawalLimitByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
      - Function to know the activation state of the rule in an asset handler:
         ```c
-        function isAccountBalanceByAccessLevelActive() external view returns (bool);
+        function isWithdrawalLimitByAccessLevelActive() external view returns (bool);
         ```
     - Function to get the rule Id from the application handler:
         ```c
-        function getAccountBalanceByAccessLevelRule() external view returns (uint32);
+        function getWithdrawalLimitByAccessLevelRule() external view returns (uint32);
         ```
 
 ## Return Data
 
-This rule doesn't return any data.
+This rule returns 1 value:
+
+1. **Accumulated US Dollar Amount Withdrawn** (uint128): the updated value for the total US Dollar amount of withdrawn per account. 
+
+```c
+mapping(address => uint128) usdValueTotalWithrawals;
+```
+
+*see [ProtocolApplicationHandler](../../../src/client/application/ProtocolApplicationHandler.sol)
+
 
 ## Data Recorded
 
-This rule doesn't require of any data to be recorded.
+This rule requires recording of the following information in the application handler:
+
+```c
+    /// AccessLevelWithdrawalRule data
+    mapping(address => uint128) usdValueTotalWithrawals;
+```
+
+*see [ProtocolApplicationHandler](../../../src/client/application/ProtocolApplicationHandler.sol)
+
 
 ## Events
 
 - **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "BALANCE_BY_ACCESSLEVEL".
+        - ruleType: "ACCESS_LEVEL_WITHDRAWAL".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: empty array.
 
 - **event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
     - Emitted when: rule has been applied in an application manager handler.
     - Parameters: 
-        - ruleType: "BALANCE_BY_ACCESSLEVEL".
+        - ruleType: "ACCESS_LEVEL_WITHDRAWAL".
         - ruleId: the ruleId set for this rule in the handler.
+- **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)**:
+    - Emitted when: a rule has been activated in an application handler:
+    - Parameters: 
+        - ruleType: "ACCESS_LEVEL_WITHDRAWAL".
+        - handlerAddress: the address of the application handler where the rule has been activated.
 
 
 ## Dependencies
