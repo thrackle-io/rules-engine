@@ -12,6 +12,8 @@ import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "src/client/application/IAppManagerUser.sol";
+import "./IAdminWithdrawalRuleCapable.sol";
+import "./IProtocolTokenHandler.sol";
 import "src/client/token/IAdminWithdrawalRuleCapable.sol";
 import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
 import {ITokenHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
@@ -23,7 +25,7 @@ import "src/client/token/data/Fees.sol";
  * @notice This contract contains common variables and functions for all Protocol Asset Handlers
  */
 
-abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZeroAddressError, ITokenHandlerEvents, ICommonApplicationHandlerEvents, IAssetHandlerErrors, AppAdministratorOrOwnerOnly, RuleAdministratorOnly {
+abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZeroAddressError, ITokenHandlerEvents, ICommonApplicationHandlerEvents, IAssetHandlerErrors, AppAdministratorOrOwnerOnly, AppAdministratorOnly, RuleAdministratorOnly {
     string private constant VERSION="1.1.0";
     address private newAppManagerAddress;
     address public appManagerAddress;
@@ -39,6 +41,7 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
     /// Data contracts
     Fees fees;
     bool feeActive;
+
 
     /**
      * @dev this function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process
@@ -316,6 +319,7 @@ abstract contract ProtocolHandlerCommon is IAppManagerUser, IOwnershipErrors, IZ
             revert PricingModuleNotConfigured(erc20PricingAddress, nftPricingAddress);
         }
     }
+    
 
     /**
      * @dev gets the version of the contract

@@ -171,28 +171,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
          console.log("Made selling all NFTs", applicationCoin.balanceOf(user) - balanceBefore);
     }
 
-    function testAMMERC721DualLinearSellRule() public {
-         /// we pick up from this test
-        testAMMERC721DualLinearBuyAllNFTs();
-        /// set the rule
-        _setSellRule("SellRule", 1, 36); /// tag, maxNFtsPerPeriod, period
-        /// apply tag to user
-        switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(user, "SellRule");
-        /// Swap that passes rule check
-        switchToUser();
-        applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
-        _sell(123);
-        /// Swap that fails
-        vm.expectRevert(0xc11d5f20);
-        _sell(124);
-        /// we wait until the next period so user can swap again
-        vm.warp(block.timestamp + 36 hours);
-        _sell(124);
-    }
-
-    // 
-    
     function testAMMERC721DualLinearOracleRule() public {
         /// we pick up from this test
         testAMMERC721DualLinearAddLiquidityBatch();
@@ -251,113 +229,32 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
 
         switchToSuperAdmin();
         ///Add tag to user
-        bytes32[] memory accs = new bytes32[](1);
-        uint192[] memory sellAmounts = new uint192[](1);
-        uint16[] memory sellPeriod = new uint16[](1);
-        accs[0] = bytes32("SellRule");
-        sellAmounts[0] = uint192(1); ///Amount to trigger Sell freeze rules
-        sellPeriod[0] = uint16(36); ///Hours
+        // bytes32[] memory accs = new bytes32[](1);
+        // uint192[] memory sellAmounts = new uint192[](1);
+        // uint16[] memory sellPeriod = new uint16[](1);
+        // accs[0] = bytes32("SellRule");
+        // sellAmounts[0] = uint192(1); ///Amount to trigger Sell freeze rules
+        // sellPeriod[0] = uint16(36); ///Hours
 
-        /// Set the rule data
-        applicationAppManager.addGeneralTag(user, "SellRule");
-        /// add the rule.
-        switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, uint64(Blocktime));
-        ///update ruleId in application AMM rule handler
-        assetHandler.setSellLimitRuleId(ruleId);
-        /// Swap that passes rule check
-        switchToUser();
-        applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
-        _sell(123);
+        // /// Set the rule data
+        // applicationAppManager.addGeneralTag(user, "SellRule");
+        // /// add the rule.
+        // switchToRuleAdmin();
+        // uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, uint64(Blocktime));
+        // ///update ruleId in application AMM rule handler
+        // assetHandler.setSellLimitRuleId(ruleId);
+        // /// Swap that passes rule check
+        // switchToUser();
+        // applicationNFT.setApprovalForAll(address(dualLinearERC271AMM), true);
+        // _sell(123);
 
-        /// Swap that fails
-        vm.expectRevert(0xc11d5f20);
-        _sell(124);
+        // /// Swap that fails
+        // vm.expectRevert(0xc11d5f20);
+        // _sell(124);
 
-        /// we wait until the next period so user can swap again
-        vm.warp(block.timestamp + 36 hours);
-        _sell(124);
-    }
-
-    function testAMMERC721DualLinearPurchasePercentageRule() public {
-        /// we pick up from this test
-        testAMMERC721DualLinearAddLiquidityBatch();
-        switchToAppAdministrator();
-        _fundThreeAccounts();
-        /// set up rule
-        uint16 tokenPercentage = 100; /// 1% 
-        _setPurchasePercentageRule(tokenPercentage, 24); /// 24 hour periods
-        /// we make sure we are in a new period
-        vm.warp(Blocktime + 36 hours);
-        /// test swap below percentage
-        switchToUser();
-        _approveTokens(5 * 10 ** 8 * ATTO, true);
-        /// we test buying the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
-        for(uint i; i < (erc721Liq * tokenPercentage) / 10000 - 1; i++){
-            _testBuyNFT(i,  0);
-        }
-        /// we get the price manually since we will test reverts on buys
-        (uint256 price, uint256 fees) = dualLinearERC271AMM.getBuyPrice();
-        uint256 pricePlusFees = price + fees;
-        /// If try to buy one more, it should fail in this period.
-        vm.expectRevert(0xb634aad9);
-        _buy(pricePlusFees, 100);
-        /// switch users and test rule still fails
-        vm.stopPrank();
-        vm.startPrank(user1);
-        _approveTokens(5 * 10 ** 8 * ATTO, true);
-        vm.expectRevert(0xb634aad9);
-        _buy(pricePlusFees, 100);
-        /// let's go to another period
-        vm.warp(Blocktime + 72 hours);
-        switchToUser();
-        /// now it should work
-        _testBuyNFT(100,  0);
-        /// with another user
-        vm.stopPrank();
-        vm.startPrank(user1);
-        /// we have to do this manually since the _testBuyNFT uses the *user* acccount
-        (price, fees) = dualLinearERC271AMM.getBuyPrice();
-        pricePlusFees = price + fees;
-        _buy(pricePlusFees, 222);
-
-    }
-
-    function testAMMERC721DualLinearSellPercentageRule() public {
-        /// We start the test by running the testAMMERC721DualLinearPurchasePercentageRule so we can have some 
-        /// NFTs already bought by the users
-        testAMMERC721DualLinearPurchasePercentageRule();
-        switchToRuleAdmin();
-        /// we turn off the purchase percentage rule
-        applicationAMMHandler.activatePurchasePercentageRule(false);
-        /// now we setup the sell percentage rule
-        uint16 tokenPercentageSell = 30; /// 0.30%
-        _setSellPercentageRule(tokenPercentageSell, 24); ///  24 hour periods
-        vm.warp(Blocktime + 36 hours);
-        /// now we test
-        switchToUser();
-        /// we test selling the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
-        for(uint i; i < (erc721Liq * tokenPercentageSell) / 10000 - 1; i++){
-            _testSellNFT(i,  0);
-        }
-        /// If try to sell one more, it should fail in this period.
-        vm.expectRevert(0xb17ff693);
-        _sell(30);
-        /// switch users and test rule still fails
-        vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0xb17ff693);
-        _sell(222);
-        /// let's go to another period
-        vm.warp(Blocktime + 72 hours);
-        switchToUser();
-        /// now it should work
-        _testSellNFT(30,  0);
-        /// with another user
-         vm.stopPrank();
-        vm.startPrank(user1);
-        _sell(222);
-
+        // /// we wait until the next period so user can swap again
+        // vm.warp(block.timestamp + 36 hours);
+        // _sell(124);
     }
 
     /// HELPER INTERNAL FUNCTIONS
@@ -493,18 +390,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         dualLinearERC271AMM.swap(address(applicationNFT), 1, _tokenId);
     }
 
-    function _setSellRule(bytes32 _tag, uint192 _sellAmount,  uint16 _sellPeriod) internal returns(uint32 ruleId){
-        switchToRuleAdmin();
-        bytes32[] memory accs = new bytes32[](1);
-        uint192[] memory sellAmounts = new uint192[](1);
-        uint16[] memory sellPeriod = new uint16[](1);
-        accs[0] = bytes32(_tag);
-        sellAmounts[0] = _sellAmount; ///Amount to trigger Sell freeze rules
-        sellPeriod[0] = _sellPeriod; ///Hours
-        ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, uint64(Blocktime));
-        applicationAMMHandler.setSellLimitRuleId(ruleId);
-    }
-
     // function _setFeeRule(uint256 testFees) internal returns (uint32 ruleId){
     //     switchToRuleAdmin();
     //     /// make sure that no bogus fee percentage can get in
@@ -535,26 +420,6 @@ contract ProtocolERC721AMMTest is TestCommonFoundry {
         assertEq(rule.oracleType, 1);
         assertEq(rule.oracleAddress, address(oracleAllowed));
         applicationAMMHandler.setOracleRuleId(ruleId);
-    }
-
-    function _setPurchasePercentageRule(uint16 _tokenPercentage, uint16  _purchasePeriod) internal returns(uint32 ruleId){
-        switchToRuleAdmin();
-        uint16 tokenPercentage = _tokenPercentage; 
-        uint16 purchasePeriod = _purchasePeriod; 
-        uint256 totalSupply = 0;
-        uint64 ruleStartTime = Blocktime;
-        ruleId = RuleDataFacet(address(ruleProcessor)).addPercentagePurchaseRule(address(applicationAppManager), tokenPercentage, purchasePeriod, totalSupply, ruleStartTime);
-        applicationAMMHandler.setPurchasePercentageRuleId(ruleId);
-    }
-
-    function _setSellPercentageRule(uint16 _tokenPercentageSell, uint16  _sellPeriod) internal returns(uint32 ruleId){
-        switchToRuleAdmin();
-        uint16 tokenPercentageSell = _tokenPercentageSell; 
-        uint16 sellPeriod = _sellPeriod;
-        uint256 totalSupply = 0;
-        uint64 ruleStartTime = Blocktime;
-        ruleId = RuleDataFacet(address(ruleProcessor)).addPercentageSellRule(address(applicationAppManager), tokenPercentageSell, sellPeriod, totalSupply, ruleStartTime);
-        applicationAMMHandler.setSellPercentageRuleId(ruleId);
     }
 
     function _fundThreeAccounts() internal {

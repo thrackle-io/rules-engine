@@ -98,8 +98,7 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
                 address(this),
                 _amountIn,
                 _amountOut,
-                address(token0),
-                ActionTypes.SELL
+                address(token0)
             )
         );
         if(reserve1 < _amountOut) revert InsufficientPoolDepth(reserve1, _amountOut);
@@ -136,8 +135,7 @@ contract ProtocolERC20AMM is AppAdministratorOnly, IApplicationEvents,  AMMCalcu
                 address(this),
                 _amountIn,
                 _amountOut,
-                address(token0),
-                ActionTypes.PURCHASE
+                address(token0)
             )
         );
         if(reserve1 < _amountOut) revert InsufficientPoolDepth(reserve0, _amountOut);

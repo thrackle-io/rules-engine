@@ -308,4 +308,5 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
         return data.supplyVolatilityRuleIndex;
     }
+
 }

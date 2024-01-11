@@ -31,23 +31,15 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
     IERC20 public token;
 
     /// Rule ID's
-    uint32 private purchaseLimitRuleId;
-    uint32 private sellLimitRuleId;
     uint32 private minTransferRuleId;
     uint32 private minMaxBalanceRuleIdToken0;
     uint32 private minMaxBalanceRuleIdToken1;
     uint32 private oracleRuleId;
-    uint32 private purchasePercentageRuleId;
-    uint32 private sellPercentageRuleId;
 
     /// Rule Activation Bools
-    bool private purchaseLimitRuleActive;
-    bool private sellLimitRuleActive;
     bool private minTransferRuleActive;
     bool private oracleRuleActive;
     bool private minMaxBalanceRuleActive;
-    bool private purchasePercentageRuleActive;
-    bool private sellPercentageRuleActive;
 
     /**
      * @dev Constructor sets the App Manager andToken Rule Router Address
@@ -78,7 +70,6 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
      * @param _to recipient address
      * @param token_amount_0 number of tokens transferred
      * @param token_amount_1 number of tokens received
-     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return Success equals true if all checks pass
      */
     function checkAllRules(
@@ -88,8 +79,7 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
         address _to,
         uint256 token_amount_0,
         uint256 token_amount_1,
-        address _tokenAddress,
-        ActionTypes _action
+        address _tokenAddress
     ) external onlyOwner returns (bool) {
         bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
         bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
@@ -97,9 +87,9 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
         if (!appManager.isTreasury(_to)) {
             /// standard tagged and  rules do not apply when either to or from is an admin
             if (!isFromBypassAccount && !isToBypassAccount) {
-            appManager.checkApplicationRules(_action, _to, _from, 0, 0);
-            _checkTaggedRules(token0BalanceFrom, token1BalanceFrom, _from, _to, token_amount_0, token_amount_1, _action);
-            _checkNonTaggedRules(token0BalanceFrom, token1BalanceFrom, _from, _to, token_amount_0, token_amount_1, _tokenAddress, _action);
+            //appManager.checkApplicationRules( _to, _from, 0, 0, _action); /// WE DON'T WANT TO DOUBLE CHECK APP RULES. THIS IS DONE AT THE TOKEN LEVEL
+            _checkTaggedRules(token0BalanceFrom, token1BalanceFrom, _from, _to, token_amount_0, token_amount_1);
+            _checkNonTaggedRules(token0BalanceFrom, token1BalanceFrom, _from, _to, token_amount_0, token_amount_1);
             } else {
                 emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress);
             }
@@ -122,29 +112,13 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
         address _from,
         address _to,
         uint256 _token_amount_0,
-        uint256 _token_amount_1,
-        ActionTypes _action
-    ) internal {
+        uint256 _token_amount_1
+    ) 
+    internal
+    view
+     {
         /// We get all tags for sender and recipient
-        bytes32[] memory toTags = appManager.getAllTags(_to);
         bytes32[] memory fromTags = appManager.getAllTags(_from);
-        address purchaseAccount = _to;
-        address sellerAccount = _from;
-        if (purchaseLimitRuleActive && _action == ActionTypes.PURCHASE) {
-            purchasedWithinPeriod[purchaseAccount] = ruleProcessor.checkPurchaseLimit(
-                purchaseLimitRuleId,
-                purchasedWithinPeriod[purchaseAccount],
-                _token_amount_0,
-                toTags,
-                lastPurchaseTime[purchaseAccount]
-            );
-            lastPurchaseTime[purchaseAccount] = uint64(block.timestamp);
-        }
-
-        if (sellLimitRuleActive && _action == ActionTypes.SELL) {
-            salesWithinPeriod[sellerAccount] = ruleProcessor.checkSellLimit(sellLimitRuleId, salesWithinPeriod[sellerAccount], _token_amount_0, fromTags, lastSellTime[sellerAccount]);
-            lastSellTime[sellerAccount] = uint64(block.timestamp);
-        }
         /// Pass in fromTags twice because AMM address will not have tags applied (AMM Address is address_to).
         if (minMaxBalanceRuleActive) {
             ///Token 0
@@ -168,24 +142,13 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
         address _from,
         address _to,
         uint256 _token_amount_0,
-        uint256 _token_amount_1,
-        address _tokenAddress,
-        ActionTypes _action
-    ) internal {
+        uint256 _token_amount_1
+    ) 
+    internal
+    view
+    {
         if (minTransferRuleActive) ruleProcessor.checkMinTransferPasses(minTransferRuleId, _token_amount_0);
         if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _from);
-        /// Check rule is active and action taken is a purchase
-        if (purchasePercentageRuleActive && _action == ActionTypes.PURCHASE) {
-            uint256 tokenTotalSupply = getTotalSupply(_tokenAddress);
-            totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(purchasePercentageRuleId, tokenTotalSupply, _token_amount_0, previousPurchaseTime, totalPurchasedWithinPeriod);
-            previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
-        }
-        /// Check rule is active and action taken is a sell
-        if (sellPercentageRuleActive && _action == ActionTypes.SELL) {
-            uint256 tokenTotalSupply = getTotalSupply(_tokenAddress);
-            totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(sellPercentageRuleId, tokenTotalSupply, _token_amount_0, previousSellTime, totalSoldWithinPeriod);
-            previousSellTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
-        }
         ///silencing unused variable warnings
         _to;
         _token0BalanceFrom;
@@ -201,108 +164,6 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
      */
     function getTotalSupply(address _token) internal view returns (uint256) {
         return IERC20(_token).totalSupply();
-    }
-
-    /**
-     * @dev Set the PurchaseLimitRuleId. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setPurchaseLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        purchaseLimitRuleId = _ruleId;
-        purchaseLimitRuleActive = true;
-        emit ApplicationHandlerApplied(PURCHASE_LIMIT, _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
-     */
-    function activatePurchaseLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        purchaseLimitRuleActive = _on;
-    }
-
-    /**
-     * @dev Retrieve the Purchase Limit rule id
-     * @return purchaseLimitRuleId
-     */
-    function getPurchaseLimitRuleId() external view returns (uint32) {
-        return purchaseLimitRuleId;
-    }
-
-    /**
-     * @dev Tells you if the Purchase Limit Rule is active or not.
-     * @return boolean representing if the rule is active
-     */
-    function isPurchaseLimitActive() external view returns (bool) {
-        return purchaseLimitRuleActive;
-    }
-
-    /**
-     * @dev Set the SellLimitRuleId. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setSellLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        sellLimitRuleId = _ruleId;
-        sellLimitRuleActive = true;
-        emit ApplicationHandlerApplied(SELL_LIMIT, _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
-     */
-    function activateSellLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        sellLimitRuleActive = _on;
-    }
-
-    /**
-     * @dev Retrieve the Purchase Limit rule id
-     * @return oracleRuleId
-     */
-    function getSellLimitRuleId() external view returns (uint32) {
-        return sellLimitRuleId;
-    }
-
-    /**
-     * @dev Tells you if the Purchase Limit Rule is active or not.
-     * @return boolean representing if the rule is active
-     */
-    function isSellLimitActive() external view returns (bool) {
-        return sellLimitRuleActive;
-    }
-
-    /**
-     * @dev Get the block timestamp of the last purchase for account.
-     * @return LastPurchaseTime for account
-     */
-    function getLastPurchaseTime(address account) external view ruleAdministratorOnly(appManagerAddress) returns (uint256) {
-        return lastPurchaseTime[account];
-    }
-
-    /**
-     * @dev Get the block timestamp of the last Sell for account.
-     * @return LastSellTime for account
-     */
-    function getLastSellTime(address account) external view returns (uint256) {
-        return lastSellTime[account];
-    }
-
-    /**
-     * @dev Get the cumulative total of the purchases for account in purchase period.
-     * @return purchasedWithinPeriod for account
-     */
-    function getPurchasedWithinPeriod(address account) external view returns (uint256) {
-        return purchasedWithinPeriod[account];
-    }
-
-    /**
-     * @dev Get the cumulative total of the Sales for account during sell period.
-     * @return salesWithinPeriod for account
-     */
-    function getSalesWithinPeriod(address account) external view  returns (uint256) {
-        return salesWithinPeriod[account];
     }
 
     /**
@@ -428,76 +289,6 @@ contract ProtocolAMMHandler is Ownable, ProtocolHandlerCommon {
         return oracleRuleActive;
     }
 
-
-    /**
-     * @dev Set the purchasePercentageRuleId. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setPurchasePercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        purchasePercentageRuleId = _ruleId;
-        purchasePercentageRuleActive = true;
-        emit ApplicationHandlerApplied(PURCHASE_PERCENTAGE, _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
-     */
-    function activatePurchasePercentageRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        purchasePercentageRuleActive = _on;
-    }
-
-    /**
-     * @dev Retrieve the Purchase Percentage Rule Id
-     * @return purchasePercentageRuleId
-     */
-    function getPurchasePercentageRuleId() external view returns (uint32) {
-        return purchasePercentageRuleId;
-    }
-
-    /**
-     * @dev Tells you if the Purchase Percentage Rule is active or not.
-     * @return boolean representing if the rule is active
-     */
-    function isPurchasePercentageRuleActive() external view returns (bool) {
-        return purchasePercentageRuleActive;
-    }
-
-    /**
-     * @dev Set the sellPercentageRuleId. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setSellPercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        sellPercentageRuleId = _ruleId;
-        sellPercentageRuleActive = true;
-        emit ApplicationHandlerApplied(SELL_PERCENTAGE, _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
-     */
-    function activateSellPercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        sellPercentageRuleActive = _on;
-    }
-
-    /**
-     * @dev Retrieve the Purchase Percentage Rule Id
-     * @return purchasePercentageRuleId
-     */
-    function getSellPercentageRuleId() external view returns (uint32) {
-        return sellPercentageRuleId;
-    }
-
-    /**
-     * @dev Tells you if the Purchase Percentage Rule is active or not.
-     * @return boolean representing if the rule is active
-     */
-    function isSellPercentageRuleActive() external view returns (bool) {
-        return sellPercentageRuleActive;
-    }
 
     /// -------------DATA CONTRACT DEPLOYMENT---------------
     /**

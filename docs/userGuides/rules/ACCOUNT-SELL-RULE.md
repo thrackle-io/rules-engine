@@ -6,13 +6,13 @@ The Account Sell Rule is an account based measure which restricts an account’s
 
 ## Applies To:
 
-- [ ] ERC20
-- [ ] ERC721
-- [x] AMM
+- [x] ERC20
+- [x] ERC721
+- [ ] AMM
 
 ## Scope 
 
-This rule works at the AMM level. It must be activated and configured for each desired AMM in the corresponding AMM handler. This rule will not be applied at the token level and will only be checked through the AMM swap function. 
+This rule works at the token level. It must be activated and configured for each token in the corresponding token handler.
 
 ## Data Structure
 
@@ -20,7 +20,6 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
 
 - **Sell Amounts** (uint192): The maximum amount of tokens that may be sold during the *sell period*. 
 - **Sell Periods** (uint16): The length of each time period for which the rule will apply, in hours.
-- **Starting Timestamp** (uint64): The timestamp of the date when the *period* starts counting.
 
 
 ```c
@@ -40,16 +39,26 @@ Additionally, each one of these data structures will be under a tag (bytes32):
         /// ruleIndex => userType => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.SellRule)) 
 ```
-###### *see [IRuleProcessor](../../../src/protocol/economic/ruleProcessor/IRuleProcessor.sol)*
 
-The collection of these tagged sub-rules composes an account-sell-controller rule.
+And the starting Timestamp for the rule will be global for all tags:
+
+- **Starting Timestamp** (uint64): The Unix timestamp of the date when the *period* starts counting.
+ 
+```c
+
+        mapping(uint32 => uint64) startTimes;///Time the rule is applied
+```
+
+###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
+
+The collection of these tagged sub-rules plus the startingTime composes an account-purchase-controller rule.
 
 ```c
     /// ******** Account Sell Rules ********
     struct SellRuleS {
         /// ruleIndex => userType => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.SellRule)) sellRulesPerUser;
-        uint64 startTime; /// Time the rule is created
+        mapping(uint32 => uint64) startTimes;///Time the rule is applied
         uint32 sellRulesIndex; /// increments every time someone adds a rule
     }
 ```
@@ -66,18 +75,23 @@ The collection of these tagged sub-rules composes an account-sell-controller rul
 
 The rule will be evaluated with the following logic:
 
-1. The account being evaluated passes to the protocol all the tags it has registered to its address in the application manager.
-2. The processor receives these tags along with the ID of the account-sell-controller rule set in the token handler. 
-3. The processor then tries to retrieve the sub-rule associated with each tag.
-4. The processor evaluates whether each sub-rule's period is active (if the current time is within `period` from the `starting timestamp`). If it is not within the period, it sets the cumulative sales to the current sale amount. If it is within the period, the processor adds the current sale amount to the accrued sale amount for the rule period.   
-5. The processor then checks if the cumulative sales amount is greater than the `sell amount` defined in the rule. If true, the transaction reverts. 
-6. Steps 4 and 5 are repeated for each of the account's tags.
-7. Return the cumulative sales amount.
+1. The token handler decides if the transfer is a Sell (user perspective). Only if it is, it continues with the next steps.
+2. The account being evaluated passes to the protocol all the tags it has registered to its address in the application manager.
+3. The processor receives these tags along with the ID of the account-sell-controller rule set in the token handler. 
+4. The processor then tries to retrieve the sub-rule associated with each tag.
+5. The processor evaluates whether each sub-rule's period is active (if the current time is within `period` from the `starting timestamp`). If it is not within the period, it sets the cumulative sales to the current sale amount. If it is within the period, the processor adds the current sale amount to the accrued sale amount for the rule period.   
+6. The processor then checks if the cumulative sales amount is greater than the `sell amount` defined in the rule. If true, the transaction reverts. 
+7. Steps 4 and 5 are repeated for each of the account's tags.
+8. Return the cumulative sales amount.
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkSellLimit*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when an **app administrator** address is in either the *from* or the *to* side of the transaction. 
+This rule doesn't apply when:
+- An approved Trading-Rule Whitelisted address is in the *from* side of the transaction.
+- rulebypasser account is in the *from* or *to* side of the transaction.
+
+Additionally, in the case of the ERC20, this rule doesn't apply also when registered treasury address is in the *to* side of the transaction. 
 
 ### Revert Message
 
@@ -174,7 +188,7 @@ This rule returns the value:
 uint64 salesWithinPeriod;
 ```
 
-*see [AMMHandler](../../../src/client/liquidity/ProtocolAMMHandler.sol)*
+*see [Token Handler](../../../src/client/token/ProtocolHandlerCommon.sol)*
 
 ## Data Recorded
 
@@ -188,7 +202,7 @@ mapping(address => uint256) salesWithinPeriod;
 mapping(address => uint64) lastSellTime;
 ```
 
-*see [AMMHandler](../../../src/client/liquidity/ProtocolAMMHandler.sol)*
+*see [Token Handler](../../../src/client/token/ProtocolHandlerCommon.sol)*
 
 ## Events
 

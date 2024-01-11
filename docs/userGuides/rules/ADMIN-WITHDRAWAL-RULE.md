@@ -65,7 +65,7 @@ The rule will be evaluated with the following logic:
 
 ### Evaluation Exceptions
 
-- This rule doesn't apply when an **app administrator** address is **not** in the *from* side of the transaction.
+- This rule doesn't apply when an **ruleBypassAccount** address is **not** in the *from* side of the transaction.
 
 ### Revert Message
 

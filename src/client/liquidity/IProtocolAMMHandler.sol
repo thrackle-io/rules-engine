@@ -19,7 +19,6 @@ interface IProtocolAMMHandler {
      * @param _to recipient address
      * @param token_amount_0 number of tokens transferred
      * @param token_amount_1 number of tokens reciveved
-     * @param _action Action Type defined by ApplicationHandlerLib (Purchase, Sell, Trade, Inquire)
      * @return Success equals true and Failure equals false
      */
     function checkAllRules(
@@ -29,8 +28,7 @@ interface IProtocolAMMHandler {
         address _to,
         uint256 token_amount_0,
         uint256 token_amount_1,
-        address _tokenAddress,
-        ActionTypes _action
+        address _tokenAddress
     ) external returns (bool);
 
     /**

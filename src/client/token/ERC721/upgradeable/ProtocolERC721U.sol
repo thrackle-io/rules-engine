@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import "../IProtocolERC721Handler.sol";
+import "../../IProtocolTokenHandler.sol";
 import "../../ProtocolTokenCommonU.sol";
 
 /**
@@ -31,7 +31,7 @@ contract ProtocolERC721U is
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     address public handlerAddress;
-    IProtocolERC721Handler handler;
+    IProtocolTokenHandler handler;
     CountersUpgradeable.Counter private _tokenIdCounter;
 
     /// Base Contract URI
@@ -132,7 +132,7 @@ contract ProtocolERC721U is
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
         // Rule Processor Module Check
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, batchSize, tokenId, ActionTypes.TRADE));
+        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to,  _msgSender(), tokenId));
 
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
@@ -161,7 +161,7 @@ contract ProtocolERC721U is
     function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
-        handler = IProtocolERC721Handler(handlerAddress);
+        handler = IProtocolTokenHandler(handlerAddress);
         emit HandlerConnected(_deployedHandlerAddress);
     }
 }

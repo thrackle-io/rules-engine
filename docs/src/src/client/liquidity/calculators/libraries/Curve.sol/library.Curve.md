@@ -21,7 +21,7 @@ uint256 constant ATTO = 10 ** 18;
 ## Functions
 ### getY
 
-<<<<<<<< LinearWholeB >>>>>>>>>>
+~~~~~~~~ LinearWholeB ~~~~~~~~
 
 the original ecuation y = mx + b  is replacing m by m_num/m_den.
 
@@ -73,7 +73,7 @@ function fromInput(LinearWholeB storage line, LinearInput memory input, uint256 
 
 ### getY
 
-<<<<<<<< LinearFractionB >>>>>>>>>>
+~~~~~~~~ LinearFractionB ~~~~~~~~
 
 the original ecuation y = mx + b  is replacing m by m_num/m_den.
 
@@ -138,7 +138,7 @@ function fromInput(
 ### getY
 
 this is different than original. Double check
-<<<<<<<< ConstantRatio >>>>>>>>>>
+~~~~~~~~ ConstantRatio ~~~~~~~~
 
 *calculates ƒ(amountIn) for a constant-ratio AMM.*
 
@@ -163,7 +163,7 @@ function getY(ConstantRatio memory cr, uint256 _amount0, uint256 _amount1) inter
 
 ### getY
 
-<<<<<<<< ConstantProduct >>>>>>>>>>
+~~~~~~~~ ConstantProduct ~~~~~~~~
 
 *calculates ƒ(amountIn) for a constant-product AMM.
 Based on (x + a) * (y - b) = x * y
@@ -198,7 +198,7 @@ function getY(ConstantProduct memory constatProduct, uint256 _amount0, uint256 _
 
 ### getY
 
-<<<<<<<< Sample01Struct >>>>>>>>>>
+~~~~~~~~ Sample01Struct ~~~~~~~~
 
 
 ```solidity
