@@ -49,7 +49,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         } else {
             ruleId = RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), _transferAmount);
             /// we update the rule id in the token
-            applicationCoinHandler.setMinTransferRuleId(ActionTypes.P2P_TRANSFER, ruleId);
+            applicationCoinHandler.setMinTransferRuleId(_createActionsArray(), ruleId);
             switchToAppAdministrator();
             /// now we perform the transfer
             emit Log("transferAmount", _transferAmount);
@@ -493,13 +493,13 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
 
-        applicationCoinHandler.setAdminWithdrawalRuleId(ActionTypes.P2P_TRANSFER, _index);
+        applicationCoinHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
-        applicationCoinHandler.activateAdminWithdrawalRule(ActionTypes.P2P_TRANSFER, false);
+        applicationCoinHandler.activateAdminWithdrawalRule(_createActionsArray(), false);
         vm.expectRevert();
-        applicationCoinHandler.setAdminWithdrawalRuleId(ActionTypes.P2P_TRANSFER, _index);
+        applicationCoinHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         vm.warp(block.timestamp + secondsForward);
         switchToRuleBypassAccount();
@@ -510,8 +510,8 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         switchToRuleAdmin();
         /// if last rule is expired, we should be able to turn off and update the rule
         if (secondsForward >= 365 days) {
-            applicationCoinHandler.activateAdminWithdrawalRule(ActionTypes.P2P_TRANSFER, false);
-            applicationCoinHandler.setAdminWithdrawalRuleId(ActionTypes.P2P_TRANSFER, _index);
+            applicationCoinHandler.activateAdminWithdrawalRule(_createActionsArray(), false);
+            applicationCoinHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
         }
     }
 
@@ -552,7 +552,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         applicationCoin.transfer(user3, (_amountSeed * 10000000) * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), (_amountSeed * 10000000) * (10 ** 18));
         switchToRuleAdmin();
-        applicationCoinHandler.setMinBalByDateRuleId(ActionTypes.P2P_TRANSFER, _index);
+        applicationCoinHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// tag the user
         applicationAppManager.addGeneralTag(rich_user, tag1); ///add tag
@@ -746,7 +746,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(rich_user), 1000000);
         /// apply the rule
         switchToRuleAdmin();
-        applicationCoinHandler.setTokenTransferVolumeRuleId(ActionTypes.P2P_TRANSFER, _index);
+        applicationCoinHandler.setTokenTransferVolumeRuleId(_createActionsArray(), _index);
         vm.stopPrank();
         vm.startPrank(rich_user);
         /// determine the maximum transfer amount
@@ -787,9 +787,11 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         /// create and activate rule
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volLimit, rulePeriod, startingTime, tokenSupply);
-        applicationCoinHandler.setTotalSupplyVolatilityRuleId(ActionTypes.P2P_TRANSFER, _index);
-        applicationCoinHandler.setTotalSupplyVolatilityRuleId(ActionTypes.BURN, _index);
-        applicationCoinHandler.setTotalSupplyVolatilityRuleId(ActionTypes.MINT, _index);
+        ActionTypes[] memory actionTypes = _createActionsArray();
+        // add actions mint and burn rather in addition to P2P_Transfer
+        actionTypes[1] = ActionTypes.BURN;
+        actionTypes[2] = ActionTypes.MINT;
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(actionTypes, _index);
         /// test mint
         vm.stopPrank();
         vm.startPrank(user1);
@@ -831,7 +833,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         // uint16 volatilityLimit = 1; /// 0.01%
         // switchToRuleAdmin();
         // uint32 _ruleIndex = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        // applicationCoinHandler.setTotalSupplyVolatilityRuleId(ActionTypes.P2P_TRANSFER, _ruleIndex);
+        // applicationCoinHandler.setTotalSupplyVolatilityRuleId(_createActionsArray(), _ruleIndex);
         // vm.stopPrank();
         // vm.startPrank(user1);
         // applicationCoin.mint(user1, 5 * (10 ** 18));
@@ -850,7 +852,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         // uint16 newVolatilityLimit = 50000; /// 500%
         // switchToRuleAdmin();
         // uint32 _newRuleIndex = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), newVolatilityLimit, rulePeriod, startingTime, tokenSupply);
-        // applicationCoinHandler.setTotalSupplyVolatilityRuleId(ActionTypes.P2P_TRANSFER, _newRuleIndex);
+        // applicationCoinHandler.setTotalSupplyVolatilityRuleId(_createActionsArray(), _newRuleIndex);
         // vm.stopPrank();
         // vm.startPrank(user1);
         // applicationCoin.mint(user1, 450000 * (10 ** 18));

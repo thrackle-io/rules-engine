@@ -313,7 +313,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
         ruleProcessor.validateMinMaxAccountBalance(_ruleId);
         for (uint i; i < _actions.length; ) {
             minMaxBalance[_actions[i]].ruleId = _ruleId;
-            minMaxBalance[_actions[i]].active = true;
+            minMaxBalance[_actions[i]].active = true;            
             emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, _ruleId);
             unchecked {
                         ++i;
@@ -361,23 +361,33 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     /**
      * @dev Set the minTransferRuleId. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
-     * @param _action the action type
+     * @param _actions the action type
      * @param _ruleId Rule Id to set
      */
-    function setMinTransferRuleId(ActionTypes _action, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateMinTransfer(_ruleId);
-        minTransfer[_action].ruleId = _ruleId;
-        minTransfer[_action].active = true;
+    function setMinTransferRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            ruleProcessor.validateMinTransfer(_ruleId);
+            minTransfer[_actions[i]].ruleId = _ruleId;
+            minTransfer[_actions[i]].active = true;
+            unchecked {
+                ++i;
+            }
+        }
         emit ApplicationHandlerApplied(MIN_TRANSFER, _ruleId);
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _action the action type
+     * @param _actions the action type
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateMinTransferRule(ActionTypes _action, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        minTransfer[_action].active = _on;
+    function activateMinTransferRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            minTransfer[_actions[i]].active = _on;
+            unchecked {
+                ++i;
+            }
+        }
         if (_on) {
             emit ApplicationHandlerActivated(MIN_TRANSFER);
         } else {
@@ -501,18 +511,23 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     /**
      * @dev Set the AdminWithdrawalRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
-     * @param _action the action type
+     * @param _actions the action type
      * @param _ruleId Rule Id to set
      */
-    function setAdminWithdrawalRuleId(ActionTypes _action, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+    function setAdminWithdrawalRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateAdminWithdrawal(_ruleId);
         /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
-        if (adminWithdrawal[_action].active) {
+        if (isAdminWithdrawalActiveForAnyAction()) {
             if (isAdminWithdrawalActiveAndApplicable()) revert AdminWithdrawalRuleisActive();
         }
-        /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
-        adminWithdrawal[_action].ruleId = _ruleId;
-        adminWithdrawal[_action].active = true;
+        for (uint i; i < _actions.length; ) {
+            /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
+            adminWithdrawal[_actions[i]].ruleId = _ruleId;
+            adminWithdrawal[_actions[i]].active = true;
+            unchecked {
+                ++i;
+            }
+        }
         emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, _ruleId);
     }
 
@@ -537,16 +552,39 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     }
 
     /**
+     * @dev This function is used internally to check if the admin withdrawal is active for any actions
+     * @return Success equals true if all checks pass
+     */
+    function isAdminWithdrawalActiveForAnyAction() internal view returns (bool) {
+        bool active;
+        uint8 action = 0;
+        /// if the rule is active for any actions, set it as active and applicable.
+        while (action <= LAST_POSSIBLE_ACTION) { 
+            if (adminWithdrawal[ActionTypes(action)].active) {
+                active = true;
+                break;
+            }
+            action++;
+        }
+        return active;
+    }
+
+    /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _action the action type
+     * @param _actions the action type
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAdminWithdrawalRule(ActionTypes _action, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+    function activateAdminWithdrawalRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired
         if (!_on) {
             if (isAdminWithdrawalActiveAndApplicable()) revert AdminWithdrawalRuleisActive();
         }
-        adminWithdrawal[_action].active = _on;
+        for (uint i; i < _actions.length; ) {
+            adminWithdrawal[_actions[i]].active = _on;
+            unchecked {
+                ++i;
+            }
+        }
         if (_on) {
             emit ApplicationHandlerActivated(ADMIN_WITHDRAWAL);
         } else {
@@ -584,23 +622,33 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     /**
      * @dev Set the minBalByDateRuleId. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
-     * @param _action the action type
+     * @param _actions the action type
      * @param _ruleId Rule Id to set
      */
-    function setMinBalByDateRuleId(ActionTypes _action, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateMinBalByDate(_ruleId);
-        minBalByDate[_action].ruleId = _ruleId;
-        minBalByDate[_action].active = true;
+    function setMinBalByDateRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            ruleProcessor.validateMinBalByDate(_ruleId);
+            minBalByDate[_actions[i]].ruleId = _ruleId;
+            minBalByDate[_actions[i]].active = true;
+            unchecked {
+                ++i;
+            }
+        }
         emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, _ruleId);
     }
 
     /**
      * @dev Tells you if the min bal by date rule is active or not.
-     * @param _action the action type
+     * @param _actions the action type
      * @param _on boolean representing if the rule is active
      */
-    function activateMinBalByDateRule(ActionTypes _action, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        minBalByDate[_action].active = _on;
+    function activateMinBalByDateRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            minBalByDate[_actions[i]].active = _on;
+            unchecked {
+                ++i;
+            }
+        }
         if (_on) {
             emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE);
         } else {
@@ -629,23 +677,33 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     /**
      * @dev Set the tokenTransferVolumeRuleId. Restricted to game admins only.
      * @notice that setting a rule will automatically activate it.
-     * @param _action the action type
+     * @param _actions the action type
      * @param _ruleId Rule Id to set
      */
-    function setTokenTransferVolumeRuleId(ActionTypes _action, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateTokenTransferVolume(_ruleId);
-        tokenTransferVolume[_action].ruleId = _ruleId;
-        tokenTransferVolume[_action].active = true;
+    function setTokenTransferVolumeRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            ruleProcessor.validateTokenTransferVolume(_ruleId);
+            tokenTransferVolume[_actions[i]].ruleId = _ruleId;
+            tokenTransferVolume[_actions[i]].active = true;
+            unchecked {
+                ++i;
+            }
+        }
         emit ApplicationHandlerApplied(TRANSFER_VOLUME, _ruleId);
     }
 
     /**
      * @dev Tells you if the token transfer volume rule is active or not.
-     * @param _action the action type
+     * @param _actions the action type
      * @param _on boolean representing if the rule is active
      */
-    function activateTokenTransferVolumeRule(ActionTypes _action, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        tokenTransferVolume[_action].active = _on;
+    function activateTokenTransferVolumeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            tokenTransferVolume[_actions[i]].active = _on;
+            unchecked {
+                ++i;
+            }
+        }
         if (_on) {
             emit ApplicationHandlerActivated(TRANSFER_VOLUME);
         } else {
@@ -674,23 +732,33 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     /**
      * @dev Set the tokenTransferVolumeRuleId. Restricted to game admins only.
      * @notice that setting a rule will automatically activate it.
-     * @param _action the action type
+     * @param _actions the action type
      * @param _ruleId Rule Id to set
      */
-    function setTotalSupplyVolatilityRuleId(ActionTypes _action, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateSupplyVolatility(_ruleId);
-        totalSupplyVolatility[_action].ruleId = _ruleId;
-        totalSupplyVolatility[_action].active = true;
+    function setTotalSupplyVolatilityRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            ruleProcessor.validateSupplyVolatility(_ruleId);
+            totalSupplyVolatility[_actions[i]].ruleId = _ruleId;
+            totalSupplyVolatility[_actions[i]].active = true;
+            unchecked {
+                ++i;
+            }
+        }
         emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, _ruleId);
     }
 
     /**
      * @dev Tells you if the token total Supply Volatility rule is active or not.
-     * @param _action the action type
+     * @param _actions the action type
      * @param _on boolean representing if the rule is active
      */
-    function activateTotalSupplyVolatilityRule(ActionTypes _action, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        totalSupplyVolatility[_action].active = _on;
+    function activateTotalSupplyVolatilityRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            totalSupplyVolatility[_actions[i]].active = _on;
+            unchecked {
+                ++i;
+            }
+        }
         if (_on) {
             emit ApplicationHandlerActivated(SUPPLY_VOLATILITY);
         } else {

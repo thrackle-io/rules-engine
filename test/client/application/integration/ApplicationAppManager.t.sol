@@ -153,7 +153,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
         // apply admin withdrawal rule to an ERC20
-        applicationCoinHandler.setAdminWithdrawalRuleId(ActionTypes.P2P_TRANSFER, _index);
+        applicationCoinHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
         switchToRuleBypassAccount();
         // try to renounce ruleBypassAccount
         vm.expectRevert(0x23a87520);
@@ -167,11 +167,11 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         vm.expectRevert(0x23a87520);
-        applicationCoinHandler.activateAdminWithdrawalRule(ActionTypes.P2P_TRANSFER, false);
+        applicationCoinHandler.activateAdminWithdrawalRule(_createActionsArray(), false);
         // try to set the rule to a different one.
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5_000_000 * (10 ** 18), block.timestamp + 365 days);
         vm.expectRevert(0x23a87520);
-        applicationCoinHandler.setAdminWithdrawalRuleId(ActionTypes.P2P_TRANSFER, _index);
+        applicationCoinHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
         // move a year into the future so that the rule is expired
         vm.warp(block.timestamp + (366 days));
         switchToRuleBypassAccount(); 

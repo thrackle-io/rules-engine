@@ -307,7 +307,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             if (min == 0) vm.expectRevert();
             RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), min);
             /// if we added the rule in the protocol, then we add it in the application
-            if (!(min == 0)) applicationCoinHandler.setMinTransferRuleId(ActionTypes.P2P_TRANSFER, 0);
+            if (!(min == 0)) applicationCoinHandler.setMinTransferRuleId(_createActionsArray(), 0);
         }
 
         /// Prepearing for rule
