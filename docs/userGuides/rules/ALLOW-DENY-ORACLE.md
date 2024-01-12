@@ -16,7 +16,7 @@ The deny list is designed as a tool to reduce the risk of malicious actors in th
 
 ## Scope 
 
-This rule works at both the token level and AMM level. It must be activated and configured for each desired token in the corresponding token handler or each desired AMM in the AMM Handler.
+This rule works at both the token level and AMM level. It must be activated and configured for each desired token in the corresponding token handler or each desired AMM in the AMM Handler. When configured at a token level, each token can have a maximum of 10 oracle rules associated with it.
 
 ## Data Structure
 
@@ -53,7 +53,7 @@ struct OracleRuleS {
 
 ## Rule Evaluation
 
-The rule will be evaluated with the following logic:
+The rule will be evaluated with the following logic (this logic will be evaluated for each oracle rule associated with the token):
 
 1. The processor will receive the ID of the allow-oracle rule set in the application handler. 
 2. The processor will receive the address that is to be checked in the oracle.
@@ -83,6 +83,14 @@ error AddressIsDenied();
 ```
 
 The selector for this error is `0x2767bda4`.
+
+When adding an oracle rule to a token, if there are already 10 oracle rules associated the handler will revert with the following error:
+
+```
+error OracleRulesPerAssetLimitReached();
+```
+
+The selector for this error is `0x7304e213`.
 
 ## Create Function
 
@@ -148,14 +156,14 @@ The following validation will be carried out by the create function in order to 
                     external 
                     view;
         ```
-- in Application Handler:
+- in Asset Handler:
     - Function to set and activate at the same time the rule in an asset handler:
         ```c
         function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule in an asset handler:
         ```c
-        function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateOracleRule(bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule in an asset handler:
         ```c
