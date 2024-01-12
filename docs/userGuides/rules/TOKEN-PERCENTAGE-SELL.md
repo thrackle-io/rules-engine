@@ -56,17 +56,20 @@ struct PctSellRuleS {
 
 The rule will be evaluated with the following logic:
 
-1. The token handler decides if the transfer is a Sell (user perspective). Only if it is, it continues with the next steps.
-2. The processor receives the ID of the token-percentage-sell rule set in the asset handler. 
-3. The processor receives the current total sold within period, token A amount (total amount of token A being transferred in the current transaction), previous sell time, and token's total supply from the handler.
-4. The processor evaluates whether the rule has a set total supply or uses the token's total supply provided by the handler set at the beginning of every new `period`.  
-5. The processor evaluates whether the current time is within a new `period`.
+1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+2. The token handler decides if the transfer is a Sell (user perspective). Only if it is, it continues with the next steps.
+3. The processor receives the ID of the token-percentage-sell rule set in the asset handler. 
+4. The processor receives the current total sold within period, token A amount (total amount of token A being transferred in the current transaction), previous sell time, and token's total supply from the handler.
+5. The processor evaluates whether the rule has a set total supply or uses the token's total supply provided by the handler set at the beginning of every new `period`.  
+6. The processor evaluates whether the current time is within a new `period`.
     - **If it is a new period**, the processor sets the percent of total supply to the token A amount.
     - **If it is not a new period**, the processor sets percent of total supply to the sum of the total sold within period and token A amount. 
-6. The processor calculates the final sell percentage, in basis units, using the percent of total supply calculated in step 4 and the total supply set in step 3.  
-7. The processor evaluates if the final sell percentage of total supply would be greater than the `token percentage`. 
+7. The processor calculates the final sell percentage, in basis units, using the percent of total supply calculated in step 4 and the total supply set in step 3.  
+8. The processor evaluates if the final sell percentage of total supply would be greater than the `token percentage`. 
     - If yes, the transaction reverts. 
     - If no, the processor returns the `token percentage` value for the current `period` to the handler.
+
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkSellPercentagePasses*
 
@@ -162,21 +165,21 @@ The following validation will be carried out by the create function in order to 
             returns (uint256);
         ```
 - in [ERC20Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol), [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol):
-    - Function to set and activate at the same time the rule in an asset handler:
+    - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setSellPercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setSellPercentageRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateSellPercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateSellPercentageRuleIdRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isSellPercentageRuleActive() external view returns (bool);
+        function isSellPercentageRuleActive(ActionTypes _action) external view returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getSellPercentageRuleId() external view returns (uint32);
+        function getSellPercentageRuleId(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 

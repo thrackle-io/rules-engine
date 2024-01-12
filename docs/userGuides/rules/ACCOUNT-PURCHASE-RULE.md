@@ -76,17 +76,20 @@ The collection of these tagged sub-rules plus the startingTime composes an accou
 
 The rule will be evaluated with the following logic:
 
-1. The token handler decides if the transfer is a Purchase (user perspective). Only if it is, it continues with the next steps.
-2. The account is passed to the protocol with all the tags it has registered to its address in the application manager.
-3. The processor receives these tags along with the ID of the account-purchase-controller rule set in the token handler. 
-4. The processor retrieves the sub-rule associated with each tag.
-5. The processor evaluates whether the rule is active based on the `starting timestamp`. If it is not active, the rule aborts the next steps, and returns zero as the accrued cumulative purchases value.
-6. The processor evaluates whether the current time is within a new period.
+1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+2. The token handler decides if the transfer is a Purchase (user perspective). Only if it is, it continues with the next steps.
+3. The account is passed to the protocol with all the tags it has registered to its address in the application manager.
+4. The processor receives these tags along with the ID of the account-purchase-controller rule set in the token handler. 
+5. The processor retrieves the sub-rule associated with each tag.
+6. The processor evaluates whether the rule is active based on the `starting timestamp`. If it is not active, the rule aborts the next steps, and returns zero as the accrued cumulative purchases value.
+7. The processor evaluates whether the current time is within a new period.
    -If it is a new period, the processor sets the cumulative purchases to the current purchase amount.
    -If it is not a new period, the processor adds the current purchase amount to the accrued purchase amount for the rule period. 
-7. The processor checks if the cumulative purchases amount is greater than the `purchase amount` defined in the rule. If true, the transaction reverts.
-8. Steps 4 and 5 are repeated for each of the account's tags. In the case where multiple tags apply, the most restrictive is applied.
-9. Returns the cumulative purchases amount.
+8. The processor checks if the cumulative purchases amount is greater than the `purchase amount` defined in the rule. If true, the transaction reverts.
+9. Steps 4 and 5 are repeated for each of the account's tags. In the case where multiple tags apply, the most restrictive is applied.
+10. Returns the cumulative purchases amount.
+
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkPurchaseLimit*
 
@@ -168,21 +171,21 @@ The following validation will be carried out by the create function in order to 
         function checkPurchaseLimit(uint32 ruleId, uint256 purchasedWithinPeriod, uint256 amount, bytes32[] calldata toTags, uint64 lastUpdateTime) external view returns (uint256);
         ```
 - in Asset Handler:
-    - Function to set and activate at the same time the rule in an asset handler:
+    - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setPurchaseLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setPurchaseLimitRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activatePurchaseLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activatePurchaseLimitRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isPurchaseLimitActive() external view returns (bool);
+        function isPurchaseLimitActive(ActionTypes _action) external view returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getPurchaseLimitRuleId() external view returns (uint32);
+        function getPurchaseLimitRuleId(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 

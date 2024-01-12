@@ -57,9 +57,12 @@ Since this rule is intended to apply specifically to rule bypass accounts, there
 
 The rule will be evaluated with the following logic:
 
-1. The asset handler checks if the transfer of tokens is from an app administrator account. If it is not, the rule evaluation is skipped.
-2. The handler sends the amount of tokens being transferred, the current balance of the app administrator account, and the ruleId to the protocol's rule processor.
-3. The rule processor calculates what the final balance of the administrator account would be if the transaction succeeds. If the final balance calculated is less than the minimum balance specified in the rule, the transaction reverts.
+1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+2. The asset handler checks if the transfer of tokens is from an app administrator account. If it is not, the rule evaluation is skipped.
+3. The handler sends the amount of tokens being transferred, the current balance of the app administrator account, and the ruleId to the protocol's rule processor.
+4. The rule processor calculates what the final balance of the administrator account would be if the transaction succeeds. If the final balance calculated is less than the minimum balance specified in the rule, the transaction reverts.
+
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkAdminWithdrawalRule*
 
@@ -137,25 +140,25 @@ The following validation will be carried out by the create function in order to 
         function checkAdminWithdrawalRule(uint32 ruleId, uint256 currentBalance, uint256 amount) external view;
         ```
 - in Asset Handler:
-    - Function to set and activate at the same time the rule in an asset handler:
+    - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setAdminWithdrawalRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setAdminWithdrawalRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateAdminWithdrawalRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateAdminWithdrawalRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c 
-        function isAdminWithdrawalActive() external view returns (bool);
+        function isAdminWithdrawalActive(ActionTypes _action) external view returns (bool);
         ```
     - Function to know the activation state of the rule in an asset handler and if it is in the active period:
         ```c
         function isAdminWithdrawalActiveAndApplicable() public view override returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getAdminWithdrawalRuleId() external view returns (uint32);
+        function getAdminWithdrawalRuleId(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
