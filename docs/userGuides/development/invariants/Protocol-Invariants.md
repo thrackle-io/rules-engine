@@ -12,30 +12,31 @@
 - An account can have a maximum of 10 tags registered in the application.
 - Rules that depend on a period of time, depend on a non-rolling period. This means that each period starts and ends at a fixed time, and it has no memory of past periods.
 - Rules can be applied independently which means that a token, AMM or application can have none, some or all possible rules activated.
-- All rules can be used by any token, applicationManager and/or AMM.
-- Only accounts with the role of RuleAdministrator in a compliant AppManager contract can create rules.
+- The usage of rules is totally open which means that they can be used by any token, applicationManager and/or AMM respectively (or other external type of contract).
+- Only accounts with the role of RuleAdministrator in a protocol-compliant AppManager contract can create rules in the protocol.
+
 
 ## AppAdministratorOnly and AppAdministratorOnlyU
 
-- When applied to a function, it means that the functino is only callable by an account with the role of AppAdministrator.
+- When applied to a function, it means that the function is only callable by an account with the role of AppAdministrator.
 
 ## AppAdministratorOrOwnerOnly
 
-- When applied to a function, it means that the functino is only callable by the owner of the contract or an account with the role of AppAdministrator.
+- When applied to a function, it means that the function is only callable by the owner of the contract or an account with the role of AppAdministrator.
 
 ## RuleAdministratorOnly
 
-- When applied to a function, it means that the functino is only callable by an account with the role of RuleAdministrator.
+- When applied to a function, it means that the function is only callable by an account with the role of RuleAdministrator.
 
 ## ApplicationAccessLevelProcessorFacet
 
 ### Balance By Access Level
 
-- The total USD balance in application tokens (fongible and non-fungible) of an account must not excede the maximum of the AccessLevelBalance rule applied for the application and the access level of the account.
+- The total USD balance in application assets (fungible and non-fungible) of an account must not excede the maximum of the AccessLevelBalance rule applied for the application and the access level of the account.
 
 ### Withdraw By Access Level
 
-- An account's cumulative total of funds withdrawn from the protocol in USD terms must not excede the maximum for that account's access level defined in the Withdraw-By-Access-Level rule applied for a specific transaction counting from the activation of the rule. 
+- An account's cumulative total of funds withdrawn from the protocol in USD terms must not excede the maximum for that account's access level defined in the Withdraw-By-Access-Level rule applied for the application counting from the activation of the rule. 
 
 *Note: What happens when a rule is turned off and then on? Maybe we should allow a reset of these cumulative values while the rule is off.*
 
@@ -53,7 +54,7 @@
 
 ### Balance By Risk
 
-- The total USD balance in application tokens (fongible and non-fungible) of an account must not excede the maximum of the AccountBalanceToRiskRule applied for the application and the risk score of the account.
+- The total USD balance in application assets (fungible and non-fungible) of an account must not excede the maximum of the AccountBalanceToRiskRule applied for the application and the risk score of the account.
 
 ### Maximum Transaction Size Per Period By Risk
 
