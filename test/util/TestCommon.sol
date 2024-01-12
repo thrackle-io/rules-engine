@@ -65,6 +65,7 @@ import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import "src/example/OracleDenied.sol";
 import "src/example/OracleAllowed.sol";
+import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
 
 
 /**

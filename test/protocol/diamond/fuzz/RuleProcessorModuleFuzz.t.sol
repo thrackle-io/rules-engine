@@ -307,7 +307,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             if (min == 0) vm.expectRevert();
             RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), min);
             /// if we added the rule in the protocol, then we add it in the application
-            if (!(min == 0)) applicationCoinHandler.setMinTransferRuleId(0);
+            if (!(min == 0)) applicationCoinHandler.setMinTransferRuleId(ActionTypes.P2P_TRANSFER, 0);
         }
 
         /// Prepearing for rule
@@ -327,7 +327,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             vm.startPrank(ruleAdmin);
             TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
             /// if we added the rule in the protocol, then we add it in the application
-            if (!(bMin == 0 || bMax == 0 || bMin > bMax)) applicationCoinHandler.setMinMaxBalanceRuleId(0);
+            if (!(bMin == 0 || bMax == 0 || bMin > bMax)) applicationCoinHandler.setMinMaxBalanceRuleId(ActionTypes.P2P_TRANSFER,0);
         }
 
         /// oracle rules

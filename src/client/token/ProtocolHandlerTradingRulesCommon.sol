@@ -263,16 +263,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
      */
     function isSellPercentageRuleActive() external view returns (bool) {
         return sellPercentageRuleActive;
-    }
-
-
-    function isContract(address account) internal view returns (bool) {
-        // This method relies on extcodesize/address.code.length, which returns 0
-        // for contracts in construction, since the code is only stored at the end
-        // of the constructor execution.
-
-        return account.code.length > 0;
-    }
+    }    
 
     /**
      * @dev checks the appManager to determine if an address is an AMM or not
@@ -282,20 +273,6 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function _isAMM(address _address) internal view returns (bool){
         return appManager.isRegisteredAMM(_address);
     }
-
-    /**
-     * @dev determines if a transfer is a pure P2P transfer or a trade such as Buying or Selling
-     * @param _from the address where the tokens are being moved from
-     * @param _to the address where the tokens are going to
-     * @param _sender the address triggering the transaction
-     * @return action intended in the transfer
-     */
-    function determineTransferAction(address _from, address _to, address _sender) internal view returns (ActionTypes action){
-        action = ActionTypes.TRADE;
-        if(!(_sender == _from || address(0) == _from || address(0) == _to)){
-            action = ActionTypes.SELL;
-        }else if(isContract(_from))
-            action = ActionTypes.PURCHASE;
-    }
+    
 }
 

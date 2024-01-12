@@ -57,7 +57,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
         /// we update the rule id in the token
-        applicationCoinHandler.setMinTransferRuleId(ruleId);
+        applicationCoinHandler.setMinTransferRuleId(ActionTypes.P2P_TRANSFER, ruleId);
         switchToAppAdministrator();
         /// now we perform the transfer
         applicationCoin.transfer(rich_user, 1000000);
@@ -84,7 +84,8 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         ///update ruleId in coin rule handler
-        applicationCoinHandler.setMinMaxBalanceRuleId(ruleId);
+        applicationCoinHandler.setMinMaxBalanceRuleId(ActionTypes.P2P_TRANSFER, ruleId);
+        applicationCoinHandler.setMinMaxBalanceRuleId(ActionTypes.SELL, ruleId);
         switchToAppAdministrator();
         ///Add GeneralTag to account
         applicationAppManager.addGeneralTag(user1, "Oscar"); ///add tag
@@ -607,7 +608,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
-        applicationCoinHandler.setMinBalByDateRuleId(_index);
+        applicationCoinHandler.setMinBalByDateRuleId(ActionTypes.P2P_TRANSFER, _index);
         switchToAppAdministrator();
         /// load non admin users with application coin
         applicationCoin.transfer(rich_user, 10000 * ATTO);
@@ -1020,7 +1021,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(applicationCoin.balanceOf(rich_user), 100_000 * ATTO);
         /// apply the rule
         switchToRuleAdmin();
-        applicationCoinHandler.setTokenTransferVolumeRuleId(_index);
+        applicationCoinHandler.setTokenTransferVolumeRuleId(ActionTypes.P2P_TRANSFER, _index);
         vm.stopPrank();
         vm.startPrank(rich_user);
         /// make sure that transfer under the threshold works
@@ -1067,7 +1068,8 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         /// set rule id and activate
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        applicationCoinHandler.setTotalSupplyVolatilityRuleId(_index);
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(ActionTypes.BURN, _index);
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(ActionTypes.MINT, _index);
         switchToAppAdministrator();
         /// move within period
         vm.warp(Blocktime + 13 hours);
@@ -1184,7 +1186,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
-        assetHandler.setMinBalByDateRuleId(_index);
+        assetHandler.setMinBalByDateRuleId(ActionTypes.P2P_TRANSFER, _index);
         switchToAppAdministrator();
 
         /// load non admin users with application coin
@@ -1195,7 +1197,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user3, 10000 * ATTO);
         assertEq(applicationCoin.balanceOf(user3), 10000 * ATTO);
         switchToRuleAdmin();
-        assetHandler.setMinBalByDateRuleId(_index);
+        assetHandler.setMinBalByDateRuleId(ActionTypes.P2P_TRANSFER, _index);
         switchToAppAdministrator();
         /// tag the user
         applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
@@ -1246,7 +1248,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
-        assetHandler.setMinBalByDateRuleId(_index);
+        assetHandler.setMinBalByDateRuleId(ActionTypes.P2P_TRANSFER, _index);
         switchToAppAdministrator();
 
         /// load non admin users with application coin
@@ -1257,7 +1259,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user3, 10000 * ATTO);
         assertEq(applicationCoin.balanceOf(user3), 10000 * ATTO);
         switchToRuleAdmin();
-        assetHandler.setMinBalByDateRuleId(_index);
+        assetHandler.setMinBalByDateRuleId(ActionTypes.P2P_TRANSFER, _index);
         switchToAppAdministrator();
         /// tag the user
         applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag

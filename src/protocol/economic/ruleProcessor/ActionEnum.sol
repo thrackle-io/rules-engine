@@ -10,5 +10,7 @@ enum ActionTypes {
     PURCHASE,
     SELL,
     TRADE,
-    INQUIRE
+    MINT,
+    BURN,
+    P2P_TRANSFER
 }

@@ -66,7 +66,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     mapping(uint256 => uint256) ownershipStart;
     /// Max Hold time hours
     uint16 constant MAX_HOLD_TIME_HOURS = 43830;
-    uint16 constant MAX_ORACLE_RULES = 10;
 
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
