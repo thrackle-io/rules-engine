@@ -591,7 +591,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      *@param _token address of the token to call totalSupply() of.
      */
     function getTotalSupply(address _token) internal view returns (uint256) {
-        return IERC20Decimals(_token).totalSupply();
+        return IToken(_token).totalSupply();
     }
 
     /// -------------SIMPLE RULE SETTERS and GETTERS---------------
