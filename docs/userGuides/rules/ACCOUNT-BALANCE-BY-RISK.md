@@ -193,4 +193,6 @@ This rule does not require any data to be recorded.
 
 ## Dependencies
 
-- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the token handlers in order for this rule to work.
+- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the application handler in order for this rule to work.
+
+- **ERC721Enumerable**: This rule utilizes the balance valuation calculated using the tokenOfOwnerByIndex function, requiring [ERC721Enumerable](https://eips.ethereum.org/EIPS/eip-721)

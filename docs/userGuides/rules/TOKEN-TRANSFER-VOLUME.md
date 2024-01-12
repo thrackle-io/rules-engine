@@ -221,4 +221,4 @@ uint256 private transferVolume;
 
 ## Dependencies
 
-- This rule has no dependencies.
+- **ERC721Enumerable**: This rule utilizes the totalSupply function, requiring [ERC721Enumerable](https://eips.ethereum.org/EIPS/eip-721)
