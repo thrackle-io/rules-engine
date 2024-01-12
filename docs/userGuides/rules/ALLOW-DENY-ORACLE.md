@@ -84,7 +84,7 @@ error AddressIsDenied();
 
 The selector for this error is `0x2767bda4`.
 
-When adding an oracle rule to a token, if there are already 10 oracle rules associated the handler will rever with the following error:
+When adding an oracle rule to a token, if there are already 10 oracle rules associated the handler will revert with the following error:
 
 ```
 error OracleRulesPerAssetLimitReached();
@@ -156,14 +156,14 @@ The following validation will be carried out by the create function in order to 
                     external 
                     view;
         ```
-- in Application Handler:
+- in Asset Handler:
     - Function to set and activate at the same time the rule in an asset handler:
         ```c
         function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule in an asset handler:
         ```c
-        function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateOracleRule(bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule in an asset handler:
         ```c
