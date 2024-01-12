@@ -11,7 +11,9 @@
 - There is a total of 100 possible risk scores that can be applied to an account which are positive integers from 0 to 99. *We have to check this. The logic actually allows only until 98*
 - An account can have a maximum of 10 tags registered in the application.
 - Rules that depend on a period of time, depend on a non-rolling period. This means that each period starts and ends at a fixed time, and it has no memory of past periods.
-- rules can be applied independently which means that a token, AMM, or application can have none, some or all possible rules activated.
+- Rules can be applied independently which means that a token, AMM or application can have none, some or all possible rules activated.
+- All rules can be used by any token, applicationManager and/or AMM.
+- Only accounts with the role of RuleAdministrator in a compliant AppManager contract can create rules.
 
 ## AppAdministratorOnly and AppAdministratorOnlyU
 
