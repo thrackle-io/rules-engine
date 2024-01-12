@@ -58,7 +58,7 @@ The rule will be evaluated with the following logic:
 ###### *see [ApplicationAccessLevelProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkAccBalanceByAccessLevel*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when an **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
@@ -103,7 +103,7 @@ There are no options for the parameters of this rule.
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
 - The `_balanceAmounts` array has length 5.
-- The elements of the `_balanceAmounts` array are in ascendant order.
+- The elements of the `_balanceAmounts` array are in ascending order.
 
 ###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 

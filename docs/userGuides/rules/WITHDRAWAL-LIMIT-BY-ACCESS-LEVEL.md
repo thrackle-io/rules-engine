@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of this rule is to provide withdrawal limits for accounts at the application level based on an application defined segment of users. The segments are defined as the access levels of the accounts. This rule may be used to provide gated withdrawal limits of assets to ensure accounts cannot withdraw more US Dollars or chain native tokens without first performing other actions defined by the application. For example, the application may decide users may not withdraw without performing specific onboarding activities. The application developer may set a maximum withdraw limit of $0 for the default access level and $1000 for the next access level. As accounts are introduced to the ecosystem, they may not withdraw from the ecosystem until the application changes their access level to a higher value. This rule does not prevent the accumulation of protocol supported assets. 
+The purpose of this rule is to provide limits on the amount of funds that an account can remove from the application's economy based on an application defined segment of users. The segments are defined as the access levels of the accounts. This rule may be used to provide gated withdrawal limits of assets to ensure accounts cannot withdraw more US Dollars or chain native tokens without first performing other actions defined by the application. For example, the application may decide users may not withdraw without performing specific onboarding activities. The application developer may set the most restrictive withdraw limit of $0 for the default access level and $1000 for the next access level. As accounts are introduced to the ecosystem, they may not withdraw from the ecosystem until the application changes their access level to a higher value. This rule does not prevent the accumulation of protocol supported assets. 
 
 ## Applies To:
 
@@ -58,7 +58,7 @@ The rule will be evaluated with the following logic:
 ###### *see [ApplicationAccessLevelProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkeithdrawalLimitsByAccessLevel*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when an **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
@@ -103,7 +103,7 @@ There are no options for the parameters of this rule.
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
 - The `_withdrawalAmounts` array has length 5.
-- The elements of the `_withdrawalAmounts` array are in ascendant order.
+- The elements of the `_withdrawalAmounts` array are in ascending order.
 
 ###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
