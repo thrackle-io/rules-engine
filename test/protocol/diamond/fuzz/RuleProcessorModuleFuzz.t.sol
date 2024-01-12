@@ -324,10 +324,10 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             uint256[] memory _maximum = createUint256Array(uint256(bMax));
             // add the rule.
             vm.stopPrank();
-            vm.startPrank(ruleAdmin);
+            vm.startPrank(ruleAdmin);            
             TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
             /// if we added the rule in the protocol, then we add it in the application
-            if (!(bMin == 0 || bMax == 0 || bMin > bMax)) applicationCoinHandler.setMinMaxBalanceRuleId(ActionTypes.P2P_TRANSFER,0);
+            if (!(bMin == 0 || bMax == 0 || bMin > bMax)) applicationCoinHandler.setMinMaxBalanceRuleId(_createActionsArray(),0);
         }
 
         /// oracle rules

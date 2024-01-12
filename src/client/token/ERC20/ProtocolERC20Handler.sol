@@ -306,28 +306,38 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     /**
      * @dev Set the minMaxBalanceRuleId. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
-     * @param _action the action type
+     * @param _actions the action types
      * @param _ruleId Rule Id to set
      */
-    function setMinMaxBalanceRuleId(ActionTypes _action, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+    function setMinMaxBalanceRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateMinMaxAccountBalance(_ruleId);
-        minMaxBalance[_action].ruleId = _ruleId;
-        minMaxBalance[_action].active = true;
-        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, _ruleId);
+        for (uint i; i < _actions.length; ) {
+            minMaxBalance[_actions[i]].ruleId = _ruleId;
+            minMaxBalance[_actions[i]].active = true;
+            emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, _ruleId);
+            unchecked {
+                        ++i;
+             }
+        }            
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _action the action type
+     * @param _actions the action types
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateMinMaxBalanceRule(ActionTypes _action, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        minMaxBalance[_action].active = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT);
-        } else {
-            emit ApplicationHandlerDeactivated(MIN_MAX_BALANCE_LIMIT);
+    function activateMinMaxBalanceRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            minMaxBalance[_actions[i]].active = _on;
+            unchecked {
+                ++i;
+            }
         }
+            if (_on) {
+                emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT);
+            } else {
+                emit ApplicationHandlerDeactivated(MIN_MAX_BALANCE_LIMIT);
+            }
     }
 
     /**

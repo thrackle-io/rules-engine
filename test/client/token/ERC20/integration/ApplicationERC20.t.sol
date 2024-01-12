@@ -84,8 +84,11 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         ///update ruleId in coin rule handler
-        applicationCoinHandler.setMinMaxBalanceRuleId(ActionTypes.P2P_TRANSFER, ruleId);
-        applicationCoinHandler.setMinMaxBalanceRuleId(ActionTypes.SELL, ruleId);
+        // create the default actions array
+        ActionTypes[] memory actionTypes = _createActionsArray();
+        // add sell to it.
+        actionTypes[1] = ActionTypes.SELL;
+        applicationCoinHandler.setMinMaxBalanceRuleId(actionTypes, ruleId);
         switchToAppAdministrator();
         ///Add GeneralTag to account
         applicationAppManager.addGeneralTag(user1, "Oscar"); ///add tag

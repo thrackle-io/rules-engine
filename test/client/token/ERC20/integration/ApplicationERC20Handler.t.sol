@@ -184,7 +184,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
         /// connect the rule to this handler
-        applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(ActionTypes.P2P_TRANSFER, ruleId);
+        applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(_createActionsArray(), ruleId);
         switchToAppAdministrator();
         /// execute a passing check for the minimum
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, user1, 10);
@@ -257,7 +257,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
         /// connect the rule to this handler
-        applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(ActionTypes.P2P_TRANSFER, ruleId);
+        applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(_createActionsArray(), ruleId);
         switchToAppAdministrator();
         /// execute a passing check for the minimum
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, user1, 10);
@@ -271,14 +271,14 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, user1, 500);
         /// turning rules off
         switchToRuleAdmin();
-        applicationCoinHandlerSpecialOwner.activateMinMaxBalanceRule(ActionTypes.P2P_TRANSFER, false);
+        applicationCoinHandlerSpecialOwner.activateMinMaxBalanceRule(_createActionsArray(), false);
         switchToAppAdministrator();
         /// now we can "break" the rules
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, user1, 15);
         applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, user1, 500);
         /// turning rules back on
         switchToRuleAdmin();
-        applicationCoinHandlerSpecialOwner.activateMinMaxBalanceRule(ActionTypes.P2P_TRANSFER, true);
+        applicationCoinHandlerSpecialOwner.activateMinMaxBalanceRule(_createActionsArray(), true);
         switchToAppAdministrator();
         /// now we cannot break the rules again
         vm.expectRevert(0xf1737570);
