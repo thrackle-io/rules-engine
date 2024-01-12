@@ -586,14 +586,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         return totalSupplyVolatilityRuleActive;
     }
 
-    /**
-     *@dev this function gets the total supply of the address.
-     *@param _token address of the token to call totalSupply() of.
-     */
-    function getTotalSupply(address _token) internal view returns (uint256) {
-        return IToken(_token).totalSupply();
-    }
-
     /// -------------SIMPLE RULE SETTERS and GETTERS---------------
     /**
      * @dev Tells you if the minimum hold time rule is active or not.
