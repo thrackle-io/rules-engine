@@ -213,5 +213,5 @@ uint256 private totalSupplyForPeriod;
 
 ## Dependencies
 
-- **ERC721Enumerable**:  This rule utilizes the totalSupply function, giving it a dependency on [ERC721Enumerable.sol](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/extensions/ERC721Enumerable.sol)
+- **ERC721Enumerable**:  This rule utilizes the totalSupply function, requiring [ERC721Enumerable](https://eips.ethereum.org/EIPS/eip-721)
 
