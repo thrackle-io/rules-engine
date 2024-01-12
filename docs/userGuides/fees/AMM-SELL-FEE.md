@@ -1,0 +1,25 @@
+# AMM Sell Fee
+
+## Purpose
+
+The purpose of the AMM Sell Fee is to assess fees via the AMM swap function for purchases. A purchase via the AMM is defined as the user exchanging application tokens for collateralized tokens via the AMM. Collateralized tokens can be chain native tokens (ETH/MATC), non protocol supported ERC20 tokens (WETH/USDC) or protocol supported ERC20 tokens. AMM Fees are always taken from the collateralized token within the AMM.
+
+Protocol supported tokens and AMMs will always assess all fees asigned to the account executing the current function. If a token and AMM have fees active and an account is tagged with applicable fees or a blank tag is used to assign a default fee, those fees are assessed on token transfers and AMM swaps (additive).
+
+
+
+## Applies To:
+
+- [x] ERC20
+- [x] ERC721
+- [x] AMM
+
+## Application of Sell Fee
+ 
+A Sell Fee is the additive amount of all applicable fees for the account calling the swap function that swaps the user's application tokens for collateralized tokens inside the AMM. 
+
+#### *See [Protocol Fee Structure](./PROTOCOL-FEE-STRUCTURE.md)*
+
+## Dependencies
+
+- **Tags**: This rule relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
