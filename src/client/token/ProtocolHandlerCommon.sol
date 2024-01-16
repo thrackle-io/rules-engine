@@ -37,6 +37,11 @@ abstract contract ProtocolHandlerCommon is
     address public appManagerAddress;
     IRuleProcessor ruleProcessor;
     IAppManager appManager;
+    /// All rule references
+    struct Rule {
+        uint32 ruleId;
+        bool active;
+    }
     /// This is used to set the max action for an efficient check of all actions in the enum
     uint8 constant LAST_POSSIBLE_ACTION = uint8(ActionTypes.P2P_TRANSFER);
     uint16 constant MAX_ORACLE_RULES = 10;

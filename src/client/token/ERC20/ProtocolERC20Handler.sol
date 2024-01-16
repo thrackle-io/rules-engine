@@ -24,11 +24,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     /// Data contracts
     Fees fees;
     bool feeActive;
-    /// All rule references
-    struct Rule {
-        uint32 ruleId;
-        bool active;
-    }
+    
     /// Rule mappings
     mapping(ActionTypes => Rule) minTransfer;
     mapping(ActionTypes => Rule) minMaxBalance;   
@@ -315,7 +311,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
         for (uint i; i < _actions.length; ) {
             minMaxBalance[_actions[i]].ruleId = _ruleId;
             minMaxBalance[_actions[i]].active = true;            
-            emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, _ruleId);
+            emit ApplicationHandlerActionApplied(MIN_MAX_BALANCE_LIMIT, _actions[i], _ruleId);
             unchecked {
                         ++i;
              }
@@ -330,15 +326,15 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     function activateMinMaxBalanceRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             minMaxBalance[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(MIN_MAX_BALANCE_LIMIT, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(MIN_MAX_BALANCE_LIMIT, _actions[i]);
+            }
             unchecked {
                 ++i;
             }
         }
-            if (_on) {
-                emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT);
-            } else {
-                emit ApplicationHandlerDeactivated(MIN_MAX_BALANCE_LIMIT);
-            }
     }
 
     /**
@@ -370,11 +366,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
             ruleProcessor.validateMinTransfer(_ruleId);
             minTransfer[_actions[i]].ruleId = _ruleId;
             minTransfer[_actions[i]].active = true;
+            emit ApplicationHandlerActionApplied(MIN_TRANSFER, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
         }
-        emit ApplicationHandlerApplied(MIN_TRANSFER, _ruleId);
     }
 
     /**
@@ -385,14 +381,14 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     function activateMinTransferRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             minTransfer[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(MIN_TRANSFER, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(MIN_TRANSFER, _actions[i]);
+            }
             unchecked {
                 ++i;
             }
-        }
-        if (_on) {
-            emit ApplicationHandlerActivated(MIN_TRANSFER);
-        } else {
-            emit ApplicationHandlerDeactivated(MIN_TRANSFER);
         }
     }
 
@@ -431,7 +427,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
             newEntity.ruleId = _ruleId;
             newEntity.active = true;
             oracle[_actions[i]].push(newEntity);
-            emit ApplicationHandlerApplied(ORACLE, _ruleId);
+            emit ApplicationHandlerActionApplied(ORACLE, _actions[i], _ruleId);
             unchecked {
                         ++i;
             }
@@ -453,9 +449,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
                     oracle[_actions[i]][oracleRuleIndex].active = _on;
 
                     if (_on) {
-                        emit ApplicationHandlerActivated(ORACLE);
+                        emit ApplicationHandlerActionActivated(ORACLE, _actions[i]);
                     } else {
-                        emit ApplicationHandlerDeactivated(ORACLE);
+                        emit ApplicationHandlerActionDeactivated(ORACLE, _actions[i]);
                     }
                 }
                 unchecked {
@@ -547,11 +543,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
             /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
             adminWithdrawal[_actions[i]].ruleId = _ruleId;
             adminWithdrawal[_actions[i]].active = true;
+            emit ApplicationHandlerActionApplied(ADMIN_WITHDRAWAL, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
         }
-        emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, _ruleId);
     }
 
     /**
@@ -604,14 +600,14 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
         }
         for (uint i; i < _actions.length; ) {
             adminWithdrawal[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(ADMIN_WITHDRAWAL, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(ADMIN_WITHDRAWAL, _actions[i]);
+            }
             unchecked {
                 ++i;
             }
-        }
-        if (_on) {
-            emit ApplicationHandlerActivated(ADMIN_WITHDRAWAL);
-        } else {
-            emit ApplicationHandlerDeactivated(ADMIN_WITHDRAWAL);
         }
     }
 
@@ -653,11 +649,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
             ruleProcessor.validateMinBalByDate(_ruleId);
             minBalByDate[_actions[i]].ruleId = _ruleId;
             minBalByDate[_actions[i]].active = true;
+            emit ApplicationHandlerActionApplied(MIN_ACCT_BAL_BY_DATE, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
         }
-        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, _ruleId);
     }
 
     /**
@@ -668,14 +664,14 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     function activateMinBalByDateRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             minBalByDate[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(MIN_ACCT_BAL_BY_DATE, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(MIN_ACCT_BAL_BY_DATE, _actions[i]);
+            }
             unchecked {
                 ++i;
             }
-        }
-        if (_on) {
-            emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE);
-        } else {
-            emit ApplicationHandlerDeactivated(MIN_ACCT_BAL_BY_DATE);
         }
     }
 
@@ -708,11 +704,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
             ruleProcessor.validateTokenTransferVolume(_ruleId);
             tokenTransferVolume[_actions[i]].ruleId = _ruleId;
             tokenTransferVolume[_actions[i]].active = true;
+            emit ApplicationHandlerActionApplied(TRANSFER_VOLUME, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
         }
-        emit ApplicationHandlerApplied(TRANSFER_VOLUME, _ruleId);
     }
 
     /**
@@ -723,14 +719,14 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     function activateTokenTransferVolumeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             tokenTransferVolume[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(TRANSFER_VOLUME, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(TRANSFER_VOLUME, _actions[i]);
+            }
             unchecked {
                 ++i;
             }
-        }
-        if (_on) {
-            emit ApplicationHandlerActivated(TRANSFER_VOLUME);
-        } else {
-            emit ApplicationHandlerDeactivated(TRANSFER_VOLUME);
         }
     }
 
@@ -763,11 +759,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
             ruleProcessor.validateSupplyVolatility(_ruleId);
             totalSupplyVolatility[_actions[i]].ruleId = _ruleId;
             totalSupplyVolatility[_actions[i]].active = true;
+            emit ApplicationHandlerActionApplied(SUPPLY_VOLATILITY, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
         }
-        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, _ruleId);
     }
 
     /**
@@ -778,14 +774,14 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     function activateTotalSupplyVolatilityRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             totalSupplyVolatility[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(SUPPLY_VOLATILITY, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(SUPPLY_VOLATILITY, _actions[i]);
+            }
             unchecked {
                 ++i;
             }
-        }
-        if (_on) {
-            emit ApplicationHandlerActivated(SUPPLY_VOLATILITY);
-        } else {
-            emit ApplicationHandlerDeactivated(SUPPLY_VOLATILITY);
         }
     }
 

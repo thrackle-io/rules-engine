@@ -81,7 +81,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function setPurchaseLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         purchaseLimitRuleId = _ruleId;
         purchaseLimitRuleActive = true;
-        emit ApplicationHandlerApplied(PURCHASE_LIMIT, _ruleId);
+        emit ApplicationHandlerActionApplied(PURCHASE_LIMIT, ActionTypes.PURCHASE, _ruleId);
     }
 
     /**
@@ -91,9 +91,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function activatePurchaseLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         purchaseLimitRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(PURCHASE_LIMIT);
+            emit ApplicationHandlerActionActivated(PURCHASE_LIMIT, ActionTypes.PURCHASE);
         } else {
-            emit ApplicationHandlerDeactivated(PURCHASE_LIMIT);
+            emit ApplicationHandlerActionDeactivated(PURCHASE_LIMIT, ActionTypes.PURCHASE);
         }
     }
 
@@ -121,7 +121,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function setSellLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         sellLimitRuleId = _ruleId;
         sellLimitRuleActive = true;
-        emit ApplicationHandlerApplied(SELL_LIMIT, _ruleId);
+        emit ApplicationHandlerActionApplied(SELL_LIMIT, ActionTypes.SELL, _ruleId);
     }
 
     /**
@@ -131,9 +131,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function activateSellLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         sellLimitRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(SELL_LIMIT);
+            emit ApplicationHandlerActionActivated(SELL_LIMIT, ActionTypes.SELL);
         } else {
-            emit ApplicationHandlerDeactivated(SELL_LIMIT);
+            emit ApplicationHandlerActionDeactivated(SELL_LIMIT, ActionTypes.SELL);
         }
     }
 
@@ -193,7 +193,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function setPurchasePercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         purchasePercentageRuleId = _ruleId;
         purchasePercentageRuleActive = true;
-        emit ApplicationHandlerApplied(PURCHASE_PERCENTAGE, _ruleId);
+        emit ApplicationHandlerActionApplied(PURCHASE_PERCENTAGE, ActionTypes.PURCHASE, _ruleId);
     }
 
     /**
@@ -203,9 +203,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function activatePurchasePercentageRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         purchasePercentageRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(PURCHASE_PERCENTAGE);
+            emit ApplicationHandlerActionActivated(PURCHASE_PERCENTAGE, ActionTypes.PURCHASE);
         } else {
-            emit ApplicationHandlerDeactivated(PURCHASE_PERCENTAGE);
+            emit ApplicationHandlerActionDeactivated(PURCHASE_PERCENTAGE, ActionTypes.PURCHASE);
         }
     }
 
@@ -233,7 +233,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function setSellPercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         sellPercentageRuleId = _ruleId;
         sellPercentageRuleActive = true;
-        emit ApplicationHandlerApplied(SELL_PERCENTAGE, _ruleId);
+        emit ApplicationHandlerActionApplied(SELL_PERCENTAGE, ActionTypes.SELL, _ruleId);
     }
 
     /**
@@ -243,9 +243,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function activateSellPercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         sellPercentageRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(SELL_PERCENTAGE);
+            emit ApplicationHandlerActionActivated(SELL_PERCENTAGE, ActionTypes.SELL);
         } else {
-            emit ApplicationHandlerDeactivated(SELL_PERCENTAGE);
+            emit ApplicationHandlerActionDeactivated(SELL_PERCENTAGE, ActionTypes.SELL);
         }
     }
 
