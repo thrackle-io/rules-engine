@@ -48,9 +48,9 @@ mapping(bytes32 => Fee) feesByTag;
 ###### *see [Fees](../../../src/client/token/data/Fees.sol)*
 
 ## Configuration and Enabling/Disabling
-- Fees can only be configured in the asset handler by the **owner**.
-- Fees can only be added in the asset handler by the **owner**.
-- Fees can only be removed in the asset handler by the **owner**.
+- Fees can only be configured in the asset handler by a **rule administrator**.
+- Fees can only be added in the asset handler by a **rule administrator**.
+- Fees can only be removed in the asset handler by a **rule administrator**.
 
 ## Fees Evaluation
 
@@ -61,7 +61,7 @@ The token loops through each applicable fee and sends that amount from the trans
 
 ### AMM Evaluation: 
 The AMM determines if the AMM handler has fees active.
-The AMM retrieves all applicable fees for the account calling the swap function (swpper). 
+The AMM retrieves all applicable fees for the account calling the swap function (swapper). 
 The AMM loops through each applicable fee and sends that amount of the collateralized token from the transfer total to the `feeCollectorAccount` for that fee. The total amount of fees assesed is tracked within the swap as `fees`, upon complettion of the loop the amount of collateralized tokens minus the `fees` is swapped for the application tokens. The `fees` total is always subtracted from the collateralized token total in AMM swaps in either direction (buy or sell). 
 
 ###### *see [ProtocolERC20](../../../src/client/token/ERC20/ProtocolERC20.sol) -> transfer*
@@ -85,7 +85,7 @@ The selector for this error is `0x248ee764`.
 Adding a fee is done through the function:
 
 ```c
-function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external onlyOwner;
+function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount)   external ruleAdministratorOnly(appManagerAddress); 
 ```
 ###### *see [Fees](../../../src/client/token/data/Fees.sol)*
 
@@ -96,8 +96,6 @@ function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _f
 - **maxBalance** (uint256): maximum balance for fee application 
 - **feePercentage** (int24): fee percentage to assess in basis units (-10000 to 10000)
 - **_targetAccount** (address): address of the fees recipient account 
-
-The create function will return the protocol ID of the rule.
 
 This create function allows for fees to be applied via a blank tag and will work as a default fee for all accounts. Additional tags applied to account will resault in additional fees being assessed for that account. Accounts can have up to 10 tags per account and can reflect both additive fees or deductive fees (discounts). 
 
