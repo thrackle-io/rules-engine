@@ -215,16 +215,18 @@ uint256 private totalPurchasedWithinPeriod;
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
-- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - parameters: 
         - ruleType: "PURCHASE_PERCENTAGE".
-        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - action: the protocol action the rule is being applied to.
         - ruleId: the index of the rule created in the protocol by rule type.
 
-- **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
-    - ruleType: "PURCHASE_PERCENTAGE".
-    - handlerAddress: the address of the asset handler where the rule has been activated.
+- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+    - Emitted when: a Transfer counter rule has been activated in an asset handler:
+    - Parameters:
+        - ruleType: "PURCHASE_PERCENTAGE".
+        - action: the protocol action for which the rule is being activated.
 
 ## Dependencies
 

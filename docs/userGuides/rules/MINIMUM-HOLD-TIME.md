@@ -130,12 +130,18 @@ This rule requires the unix timestamp for each tokenId each time the ownership o
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: the tags for each sub-rule.
 
-- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - Parameters: 
         - ruleType: "MINIMUM_HOLD_TIME".
-        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
+
+- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+    - Emitted when: A Minimum Hold TIme rule has been activated in an asset handler:
+    - Parameters:
+        - ruleType: "MINIMUM_HOLD_TIME".
+        - action: the protocol action for which the rule is being activated.
 
 ## Dependencies
 

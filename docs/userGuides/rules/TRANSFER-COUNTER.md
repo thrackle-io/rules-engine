@@ -191,17 +191,25 @@ mapping(uint256 => uint64) lastTxDate;
 ###### *see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
 ### Events
 
-- **ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** emitted when a Transfer counter rule has been added. For this rule:
-    - ruleType: NFT_TRANSFER.
-    - index: the rule index set by the Protocol.
-    - extraTags: an empty array.
-- **ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 ruleId)** emitted when a Transfer counter rule has been added. For this rule:
-    - ruleType: NFT_TRANSFER.
-    - handlerAddress: the address of the asset handler where the rule has been applied
-    - ruleId: the ruleId set for this rule in the handler.
-- **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
-    - ruleType: NFT_TRANSFER.
-    - handlerAddress: the address of the asset handler where the rule has been activated.
+- **ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** 
+    - Emitted when: A Transfer counter rule has been added. For this rule:
+    - Parameters:
+        - ruleType: NFT_TRANSFER.
+        - index: the rule index set by the Protocol.
+        - extraTags: an empty array.
+
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
+    - Emitted when: A Transfer counter rule has been added. For this rule:
+    - Parameters: 
+        - ruleType: NFT_TRANSFER.
+        - action: the protocol action the rule is being applied to.
+        - ruleId: the ruleId set for this rule in the handler.
+
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
+    - Emitted when: A Transfer counter rule has been activated in an asset handler:
+    Parameters:
+        - ruleType: NFT_TRANSFER.
+        - action: the protocol action for which the rule is being activated.
 
 ### Dependencies
 

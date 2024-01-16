@@ -221,16 +221,18 @@ mapping(address => uint64) lastPurchaseTime;
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
-- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - parameters: 
         - ruleType: "PURCHASE_LIMIT".
-        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - action: the protocol action the rule is being applied to.
         - ruleId: the index of the rule created in the protocol by rule type.
 
-- **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when an Account Purchase Controller rule has been activated in an asset handler:
-    - ruleType: "PURCHASE_LIMIT".
-    - handlerAddress: the address of the asset handler where the rule has been activated.
+- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+    - Emitted when: An Account Purchase Controller rule has been activated in an asset handler:
+    - Parameters:
+        - ruleType: "PURCHASE_LIMIT".
+        - action: the protocol action for which the rule is being activated.
 
 ## Dependencies
 
