@@ -809,58 +809,59 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
             }
         }
 
-        // /// reset the total supply
-        // switchToAppAdministrator();
-        // applicationCoin.burn(applicationCoin.totalSupply());
-        // applicationCoin.mint(appAdministrator, initialSupply);
-        // vm.warp(Blocktime + 36 hours);
+        /// reset the total supply
+        {
+            switchToAppAdministrator();
+            applicationCoin.burn(applicationCoin.totalSupply());
+            applicationCoin.mint(appAdministrator, initialSupply);
+            vm.warp(Blocktime + 36 hours);
 
-        // vm.stopPrank();
-        // vm.startPrank(user1);
-        // uint256 transferAmount = uint256(volLimit) * (10 * (10 ** 18));
-        // applicationCoin.mint(user1, (transferAmount - (1 * (10 ** 18))));
-        // vm.expectRevert();
-        // applicationCoin.mint(user1, transferAmount);
+            vm.stopPrank();
+            vm.startPrank(user1);
+            uint256 transferAmount = uint256(volLimit) * (10 * (10 ** 18));
+            applicationCoin.mint(user1, (transferAmount - (1 * (10 ** 18))));
+            vm.expectRevert();
+            applicationCoin.mint(user1, transferAmount);
 
-        // applicationCoin.transfer(appAdministrator, applicationCoin.balanceOf(user1));
+            applicationCoin.transfer(appAdministrator, applicationCoin.balanceOf(user1));
+        }
+        /// test minimum volatility limits
+        switchToAppAdministrator();
+        applicationCoin.burn(applicationCoin.balanceOf(appAdministrator));
+        applicationCoin.mint(appAdministrator, initialSupply);
+        console.logUint(applicationCoin.totalSupply());
+        vm.warp(Blocktime + 96 hours);
+        uint16 volatilityLimit = 1; /// 0.01%
+        switchToRuleAdmin();
+        uint32 _ruleIndex = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(actionTypes, _ruleIndex);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.mint(user1, 5 * (10 ** 18));
+        applicationCoin.mint(user1, 4 * (10 ** 18));
+        applicationCoin.mint(user1, 1 * (10 ** 18));
+        vm.expectRevert();
+        applicationCoin.mint(user1, 1_000_000_000_000_000); /// 0.0001 tokens
 
-        // /// test minimum volatility limits
-        // switchToAppAdministrator();
-        // applicationCoin.burn(applicationCoin.balanceOf(appAdministrator));
-        // applicationCoin.mint(appAdministrator, initialSupply);
-        // console.logUint(applicationCoin.totalSupply());
-        // vm.warp(Blocktime + 96 hours);
-        // uint16 volatilityLimit = 1; /// 0.01%
-        // switchToRuleAdmin();
-        // uint32 _ruleIndex = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        // applicationCoinHandler.setTotalSupplyVolatilityRuleId(_createActionsArray(), _ruleIndex);
-        // vm.stopPrank();
-        // vm.startPrank(user1);
-        // applicationCoin.mint(user1, 5 * (10 ** 18));
-        // applicationCoin.mint(user1, 4 * (10 ** 18));
-        // applicationCoin.mint(user1, 1 * (10 ** 18));
-        // vm.expectRevert();
-        // applicationCoin.mint(user1, 1_000_000_000_000_000); /// 0.0001 tokens
-
-        // /// test above 100% volatility limits
-        // applicationCoin.transfer(appAdministrator, applicationCoin.balanceOf(user1));
-        // switchToAppAdministrator();
-        // applicationCoin.burn(applicationCoin.balanceOf(appAdministrator));
-        // applicationCoin.mint(appAdministrator, initialSupply);
-        // console.logUint(applicationCoin.totalSupply());
-        // vm.warp(Blocktime + 120 hours);
-        // uint16 newVolatilityLimit = 50000; /// 500%
-        // switchToRuleAdmin();
-        // uint32 _newRuleIndex = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), newVolatilityLimit, rulePeriod, startingTime, tokenSupply);
-        // applicationCoinHandler.setTotalSupplyVolatilityRuleId(_createActionsArray(), _newRuleIndex);
-        // vm.stopPrank();
-        // vm.startPrank(user1);
-        // applicationCoin.mint(user1, 450000 * (10 ** 18));
-        // applicationCoin.mint(user1, 50000 * (10 ** 18));
-        // applicationCoin.burn(50000 * (10 ** 18));
-        // applicationCoin.mint(user1, 50000 * (10 ** 18));
-        // applicationCoin.burn(50000 * (10 ** 18));
-        // applicationCoin.mint(user1, 50000 * (10 ** 18));
-        // applicationCoin.burn(50000 * (10 ** 18));
+        /// test above 100% volatility limits
+        applicationCoin.transfer(appAdministrator, applicationCoin.balanceOf(user1));
+        switchToAppAdministrator();
+        applicationCoin.burn(applicationCoin.balanceOf(appAdministrator));
+        applicationCoin.mint(appAdministrator, initialSupply);
+        console.logUint(applicationCoin.totalSupply());
+        vm.warp(Blocktime + 120 hours);
+        uint16 newVolatilityLimit = 50000; /// 500%
+        switchToRuleAdmin();
+        uint32 _newRuleIndex = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), newVolatilityLimit, rulePeriod, startingTime, tokenSupply);
+        applicationCoinHandler.setTotalSupplyVolatilityRuleId(actionTypes, _newRuleIndex);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.mint(user1, 450000 * (10 ** 18));
+        applicationCoin.mint(user1, 50000 * (10 ** 18));
+        applicationCoin.burn(50000 * (10 ** 18));
+        applicationCoin.mint(user1, 50000 * (10 ** 18));
+        applicationCoin.burn(50000 * (10 ** 18));
+        applicationCoin.mint(user1, 50000 * (10 ** 18));
+        applicationCoin.burn(50000 * (10 ** 18));
     }
 }
