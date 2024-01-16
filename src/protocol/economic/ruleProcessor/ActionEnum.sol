@@ -8,8 +8,7 @@ pragma solidity ^0.8.17;
  */
 enum ActionTypes {
     PURCHASE,
-    SELL,
-    TRADE,
+    SELL,   
     MINT,
     BURN,
     P2P_TRANSFER
