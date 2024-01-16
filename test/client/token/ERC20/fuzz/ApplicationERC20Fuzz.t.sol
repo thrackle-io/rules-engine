@@ -172,7 +172,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
-        applicationCoinHandler.setOracleRuleId(_index);
+        applicationCoinHandler.setOracleRuleId(_createActionsArray(), _index);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -189,7 +189,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
+        applicationCoinHandler.setOracleRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         // add an allowed address
         goodBoys.push(_user4);

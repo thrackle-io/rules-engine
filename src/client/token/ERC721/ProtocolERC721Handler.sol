@@ -362,28 +362,32 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
 
     /**
      * @dev Removes an oracle rule from the list.
-     * @param _action the action type
+     * @param _actions the action types
      * @param ruleId the id of the rule to remove
      */
-    function removeOracleRule(ActionTypes _action, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        Rule memory lastId = oracle[_action][oracleRules.length -1];
-        if(ruleId != lastId.ruleId){
-            uint index = 0;
-            for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[_action].length; ) {
-                if (oracle[_action][oracleRuleIndex].ruleId == ruleId) {
-                    index = oracleRuleIndex; 
-                    break;
+    function removeOracleRule(ActionTypes[] calldata _actions, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            Rule memory lastId = oracle[_actions[i]][oracle[_actions[i]].length -1];
+            if(ruleId != lastId.ruleId){
+                uint index = 0;
+                for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[_actions[i]].length; ) {
+                    if (oracle[_actions[i]][oracleRuleIndex].ruleId == ruleId) {
+                        index = oracleRuleIndex; 
+                        break;
+                    }
+                    unchecked {
+                        ++oracleRuleIndex;
+                    }
                 }
-                unchecked {
-                    ++oracleRuleIndex;
-                }
+                oracle[_actions[i]][index] = lastId;
             }
-            oracle[_action][index] = lastId;
+
+            oracle[_actions[i]].pop();
+            unchecked {
+                        ++i;
+            }
         }
-
-        oracle[_action].pop();
     }
-
 
     /**
      * @dev Set the tradeCounterRuleId. Restricted to app administrators only.

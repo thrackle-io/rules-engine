@@ -337,8 +337,8 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             /// adding the whitelisting oracle rule
             uint32 whitelistOracle = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
             /// to simulate randomness in the oracle rule to pick, we grab the transferAmount%2
-            if (transferAmount % 2 == 0) applicationCoinHandler.setOracleRuleId(banOracle);
-            else applicationCoinHandler.setOracleRuleId(whitelistOracle);
+            if (transferAmount % 2 == 0) applicationCoinHandler.setOracleRuleId(_createActionsArray(), banOracle);
+            else applicationCoinHandler.setOracleRuleId(_createActionsArray(), whitelistOracle);
         }
     }
 

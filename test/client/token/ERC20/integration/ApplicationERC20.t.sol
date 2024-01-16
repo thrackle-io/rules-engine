@@ -141,7 +141,11 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleDenied));
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
+        ActionTypes[] memory actionTypes = new ActionTypes[](3);
+        actionTypes[0] = ActionTypes.P2P_TRANSFER;
+        actionTypes[1] = ActionTypes.BURN;
+        actionTypes[2] = ActionTypes.MINT;
+        applicationCoinHandler.setOracleRuleId(actionTypes, _index);
         switchToAppAdministrator();
         // add a blocked address
         badBoys.push(address(69));
@@ -163,7 +167,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         uint32 _indexAllowed = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_indexAllowed);
+        applicationCoinHandler.setOracleRuleId(actionTypes, _indexAllowed);
         switchToAppAdministrator();
 
         // add allowed addresses
@@ -186,7 +190,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 2, address(oracleAllowed));
 
         /// test burning while oracle rule is active (allow list active)
-        applicationCoinHandler.setOracleRuleId(_indexAllowed);
+        applicationCoinHandler.setOracleRuleId(actionTypes, _indexAllowed);
         /// first mint to user
         switchToAppAdministrator();
         applicationCoin.transfer(user5, 10000);
@@ -197,7 +201,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.burn(5000);
         /// add address(0) to deny list and switch oracle rule to deny list
         switchToRuleAdmin();
-        applicationCoinHandler.setOracleRuleId(_index);
+        applicationCoinHandler.setOracleRuleId(actionTypes, _index);
         switchToAppAdministrator();
         badBoys.push(address(0));
         oracleDenied.addToDeniedList(badBoys);
@@ -220,7 +224,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         uint32 _indexAllowed = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_indexAllowed);
+        applicationCoinHandler.setOracleRuleId(_createActionsArray(), _indexAllowed);
         switchToAppAdministrator();
         oracleAllowed.addAddressToAllowList(address(59));
 
@@ -238,13 +242,13 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         // add the rule.
         switchToRuleAdmin();
-        applicationCoinHandler.activateOracleRule(false, _indexAllowed);
+        applicationCoinHandler.activateOracleRule(_createActionsArray(), false, _indexAllowed);
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleDenied));
         /// connect the rule to this handler
-        applicationCoinHandler.setOracleRuleId(_index);
+        applicationCoinHandler.setOracleRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
 
         oracleDenied.addAddressToDeniedList(address(60)); 
