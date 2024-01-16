@@ -1004,7 +1004,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(user1), 1);
         switchToRuleAdmin();
         ///update ruleId in application NFT handler
-        applicationNFTHandler.setMinMaxBalanceRuleId(ruleId);
+        ActionTypes[] memory actionTypes = _createActionsArray();
+        actionTypes[1] = ActionTypes.MINT;
+        actionTypes[2] = ActionTypes.BURN;
+        applicationNFTHandler.setMinMaxBalanceRuleId(actionTypes, ruleId);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
         vm.startPrank(user1);
@@ -1140,7 +1143,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRules.NFTTradeCounterRule memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
         // apply the rule to the ApplicationERC721Handler
-        applicationNFTHandler.setTradeCounterRuleId(_index);
+        applicationNFTHandler.setTradeCounterRuleId(_createActionsArray(), _index);
         // tag the NFT collection
         switchToAppAdministrator();
         applicationAppManager.addGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag

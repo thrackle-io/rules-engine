@@ -128,7 +128,10 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(applicationNFT.balanceOf(user1), 1);
         switchToRuleAdmin();
         ///update ruleId in application NFT handler
-        applicationNFTHandler.setMinMaxBalanceRuleId(ruleId);
+        ActionTypes[] memory actionTypes = _createActionsArray();
+        actionTypes[1] = ActionTypes.MINT;
+        actionTypes[2] = ActionTypes.BURN;
+        applicationNFTHandler.setMinMaxBalanceRuleId(actionTypes, ruleId);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
         vm.startPrank(user1);
@@ -285,7 +288,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         TaggedRules.NFTTradeCounterRule memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
         // apply the rule to the ApplicationERC721Handler
-        applicationNFTHandler.setTradeCounterRuleId(_index);
+        applicationNFTHandler.setTradeCounterRuleId(_createActionsArray(), _index);
         // tag the NFT collection
         switchToAppAdministrator();
         applicationAppManager.addGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
@@ -516,7 +519,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertTrue(applicationAppManager.hasTag(user3, "MIN3"));
         /// Set rule bool to active
         switchToRuleAdmin();
-        applicationNFTHandler.setMinBalByDateRuleId(_index);
+        applicationNFTHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
         /// Transfers passing (above min value limit)
         vm.stopPrank();
         vm.startPrank(user1);
@@ -584,14 +587,14 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// Set the rule in the handler
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
-        applicationNFTHandler.activateAdminWithdrawalRule(false);
+        applicationNFTHandler.activateAdminWithdrawalRule(_createActionsArray(), false);
         vm.expectRevert();
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
         switchToRuleBypassAccount();
         /// These transfers should pass
         applicationNFT.safeTransferFrom(ruleBypassAccount, user1, 0);
@@ -606,8 +609,8 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         /// Transfers and updating rules should now pass
         applicationNFT.safeTransferFrom(ruleBypassAccount, user1, 2);
         switchToRuleAdmin();
-        applicationNFTHandler.activateAdminWithdrawalRule(false);
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTHandler.activateAdminWithdrawalRule(_createActionsArray(), false);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
     }
 
     /// test the transfer volume rule in erc721
@@ -627,7 +630,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         }
         // apply the rule
         switchToRuleAdmin();
-        applicationNFTHandler.setTokenTransferVolumeRuleId(_index);
+        applicationNFTHandler.setTokenTransferVolumeRuleId(_createActionsArray(), _index);
         vm.stopPrank();
         vm.startPrank(user1);
         // transfer under the threshold
@@ -666,7 +669,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         }
         // apply the rule
         switchToRuleAdmin();
-        applicationNFTHandler.setTokenTransferVolumeRuleId(_index);
+        applicationNFTHandler.setTokenTransferVolumeRuleId(_createActionsArray(), _index);
         vm.stopPrank();
         vm.startPrank(user1);
         // transfer under the threshold
@@ -693,8 +696,8 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
     function testERC721_NFTMinimumHoldTime() public {
         /// set the rule for 24 hours
         switchToRuleAdmin();
-        applicationNFTHandler.setMinimumHoldTimeHours(24);
-        assertEq(applicationNFTHandler.getMinimumHoldTimeHours(), 24);
+        applicationNFTHandler.setMinimumHoldTimeHours(_createActionsArray(), 24);
+        assertEq(applicationNFTHandler.getMinimumHoldTimeHours(ActionTypes.P2P_TRANSFER), 24);
         switchToAppAdministrator();
         // mint 1 nft to non admin user(this should set their ownership start time)
         applicationNFT.safeMint(user1);
@@ -719,7 +722,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.safeTransferFrom(user2, user1, 0);
         // now change the rule hold hours to 2 and it should pass
         switchToRuleAdmin();
-        applicationNFTHandler.setMinimumHoldTimeHours(2);
+        applicationNFTHandler.setMinimumHoldTimeHours(_createActionsArray(), 2);
         vm.stopPrank();
         vm.startPrank(user2);
         applicationNFT.safeTransferFrom(user2, user1, 0);
@@ -741,7 +744,10 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         /// set rule id and activate
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        applicationNFTHandler.setTotalSupplyVolatilityRuleId(_index);
+        ActionTypes[] memory actionTypes = _createActionsArray();
+        actionTypes[0] = ActionTypes.MINT;
+        actionTypes[1] = ActionTypes.BURN;
+        applicationNFTHandler.setTotalSupplyVolatilityRuleId(actionTypes, _index);
         /// set blocktime to within rule period
         vm.warp(Blocktime + 13 hours);
         /// mint tokens under supply limit

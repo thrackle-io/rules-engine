@@ -124,7 +124,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user1), 1);
         switchToRuleAdmin();
         ///update ruleId in application NFT handler
-        applicationNFTHandler.setMinMaxBalanceRuleId(ruleId);
+        applicationNFTHandler.setMinMaxBalanceRuleId(_createActionsArray(), ruleId);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
         vm.startPrank(user1);
@@ -277,7 +277,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationAppManager.addGeneralTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
         // apply the rule to the ApplicationERC721Handler
         switchToRuleAdmin();
-        applicationNFTHandler.setTradeCounterRuleId(_index);
+        applicationNFTHandler.setTradeCounterRuleId(_createActionsArray(), _index);
 
         // ensure standard transfer works by transferring 1 to user2 and back(2 trades)
         ///perform transfer that checks rule
@@ -519,7 +519,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assertTrue(applicationAppManager.hasTag(user3, "MIN3"));
         /// Set rule bool to active
         switchToRuleAdmin();
-        applicationNFTHandler.setMinBalByDateRuleId(_index);
+        applicationNFTHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
         /// Transfers passing (above min value limit)
         vm.stopPrank();
         vm.startPrank(user1);
@@ -598,14 +598,14 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// Set the rule in the handler
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
-        applicationNFTHandler.activateAdminWithdrawalRule(false);
+        applicationNFTHandler.activateAdminWithdrawalRule(_createActionsArray(), false);
         vm.expectRevert();
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
         switchToRuleBypassAccount();
         /// These transfers should pass
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 0);
@@ -629,8 +629,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         /// Transfers and updating rules should now pass
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 2);
         switchToRuleAdmin();
-        applicationNFTHandler.activateAdminWithdrawalRule(false);
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTHandler.activateAdminWithdrawalRule(_createActionsArray(), false);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
     }
 
     function testUpgradeAppManager721u() public {

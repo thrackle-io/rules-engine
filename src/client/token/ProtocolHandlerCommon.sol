@@ -41,6 +41,7 @@ abstract contract ProtocolHandlerCommon is
     uint8 constant LAST_POSSIBLE_ACTION = uint8(ActionTypes.P2P_TRANSFER);
     uint16 constant MAX_ORACLE_RULES = 10;
 
+    
 
 
     /**
@@ -89,7 +90,7 @@ abstract contract ProtocolHandlerCommon is
             action = ActionTypes.P2P_TRANSFER;
         } else if(isContract(_from)) {
             action = ActionTypes.PURCHASE;
-        } 
+        }
     }  
     /**
      * @dev Check if the addresss is a contract
