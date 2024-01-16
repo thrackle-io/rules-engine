@@ -50,7 +50,7 @@ mapping(bytes32 => Fee) feesByTag;
 ## Configuration and Enabling/Disabling
 - Fees can only be configured in the asset handler by the **owner**.
 - Fees can only be added in the asset handler by the **owner**.
-- Fees can only be aremoved in the asset handler by the **owner**.
+- Fees can only be removed in the asset handler by the **owner**.
 
 ## Fees Evaluation
 
@@ -67,7 +67,7 @@ The AMM loops through each applicable fee and sends that amount of the collatera
 ###### *see [ProtocolERC20](../../../src/client/token/ERC20/ProtocolERC20.sol) -> transfer*
 
 ## Evaluation Exceptions 
-- There are no evaluation exceptions when fees are active. 
+- There are no evaluation exceptions when fees are active. Fees are assessed in the token transfer function for token fees and in the swap function for AMM fees. No exceptions are made for the assessment of fees. If an address or account should not have fees assessed, there should not be a tag applied to it.
 
 ### Revert Message
 
