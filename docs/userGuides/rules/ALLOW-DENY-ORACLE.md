@@ -55,7 +55,7 @@ struct OracleRuleS {
 
 The rule will be evaluated with the following logic (this logic will be evaluated for each oracle rule associated with the token):
 
-1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The processor will receive the ID of the allow-oracle rule set in the application handler. 
 3. The processor will receive the address that is to be checked in the oracle.
 4. The processor will determine the type of oracle based on the rule id. 

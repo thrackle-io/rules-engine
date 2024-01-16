@@ -76,7 +76,7 @@ The collection of these tagged sub-rules plus the startingTime composes an accou
 
 The rule will be evaluated with the following logic:
 
-1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The token handler decides if the transfer is a Purchase (user perspective). Only if it is, it continues with the next steps.
 3. The account is passed to the protocol with all the tags it has registered to its address in the application manager.
 4. The processor receives these tags along with the ID of the account-purchase-controller rule set in the token handler. 

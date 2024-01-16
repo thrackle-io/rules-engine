@@ -43,7 +43,7 @@ Additionally, each starting unix timestamp for the ownership of the tokenId is s
 
 The rule will be evaluated with the following logic:
 
-1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The handler evaluates the account's `ownershipStart` to check that it is greater than zero.
 3. The handler passes the account's `ownershipStart` and `minimumHoldTimeHours` to the processor. 
 4. The Processor evaluates if the current time minus `ownershipStart` is less than `minimumHoldTimeHours`. If it is the transaction reverts.

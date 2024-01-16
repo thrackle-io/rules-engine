@@ -56,7 +56,7 @@ The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32
 
 The rule will be evaluated with the following logic:
 
-1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The processor receives the ID of the token-transfer-volume rule set in the token handler. 
 3. The processor receives the current `transfer volume`, `last transfer time`, `amount` and token's total supply from the handler.
 4. The processor evaluates whether the rule has a set total supply or use the token's total supply provided by the handler set at the beginning of every new `period`. 

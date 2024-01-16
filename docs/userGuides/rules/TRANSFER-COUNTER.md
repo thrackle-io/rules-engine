@@ -63,7 +63,7 @@ A transfer-counter rule must have at least one sub-rule. There is no maximum num
 
 The rule will be evaluated in the following way:
 
-1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The collection being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
 3. The processor will receive these tags along with the ID of the transfer-counter rule set in the token handler.
 4. The processor will then try to retrieve the sub-rule associated with each tag.

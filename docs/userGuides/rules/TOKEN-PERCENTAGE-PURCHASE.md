@@ -56,7 +56,7 @@ struct PctPurchaseRuleS {
 
 The rule will be evaluated with the following logic:
 
-1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The token handler decides if the transfer is a Purchase (user perspective). Only if it is, it continues with the next steps.
 3. The processor receives the ID of the token-percentage-purchase rule set in the asset handler. 
 4. The processor receives the current total purchased within period, token A amount (total amount of token A being transferred in the current transaction), previous purchase time, and token's total supply from the handler.

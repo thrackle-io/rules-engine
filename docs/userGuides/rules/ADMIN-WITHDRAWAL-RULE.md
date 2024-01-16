@@ -57,7 +57,7 @@ Since this rule is intended to apply specifically to rule bypass accounts, there
 
 The rule will be evaluated with the following logic:
 
-1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The asset handler checks if the transfer of tokens is from an app administrator account. If it is not, the rule evaluation is skipped.
 3. The handler sends the amount of tokens being transferred, the current balance of the app administrator account, and the ruleId to the protocol's rule processor.
 4. The rule processor calculates what the final balance of the administrator account would be if the transaction succeeds. If the final balance calculated is less than the minimum balance specified in the rule, the transaction reverts.

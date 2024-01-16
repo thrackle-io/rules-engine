@@ -56,7 +56,7 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 The rule will be evaluated with the following logic:
 
-1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The asset handler keeps track of the total supply per period, the net supply increase/decrease per period, and the date of the last mint/burn transaction.
 3. The asset handler first checks if the transaction is a *minting* or *burning* operation. If it is, then it sends the aforementioned data to the rule processor with the rule Id, and the amount of tokens being minted/burned in the transaction.
 4. The rule processor evaluates if the current transaction is in a new period or part of the same period as the last burning/minting transactions. 

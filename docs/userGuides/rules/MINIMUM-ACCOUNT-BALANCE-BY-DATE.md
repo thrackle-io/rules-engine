@@ -67,7 +67,7 @@ A minimum-balance-by-date rule must have at least one sub-rule. There is no maxi
 
 The rule will be evaluated with the following logic:
 
-1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The account being evaluated passes all the tags it has registered to their addresses in the application manager to the protocol.
 3. The processor receives these tags along with the ID of the minimum-balance-by-date rule set in the token handler. 
 4. The processor tries to retrieve the sub-rule associated with each tag.

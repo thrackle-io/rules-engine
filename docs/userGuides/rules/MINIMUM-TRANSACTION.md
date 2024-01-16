@@ -50,7 +50,7 @@ The minimum-transaction rules are stored in a mapping indexed by ruleId(uint32) 
 
 The rule will be evaluated with the following logic:
 
-1. The handler determines if the rule is active from the supplied action. If not processing does not continue past this step.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The processor receives the ID of the minimum-transaction rule set in the token handler. 
 3. The processor receives the `amount` of tokens from the handler.
 4. The processor evaluates the `amount` against the rule `minTransferAmount` and reverts if the `amount` less than the rule minimum. 
