@@ -29,7 +29,7 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
      * @param _minBalance minimum balance for fee application
      * @param _maxBalance maximum balance for fee application
      * @param _feePercentage fee percentage to assess
-     * @param _targetAccount fee percentage to assess
+     * @param _targetAccount address of account fees are sent
      */
     function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external onlyOwner {
         if (_minBalance > _maxBalance) revert InvertedLimits();
