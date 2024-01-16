@@ -412,7 +412,7 @@ echo  Set the Rule on the Handler
 echo "################################################################"
 echo
 
-cast send $APPLICATION_ERC721_1_HANDLER "setTradeCounterRuleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+cast send $APPLICATION_ERC721_1_HANDLER "setTradeCounterRuleId(uint8[], uint32)" [2] $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
 echo "################################################################"
 echo  Create two Oracle Rules
@@ -440,7 +440,7 @@ echo "################################################################"
 echo
 
 
-cast send $APPLICATION_ERC20_1_HANDLER "setOracleRuleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1_HANDLER "setOracleRuleId(uint8[], uint32)" [2], $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
 # Swap this with the ERC20 call above to run this test on an ERC721
 # cast send $APPLICATION_ERC721_1_HANDLER "setOracleRuleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
@@ -465,7 +465,7 @@ echo  Set the Rule on the Handler
 echo "################################################################"
 echo
 
-cast send $APPLICATION_ERC20_1_HANDLER "setOracleRuleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1_HANDLER "setOracleRuleId(uint8[], uint32)" [2], $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
 # Swap this with the ERC20 call above to run this test on an ERC721
 # cast send $APPLICATION_ERC721_1_HANDLER "setOracleRuleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
