@@ -65,6 +65,7 @@ import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import "src/example/OracleDenied.sol";
 import "src/example/OracleAllowed.sol";
+import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
 
 
 /**
@@ -419,4 +420,11 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     function _createOracleDenied() public returns (OracleDenied _oracleDenied){
         return new OracleDenied(); 
     }
+
+    function _createActionsArray() public pure returns(ActionTypes[] memory){
+        ActionTypes[] memory actionTypes = new ActionTypes[](1);
+        actionTypes[0] = ActionTypes.P2P_TRANSFER;
+        return actionTypes;
+    }
+    
 }

@@ -50,10 +50,12 @@ The minimum-transaction rules are stored in a mapping indexed by ruleId(uint32) 
 
 The rule will be evaluated with the following logic:
 
-1. The processor receives the ID of the minimum-transaction rule set in the token handler. 
-2. The processor receives the `amount` of tokens from the handler.
-3. The processor evaluates the `amount` against the rule `minTransferAmount` and reverts if the `amount` less than the rule minimum. 
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The processor receives the ID of the minimum-transaction rule set in the token handler. 
+3. The processor receives the `amount` of tokens from the handler.
+4. The processor evaluates the `amount` against the rule `minTransferAmount` and reverts if the `amount` less than the rule minimum. 
 
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkMinTransferPasses*
 
@@ -133,21 +135,21 @@ The following validation will be carried out by the create function in order to 
                 view;
         ```
 - in Asset Handler:
-    - Function to set and activate at the same time the rule in an asset handler:
+    - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setMinTransferRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setMinTransferRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions actions in an asset handler:
         ```c
-        function activateMinTransfereRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateMinTransfereRule(ActionTypes[] calldata _action, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isMinTransferActive() external view returns (bool);
+        function isMinTransferActive(ActionTypes _action) external view returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getMinTransferRuleId() external view returns (uint32);
+        function getMinTransferRuleId(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
@@ -166,16 +168,19 @@ This rule does not require any data to be recorded.
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
-- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - parameters: 
         - ruleType: "MIN_TRANSFER".
-        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - action: the protocol action the rule is being applied to.
         - ruleId: the index of the rule created in the protocol by rule type.
 
-- **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
-    - ruleType: "MIN_TRANSFER".
-    - handlerAddress: the address of the asset handler where the rule has been activated.
+
+- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+    - Emitted when: A Transfer counter rule has been activated in an asset handler:
+    - Parameters:
+        - ruleType: "MIN_TRANSFER".
+        - action: the protocol action for which the rule is being activated.
 
 ## Dependencies
 

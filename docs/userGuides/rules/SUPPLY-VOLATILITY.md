@@ -56,12 +56,15 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 The rule will be evaluated with the following logic:
 
-1. The asset handler keeps track of the total supply per period, the net supply increase/decrease per period, and the date of the last mint/burn transaction.
-2. The asset handler first checks if the transaction is a *minting* or *burning* operation. If it is, then it sends the aforementioned data to the rule processor with the rule Id, and the amount of tokens being minted/burned in the transaction.
-3. The rule processor evaluates if the current transaction is in a new period or part of the same period as the last burning/minting transactions. 
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The asset handler keeps track of the total supply per period, the net supply increase/decrease per period, and the date of the last mint/burn transaction.
+3. The asset handler first checks if the transaction is a *minting* or *burning* operation. If it is, then it sends the aforementioned data to the rule processor with the rule Id, and the amount of tokens being minted/burned in the transaction.
+4. The rule processor evaluates if the current transaction is in a new period or part of the same period as the last burning/minting transactions. 
     - **If it is a new period**, the absolute net supply change for the period is equal to the amount of tokens minted/burned in current transaction. Also, the totalSupply for the current period is set to current value. 
     - **If it is not a new period**, then the absolute net supply change for the period accumulates the amount of tokens minted/burned in current transaction. The totalSupply for the current period remains fixed to the value set in the first transaction of the period. 
-4. After current period's net supply change and totalSupply have been defined, the rule processor calculates the change in supply. If the change is greater than the rule's maximum, it reverts.
+5. After current period's net supply change and totalSupply have been defined, the rule processor calculates the change in supply. If the change is greater than the rule's maximum, it reverts.
+
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkTotalSupplyVolatilityPasses*
 
@@ -147,21 +150,21 @@ The following validation will be carried out by the create function in order to 
             ) external view returns (int256, uint256);
         ```
 - in Asset Handler:
-    - Function to set and activate at the same time the rule in an asset handler:
+    - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setTotalSupplyVolatilityRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateTotalSupplyVolatilityRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateTotalSupplyVolatilityRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isTotalSupplyVolatilityActive() external view returns (bool);
+        function isTotalSupplyVolatilityActive(ActionTypes _action) external view returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getTotalSupplyVolatilityRule() external view returns (uint32);
+        function getTotalSupplyVolatilityRule(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
@@ -201,15 +204,18 @@ uint256 private totalSupplyForPeriod;
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
-- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - Parameters: 
         - ruleType: "SUPPLY_VOLATILITY".
-        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
-- **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
-    - ruleType: "SUPPLY_VOLATILITY".
-    - handlerAddress: the address of the asset handler where the rule has been activated.
+
+- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+    - Emitted when: A Transfer counter rule has been activated in an asset handler:
+    - Parameters:
+        - ruleType: "SUPPLY_VOLATILITY".
+        - action: the protocol action for which the rule is being activated.
 
 ## Dependencies
 

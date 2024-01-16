@@ -67,11 +67,14 @@ A minimum-balance-by-date rule must have at least one sub-rule. There is no maxi
 
 The rule will be evaluated with the following logic:
 
-1. The account being evaluated passes all the tags it has registered to their addresses in the application manager to the protocol.
-2. The processor receives these tags along with the ID of the minimum-balance-by-date rule set in the token handler. 
-3. The processor tries to retrieve the sub-rule associated with each tag.
-4. The processor evaluates whether each sub-rule's hold period is still active (if the current time is within `hold period` from the `starting timestamp`). If it is, the processor then evaluates if the final balance of the account would be less than the `hold amount` in the case of the transaction succeeding. If yes, then the transaction reverts.
-5. Step 4 is repeated for each of the account's tags. 
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The account being evaluated passes all the tags it has registered to their addresses in the application manager to the protocol.
+3. The processor receives these tags along with the ID of the minimum-balance-by-date rule set in the token handler. 
+4. The processor tries to retrieve the sub-rule associated with each tag.
+5. The processor evaluates whether each sub-rule's hold period is still active (if the current time is within `hold period` from the `starting timestamp`). If it is, the processor then evaluates if the final balance of the account would be less than the `hold amount` in the case of the transaction succeeding. If yes, then the transaction reverts.
+6. Step 4 is repeated for each of the account's tags. 
+
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinBalByDatePasses*
 
@@ -165,21 +168,21 @@ The following validation will be carried out by the create function in order to 
                 view;
         ```
 - in Asset Handler:
-    - Function to set and activate at the same time the rule in an asset handler:
+    - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setMinBalByDateRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setMinBalByDateRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateMinBalByDateRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isMinBalByDateActive() external view returns (bool);
+        function isMinBalByDateActive(ActionTypes _action) external view returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getMinBalByDateRule() external view returns (uint32);
+        function getMinBalByDateRule(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
@@ -198,13 +201,18 @@ This rule doesn't require of any data to be recorded.
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: the tags for each sub-rule.
 
-- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - Parameters: 
         - ruleType: "MIN_ACCT_BAL_BY_DATE".
-        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
+- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+    - Emitted when: A Minimum Account Balance By Date rule has been activated in an asset handler:
+    - Parameters:
+        - ruleType: "MIN_ACCT_BAL_BY_DATE".
+        - action: the protocol action for which the rule is being activated.
 
 ## Dependencies
 

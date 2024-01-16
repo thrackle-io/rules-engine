@@ -12,7 +12,7 @@ abstract contract IAdminWithdrawalRuleCapable {
     error AdminWithdrawalRuleisActive();
 
     /**
-     * @dev This function is used by the app manager to determine if the AdminWithdrawal rule is active
+     * @dev This function is used by the app manager to determine if the AdminWithdrawal rule is active for any of the actions
      * @return Success equals true if all checks pass
      */
     function isAdminWithdrawalActiveAndApplicable() external virtual returns (bool);

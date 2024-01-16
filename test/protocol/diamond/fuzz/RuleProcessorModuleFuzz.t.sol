@@ -307,7 +307,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             if (min == 0) vm.expectRevert();
             RuleDataFacet(address(ruleProcessor)).addMinimumTransferRule(address(applicationAppManager), min);
             /// if we added the rule in the protocol, then we add it in the application
-            if (!(min == 0)) applicationCoinHandler.setMinTransferRuleId(0);
+            if (!(min == 0)) applicationCoinHandler.setMinTransferRuleId(_createActionsArray(), 0);
         }
 
         /// Prepearing for rule
@@ -324,10 +324,10 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             uint256[] memory _maximum = createUint256Array(uint256(bMax));
             // add the rule.
             vm.stopPrank();
-            vm.startPrank(ruleAdmin);
+            vm.startPrank(ruleAdmin);            
             TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
             /// if we added the rule in the protocol, then we add it in the application
-            if (!(bMin == 0 || bMax == 0 || bMin > bMax)) applicationCoinHandler.setMinMaxBalanceRuleId(0);
+            if (!(bMin == 0 || bMax == 0 || bMin > bMax)) applicationCoinHandler.setMinMaxBalanceRuleId(_createActionsArray(),0);
         }
 
         /// oracle rules
@@ -337,8 +337,8 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             /// adding the whitelisting oracle rule
             uint32 whitelistOracle = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
             /// to simulate randomness in the oracle rule to pick, we grab the transferAmount%2
-            if (transferAmount % 2 == 0) applicationCoinHandler.setOracleRuleId(banOracle);
-            else applicationCoinHandler.setOracleRuleId(whitelistOracle);
+            if (transferAmount % 2 == 0) applicationCoinHandler.setOracleRuleId(_createActionsArray(), banOracle);
+            else applicationCoinHandler.setOracleRuleId(_createActionsArray(), whitelistOracle);
         }
     }
 

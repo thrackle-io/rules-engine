@@ -55,12 +55,15 @@ struct OracleRuleS {
 
 The rule will be evaluated with the following logic (this logic will be evaluated for each oracle rule associated with the token):
 
-1. The processor will receive the ID of the allow-oracle rule set in the application handler. 
-2. The processor will receive the address that is to be checked in the oracle.
-3. The processor will determine the type of oracle based on the rule id. 
-4. The processor will then call the oracle address to check if the address to be checked is on the oracle's list: 
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The processor will receive the ID of the allow-oracle rule set in the application handler. 
+3. The processor will receive the address that is to be checked in the oracle.
+4. The processor will determine the type of oracle based on the rule id. 
+5. The processor will then call the oracle address to check if the address to be checked is on the oracle's list: 
 - Allow list: check if the receiver address is an allowed address. If the address is not on the allowed list the transaction will revert. 
 - Deny list: check if the sender is a denied address. If the address is denied the transaction will revert. 
+
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkOraclePasses*
 
@@ -159,19 +162,19 @@ The following validation will be carried out by the create function in order to 
 - in Asset Handler:
     - Function to set and activate at the same time the rule in an asset handler:
         ```c
-        function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setOracleRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateOracleRule(bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function activateOracleRule(ActionTypes[] calldata _actions, bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isOracleActive(uint32 ruleId) external view returns (bool);
+        function isOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool);
         ```
-    - Function to get the rule Ids from an asset handler:
+    - Function to get the rule Ids for the supplied action from an asset handler:
         ```c
-        function getOracleRuleIds() external view returns (uint32);
+        function getOracleRuleIds(ActionTypes _action) external view returns (uint32);
         ```
     - Function to remove a rule:
         ```c
@@ -194,18 +197,18 @@ This rule does not require any data to be recorded.
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
-- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - Parameters: 
         - ruleType: "ORACLE".
-        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - action: the protocol action the rule is being applied to.
         - ruleId: the index of the rule created in the protocol by rule type.
         
-- **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)**:
+- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
     - Emitted when: rule has been activated in the asset handler.
     - Parameters:
         - ruleType: "ORACLE".
-        - handlerAddress: the address of the asset handler where the rule has been activated.
+        - action: the protocol action for which the rule is being activated.
 
 ## Dependencies
 

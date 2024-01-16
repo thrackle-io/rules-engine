@@ -56,17 +56,20 @@ The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32
 
 The rule will be evaluated with the following logic:
 
-1. The processor receives the ID of the token-transfer-volume rule set in the token handler. 
-2. The processor receives the current `transfer volume`, `last transfer time`, `amount` and token's total supply from the handler.
-3. The processor evaluates whether the rule has a set total supply or use the token's total supply provided by the handler set at the beginning of every new `period`. 
-4. The processor evaluates whether the rule is active based on the `starting timestamp`. If it is not active, the rule evaluation skips the next steps, and simply returns the `transfer volume` value.
-5. The processor evaluates whether the current time is within a new `period`.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The processor receives the ID of the token-transfer-volume rule set in the token handler. 
+3. The processor receives the current `transfer volume`, `last transfer time`, `amount` and token's total supply from the handler.
+4. The processor evaluates whether the rule has a set total supply or use the token's total supply provided by the handler set at the beginning of every new `period`. 
+5. The processor evaluates whether the rule is active based on the `starting timestamp`. If it is not active, the rule evaluation skips the next steps, and simply returns the `transfer volume` value.
+6. The processor evaluates whether the current time is within a new `period`.
     - **If it is a new period**, the processor will set the `amount` value from the current transaction as the `_volume` value for the volume percent of total supply calculation.
     - **If it is not a new period**, the processor accumulates the `transfer volume` (tokens transferred) and the `amount` of tokens to be transferred as the `_volume` value for the volume percent of total supply calculation. 
-6. The processor calculates the final volume percentage, in basis units, from `_volume` and the total supply set in step 3. 
-7. The processor evaluates if the final volume percentage of total supply would be greater than the `max volume`. 
+7. The processor calculates the final volume percentage, in basis units, from `_volume` and the total supply set in step 3. 
+8. The processor evaluates if the final volume percentage of total supply would be greater than the `max volume`. 
     - If yes, then the transaction reverts. 
     - If no, the processor returns the `_volume` value for the current `period` to the handler.
+
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
 ###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
 
@@ -158,21 +161,21 @@ The following validation will be carried out by the create function in order to 
                 view;
         ```
 - in Asset Handler:
-    - Function to set and activate at the same time the rule in an asset handler:
+    - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setTokenTransferVolumeRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setTokenTransferVolumeRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateTokenTransferVolumeRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateTokenTransferVolumeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isTokenTransferVolumeActive() external view returns (bool);
+        function isTokenTransferVolumeActive(ActionTypes _action) external view returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getTokenTransferVolumeRule() external view returns (uint32);
+        function getTokenTransferVolumeRule(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
@@ -208,16 +211,18 @@ uint256 private transferVolume;
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
-- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - parameters: 
         - ruleType: "TRANSFER_VOLUME".
-        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - action: the protocol action the rule is being applied to.
         - ruleId: the index of the rule created in the protocol by rule type.
 
-- **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
-    - ruleType: "TRANSFER_VOLUME".
-    - handlerAddress: the address of the asset handler where the rule has been activated.
+- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+    - Emitted when: A Transfer counter rule has been activated in an asset handler:
+    - Parameters: 
+        - ruleType: "TRANSFER_VOLUME".
+        - action: the protocol action for which the rule is being activated.
 
 ## Dependencies
 

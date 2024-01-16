@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
+import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
 
 /**
  * @title Protocol Events Interface
@@ -128,8 +129,12 @@ interface ITokenHandlerEvents {
     ///Handler
     event HandlerDeployed(address indexed appManager);
     /// Rule applied
-    event ApplicationHandlerApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
-    event ApplicationHandlerSimpleApplied(bytes32 indexed ruleType, uint256 indexed param1);
+    event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId);
+    event ApplicationHandlerSimpleActionApplied(bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1);
+    /// Rule deactivated
+    event ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes action);
+    /// Rule activated
+    event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action);
     /// NFT Valuation Limit Updated
     event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
     event AppManagerAddressSet(address indexed _address);
