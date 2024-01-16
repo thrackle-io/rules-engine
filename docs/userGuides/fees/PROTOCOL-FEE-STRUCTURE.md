@@ -8,7 +8,7 @@ When an AMM or token handler is deployed a Fee data contract is deployed at the 
 
 Fees are applied to accounts via general tags in the [AppMananger](../../../src/client/application/AppManager.sol). Each Fee applied via tags to an account can be additive (increase the fee amount owed) or subtractive (reduce the fee amount owed).
 
-Protocol supported tokens and AMMs will always assess all fees applicable to the account executing the current function. If a token and AMM have fees active and an account is tagged with applicable fees or a blank tag is used to assign a default fee, those fees are assessed on token transfers and AMM swaps (additive).
+Protocol supported tokens and AMMs will always assess all fees asigned to the account executing the current function. If a token and AMM have fees active and an account is tagged with applicable fees or a blank tag is used to assign a default fee, those fees are assessed on token transfers and AMM swaps (additive). Token fees are assessed and taken from the token itself, not a collateralized token, when fees are active in the token handler. 
 
 ## Applies To:
 
@@ -17,8 +17,10 @@ Protocol supported tokens and AMMs will always assess all fees applicable to the
 - [x] AMM
 
 ## Scope 
+### Token Fees:
 Token Fees work at the token level. Fees must be activated and configured for each token in the corresponding token handler. Token fees are assessed in the transfer function of the token. 
 
+### AMM Fees:
 AMM Fees work at the AMM level. Fees must be activated and configured for each AMM in the corresponding AMM handler. AMM fees are assessed in the swap function of the AMM. 
 
 ## Data Structure
@@ -52,15 +54,15 @@ mapping(bytes32 => Fee) feesByTag;
 
 ## Fees Evaluation
 
-Token Evaluation: 
+### Token Evaluation: 
 The token determines if the handler has fees active. 
 The token retrieves all applicable fees for the account transferring tokens (msg.sender).
 The token loops through each applicable fee and sends that amount from the transfer total to the `feeCollectorAccount` for that fee. The total amount of fees assesed is tracked within the transfer as `fees`, upon complettion of the loop the amount of tokens minus the `fees` is transferred to the recipient of the transaction.  
 
-AMM Evaluation: 
+### AMM Evaluation: 
 The AMM determines if the AMM handler has fees active.
-The AMM retrieves all applicable fees for the account transferring tokens (swpper) for the token being swapped. If token 1 is swapped for token 0, token 1 has fees assessed. 
-The AMM loops through each applicable fee and sends that amount from the transfer total to the `feeCollectorAccount` for that fee. The total amount of fees assesed is tracked within the swap as `fees`, upon complettion of the loop the amount of tokens in minus the `fees` is transferred to the AMM and the amount of tokens out are transferred to the user.
+The AMM retrieves all applicable fees for the account calling the swap function (swpper). 
+The AMM loops through each applicable fee and sends that amount of the collateralized token from the transfer total to the `feeCollectorAccount` for that fee. The total amount of fees assesed is tracked within the swap as `fees`, upon complettion of the loop the amount of collateralized tokens minus the `fees` is swapped for the application tokens. The `fees` total is always subtracted from the collateralized token total in AMM swaps in either direction (buy or sell). 
 
 ###### *see [ProtocolERC20](../../../src/client/token/ERC20/ProtocolERC20.sol) -> transfer*
 
