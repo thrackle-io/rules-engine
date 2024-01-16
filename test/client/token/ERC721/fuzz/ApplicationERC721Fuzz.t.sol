@@ -189,7 +189,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTHandler.setOracleRuleId(_createActionsArray(), _index);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -206,7 +206,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTHandler.setOracleRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         // add an allowed address
         goodBoys.push(randomUser);
@@ -992,7 +992,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         /// create and activate rule
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volLimit, rulePeriod, startingTime, tokenSupply);
-        ActionTypes[] memory actionTypes = _createActionsArray();
+        ActionTypes[] memory actionTypes = new ActionTypes[](2);
         actionTypes[0] = ActionTypes.MINT;
         actionTypes[1] = ActionTypes.BURN;
         applicationNFTHandler.setTotalSupplyVolatilityRuleId(actionTypes, _index);
@@ -1071,7 +1071,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                 oracleDenied.addToDeniedList(badBoys);
                 switchToRuleAdmin();
                 uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
-                applicationNFTHandler.setOracleRuleId(_index);
+                applicationNFTHandler.setOracleRuleId(_createActionsArray(), _index);
             } else {
                 goodBoys.push(_user1);
                 goodBoys.push(_user2);
@@ -1080,7 +1080,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                 oracleAllowed.addToAllowList(goodBoys);
                 switchToRuleAdmin();
                 uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
-                applicationNFTHandler.setOracleRuleId(_index);
+                applicationNFTHandler.setOracleRuleId(_createActionsArray(), _index);
             }
             switchToAppAdministrator();
             uint8[] memory riskScores = createUint8Array(0, 10, 40, 80, 99);

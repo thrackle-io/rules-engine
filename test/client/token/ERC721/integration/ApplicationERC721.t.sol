@@ -128,7 +128,8 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(applicationNFT.balanceOf(user1), 1);
         switchToRuleAdmin();
         ///update ruleId in application NFT handler
-        ActionTypes[] memory actionTypes = _createActionsArray();
+        ActionTypes[] memory actionTypes = new ActionTypes[](3);
+        actionTypes[0] = ActionTypes.P2P_TRANSFER;
         actionTypes[1] = ActionTypes.MINT;
         actionTypes[2] = ActionTypes.BURN;
         applicationNFTHandler.setMinMaxBalanceRuleId(actionTypes, ruleId);
@@ -189,7 +190,11 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
-        applicationNFTHandler.setOracleRuleId(_index);
+        ActionTypes[] memory actionTypes = new ActionTypes[](3);
+        actionTypes[0] = ActionTypes.P2P_TRANSFER;
+        actionTypes[1] = ActionTypes.MINT;
+        actionTypes[2] = ActionTypes.BURN;
+        applicationNFTHandler.setOracleRuleId(actionTypes, _index);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -206,7 +211,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTHandler.setOracleRuleId(actionTypes, _index);
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(address(59));
@@ -227,7 +232,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
         /// set oracle back to allow and attempt to burn token
         _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTHandler.setOracleRuleId(actionTypes, _index);
         /// swap to user and burn
         vm.stopPrank();
         vm.startPrank(user1);
@@ -235,7 +240,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         /// set oracle to deny and add address(0) to list to deny burns
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTHandler.setOracleRuleId(actionTypes, _index);
         switchToAppAdministrator();
         badBoys.push(address(0));
         oracleDenied.addToDeniedList(badBoys);
@@ -744,7 +749,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         /// set rule id and activate
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        ActionTypes[] memory actionTypes = _createActionsArray();
+        ActionTypes[] memory actionTypes = new ActionTypes[](2);
         actionTypes[0] = ActionTypes.MINT;
         actionTypes[1] = ActionTypes.BURN;
         applicationNFTHandler.setTotalSupplyVolatilityRuleId(actionTypes, _index);
@@ -1273,7 +1278,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(ruleId);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleDenied));
-        applicationNFTHandler.setOracleRuleId(ruleId);
+        applicationNFTHandler.setOracleRuleId(_createActionsArray(), ruleId);
     }
 
     function _setAllowedOracleRule() internal returns(uint32 ruleId){
@@ -1282,7 +1287,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(ruleId);
         assertEq(rule.oracleType, 1);
         assertEq(rule.oracleAddress, address(oracleAllowed));
-        applicationNFTHandler.setOracleRuleId(ruleId);
+        applicationNFTHandler.setOracleRuleId(_createActionsArray(), ruleId);
     }
 
     function _setPurchasePercentageRule(uint16 _tokenPercentage, uint16  _purchasePeriod) internal returns(uint32 ruleId){

@@ -422,7 +422,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     }
 
     function _createActionsArray() public pure returns(ActionTypes[] memory){
-        ActionTypes[] memory actionTypes = new ActionTypes[](5);
+        ActionTypes[] memory actionTypes = new ActionTypes[](1);
         actionTypes[0] = ActionTypes.P2P_TRANSFER;
         return actionTypes;
     }

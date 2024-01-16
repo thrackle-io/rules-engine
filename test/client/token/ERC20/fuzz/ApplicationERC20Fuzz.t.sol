@@ -787,10 +787,10 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         /// create and activate rule
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volLimit, rulePeriod, startingTime, tokenSupply);
-        ActionTypes[] memory actionTypes = _createActionsArray();
+        ActionTypes[] memory actionTypes = new ActionTypes[](12);
         // add actions mint and burn rather in addition to P2P_Transfer
-        actionTypes[1] = ActionTypes.BURN;
-        actionTypes[2] = ActionTypes.MINT;
+        actionTypes[0] = ActionTypes.BURN;
+        actionTypes[1] = ActionTypes.MINT;
         applicationCoinHandler.setTotalSupplyVolatilityRuleId(actionTypes, _index);
         /// test mint
         vm.stopPrank();

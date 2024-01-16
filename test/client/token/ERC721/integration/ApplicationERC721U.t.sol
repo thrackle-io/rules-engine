@@ -184,7 +184,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTHandler.setOracleRuleId(_createActionsArray(), _index);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -201,7 +201,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTHandler.setOracleRuleId(_createActionsArray(), _index);
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(address(59));

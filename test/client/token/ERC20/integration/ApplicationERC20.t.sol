@@ -85,8 +85,8 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         ///update ruleId in coin rule handler
         // create the default actions array
-        ActionTypes[] memory actionTypes = _createActionsArray();
-        // add sell to it.
+        ActionTypes[] memory actionTypes = new ActionTypes[](2);
+        actionTypes[0] = ActionTypes.P2P_TRANSFER;
         actionTypes[1] = ActionTypes.SELL;
         applicationCoinHandler.setMinMaxBalanceRuleId(actionTypes, ruleId);
         switchToAppAdministrator();
@@ -1071,7 +1071,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         /// set rule id and activate
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addSupplyVolatilityRule(address(applicationAppManager), volatilityLimit, rulePeriod, startingTime, tokenSupply);
-        ActionTypes[] memory actionTypes = _createActionsArray();
+        ActionTypes[] memory actionTypes = new ActionTypes[](2);
         // load actions with mint and burn rather than P2P_Transfer
         actionTypes[0] = ActionTypes.BURN;
         actionTypes[1] = ActionTypes.MINT;

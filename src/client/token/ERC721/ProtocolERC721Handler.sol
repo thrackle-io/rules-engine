@@ -21,10 +21,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     
     address public erc721Address;
 
-    struct OracleRule {
-        uint32 oracleRuleId;
-        bool oracleRuleActive;
-    }
     /// All rule references
     struct Rule {
         uint32 ruleId;
@@ -43,16 +39,18 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     mapping(ActionTypes => Rule) totalSupplyVolatility;
     mapping(ActionTypes => Rule) minAccount;
     mapping(ActionTypes => Rule) tradeCounter;
+
+    /// Oracle rule mapping(allows multiple rules per action)
+    mapping(ActionTypes => Rule[]) oracle;
+    /// RuleIds for implemented tagged rules of the ERC721
+    Rule[] private oracleRules;
+
     /// Simple Rule Mapping
     mapping(ActionTypes => RuleMinimumHoldTime) minimumHoldTime;
 
-    /// RuleIds for implemented tagged rules of the ERC721
-    OracleRule[] private oracleRules;
 
     /// NFT Collection Valuation Limit
     uint16 private nftValuationLimit = 100;
-
-
 
     /// Trade Counter data
     // map the tokenId of this NFT to the number of trades in the period
@@ -136,8 +134,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @param tokenId the token's specific ID
      */
     function _checkNonTaggedRules(ActionTypes action, address _from, address _to, uint256 _amount, uint256 tokenId) internal {
-        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
-            if (oracleRules[oracleRuleIndex].oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRules[oracleRuleIndex].oracleRuleId, _to);
+        _from;
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[action].length; ) {
+            if (oracle[action][oracleRuleIndex].active) ruleProcessor.checkOraclePasses(oracle[action][oracleRuleIndex].ruleId, _to);
             unchecked {
                 ++oracleRuleIndex;
             }
@@ -231,7 +230,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
             emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, _ruleId);
             unchecked {
                         ++i;
-             }
+            }
         }            
     }
 
@@ -276,52 +275,66 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     /**
      * @dev Set the oracleRuleId. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
+     * @param _actions the action types
      * @param _ruleId Rule Id to set
      */
-    function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        if (oracleRules.length >= MAX_ORACLE_RULES) {
-            revert OracleRulesPerAssetLimitReached();
-        }
+    function setOracleRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateOracle(_ruleId);
+        for (uint i; i < _actions.length; ) {
+            if (oracle[_actions[i]].length >= MAX_ORACLE_RULES) {
+                revert OracleRulesPerAssetLimitReached();
+            }
 
-        OracleRule memory newEntity;
-        newEntity.oracleRuleId = _ruleId;
-        newEntity.oracleRuleActive = true;
-        oracleRules.push(newEntity);
-        emit ApplicationHandlerApplied(ORACLE, _ruleId);
+            Rule memory newEntity;
+            newEntity.ruleId = _ruleId;
+            newEntity.active = true;
+            oracle[_actions[i]].push(newEntity);
+            emit ApplicationHandlerApplied(ORACLE, _ruleId);
+            unchecked {
+                        ++i;
+            }
+        }
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _actions the action types
      * @param _on boolean representing if a rule must be checked or not.
      * @param ruleId the id of the rule to activate/deactivate
      */
 
-    function activateOracleRule(bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
-            if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
-                oracleRules[oracleRuleIndex].oracleRuleActive = _on;
+    function activateOracleRule(ActionTypes[] calldata _actions, bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            
+            for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[_actions[i]].length; ) {
+                if (oracle[_actions[i]][oracleRuleIndex].ruleId == ruleId) {
+                    oracle[_actions[i]][oracleRuleIndex].active = _on;
 
-                if (_on) {
-                    emit ApplicationHandlerActivated(ORACLE);
-                } else {
-                    emit ApplicationHandlerDeactivated(ORACLE);
+                    if (_on) {
+                        emit ApplicationHandlerActivated(ORACLE);
+                    } else {
+                        emit ApplicationHandlerDeactivated(ORACLE);
+                    }
+                }
+                unchecked {
+                    ++oracleRuleIndex;
                 }
             }
             unchecked {
-                ++oracleRuleIndex;
+                    ++i;
             }
         }
     }
 
     /**
      * @dev Retrieve the oracle rule id
+     * @param _action the action type
      * @return oracleRuleId
      */
-    function getOracleRuleIds() external view returns (uint32[] memory ) {
-        uint32[] memory ruleIds = new uint32[](oracleRules.length);
-        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
-            ruleIds[oracleRuleIndex] = oracleRules[oracleRuleIndex].oracleRuleId;
+    function getOracleRuleIds(ActionTypes _action) external view returns (uint32[] memory ) {
+        uint32[] memory ruleIds = new uint32[](oracle[_action].length);
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[_action].length; ) {
+            ruleIds[oracleRuleIndex] = oracle[_action][oracleRuleIndex].ruleId;
             unchecked {
                 ++oracleRuleIndex;
             }
@@ -331,13 +344,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
 
     /**
      * @dev Tells you if the Oracle Rule is active or not.
+     * @param _action the action type
      * @param ruleId the id of the rule to check
      * @return boolean representing if the rule is active
      */
-    function isOracleActive(uint32 ruleId) external view returns (bool) {
-        for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
-            if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
-                return oracleRules[oracleRuleIndex].oracleRuleActive;
+    function isOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool) {
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[_action].length; ) {
+            if (oracle[_action][oracleRuleIndex].ruleId == ruleId) {
+                return oracle[_action][oracleRuleIndex].active;
             }
             unchecked {
                 ++oracleRuleIndex;
@@ -348,14 +362,15 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
 
     /**
      * @dev Removes an oracle rule from the list.
+     * @param _action the action type
      * @param ruleId the id of the rule to remove
      */
-    function removeOracleRule(uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        OracleRule memory lastId = oracleRules[oracleRules.length -1];
-        if(ruleId != lastId.oracleRuleId){
+    function removeOracleRule(ActionTypes _action, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        Rule memory lastId = oracle[_action][oracleRules.length -1];
+        if(ruleId != lastId.ruleId){
             uint index = 0;
-            for (uint256 oracleRuleIndex; oracleRuleIndex < oracleRules.length; ) {
-                if (oracleRules[oracleRuleIndex].oracleRuleId == ruleId) {
+            for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[_action].length; ) {
+                if (oracle[_action][oracleRuleIndex].ruleId == ruleId) {
                     index = oracleRuleIndex; 
                     break;
                 }
@@ -363,10 +378,10 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
                     ++oracleRuleIndex;
                 }
             }
-            oracleRules[index] = lastId;
+            oracle[_action][index] = lastId;
         }
 
-        oracleRules.pop();
+        oracle[_action].pop();
     }
 
 
