@@ -901,25 +901,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         _applicationNFT2.burn(36);
     }
 
-    /// test batch mint and burn
-    /**
-    function testERC721_BatchMintAndBurn() public {
-        /// create the batch capable NFT
-        ApplicationERC721WithBatchMintBurn nftBurner = new ApplicationERC721WithBatchMintBurn("BeanBabyBurner", "THRK", address(applicationAppManager), "https://SampleApp.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(nftBurner), false);
-        nftBurner.connectHandlerToToken(address(applicationNFTHandler));
-        /// cannot batch burn
-        /// non admins cannot batch mint
-        vm.stopPrank();
-        vm.startPrank(user1);
-        vm.expectRevert(0x46b2bfeb);
-        nftBurner.mint(10);
-        assertEq(nftBurner.balanceOf(user1), 0);
-        vm.expectRevert(0x46b2bfeb);
-        nftBurner.burn(10);
-    }
-     */
-
     function testERC721_UpgradingHandlersERC721() public {
         ///deploy new modified appliction asset handler contract
         ApplicationERC721HandlerMod _AssetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), true);
