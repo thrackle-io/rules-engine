@@ -41,7 +41,7 @@ contract ProtocolERC20AMMTest is TestCommonFoundry {
         applicationAMMHandler = ApplicationAMMHandler(protocolAMM.getHandlerAddress());
         /// Register AMM
         applicationAppManager.registerAMM(address(protocolAMM));
-        applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
+        // applicationCoinHandler2.setERC20PricingAddress(address(erc20Pricer));
         vm.warp(Blocktime);
 
         // create the oracles

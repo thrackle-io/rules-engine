@@ -39,8 +39,8 @@ import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod
 /// Client Contract imports 
 import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
+import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import "src/example/application/ApplicationAppManager.sol";
-import "src/example/application/ApplicationHandler.sol";
 
 import "src/example/ERC20/ApplicationERC20.sol";
 import "src/example/ERC20/ApplicationERC20Handler.sol";
@@ -73,6 +73,7 @@ import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import "src/example/OracleDenied.sol";
 import "src/example/OracleAllowed.sol";
+import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
 
 
 /**
@@ -454,4 +455,10 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     function _createProtocolAMMCalculatorFactory() public returns (ProtocolAMMCalculatorFactory _ammCalcFactory) {
         return new ProtocolAMMCalculatorFactory();
     }
+    function _createActionsArray() public pure returns(ActionTypes[] memory){
+        ActionTypes[] memory actionTypes = new ActionTypes[](1);
+        actionTypes[0] = ActionTypes.P2P_TRANSFER;
+        return actionTypes;
+    }
+    
 }

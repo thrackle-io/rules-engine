@@ -67,17 +67,20 @@ A minumum-maximum-account-balance rule must have at least one sub-rule. There is
 
 The rule will be evaluated with the following logic:
 
-1. The receiver account and the sender account being evaluated pass all the tags they have registered to their addresses in the application manager to the protocol.
-2. The processor receives these tags along with the ID of the minumum-maximum-account-balance rule set in the token handler. 
-3. The processor tries to retrieve the sub-rule associated with each tag.
-4. The processor evaluates if the final balance of the sender account would be less than the`minimum` in the case of the transaction succeeding. If yes, the transaction reverts.
-5. The processor evaluates if the final balance of the receiver account would be greater than the `maximum` in the case of the transaction succeeding. If yes, the transaction reverts.
-6. Step 4 and 5 are repeated for each of the account's tags. 
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The receiver account and the sender account being evaluated pass all the tags they have registered to their addresses in the application manager to the protocol.
+3. The processor receives these tags along with the ID of the minumum-maximum-account-balance rule set in the token handler. 
+4. The processor tries to retrieve the sub-rule associated with each tag.
+5. The processor evaluates if the final balance of the sender account would be less than the`minimum` in the case of the transaction succeeding. If yes, the transaction reverts.
+6. The processor evaluates if the final balance of the receiver account would be greater than the `maximum` in the case of the transaction succeeding. If yes, the transaction reverts.
+7. Step 4 and 5 are repeated for each of the account's tags. 
+
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkMinMaxAccountBalancePasses*
 
 ## Evaluation Exceptions 
-- For tokens, This rule doesn't apply when an **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.e.
 - In the case of ERC20s and AMMs, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
@@ -183,21 +186,21 @@ The following validation will be carried out by the create function in order to 
             view;
         ```
 - in Asset Handler:
-    - Function to set and activate at the same time the rule in an asset handler:
+    - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setMinMaxBalanceRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setMinMaxBalanceRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateMinMaxBalanceRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateMinMaxBalanceRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isMinMaxBalanceActive() external view returns (bool);
+        function isMinMaxBalanceActive(ActionTypes _action) external view returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getMinMaxBalanceRuleId() external view returns (uint32);
+        function getMinMaxBalanceRuleId(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
@@ -216,18 +219,18 @@ This rule doesn't require any data to be recorded.
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: the tags for each sub-rule.
 
-- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - Parameters: 
         - ruleType: "MIN_MAX_BALANCE_LIMIT".
-        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
-- **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)**:
+- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
     - Emitted when: rule has been activated in the asset handler.
     - Parameters:
         - ruleType: "MIN_MAX_BALANCE_LIMIT".
-        - handlerAddress: the address of the asset handler where the rule has been activated.
+        - action: the protocol action for which the rule is being activated.
 
 
 ## Dependencies

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
+import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
 
 /**
  * @title Protocol Events Interface
@@ -70,9 +71,12 @@ interface IOracleEvents {
  */
 
 interface IApplicationHandlerEvents {
-    event ApplicationHandlerDeployed(address indexed deployedAddress, address indexed appManager);
+    event ApplicationHandlerDeployed(address indexed appManager);
     // Rule applied
     event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
+    /// Pricing
+    event ERC721PricingAddressSet(address indexed _address);
+    event ERC20PricingAddressSet(address indexed _address);
 }
 
 /**
@@ -127,15 +131,18 @@ interface ITokenHandlerEvents {
     /// Rule applied
     event ApplicationHandlerApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
     event ApplicationHandlerSimpleApplied(bytes32 indexed ruleType, uint256 indexed param1);
+    event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId);
+    event ApplicationHandlerSimpleActionApplied(bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1);
+    /// Rule deactivated
+    event ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes action);
+    /// Rule activated
+    event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action);
     /// NFT Valuation Limit Updated
     event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
     event AppManagerAddressSet(address indexed _address);
     event AppManagerAddressProposed(address indexed _address);
     /// Fees
     event FeeActivationSet(bool indexed _activation);
-    /// Pricing
-    event ERC721PricingAddressSet(address indexed _address);
-    event ERC20PricingAddressSet(address indexed _address);
     /// Configuration
     event ERC721AddressSet(address indexed _address);
 }

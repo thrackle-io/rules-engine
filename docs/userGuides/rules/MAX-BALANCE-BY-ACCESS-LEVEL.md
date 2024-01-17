@@ -43,9 +43,9 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
-- This rule can only be set in the asset handler by a **rule administrator**.
-- This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
-- This rule can only be updated in the asset handler by a **rule administrator**.
+- This rule can only be set in the application handler by a **rule administrator**.
+- This rule can only be activated/deactivated in the application handler by a **rule administrator**.
+- This rule can only be updated in the application handler by a **rule administrator**.
 
 
 ## Rule Evaluation
@@ -58,7 +58,7 @@ The rule will be evaluated with the following logic:
 ###### *see [ApplicationAccessLevelProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) -> checkAccBalanceByAccessLevel*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when an **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
@@ -103,7 +103,7 @@ There are no options for the parameters of this rule.
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
 - The `_balanceAmounts` array has length 5.
-- The elements of the `_balanceAmounts` array are in ascendant order.
+- The elements of the `_balanceAmounts` array are in ascending order.
 
 ###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
@@ -139,7 +139,7 @@ The following validation will be carried out by the create function in order to 
         ```c
         function activateAccountBalanceByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-     - Function to know the activation state of the rule in an asset handler:
+     - Function to know the activation state of the rule in an application handler:
         ```c
         function isAccountBalanceByAccessLevelActive() external view returns (bool);
         ```
@@ -176,5 +176,5 @@ This rule doesn't require of any data to be recorded.
 
 This rule depends on:
 
-- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the token handlers in order for this rule to work.
+- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the application handler in order for this rule to work.
 

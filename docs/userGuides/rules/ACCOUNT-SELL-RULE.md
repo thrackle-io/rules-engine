@@ -75,14 +75,17 @@ The collection of these tagged sub-rules plus the startingTime composes an accou
 
 The rule will be evaluated with the following logic:
 
-1. The token handler decides if the transfer is a Sell (user perspective). Only if it is, it continues with the next steps.
-2. The account being evaluated passes to the protocol all the tags it has registered to its address in the application manager.
-3. The processor receives these tags along with the ID of the account-sell-controller rule set in the token handler. 
-4. The processor then tries to retrieve the sub-rule associated with each tag.
-5. The processor evaluates whether each sub-rule's period is active (if the current time is within `period` from the `starting timestamp`). If it is not within the period, it sets the cumulative sales to the current sale amount. If it is within the period, the processor adds the current sale amount to the accrued sale amount for the rule period.   
-6. The processor then checks if the cumulative sales amount is greater than the `sell amount` defined in the rule. If true, the transaction reverts. 
-7. Steps 4 and 5 are repeated for each of the account's tags.
-8. Return the cumulative sales amount.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The token handler decides if the transfer is a Sell (user perspective). Only if it is, it continues with the next steps.
+3. The account being evaluated passes to the protocol all the tags it has registered to its address in the application manager.
+4. The processor receives these tags along with the ID of the account-sell-controller rule set in the token handler. 
+5. The processor then tries to retrieve the sub-rule associated with each tag.
+6. The processor evaluates whether each sub-rule's period is active (if the current time is within `period` from the `starting timestamp`). If it is not within the period, it sets the cumulative sales to the current sale amount. If it is within the period, the processor adds the current sale amount to the accrued sale amount for the rule period.   
+7. The processor then checks if the cumulative sales amount is greater than the `sell amount` defined in the rule. If true, the transaction reverts. 
+8. Steps 4 and 5 are repeated for each of the account's tags.
+9. Return the cumulative sales amount.
+
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
 ###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkSellLimit*
 
@@ -163,21 +166,21 @@ The following validation will be carried out by the create function in order to 
         function checkSellLimit(uint32 ruleId, uint256 salesWithinPeriod, uint256 amount, bytes32[] calldata fromTags, uint64 lastUpdateTime) external view returns (uint256);
         ```
 - in Asset Handler:
-    - Function to set and activate at the same time the rule in an asset handler:
+    - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setSellLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setSellLimitRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateSellLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateSellLimitRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isSellLimitActive() external view returns (bool);
+        function isSellLimitActive(ActionTypes _action) external view returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getSellLimitRuleId() external view returns (uint32);
+        function getSellLimitRuleId(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
@@ -213,16 +216,18 @@ mapping(address => uint64) lastSellTime;
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
-- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
-    - parameters: 
+    - Parameters: 
         - ruleType: "SELL_LIMIT".
-        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - action: the protocol action the rule is being applied to.
         - ruleId: the index of the rule created in the protocol by rule type.
 
-- **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when an Account Sell Controller rule has been activated in an asset handler:
-    - ruleType: "SELL_LIMIT".
-    - handlerAddress: the address of the asset handler where the rule has been activated.
+- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+    - Emitted when: An Account Sell Controller rule has been activated in an asset handler:
+    - Parameters:
+        - ruleType: "SELL_LIMIT".
+        - action: the protocol action for which the rule is being activated.
 
 ## Dependencies
 
