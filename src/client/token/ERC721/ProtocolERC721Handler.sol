@@ -5,8 +5,9 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "src/client/token/ProtocolHandlerCommon.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+import "../ProtocolHandlerCommon.sol";
+import "../ProtocolHandlerTradingRulesCommon.sol";
 
 /**
  * @title Base NFT Handler Contract
@@ -15,42 +16,36 @@ import "src/client/token/ProtocolHandlerCommon.sol";
  *      Any rule handlers may be updated by modifying this contract, redeploying, and pointing the ERC721 to the new version.
  * @notice This contract is the interaction point for the application ecosystem to the protocol
  */
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
-import "../ProtocolHandlerCommon.sol";
-import "../ProtocolHandlerTradingRulesCommon.sol";
 
 contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandlerTradingRulesCommon, IProtocolTokenHandler, IAdminWithdrawalRuleCapable, ERC165 {
     
     address public erc721Address;
-    /// RuleIds for implemented tagged rules of the ERC721
-    uint32 private minMaxBalanceRuleId;
-    uint32 private minBalByDateRuleId;
-    uint32 private minAccountRuleId;
-    uint32 private oracleRuleId;
-    uint32 private tradeCounterRuleId;
-    uint32 private transactionLimitByRiskRuleId;
-    uint32 private adminWithdrawalRuleId;
-    uint32 private tokenTransferVolumeRuleId;
-    uint32 private totalSupplyVolatilityRuleId;
-    /// on-off switches for rules
-    bool private oracleRuleActive;
-    bool private minMaxBalanceRuleActive;
-    bool private tradeCounterRuleActive;
-    bool private transactionLimitByRiskRuleActive;
-    bool private minBalByDateRuleActive;
-    bool private adminWithdrawalActive;
-    bool private tokenTransferVolumeRuleActive;
-    bool private totalSupplyVolatilityRuleActive;
-    bool private minimumHoldTimeRuleActive;
+    
+    struct RuleMinimumHoldTime{
+        uint32 ruleId;
+        bool active;
+        uint32 minimumHoldTimeHours;
+    }
+    /// Rule mappings
+    mapping(ActionTypes => Rule) minMaxBalance;   
+    mapping(ActionTypes => Rule) adminWithdrawal;  
+    mapping(ActionTypes => Rule) minBalByDate; 
+    mapping(ActionTypes => Rule) tokenTransferVolume;
+    mapping(ActionTypes => Rule) totalSupplyVolatility;
+    mapping(ActionTypes => Rule) minAccount;
+    mapping(ActionTypes => Rule) tradeCounter;
 
-    /// simple rule(with single parameter) variables
-    uint32 private minimumHoldTimeHours;
+    /// Oracle rule mapping(allows multiple rules per action)
+    mapping(ActionTypes => Rule[]) oracle;
+    /// RuleIds for implemented tagged rules of the ERC721
+    Rule[] private oracleRules;
+
+    /// Simple Rule Mapping
+    mapping(ActionTypes => RuleMinimumHoldTime) minimumHoldTime;
+
 
     /// NFT Collection Valuation Limit
-    uint256 private nftValuationLimit = 100;
-
+    uint16 private nftValuationLimit = 100;
 
     /// Trade Counter data
     // map the tokenId of this NFT to the number of trades in the period
@@ -75,6 +70,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
+
         transferOwnership(_assetAddress);
         setERC721Address(_assetAddress);
         if (!_upgradeMode) {
@@ -109,21 +105,15 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
-            /// pure transfer rules
-            uint128 balanceValuation;
-            uint128 transferValuation;
-            if (appManager.requireValuations()) {
-                balanceValuation = uint128(getAccTotalValuation(_to, nftValuationLimit));
-                transferValuation = uint128(nftPricer.getNFTPrice(msg.sender, _tokenId));
-            }
-            appManager.checkApplicationRules( _from, _to, balanceValuation, transferValuation, action);
-            _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, _tokenId, action);
-            _checkNonTaggedRules(_from, _to, _amount, _tokenId);
-            _checkSimpleRules(_tokenId);
-            /// set the ownership start time for the token if the Minimum Hold time rule is active
-            if (minimumHoldTimeRuleActive) ownershipStart[_tokenId] = block.timestamp;
-        } else if (adminWithdrawalActive && isFromBypassAccount) {
-            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, _balanceFrom, _amount);
+            appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
+            _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
+
+            _checkNonTaggedRules(action, _from, _to, _amount, _tokenId);
+            _checkSimpleRules(action, _tokenId);
+            /// set the ownership start time for the token if the Minimum Hold time rule is active or action is mint
+            if (minimumHoldTime[action].active || action == ActionTypes.MINT) ownershipStart[_tokenId] = block.timestamp;
+        } else if (adminWithdrawal[action].active && isFromBypassAccount) {
+            ruleProcessor.checkAdminWithdrawalRule(adminWithdrawal[action].ruleId, _balanceFrom, _amount);
             emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress);
         }
         /// If all rule checks pass, return true
@@ -132,27 +122,35 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
 
     /**
      * @dev This function uses the protocol's ruleProcessor to perform the actual rule checks.
+     * @param action current action
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens transferred
      * @param tokenId the token's specific ID
      */
-    function _checkNonTaggedRules(address _from, address _to, uint256 _amount, uint256 tokenId) internal {
-        if (oracleRuleActive) ruleProcessor.checkOraclePasses(oracleRuleId, _to);
-        if (tradeCounterRuleActive) {
+    function _checkNonTaggedRules(ActionTypes action, address _from, address _to, uint256 _amount, uint256 tokenId) internal {
+        _from;
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[action].length; ) {
+            if (oracle[action][oracleRuleIndex].active) ruleProcessor.checkOraclePasses(oracle[action][oracleRuleIndex].ruleId, _to);
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
+
+        if (tradeCounter[action].active) {
             // get all the tags for this NFT
             bytes32[] memory tags = appManager.getAllTags(erc721Address);
-            tradesInPeriod[tokenId] = ruleProcessor.checkNFTTransferCounter(tradeCounterRuleId, tradesInPeriod[tokenId], tags, lastTxDate[tokenId]);
+            tradesInPeriod[tokenId] = ruleProcessor.checkNFTTransferCounter(tradeCounter[action].ruleId, tradesInPeriod[tokenId], tags, lastTxDate[tokenId]);
             lastTxDate[tokenId] = uint64(block.timestamp);
         }
-        if (tokenTransferVolumeRuleActive) {
-            transferVolume = ruleProcessor.checkTokenTransferVolumePasses(tokenTransferVolumeRuleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
+        if (tokenTransferVolume[action].active) {
+            transferVolume = ruleProcessor.checkTokenTransferVolumePasses(tokenTransferVolume[action].ruleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
             lastTransferTs = uint64(block.timestamp);
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
-        if (totalSupplyVolatilityRuleActive && (_from == address(0x00) || _to == address(0x00))) {
+        if (totalSupplyVolatility[action].active && (action == ActionTypes.MINT || action == ActionTypes.BURN)) {
             (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTotalSupplyVolatilityPasses(
-                totalSupplyVolatilityRuleId,
+                totalSupplyVolatility[action].ruleId,
                 volumeTotalForPeriod,
                 totalSupplyForPeriod,
                 IToken(msg.sender).totalSupply(),
@@ -170,20 +168,15 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _amount number of tokens transferred
-     * @param tokenId Id of the NFT being transferred
      * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, uint256 tokenId, ActionTypes action) internal {
+    function _checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
         _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
-        if (transactionLimitByRiskRuleActive) {
-            /// If more rules need these values, then this can be moved above.
-            uint256 thisNFTValuation = nftPricer.getNFTPrice(msg.sender, tokenId);
-            _checkRiskRules(_from, _to, thisNFTValuation);
-        }
+
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged non-risk rule checks.
+     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _balanceFrom token balance of sender address
@@ -196,166 +189,254 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         bytes32[] memory fromTags;
         bool mustCheckPurchaseRules = action == ActionTypes.PURCHASE && !appManager.isTradingRuleBypasser(_to);
         bool mustCheckSellRules = action == ActionTypes.SELL && !appManager.isTradingRuleBypasser(_from);
-        if (minMaxBalanceRuleActive || minBalByDateRuleActive || (mustCheckPurchaseRules && purchaseLimitRuleActive) || (mustCheckSellRules && sellLimitRuleActive)) {
+        if (minMaxBalance[action].active || minBalByDate[action].active || (mustCheckPurchaseRules && purchaseLimitRuleActive) || (mustCheckSellRules && sellLimitRuleActive)) {
             // We get all tags for sender and recipient
             toTags = appManager.getAllTags(_to);
             fromTags = appManager.getAllTags(_from);
         }
-        if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalanceRuleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
-        if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
+        if (minMaxBalance[action].active) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+        if (minBalByDate[action].active) ruleProcessor.checkMinBalByDatePasses(minBalByDate[action].ruleId, _balanceFrom, _amount, fromTags);
         if((mustCheckPurchaseRules && (purchaseLimitRuleActive || purchasePercentageRuleActive)) || (mustCheckSellRules && (sellLimitRuleActive || sellPercentageRuleActive)))
             _checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
         
     }
 
+
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the risk rule checks.(Ones that require risk score values)
-     * @param _from address of the from account
-     * @param _to address of the to account
-     * @param _thisNFTValuation valuation of NFT in question
+     * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
+     * @param _action action to be checked
+     * @param _tokenId the specific token in question
      */
-    function _checkRiskRules(address _from, address _to, uint256 _thisNFTValuation) internal view {
-        uint8 riskScoreTo = appManager.getRiskScore(_to);
-        uint8 riskScoreFrom = appManager.getRiskScore(_from);
-        /// if rule is active check if the recipient is address(0) for burning tokens
-        if (transactionLimitByRiskRuleActive) {
-            /// if recipient is not address(0) check sender and recipient risk scores to ensure transaction limit is within rule limits
-            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _thisNFTValuation);
-            if (_to != address(0)) {
-                ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _thisNFTValuation);
+    function _checkSimpleRules(ActionTypes _action, uint256 _tokenId) internal view {
+        if (minimumHoldTime[_action].active && ownershipStart[_tokenId] > 0) ruleProcessor.checkNFTHoldTime(minimumHoldTime[_action].minimumHoldTimeHours, ownershipStart[_tokenId]);
+    }
+
+     /**
+     * @dev Set the minMaxBalanceRuleId. Restricted to app administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions the action types
+     * @param _ruleId Rule Id to set
+     */
+    function setMinMaxBalanceRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateMinMaxAccountBalance(_ruleId);
+        for (uint i; i < _actions.length; ) {
+            minMaxBalance[_actions[i]].ruleId = _ruleId;
+            minMaxBalance[_actions[i]].active = true;            
+            emit ApplicationHandlerActionApplied(MIN_MAX_BALANCE_LIMIT, _actions[i], _ruleId);
+            unchecked {
+                        ++i;
+            }
+        }            
+    }
+
+    /**
+     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _actions the action types
+     * @param _on boolean representing if a rule must be checked or not.
+     */
+    function activateMinMaxBalanceRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            minMaxBalance[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(MIN_MAX_BALANCE_LIMIT, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(MIN_MAX_BALANCE_LIMIT, _actions[i]);
+            }
+            unchecked {
+                ++i;
             }
         }
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
-     * @param _tokenId the specific token in question
-     */
-    function _checkSimpleRules(uint256 _tokenId) internal view {
-        if (minimumHoldTimeRuleActive && ownershipStart[_tokenId] > 0) ruleProcessor.checkNFTHoldTime(minimumHoldTimeHours, ownershipStart[_tokenId]);
-    }
-
-    /**
-     * @dev Set the minMaxBalanceRuleId. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setMinMaxBalanceRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateMinMaxAccountBalance(_ruleId);
-        minMaxBalanceRuleId = _ruleId;
-        minMaxBalanceRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_MAX_BALANCE_LIMIT, _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
-     */
-    function activateMinMaxBalanceRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        minMaxBalanceRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(MIN_MAX_BALANCE_LIMIT);
-        } else {
-            emit ApplicationHandlerDeactivated(MIN_MAX_BALANCE_LIMIT);
-        }
-    }
-
-    /**
      * Get the minMaxBalanceRuleId.
+     * @param _action the action type
      * @return minMaxBalance rule id.
      */
-    function getMinMaxBalanceRuleId() external view returns (uint32) {
-        return minMaxBalanceRuleId;
+    function getMinMaxBalanceRuleId(ActionTypes _action) external view returns (uint32) {
+        return minMaxBalance[_action].ruleId;
     }
 
     /**
      * @dev Tells you if the MinMaxBalanceRule is active or not.
+     * @param _action the action type
      * @return boolean representing if the rule is active
      */
-    function isMinMaxBalanceActive() external view returns (bool) {
-        return minMaxBalanceRuleActive;
+    function isMinMaxBalanceActive(ActionTypes _action) external view returns (bool) {
+        return minMaxBalance[_action].active;
     }
+
 
     /**
      * @dev Set the oracleRuleId. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
+     * @param _actions the action types
      * @param _ruleId Rule Id to set
      */
-    function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+    function setOracleRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateOracle(_ruleId);
-        oracleRuleId = _ruleId;
-        oracleRuleActive = true;
-        emit ApplicationHandlerApplied(ORACLE, _ruleId);
+        for (uint i; i < _actions.length; ) {
+            if (oracle[_actions[i]].length >= MAX_ORACLE_RULES) {
+                revert OracleRulesPerAssetLimitReached();
+            }
+
+            Rule memory newEntity;
+            newEntity.ruleId = _ruleId;
+            newEntity.active = true;
+            oracle[_actions[i]].push(newEntity);
+            emit ApplicationHandlerActionApplied(ORACLE, _actions[i], _ruleId);
+            unchecked {
+                        ++i;
+            }
+        }
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _actions the action types
      * @param _on boolean representing if a rule must be checked or not.
+     * @param ruleId the id of the rule to activate/deactivate
      */
-    function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        oracleRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(ORACLE);
-        } else {
-            emit ApplicationHandlerDeactivated(ORACLE);
+
+    function activateOracleRule(ActionTypes[] calldata _actions, bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            
+            for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[_actions[i]].length; ) {
+                if (oracle[_actions[i]][oracleRuleIndex].ruleId == ruleId) {
+                    oracle[_actions[i]][oracleRuleIndex].active = _on;
+
+                    if (_on) {
+                        emit ApplicationHandlerActionActivated(ORACLE, _actions[i]);
+                    } else {
+                        emit ApplicationHandlerActionDeactivated(ORACLE, _actions[i]);
+                    }
+                }
+                unchecked {
+                    ++oracleRuleIndex;
+                }
+            }
+            unchecked {
+                    ++i;
+            }
         }
     }
 
     /**
      * @dev Retrieve the oracle rule id
+     * @param _action the action type
      * @return oracleRuleId
      */
-    function getOracleRuleId() external view returns (uint32) {
-        return oracleRuleId;
+    function getOracleRuleIds(ActionTypes _action) external view returns (uint32[] memory ) {
+        uint32[] memory ruleIds = new uint32[](oracle[_action].length);
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[_action].length; ) {
+            ruleIds[oracleRuleIndex] = oracle[_action][oracleRuleIndex].ruleId;
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
+        return ruleIds;
     }
 
     /**
-     * @dev Tells you if the oracle rule is active or not.
+     * @dev Tells you if the Oracle Rule is active or not.
+     * @param _action the action type
+     * @param ruleId the id of the rule to check
      * @return boolean representing if the rule is active
      */
-    function isOracleActive() external view returns (bool) {
-        return oracleRuleActive;
+    function isOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool) {
+        for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[_action].length; ) {
+            if (oracle[_action][oracleRuleIndex].ruleId == ruleId) {
+                return oracle[_action][oracleRuleIndex].active;
+            }
+            unchecked {
+                ++oracleRuleIndex;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @dev Removes an oracle rule from the list.
+     * @param _actions the action types
+     * @param ruleId the id of the rule to remove
+     */
+    function removeOracleRule(ActionTypes[] calldata _actions, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            Rule memory lastId = oracle[_actions[i]][oracle[_actions[i]].length -1];
+            if(ruleId != lastId.ruleId){
+                uint index = 0;
+                for (uint256 oracleRuleIndex; oracleRuleIndex < oracle[_actions[i]].length; ) {
+                    if (oracle[_actions[i]][oracleRuleIndex].ruleId == ruleId) {
+                        index = oracleRuleIndex; 
+                        break;
+                    }
+                    unchecked {
+                        ++oracleRuleIndex;
+                    }
+                }
+                oracle[_actions[i]][index] = lastId;
+            }
+
+            oracle[_actions[i]].pop();
+            unchecked {
+                        ++i;
+            }
+        }
     }
 
     /**
      * @dev Set the tradeCounterRuleId. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
+     * @param _actions the action types
      * @param _ruleId Rule Id to set
      */
-    function setTradeCounterRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+    function setTradeCounterRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateNFTTransferCounter(_ruleId);
-        tradeCounterRuleId = _ruleId;
-        tradeCounterRuleActive = true;
-        emit ApplicationHandlerApplied(NFT_TRANSFER, _ruleId);
+        for (uint i; i < _actions.length; ) {
+            tradeCounter[_actions[i]].ruleId = _ruleId;
+            tradeCounter[_actions[i]].active = true;
+            emit ApplicationHandlerActionApplied(NFT_TRANSFER, _actions[i], _ruleId);
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _actions the action types
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateTradeCounterRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        tradeCounterRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(NFT_TRANSFER);
-        } else {
-            emit ApplicationHandlerDeactivated(NFT_TRANSFER);
+    function activateTradeCounterRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            tradeCounter[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(NFT_TRANSFER, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(NFT_TRANSFER, _actions[i]);
+            }
+            unchecked {
+                ++i;
+            }
         }
     }
 
     /**
      * @dev Retrieve the trade counter rule id
+     * @param _action the action type
      * @return tradeCounterRuleId
      */
-    function getTradeCounterRuleId() external view returns (uint32) {
-        return tradeCounterRuleId;
+    function getTradeCounterRuleId(ActionTypes _action) external view returns (uint32) {
+        return tradeCounter[_action].ruleId;
     }
 
     /**
      * @dev Tells you if the tradeCounterRule is active or not.
+     * @param _action the action type
      * @return boolean representing if the rule is active
      */
-    function isTradeCounterRuleActive() external view returns (bool) {
-        return tradeCounterRuleActive;
+    function isTradeCounterRuleActive(ActionTypes _action) external view returns (bool) {
+        return tradeCounter[_action].active;
     }
 
     /**
@@ -369,280 +450,333 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev Retrieve the oracle rule id
-     * @return transactionLimitByRiskRuleActive rule id
-     */
-    function getTransactionLimitByRiskRule() external view returns (uint32) {
-        return transactionLimitByRiskRuleId;
-    }
-
-    /**
-     * @dev Set the TransactionLimitByRiskRule. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateTransactionLimitByRiskScore(_ruleId);
-        transactionLimitByRiskRuleId = _ruleId;
-        transactionLimitByRiskRuleActive = true;
-        emit ApplicationHandlerApplied(TX_SIZE_BY_RISK, _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
-     */
-    function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        transactionLimitByRiskRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(TX_SIZE_BY_RISK);
-        } else {
-            emit ApplicationHandlerDeactivated(TX_SIZE_BY_RISK);
-        }
-    }
-
-    /**
-     * @dev Tells you if the transactionLimitByRiskRule is active or not.
-     * @return boolean representing if the rule is active
-     */
-    function isTransactionLimitByRiskActive() external view returns (bool) {
-        return transactionLimitByRiskRuleActive;
-    }
-
-    /**
      * @dev Retrieve the minimum balance by date rule id
+     * @param _action the action type
      * @return minBalByDateRuleId rule id
      */
-    function getMinBalByDateRule() external view returns (uint32) {
-        return minBalByDateRuleId;
+    function getMinBalByDateRule(ActionTypes _action) external view returns (uint32) {
+        return minBalByDate[_action].ruleId;
     }
 
     /**
      * @dev Set the minBalByDateRuleId. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
+     * @param _actions the action type
      * @param _ruleId Rule Id to set
      */
-    function setMinBalByDateRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateMinBalByDate(_ruleId);
-        minBalByDateRuleId = _ruleId;
-        minBalByDateRuleActive = true;
-        emit ApplicationHandlerApplied(MIN_ACCT_BAL_BY_DATE, _ruleId);
+    function setMinBalByDateRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            ruleProcessor.validateMinBalByDate(_ruleId);
+            minBalByDate[_actions[i]].ruleId = _ruleId;
+            minBalByDate[_actions[i]].active = true;
+            emit ApplicationHandlerActionApplied(MIN_ACCT_BAL_BY_DATE, _actions[i], _ruleId);
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /**
      * @dev Tells you if the min bal by date rule is active or not.
+     * @param _actions the action type
      * @param _on boolean representing if the rule is active
      */
-    function activateMinBalByDateRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        minBalByDateRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(MIN_ACCT_BAL_BY_DATE);
-        } else {
-            emit ApplicationHandlerDeactivated(MIN_ACCT_BAL_BY_DATE);
+    function activateMinBalByDateRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            minBalByDate[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(MIN_ACCT_BAL_BY_DATE, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(MIN_ACCT_BAL_BY_DATE, _actions[i]);
+            }
+            unchecked {
+                ++i;
+            }
         }
     }
 
     /**
      * @dev Tells you if the minBalByDateRuleActive is active or not.
+     * @param _action the action type
      * @return boolean representing if the rule is active
      */
-    function isMinBalByDateActive() external view returns (bool) {
-        return minBalByDateRuleActive;
+    function isMinBalByDateActive(ActionTypes _action) external view returns (bool) {
+        return minBalByDate[_action].active;
     }
 
-    /**
+     /**
      * @dev Set the AdminWithdrawalRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
+     * @param _actions the action type
      * @param _ruleId Rule Id to set
      */
-    function setAdminWithdrawalRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+    function setAdminWithdrawalRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateAdminWithdrawal(_ruleId);
         /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
-        if (adminWithdrawalActive) {
+        if (isAdminWithdrawalActiveForAnyAction()) {
             if (isAdminWithdrawalActiveAndApplicable()) revert AdminWithdrawalRuleisActive();
         }
-        /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
-        adminWithdrawalRuleId = _ruleId;
-        adminWithdrawalActive = true;
-        emit ApplicationHandlerApplied(ADMIN_WITHDRAWAL, _ruleId);
+        for (uint i; i < _actions.length; ) {
+            /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
+            adminWithdrawal[_actions[i]].ruleId = _ruleId;
+            adminWithdrawal[_actions[i]].active = true;
+            emit ApplicationHandlerActionApplied(ADMIN_WITHDRAWAL, _actions[i], _ruleId);
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /**
-     * @dev This function is used by the app manager to determine if the AdminWithdrawal rule is active
+     * @dev This function is used by the app manager to determine if the AdminWithdrawal rule is active for any actions
      * @return Success equals true if all checks pass
      */
     function isAdminWithdrawalActiveAndApplicable() public view override returns (bool) {
         bool active;
-        if (adminWithdrawalActive) {
-            try ruleProcessor.checkAdminWithdrawalRule(adminWithdrawalRuleId, 1, 1) {} catch {
-                active = true;
+        uint8 action = 0;
+        /// if the rule is active for any actions, set it as active and applicable.
+        while (action <= LAST_POSSIBLE_ACTION) { 
+            if (adminWithdrawal[ActionTypes(action)].active) {
+                try ruleProcessor.checkAdminWithdrawalRule(adminWithdrawal[ActionTypes(action)].ruleId, 1, 1) {} catch {
+                    active = true;
+                    break;
+                }
             }
+            action++;
+        }
+        return active;
+    }
+
+    /**
+     * @dev This function is used internally to check if the admin withdrawal is active for any actions
+     * @return Success equals true if all checks pass
+     */
+    function isAdminWithdrawalActiveForAnyAction() internal view returns (bool) {
+        bool active;
+        uint8 action = 0;
+        /// if the rule is active for any actions, set it as active and applicable.
+        while (action <= LAST_POSSIBLE_ACTION) { 
+            if (adminWithdrawal[ActionTypes(action)].active) {
+                active = true;
+                break;
+            }
+            action++;
         }
         return active;
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
+     * @param _actions the action type
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAdminWithdrawalRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+    function activateAdminWithdrawalRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired
         if (!_on) {
             if (isAdminWithdrawalActiveAndApplicable()) revert AdminWithdrawalRuleisActive();
         }
-        adminWithdrawalActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(ADMIN_WITHDRAWAL);
-        } else {
-            emit ApplicationHandlerDeactivated(ADMIN_WITHDRAWAL);
+        for (uint i; i < _actions.length; ) {
+            adminWithdrawal[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(ADMIN_WITHDRAWAL, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(ADMIN_WITHDRAWAL, _actions[i]);
+            }
+            unchecked {
+                ++i;
+            }
         }
     }
 
     /**
      * @dev Tells you if the admin withdrawal rule is active or not.
+     * @param _action the action type
      * @return boolean representing if the rule is active
      */
-    function isAdminWithdrawalActive() external view returns (bool) {
-        return adminWithdrawalActive;
+    function isAdminWithdrawalActive(ActionTypes _action) external view returns (bool) {
+        return adminWithdrawal[_action].active;
     }
 
     /**
      * @dev Retrieve the admin withdrawal rule id
+     * @param _action the action type
      * @return adminWithdrawalRuleId rule id
      */
-    function getAdminWithdrawalRuleId() external view returns (uint32) {
-        return adminWithdrawalRuleId;
+    function getAdminWithdrawalRuleId(ActionTypes _action) external view returns (uint32) {
+        return adminWithdrawal[_action].ruleId;
     }
 
-    /**
+/**
      * @dev Retrieve the token transfer volume rule id
+     * @param _action the action type
      * @return tokenTransferVolumeRuleId rule id
      */
-    function getTokenTransferVolumeRule() external view returns (uint32) {
-        return tokenTransferVolumeRuleId;
+    function getTokenTransferVolumeRule(ActionTypes _action) external view returns (uint32) {
+        return tokenTransferVolume[_action].ruleId;
     }
 
     /**
      * @dev Set the tokenTransferVolumeRuleId. Restricted to game admins only.
      * @notice that setting a rule will automatically activate it.
+     * @param _actions the action type
      * @param _ruleId Rule Id to set
      */
-    function setTokenTransferVolumeRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateTokenTransferVolume(_ruleId);
-        tokenTransferVolumeRuleId = _ruleId;
-        tokenTransferVolumeRuleActive = true;
-        emit ApplicationHandlerApplied(TRANSFER_VOLUME, _ruleId);
-    }
-
-    /**
-     * @dev Tells you if the token transfer volume rule is active or not.
-     * @param _on boolean representing if the rule is active
-     */
-    function activateTokenTransferVolumeRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        tokenTransferVolumeRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(TRANSFER_VOLUME);
-        } else {
-            emit ApplicationHandlerDeactivated(TRANSFER_VOLUME);
+    function setTokenTransferVolumeRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            ruleProcessor.validateTokenTransferVolume(_ruleId);
+            tokenTransferVolume[_actions[i]].ruleId = _ruleId;
+            tokenTransferVolume[_actions[i]].active = true;
+            emit ApplicationHandlerActionApplied(TRANSFER_VOLUME, _actions[i], _ruleId);
+            unchecked {
+                ++i;
+            }
         }
     }
 
     /**
+     * @dev Tells you if the token transfer volume rule is active or not.
+     * @param _actions the action type
+     * @param _on boolean representing if the rule is active
+     */
+    function activateTokenTransferVolumeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            tokenTransferVolume[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(TRANSFER_VOLUME, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(TRANSFER_VOLUME, _actions[i]);
+            }
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev Tells you if the token transfer volume rule is active or not.
+     * @param _action the action type
+     * @return boolean representing if the rule is active
+     */
+    function isTokenTransferVolumeActive(ActionTypes _action) external view returns (bool) {
+        return tokenTransferVolume[_action].active;
+    }
+
+    /**
      * @dev Retrieve the total supply volatility rule id
+     * @param _action the action type
      * @return totalSupplyVolatilityRuleId rule id
      */
-    function getTotalSupplyVolatilityRule() external view returns (uint32) {
-        return totalSupplyVolatilityRuleId;
+    function getTotalSupplyVolatilityRule(ActionTypes _action) external view returns (uint32) {
+        return totalSupplyVolatility[_action].ruleId;
     }
 
     /**
      * @dev Set the tokenTransferVolumeRuleId. Restricted to game admins only.
      * @notice that setting a rule will automatically activate it.
+     * @param _actions the action type
      * @param _ruleId Rule Id to set
      */
-    function setTotalSupplyVolatilityRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateSupplyVolatility(_ruleId);
-        totalSupplyVolatilityRuleId = _ruleId;
-        totalSupplyVolatilityRuleActive = true;
-        emit ApplicationHandlerApplied(SUPPLY_VOLATILITY, _ruleId);
+    function setTotalSupplyVolatilityRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            ruleProcessor.validateSupplyVolatility(_ruleId);
+            totalSupplyVolatility[_actions[i]].ruleId = _ruleId;
+            totalSupplyVolatility[_actions[i]].active = true;
+            emit ApplicationHandlerActionApplied(SUPPLY_VOLATILITY, _actions[i], _ruleId);
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /**
      * @dev Tells you if the token total Supply Volatility rule is active or not.
+     * @param _actions the action type
      * @param _on boolean representing if the rule is active
      */
-    function activateTotalSupplyVolatilityRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        totalSupplyVolatilityRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(SUPPLY_VOLATILITY);
-        } else {
-            emit ApplicationHandlerDeactivated(SUPPLY_VOLATILITY);
+    function activateTotalSupplyVolatilityRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            totalSupplyVolatility[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(SUPPLY_VOLATILITY, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(SUPPLY_VOLATILITY, _actions[i]);
+            }
+            unchecked {
+                ++i;
+            }
         }
     }
 
     /**
      * @dev Tells you if the Total Supply Volatility is active or not.
+     * @param _action the action type
      * @return boolean representing if the rule is active
      */
-    function isTotalSupplyVolatilityActive() external view returns (bool) {
-        return totalSupplyVolatilityRuleActive;
-    }
-
-    /**
-     *@dev this function gets the total supply of the address.
-     *@param _token address of the token to call totalSupply() of.
-     */
-    function getTotalSupply(address _token) internal view returns (uint256) {
-        return IERC20(_token).totalSupply();
+    function isTotalSupplyVolatilityActive(ActionTypes _action) external view returns (bool) {
+        return totalSupplyVolatility[_action].active;
     }
 
     /// -------------SIMPLE RULE SETTERS and GETTERS---------------
     /**
      * @dev Tells you if the minimum hold time rule is active or not.
+     * @param _actions the action type
      * @param _on boolean representing if the rule is active
      */
-    function activateMinimumHoldTimeRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        minimumHoldTimeRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(MINIMUM_HOLD_TIME);
-        } else {
-            emit ApplicationHandlerDeactivated(MINIMUM_HOLD_TIME);
+    function activateMinimumHoldTimeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        for (uint i; i < _actions.length; ) {
+            minimumHoldTime[_actions[i]].active = _on;
+            if (_on) {
+                emit ApplicationHandlerActionActivated(MINIMUM_HOLD_TIME, _actions[i]);
+            } else {
+                emit ApplicationHandlerActionDeactivated(MINIMUM_HOLD_TIME, _actions[i]);
+            }
+            unchecked {
+                ++i;
+            }
         }
     }
 
     /**
      * @dev Setter the minimum hold time rule hold hours
+     * @param _actions the action types
      * @param _minimumHoldTimeHours minimum amount of time to hold the asset
      */
-    function setMinimumHoldTimeHours(uint32 _minimumHoldTimeHours) external ruleAdministratorOnly(appManagerAddress) {
+    function setMinimumHoldTimeHours(ActionTypes[] calldata _actions, uint32 _minimumHoldTimeHours) external ruleAdministratorOnly(appManagerAddress) {
         if (_minimumHoldTimeHours == 0) revert ZeroValueNotPermited();
         if (_minimumHoldTimeHours > MAX_HOLD_TIME_HOURS) revert PeriodExceeds5Years();
-        minimumHoldTimeHours = _minimumHoldTimeHours;
-        minimumHoldTimeRuleActive = true;
-        emit ApplicationHandlerSimpleApplied(MINIMUM_HOLD_TIME, uint256(minimumHoldTimeHours));
+        for (uint i; i < _actions.length; ) {
+            minimumHoldTime[_actions[i]].minimumHoldTimeHours = _minimumHoldTimeHours;
+            minimumHoldTime[_actions[i]].active = true;
+            emit ApplicationHandlerSimpleActionApplied(MINIMUM_HOLD_TIME, _actions[i], uint256(_minimumHoldTimeHours));
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /**
      * @dev Get the minimum hold time rule hold hours
+     * @param _action the action type
      * @return minimumHoldTimeHours minimum amount of time to hold the asset
      */
-    function getMinimumHoldTimeHours() external view returns (uint32) {
-        return minimumHoldTimeHours;
+    function getMinimumHoldTimeHours(ActionTypes _action) external view returns (uint32) {
+        return minimumHoldTime[_action].minimumHoldTimeHours;
     }
 
-    /**  
-     * @dev function to check if Minumum Hold Time is active 
-     * @return bool 
+    /**
+     * @dev function to check if Minumum Hold Time is active
+     * @param _action the action type
+     * @return bool
      */
-    function isMinimumHoldTimeActive() external view returns (bool) {
-        return minimumHoldTimeRuleActive; 
+    function isMinimumHoldTimeActive(ActionTypes _action) external view returns (bool) {
+        return minimumHoldTime[_action].active;
     }
 
     /**
      * @dev Set the NFT Valuation limit that will check collection price vs looping through each tokenId in collections
      * @param _newNFTValuationLimit set the number of NFTs in a wallet that will check for collection price vs individual token prices
      */
-    function setNFTValuationLimit(uint256 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(appManagerAddress) {
+    function setNFTValuationLimit(uint16 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(appManagerAddress) {
         nftValuationLimit = _newNFTValuationLimit;
         emit NFTValuationLimitUpdated(_newNFTValuationLimit);
     }

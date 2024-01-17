@@ -122,6 +122,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x57a7068b | InvalidRuleInput()                                               |
 | 0xe8ada65f | NotRegisteredHandler(address)                                    |
 | 0x248ee764 | FeesAreGreaterThanTransactionAmount(address)                     |
+| 0x7304e213 | OracleRulesPerAssetLimitReached                                  |
 | 0x27515afa | PriceNotSet()                                                    |
 | 0xc3771360 | CannotWithdrawZero()                                             |
 | 0xa9ad62f8 | FunctionDoesNotExist()                                           |

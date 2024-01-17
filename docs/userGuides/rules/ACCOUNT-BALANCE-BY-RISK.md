@@ -51,9 +51,9 @@ The account-balance-by-risk-score rules are stored in a mapping indexed by ruleI
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
-- This rule can only be set in the asset handler by a **rule administrator**.
-- This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
-- This rule can only be updated in the asset handler by a **rule administrator**.
+- This rule can only be set in the application handler by a **rule administrator**.
+- This rule can only be activated/deactivated in the application handler by a **rule administrator**.
+- This rule can only be updated in the application handler by a **rule administrator**.
 
 ## Rule Evaluation
 
@@ -68,7 +68,7 @@ The rule will be evaluated with the following logic:
 ###### *see [ApplicationRiskProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccBalanceByRisk*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when an **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
@@ -151,19 +151,19 @@ The following validation will be carried out by the create function in order to 
                 view;
         ```
 - in Application Handler:
-    - Function to set and activate at the same time the rule in an asset handler:
+    - Function to set and activate at the same time the rule in an application handler:
         ```c
         function setAccountBalanceByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule in an application handler:
         ```c
         function activateAccountBalanceByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule in an application handler:
         ```c
         function isAccountBalanceByRiskActive() external view returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Id from an application handler:
         ```c
         function getAccountBalanceByRiskRule() external view returns (uint32);
         ```
@@ -185,12 +185,14 @@ This rule does not require any data to be recorded.
         - extraTags: an empty array.
 
 - **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
-    - Emitted when: rule has been applied in an asset handler.
+    - Emitted when: rule has been applied in an application handler.
     - Parameters: 
         - ruleType: "BALANCE_BY_RISK".
-        - handlerAddress: the address of the asset handler where the rule has been applied.
+        - handlerAddress: the address of the application handler where the rule has been applied.
         - ruleId: the index of the rule created in the protocol by rule type.
 
 ## Dependencies
 
-- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the token handlers in order for this rule to work.
+- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the application handler in order for this rule to work.
+
+- **ERC721Enumerable**: This rule utilizes the balance valuation calculated using the tokenOfOwnerByIndex function, requiring [ERC721Enumerable](https://eips.ethereum.org/EIPS/eip-721)

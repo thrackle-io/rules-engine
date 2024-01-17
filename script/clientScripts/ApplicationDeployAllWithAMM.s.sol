@@ -78,10 +78,8 @@ contract ApplicationDeployAllScript is Script {
         exchange.setSingleTokenPrice(address(coin2), 1 * (10 ** 18));
         openOcean.setNFTCollectionPrice(address(nft1), 5 * (10 ** 18));
         /// Link the pricing module to the Franks ApplicationERC20Handler
-        applicationCoinHandler.setERC20PricingAddress(address(exchange));
-        applicationCoinHandler.setNFTPricingAddress(address(openOcean));
-        applicationNFTHandler.setERC20PricingAddress(address(exchange));
-        applicationNFTHandler.setNFTPricingAddress(address(openOcean));
+        applicationHandler.setERC20PricingAddress(address(exchange));
+        applicationHandler.setNFTPricingAddress(address(openOcean));
         /// Deploy ERC20 Staking and set reward rate
         ERC20Staking stakingContract = new ERC20Staking(address(coin2), address(coin1), address(applicationAppManager));
         stakingContract.updateMinStakeAllowed(1_000_000);

@@ -7,12 +7,12 @@ The purpose of this rule is to prevent accounts identified as "risky" from movin
 ## Applies To:
 
 - [x] ERC20
-- [ ] ERC721
-- [ ] AMM
+- [x] ERC721
+- [x] AMM
 
 ## Scope 
 
-This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.
+This rule works at the application level which means that all tokens in the app will have no choice but to comply with this rule when active.
 
 ## Data Structure
 
@@ -65,23 +65,23 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
-- This rule can only be set in the asset handler by a **rule administrator**.
-- This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
-- This rule can only be updated in the asset handler by a **rule administrator**.
+- This rule can only be set in the application handler by a **rule administrator**.
+- This rule can only be activated/deactivated in the application handler by a **rule administrator**.
+- This rule can only be updated in the application handler by a **rule administrator**.
 
 
 ## Rule Evaluation
 
 The rule will be evaluated with the following logic:
 
-1. The asset handler calculates the US Dollar amount of tokens being transferred, and gets the risk score from the AppManager for the account in the *from* side of the transaction.
-2. The asset handler then sends these values along with the rule Id of the transaction-size-by-risk-score rule set in the handler to the protocol.
+1. The application handler calculates the US Dollar amount of tokens being transferred, and gets the risk score from the AppManager for the account in the *from* side of the transaction.
+2. The application handler then sends these values along with the rule Id of the transaction-size-by-risk-score rule set in the handler to the protocol.
 3. The protocol evaluates the amount being transferred against the rule's maximum allowed for the risk segment in which the account is in. The protocol reverts the transaction if the amount being transferred exceeds this rule risk-segment's maximum.
 
 ###### *see [RiskTaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/RiskTaggedRuleProcessorFacet.sol) -> checkTransactionLimitByRiskScore*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when an **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
@@ -150,20 +150,20 @@ The following validation will be carried out by the create function in order to 
         ```c
         function checkTransactionLimitByRiskScore(uint32 _ruleId, uint8 _riskScore, uint256 _amountToTransfer) external view;
         ```
-- In the [Asset Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol):
-    - Function to set and activate at the same time the rule in the asset handler:
+- - In the [Application Handler](../../../src/client/application/ProtocolApplicationHandler.sol):
+    - Function to set and activate at the same time the rule in the application handler:
         ```c
         function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in the asset handler:
+    - Function to activate/deactivate the rule in the application handler:
         ```c
         function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-     - Function to know the activation state of the rule in an asset handler:
+     - Function to know the activation state of the rule in an application handler:
         ```c
         function isTransactionLimitByRiskActive() external view returns (bool);
         ```
-    - Function to get the rule Id from the asset handler:
+    - Function to get the rule Id from the application handler:
         ```c
         function getTransactionLimitByRiskRule() external view returns (uint32);
         ```
@@ -192,15 +192,15 @@ This rule doesn't require of any data to be recorded.
         - ruleId: the ruleId set for this rule in the handler.
 
 - **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)**:
-    - Emitted when: a rule has been activated in an asset handler:
+    - Emitted when: a rule has been activated in an application handler:
     - Parameters: 
         - ruleType: "TX_SIZE_BY_RISK".
-        - handlerAddress: the address of the asset handler where the rule has been activated.
+        - handlerAddress: the address of the application handler where the rule has been activated.
 
 
 ## Dependencies
 
 This rule depends on:
 
-- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the token handlers in order for this rule to work.
+- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the application handler in order for this rule to work.
 

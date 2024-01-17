@@ -67,17 +67,17 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
-- This rule can only be set in the asset handler by a **rule administrator**.
-- This rule can only be activated/deactivated in the asset handler by a **rule administrator**.
-- This rule can only be updated in the asset handler by a **rule administrator**.
+- This rule can only be set in the application handler by a **rule administrator**.
+- This rule can only be activated/deactivated in the application handler by a **rule administrator**.
+- This rule can only be updated in the application handler by a **rule administrator**.
 
 
 ## Rule Evaluation
 
 The rule will be evaluated with the following logic:
 
-1. The asset handler calculates the US Dollar amount of tokens being transferred, and gets the risk score from the AppManager for the account in the *from* side of the transaction.
-2. The asset handler then sends these values along with the rule Id of the transaction-size-per-period-by-risk-score rule set in the handler, the date of the last transfer of tokens by the account, and the accumulated US Dollar amount transferred during the period to the protocol.
+1. The application handler calculates the US Dollar amount of tokens being transferred, and gets the risk score from the AppManager for the account in the *from* side of the transaction.
+2. The application handler then sends these values along with the rule Id of the transaction-size-per-period-by-risk-score rule set in the handler, the date of the last transfer of tokens by the account, and the accumulated US Dollar amount transferred during the period to the protocol.
 3. The protocol then proceeds to check if the current transaction is part of an ongoing period, or if it is the first one in a new period.
     - **If it is a new period**, the protocol resets the accumulated US Dollar amount transferred during current period to just the amount being currently transferred. 
     - **If it is not a new period**, then the protocol accumulates the amount being currently transferred to the accumulated US Dollar amount transferred during the period. 
@@ -86,8 +86,7 @@ The rule will be evaluated with the following logic:
 ###### *see [ApplicationRiskProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkMaxTxSizePerPeriodByRisk*
 
 ## Evaluation Exceptions 
-
-- This rule doesn't apply when an **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
@@ -171,19 +170,19 @@ The following validation will be carried out by the create function in order to 
                 returns (uint128);
         ```
 - In the [Application Handler](../../../src/client/application/ProtocolApplicationHandler.sol):
-    - Function to set and activate at the same time the rule in the asset handler:
+    - Function to set and activate at the same time the rule in the application handler:
         ```c
         function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in the asset handler:
+    - Function to activate/deactivate the rule in the application handler:
         ```c
         function activateMaxTxSizePerPeriodByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-     - Function to know the activation state of the rule in an asset handler:
+     - Function to know the activation state of the rule in an application handler:
         ```c
         function isMaxTxSizePerPeriodByRiskActive() external view returns (bool);
         ```
-    - Function to get the rule Id from the asset handler:
+    - Function to get the rule Id from the application handler:
         ```c
         function getMaxTxSizePerPeriodByRiskRuleId() external view returns (uint32);
         ```
@@ -232,4 +231,4 @@ mapping(address => uint64) lastTxDateRiskRule;
 
 This rule depends on:
 
-- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the token handlers in order for this rule to work.
+- **Pricing contracts**: [pricing contracts](../pricing/README.md) for ERC20s and ERC721s need to be setup in the application handler in order for this rule to work.

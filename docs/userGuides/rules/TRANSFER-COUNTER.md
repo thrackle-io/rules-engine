@@ -63,16 +63,17 @@ A transfer-counter rule must have at least one sub-rule. There is no maximum num
 
 The rule will be evaluated in the following way:
 
-1. The collection being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
-2. The processor will receive these tags along with the ID of the transfer-counter rule set in the token handler.
-3. The processor will then try to retrieve the sub-rule associated with each tag.
-4. The processor will evaluate whether the trade is within a new period. If no, the rule will continue to the trades per day check (step 5). If yes, the rule will return `tradesInPeriod` of 1 (current trade) for the token Id. 
-5. The processor will evaluate if the total number of trades within the period plus the current trade would be more than the amount of trades allowed per day by the rule in the case of the transaction succeeding. If yes (trades will exceed allowable trades per day), then the transaction will revert.
+1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
+2. The collection being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
+3. The processor will receive these tags along with the ID of the transfer-counter rule set in the token handler.
+4. The processor will then try to retrieve the sub-rule associated with each tag.
+5. The processor will evaluate whether the trade is within a new period. If no, the rule will continue to the trades per day check (step 5). If yes, the rule will return `tradesInPeriod` of 1 (current trade) for the token Id. 
+6. The processor will evaluate if the total number of trades within the period plus the current trade would be more than the amount of trades allowed per day by the rule in the case of the transaction succeeding. If yes (trades will exceed allowable trades per day), then the transaction will revert.
 
 ###### *see [ERC721RuleProcessor](../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkNFTTransferCounter*
 
 ## Evaluation Exceptions 
-- This rule doesn't apply when an **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an app administrator is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
+- This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
@@ -156,21 +157,21 @@ The following validation will be carried out by the create function in order to 
                 view;
         ```
 - in Asset Handler:
-    - Function to set and activate at the same time the rule in an asset handler:
+    - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setTradeCounterRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setTradeCounterRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to activate/deactivate the rule in an asset handler:
+    - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateTradeCounterRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateTradeCounterRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
-    - Function to know the activation state of the rule in an asset handler:
+    - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isTradeCounterRuleActive() external view returns (bool);
+        function isTradeCounterRuleActive(ActionTypes _action) external view returns (bool);
         ```
-    - Function to get the rule Id from an asset handler:
+    - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getTradeCounterRuleId() external view returns (uint32);
+        function getTradeCounterRuleId(ActionTypes _action) external view returns (uint32);
         ```
 
 ### Return Data
@@ -190,17 +191,25 @@ mapping(uint256 => uint64) lastTxDate;
 ###### *see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
 ### Events
 
-- **ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** emitted when a Transfer counter rule has been added. For this rule:
-    - ruleType: NFT_TRANSFER.
-    - index: the rule index set by the Protocol.
-    - extraTags: an empty array.
-- **ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 ruleId)** emitted when a Transfer counter rule has been added. For this rule:
-    - ruleType: NFT_TRANSFER.
-    - handlerAddress: the address of the asset handler where the rule has been applied
-    - ruleId: the ruleId set for this rule in the handler.
-- **ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)** emitted when a Transfer counter rule has been activated in an asset handler:
-    - ruleType: NFT_TRANSFER.
-    - handlerAddress: the address of the asset handler where the rule has been activated.
+- **ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** 
+    - Emitted when: A Transfer counter rule has been added. For this rule:
+    - Parameters:
+        - ruleType: NFT_TRANSFER.
+        - index: the rule index set by the Protocol.
+        - extraTags: an empty array.
+
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
+    - Emitted when: A Transfer counter rule has been added. For this rule:
+    - Parameters: 
+        - ruleType: NFT_TRANSFER.
+        - action: the protocol action the rule is being applied to.
+        - ruleId: the ruleId set for this rule in the handler.
+
+- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
+    - Emitted when: A Transfer counter rule has been activated in an asset handler:
+    Parameters:
+        - ruleType: NFT_TRANSFER.
+        - action: the protocol action for which the rule is being activated.
 
 ### Dependencies
 

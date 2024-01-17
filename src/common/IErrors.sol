@@ -167,16 +167,20 @@ interface IZeroAddressError {
 }
 
 interface IAssetHandlerErrors {
-    error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
     error actionCheckFailed();
     error CannotTurnOffAccessLevel0WithAccessLevelBalanceActive();
     error PeriodExceeds5Years();
     error ZeroValueNotPermited();
     error BatchMintBurnNotSupported();
     error FeesAreGreaterThanTransactionAmount(address);
+    error OracleRulesPerAssetLimitReached();
 }
 
 interface IOwnershipErrors {
     error ConfirmerDoesNotMatchProposedAddress();
     error NoProposalHasBeenMade();
+}
+
+interface IAppHandlerErrors {
+    error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
 }

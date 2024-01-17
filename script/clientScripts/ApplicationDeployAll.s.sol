@@ -7,7 +7,7 @@ import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Hand
 import "src/example/ERC20/ApplicationERC20.sol";
 import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
-import "src/example/application/ApplicationHandler.sol";
+import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import "src/example/OracleDenied.sol";
 import "src/example/OracleAllowed.sol";
 import "src/example/pricing/ApplicationERC20Pricing.sol";
@@ -67,13 +67,10 @@ contract ApplicationDeployAllScript is Script {
         exchange.setSingleTokenPrice(address(coin2), 1 * (10 ** 18));
         openOcean.setNFTCollectionPrice(address(nft1), 5 * (10 ** 18));
         
-        /// Link the pricing module to the Franks ApplicationERC20Handler
-        applicationCoinHandler.setERC20PricingAddress(address(exchange));
-        applicationCoinHandler.setNFTPricingAddress(address(openOcean));
-        applicationCoinHandler2.setERC20PricingAddress(address(exchange));
-        applicationCoinHandler2.setNFTPricingAddress(address(openOcean));
-        applicationNFTHandler.setERC20PricingAddress(address(exchange));
-        applicationNFTHandler.setNFTPricingAddress(address(openOcean));
+        /// Link the pricing module to the Application Handler
+        applicationHandler.setERC20PricingAddress(address(exchange));
+        applicationHandler.setNFTPricingAddress(address(openOcean));
+
         
 
         /// register the coin treasury

@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
 import {IZeroAddressError, IProtocolERC20Errors} from "src/common/IErrors.sol";
 import "../ProtocolTokenCommon.sol";
-import "./ProtocolERC20Handler.sol";
+import "src/client/token/ERC20/ProtocolERC20Handler.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 
 /**

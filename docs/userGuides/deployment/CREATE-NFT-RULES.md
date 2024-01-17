@@ -25,8 +25,9 @@
             ````
 3.  Apply the token specific rule to the NFT
     -  Get the rule application function from the [Token Specific Rule Directory][tokenSpecificRuleDirectory-url] and invoke it on the NFTHandler created in previous steps.
+    -  Rules are applied against an array of Action Types (defined here [ActionEnum.sol](../../userGuides/rules/ACTION-TYPES.md)). For this example we're enabling the rule just for TRADE.
         ````
-        cast send $APPLICATION_ERC721_HANDLER "setTradeControlRuleId(uint32)" 0 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+        cast send $APPLICATION_ERC721_HANDLER "setTradeCounterRuleId(uint8[], uint32)" [2] 0 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 4. In order to apply this rule to specific accounts, each account must be tagged with the metadata tags set above.
         ````
 <!-- These are the body links -->

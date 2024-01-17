@@ -124,7 +124,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user1), 1);
         switchToRuleAdmin();
         ///update ruleId in application NFT handler
-        applicationNFTHandler.setMinMaxBalanceRuleId(ruleId);
+        applicationNFTHandler.setMinMaxBalanceRuleId(_createActionsArray(), ruleId);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
         vm.startPrank(user1);
@@ -184,7 +184,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTHandler.setOracleRuleId(_createActionsArray(), _index);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -201,7 +201,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationNFTHandler.setOracleRuleId(_index);
+        applicationNFTHandler.setOracleRuleId(_createActionsArray(), _index);
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(address(59));
@@ -277,7 +277,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationAppManager.addGeneralTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
         // apply the rule to the ApplicationERC721Handler
         switchToRuleAdmin();
-        applicationNFTHandler.setTradeCounterRuleId(_index);
+        applicationNFTHandler.setTradeCounterRuleId(_createActionsArray(), _index);
 
         // ensure standard transfer works by transferring 1 to user2 and back(2 trades)
         ///perform transfer that checks rule
@@ -355,7 +355,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        applicationNFTHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
 
         ///Set Risk Scores for users
         switchToRiskAdmin();
@@ -519,7 +519,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assertTrue(applicationAppManager.hasTag(user3, "MIN3"));
         /// Set rule bool to active
         switchToRuleAdmin();
-        applicationNFTHandler.setMinBalByDateRuleId(_index);
+        applicationNFTHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
         /// Transfers passing (above min value limit)
         vm.stopPrank();
         vm.startPrank(user1);
@@ -598,14 +598,14 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// Set the rule in the handler
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminWithdrawalRule(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
-        applicationNFTHandler.activateAdminWithdrawalRule(false);
+        applicationNFTHandler.activateAdminWithdrawalRule(_createActionsArray(), false);
         vm.expectRevert();
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
         switchToRuleBypassAccount();
         /// These transfers should pass
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 0);
@@ -629,8 +629,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         /// Transfers and updating rules should now pass
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 2);
         switchToRuleAdmin();
-        applicationNFTHandler.activateAdminWithdrawalRule(false);
-        applicationNFTHandler.setAdminWithdrawalRuleId(_index);
+        applicationNFTHandler.activateAdminWithdrawalRule(_createActionsArray(), false);
+        applicationNFTHandler.setAdminWithdrawalRuleId(_createActionsArray(), _index);
     }
 
     function testUpgradeAppManager721u() public {
@@ -674,9 +674,6 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationAppManager.deregisterToken("THRK");
         applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
-        assetHandler.setNFTPricingAddress(address(erc721Pricer));
-        assetHandler.setERC20PricingAddress(address(erc20Pricer));
-
         ///Set transaction limit rule params
         uint8[] memory riskScores = createUint8Array(1, 10, 40, 80, 99);
         uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
@@ -698,7 +695,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        assetHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
@@ -791,9 +788,6 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationAppManager.deregisterToken("THRK");
         applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
-        assetHandler.setNFTPricingAddress(address(erc721Pricer));
-        assetHandler.setERC20PricingAddress(address(erc20Pricer));
-
         ///Set transaction limit rule params
         uint8[] memory riskScores = createUint8Array(1, 10, 40, 80, 99);
         uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
@@ -815,7 +809,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        assetHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setTransactionLimitByRiskRuleId(index);
         ///Set Risk Scores for users
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
@@ -899,9 +893,6 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         /// register the token
         applicationAppManager.registerToken("DRAC", address(applicationNFTProxy));
 
-        ///Pricing Contracts
-        applicationNFTHandler.setNFTPricingAddress(address(erc721Pricer));
-        applicationNFTHandler.setERC20PricingAddress(address(erc20Pricer));
         // Set the extra variables
         ApplicationERC721UExtra(address(applicationNFTProxy)).setTestVariable1(14);
         ApplicationERC721UExtra(address(applicationNFTProxy)).setTestVariable2("awesome");
@@ -911,8 +902,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationNFTExtra2 = new ApplicationERC721UExtra2();
         applicationNFTProxy.upgradeTo(address(applicationNFTExtra2));
 
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToAppAdministrator();
         ///deploy new modified appliction asset handler contract
         ApplicationERC721HandlerMod assetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), true);
         ///connect to apptoken
@@ -920,9 +910,10 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         /// in order to handle upgrades and handler registrations, deregister and re-register with new
         applicationAppManager.deregisterToken("THRK");
         applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
-
-        assetHandler.setNFTPricingAddress(address(erc721Pricer));
-        assetHandler.setERC20PricingAddress(address(erc20Pricer));
+        switchToRuleAdmin();
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
+        switchToAppAdministrator();
         // check to make sure the storage level variables defined after the memory slot are still fine.
         assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable1(), 14);
         assertEq(ApplicationERC721UExtra(address(applicationNFTProxy)).getTestVariable2(), "awesome");
