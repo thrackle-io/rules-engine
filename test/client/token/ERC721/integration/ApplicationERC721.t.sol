@@ -164,6 +164,70 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.burn(11);
     }
 
+    function testPassMinMaxAccountBalanceRuleBlankTag() public {
+        /// mint 6 NFTs to appAdministrator for transfer
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+        applicationNFT.safeMint(appAdministrator);
+
+        bytes32[] memory accs = createBytes32Array("");
+        uint256[] memory min = createUint256Array(1);
+        uint256[] memory max = createUint256Array(3);
+
+        /// set up a non admin user with tokens
+        switchToAppAdministrator();
+        ///transfer tokenId 1 and 2 to rich_user
+        applicationNFT.transferFrom(appAdministrator, rich_user, 0);
+        applicationNFT.transferFrom(appAdministrator, rich_user, 1);
+        applicationNFT.transferFrom(appAdministrator, rich_user, 5);
+        applicationNFT.transferFrom(appAdministrator, rich_user, 6);
+        applicationNFT.transferFrom(appAdministrator, rich_user, 7);
+        assertEq(applicationNFT.balanceOf(rich_user), 5);
+
+        ///transfer tokenId 3 and 4 to user1
+        applicationNFT.transferFrom(appAdministrator, user1, 3);
+        applicationNFT.transferFrom(appAdministrator, user1, 4);
+        assertEq(applicationNFT.balanceOf(user1), 2);
+
+        switchToRuleAdmin();
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        // add the actual rule
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        ///update ruleId in application NFT handler
+        applicationNFTHandler.setMinMaxBalanceRuleId(ruleId);
+        switchToAppAdministrator();
+        ///perform transfer that checks rule
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.transferFrom(user1, user2, 3);
+        assertEq(applicationNFT.balanceOf(user2), 1);
+        assertEq(applicationNFT.balanceOf(user1), 1);
+        /// make sure the minimum rules fail results in revert
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert(0xf1737570);
+        applicationNFT.transferFrom(user1, user3, 4);
+
+        ///make sure the maximum rule fail results in revert
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        applicationNFT.transferFrom(rich_user, user1, 5);
+        assertEq(applicationNFT.balanceOf(user1), 2);
+        applicationNFT.transferFrom(rich_user, user1, 6);
+        assertEq(applicationNFT.balanceOf(user1), 3);
+        // one more should revert for max
+        vm.expectRevert(0x24691f6b);
+        applicationNFT.transferFrom(rich_user, user1, 7);
+
+    }
+
     /**
      * @dev Test the oracle rule, both allow and denied types
      */
@@ -341,6 +405,49 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         // this one should fail because it is more than 1 in 24 hours
         vm.expectRevert(0x00b223e3);
         applicationNFT.transferFrom(user2, user1, 2);
+    }
+
+    function testNFTTradeRuleInNFTBlankTag() public {
+        /// set up a non admin user an nft
+        applicationNFT.safeMint(user1); // tokenId = 0
+        applicationNFT.safeMint(user1); // tokenId = 1
+        applicationNFT.safeMint(user1); // tokenId = 2
+        applicationNFT.safeMint(user1); // tokenId = 3
+        applicationNFT.safeMint(user1); // tokenId = 4
+
+        assertEq(applicationNFT.balanceOf(user1), 5);
+
+        // add the rule.
+        bytes32[] memory nftTags = createBytes32Array(""); 
+        uint8[] memory tradesAllowed = createUint8Array(1);
+        switchToRuleAdmin();
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        assertEq(_index, 0);
+        TaggedRules.NFTTradeCounterRule memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
+        assertEq(rule.tradesAllowedPerDay, 1);
+        // apply the rule to the ApplicationERC721Handler
+        applicationNFTHandler.setTradeCounterRuleId(_index);
+        // tag the NFT collection
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
+
+        // ensure standard transfer works by transferring 1 to user2 
+        ///perform transfer that checks rule
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.transferFrom(user1, user2, 0);
+        assertEq(applicationNFT.balanceOf(user2), 1);
+
+        vm.stopPrank();
+        vm.startPrank(user2);
+        // this one should fail because it is more than 1 in 24 hours
+        vm.expectRevert(0x00b223e3);
+        applicationNFT.transferFrom(user2, user1, 0);
+        assertEq(applicationNFT.balanceOf(user2), 1);
+        // add a day to the time and it should pass
+        vm.warp(block.timestamp + 1 days);
+        applicationNFT.transferFrom(user2, user1, 0);
+        assertEq(applicationNFT.balanceOf(user2), 0);
     }
 
     function testERC721_TransactionLimitByRiskScoreNFT() public {
@@ -580,6 +687,41 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         vm.stopPrank();
         vm.startPrank(user3);
         applicationNFT.safeTransferFrom(user3, rich_user, 6);
+    }
+    
+    function testMinAccountBalanceByDateBlankTag() public {
+        /// Mint NFTs for users 1, 2, 3
+        applicationNFT.safeMint(user1); // tokenId = 0
+        applicationNFT.safeMint(user1); // tokenId = 1
+
+        applicationNFT.safeMint(user2); // tokenId = 2
+        applicationNFT.safeMint(user2); // tokenId = 3
+
+        applicationNFT.safeMint(user3); // tokenId = 4
+        applicationNFT.safeMint(user3); // tokenId = 5
+        applicationNFT.safeMint(user3); // tokenId = 6
+
+        /// Create Rule Params and create rule
+        // Set up the rule conditions
+        vm.warp(Blocktime);
+        bytes32[] memory accs = createBytes32Array("");
+        uint256[] memory holdAmounts = createUint256Array(1); /// Represent min number of tokens held by user for Collection address
+        // 720 = one month 4380 = six months 17520 = two years
+        uint16[] memory holdPeriods = createUint16Array(720);
+        switchToRuleAdmin();
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
+        assertEq(_index, 0);
+        /// Set rule bool to active
+        switchToRuleAdmin();
+        applicationNFTHandler.setMinBalByDateRuleId(_index);
+        /// Transfers passing (above min value limit)
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.safeTransferFrom(user1, user2, 0);
+        // should fail since it puts user1 below min of 1
+        vm.expectRevert(0xa7fb7b4b); 
+        applicationNFT.safeTransferFrom(user1, user3, 1);
+    
     }
 
     function testERC721_AdminWithdrawal() public {

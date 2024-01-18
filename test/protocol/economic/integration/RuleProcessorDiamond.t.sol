@@ -139,6 +139,59 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
         ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).minAccountBalanceCheck(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
+    /**
+     * Test to make sure the blank tag processing works
+     */
+    function testMinAccountBalanceBlankTagProcessCheck() public {
+        applicationCoin.mint(superAdmin, totalSupply);
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        bytes32[] memory accs = createBytes32Array("");
+        uint256[] memory min = createUint256Array(10);
+        uint256[] memory max = createUint256Array(10000000000000000000000000);
+        // add rule at ruleId 0
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
+        assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        uint256 amount = 1;
+        assertEq(applicationCoin.balanceOf(superAdmin), totalSupply);
+        bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
+
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).minAccountBalanceCheck(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
+    }
+
+    /**
+     * Test to make sure the blank tag creation works
+     */
+    function testMinAccountBalanceBlankTagCreationCheckNegative() public {
+        applicationCoin.mint(superAdmin, totalSupply);
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        bytes32[] memory accs = createBytes32Array("", "Shane");
+        uint256[] memory min = createUint256Array(10,100);
+        uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000);
+        // Can't add a blank and specific tag together
+        vm.expectRevert(0x6bb35a99);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+    }
+
+    /**
+     * Test to make sure the blank tag creation works
+     */
+    function testMinAccountBalanceBlankTagCreationCheck() public {
+        applicationCoin.mint(superAdmin, totalSupply);
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        bytes32[] memory accs = createBytes32Array("Oscar", "Shane");
+        uint256[] memory min = createUint256Array(10,100);
+        uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+    }
 
     function testMaxTagEnforcementThroughMinAccountBalanceCheck() public {
         applicationCoin.mint(superAdmin, totalSupply);
@@ -215,6 +268,28 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
 
+    function testMaxAccountBalanceBlankTagProcessCheck() public {
+        applicationCoin.mint(superAdmin, totalSupply);
+        
+        // add rule at ruleId 0
+        bytes32[] memory accs = createBytes32Array("");
+        uint256[] memory min = createUint256Array(10);
+        uint256[] memory max = createUint256Array(1000000000000000000000000000000);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
+        assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        uint256 amount = 999;
+        assertEq(applicationCoin.balanceOf(superAdmin), totalSupply);
+        bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
+
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
+    }
+
     function testFailsMaxAccountBalanceCheck() public {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
@@ -238,6 +313,30 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
 
+    function testMaxAccountBalanceBlankTagCheckNegative() public {
+        applicationCoin.mint(superAdmin, totalSupply);
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        // add rule at ruleId 0
+        bytes32[] memory accs = createBytes32Array("");
+        uint256[] memory min = createUint256Array(10);
+        uint256[] memory max = createUint256Array(10000);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
+        assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        uint256 amount = 10000000000000000000000000;
+        assertEq(applicationCoin.balanceOf(superAdmin), 100000000000);
+        bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
+        uint256 balance = applicationCoin.balanceOf(superAdmin);
+        vm.expectRevert(0x24691f6b);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).maxAccountBalanceCheck(balance, tags, amount, ruleId);
+    }
+
     /***************** Test Setters and Getters Rule Storage *****************/
 
     /*********************** Purchase *******************/
@@ -252,24 +351,6 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint64 sTime = 16;
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        // uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTime);
-        // assertEq(_index, 0);
-        /// Uncomment lines after merge into internal
-
-        // TaggedRules.PurchaseRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getPurchaseRule(_index, "Oscar");
-        // assertEq(rule.purchaseAmount, 1000);
-        // assertEq(rule.purchasePeriod, 100);
-
-        // accs[1] = bytes32("Tayler");
-        // pAmounts[1] = uint192(20000000);
-        // pPeriods[1] = uint16(2);
-        // sTime[1] = uint8(23);
-
-        // _index = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, pAmounts, pPeriods, sTime);
-        // assertEq(_index, 1);
-        // rule = TaggedRuleDataFacet(address(ruleProcessor)).getPurchaseRule(_index, "Tayler");
-        // assertEq(rule.purchaseAmount, 20000000);
-        // assertEq(rule.purchasePeriod, 2);
 
         /// test zero address check
         vm.expectRevert();
@@ -842,6 +923,29 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(rule.tradesAllowedPerDay, 5);
     }
 
+    /// Simple setting and getting
+    function testNFTTransferCounterRuleBlankTag() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        bytes32[] memory nftTags = createBytes32Array(""); 
+        uint8[] memory tradesAllowed = createUint8Array(1);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        assertEq(_index, 0);
+        TaggedRules.NFTTradeCounterRule memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
+        assertEq(rule.tradesAllowedPerDay, 1);
+    }
+
+    function testNFTTransferCounterRuleBlankTagNegative() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        bytes32[] memory nftTags = createBytes32Array("","BoredGrape"); 
+        uint8[] memory tradesAllowed = createUint8Array(1,5);
+        vm.expectRevert(0x6bb35a99);
+        TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+    }
+
     /// testing only appAdministrators can add NFT Trade Counter Rule
     function testSettingNFTCounterRuleWithoutAppAdministratorAccount() public {
         bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
@@ -982,6 +1086,30 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Tayler");
         assertEq(rule.holdAmount, 20000000);
         assertEq(rule.holdPeriod, 2);
+    }
+
+    function testSettingMinBalByDateBlankTag() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        vm.warp(Blocktime);
+        bytes32[] memory accs = createBytes32Array("");
+        uint256[] memory holdAmounts = createUint256Array(1000);
+        uint16[] memory holdPeriods = createUint16Array(100);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
+        assertEq(_index, 0);       
+    }
+
+    function testSettingMinBalByDateBlankTagNegative() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        vm.warp(Blocktime);
+        bytes32[] memory accs = createBytes32Array("", "Oscar");
+        uint256[] memory holdAmounts = createUint256Array(1000, 500);
+        uint16[] memory holdPeriods = createUint16Array(100, 105);
+        vm.expectRevert(0x6bb35a99);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
     }
 
     function testSettingMinBalByDateNotAdmin() public {

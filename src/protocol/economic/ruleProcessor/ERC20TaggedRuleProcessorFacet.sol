@@ -13,10 +13,11 @@ import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
  * @notice  Implements Token Rules on Tagged Accounts.
  */
 contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, ITagRuleErrors, IMaxTagLimitError {
-    using RuleProcessorCommonLib for bytes32[];
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for uint32;
     using RuleProcessorCommonLib for uint8;
+    using RuleProcessorCommonLib for bytes32[];
+    bytes32 constant BLANK_TAG = bytes32("");
 
     /**
      * @dev Check the minimum/maximum rule. This rule ensures that both the to and from accounts do not
@@ -28,7 +29,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param toTags tags applied via App Manager to recipient address
      * @param fromTags tags applied via App Manager to sender address
      */
-    function checkMinMaxAccountBalancePasses(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, uint256 amount, bytes32[] calldata toTags, bytes32[] calldata fromTags) external view {
+    function checkMinMaxAccountBalancePasses(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, uint256 amount, bytes32[] memory toTags, bytes32[] memory fromTags) external view {
         minAccountBalanceCheck(balanceFrom, fromTags, amount, ruleId);
         maxAccountBalanceCheck(balanceTo, toTags, amount, ruleId);
     }
@@ -51,7 +52,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         uint256 amountIn,
         uint256 amountOut,
         bytes32[] calldata fromTags
-    ) public view {
+    ) public view {       
         // no need to check for max tags here since it is checked in the min and max functions
         minAccountBalanceCheck(tokenBalance0, fromTags, amountOut, ruleIdToken0);
         maxAccountBalanceCheck(tokenBalance1, fromTags, amountIn, ruleIdToken1);
@@ -64,19 +65,26 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param amount Number of tokens to be transferred
      * @param ruleId Rule identifier for rule arguments
      */
-    function maxAccountBalanceCheck(uint256 balanceTo, bytes32[] calldata toTags, uint256 amount, uint32 ruleId) public view {
+    function maxAccountBalanceCheck(uint256 balanceTo, bytes32[] memory toTags, uint256 amount, uint32 ruleId) public view {
         /// This Function checks the max account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
         toTags.checkMaxTags();
+        /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
+        /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
+        if(getMinMaxBalanceRule(ruleId, BLANK_TAG).maximum > 0){
+            toTags = new bytes32[](1);
+            toTags[0] = BLANK_TAG;
+        }
         for (uint i; i < toTags.length; ) {
             uint256 max = getMinMaxBalanceRule(ruleId, toTags[i]).maximum;
             /// if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
-             if (max > 0 && balanceTo + amount > max) revert MaxBalanceExceeded();
+            if (max > 0 && balanceTo + amount > max) revert MaxBalanceExceeded();
             unchecked {
                 ++i;
             }
         }
     }
+
 
     /**
      * @dev Check if tagged account passes minAccountBalance rule
@@ -85,10 +93,16 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param amount Number of tokens to be transferred
      * @param ruleId Rule identifier for rule arguments
      */
-    function minAccountBalanceCheck(uint256 balanceFrom, bytes32[] calldata fromTags, uint256 amount, uint32 ruleId) public view {
+    function minAccountBalanceCheck(uint256 balanceFrom, bytes32[] memory fromTags, uint256 amount, uint32 ruleId) public view {
         /// This Function checks the min account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
         fromTags.checkMaxTags();
+        /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
+        /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
+        if(getMinMaxBalanceRule(ruleId, BLANK_TAG).minimum > 0){            
+            fromTags = new bytes32[](1);
+            fromTags[0] = BLANK_TAG;
+        }
         for (uint i = 0; i < fromTags.length; ) {
             uint256 min = getMinMaxBalanceRule(ruleId, fromTags[i]).minimum;
             /// if a min is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
@@ -164,13 +178,18 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param amount Number of tokens to be transferred from this account
      * @param toTags Account tags applied to sender via App Manager
      */
-    function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags) external view {
+    function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] memory toTags) external view {
         toTags.checkMaxTags();
         uint64 startTime = getMinBalByDateRuleStart(ruleId);
+        /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
+        /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
+        if(getMinBalByDateRule(ruleId, BLANK_TAG).holdPeriod > 0){
+            toTags = new bytes32[](1);
+            toTags[0] = BLANK_TAG;
+        }
         if (startTime <= block.timestamp){
             uint256 finalBalance = balance - amount;
             for (uint i = 0;  i < toTags.length; ) {
-                if (toTags[i] != "") {
                     TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
                     uint256 holdPeriod = minBalByDateRule.holdPeriod;
                     /// check if holdPeriod is 0, 0 means it is an empty-rule/no-rule. a holdAmount should be greater than 0
@@ -182,7 +201,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
                         if (finalBalance < holdAmount) revert TxnInFreezeWindow();
                         }
                     }
-                }
                 unchecked {
                     ++i;
                 }

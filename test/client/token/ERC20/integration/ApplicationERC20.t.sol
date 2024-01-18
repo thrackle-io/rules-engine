@@ -125,6 +125,46 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user2, 10091);
     }
 
+    function testPassMinMaxAccountBalanceRuleApplicationERC20BlankTag() public {
+        /// set up a non admin user with tokens
+        applicationCoin.transfer(rich_user, 100000);
+        assertEq(applicationCoin.balanceOf(rich_user), 100000);
+        applicationCoin.transfer(user1, 1000);
+        assertEq(applicationCoin.balanceOf(user1), 1000);
+
+        bytes32[] memory accs = createBytes32Array("");
+        uint256[] memory min = createUint256Array(10);
+        uint256[] memory max = createUint256Array(1000);
+        // add the actual rule
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        ///update ruleId in coin rule handler
+        applicationCoinHandler.setMinMaxBalanceRuleId(ruleId);
+        switchToAppAdministrator();
+        ///Add GeneralTag to account
+        applicationAppManager.addGeneralTag(user1, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
+
+        ///perform transfer that checks rule
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.transfer(user2, 10);
+        assertEq(applicationCoin.balanceOf(user2), 10);
+        assertEq(applicationCoin.balanceOf(user1), 990);
+
+        // make sure the minimum rules fail results in revert
+        //vm.expectRevert("Balance Will Drop Below Minimum");
+        vm.expectRevert(0xf1737570);
+        applicationCoin.transfer(user3, 989);
+
+        /// make sure the maximum rule fail results in revert
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        // vm.expectRevert("Balance Will Exceed Maximum");
+        vm.expectRevert(0x24691f6b);
+        applicationCoin.transfer(user2, 10091);
+    }
+
     /**
      * @dev Test the oracle rule, both allow and deny types
      */
@@ -652,6 +692,40 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         /// attempt a transfer that violates the rule
         vm.expectRevert(0xa7fb7b4b);
         applicationCoin.transfer(user1, 8001 * ATTO);
+    }
+
+    /// test Minimum Balance By Date rule
+    function testPassesMinBalByDateCoinBlankTag() public {
+        // Set up the rule conditions
+        vm.warp(Blocktime);
+        bytes32[] memory accs = createBytes32Array("");
+        uint256[] memory holdAmounts = createUint256Array((1000 * (10 ** 18)));
+        // 720 = one month 4380 = six months 17520 = two years
+        uint16[] memory holdPeriods = createUint16Array(720);
+        switchToRuleAdmin();
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
+        assertEq(_index, 0);
+        applicationCoinHandler.setMinBalByDateRuleId(_index);
+        switchToAppAdministrator();
+        /// load non admin users with application coin
+        applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(rich_user), 10000 * (10 ** 18));
+        /// tag the users(unnecessary but won't hurt)
+        applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
+        /// switch to the user
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        /// attempt a transfer that violates the rule
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 9001 * (10 ** 18));
+        /// make sure a transfer that is acceptable will still pass within the freeze window.
+        applicationCoin.transfer(user1, 9000 * (10 ** 18));
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 1 * (10 ** 18));
+        /// add enough time so that it should pass
+        vm.warp(Blocktime + (720 * 1 hours));
+        applicationCoin.transfer(user1, 1 * (10 ** 18));
     }
 
     ///Test transferring coins with fees enabled

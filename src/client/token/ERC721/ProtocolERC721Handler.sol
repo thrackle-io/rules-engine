@@ -185,14 +185,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @param action if selling or buying (of ActionTypes type)
      */
     function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
-        bytes32[] memory toTags;
-        bytes32[] memory fromTags;
         bool mustCheckPurchaseRules = action == ActionTypes.PURCHASE && !appManager.isTradingRuleBypasser(_to);
         bool mustCheckSellRules = action == ActionTypes.SELL && !appManager.isTradingRuleBypasser(_from);
         if (minMaxBalance[action].active || minBalByDate[action].active || (mustCheckPurchaseRules && purchaseLimitRuleActive) || (mustCheckSellRules && sellLimitRuleActive)) {
             // We get all tags for sender and recipient
-            toTags = appManager.getAllTags(_to);
-            fromTags = appManager.getAllTags(_from);
+            bytes32[] memory toTags = appManager.getAllTags(_to);
+            bytes32[] memory fromTags = appManager.getAllTags(_from);
+            if (minMaxBalanceRuleActive) ruleProcessor.checkMinMaxAccountBalanceERC721(minMaxBalanceRuleId, _balanceFrom, _balanceTo, toTags, fromTags);
+            if (minBalByDateRuleActive) ruleProcessor.checkMinBalByDatePasses(minBalByDateRuleId, _balanceFrom, _amount, fromTags);
         }
         if (minMaxBalance[action].active) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
         if (minBalByDate[action].active) ruleProcessor.checkMinBalByDatePasses(minBalByDate[action].ruleId, _balanceFrom, _amount, fromTags);

@@ -14,6 +14,7 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for uint32;
     using RuleProcessorCommonLib for uint8;
+    bytes32 constant BLANK_TAG = bytes32("");
 
     /**
      * @dev Check the minMaxAccoutBalace rule. This rule ensures accounts cannot exceed or drop below specified account balances via account tags.
@@ -23,9 +24,16 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
      * @param toTags tags applied via App Manager to recipient address
      * @param fromTags tags applied via App Manager to sender address
      */
-    function checkMinMaxAccountBalanceERC721(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, bytes32[] calldata toTags, bytes32[] calldata fromTags) public view {
+    function checkMinMaxAccountBalanceERC721(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, bytes32[] memory toTags, bytes32[] memory fromTags) public view {
         fromTags.checkMaxTags();
         toTags.checkMaxTags();
+        /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
+        /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
+        if(getMinMaxBalanceRuleERC721(ruleId, BLANK_TAG).maximum > 0){
+            toTags = new bytes32[](1);
+            toTags[0] = BLANK_TAG;
+            fromTags = toTags;
+        }
         minAccountBalanceERC721(balanceFrom, fromTags, ruleId);
         maxAccountBalanceERC721(balanceTo, toTags, ruleId);
     }
@@ -36,15 +44,13 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
      * @param fromTags Account tags applied to sender via App Manager
      * @param ruleId Rule identifier for rule arguments
      */
-    function minAccountBalanceERC721(uint256 balanceFrom, bytes32[] calldata fromTags, uint32 ruleId) internal view {
+    function minAccountBalanceERC721(uint256 balanceFrom, bytes32[] memory fromTags, uint32 ruleId) internal view {
         /// This Function checks the min account balance for accounts depending on GeneralTags.
         /// Function will revert if a transaction breaks a single tag-dependent rule
-        /// we decrease the balance to check the rule
-        --balanceFrom;
         for (uint256 i; i < fromTags.length; ) {
             uint256 min = getMinMaxBalanceRuleERC721(ruleId, fromTags[i]).minimum;
             /// if a min is 0 then no need to check.
-            if (min > 0 && balanceFrom < min) revert BalanceBelowMin();
+            if (min > 0 && balanceFrom <= min) revert BalanceBelowMin();
             unchecked {
                 ++i;
             }
@@ -57,13 +63,11 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
      * @param toTags Account tags applied to recipient via App Manager
      * @param ruleId Rule identifier for rule arguments
      */
-    function maxAccountBalanceERC721(uint256 balanceTo, bytes32[] calldata toTags, uint32 ruleId) internal view {
-        /// we increase the balance to check the rule.
-        ++balanceTo;
+    function maxAccountBalanceERC721(uint256 balanceTo, bytes32[] memory toTags, uint32 ruleId) internal view {
         for (uint256 i = 0; i < toTags.length; ) {
             uint256 max = getMinMaxBalanceRuleERC721(ruleId, toTags[i]).maximum;
             // if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
-            if (max > 0 && balanceTo > max) revert MaxBalanceExceeded();
+            if (max > 0 && balanceTo >= max) revert MaxBalanceExceeded();
             unchecked {
                 ++i;
             }
@@ -100,9 +104,15 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
      * @param nftTags NFT tags
      * @param lastTransferTime block.timestamp of most recent transaction from sender.
      */
-    function checkNFTTransferCounter(uint32 ruleId, uint256 transfersWithinPeriod, bytes32[] calldata nftTags, uint64 lastTransferTime) public view returns (uint256) {
+    function checkNFTTransferCounter(uint32 ruleId, uint256 transfersWithinPeriod, bytes32[] memory nftTags, uint64 lastTransferTime) public view returns (uint256) {
         nftTags.checkMaxTags();
         uint256 cumulativeTotal;
+        /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
+        /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
+        if(getNFTTransferCounterRule(ruleId, BLANK_TAG).startTs > 0){
+            nftTags = new bytes32[](1);
+            nftTags[0] = BLANK_TAG;
+        }
         for (uint i = 0; i < nftTags.length; ) {
             // if the tag is blank, then ignore
             if (bytes32(nftTags[i]).length != 0) {
