@@ -806,6 +806,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         // make sure deactivation works
         switchToRuleAdmin();
         applicationCoinHandler.setFeeActivation(false);
+        
         vm.stopPrank();
         vm.startPrank(user4);
         applicationCoin.transfer(user9, 100 * ATTO);
@@ -813,6 +814,41 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(applicationCoin.balanceOf(user9), 100 * ATTO); // to account gets amount while ignoring fees
         assertEq(applicationCoin.balanceOf(targetAccount), 8 * ATTO); // treasury remains the same
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * ATTO); // treasury remains the same
+    }
+
+    ///Test transferring coins with fees enabled
+    function testERC20_TransactionFeeTableCoinBlankTag() public {
+        applicationCoin.transfer(user4, 100000 * ATTO);
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        address targetAccount2 = user10;
+        // create a fee
+        switchToRuleAdmin();
+        applicationCoinHandler.addFee("", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user4, "discount"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works
+        applicationCoin.transfer(user3, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99900 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 97 * ATTO);
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
+
+        /// Now add another fee and make sure it accumulates. 
+        switchToRuleAdmin();
+        applicationCoinHandler.addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
+        switchToAppAdministrator();
+        applicationAppManager.addGeneralTag(user4, "less cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.transfer(user7, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99800 * ATTO); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user7), 91 * ATTO); // to account gets amount - fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * ATTO); // treasury gets fees(added from previous)
+        assertEq(applicationCoin.balanceOf(targetAccount2), 6 * ATTO); // treasury gets fees       
     }
 
     ///Test transferring coins with fees and discounts where the discounts are greater than the fees

@@ -245,9 +245,23 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      */
     function getApplicableFees(address _from, uint256 _balanceFrom) public view returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages) {
         Fees.Fee memory fee;
-        bytes32[] memory _fromTags = appManager.getAllTags(_from);
+        bytes32[] memory fromTags = appManager.getAllTags(_from);
+        bytes32[] memory _fromTags;
         int24 totalFeePercent;
         uint24 discount;
+        /// To insure that default fees are checked when they're set, add a blank tag to the tag list. 
+        if(fees.getFee(BLANK_TAG).feePercentage > 0){
+            _fromTags = new bytes32[](fromTags.length+1);
+            for (uint i; i < fromTags.length; ) {
+                _fromTags[i] = fromTags[i];
+                unchecked {
+                    ++i;
+                }
+            }
+            _fromTags[_fromTags.length-1] = BLANK_TAG;
+        } else {
+            _fromTags = fromTags;
+        }
         if (_fromTags.length != 0 && !appManager.isAppAdministrator(_from)) {
             uint feeCount;
             // size the dynamic arrays by maximum possible fees
