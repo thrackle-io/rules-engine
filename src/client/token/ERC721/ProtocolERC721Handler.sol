@@ -28,8 +28,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
     /// Rule mappings
     mapping(ActionTypes => Rule) minMaxBalance;   
-    mapping(ActionTypes => Rule) adminWithdrawal;  
-    mapping(ActionTypes => Rule) minBalByDate; 
+    mapping(ActionTypes => Rule) adminWithdrawal;   
     mapping(ActionTypes => Rule) tokenTransferVolume;
     mapping(ActionTypes => Rule) totalSupplyVolatility;
     mapping(ActionTypes => Rule) minAccount;
@@ -189,17 +188,15 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         bytes32[] memory fromTags;
         bool mustCheckPurchaseRules = action == ActionTypes.PURCHASE && !appManager.isTradingRuleBypasser(_to);
         bool mustCheckSellRules = action == ActionTypes.SELL && !appManager.isTradingRuleBypasser(_from);
-        if (minMaxBalance[action].active || minBalByDate[action].active || (mustCheckPurchaseRules && purchaseLimitRuleActive) || (mustCheckSellRules && sellLimitRuleActive)) {
+        if (minMaxBalance[action].active || (mustCheckPurchaseRules && purchaseLimitRuleActive) || (mustCheckSellRules && sellLimitRuleActive)) {
             // We get all tags for sender and recipient
             toTags = appManager.getAllTags(_to);
             fromTags = appManager.getAllTags(_from);
         }
         if (minMaxBalance[action].active) ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
-        if (minBalByDate[action].active) ruleProcessor.checkMinBalByDatePasses(minBalByDate[action].ruleId, _balanceFrom, _amount, fromTags);
         if((mustCheckPurchaseRules && (purchaseLimitRuleActive || purchasePercentageRuleActive)) || (mustCheckSellRules && (sellLimitRuleActive || sellPercentageRuleActive)))
             _checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
     }
-
 
     /**
      * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
@@ -446,61 +443,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         if (_address == address(0)) revert ZeroAddress();
         erc721Address = _address;
         emit ERC721AddressSet(_address);
-    }
-
-    /**
-     * @dev Retrieve the minimum balance by date rule id
-     * @param _action the action type
-     * @return minBalByDateRuleId rule id
-     */
-    function getMinBalByDateRule(ActionTypes _action) external view returns (uint32) {
-        return minBalByDate[_action].ruleId;
-    }
-
-    /**
-     * @dev Set the minBalByDateRuleId. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _actions the action type
-     * @param _ruleId Rule Id to set
-     */
-    function setMinBalByDateRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
-            ruleProcessor.validateMinBalByDate(_ruleId);
-            minBalByDate[_actions[i]].ruleId = _ruleId;
-            minBalByDate[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(MIN_ACCT_BAL_BY_DATE, _actions[i], _ruleId);
-            unchecked {
-                ++i;
-            }
-        }
-    }
-
-    /**
-     * @dev Tells you if the min bal by date rule is active or not.
-     * @param _actions the action type
-     * @param _on boolean representing if the rule is active
-     */
-    function activateMinBalByDateRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
-            minBalByDate[_actions[i]].active = _on;
-            if (_on) {
-                emit ApplicationHandlerActionActivated(MIN_ACCT_BAL_BY_DATE, _actions[i]);
-            } else {
-                emit ApplicationHandlerActionDeactivated(MIN_ACCT_BAL_BY_DATE, _actions[i]);
-            }
-            unchecked {
-                ++i;
-            }
-        }
-    }
-
-    /**
-     * @dev Tells you if the minBalByDateRuleActive is active or not.
-     * @param _action the action type
-     * @return boolean representing if the rule is active
-     */
-    function isMinBalByDateActive(ActionTypes _action) external view returns (bool) {
-        return minBalByDate[_action].active;
     }
 
      /**

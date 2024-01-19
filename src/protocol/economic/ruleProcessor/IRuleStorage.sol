@@ -76,15 +76,8 @@ interface IRuleStorage {
     struct MinMaxBalanceRuleS {
         /// ruleIndex => taggedAccount => minimumTransfer
         mapping(uint32 => mapping(bytes32 => ITaggedRules.MinMaxBalanceRule)) minMaxBalanceRulesPerUser;
-        uint32 minMaxBalanceRuleIndex; /// increments every time someone adds a rule
-    }
-
-    /// ******** Minimum Balance By Date ********
-    struct MinBalByDateRuleS {
-        /// ruleIndex => userTag => rules
-        mapping(uint32 => mapping(bytes32 => ITaggedRules.MinBalByDateRule)) minBalByDateRulesPerUser;
         mapping(uint32 => uint64) startTimes;///Time the rule is applied
-        uint32 minBalByDateRulesIndex; /// increments every time someone adds a rule
+        uint32 minMaxBalanceRuleIndex; /// increments every time someone adds a rule
     }
 
     /// ******** Supply Volatility ********

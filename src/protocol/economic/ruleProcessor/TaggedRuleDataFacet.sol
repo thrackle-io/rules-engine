@@ -127,20 +127,24 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _accountTypes Types of Accounts
      * @param _minimum Minimum Balance allowed for tagged accounts
      * @param _maximum Maximum Balance allowed for tagged accounts
+     * @param _holdPeriods Hours purhchases allowed
+     * @param _startTimestamp Timestamp that the check should start
      * @return _addMinMaxBalanceRule which returns location of rule in array
      */
     function addMinMaxBalanceRule(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
         uint256[] calldata _minimum,
-        uint256[] calldata _maximum
+        uint256[] calldata _maximum,
+        uint16[] calldata _holdPeriods,
+        uint64 _startTimestamp
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_accountTypes.length != _minimum.length || _accountTypes.length != _maximum.length) revert InputArraysMustHaveSameLength();
+        if (_accountTypes.length != _minimum.length || _accountTypes.length != _maximum.length && (_accountTypes.length != _holdPeriods.length && _holdPeriods.length > 0)) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
         _accountTypes.areTagsValid();
-        return _addMinMaxBalanceRule(_accountTypes, _minimum, _maximum);
+        return _addMinMaxBalanceRule(_accountTypes, _minimum, _maximum, _holdPeriods, _startTimestamp);
     }
 
     /**
@@ -148,20 +152,30 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _accountTypes Types of Accounts
      * @param _minimum Minimum Balance allowed for tagged accounts
      * @param _maximum Maximum Balance allowed for tagged accounts
+     * @param _holdPeriods Hours purhchases allowed
+     * @param _startTimestamp Timestamp that the check should start
      * @return position of new rule in array
      */
-    function _addMinMaxBalanceRule(bytes32[] calldata _accountTypes, uint256[] calldata _minimum, uint256[] calldata _maximum) internal returns (uint32) {
+    function _addMinMaxBalanceRule(
+        bytes32[] calldata _accountTypes, 
+        uint256[] calldata _minimum, 
+        uint256[] calldata _maximum,
+        uint16[] calldata _holdPeriods,
+        uint64 _startTimestamp
+    ) internal returns (uint32) {
         RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
         uint32 index = data.minMaxBalanceRuleIndex;
+        if (_startTimestamp == 0) _startTimestamp = uint64(block.timestamp);
         for (uint256 i; i < _accountTypes.length; ) {
             if (_minimum[i] == 0 || _maximum[i] == 0) revert ZeroValueNotPermited();
             if (_minimum[i] > _maximum[i]) revert InvertedLimits();
-            TaggedRules.MinMaxBalanceRule memory rule = TaggedRules.MinMaxBalanceRule(_minimum[i], _maximum[i]);
-            data.minMaxBalanceRulesPerUser[index][_accountTypes[i]] = rule;
+            if (_holdPeriods.length > 0 && _holdPeriods[i] == 0) revert CantMixPeriodicAndNonPeriodic();
+            data.minMaxBalanceRulesPerUser[index][_accountTypes[i]] = TaggedRules.MinMaxBalanceRule(_minimum[i], _maximum[i], _holdPeriods.length == 0 ? 0 : _holdPeriods[i]);
             unchecked {
                 ++i;
             }
         }
+        data.startTimes[index] = _startTimestamp;
         emit ProtocolRuleCreated(MIN_MAX_BALANCE_LIMIT, index, _accountTypes);
         ++data.minMaxBalanceRuleIndex;
         return index;
@@ -188,56 +202,54 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         ++data.adminWithdrawalRulesIndex;
         return index;
     }
-    
-    /********************** Minimum Account Balance By Date Getters/Setters ***********************/
+
+    //***********************  Risk Rules  ******************************* */
     /**
-     * @dev Function add a Minimum Account Balance By Date rule
+     * @dev Function to add new TransactionLimitByRiskScore Rules
      * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
-     * @param _accountTags Types of Accounts
-     * @param _holdAmounts Allowed total purchase limits
-     * @param _holdPeriods Hours purchases allowed
-     * @param _startTimestamp Timestamp that the check should start
-     * @return ruleId of new rule in array
+     * @param _riskScores User Risk Level Array which defines the limits between ranges. The levels are inclusive as ceilings.
+     * @param _txnLimits Transaction Limit in whole USD for each score range. It corresponds to the _riskScores array and is +1 longer than _riskScores.
+     * A value of 1000 in this arrays will be interpreted as $1000.00 USD.
+     * @return position of new rule in array
+     * @notice _txnLimits size must be equal to _riskLevel The positioning of the arrays is ascendant in terms of risk levels, 
+     * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+     * will apply to all risk scores of 100.)
      */
-    function addMinBalByDateRule(
-        address _appManagerAddr,
-        bytes32[] calldata _accountTags,
-        uint256[] calldata _holdAmounts,
-        uint16[] calldata _holdPeriods,
-        uint64 _startTimestamp
-    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_accountTags.length != _holdAmounts.length || _accountTags.length != _holdPeriods.length) revert InputArraysMustHaveSameLength();
-        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
-        if (_accountTags.length == 0) revert InvalidRuleInput();
-        _accountTags.areTagsValid();
-        return _addMinBalByDateRule(_accountTags, _holdAmounts, _holdPeriods, _startTimestamp);
-    }
-
-    /**
-     * @dev internal Function to avoid stack too deep error
-     * @param _accountTags Types of Accounts
-     * @param _holdAmounts Allowed total purchase limits
-     * @param _holdPeriods Hours purhchases allowed
-     * @param _startTimestamp Timestamp that the check should start
-     * @return ruleId of new rule in array
-     */
-    function _addMinBalByDateRule(bytes32[] calldata _accountTags, uint256[] calldata _holdAmounts, uint16[] calldata _holdPeriods, uint64 _startTimestamp) internal returns (uint32) {
-        RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
-        uint32 index = data.minBalByDateRulesIndex;
-        /// if defaults sent for timestamp, start them with current block time
-        if (_startTimestamp == 0) _startTimestamp = uint64(block.timestamp);
-        for (uint256 i; i < _accountTags.length; ) {
-            if (_holdAmounts[i] == 0 || _holdPeriods[i] == 0) revert ZeroValueNotPermited();
-            data.minBalByDateRulesPerUser[index][_accountTags[i]] = TaggedRules.MinBalByDateRule(_holdAmounts[i], _holdPeriods[i]);
+    function addTransactionLimitByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _txnLimits) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+        // since the arrays are compared, it is only necessary to check for one of them being empty.
+        if (_riskScores.length == 0) revert InvalidRuleInput();
+        if (_txnLimits.length != _riskScores.length) revert InputArraysSizesNotValid();
+        if (_riskScores[_riskScores.length - 1] > 99) revert RiskLevelCannotExceed99();
+        for (uint i = 1; i < _riskScores.length; ) {
+            if (_riskScores[i] <= _riskScores[i - 1]) revert WrongArrayOrder();
             unchecked {
                 ++i;
             }
         }
-        data.startTimes[index] = _startTimestamp;
-        emit ProtocolRuleCreated(MIN_ACCT_BAL_BY_DATE, index, _accountTags);
-        ++data.minBalByDateRulesIndex;
+        for (uint i = 1; i < _txnLimits.length; ) {
+            if (_txnLimits[i] > _txnLimits[i - 1]) revert WrongArrayOrder();
+            unchecked {
+                ++i;
+            }
+        }
+        return _addTransactionLimitByRiskScore(_riskScores, _txnLimits);
+    }
+
+    /**
+     * @dev internal Function to avoid stack too deep error
+     * @param _riskScores Account Risk Level
+     * @param _txnLimits Transaction Limit for each Score. It corresponds to the _riskScores array
+     * @return position of new rule in array
+     */
+    function _addTransactionLimitByRiskScore(uint8[] calldata _riskScores, uint48[] calldata _txnLimits) internal returns (uint32) {
+        RuleS.TxSizeToRiskRuleS storage data = Storage.txSizeToRiskStorage();
+        uint32 index = data.txSizeToRiskRuleIndex;
+        TaggedRules.TransactionSizeToRiskRule memory rule = TaggedRules.TransactionSizeToRiskRule(_riskScores, _txnLimits);
+        data.txSizeToRiskRule[index] = rule;
+        bytes32[] memory empty;
+        emit ProtocolRuleCreated(TX_SIZE_BY_RISK, index, empty);
+        ++data.txSizeToRiskRuleIndex;
         return index;
     }
 

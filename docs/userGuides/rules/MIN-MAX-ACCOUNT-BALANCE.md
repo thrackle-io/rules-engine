@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The minimum-maximum-account-balance rule enforces token balance thresholds for user accounts with specific tags. This allows developers to set lower and upper limits on the amount of each token the user account can hold. This rule attempts to mitigate the risk of token holders selling more than the minimum allowed amount and accumulating more than the maximum allowed amount of tokens for each specific tag. 
+The minimum-maximum-account-balance rule enforces token balance thresholds for user accounts with specific tags. This allows developers to set lower and upper limits on the amount of each token the user account can hold. This rule attempts to mitigate the risk of token holders selling more than the minimum allowed amount and accumulating more than the maximum allowed amount of tokens for each specific tag. It can also be used to prevent token holders from rapidly flooding the market with newly acquired tokens since a dramatic increase in supply over a short time frame can cause a token price crash. This is done by associating an opional holdPeriod with the rule.
 
 ## Applies To:
 
@@ -20,6 +20,8 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
 
 - **Minimum** (uint256): The minimum amount of tokens to be held by the account.
 - **Maximum** (uint256): The maximum amount of tokens to be held by the account.
+- **Hold period** (uint16): The amount of hours the minimum/maximum limit will be in effect.
+- **Starting timestamp** (uint64): The timestamp of the date when the *hold period* starts counting.
 
 
 ```c
@@ -27,6 +29,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
     struct MinMaxBalanceRule {
         uint256 minimum;
         uint256 maximum;
+        uint16 holdPeriod; /// hours
     }
 ```
 ###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
@@ -51,6 +54,7 @@ The collection of these tagged sub-rules composes a minumum-maximum-account-bala
 struct MinMaxBalanceRuleS {
     /// ruleIndex => taggedAccount => minimumTransfer
     mapping(uint32 => mapping(bytes32 => ITaggedRules.MinMaxBalanceRule)) minMaxBalanceRulesPerUser;
+    uint256 startTime; /// start
     uint32 minMaxBalanceRuleIndex; /// increments every time someone adds a rule
 }
 ```
@@ -73,9 +77,10 @@ The rule will be evaluated with the following logic:
 2. The receiver account and the sender account being evaluated pass all the tags they have registered to their addresses in the application manager to the protocol.
 3. The processor receives these tags along with the ID of the minumum-maximum-account-balance rule set in the token handler. 
 4. The processor tries to retrieve the sub-rule associated with each tag.
-5. The processor evaluates if the final balance of the sender account would be less than the`minimum` in the case of the transaction succeeding. If yes, the transaction reverts.
-6. The processor evaluates if the final balance of the receiver account would be greater than the `maximum` in the case of the transaction succeeding. If yes, the transaction reverts.
-7. Step 4 and 5 are repeated for each of the account's tags. 
+5. The processor evaluates whether each sub-rule's hold period is still active (if the current time is within `hold period` from the `starting timestamp`). If not, processing of the rule for the selected tag does not proceed.
+6. The processor evaluates if the final balance of the sender account would be less than the`minimum` in the case of the transaction succeeding. If yes, the transaction reverts.
+7. The processor evaluates if the final balance of the receiver account would be greater than the `maximum` in the case of the transaction succeeding. If yes, the transaction reverts.
+8. Step 4-7 are repeated for each of the account's tags. 
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
@@ -95,8 +100,11 @@ error MaxBalanceExceeded();
 ```
 error BalanceBelowMin();
 ```
+```
+error TxnInFreezeWindow();
+```
 
-The selectors for these errors are `0x24691f6b` and `0xf1737570` .
+The selectors for these errors are `0x24691f6b`, `0xa7fb7b4b` and `0xf1737570` .
 
 ## Create Function
 
@@ -107,7 +115,9 @@ function addMinMaxBalanceRule(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
         uint256[] calldata _minimum,
-        uint256[] calldata _maximum
+        uint256[] calldata _maximum,
+        uint16[] calldata _holdPeriods,
+        uint64 _startTimestamp
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 ###### *see [TaggedRuleDataFacet](../../../src/economic/ruleStorage/TaggedRuleDataFacet.sol)*
@@ -120,8 +130,17 @@ The create function will return the protocol ID of the rule.
 - **_accountTags** (bytes32[]): array of tags that will contain each sub-rule.
 - **_minimum** (uint256[]): array of *minimum amounts* for each sub-rule.
 - **_maximum** (uint256[]): array of *maximum amounts* for each sub-rule.
+- **_holdPeriods** (uint16[]): array of *hold periods* for each sub-rule.
+- **_startTimetamp** (uint64): *timestamp* that applies to each sub-rule.
 
-It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_minimum` and `_maximum`. Same with tag in position *n*.
+It is important to note that array positioning matters in this function. For instance, tag in position zero of the `_accountTags` array will contain the sub-rule created by the values in the position zero of `_minimum`,  `_maximum` and `_holdPeriods`. Same with tag in position *n*.
+
+#### Note:
+HoldPeriods are not required, but within a rule creation all sub-rules must either be periodic or not. If non-periodic is desired pass in an empty array for the holdPeriods parameter.
+
+Minimum and Maximum values are required, but you can use specific values to only apply one of the two:
+- To only apply a maximum set the corresponding minimum to 0.
+- To only apply a minimum set the corresponding maximum to the max value for uint256.
 
 ### Parameter Optionality:
 
@@ -133,9 +152,9 @@ The following validation will be carried out by the create function in order to 
 
 - `_appManagerAddr` is not the zero address.
 - All the parameter arrays have at least one element.
-- All the parameter arrays have the exact same length.
+- All the parameter arrays, except holdPeriods, have the exact same length.
+- holdPeriods is either empty or the same length as the other arrays.
 - `tag` can either be a single blank tag or a list of non blank `tag`s.
-- Not one `minimum` or `maximum` can have a value of 0.
 - `minimum`is not greater than `maximum`
 
 

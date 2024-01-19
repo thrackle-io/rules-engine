@@ -124,9 +124,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(10, 20, 30);
         uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
+        uint16[] memory empty;
         // add rule at ruleId 0
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -200,9 +201,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(10, 20, 30);
         uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
+        uint16[] memory empty;
         // add rule at ruleId 0
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         for (uint i = 1; i < 11; i++) {
@@ -230,8 +232,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(10, 20, 30);
         uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint16[] memory empty;
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -253,8 +256,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(10, 20, 30);
         uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint16[] memory empty;
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -297,8 +301,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(10, 20, 30);
         uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint16[] memory empty;
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -720,7 +725,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
             100000000000000000000000000000000000000000, 
             100000000000000000000000000000000000000000000000000000000000000000000000000
             );
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint16[] memory empty;
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         assertEq(_index, 0);
         TaggedRules.MinMaxBalanceRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, "Oscar");
         assertEq(rule.minimum, 1000);
@@ -732,13 +738,14 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
             20000000000000000000000000000000000000, 
             900000000000000000000000000000000000000000000000000000000000000000000000000
             );
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs2, min2, max2);
+        uint16[] memory empty2;
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs2, min2, max2, empty2, uint64(Blocktime));
         assertEq(_index, 1);
         rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, "Tayler");
         assertEq(rule.minimum, 20000000);
         assertEq(rule.maximum, 20000000000000000000000000000000000000);
         vm.expectRevert();
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(0), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(0), accs, min, max, empty, uint64(Blocktime));
     }
 
     /// testing only appAdministrators can add Balance Limit Rule
@@ -750,20 +757,21 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
             100000000000000000000000000000000000000000, 
             100000000000000000000000000000000000000000000000000000000000000000000000000
             );
+        uint16[] memory empty;
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xC0FFEE)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         assertEq(_index, 0);
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         assertEq(_index, 1);
     }
 
@@ -779,8 +787,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
             100000000000000000000000000000000000000000, 
             100000000000000000000000000000000000000000000000000000000000000000000000000
             );
+        uint16[] memory empty;
         vm.expectRevert(0x028a6c58);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
     }
 
     /// testing inverted limits
@@ -791,8 +800,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar");
         uint256[] memory min = createUint256Array(999999000000000000000000000000000000000000000000000000000000000000000000000);
         uint256[] memory max = createUint256Array(100);
+        uint16[] memory empty;
         vm.expectRevert(0xeeb9d4f7);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
     }
 
     /// test total rules
@@ -804,10 +814,83 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar");
         uint256[] memory max = createUint256Array(999999000000000000000000000000000000000000000000000000000000000000000000000);
         uint256[] memory min = createUint256Array(100);
+        uint16[] memory empty;
         for (uint8 i = 0; i < _indexes.length; i++) {
-            _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+            _indexes[i] = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         }
         assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalMinMaxBalanceRules(), _indexes.length);
+    }
+
+    /// With Hold Periods
+
+        /// Simple setting and getting
+    function testSettingMinMaxAccBal() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        vm.warp(Blocktime);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory minAmounts = createUint256Array(1000, 2000, 3000);
+        uint256[] memory maxAmounts = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000
+        );
+        uint16[] memory holdPeriods = createUint16Array(100, 101, 102);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, minAmounts, maxAmounts, holdPeriods, uint64(Blocktime));
+        assertEq(_index, 0);
+        TaggedRules.MinMaxBalanceRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, "Oscar");
+        assertEq(rule.minimum, 1000);
+        assertEq(rule.holdPeriod, 100);
+
+        bytes32[] memory accs2 = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory minAmounts2 = createUint256Array(1000, 20000000, 3000);
+        uint256[] memory maxAmounts2 = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000
+        );
+        uint16[] memory holdPeriods2 = createUint16Array(100, 2, 102);
+
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs2, minAmounts2, maxAmounts2, holdPeriods2, uint64(Blocktime));
+        assertEq(_index, 1);
+        rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, "Tayler");
+        assertEq(rule.minimum, 20000000);
+        assertEq(rule.holdPeriod, 2);
+    }
+
+    function testSettingMinMaxAccBalNotAdmin() public {
+        vm.warp(Blocktime);
+        vm.stopPrank();
+        vm.startPrank(address(0xDEAD));
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory minAmounts = createUint256Array(1000, 2000, 3000);
+        uint256[] memory maxAmounts = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000
+        );
+        uint16[] memory holdPeriods = createUint16Array(100, 101, 102);
+        vm.expectRevert(0xd66c3008);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, minAmounts, maxAmounts, holdPeriods, uint64(Blocktime));
+    }
+
+    // /// Test for proper array size mismatch error
+    function testSettingMinMaxAccBalanceSizeMismatch() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        vm.warp(Blocktime);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory minAmounts = createUint256Array(1000, 2000, 3000);
+        uint256[] memory maxAmounts = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000
+        );
+        uint16[] memory holdPeriods = createUint16Array(100, 101);
+        vm.expectRevert();
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, minAmounts, maxAmounts, holdPeriods, uint64(Blocktime));
     }
 
     /*********************** Supply Volatility ************************/
@@ -1059,80 +1142,5 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint256 result;
         result = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAdminWithdrawalRules();
         assertEq(result, _indexes.length);
-    }
-
-    /*********************** Minimum Balance By Date *******************/
-    /// Simple setting and getting
-    function testSettingMinBalByDate() public {
-        // set user to the rule admin
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
-        vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256Array(1000, 2000, 3000);
-        uint16[] memory holdPeriods = createUint16Array(100, 101, 102);
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
-        assertEq(_index, 0);
-        TaggedRules.MinBalByDateRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Oscar");
-        assertEq(rule.holdAmount, 1000);
-        assertEq(rule.holdPeriod, 100);
-
-        bytes32[] memory accs2 = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts2 = createUint256Array(1000, 20000000, 3000);
-        uint16[] memory holdPeriods2 = createUint16Array(100, 2, 102);
-
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs2, holdAmounts2, holdPeriods2, uint64(Blocktime));
-        assertEq(_index, 1);
-        rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinBalByDateRule(_index, "Tayler");
-        assertEq(rule.holdAmount, 20000000);
-        assertEq(rule.holdPeriod, 2);
-    }
-
-    function testSettingMinBalByDateBlankTag() public {
-        // set user to the rule admin
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
-        vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32Array("");
-        uint256[] memory holdAmounts = createUint256Array(1000);
-        uint16[] memory holdPeriods = createUint16Array(100);
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
-        assertEq(_index, 0);       
-    }
-
-    function testSettingMinBalByDateBlankTagNegative() public {
-        // set user to the rule admin
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
-        vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32Array("", "Oscar");
-        uint256[] memory holdAmounts = createUint256Array(1000, 500);
-        uint16[] memory holdPeriods = createUint16Array(100, 105);
-        vm.expectRevert(0x6bb35a99);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
-    }
-
-    function testSettingMinBalByDateNotAdmin() public {
-        vm.warp(Blocktime);
-        vm.stopPrank();
-        vm.startPrank(address(0xDEAD));
-        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256Array(1000, 2000, 3000);
-        uint16[] memory holdPeriods = createUint16Array(100, 101, 102);
-        vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
-    }
-
-    /// Test for proper array size mismatch error
-    function testSettingMinBalByDateSizeMismatch() public {
-        // set user to the rule admin
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
-        vm.warp(Blocktime);
-        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256Array(1000, 2000, 3000);
-        uint16[] memory holdPeriods = createUint16Array(100, 101);
-        vm.expectRevert(0x028a6c58);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
     }
 }
