@@ -204,7 +204,7 @@ transferFranksFromKevinToClu:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(
 
 #			<><><><><> TRANSACTION LIMIT BY RISK RULE <><><><><>
 # mint Franks and give user Franks 
-addTransactionLimitByRiskScore:; cast send ${RULE_STORAGE_DIAMOND} "addTransactionLimitByRiskScore(address,uint8[],uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [10,20,30,40,50,60,70,80,90] [1000000000,1000000000,100000000,10000000,1000000,100000,10000,1000,100,10] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addMaxTxSizePerPeriodByRiskRule:; cast send ${RULE_STORAGE_DIAMOND} "addMaxTxSizePerPeriodByRiskRule(address,uint8[],uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [10,20,30,40,50,60,70,80,90] [1000000000,1000000000,100000000,10000000,1000000,100000,10000,1000,100,10] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 applyTransactionLimitByRiskScore:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setTransactionLimitByRiskRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # add Risk Scores to Kevin and Clu 
 # transfer Franks From Sam to Kevin 
@@ -345,7 +345,7 @@ transferNFTFromQuorraToSam:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transfer
 
 #			<><><><><> NFT TransactionLimitByRisk RULE <><><><><>
 # <<Quorra mints 0-4 token IDs>>
-addTransactionLimitByRiskScoreNFTrule:; cast send ${RULE_STORAGE_DIAMOND} "addTransactionLimitByRiskScore(address,uint8[],uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [10,20,30,40,50,60,70,80,90] [70000,60000,50000,40000,30000,20000,10000,1000,100,10] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addMaxTxSizePerPeriodByRiskRuleNFTrule:; cast send ${RULE_STORAGE_DIAMOND} "addMaxTxSizePerPeriodByRiskRule(address,uint8[],uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [10,20,30,40,50,60,70,80,90] [70000,60000,50000,40000,30000,20000,10000,1000,100,10] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 applyTransactionLimitByRiskScoreNFT:; cast send ${APPLICATION_ERC721_HANDLER} "setTransactionLimitByRiskRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # add Sam As Risk Admin
 addRiskScoreGem:; cast send ${APPLICATION_APP_MANAGER} "addRiskScore(address,uint8)" ${GEM}  10 --private-key ${SAM_PRIVATE_KEY}

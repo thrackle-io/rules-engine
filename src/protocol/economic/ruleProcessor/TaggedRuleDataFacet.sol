@@ -10,7 +10,7 @@ import "../RuleAdministratorOnly.sol";
  * @dev setters and getters for Tagged token specific rules
  * @notice This contract sets and gets the Tagged Rules for the protocol. Rules will be applied via General Tags to accounts.
  */
-contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, IRiskInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError {
+contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInputErrors, ITagInputErrors, ITagRuleInputErrors, IZeroAddressError {
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for uint32;
     using RuleProcessorCommonLib for uint8; 
@@ -186,57 +186,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         ++data.adminWithdrawalRulesIndex;
         return index;
     }
-
-    //***********************  Risk Rules  ******************************* */
-    /**
-     * @dev Function to add new TransactionLimitByRiskScore Rules
-     * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
-     * @param _appManagerAddr Address of App Manager
-     * @param _riskScores User Risk Level Array which defines the limits between ranges. The levels are inclusive as ceilings.
-     * @param _txnLimits Transaction Limit in whole USD for each score range. It corresponds to the _riskScores array and is +1 longer than _riskScores.
-     * A value of 1000 in this arrays will be interpreted as $1000.00 USD.
-     * @return position of new rule in array
-     * @notice _txnLimits size must be equal to _riskLevel The positioning of the arrays is ascendant in terms of risk levels, 
-     * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
-     * will apply to all risk scores of 100.)
-     */
-    function addTransactionLimitByRiskScore(address _appManagerAddr, uint8[] calldata _riskScores, uint48[] calldata _txnLimits) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        // since the arrays are compared, it is only necessary to check for one of them being empty.
-        if (_riskScores.length == 0) revert InvalidRuleInput();
-        if (_txnLimits.length != _riskScores.length) revert InputArraysSizesNotValid();
-        if (_riskScores[_riskScores.length - 1] > 99) revert RiskLevelCannotExceed99();
-        for (uint i = 1; i < _riskScores.length; ) {
-            if (_riskScores[i] <= _riskScores[i - 1]) revert WrongArrayOrder();
-            unchecked {
-                ++i;
-            }
-        }
-        for (uint i = 1; i < _txnLimits.length; ) {
-            if (_txnLimits[i] > _txnLimits[i - 1]) revert WrongArrayOrder();
-            unchecked {
-                ++i;
-            }
-        }
-        return _addTransactionLimitByRiskScore(_riskScores, _txnLimits);
-    }
-
-    /**
-     * @dev internal Function to avoid stack too deep error
-     * @param _riskScores Account Risk Level
-     * @param _txnLimits Transaction Limit for each Score. It corresponds to the _riskScores array
-     * @return position of new rule in array
-     */
-    function _addTransactionLimitByRiskScore(uint8[] calldata _riskScores, uint48[] calldata _txnLimits) internal returns (uint32) {
-        RuleS.TxSizeToRiskRuleS storage data = Storage.txSizeToRiskStorage();
-        uint32 index = data.txSizeToRiskRuleIndex;
-        TaggedRules.TransactionSizeToRiskRule memory rule = TaggedRules.TransactionSizeToRiskRule(_riskScores, _txnLimits);
-        data.txSizeToRiskRule[index] = rule;
-        bytes32[] memory empty;
-        emit ProtocolRuleCreated(TX_SIZE_BY_RISK, index, empty);
-        ++data.txSizeToRiskRuleIndex;
-        return index;
-    }
-
+    
     /********************** Minimum Account Balance By Date Getters/Setters ***********************/
     /**
      * @dev Function add a Minimum Account Balance By Date rule

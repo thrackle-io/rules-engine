@@ -417,7 +417,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         uint8[] memory riskScores = createUint8Array(10, 40, 80, 99);
         uint48[] memory txnLimits = createUint48Array(1000000, 100000, 10000, 1000);
         switchToRuleAdmin();
-        uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
+        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
         switchToAppAdministrator();
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 10000000 * (10 ** 18));
@@ -442,7 +442,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
         switchToRuleAdmin();
-        applicationHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(index);
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
         vm.startPrank(user2);
@@ -948,7 +948,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         uint8[] memory riskScores = createUint8Array(10, 40, 80, 99);
         uint48[] memory txnLimits = createUint48Array(1000000, 100000, 10000, 1000);
         switchToRuleAdmin();
-        uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
+        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
         switchToAppAdministrator();
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 10000000 * ATTO);
@@ -973,7 +973,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
         switchToRuleAdmin();
-        applicationHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(index);
 
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();

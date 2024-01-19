@@ -101,8 +101,10 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
         /// we retrieve the rule
         ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory rule = getMaxTxSizePerPeriodRule(ruleId);
         /// resetting the "tradesWithinPeriod", unless we have been in current period for longer than the last update
-        uint128 amountTransactedInPeriod = rule.startingTime.isWithinPeriod(rule.period, lastTxDate) ? 
-        amount + _usdValueTransactedInPeriod: amount;
+        uint128 amountTransactedInPeriod = 
+            rule.period != 0 && rule.startingTime.isWithinPeriod(rule.period, lastTxDate) ? 
+            amount + _usdValueTransactedInPeriod : amount;
+        
         /// If risk score is less than the first risk score of the rule, there is no limit.
         /// Skips the loop for gas efficiency on low risk scored users 
         if (_riskScore >= rule.riskLevel[0]) {

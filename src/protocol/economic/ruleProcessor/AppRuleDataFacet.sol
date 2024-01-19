@@ -95,7 +95,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      * Each value in the array represents max USD value transacted within _period, and its positions
      * indicate what range of risk levels it applies to. A value of 1000 here means $1000.00 USD.
      * @param _riskLevel array of risk-level ceilings that define each range. Risk levels are inclusive.
-     * @param _period amount of hours that each period lasts for.
+     * @param _period amount of hours that each period lasts for. 0 if no period is desired.
      * @param _startTimestamp start timestamp for the rule
      * @return position of new rule in array
      * @notice _maxSize size must be equal to _riskLevel.
@@ -122,7 +122,6 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_maxSize.length == 0) revert InvalidRuleInput();
         if (_riskLevel[_riskLevel.length - 1] > MAX_RISKSCORE) revert RiskLevelCannotExceed99();
-        if (_period == 0) revert ZeroValueNotPermited();
         for (uint256 i = 1; i < _riskLevel.length; ) {
             if (_riskLevel[i] <= _riskLevel[i - 1]) revert WrongArrayOrder();
             unchecked {

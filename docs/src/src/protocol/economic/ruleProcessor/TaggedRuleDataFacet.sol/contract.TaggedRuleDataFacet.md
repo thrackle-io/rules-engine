@@ -286,7 +286,7 @@ function addAdminWithdrawalRule(address _appManagerAddr, uint256 _amount, uint25
 |`<none>`|`uint32`|adminWithdrawalRulesPerToken position of new rule in array|
 
 
-### addTransactionLimitByRiskScore
+### addMaxTxSizePerPeriodByRiskRule
 
 _txnLimits size must be equal to _riskLevel The positioning of the arrays is ascendant in terms of risk levels,
 and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
@@ -298,7 +298,7 @@ will apply to all risk scores of 100.)
 
 
 ```solidity
-function addTransactionLimitByRiskScore(
+function addMaxTxSizePerPeriodByRiskRule(
     address _appManagerAddr,
     uint8[] calldata _riskScores,
     uint48[] calldata _txnLimits
@@ -319,13 +319,13 @@ function addTransactionLimitByRiskScore(
 |`<none>`|`uint32`|position of new rule in array|
 
 
-### _addTransactionLimitByRiskScore
+### _addMaxTxSizePerPeriodByRiskRule
 
 *internal Function to avoid stack too deep error*
 
 
 ```solidity
-function _addTransactionLimitByRiskScore(uint8[] calldata _riskScores, uint48[] calldata _txnLimits)
+function _addMaxTxSizePerPeriodByRiskRule(uint8[] calldata _riskScores, uint48[] calldata _txnLimits)
     internal
     returns (uint32);
 ```

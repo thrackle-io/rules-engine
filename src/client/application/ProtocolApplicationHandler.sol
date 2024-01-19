@@ -32,11 +32,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     /// Risk Rule Ids
     uint32 private accountBalanceByRiskRuleId;
     uint32 private maxTxSizePerPeriodByRiskRuleId;
-    uint32 private transactionLimitByRiskRuleId;
     /// Risk Rule on-off switches
     bool private accountBalanceByRiskRuleActive;
     bool private maxTxSizePerPeriodByRiskActive;
-    bool private transactionLimitByRiskRuleActive;
     /// AccessLevel Rule Ids
     uint32 private accountBalanceByAccessLevelRuleId;
     uint32 private withdrawalLimitByAccessLevelRuleId;
@@ -79,7 +77,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function requireApplicationRulesChecked() public view returns (bool) {
         return pauseRuleActive ||
-               accountBalanceByRiskRuleActive || transactionLimitByRiskRuleActive || maxTxSizePerPeriodByRiskActive || 
+               accountBalanceByRiskRuleActive || maxTxSizePerPeriodByRiskActive || 
                accountBalanceByAccessLevelRuleActive || withdrawalLimitByAccessLevelRuleActive || AccessLevel0RuleActive;
     }
 
@@ -113,7 +111,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         if (accountBalanceByAccessLevelRuleActive || AccessLevel0RuleActive || withdrawalLimitByAccessLevelRuleActive) {
             _checkAccessLevelRules(_from, _to, balanceValuation, transferValuation);
         }
-        if (accountBalanceByRiskRuleActive || maxTxSizePerPeriodByRiskActive || transactionLimitByRiskRuleActive) {
+        if (accountBalanceByRiskRuleActive || maxTxSizePerPeriodByRiskActive) {
             _checkRiskRules(_from, _to, balanceValuation, transferValuation);
         }
         return true;
@@ -131,12 +129,6 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
         if (accountBalanceByRiskRuleActive) {
             ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
-        }
-        if (transactionLimitByRiskRuleActive) {
-            ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreFrom, _transferValuation);
-            if (_to != address(0)) {
-                ruleProcessor.checkTransactionLimitByRiskScore(transactionLimitByRiskRuleId, riskScoreTo, _transferValuation);
-            }
         }
         if (maxTxSizePerPeriodByRiskActive) {
             /// if rule is active check if the recipient is address(0) for burning tokens
@@ -480,47 +472,6 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function isMaxTxSizePerPeriodByRiskActive() external view returns (bool) {
         return maxTxSizePerPeriodByRiskActive;
-    }
-
-    /**
-     * @dev Retrieve the transaction limit by risk rule id
-     * @return transactionLimitByRiskRuleActive rule id
-     */
-    function getTransactionLimitByRiskRule() external view returns (uint32) {
-        return transactionLimitByRiskRuleId;
-    }
-
-    /**
-     * @dev Set the TransactionLimitByRiskRule. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _ruleId Rule Id to set
-     */
-    function setTransactionLimitByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateTransactionLimitByRiskScore(_ruleId);
-        transactionLimitByRiskRuleId = _ruleId;
-        transactionLimitByRiskRuleActive = true;
-        emit ApplicationRuleApplied(TX_SIZE_BY_RISK, _ruleId);
-    }
-
-    /**
-     * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
-     * @param _on boolean representing if a rule must be checked or not.
-     */
-    function activateTransactionLimitByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        transactionLimitByRiskRuleActive = _on;
-        if (_on) {
-            emit ApplicationHandlerActivated(TX_SIZE_BY_RISK);
-        } else {
-            emit ApplicationHandlerDeactivated(TX_SIZE_BY_RISK);
-        }
-    }
-
-    /**
-     * @dev Tells you if the transactionLimitByRiskRule is active or not.
-     * @return boolean representing if the rule is active
-     */
-    function isTransactionLimitByRiskActive() external view returns (bool) {
-        return transactionLimitByRiskRuleActive;
     }
 
     /**

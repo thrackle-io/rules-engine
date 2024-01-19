@@ -100,7 +100,7 @@ The selector for this error is `0x9fe6aeac`.
 Adding a transaction-size-by-risk-score rule is done through the function:
 
 ```c
-function addTransactionLimitByRiskScore(
+function addMaxTxSizePerPeriodByRiskRule(
             address _appManagerAddr, 
             uint8[] calldata _riskScores, 
             uint48[] calldata _txnLimits
