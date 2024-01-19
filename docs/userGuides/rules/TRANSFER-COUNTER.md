@@ -122,7 +122,7 @@ The following validation will be carried out by the create function in order to 
 - `_appManagerAddr` is not the zero address.
 - All the parameter arrays have at least one element.
 - All the parameter arrays have the exact same length.
-- Not one `tag` can be a blank tag.
+- `tag` can either be a single blank tag or a list of non blank `tag`s.
 
 
 ###### *see [TaggedRuleDataFacet](../../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*

@@ -31,6 +31,8 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
 ```
 ###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
 
+If a single blank `tag` is specified, the rule is applicable to all users.
+
 Additionally, each one of these data structures will be under a tag (bytes32):
 
  tag -> sub-rule.
@@ -132,7 +134,7 @@ The following validation will be carried out by the create function in order to 
 - `_appManagerAddr` is not the zero address.
 - All the parameter arrays have at least one element.
 - All the parameter arrays have the exact same length.
-- Not one `tag` can be a blank tag.
+- `tag` can either be a single blank tag or a list of non blank `tag`s.
 - Not one `minimum` or `maximum` can have a value of 0.
 - `minimum`is not greater than `maximum`
 
