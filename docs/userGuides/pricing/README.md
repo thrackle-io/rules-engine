@@ -11,7 +11,6 @@ Some protocol rules require these contracts to be set in the tokens for them to 
 
 - [Account Balance by Risk](../rules/ACCOUNT-BALANCE-BY-RISK.md).
 - [Max Balance by Access Level](../rules/MAX-BALANCE-BY-ACCESS-LEVEL.md).
-- [Tx Size by Risk Score](../rules/TRANSACTION-SIZE-BY-RISK-SORE.md).
 - [Tx Size per Period by Risk Score](../rules/TX-SIZE-PER-PERIOD-BY-RISK-SCORE.md).
 
 ## Price Format
