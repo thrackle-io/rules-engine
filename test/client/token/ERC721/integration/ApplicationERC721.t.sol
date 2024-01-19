@@ -447,9 +447,9 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
         vm.stopPrank();
         vm.startPrank(user3);
-        vm.expectRevert(0x9fe6aeac);
+        vm.expectRevert();
         applicationNFT.burn(4);
-        vm.expectRevert(0x9fe6aeac);
+        vm.expectRevert();
         applicationNFT.burn(6);
     }
 

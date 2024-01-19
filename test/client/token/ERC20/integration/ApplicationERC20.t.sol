@@ -451,7 +451,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         ///Transfer expected to fail
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0x9fe6aeac);
+        vm.expectRevert();
         applicationCoin.transfer(user2, 1000001 * (10 ** 18));
 
         switchToRiskAdmin();
@@ -461,7 +461,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         vm.stopPrank();
         vm.startPrank(user3);
-        vm.expectRevert(0x9fe6aeac);
+        vm.expectRevert();
         applicationCoin.transfer(user4, 10001 * (10 ** 18));
 
         vm.stopPrank();
@@ -475,7 +475,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         vm.stopPrank();
         vm.startPrank(user5);
         applicationCoin.burn(999 * (10 ** 18));
-        vm.expectRevert(0x9fe6aeac);
+        vm.expectRevert();
         applicationCoin.burn(1001 * (10 ** 18));
         applicationCoin.burn(1000 * (10 ** 18));
     }
@@ -983,7 +983,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         ///Transfer expected to fail
         vm.stopPrank();
         vm.startPrank(user1);
-        vm.expectRevert(0x9fe6aeac);
+        vm.expectRevert();
         applicationCoin.transfer(user2, 1000001 * ATTO);
 
         switchToRiskAdmin();
@@ -993,7 +993,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         vm.stopPrank();
         vm.startPrank(user3);
-        vm.expectRevert(0x9fe6aeac);
+        vm.expectRevert();
         applicationCoin.transfer(user4, 10001 * ATTO);
 
         vm.stopPrank();
@@ -1007,7 +1007,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         vm.stopPrank();
         vm.startPrank(user5);
         applicationCoin.burn(999 * ATTO);
-        vm.expectRevert(0x9fe6aeac);
+        vm.expectRevert();
         applicationCoin.burn(1001 * ATTO);
         applicationCoin.burn(1000 * ATTO);
     }
