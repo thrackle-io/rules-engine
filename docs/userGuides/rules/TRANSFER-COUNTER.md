@@ -30,6 +30,8 @@ This is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection 
 ```
 ###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
+If a single blank `tag` is specified, the rule is applicable to all users.
+
 Additionally, each one of these data structures will be under a tagged NFT Collection (bytes32):
 
 tag -> token collection (sub-rule).
