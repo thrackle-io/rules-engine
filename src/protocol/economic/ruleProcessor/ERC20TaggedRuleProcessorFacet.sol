@@ -251,11 +251,17 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param lastUpdateTime block.timestamp of most recent transaction from sender.
      * @return cumulativePurchaseTotal Total tokens sold within sell period.
      */
-    function checkPurchaseLimit(uint32 ruleId, uint256 purchasedWithinPeriod, uint256 amount, bytes32[] calldata toTags, uint64 lastUpdateTime) external view returns (uint256) {
+    function checkPurchaseLimit(uint32 ruleId, uint256 purchasedWithinPeriod, uint256 amount, bytes32[] memory toTags, uint64 lastUpdateTime) external view returns (uint256) {
         toTags.checkMaxTags();
         uint64 startTime = getPurchaseRuleStart(ruleId);
         uint256 cumulativeTotal;
         if (startTime <= block.timestamp){
+            /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
+            /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
+            if(getPurchaseRule(ruleId, BLANK_TAG).purchasePeriod > 0){
+                toTags = new bytes32[](1);
+                toTags[0] = BLANK_TAG;
+            }
             for (uint i = 0; i < toTags.length; ) {
                 TaggedRules.PurchaseRule memory purchaseRule = getPurchaseRule(ruleId, toTags[i]);
                 if (purchaseRule.purchasePeriod > 0) {
@@ -313,11 +319,17 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param lastUpdateTime block.timestamp of most recent transaction from sender.
      * @return cumulativeSalesTotal Total tokens sold within sell period.
      */
-    function checkSellLimit(uint32 ruleId, uint256 salesWithinPeriod, uint256 amount, bytes32[] calldata fromTags, uint64 lastUpdateTime) external view returns (uint256) {
+    function checkSellLimit(uint32 ruleId, uint256 salesWithinPeriod, uint256 amount, bytes32[] memory fromTags, uint64 lastUpdateTime) external view returns (uint256) {
         fromTags.checkMaxTags();
         uint64 startTime = getSellRuleStartByIndex(ruleId);
         uint256 cumulativeSalesTotal;
         if (startTime <= block.timestamp){
+            /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
+            /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
+            if(getSellRuleByIndex(ruleId, BLANK_TAG).sellPeriod > 0){
+                fromTags = new bytes32[](1);
+                fromTags[0] = BLANK_TAG;
+            }
             for (uint i = 0; i < fromTags.length; ) {
                 TaggedRules.SellRule memory sellRule = getSellRuleByIndex(ruleId, fromTags[i]);
                 if (sellRule.sellPeriod > 0) {

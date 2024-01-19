@@ -125,7 +125,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user2, 10091);
     }
 
-    function testPassMinMaxAccountBalanceRuleApplicationERC20BlankTag() public {
+    function testERC20_PassMinMaxAccountBalanceRuleApplicationERC20BlankTag() public {
         /// set up a non admin user with tokens
         applicationCoin.transfer(rich_user, 100000);
         assertEq(applicationCoin.balanceOf(rich_user), 100000);
@@ -139,11 +139,12 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
         ///update ruleId in coin rule handler
-        applicationCoinHandler.setMinMaxBalanceRuleId(ruleId);
+        // create the default actions array
+        ActionTypes[] memory actionTypes = new ActionTypes[](2);
+        actionTypes[0] = ActionTypes.P2P_TRANSFER;
+        actionTypes[1] = ActionTypes.SELL;
+        applicationCoinHandler.setMinMaxBalanceRuleId(actionTypes, ruleId);
         switchToAppAdministrator();
-        ///Add GeneralTag to account
-        applicationAppManager.addGeneralTag(user1, "Oscar"); ///add tag
-        assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
 
         ///perform transfer that checks rule
         vm.stopPrank();
@@ -156,6 +157,13 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         //vm.expectRevert("Balance Will Drop Below Minimum");
         vm.expectRevert(0xf1737570);
         applicationCoin.transfer(user3, 989);
+        // see if approving for another user bypasses rule
+        applicationCoin.approve(address(888), 989);
+        vm.stopPrank();
+        vm.startPrank(address(888));
+        //vm.expectRevert("Balance Will Drop Below Minimum");
+        vm.expectRevert(0xf1737570);
+        applicationCoin.transferFrom(user1, user3, 989);
 
         /// make sure the maximum rule fail results in revert
         vm.stopPrank();
@@ -705,7 +713,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
-        applicationCoinHandler.setMinBalByDateRuleId(_index);
+        applicationCoinHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// load non admin users with application coin
         applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
@@ -1441,7 +1449,64 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoinHandler.setSellLimitRuleId(ruleId);
     }
 
-    ///TODO Test Purchase rule through AMM once Purchase functionality is created
+    function _setupSellRuleBlankTag() internal {
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        ///Add tag to user
+        bytes32[] memory accs = new bytes32[](1);
+        uint192[] memory sellAmounts = new uint192[](1);
+        uint16[] memory sellPeriod = new uint16[](1);
+        accs[0] = bytes32("");
+        sellAmounts[0] = uint192(600); ///Amount to trigger Sell freeze rules
+        sellPeriod[0] = uint16(36); ///Hours
+
+        /// add the rule.
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, uint64(Blocktime));
+        ///update ruleId in application AMM rule handler
+        applicationCoinHandler.setSellLimitRuleId(ruleId);
+    }
+
+    function _setupPurchaseRule() internal {
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        ///Add tag to user
+        bytes32[] memory accs = new bytes32[](1);
+        uint256[] memory amounts = new uint256[](1);
+        uint16[] memory period = new uint16[](1);
+        accs[0] = bytes32("PurchaseRule");
+        amounts[0] = uint256(600); ///Amount to trigger Purchase freeze rules
+        period[0] = uint16(36); ///Hours
+
+        /// Set the rule data
+        applicationAppManager.addGeneralTag(user1, accs[0]);
+        applicationAppManager.addGeneralTag(user2, accs[0]);
+        /// add the rule.
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, amounts, period, uint64(Blocktime));
+        ///update ruleId in application AMM rule handler
+        applicationCoinHandler.setPurchaseLimitRuleId(ruleId);
+    }
+
+    function _setupPurchaseRuleBlankTag() internal {
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        ///Add tag to user
+        bytes32[] memory accs = new bytes32[](1);
+        uint256[] memory amounts = new uint256[](1);
+        uint16[] memory period = new uint16[](1);
+        accs[0] = bytes32("");
+        amounts[0] = uint256(600); ///Amount to trigger Purchase freeze rules
+        period[0] = uint16(36); ///Hours
+
+        /// add the rule.
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, amounts, period, uint64(Blocktime));
+        ///update ruleId in application AMM rule handler
+        applicationCoinHandler.setPurchaseLimitRuleId(ruleId);
+    }
+
+    ///TODO Test sell rule through AMM once Purchase functionality is created
     function testERC20_SellRule() public {
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
@@ -1462,6 +1527,73 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         /// Swap that fails
         vm.expectRevert(0xc11d5f20);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
+    }
+
+    ///TODO Test sell rule through AMM once Purchase functionality is created
+    function testERC20_SellRuleBlankTag() public {
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(amm), 50000);
+        _setupSellRuleBlankTag();
+        
+        /// Swap that passes rule check
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// Approve transfer(1M)
+        applicationCoin.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
+
+        /// Swap that fails
+        vm.expectRevert(0xc11d5f20);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
+    }
+
+    function testERC20_PurchaseRule() public {
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin2.approve(address(amm), 50000);
+        _setupPurchaseRule();
+        
+        /// Swap that passes rule check
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// Approve transfer(1M)
+        applicationCoin.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        amm.dummyTrade(address(applicationCoin2), address(applicationCoin), 500, 500, true);
+
+        /// Swap that fails
+        vm.expectRevert(0xa7fb7b4b);
+        amm.dummyTrade(address(applicationCoin2), address(applicationCoin), 500, 500, true);
+    }
+
+    function testERC20_PurchaseRuleBlankTag() public {
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin2.approve(address(amm), 50000);
+        _setupPurchaseRuleBlankTag();
+        
+        /// Swap that passes rule check
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// Approve transfer(1M)
+        applicationCoin.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        amm.dummyTrade(address(applicationCoin2), address(applicationCoin), 500, 500, true);
+
+        /// Swap that fails
+        vm.expectRevert(0xa7fb7b4b);
+        amm.dummyTrade(address(applicationCoin2), address(applicationCoin), 500, 500, true);
     }
 
     function _setupPurchasePercentageRule() internal {    
@@ -1533,7 +1665,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         vm.expectRevert(0xb634aad9);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 9, 9, false);
     }
-
+    
     function _setupSellPercentageRule() internal {
         uint16 tokenPercentage = 5000; /// 50%
         uint16 sellPeriod = 24; /// 24 hour periods

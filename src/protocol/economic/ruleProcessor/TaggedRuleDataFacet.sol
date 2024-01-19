@@ -39,7 +39,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
         _accountTypes.areTagsValid();
-        return _addPurchaseRule(_accountTypes, _purchaseAmounts, _purchasePeriods, _startTimes);
+        return _addPurchaseRule(_accountTypes, _purchaseAmounts, _purchasePeriods, _startTime);
     }
 
     /**
@@ -55,15 +55,8 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         uint32 index = data.purchaseRulesIndex;
         _startTime.validateTimestamp();
         for (uint256 i; i < _accountTypes.length; ) {
-<<<<<<< HEAD
-            if (_accountTypes[i] == bytes32("")) revert BlankTag();
             if (_purchaseAmounts[i] == 0 || _purchasePeriods[i] == 0) revert ZeroValueNotPermited();
             data.purchaseRulesPerUser[index][_accountTypes[i]] = TaggedRules.PurchaseRule(_purchaseAmounts[i], _purchasePeriods[i]);
-=======
-            if (_purchaseAmounts[i] == 0 || _purchasePeriods[i] == 0 || _startTimes[i] == 0) revert ZeroValueNotPermited();
-            _startTimes[i].validateTimestamp();
-            data.purchaseRulesPerUser[index][_accountTypes[i]] = TaggedRules.PurchaseRule(_purchaseAmounts[i], _purchasePeriods[i], _startTimes[i]);
->>>>>>> 70161bb7 (pre merge commit)
 
             unchecked {
                 ++i;
@@ -97,12 +90,8 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
-<<<<<<< HEAD
-        return _addSellRule(_accountTypes, _sellAmounts, _sellPeriod, _startTime);
-=======
         _accountTypes.areTagsValid();
-        return _addSellRule(_accountTypes, _sellAmounts, _sellPeriod, _startTimes);
->>>>>>> 70161bb7 (pre merge commit)
+        return _addSellRule(_accountTypes, _sellAmounts, _sellPeriod, _startTime);
     }
 
     /**
