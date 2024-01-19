@@ -12,12 +12,17 @@ import {NFTPricingErrors} from "src/common/IErrors.sol";
 interface IProtocolERC721Pricing is NFTPricingErrors {
     /**
      * @dev gets the price for an NFT. It will return the NFT's specific price, or the
-     * price of the collection if no specific price hsa been given
+     * price of the collection if no specific price has been given.
      * @param nftContract is the address of the NFT contract
      * @param id of the NFT
-     * @return price of the NFT in cents of dollars. 1000 => $ 10.00 USD
+     * @return price of the Token in weis of dollars. 10^18 => $ 1.00 USD
      */
     function getNFTPrice(address nftContract, uint256 id) external view returns (uint256 price);
 
+    /**
+     * @dev gets the default price for an NFT collection.
+     * @param nftContract is the address of the NFT contract
+     * @return price of the Token in weis of dollars. 10^18 => $ 1.00 USD
+     */
     function getNFTCollectionPrice(address nftContract) external view returns (uint256 price);
 }
