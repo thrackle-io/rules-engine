@@ -4,7 +4,7 @@
 ---
 
 
-In order for US-Dollar-based application rules to function properly, the protocol needs to be able to determine the price of each asset. There are two ways to accomplish this: the protocol provided example and a custom pricer.
+In order for US-Dollar-based application rules to function properly, the protocol needs to be able to determine the price of each asset. There are two ways to accomplish this: the protocol provided example and a third-party pricer.
 
 ### NFT Pricing Module
 
