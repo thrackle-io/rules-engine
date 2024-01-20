@@ -30,7 +30,7 @@ The functions that these adapters must implement are:
     function getNFTCollectionPrice(address nftContract) external view returns (uint256 price);
 ```
 
-For the full interface, checkout [IProtocolERC721Pricing]("scr/common/IProtocolERC721Pricing.sol").
+For the full interface, see [IProtocolERC721Pricing]("../../../../../src/common/IProtocolERC721Pricing.sol").
 
 ## ERC20 Pricing Functions
 
@@ -43,6 +43,6 @@ For the full interface, checkout [IProtocolERC721Pricing]("scr/common/IProtocolE
     function getTokenPrice(address tokenContract) external view returns (uint256 price);
 ```
 
-For the full interface, checkout [IProtocolERC20Pricing]("scr/common/IProtocolERC20Pricing.sol").
+For the full interface, see [IProtocolERC20Pricing]("../../../../../src/common/IProtocolERC20Pricing.sol").
 
-Developes may choose to implement and deploy an adapter contract per token standard (one for ERC20 and another for ERC721), or to implement both in a single contract to deploy. No matter the route taken, the appManager Handler must have **both** pricer addresses set in order to properly work.
+Developers may choose to implement and deploy an adapter contract per token standard (one for ERC20 and another for ERC721), or to implement both in a single contract to deploy. No matter the route taken, the appManager Handler must have **both** pricer addresses set in order to properly work.
