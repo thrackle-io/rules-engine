@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the Transfer Fee is to assess fees when protocol supported tokens are transferred. Application developers can utilize fees to influence their application's economy through incentivising behavior. Fees are assigned via tags applied to accounts through the App Manager. A blank tag may be used when adding a fee to apply to all accounts as a "default" fee. Token fees are added and activated through the token handler contract. Token transfer fees are assessed and taken from the token itself, not a collateralized token, when fees are active in the token handler. 
+The purpose of the Transfer Fee is to assess fees when protocol supported tokens are transferred. Application developers can utilize fees to influence their application's economy through incentivising behavior. Fees are assigned via tags applied to accounts through the App Manager. A blank tag may be used when adding a fee to apply to all accounts as a "default" fee. Token fees are added and activated through the token handler contract. Token transfer fees are assessed and taken from the token when fees are active in the token handler. 
 
 
 ## Application of Transfer Fee
