@@ -75,12 +75,25 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
             toTags = new bytes32[](1);
             toTags[0] = BLANK_TAG;
         }
-        for (uint i; i < toTags.length; ) {
-            uint256 max = getMinMaxBalanceRule(ruleId, toTags[i]).maximum;
-            /// if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
-            if (max > 0 && balanceTo + amount > max) revert MaxBalanceExceeded();
-            unchecked {
-                ++i;
+        uint64 startTime = getMinMaxBalRuleStart(ruleId);
+        if (startTime <= block.timestamp){
+            for (uint i; i < toTags.length; ) {
+                uint256 max = getMinMaxBalanceRule(ruleId, toTags[i]).maximum;
+                uint256 duration = getMinMaxBalanceRule(ruleId, toTags[i]).holdPeriod;
+                /// check if holdPeriod is 0, 0 means a holdPeriod hasn't been applied to this rule
+                if(duration != 0) {
+                    /// Check to see if still in the hold period
+                    if ((block.timestamp - (duration * 1 hours)) < startTime) {
+                        /// If the transaction will violate the rule, then revert
+                        if (max > 0 && balanceTo + amount > max) revert TxnInFreezeWindow();
+                    }
+                } else {
+                    /// if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
+                    if (max > 0 && balanceTo + amount > max) revert MaxBalanceExceeded();
+                }
+                unchecked {
+                    ++i;
+                }
             }
         }
     }
@@ -103,14 +116,40 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
             fromTags = new bytes32[](1);
             fromTags[0] = BLANK_TAG;
         }
-        for (uint i = 0; i < fromTags.length; ) {
-            uint256 min = getMinMaxBalanceRule(ruleId, fromTags[i]).minimum;
-            /// if a min is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
-            if (min > 0 && balanceFrom - amount < min) revert BalanceBelowMin();
-            unchecked {
-                ++i;
+        uint64 startTime = getMinMaxBalRuleStart(ruleId);
+        if (startTime <= block.timestamp){
+            for (uint i = 0; i < fromTags.length; ) {
+                uint256 min = getMinMaxBalanceRule(ruleId, fromTags[i]).minimum;
+                uint256 duration = getMinMaxBalanceRule(ruleId, fromTags[i]).holdPeriod;
+                /// check if holdPeriod is 0, 0 means a holdPeriod hasn't been applied to this rule
+                if(duration != 0) {
+                    /// Check to see if still in the hold period
+                    if ((block.timestamp - (duration * 1 hours)) < startTime) {
+                        /// If the transaction will violate the rule, then revert
+                        if (min > 0 && balanceFrom - amount < min) revert TxnInFreezeWindow();
+                    }
+                } else {
+                    /// if a min is 0 it means it is an empty-rule/no-rule. a min should be greater than 0
+                    if (min > 0 && balanceFrom - amount < min) revert BalanceBelowMin();
+                }
+                unchecked {
+                    ++i;
+                }
             }
         }
+    }
+
+    /**
+     * @dev Function get the minimum/maximum rule start timestamp
+     * @param _index position of rule in array
+     * @return startTime rule start time
+     */
+    function getMinMaxBalRuleStart(uint32 _index) public view returns (uint64 startTime) {
+        // check one of the required non zero values to check for existence, if not, revert
+        _index.checkRuleExistence(getTotalMinMaxBalanceRules());
+        RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
+        if (_index >= data.minMaxBalanceRuleIndex) revert IndexOutOfRange();
+        return data.startTimes[_index];
     }
 
     /**
@@ -169,77 +208,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     function getTotalAdminWithdrawalRules() public view returns (uint32) {
         RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
         return data.adminWithdrawalRulesIndex;
-    }
-
-    /**
-     * @dev Rule checks if the minimum balance by date rule will be violated. Tagged accounts must maintain a minimum balance throughout the period specified
-     * @param ruleId Rule identifier for rule arguments
-     * @param balance account's current balance
-     * @param amount Number of tokens to be transferred from this account
-     * @param toTags Account tags applied to sender via App Manager
-     */
-    function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] memory toTags) external view {
-        toTags.checkMaxTags();
-        uint64 startTime = getMinBalByDateRuleStart(ruleId);
-        /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
-        /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
-        if(getMinBalByDateRule(ruleId, BLANK_TAG).holdPeriod > 0){
-            toTags = new bytes32[](1);
-            toTags[0] = BLANK_TAG;
-        }
-        if (startTime <= block.timestamp){
-            uint256 finalBalance = balance - amount;
-            for (uint i = 0;  i < toTags.length; ) {
-                    TaggedRules.MinBalByDateRule memory minBalByDateRule = getMinBalByDateRule(ruleId, toTags[i]);
-                    uint256 holdPeriod = minBalByDateRule.holdPeriod;
-                    /// check if holdPeriod is 0, 0 means it is an empty-rule/no-rule. a holdAmount should be greater than 0
-                    if(holdPeriod != 0) {
-                        /// Check to see if still in the hold period
-                        if ((block.timestamp - (holdPeriod * 1 hours)) < startTime) {
-                            uint256 holdAmount = minBalByDateRule.holdAmount;
-                        /// If the transaction will violate the rule, then revert
-                        if (finalBalance < holdAmount) revert TxnInFreezeWindow();
-                        }
-                    }
-                unchecked {
-                    ++i;
-                }
-            }
-        }
-    }
-
-    /**
-     * @dev Function get the minimum balance by date rule in the rule set that belongs to an account type
-     * @param _index position of rule in array
-     * @param _accountTag Tag of account
-     * @return Min BalanceByDate rule at index position
-     */
-    function getMinBalByDateRule(uint32 _index, bytes32 _accountTag) public view returns (TaggedRules.MinBalByDateRule memory) {
-        // No need to check the rule existence or index since it was already checked in getMinBalByDateRuleStart
-        RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
-        return data.minBalByDateRulesPerUser[_index][_accountTag];
-    }
-
-    /**
-     * @dev Function get the minimum balance by date rule start timestamp
-     * @param _index position of rule in array
-     * @return startTime rule start time
-     */
-    function getMinBalByDateRuleStart(uint32 _index) public view returns (uint64 startTime) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalMinBalByDateRules());
-        RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
-        if (_index >= data.minBalByDateRulesIndex) revert IndexOutOfRange();
-        return data.startTimes[_index];
-    }
-
-    /**
-     * @dev Function to get total minimum balance by date rules
-     * @return Total length of array
-     */
-    function getTotalMinBalByDateRules() public view returns (uint32) {
-        RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
-        return data.minBalByDateRulesIndex;
     }
 
     /**

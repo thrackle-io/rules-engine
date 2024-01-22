@@ -176,13 +176,13 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         bytes32[] memory _accountTypes = createBytes32Array("BALLER");
         uint256[] memory _minimum = createUint256Array(10);
         uint256[] memory _maximum = createUint256Array(1000);
-
+        uint16[] memory empty;
         /// Set the min/max rule data
         applicationAppManager.addGeneralTag(user1, "BALLER");
         applicationAppManager.addGeneralTag(user2, "BALLER");
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum, empty, uint64(Blocktime));
         /// connect the rule to this handler
         applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(_createActionsArray(), ruleId);
         switchToAppAdministrator();
@@ -249,13 +249,15 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         bytes32[] memory _accountTypes = createBytes32Array("BALLER");
         uint256[] memory _minimum = createUint256Array(10);
         uint256[] memory _maximum = createUint256Array(1000);
+        uint16[] memory empty;
 
         /// Set the min/max rule data
         applicationAppManager.addGeneralTag(user1, "BALLER");
         applicationAppManager.addGeneralTag(user2, "BALLER");
+        
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum, empty, uint64(Blocktime));
         /// connect the rule to this handler
         applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(_createActionsArray(), ruleId);
         switchToAppAdministrator();

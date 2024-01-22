@@ -162,24 +162,6 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateMinBalByDate(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllMinBalByDateRule());
-    }
-
-    /**
-     * @dev Function to get total minimum balance by date rules
-     * @return Total length of array
-     */
-    function getAllMinBalByDateRule() internal view returns (uint32) {
-        RuleS.MinBalByDateRuleS storage data = Storage.minBalByDateRuleStorage();
-        return data.minBalByDateRulesIndex;
-    }
-
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
     function validateMinTransfer(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getAllMinimumTransferRules());

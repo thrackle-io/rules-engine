@@ -121,15 +121,6 @@ interface IRuleProcessor {
      */
     function checkAdminWithdrawalRule(uint32 _ruleId, uint256 _currentBalance, uint256 _amountToTransfer) external view;
 
-    /**
-     * @dev Rule checks if the minimum balance by date rule will be violated. Tagged accounts must maintain a minimum balance throughout the period specified
-     * @param ruleId Rule identifier for rule arguments
-     * @param balance account's current balance
-     * @param amount Number of tokens to be transferred from this account
-     * @param toTags Account tags applied to sender via App Manager
-     */
-    function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags) external view;
-
     // --------------------------- APPLICATION LEVEL --------------------------------
 
     /**
@@ -303,12 +294,6 @@ interface IRuleProcessor {
      * @param _ruleId Rule Identifier
      */
     function validateAdminWithdrawal(uint32 _ruleId) external view;
-
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
-    function validateMinBalByDate(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule

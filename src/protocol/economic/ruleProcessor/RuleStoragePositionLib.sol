@@ -231,17 +231,6 @@ library RuleStoragePositionLib {
     }
 
     /**
-     * @dev Function to store Minimum Balance By Date rules
-     * @return ds Data Storage of Minimum Balance by Date rule
-     */
-    function minBalByDateRuleStorage() internal pure returns (IRuleStorage.MinBalByDateRuleS storage ds) {
-        bytes32 position = MIN_BAL_BY_DATE_RULE_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
-
-    /**
      * @dev Function to store Access Level Withdrawal rules
      * @return ds Data Storage of Access Level Withdrawal rule
      */

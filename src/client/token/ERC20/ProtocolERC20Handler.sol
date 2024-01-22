@@ -29,7 +29,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     mapping(ActionTypes => Rule) minTransfer;
     mapping(ActionTypes => Rule) minMaxBalance;   
     mapping(ActionTypes => Rule) adminWithdrawal;  
-    mapping(ActionTypes => Rule) minBalByDate; 
     mapping(ActionTypes => Rule) tokenTransferVolume;
     mapping(ActionTypes => Rule) totalSupplyVolatility;
     /// Oracle rule mapping(allows multiple rules per action)
@@ -160,7 +159,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
         bytes32[] memory fromTags;
         bool mustCheckPurchaseRules = action == ActionTypes.PURCHASE && !appManager.isTradingRuleBypasser(_to);
         bool mustCheckSellRules = action == ActionTypes.SELL && !appManager.isTradingRuleBypasser(_from);
-        if ( minMaxBalance[action].active || minBalByDate[action].active || 
+        if ( minMaxBalance[action].active || 
             (mustCheckPurchaseRules && purchaseLimitRuleActive) ||
             (mustCheckSellRules && sellLimitRuleActive)
         )
@@ -171,8 +170,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
         }
         if (minMaxBalance[action].active) 
             ruleProcessor.checkMinMaxAccountBalancePasses(minMaxBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
-        if (minBalByDate[action].active) 
-            ruleProcessor.checkMinBalByDatePasses(minBalByDate[action].ruleId, _balanceFrom, _amount, fromTags);
         if((mustCheckPurchaseRules && (purchaseLimitRuleActive || purchasePercentageRuleActive)) || 
             (mustCheckSellRules && (sellLimitRuleActive || sellPercentageRuleActive))
         )
@@ -641,61 +638,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      */
     function getAdminWithdrawalRuleId(ActionTypes _action) external view returns (uint32) {
         return adminWithdrawal[_action].ruleId;
-    }
-
-    /**
-     * @dev Retrieve the minimum balance by date rule id
-     * @param _action the action type
-     * @return minBalByDateRuleId rule id
-     */
-    function getMinBalByDateRule(ActionTypes _action) external view returns (uint32) {
-        return minBalByDate[_action].ruleId;
-    }
-
-    /**
-     * @dev Set the minBalByDateRuleId. Restricted to app administrators only.
-     * @notice that setting a rule will automatically activate it.
-     * @param _actions the action type
-     * @param _ruleId Rule Id to set
-     */
-    function setMinBalByDateRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
-            ruleProcessor.validateMinBalByDate(_ruleId);
-            minBalByDate[_actions[i]].ruleId = _ruleId;
-            minBalByDate[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(MIN_ACCT_BAL_BY_DATE, _actions[i], _ruleId);
-            unchecked {
-                ++i;
-            }
-        }
-    }
-
-    /**
-     * @dev Tells you if the min bal by date rule is active or not.
-     * @param _actions the action type
-     * @param _on boolean representing if the rule is active
-     */
-    function activateMinBalByDateRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
-            minBalByDate[_actions[i]].active = _on;
-            if (_on) {
-                emit ApplicationHandlerActionActivated(MIN_ACCT_BAL_BY_DATE, _actions[i]);
-            } else {
-                emit ApplicationHandlerActionDeactivated(MIN_ACCT_BAL_BY_DATE, _actions[i]);
-            }
-            unchecked {
-                ++i;
-            }
-        }
-    }
-
-    /**
-     * @dev Tells you if the minBalByDateRuleActive is active or not.
-     * @param _action the action type
-     * @return boolean representing if the rule is active
-     */
-    function isMinBalByDateActive(ActionTypes _action) external view returns (bool) {
-        return minBalByDate[_action].active;
     }
 
     /**
