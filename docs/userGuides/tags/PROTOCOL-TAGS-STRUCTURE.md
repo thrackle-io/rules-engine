@@ -2,83 +2,92 @@
 
 ## Purpose
 
+Tags are assigned to accounts and addresses by application administrators through the application manager contract. A maximum of 10 Tags per account or address are stored as bytes32 in the Tags data contract. This data contract is deployed when the app manager is deployed. The Tags data contract can be migrated to a new application manager during an upgrade to maintain tagged account and address data. [App administrators](../permissions/ADMIN-ROLES.md) can migrate data contracts to a new app manager through a two step migration process.
 
+The protocol utilizes tags in numerous rules to facilitate validation of the rules for inidividual users or addresses. Based on a user's tags different rule values will be assessed. Users with "TagA" may have a max balance limit of 1000 protocol supported tokens where users with "TagB" may have a 10,000 token limit. For a list of rules that utilize tags see [TAGGED-RULES](./TAGGED-RULES.md). 
 
-## Applies To:
+Rules may utilize a "blank tag" where no specific tag is provided to the protocol when the rule is created. These rules will apply to all users of the protocol supported token that do not have a tag assigned to them. If a Min/Max Balance [TAGGED-RULES](./TAGGED-RULES.md) is active with a blank tag, every user that is not assigned a tag by the application administrators will be subject to the minimum and maximum limits of that rule. 
 
-- [x] ERC20
-- [x] ERC721
-- [x] AMM
+Tags are also used for the assessment of fees within the protocol. When activated, fees are additive and will be assessed for each tag an account or address has stored. 
+
 
 ## Scope 
 
+### Account Tags: 
+
+### Address Tags: 
 
 ## Data Structure
-Fees are stored in a struct inside the Fees data contract. 
+Tags are a bytes32 array stored in a mapping inside the Tags data contract. 
+ 
+```c
+///     address   => tags 
+mapping(address => bytes32[]) public tagRecords;
+```
+
+###### *see [Tags](../../../client/application/data/Tags.sol)*
+
+## Enabling/Disabling
+- Tags can only be added in the app manager by an **app administrator**.
+- Tags can only be removed in the app manager by an **app administrator**.
+
+
+### Revert Messages
+
+The transaction will revert with the following error if the tag limit is reached when adding tags: 
+
+```
+error MaxTagLimitReached();
+```
+The selector for this error is `0xa3afb2e2`.
+
+
+The transaction will revert with the following error if there is no tag assigned when removing tags: 
+
+```
+error NoAddressToRemove();
+```
+The selector for this error is `0x7de8c17d`.
+
+
+## Add Functions
+
+Adding a tag is done through the function:
 
 ```c
-struct Fee {
-        uint256 minBalance;
-        uint256 maxBalance;
-        int24 feePercentage;
-        address feeCollectorAccount;
-    }
-```
-- **minBalance** (uint256): minimum balance for fee application 
-- **maxBalance** (uint256): maximum balance for fee application 
-- **feePercentage** (int24): fee percentage to assess in basis units (-10000 to 10000)
-- **feeCollectorAccount** (address): address of the fees recipient account 
-
-Each Fee struct is stored in a mapping by the bytes32 tag associated to that fee: 
-```c
-///     tag   => Fee struct 
-mapping(bytes32 => Fee) feesByTag;
+function addTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE); 
 ```
 
-###### *see [Fees](../../../src/client/token/data/Fees.sol)*
-
-## Configuration and Enabling/Disabling
-- Fees can only be configured in the asset handler by a **rule administrator**.
-- Fees can only be added in the asset handler by a **rule administrator**.
-- Fees can only be removed in the asset handler by a **rule administrator**.
-
-## Fees Evaluation
-DO WE NEED THIS SECTION?????
-
-###### *see [ProtocolERC20](../../../src/client/token/ERC20/ProtocolERC20.sol) -> transfer*
-
-## Evaluation Exceptions 
-- There are no evaluation exceptions when fees are active. Fees are assessed in the token transfer function for token fees and in the swap function for AMM fees. No exceptions are made for the assessment of fees. If an address or account should not have fees assessed, there should not be a tag applied to it.
-
-### Revert Message
-
-The transaction will revert with the following error if Fees are higher than transfer amount: 
-
-```
-error FeesAreGreaterThanTransactionAmount();
-```
-
-The selector for this error is `0x248ee764`.
-
-
-## Add Function
-
-Adding a fee is done through the function:
+Adding multiple tags to a single account or address is done through the function:
 
 ```c
-function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount)   external ruleAdministratorOnly(appManagerAddress); 
+function addTagToMultipleAccounts(address[] _accounts, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE); 
 ```
-###### *see [Fees](../../../src/client/token/data/Fees.sol)*
+
+Adding multiple tags to multiple accounts or addresses is done through the function:
+
+```c
+function addMultipleTagToMultipleAccounts(address[] _accounts, bytes32 _tags) external onlyRole(APP_ADMIN_ROLE); 
+```
+
+###### *see [Tags](../../../client/application/data/Tags.sol)*
+
+## Remove Function
+
+Removing a tag is done through the function:
+
+```c
+function removeTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE); 
+```
+###### *see [Tags](../../../client/application/data/Tags.sol)*
 
 ### Parameters:
 
-- **_tag** (bytes32): tag for fee application to an account.
-- **minBalance** (uint256): minimum balance for fee application 
-- **maxBalance** (uint256): maximum balance for fee application 
-- **feePercentage** (int24): fee percentage to assess in basis units (-10000 to 10000)
-- **_targetAccount** (address): address of the fees recipient account 
+- **_tag** (bytes32): tag for an account.
+- **_tags** (bytes32[]): array of tags for an account.
+- **_account** (address): address of the account to tag
+- **_accounts** (address[]): array of addresses to tag
 
-This create function allows for fees to be applied via a blank tag and will work as a default fee for all accounts. Additional tags applied to account will resault in additional fees being assessed for that account. Accounts can have up to 10 tags per account and can reflect both additive fees or deductive fees (discounts). 
 
 ### Parameter Optionality:
 
@@ -88,64 +97,38 @@ There are no options for the parameters of this function.
 
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
-- The `minBalance` is less than `maxBalance`.
-- `feePercentage` is greater than -10000 and less than 10000.
-- `feePercentage` is not equal to 0.
-- `targetAccount` is not the zero address. 
+- `_tag` is not blank.
+- `_account` has the tag. When adding tags this is used to avoid duplication. When removing tags this is used to ensure account has the tag to be removed.   
 
-###### *see [Fees](../../../src/client/token/data/Fees.sol)*
+###### *see [Tags](../../../client/application/data/Tags.sol)*
 
 ## Other Functions:
 
-- In [Fees](../../../src/client/token/data/Fees.sol):
-    -  Function to remove a fee:
+- In [App Manager](../../../client/application/AppManager.sol):
+    -  Function to check if an account or address has a tag:
         ```c
-        function removeFee(bytes32 _tag) external onlyOwner;
+        function hasTag(address _address, bytes32 _tag) public view returns (bool);
         ```
-    -  Function to get a fee:
+    -  Function to get all the tags for an address:
         ```c
-        function getFee(bytes32 _tag) public view onlyOwner returns (Fee memory);
+        function getAllTags(address _address) external view returns (bytes32[] memory);
         ```
-    -  Function to get total nuber of fees:
+    -  Function to deploy new data contracts:
         ```c
-        function getFeeTotal() external view onlyOwner returns (uint256)
+        function deployDataContracts() private;
         ```
-    -  Function to propose new data contract owner:
+    - Function to retrieve tags data contract address:
         ```c
-        function proposeOwner(address _newOwner) external onlyOwner;
-        ```
-    -  Function to confirm new data contract owner:
-        ```c
-        function confirmOwner() external;
-        ```
-
-- In [Asset Handler](../../../src/client/token/ERC20/ProtocolERC20Handler.sol):
-    -  Function to deploy a new data contract:
-        ```c
-        function deployDataContract() private;
-        ```
-    - Function to retrieve fees data contract address:
-        ```c
-        function getFeesDataAddress() external view returns (address);
+        functiongetTagsDataAddress() external view returns (address);
         ```
     - Function to propose data contract migration to new handler:
         ```c
-        function proposeDataContractMigration(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress);
+        function proposeDataContractMigration(address _newOwner) external  onlyRole(APP_ADMIN_ROLE);
         ```
     - Function to confirm migration of data contracts to new handler:
         ```c
-        function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOrOwnerOnly(appManagerAddress);
-        ```
-
-## Return Data
-
-When assessing fees the function getApplicableFees() returns: 
-- **feeCollectorAccounts** (address[]): List of fee recipient addresses
-- **feePercentagess** (int24[]): List of fee percentages 
-
-## Data Recorded
-
-Fee totals are added inside of a loop and then total fees are subtracted from the amount being transferred within the transfer or swap functions. This data is not saved to storage. 
+        function confirmDataContractMigration(address _oldHandlerAddress) external  onlyRole(APP_ADMIN_ROLE);
+        ``` 
 
 ## Events
 

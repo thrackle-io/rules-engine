@@ -586,13 +586,13 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     /**
      * @dev Add a general tag to an account at index in array. Restricted to Application Administrators. Loops through existing tags on accounts and will emit  an event if tag is already applied.
      * @param _accounts Address array to be tagged
-     * @param _tag Tag array for the account at index. Can be any allowed string variant
+     * @param _tags Tag array for the account at index. Can be any allowed string variant
      * @notice there is a hard limit of 10 tags per address.
      */
-    function addMultipleTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tag) external onlyRole(APP_ADMIN_ROLE) {
-        if (_accounts.length != _tag.length) revert InputArraysMustHaveSameLength();
+    function addMultipleTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tags) external onlyRole(APP_ADMIN_ROLE) {
+        if (_accounts.length != _tags.length) revert InputArraysMustHaveSameLength();
         for (uint256 i; i < _accounts.length; ) {
-            tags.addTag(_accounts[i], _tag[i]);
+            tags.addTag(_accounts[i], _tags[i]);
             unchecked {
                 ++i;
             }

@@ -101,6 +101,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x2bbc9aea | WithdrawalExceedsAccessLevelAllowedLimit()                       |
 | 0x346120b1 | TagAlreadyExists()                                               |
 | 0xa3afb2e2 | MaxTagLimitReached()                                             |
+| 0x7de8c17d | NoAddressToRemove()                                              |
 | 0xf9432cf8 | WithdrawalAmountsShouldHave5Levels(uint8)                        |
 | 0xb634aad9 | PurchasePercentageReached()                                      |
 | 0xb17ff693 | SellPercentageReached()                                          |
