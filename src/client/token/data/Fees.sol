@@ -24,7 +24,7 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
     }
 
     /**
-     * @dev This function adds a fee to the token
+     * @dev This function adds a fee to the token. Blank tags are allowed
      * @param _tag meta data tag for fee
      * @param _minBalance minimum balance for fee application
      * @param _maxBalance maximum balance for fee application
@@ -34,7 +34,6 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
     function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external onlyOwner {
         if (_minBalance > _maxBalance) revert InvertedLimits();
         if (_feePercentage < -10000 || _feePercentage > 10000) revert ValueOutOfRange(uint24(_feePercentage));
-        if (_tag == "") revert BlankTag();
         if (_feePercentage == 0) revert ZeroValueNotPermited();
         if (_targetAccount == address(0) && _feePercentage > 0) revert ZeroValueNotPermited();
         // if the fee did not already exist, then increment total
@@ -53,7 +52,6 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
      * @param _tag meta data tag for fee
      */
     function removeFee(bytes32 _tag) external onlyOwner {
-        if (_tag == "") revert BlankTag();
         // feePercentage must always not be 0 so it can be used to check rule existence
         if (feesByTag[_tag].feePercentage != 0) {
             delete (feesByTag[_tag]);

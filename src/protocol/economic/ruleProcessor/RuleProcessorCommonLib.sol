@@ -10,6 +10,7 @@ library RuleProcessorCommonLib {
     error InvalidTimestamp(uint64 _timestamp);
     error MaxTagLimitReached();
     error RuleDoesNotExist();
+    error TagListMustBeSingleBlankOrValueList();
     uint8 constant MAX_TAGS = 10;
 
     /**
@@ -69,10 +70,19 @@ library RuleProcessorCommonLib {
 
     /**
      * @dev determine if the max tag number is reached
-     * @param _tags the timestamp the rule was enabled
+     * @param _tags tags associated with the rule
      */
     function checkMaxTags(bytes32[] memory _tags) internal pure {
-        if (_tags.length > MAX_TAGS) revert MaxTagLimitReached();
+        if (_tags.length > MAX_TAGS) revert MaxTagLimitReached();    
+    }
+
+    /**
+     * @dev determine if the rule applies to all users
+     * @param _tags the timestamp the rule was enabled
+     * @param _isAll true if applies to all users
+     */
+    function isApplicableToAllUsers(bytes32[] memory _tags) internal pure returns(bool _isAll){
+        if (_tags.length == 1 && _tags[0] == bytes32("")) return true;
     }
 
     function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskLevels, uint48[] memory _maxSizes) internal pure returns(uint256){
@@ -91,4 +101,22 @@ library RuleProcessorCommonLib {
         }
         return maxSize; 
     }
+
+     /**
+     * @dev validate tags to ensure only a blank or valid tags were submitted.
+     * @param _accountTags the timestamp the rule was enabled
+     * @return _valid returns true if tag entry is valid
+     */
+    function areTagsValid(bytes32[] calldata _accountTags) internal pure returns (bool) {
+        // If more than one tag, none can be blank.
+        if (_accountTags.length > 1){
+            for (uint256 i; i < _accountTags.length; ) {
+                if (_accountTags[i] == bytes32("")) revert TagListMustBeSingleBlankOrValueList();
+                unchecked {
+                    ++i;
+                }
+            }
+        }
+        return true;
+    } 
 }

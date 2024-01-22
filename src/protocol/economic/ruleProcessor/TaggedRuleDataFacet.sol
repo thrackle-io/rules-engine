@@ -14,6 +14,8 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for uint32;
     using RuleProcessorCommonLib for uint8; 
+    using RuleProcessorCommonLib for bytes32[]; 
+
 
     /********************** Purchase Getters/Setters ***********************/
     /**
@@ -36,6 +38,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         if (_accountTypes.length != _purchaseAmounts.length || _accountTypes.length != _purchasePeriods.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
+        _accountTypes.areTagsValid();
         return _addPurchaseRule(_accountTypes, _purchaseAmounts, _purchasePeriods, _startTime);
     }
 
@@ -52,7 +55,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         uint32 index = data.purchaseRulesIndex;
         _startTime.validateTimestamp();
         for (uint256 i; i < _accountTypes.length; ) {
-            if (_accountTypes[i] == bytes32("")) revert BlankTag();
             if (_purchaseAmounts[i] == 0 || _purchasePeriods[i] == 0) revert ZeroValueNotPermited();
             data.purchaseRulesPerUser[index][_accountTypes[i]] = TaggedRules.PurchaseRule(_purchaseAmounts[i], _purchasePeriods[i]);
 
@@ -88,6 +90,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
+        _accountTypes.areTagsValid();
         return _addSellRule(_accountTypes, _sellAmounts, _sellPeriod, _startTime);
     }
 
@@ -104,7 +107,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         uint32 index = data.sellRulesIndex;
         _startTime.validateTimestamp();
         for (uint256 i; i < _accountTypes.length; ) {
-            if (_accountTypes[i] == bytes32("")) revert BlankTag();
             if (_sellAmounts[i] == 0 || _sellPeriod[i] == 0) revert ZeroValueNotPermited();
             data.sellRulesPerUser[index][_accountTypes[i]] = TaggedRules.SellRule(_sellAmounts[i], _sellPeriod[i]);
             unchecked {
@@ -137,6 +139,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         if (_accountTypes.length != _minimum.length || _accountTypes.length != _maximum.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
+        _accountTypes.areTagsValid();
         return _addMinMaxBalanceRule(_accountTypes, _minimum, _maximum);
     }
 
@@ -151,7 +154,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
         uint32 index = data.minMaxBalanceRuleIndex;
         for (uint256 i; i < _accountTypes.length; ) {
-            if (_accountTypes[i] == bytes32("")) revert BlankTag();
             if (_minimum[i] == 0 || _maximum[i] == 0) revert ZeroValueNotPermited();
             if (_minimum[i] > _maximum[i]) revert InvertedLimits();
             TaggedRules.MinMaxBalanceRule memory rule = TaggedRules.MinMaxBalanceRule(_minimum[i], _maximum[i]);
@@ -259,6 +261,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         if (_accountTags.length != _holdAmounts.length || _accountTags.length != _holdPeriods.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTags.length == 0) revert InvalidRuleInput();
+        _accountTags.areTagsValid();
         return _addMinBalByDateRule(_accountTags, _holdAmounts, _holdPeriods, _startTimestamp);
     }
 
@@ -276,7 +279,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         /// if defaults sent for timestamp, start them with current block time
         if (_startTimestamp == 0) _startTimestamp = uint64(block.timestamp);
         for (uint256 i; i < _accountTags.length; ) {
-            if (_accountTags[i] == bytes32("")) revert BlankTag();
             if (_holdAmounts[i] == 0 || _holdPeriods[i] == 0) revert ZeroValueNotPermited();
             data.minBalByDateRulesPerUser[index][_accountTags[i]] = TaggedRules.MinBalByDateRule(_holdAmounts[i], _holdPeriods[i]);
             unchecked {
@@ -308,7 +310,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         if (_nftTypes.length == 0 || _startTs == 0) revert ZeroValueNotPermited();
         if (_nftTypes.length != _tradesAllowed.length) revert InputArraysMustHaveSameLength();
         _startTs.validateTimestamp();
-
+        _nftTypes.areTagsValid();
         return _addNFTTransferCounterRule(_nftTypes, _tradesAllowed, _startTs);
     }
 
@@ -323,7 +325,6 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
         uint32 index = data.NFTTransferCounterRuleIndex;
         for (uint256 i; i < _nftTypes.length; ) {
-            if (_nftTypes[i] == bytes32("")) revert BlankTag();
             TaggedRules.NFTTradeCounterRule memory rule = TaggedRules.NFTTradeCounterRule(_tradesAllowed[i], _startTs);
             data.NFTTransferCounterRule[index][_nftTypes[i]] = rule;
             unchecked {

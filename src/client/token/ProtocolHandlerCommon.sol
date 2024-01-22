@@ -45,7 +45,7 @@ abstract contract ProtocolHandlerCommon is
     /// This is used to set the max action for an efficient check of all actions in the enum
     uint8 constant LAST_POSSIBLE_ACTION = uint8(ActionTypes.P2P_TRANSFER);
     uint16 constant MAX_ORACLE_RULES = 10;
-
+    bytes32 constant BLANK_TAG = bytes32("");
     
 
 

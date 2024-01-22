@@ -31,6 +31,8 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
 ```
 ###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
+If a single blank `tag` is specified, the rule is applicable to all users.
+
 Additionally, each one of these data structures will be under a tag (bytes32):
 
  tag -> sub-rule.
@@ -141,7 +143,7 @@ The following validation will be carried out by the create function in order to 
 
 - All input array lengths must be equal and not empty.
 - `_appManagerAddr` Must not be the zero address.
-- `_accountTypes` No blank tags.
+- `_accountTypes` `tag` can either be a single blank tag or a list of non blank `tag`s.
 - `_sellAmounts` 0 not allowed.
 - `_startTime` 0 not allowed. Must be less than 1 year into the future.
 
