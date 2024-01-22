@@ -327,9 +327,9 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
 
         ///Register rule with ERC20Handler
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
+        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, 0, uint64(block.timestamp));
         ///Activate rule
-        applicationHandler.setTransactionLimitByRiskRuleId(ruleId);
+        applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(ruleId);
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, risk);

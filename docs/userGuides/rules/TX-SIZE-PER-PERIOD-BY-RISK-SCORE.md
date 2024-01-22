@@ -78,8 +78,8 @@ The rule will be evaluated with the following logic:
 
 1. The application handler calculates the US Dollar amount of tokens being transferred, and gets the risk score from the AppManager for the account in the *from* side of the transaction.
 2. The application handler then sends these values along with the rule Id of the transaction-size-per-period-by-risk-score rule set in the handler, the date of the last transfer of tokens by the account, and the accumulated US Dollar amount transferred during the period to the protocol.
-3. The protocol then proceeds to check if the current transaction is part of an ongoing period, or if it is the first one in a new period.
-    - **If it is a new period**, the protocol resets the accumulated US Dollar amount transferred during current period to just the amount being currently transferred. 
+3. The protocol then proceeds to check if the rule has a period enabled in which case it checks if the current transaction is part of an ongoing period, or if it is the first one in a new period. If the rule doesn't have a period enabled, then it treats current transaction as the first one in a new period.
+    - **If it is a new period, or no period enabled**, the protocol resets the accumulated US Dollar amount transferred during current period to just the amount being currently transferred. 
     - **If it is not a new period**, then the protocol accumulates the amount being currently transferred to the accumulated US Dollar amount transferred during the period. 
 4. The protocol then evaluates the accumulated US Dollar amount transferred during current period against the rule's maximum allowed for the risk segment in which the account is in. The protocol reverts the transaction if the accumulated amount exceeds this rule risk-segment's maximum.
 
@@ -126,11 +126,12 @@ The create function will return the protocol ID of the rule.
 - **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
 - **_riskScores** (uint8[]): array of risk scores delimiting each risk segment.
 - **_txnLimits** (uint48[]): array of maximum US-Dollar amounts allowed to be transferred in a transaction for each risk segment (in whole US Dollars).
-- **_period** (uint16): the amount of hours that defines a period.
+- **_period** (uint16): the amount of hours that defines a period. 0 if no period is desired.
 - **_startTimestamp** (uint64): the timestamp of the date when the rule starts the first *period*.
 
 ### Parameter Optionality:
-There are no options for the parameters of this rule.
+
+- **_period**: if 0 is passed, it means the rule has no period enabled. 
 
 ### Parameter Validation:
 
@@ -140,7 +141,6 @@ The following validation will be carried out by the create function in order to 
 - `_riskScores` and `_txnLimits` are the same size.
 - `_riskScores` elements are in ascending order and no greater than 99.
 - `_txnLimits` elements are in descending order.
-- `period` is not zero.
 - `_startTimestamp` is not zero and is not more than 52 weeks in the future.
 
 ###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*

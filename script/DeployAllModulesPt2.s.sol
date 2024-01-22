@@ -46,14 +46,13 @@ contract DeployAllModulesPt2Script is Script {
     function deployFacets() internal {
 
         /// Register all facets.
-        string[7] memory facets = [
+        string[6] memory facets = [
             "FeeRuleProcessorFacet",
             "ApplicationRiskProcessorFacet",
             "ApplicationAccessLevelProcessorFacet",
             "ApplicationPauseProcessorFacet",
             "ERC20TaggedRuleProcessorFacet",
-            "ERC721TaggedRuleProcessorFacet",
-            "RiskTaggedRuleProcessorFacet"
+            "ERC721TaggedRuleProcessorFacet"
         ];
 
         string[] memory inputs = new string[](3);

@@ -53,7 +53,7 @@ contract DeployAllModulesScript is Script {
         DiamondInit diamondInit = new DiamondInit();
 
         /// Register all facets.
-        string[17] memory facets = [
+        string[16] memory facets = [
             // diamond version
             "VersionFacet",
             /// Native facets,
@@ -70,7 +70,6 @@ contract DeployAllModulesScript is Script {
             "ApplicationPauseProcessorFacet",
             "ERC20TaggedRuleProcessorFacet",
             "ERC721TaggedRuleProcessorFacet",
-            "RiskTaggedRuleProcessorFacet",
             "RuleApplicationValidationFacet",
             "RuleDataFacet",
             "TaggedRuleDataFacet",

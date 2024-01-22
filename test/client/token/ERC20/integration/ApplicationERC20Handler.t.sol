@@ -150,14 +150,14 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         uint48[] memory _maxSize = createUint48Array(1000000, 10000, 10); 
         uint8[] memory _riskLevel = createUint8Array(25, 50, 75);
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
+        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, 0, uint64(block.timestamp));
         ///Activate rule
-        applicationHandler.setTransactionLimitByRiskRuleId(ruleId);
+        applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(ruleId);
         ///add txnLimit failing (risk level 100)
         uint48[] memory maxSize = createUint48Array(1000000, 10000, 10);
         uint8[] memory riskLevel = createUint8Array(25, 75, 100);
         vm.expectRevert();
-        TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskLevel, maxSize);
+        AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), maxSize, riskLevel, 0, uint64(block.timestamp));
 
         ///add balanceLimit passing (less than 100)
         uint8[] memory _riskScores = createUint8Array(25, 50, 75);

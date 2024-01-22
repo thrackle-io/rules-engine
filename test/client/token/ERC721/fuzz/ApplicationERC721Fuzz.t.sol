@@ -338,8 +338,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
         ///Register rule with ERC721Handler
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
-        applicationHandler.setTransactionLimitByRiskRuleId(ruleId);
+        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, 0, uint64(block.timestamp));
+        applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(ruleId);
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(_user1, risk);
@@ -1131,8 +1131,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             uint48[] memory _maxSize = createUint48Array(7_500_000, 75_000, 750, 350, 10);
             uint8[] memory _riskLevel = createUint8Array(0, 10, 40, 80, 99);
             ///Register rule with ERC721Handler
-            uint32 maxTxPerRiskId = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), _riskLevel, _maxSize);
-            applicationHandler.setTransactionLimitByRiskRuleId(maxTxPerRiskId);
+            uint32 maxTxPerRiskId = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, 0, uint64(block.timestamp));
+            applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(maxTxPerRiskId);
         }
 
         switchToRiskAdmin();

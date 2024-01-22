@@ -105,15 +105,6 @@ interface IRuleProcessor {
     function checkNFTTransferCounter(uint32 ruleId, uint256 transfersWithinPeriod, bytes32[] calldata nftTags, uint64 lastTransferTime) external view returns (uint256);
 
     /**
-     * @dev Check Transaction Limit for Risk Score
-     * @param _ruleId Rule Identifier for rule arguments
-     * @param _riskScore the Risk Score of the account
-     * @param _amountToTransfer total dollar amount to be transferred
-     */
-    function checkTransactionLimitByRiskScore(uint32 _ruleId, uint8 _riskScore, uint256 _amountToTransfer) external view;
-
-
-    /**
      * @dev Assess the fee associated with the AMM Fee Rule
      * @param _ruleId Rule Identifier for rule arguments
      * @param _collateralizedTokenAmount total number of collateralized tokens to be swapped(this could be the "token in" or "token out" as the fees are always * assessed from the collateralized token)

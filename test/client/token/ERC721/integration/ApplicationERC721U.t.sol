@@ -338,7 +338,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         uint8[] memory riskScores = createUint8Array(0, 10, 40, 80, 99);
         uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
         switchToRuleAdmin();
-        uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
+        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
         switchToAppAdministrator();
         ///Mint NFT's (user1,2,3)
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
@@ -355,7 +355,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        applicationHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(index);
 
         ///Set Risk Scores for users
         switchToRiskAdmin();
@@ -678,7 +678,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         uint8[] memory riskScores = createUint8Array(1, 10, 40, 80, 99);
         uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
         switchToRuleAdmin();
-        uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
+        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
         switchToAppAdministrator();
         ///Mint NFT's (user1,2,3)
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
@@ -695,7 +695,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        applicationHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(index);
         ///Set Risk Scores for users
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
@@ -792,7 +792,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         uint8[] memory riskScores = createUint8Array(1, 10, 40, 80, 99);
         uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
         switchToRuleAdmin();
-        uint32 index = TaggedRuleDataFacet(address(ruleProcessor)).addTransactionLimitByRiskScore(address(applicationAppManager), riskScores, txnLimits);
+        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
         switchToAppAdministrator();
         ///Mint NFT's (user1,2,3)
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
@@ -809,7 +809,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
 
         ///Set Rule in NFTHandler
         switchToRuleAdmin();
-        applicationHandler.setTransactionLimitByRiskRuleId(index);
+        applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(index);
         ///Set Risk Scores for users
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, riskScores[0]);
