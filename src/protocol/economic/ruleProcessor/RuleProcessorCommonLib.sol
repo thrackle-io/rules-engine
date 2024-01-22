@@ -81,7 +81,7 @@ library RuleProcessorCommonLib {
      * @param _tags the timestamp the rule was enabled
      * @param _isAll true if applies to all users
      */
-    function isAllUsers(bytes32[] memory _tags) internal pure returns(bool _isAll){
+    function isApplicableToAllUsers(bytes32[] memory _tags) internal pure returns(bool _isAll){
         if (_tags.length == 1 && _tags[0] == bytes32("")) return true;
     }
 
