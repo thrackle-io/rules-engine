@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "src/example/ERC20/ApplicationERC20Handler.sol";
 import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
-import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import {ApplicationERC721AdminOrOwnerMint} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import "src/example/OracleDenied.sol";
@@ -50,7 +50,7 @@ contract ApplicationDeployAllScript is Script {
         new OracleDenied();
         
         /// create NFT
-        ApplicationERC721 nft1 = new ApplicationERC721("Frankenstein", "FRANKPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
+        ApplicationERC721AdminOrOwnerMint nft1 = new ApplicationERC721AdminOrOwnerMint("Frankenstein", "FRANKPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
         applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1), false);
         nft1.connectHandlerToToken(address(applicationNFTHandler));
         
@@ -67,6 +67,8 @@ contract ApplicationDeployAllScript is Script {
         exchange.setSingleTokenPrice(address(coin2), 1 * (10 ** 18));
         openOcean.setNFTCollectionPrice(address(nft1), 5 * (10 ** 18));
         
+        applicationAppManager.addRuleAdministrator(vm.envAddress("QUORRA"));
+
         /// Link the pricing module to the Application Handler
         applicationHandler.setERC20PricingAddress(address(exchange));
         applicationHandler.setNFTPricingAddress(address(openOcean));
