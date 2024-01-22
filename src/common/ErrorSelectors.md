@@ -57,6 +57,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x7d9b7dbc | PercentageValueLessThan100()                                     |
 | 0x984cc2a2 | PageOutOfRange()                                                 |
 | 0xeeb9d4f7 | InvertedLimits()                                                 |
+| 0xb75194a4 | CantMixPeriodicAndNonPeriodic()                                  |
 | 0x5b2790b5 | AmountsAreZero()                                                 |
 | 0xd4c6aa81 | TokenInvalid(address)                                            |
 | 0xf1ec5eb7 | AmountExceedsBalance(uint256)                                    |

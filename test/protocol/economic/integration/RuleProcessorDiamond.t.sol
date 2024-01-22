@@ -813,6 +813,22 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
     }
 
+    /// testing mixing Periodic and Non-Periodic cases
+    function testAddBalanceMixedPeriodicAndNonPeriodic() public {
+        // set user to the rule admin
+        vm.stopPrank();
+        vm.startPrank(ruleAdmin);
+        bytes32[] memory accs = createBytes32Array("Oscar", "Shane");
+        uint256[] memory min = createUint256Array(10, 20);
+        uint256[] memory max = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000, 
+            999999000000000000000000000000000000000000000000000000000000000000000000000
+            );
+        uint16[] memory periods = createUint16Array(10, 0);
+        vm.expectRevert(0xb75194a4);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, periods, uint64(Blocktime));
+    }
+
     /// test total rules
     function testTotalRulesOnBalanceLimits() public {
         // set user to the rule admin
