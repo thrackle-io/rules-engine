@@ -241,9 +241,23 @@ OUTPUT=$(forge create ./src/example/$APP_NAME/$PRICING_FILE_NAME:"$APP_NAME"ERC7
 
 OUTPUTARRAY=$(echo $OUTPUT | tr '\n' ' ')
 IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-APPLICATION_PRICER="${outputarray[9]}"
+APPLICATION_ERC721_PRICER="${outputarray[9]}"
 
-echo export APPLICATION_PRICER=$APPLICATION_PRICER | tee -a $OUTPUTFILE
+echo export APPLICATION_ERC721_PRICER=$APPLICATION_ERC721_PRICER | tee -a $OUTPUTFILE
+echo
+
+echo "################################################################"
+echo  Deploying "$APP_NAME"ERC721
+echo "################################################################"
+echo
+
+OUTPUT=$(forge create ./src/example/$APP_NAME/$PRICING_FILE_NAME:"$APP_NAME"ERC20Pricing --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1 $GAS_ARGUMENT)
+
+OUTPUTARRAY=$(echo $OUTPUT | tr '\n' ' ')
+IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
+APPLICATION_ERC20_PRICER="${outputarray[9]}"
+
+echo export APPLICATION_ERC20_PRICER=$APPLICATION_ERC20_PRICER | tee -a $OUTPUTFILE
 echo
 
 echo "################################################################"
@@ -370,7 +384,7 @@ echo  Set Price of ERC721 collection
 echo "################################################################"
 echo
 
-cast send $APPLICATION_PRICER "setNFTCollectionPrice(address,uint256)" $APPLICATION_ERC721_1 1000000000000000000 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL 
+cast send $APPLICATION_ERC721_PRICER "setNFTCollectionPrice(address,uint256)" $APPLICATION_ERC721_1 1000000000000000000 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL 
 
 echo "################################################################"
 echo  Make Rule Admin

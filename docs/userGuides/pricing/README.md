@@ -7,11 +7,55 @@ The purpose of the pricing contracts is to serve as token-price data sources for
 - [ERC20 pricers](./ERC20-PRICING.md).
 - [ERC721 pricers](./ERC721-PRICING.md).
 
-Some protocol rules require these contracts to be set in the tokens for them to be able to work:
+Developers may choose to adapt their preferred third-party solution for token pricing:
+
+- [Third-party solutions](./THIRD-PARTY-SOLUTIONS.md).
+
+Configured pricing modules are required for the following rules:
 
 - [Account Balance by Risk](../rules/ACCOUNT-BALANCE-BY-RISK.md).
 - [Max Balance by Access Level](../rules/MAX-BALANCE-BY-ACCESS-LEVEL.md).
 - [Tx Size per Period by Risk Score](../rules/TX-SIZE-PER-PERIOD-BY-RISK-SCORE.md).
+
+## Configuration
+
+To set up the pricer contracts:
+
+1. Make sure you have deployed your [ERC20](./ERC20-PRICING.md) and your [ERC721](./ERC721-PRICING.md) pricer contracts, or that your [third party solutions](./THIRD-PARTY-SOLUTIONS.md) are ready to communicate with your application.
+
+2. Connect the pricer-contract set to your appManager. For this, only an account with the role of ruleAdministrator will be able to call the following functions in the appManager Handler:
+
+```c
+/**
+     * @dev sets the address of the erc20 pricing contract and loads the contract.
+     * @param _address ERC20 Pricing Contract address.
+     */
+    function setERC20PricingAddress(address _address) external ruleAdministratorOnly(appManagerAddress);
+
+    /**
+     * @dev sets the address of the nft pricing contract and loads the contract.
+     * @param _address Nft Pricing Contract address.
+     */
+    function setNFTPricingAddress(address _address) external ruleAdministratorOnly(appManagerAddress);
+```
+
+Pass the addresses for your pricer contracts respectively, and you're done!
+
+### Example
+
+- Cast command example to set the ERC20 pricer contract:
+
+    ```
+    cast send $APPLICATION_HANDLER "setERC20PricingAddress(address)()" $APPLICATION_ERC20_PRICER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+    ```
+
+- Cast command example to set the ERC721 pricer contract:
+
+    ```
+    cast send $APPLICATION_HANDLER "setNFTPricingAddress(address)()" $APPLICATION_ERC721_PRICER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+    ```
+
+This set of contracts can be reset at any time by an ruleAdministrator. Simply follow the same steps mentioned above with the new addresses.
 
 ## Price Format
 
