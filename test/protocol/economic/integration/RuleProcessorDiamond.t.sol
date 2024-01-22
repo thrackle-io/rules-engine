@@ -150,9 +150,11 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("");
         uint256[] memory min = createUint256Array(10);
         uint256[] memory max = createUint256Array(10000000000000000000000000);
+        uint16[] memory empty;
+
         // add rule at ruleId 0
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -176,9 +178,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("", "Shane");
         uint256[] memory min = createUint256Array(10,100);
         uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000);
+        uint16[] memory empty;
         // Can't add a blank and specific tag together
         vm.expectRevert(0x6bb35a99);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
     }
 
     /**
@@ -191,7 +194,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar", "Shane");
         uint256[] memory min = createUint256Array(10,100);
         uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint16[] memory empty;
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
     }
 
     function testMaxTagEnforcementThroughMinAccountBalanceCheck() public {
@@ -279,8 +283,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("");
         uint256[] memory min = createUint256Array(10);
         uint256[] memory max = createUint256Array(1000000000000000000000000000000);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint16[] memory empty;
+
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
@@ -326,8 +332,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("");
         uint256[] memory min = createUint256Array(10);
         uint256[] memory max = createUint256Array(10000);
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint16[] memory empty;
+
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
