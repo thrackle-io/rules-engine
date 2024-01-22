@@ -116,13 +116,13 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         // add the actual rule
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
 
-        ///Add GeneralTag to account
+        ///Add Tag to account
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(_user1, "Oscar"); ///add tag
+        applicationAppManager.addTag(_user1, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(_user1, "Oscar"));
-        applicationAppManager.addGeneralTag(_user2, "Oscar"); ///add tag
+        applicationAppManager.addTag(_user2, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(_user2, "Oscar"));
-        applicationAppManager.addGeneralTag(_user3, "Oscar"); ///add tag
+        applicationAppManager.addTag(_user3, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(_user3, "Oscar"));
         ///perform transfer that checks rule
         vm.stopPrank();
@@ -253,7 +253,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         assertEq(rule.startTs, Blocktime);
         // tag the NFT collection
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
+        applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag
         // apply the rule to the ApplicationERC721Handler
         switchToRuleAdmin();
         applicationNFTHandler.setTradeCounterRuleId(_createActionsArray(), _index);
@@ -271,8 +271,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
 
         // set to a tag that only allows 1 transfer
         switchToAppAdministrator();
-        applicationAppManager.removeGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
-        applicationAppManager.addGeneralTag(address(applicationNFT), "BoredGrape"); ///add tag
+        applicationAppManager.removeTag(address(applicationNFT), "DiscoPunk"); ///add tag
+        applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
         // perform 1 transfer
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -291,7 +291,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
 
         // add the other tag and check to make sure that it still only allows 1 trade
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
+        applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag
         vm.stopPrank();
         vm.startPrank(_user1);
         // first one should pass
@@ -646,9 +646,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFTHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// Tag accounts
-        applicationAppManager.addGeneralTag(_user1, tag1); ///add tag
-        applicationAppManager.addGeneralTag(_user2, tag2); ///add tag
-        applicationAppManager.addGeneralTag(_user3, tag3); ///add tag
+        applicationAppManager.addTag(_user1, tag1); ///add tag
+        applicationAppManager.addTag(_user2, tag2); ///add tag
+        applicationAppManager.addTag(_user3, tag3); ///add tag
         /// Transfers
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -1050,10 +1050,10 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
 
         uint32 maxBalanceForUser2;
         bool reached3;
-        ///Add GeneralTag to account
-        applicationAppManager.addGeneralTag(_user1, "Oscar"); ///add tag
+        ///Add Tag to account
+        applicationAppManager.addTag(_user1, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(_user1, "Oscar"));
-        applicationAppManager.addGeneralTag(_user2, "Oscar"); ///add tag
+        applicationAppManager.addTag(_user2, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(_user2, "Oscar"));
 
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1);
@@ -1112,7 +1112,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             uint256[] memory holdAmounts = createUint256Array(2);
             uint16[] memory holdPeriods = createUint16Array(720); // one month
             switchToAppAdministrator();
-            applicationAppManager.addGeneralTag(_user1, tag1); ///add tag
+            applicationAppManager.addTag(_user1, tag1); ///add tag
             switchToRuleAdmin();
             uint32 balanceByDateId = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
             /// Set rule
@@ -1123,7 +1123,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             uint8[] memory tradesAllowed = createUint8Array(3);
             uint32 tradeRuleId = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
             switchToAppAdministrator();
-            applicationAppManager.addGeneralTag(address(applicationNFT), "BoredGrape"); ///add tag
+            applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
             switchToRuleAdmin();
             applicationNFTHandler.setTradeCounterRuleId(_createActionsArray(), tradeRuleId);
         }

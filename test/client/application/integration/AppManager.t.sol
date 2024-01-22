@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "src/client/application/data/GeneralTags.sol";
-import "src/client/application/data/PauseRules.sol";
-import "src/client/application/data/AccessLevels.sol";
-import "src/client/application/data/RiskScores.sol";
-import "src/client/application/data/Accounts.sol";
-import "src/client/application/data/IDataModule.sol";
 import "test/util/TestCommonFoundry.sol";
 
 contract AppManagerBaseTest is TestCommonFoundry {
@@ -316,34 +310,34 @@ contract AppManagerBaseTest is TestCommonFoundry {
 
     ///---------------GENERAL TAGS--------------------
     // Test adding the general tags
-    function testAddGeneralTag() public {
+    function testAddTag() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addGeneralTag(user, "TAG1"); //add tag
+        applicationAppManager.addTag(user, "TAG1"); //add tag
         assertTrue(applicationAppManager.hasTag(user, "TAG1"));
     }
 
     // Test when tag is invalid
-    function testFailAddGeneralTag() public {
+    function testFailAddTag() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addGeneralTag(user, ""); //add blank tag
+        applicationAppManager.addTag(user, ""); //add blank tag
     }
 
     // Test scenarios for checking specific tags.
-    function testHasGeneralTag() public {
+    function testHasTag() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addGeneralTag(user, "TAG1"); //add tag
-        applicationAppManager.addGeneralTag(user, "TAG3"); //add tag
+        applicationAppManager.addTag(user, "TAG1"); //add tag
+        applicationAppManager.addTag(user, "TAG3"); //add tag
         assertTrue(applicationAppManager.hasTag(user, "TAG1"));
         assertFalse(applicationAppManager.hasTag(user, "TAG2"));
         assertTrue(applicationAppManager.hasTag(user, "TAG3"));
     }
 
     // Test removal of the tag
-    function testRemoveGeneralTag() public {
+    function testRemoveTag() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addGeneralTag(user, "TAG1"); //add tag
+        applicationAppManager.addTag(user, "TAG1"); //add tag
         assertTrue(applicationAppManager.hasTag(user, "TAG1"));
-        applicationAppManager.removeGeneralTag(user, "TAG1");
+        applicationAppManager.removeTag(user, "TAG1");
         assertFalse(applicationAppManager.hasTag(user, "TAG1"));
     }
 
@@ -445,12 +439,12 @@ contract AppManagerBaseTest is TestCommonFoundry {
     ///--------------- PROVIDER UPGRADES ---------------
 
     // Test setting General Tag provider contract address
-    function testSetNewGeneralTagProvider() public {
+    function testSetNewTagProvider() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        GeneralTags dataMod = new GeneralTags(address(applicationAppManager));
-        applicationAppManager.proposeGeneralTagsProvider(address(dataMod));
+        Tags dataMod = new Tags(address(applicationAppManager));
+        applicationAppManager.proposeTagsProvider(address(dataMod));
         dataMod.confirmDataProvider(IDataModule.ProviderType.GENERAL_TAG);
-        assertEq(address(dataMod), applicationAppManager.getGeneralTagProvider());
+        assertEq(address(dataMod), applicationAppManager.getTagProvider());
     }
 
     // Test setting access level provider contract address
@@ -513,9 +507,9 @@ contract AppManagerBaseTest is TestCommonFoundry {
         /// Account Data
         switchToAppAdministrator(); // create a app administrator and make it the sender.
         /// General Tags Data
-        applicationAppManager.addGeneralTag(upgradeUser1, "TAG1"); //add tag
+        applicationAppManager.addTag(upgradeUser1, "TAG1"); //add tag
         assertTrue(applicationAppManager.hasTag(upgradeUser1, "TAG1"));
-        applicationAppManager.addGeneralTag(upgradeUser2, "TAG2"); //add tag
+        applicationAppManager.addTag(upgradeUser2, "TAG2"); //add tag
         assertTrue(applicationAppManager.hasTag(upgradeUser2, "TAG2"));
         /// Pause Rule Data
         switchToRuleAdmin();

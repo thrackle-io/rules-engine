@@ -100,14 +100,14 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         assertEq(1, applicationCoinHandlerSpecialOwner.getFeeTotal());
         switchToAppAdministrator();
         // now test the fee assessment
-        applicationAppManager.addGeneralTag(user1, "cheap"); ///add tag
+        applicationAppManager.addTag(user1, "cheap"); ///add tag
         address[] memory targetAccounts;
         int24[] memory feePercentages;
         (targetAccounts, feePercentages) = applicationCoinHandlerSpecialOwner.getApplicableFees(user1, 100 * 10 ** 18);
         assertEq(targetAccounts[0], appAdministrator);
         assertEq(feePercentages[0], 300);
         // add another to see if it comes back as well
-        applicationAppManager.addGeneralTag(user1, "not as cheap"); ///add tag
+        applicationAppManager.addTag(user1, "not as cheap"); ///add tag
         switchToRuleAdmin();
         applicationCoinHandlerSpecialOwner.addFee("not as cheap", minBalance, maxBalance, 500, appAdministrator);
         switchToAppAdministrator();
@@ -118,7 +118,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         assertEq(feePercentages[1], 500);
 
         // do discounts(they should get evenly distributed across all fees)
-        applicationAppManager.addGeneralTag(user1, "discount"); ///add tag
+        applicationAppManager.addTag(user1, "discount"); ///add tag
         switchToRuleAdmin();
         applicationCoinHandlerSpecialOwner.addFee("discount", minBalance, maxBalance, -100, address(0));
         switchToAppAdministrator();
@@ -131,13 +131,13 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         assertEq(feePercentages[2], 0);
 
         // do discount only(This should return nothing as there is no such thing as a positive discount)
-        applicationAppManager.removeGeneralTag(user1, "cheap"); ///remove the previous tag
-        applicationAppManager.removeGeneralTag(user1, "not as cheap"); ///remove the previous tag
+        applicationAppManager.removeTag(user1, "cheap"); ///remove the previous tag
+        applicationAppManager.removeTag(user1, "not as cheap"); ///remove the previous tag
         (targetAccounts, feePercentages) = applicationCoinHandlerSpecialOwner.getApplicableFees(user1, 100 * 10 ** 18);
         assertEq(targetAccounts[0], address(0));
         assertEq(feePercentages[0], 0);
         // check when the balance negates the fee
-        applicationAppManager.addGeneralTag(user1, "cheap2"); ///add tag
+        applicationAppManager.addTag(user1, "cheap2"); ///add tag
         switchToRuleAdmin();
         applicationCoinHandlerSpecialOwner.addFee("cheap2", 300 * 10 ** 18, maxBalance, 200, targetAccount);
         (targetAccounts, feePercentages) = applicationCoinHandlerSpecialOwner.getApplicableFees(user1, 100 * 10 ** 18);
@@ -178,8 +178,8 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         uint256[] memory _maximum = createUint256Array(1000);
 
         /// Set the min/max rule data
-        applicationAppManager.addGeneralTag(user1, "BALLER");
-        applicationAppManager.addGeneralTag(user2, "BALLER");
+        applicationAppManager.addTag(user1, "BALLER");
+        applicationAppManager.addTag(user2, "BALLER");
         // add the rule.
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
@@ -251,8 +251,8 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         uint256[] memory _maximum = createUint256Array(1000);
 
         /// Set the min/max rule data
-        applicationAppManager.addGeneralTag(user1, "BALLER");
-        applicationAppManager.addGeneralTag(user2, "BALLER");
+        applicationAppManager.addTag(user1, "BALLER");
+        applicationAppManager.addTag(user2, "BALLER");
         // add the rule.
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);

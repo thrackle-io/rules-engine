@@ -3,8 +3,8 @@
 --- 
 
 Tag Information Documentation: 
-- Tags Application and Storage []()
-- Tagged Rules []()
+- [PROTOCOL TAG STRUCTURE](./PROTOCOL-TAGS-STRUCTURE.md)
+- [Tagged Rules](./TAGGED-RULES.md)
 - Tags Need To Know (?) []()
 
 <!-- These are the header links -->

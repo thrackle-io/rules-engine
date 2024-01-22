@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 import "./DataModule.sol";
-import "./IGeneralTags.sol";
+import "./ITags.sol";
 import { INoAddressToRemove } from "src/common/IErrors.sol";
 
 /**
- * @title General Tag Data Contract
+ * @title Tag Data Contract
  * @notice Stores tag data for accounts
  * @dev Tags are stored as an internal mapping
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
+contract Tags is DataModule, ITags, INoAddressToRemove {
     mapping(address => bytes32[]) public tagRecords;
     mapping(address => mapping(bytes32 => uint)) tagToIndex;
     mapping(address => mapping(bytes32 => bool)) isTagRegistered;
@@ -42,7 +42,7 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
             tagToIndex[_address][_tag] = tagRecords[_address].length;
             tagRecords[_address].push(_tag);
             isTagRegistered[_address][_tag] = true;
-            emit GeneralTag(_address, _tag, true);
+            emit Tag(_address, _tag, true);
 
         }
     }
@@ -54,7 +54,7 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
      * @notice there is a hard limit of MAX_TAGS tags per address. This limit is also enforced by the
      * protocol, so keeping this limit here prevents transfers to unexpectedly revert.
      */
-    function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external virtual onlyOwner {
+    function addTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external virtual onlyOwner {
         if (_tag == "") revert BlankTag();
         for (uint256 i; i < _accounts.length; ) {
             if (hasTag(_accounts[i], _tag)) emit TagAlreadyApplied(_accounts[i]);
@@ -63,7 +63,7 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
                 tagToIndex[_accounts[i]][_tag] = tagRecords[_accounts[i]].length;
                 tagRecords[_accounts[i]].push(_tag);
                 isTagRegistered[_accounts[i]][_tag] = true;
-                emit GeneralTag(_accounts[i], _tag, true);
+                emit Tag(_accounts[i], _tag, true);
             }
             unchecked {
                 ++i;
@@ -97,7 +97,7 @@ contract GeneralTags is DataModule, IGeneralTags, INoAddressToRemove {
             /// we set the index to zero for this tag in this account
             delete tagToIndex[_address][_tag];
             /// only one event should be emitted and only if a tag was actually removed
-            emit GeneralTag(_address, _tag, false);
+            emit Tag(_address, _tag, false);
         }else revert NoAddressToRemove();
 
     }

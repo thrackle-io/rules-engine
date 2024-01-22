@@ -382,7 +382,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         vm.expectRevert();
         applicationAppManager.addAccessLevel(address(0), 1);
         vm.expectRevert();
-        applicationAppManager.addGeneralTag(address(0), "TESTZERO");
+        applicationAppManager.addTag(address(0), "TESTZERO");
         vm.expectRevert();
         applicationAppManager.addRiskScore(address(0), 4);
     }
@@ -638,26 +638,26 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
 
     ///---------------GENERAL TAGS--------------------
     // Test adding the general tags
-    function testAddGeneralTag() public {
+    function testAddTag() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addGeneralTag(user, "TAG1"); //add tag
+        applicationAppManager.addTag(user, "TAG1"); //add tag
         assertTrue(applicationAppManager.hasTag(user, "TAG1"));
 
-        applicationAppManager.addGeneralTag(user, "TAG1"); //add tag again to test event emission for TagAlreadyApplied event
+        applicationAppManager.addTag(user, "TAG1"); //add tag again to test event emission for TagAlreadyApplied event
     }
 
     // Test adding the general tag to multiple accounts
-    function testAddGeneralTagToMultipleAccounts() public {
+    function testAddTagToMultipleAccounts() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
 
-        applicationAppManager.addGeneralTagToMultipleAccounts(ADDRESSES, "TAG1"); //add tag
+        applicationAppManager.addTagToMultipleAccounts(ADDRESSES, "TAG1"); //add tag
         assertTrue(applicationAppManager.hasTag(address(0xFF1), "TAG1"));
 
-        applicationAppManager.addGeneralTag(address(0xFF1), "TAG1"); //add tag again to test event emission for TagAlreadyApplied event
+        applicationAppManager.addTag(address(0xFF1), "TAG1"); //add tag again to test event emission for TagAlreadyApplied event
     }
 
     // Test adding multiple general tags to multiple accounts
-    function testAddMultipleGeneralTagsToMultipleAccouns() public {
+    function testAddMultipleTagsToMultipleAccouns() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
 
         /// Create Tag Array
@@ -667,65 +667,65 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         /// create mistmatch address array
         address[] memory misMatchAddressArray = createAddressArray(user, address(0xFF77), address(0xFF88));
 
-        applicationAppManager.addMultipleGeneralTagToMultipleAccounts(ADDRESSES, genTags); //add tags
+        applicationAppManager.addMultipleTagToMultipleAccounts(ADDRESSES, genTags); //add tags
         assertTrue(applicationAppManager.hasTag(address(0xFF1), "TAG"));
         assertTrue(applicationAppManager.hasTag(address(0xFF2), "TAG1"));
         assertTrue(applicationAppManager.hasTag(address(0xFF8), "TAG7"));
 
         vm.expectRevert(0x028a6c58);
-        applicationAppManager.addMultipleGeneralTagToMultipleAccounts(misMatchAddressArray, genTags);
+        applicationAppManager.addMultipleTagToMultipleAccounts(misMatchAddressArray, genTags);
 
         vm.expectRevert(0x028a6c58);
-        applicationAppManager.addMultipleGeneralTagToMultipleAccounts(ADDRESSES, misMatchArray);
+        applicationAppManager.addMultipleTagToMultipleAccounts(ADDRESSES, misMatchArray);
 
-        applicationAppManager.addGeneralTag(address(0xFF1), "TAG1"); //add tag again to test event emission for TagAlreadyApplied event
+        applicationAppManager.addTag(address(0xFF1), "TAG1"); //add tag again to test event emission for TagAlreadyApplied event
     }
 
     // Test when tag is invalid
-    function testFailAddGeneralTag() public {
+    function testFailAddTag() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addGeneralTag(user, ""); //add blank tag
+        applicationAppManager.addTag(user, ""); //add blank tag
     }
 
     // Test scenarios for checking specific tags.
-    function testHasGeneralTag() public {
+    function testHasTag() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addGeneralTag(user, "TAG1"); //add tag
-        applicationAppManager.addGeneralTag(user, "TAG3"); //add tag
+        applicationAppManager.addTag(user, "TAG1"); //add tag
+        applicationAppManager.addTag(user, "TAG3"); //add tag
         assertTrue(applicationAppManager.hasTag(user, "TAG1"));
         assertFalse(applicationAppManager.hasTag(user, "TAG2"));
         assertTrue(applicationAppManager.hasTag(user, "TAG3"));
     }
 
     // Test removal of the tag
-    function testRemoveGeneralTag() public {
+    function testRemoveTag() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        applicationAppManager.addGeneralTag(user, "TAG1"); //add tag
+        applicationAppManager.addTag(user, "TAG1"); //add tag
         assertTrue(applicationAppManager.hasTag(user, "TAG1"));
-        applicationAppManager.removeGeneralTag(user, "TAG1");
+        applicationAppManager.removeTag(user, "TAG1");
         assertFalse(applicationAppManager.hasTag(user, "TAG1"));
     }
 
-    function testOverAllGeneralTags() public {
+    function testOverAllTags() public {
         switchToAppAdministrator();
         /// test adding a singular Tag
-        applicationAppManager.addGeneralTag(user, "TAG1"); //add tag
+        applicationAppManager.addTag(user, "TAG1"); //add tag
         /// add one tag to multiple addresses
-        applicationAppManager.addGeneralTagToMultipleAccounts(ADDRESSES, "TAG2"); //add tags
+        applicationAppManager.addTagToMultipleAccounts(ADDRESSES, "TAG2"); //add tags
         /// add multiple tags to multiple addresses
         address[] memory addresses = createAddressArray(address(0xBABE), address(0xDADD));
         bytes32[] memory tags = createBytes32Array(bytes32("BABE"), bytes32("DADD"));
 
-        applicationAppManager.addMultipleGeneralTagToMultipleAccounts(addresses, tags);
+        applicationAppManager.addMultipleTagToMultipleAccounts(addresses, tags);
 
         assertTrue(applicationAppManager.hasTag(user, "TAG1"));
         assertFalse(applicationAppManager.hasTag(user, "TAG2"));
         assertFalse(applicationAppManager.hasTag(user, "BABE"));
         assertFalse(applicationAppManager.hasTag(user, "DADD"));
-        applicationAppManager.addGeneralTag(user, "TAG2");
-        applicationAppManager.addGeneralTag(user, "BABE");
-        applicationAppManager.addGeneralTag(user, "DADD");
-        applicationAppManager.addGeneralTag(user, "FIFTH");
+        applicationAppManager.addTag(user, "TAG2");
+        applicationAppManager.addTag(user, "BABE");
+        applicationAppManager.addTag(user, "DADD");
+        applicationAppManager.addTag(user, "FIFTH");
 
         assertTrue(applicationAppManager.hasTag(user, "TAG2"));
         assertTrue(applicationAppManager.hasTag(user, "BABE"));
@@ -744,39 +744,39 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         assertTrue(applicationAppManager.hasTag(address(0xDADD), "DADD"));
         assertFalse(applicationAppManager.hasTag(address(0xDADD), "BABE"));
 
-        applicationAppManager.removeGeneralTag(user, "TAG1");
+        applicationAppManager.removeTag(user, "TAG1");
         assertFalse(applicationAppManager.hasTag(user, "TAG1"));
         assertTrue(applicationAppManager.hasTag(user, "TAG2"));
         assertTrue(applicationAppManager.hasTag(user, "BABE"));
         assertTrue(applicationAppManager.hasTag(user, "DADD"));
         assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
-        applicationAppManager.removeGeneralTag(address(0xFF1), "TAG2");
+        applicationAppManager.removeTag(address(0xFF1), "TAG2");
         assertFalse(applicationAppManager.hasTag(address(0xFF1), "TAG2"));
-        applicationAppManager.removeGeneralTag(address(0xBABE), "BABE");
+        applicationAppManager.removeTag(address(0xBABE), "BABE");
         assertFalse(applicationAppManager.hasTag(address(0xBABE), "BABE"));
-        applicationAppManager.removeGeneralTag(address(0xDADD), "DADD");
+        applicationAppManager.removeTag(address(0xDADD), "DADD");
         assertFalse(applicationAppManager.hasTag(address(0xDADD), "DADD"));
 
         /// remove last tag
-        applicationAppManager.removeGeneralTag(user, "DADD");
+        applicationAppManager.removeTag(user, "DADD");
         assertFalse(applicationAppManager.hasTag(user, "DADD"));
         assertTrue(applicationAppManager.hasTag(user, "TAG2"));
         assertTrue(applicationAppManager.hasTag(user, "BABE"));
         assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
 
         /// remove tag in the middle
-        applicationAppManager.removeGeneralTag(user, "BABE");
+        applicationAppManager.removeTag(user, "BABE");
         assertFalse(applicationAppManager.hasTag(user, "BABE"));
         assertTrue(applicationAppManager.hasTag(user, "TAG2"));
         assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
 
         /// remove last tag again
-        applicationAppManager.removeGeneralTag(user, "TAG2");
+        applicationAppManager.removeTag(user, "TAG2");
         assertFalse(applicationAppManager.hasTag(user, "TAG2"));
         assertTrue(applicationAppManager.hasTag(user, "FIFTH"));
 
         /// remove only tag
-        applicationAppManager.removeGeneralTag(user, "FIFTH");
+        applicationAppManager.removeTag(user, "FIFTH");
         assertFalse(applicationAppManager.hasTag(user, "FIFTH"));
     }
 
@@ -953,9 +953,9 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         /// Account Data
         switchToAppAdministrator(); // create a app administrator and make it the sender.
         /// General Tags Data
-        applicationAppManager.addGeneralTag(upgradeUser1, "TAG1"); //add tag
+        applicationAppManager.addTag(upgradeUser1, "TAG1"); //add tag
         assertTrue(applicationAppManager.hasTag(upgradeUser1, "TAG1"));
-        applicationAppManager.addGeneralTag(upgradeUser2, "TAG2"); //add tag
+        applicationAppManager.addTag(upgradeUser2, "TAG2"); //add tag
         assertTrue(applicationAppManager.hasTag(upgradeUser2, "TAG2"));
         /// Pause Rule Data
         switchToRuleAdmin();
@@ -989,12 +989,12 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
     ///--------------- PROVIDER UPGRADES ---------------
 
     // Test setting General Tag provider contract address
-    function testSetNewGeneralTagProvider() public {
+    function testSetNewTagProvider() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-        GeneralTags dataMod = new GeneralTags(address(applicationAppManager));
-        applicationAppManager.proposeGeneralTagsProvider(address(dataMod));
+        Tags dataMod = new Tags(address(applicationAppManager));
+        applicationAppManager.proposeTagsProvider(address(dataMod));
         dataMod.confirmDataProvider(IDataModule.ProviderType.GENERAL_TAG);
-        assertEq(address(dataMod), applicationAppManager.getGeneralTagProvider());
+        assertEq(address(dataMod), applicationAppManager.getTagProvider());
     }
 
     // Test setting access level provider contract address
