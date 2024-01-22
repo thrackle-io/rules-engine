@@ -4,7 +4,7 @@
 
 This document outlines the overall fee structure of the protocol, how fees are applied and at what level the fees are applied. Each fee type has its own documentation associated to the specifics of that Fee type and are stored in the [FEE-GUIDE](./FEE-GUIDE.md).
 
-A Fee data contract is deployed at the same time as the AMM or token handler. All supporting fee data is stored in this contract and owned by the deployer. Data contracts can be migrated to a new handler in the event of an upgrade so that fee data is not lost.  
+A Fee data contract is deployed at the same time as the AMM or token handler. All supporting fee data is stored in this contract and owned by the handler. Data contracts can be migrated to a new handler in the event of an upgrade so that fee data is not lost. Only the previous handler owner or [app administrators](../deployment/ADMIN-ROLES.md) can migrate the data contracts. Migrations to a new handler are completed through a two step migration process.
 
 Fees are applied to accounts via general tags in the [AppMananger](../../../src/client/application/AppManager.sol). Each Fee applied via tags to an account can be additive (increase the fee amount owed) or subtractive (reduce the fee amount owed) and are expressed in basis points.
 
