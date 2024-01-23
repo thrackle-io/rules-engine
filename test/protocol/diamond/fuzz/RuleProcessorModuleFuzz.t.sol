@@ -149,8 +149,9 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array(accA, accB);
         uint256[] memory min = createUint256Array(minA, minB);
         uint256[] memory max = createUint256Array(maxA, maxB);
+        uint16[] memory empty;
         if ((sender != ruleAdmin) || minA == 0 || minB == 0 || maxA == 0 || maxB == 0 || minA > maxA || minB > maxB) vm.expectRevert();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         if ((sender == ruleAdmin) && minA > 0 && minB > 0 && maxA > 0 && maxB > 0 && !(minA > maxA || minB > maxB)) {
             assertEq(_index, 0);
             TaggedRules.MinMaxBalanceRule memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, accA);
@@ -160,7 +161,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             /// testing different sizes
             bytes32[] memory invalidAccs = new bytes32[](3);
             vm.expectRevert();
-            TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), invalidAccs, min, max);
+            TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), invalidAccs, min, max, empty, uint64(Blocktime));
 
             /// testing adding a second rule
             bytes32[] memory accs2 = createBytes32Array("Oscar","Tayler","Shane");
@@ -170,7 +171,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
                 20000000000000000000000000000000000000, 
                 900000000000000000000000000000000000000000000000000000000000000000000000000
                 );
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs2, min2, max2);
+            _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs2, min2, max2, empty, uint64(Blocktime));
             assertEq(_index, 1);
             rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getMinMaxBalanceRule(_index, "Tayler");
             assertEq(rule.minimum, min2[1]);
@@ -322,10 +323,11 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             /// we receive uint128 to avoid overflow, so we convert to uint256
             uint256[] memory _minimum = createUint256Array(uint256(bMin));
             uint256[] memory _maximum = createUint256Array(uint256(bMax));
+            uint16[] memory empty;
             // add the rule.
             vm.stopPrank();
             vm.startPrank(ruleAdmin);            
-            TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum);
+            TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum, empty, uint64(Blocktime));
             /// if we added the rule in the protocol, then we add it in the application
             if (!(bMin == 0 || bMax == 0 || bMin > bMax)) applicationCoinHandler.setMinMaxBalanceRuleId(_createActionsArray(),0);
         }

@@ -82,6 +82,7 @@ interface ITaggedRules {
     struct MinMaxBalanceRule {
         uint256 minimum;
         uint256 maximum;
+        uint16 holdPeriod; /// hours
     }
 
     /// ******** Admin Withdrawal Rules ********
@@ -93,11 +94,6 @@ interface ITaggedRules {
     struct TransactionSizeToRiskRule {
         uint8[] riskLevel;
         uint48[] maxSize; /// whole USD (no cents) -> 1 = 1 USD (Max allowed: 281 trillion USD)
-    }
-    /// ******** Minimum Balance By Date Rules ********
-    struct MinBalByDateRule {
-        uint256 holdAmount; /// token units
-        uint16 holdPeriod; /// hours
     }
     /// ******** NFT ********
     struct NFTTradeCounterRule {

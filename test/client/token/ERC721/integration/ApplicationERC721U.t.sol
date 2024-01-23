@@ -92,6 +92,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         bytes32[] memory accs = createBytes32Array("Oscar");
         uint256[] memory min = createUint256Array(1);
         uint256[] memory max = createUint256Array(6);
+        uint16[] memory empty;
+
         /// set up a non admin user with tokens
         switchToAppAdministrator();
         ///transfer tokenId 1 and 2 to rich_user
@@ -104,9 +106,9 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(appAdministrator, user1, 5);
         assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user1), 2);
         switchToRuleAdmin();
-        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         // add the actual rule
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
 
         ///Add Tag to account
         switchToAppAdministrator();
@@ -503,11 +505,16 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         // Set up the rule conditions
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("MIN1", "MIN2", "MIN3");
-        uint256[] memory holdAmounts = createUint256Array(1, 2, 3); /// Represent min number of tokens held by user for Collection address
+        uint256[] memory minAmounts = createUint256Array(1, 2, 3); /// Represent min number of tokens held by user for Collection address
+        uint256[] memory maxAmounts = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000
+        );
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, minAmounts, maxAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
         /// Add Tags to users
         switchToAppAdministrator();
@@ -519,7 +526,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assertTrue(applicationAppManager.hasTag(user3, "MIN3"));
         /// Set rule bool to active
         switchToRuleAdmin();
-        applicationNFTHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
+        applicationNFTHandler.setMinMaxBalanceRuleId(_createActionsArray(), _index);
         /// Transfers passing (above min value limit)
         vm.stopPrank();
         vm.startPrank(user1);

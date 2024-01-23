@@ -66,6 +66,7 @@ interface IInputErrors {
     error ValueOutOfRange(uint256 _value);
     error ZeroValueNotPermited();
     error InvertedLimits();
+    error CantMixPeriodicAndNonPeriodic();
     error InvalidOracleType(uint8 _type);
     error InvalidRuleInput();
 }

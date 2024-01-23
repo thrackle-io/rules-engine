@@ -100,9 +100,10 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
                 bytes32[] memory accs = createBytes32Array(_tag);
                 uint256[] memory min = createUint256Array(minAmount);
                 uint256[] memory max = createUint256Array(maxAmount);
+                uint16[] memory empty;
                 // add the rule
                 switchToRuleAdmin();
-                uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+                uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
 
                 ///update ruleId in coin rule handler
                 applicationCoinHandler.setMinMaxBalanceRuleId(_createActionsArray(), ruleId);
@@ -516,9 +517,9 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
     }
 
     /**
-     * @dev test Minimum Balance By Date rule
+     * @dev test Minimum/Maximum Account Balance rule
      */
-    function testPassesMinBalByDateCoinFuzz(uint8 _addressIndex, uint256 _amountSeed, bytes32 tag1, bytes32 tag2, bytes32 tag3) public {
+    function testPassesMinMaxAccBalCoinFuzz(uint8 _addressIndex, uint256 _amountSeed, bytes32 tag1, bytes32 tag2, bytes32 tag3) public {
         vm.assume(_amountSeed > 0);
         vm.assume(_amountSeed < 1000);
         vm.assume(tag1 != "" && tag2 != "" && tag3 != "");
@@ -533,15 +534,21 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         // Set up the rule conditions
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array(tag1, tag2, tag3);
-        uint256[] memory holdAmounts = createUint256Array(
+        uint256[] memory minAmounts = createUint256Array(
             (_amountSeed * (10 ** 18)),
             (_amountSeed + 1000) * (10 ** 18),
             (_amountSeed + 2000) * (10 ** 18)
             );
+        uint256[] memory maxAmounts = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000
+        );
+
         /// 720 = 1 month, 4380 = 6 months, 17520 = 2 years 
         uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520); 
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, minAmounts, maxAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
         switchToAppAdministrator();
         /// load non admin users with application coin
@@ -552,7 +559,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         applicationCoin.transfer(user3, (_amountSeed * 10000000) * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), (_amountSeed * 10000000) * (10 ** 18));
         switchToRuleAdmin();
-        applicationCoinHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
+        applicationCoinHandler.setMinMaxBalanceRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// tag the user
         applicationAppManager.addTag(rich_user, tag1); ///add tag
@@ -565,9 +572,9 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(rich_user);
         /// attempt a transfer that violates the rule
-        uint256 transferAmount = (applicationCoin.balanceOf(rich_user) - (holdAmounts[0] - 1));
+        uint256 transferAmount = (applicationCoin.balanceOf(rich_user) - (minAmounts[0] - 1));
         emit Log("balanceOf", applicationCoin.balanceOf(rich_user));
-        emit Log("holdAmounts", holdAmounts[0]);
+        emit Log("minAmounts", minAmounts[0]);
         emit Log("transferAmount", transferAmount);
         vm.expectRevert(0xa7fb7b4b);
         applicationCoin.transfer(user1, transferAmount);
@@ -575,7 +582,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         transferAmount = transferAmount - 1;
         emit Log("balanceOf", applicationCoin.balanceOf(rich_user));
         emit Log("transferAmount", transferAmount);
-        emit Log("holdAmounts", holdAmounts[0]);
+        emit Log("minAmounts", minAmounts[0]);
         applicationCoin.transfer(user1, transferAmount);
         vm.expectRevert(0xa7fb7b4b);
         applicationCoin.transfer(user1, 1 * (10 ** 18));
@@ -588,7 +595,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(user2);
         /// attempt a transfer that violates the rule
-        transferAmount = (applicationCoin.balanceOf(user2) - (holdAmounts[1] - 1));
+        transferAmount = (applicationCoin.balanceOf(user2) - (minAmounts[1] - 1));
         vm.expectRevert(0xa7fb7b4b);
         applicationCoin.transfer(user1, transferAmount);
     }

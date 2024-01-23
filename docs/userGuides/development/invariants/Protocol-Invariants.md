@@ -92,15 +92,11 @@
 
 ### Min Max Account Balance
 
-- When this rule is applied, the balance of a specific token of an account cannot be less than the minimum or greater than the maximum determined by the most restrictive tags of the account found in the MinMaxBalanceRule applied to the token.
+- When this rule is applied, the balance of a specific token of an account cannot be less than the minimum or greater than the maximum determined by the most restrictive tags of the account found in the MinMaxBalanceRule applied to the token while the rule is in the active and applicable period (If a period has been applied).
 
 ### Admin Withdrawal
 
 - When this rule is applied, the token balance of a rule bypasser account cannot be less than the minimum defined in the AdminwithdrawalRule while the rule is in the active and applicable period. While the rule is in the applicable period, the rule can never be deactivated, and the rule bypasser account must not be allowed to renounce its role.
-
-### Min Balance By Date
-
-- When this rule is applied, the token balance of an account cannot be less than the minimum defined by the most restrictive tags of the account found in the MinBalByDateRule while the rule is in the active and applicable period.
 
 ### Purchase Limit
 

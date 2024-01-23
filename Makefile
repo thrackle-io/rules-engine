@@ -239,17 +239,6 @@ turnOffAdminWithdrawalRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "act
 turnOnAdminWithdrawalRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "activateAdminWithdrawalRule(bool)" 1 --private-key ${QUORRA_PRIVATE_KEY}
 transferFromQuorraToCluToBreakRuleA:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${CLU} 800000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY}
 transferFromQuorraToCluToBreakRuleB:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${CLU} 100000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY}
-#			<><><><><> MINIMUM BALANCE BY DATE RULE <><><><><>
-# mint Franks
-giveKevin1000Franks:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 1000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-addMinBalByDateRule:; cast send ${RULE_STORAGE_DIAMOND} "addMinBalByDateRule(address,bytes32[],uint256[],uint256[],uint256[])(uint32)" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [10] [720] [0] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyMinBalByDateRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setMinBalByDateRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-addSimpleGeneralTagKevin:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTag(address,bytes32)" ${KEVIN} 0x5461796c65720000000000000000000000000000000000000000000000000000  --private-key ${QUORRA_PRIVATE_KEY}
-# this should fail
-Transfer999FranksFromKevinToClu:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${SAM} 999 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-# moveForwardInTime6Months
-# Now it should pass
-Transfer999FranksFromKevinToCluPass:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${SAM} 999 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 
 #			<><><><><> ERC20 TRANSFER VOLUME RULE <><><><><>
 # mintFranks
@@ -382,24 +371,6 @@ transferNFT0FromKevinToClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeTran
 transferNFT4FromKevinToClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeTransferFrom(address,address,uint256)" ${KEVIN} ${CLU} 4 --private-key ${KEVIN_PRIVATE_KEY} 
 transferNFT5FromKevinToClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeTransferFrom(address,address,uint256)" ${KEVIN} ${CLU} 5 --private-key ${KEVIN_PRIVATE_KEY} 
 transferNFT6FromKevinToClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeTransferFrom(address,address,uint256)" ${KEVIN} ${CLU} 6 --private-key ${KEVIN_PRIVATE_KEY} 
-
-#			<><><><><> MINIMUM BALANCE BY DATE ERC721 RULE <><><><><>
-#<<Mint Frank NFTs to Users>> Repeat mint function 2x for Sam
-mintFranksNFTMinBalByDateSam:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${SAM}  --private-key ${QUORRA_PRIVATE_KEY}
-#<<Add Rule>>
-addMinBalByDateERC721Rule:; cast send ${RULE_STORAGE_DIAMOND} "addMinBalByDateRule(address,bytes32[],uint256[],uint256[],uint256[])(uint32)" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [1] [48] [0] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyMinBalByERC721Rule:; cast send ${APPLICATION_ERC721_HANDLER} "setMinBalByDateRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-#<<Tag Users>>
-addMinBalByDateTagSam:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTag(address,bytes32)" ${SAM} 0x5461796c65720000000000000000000000000000000000000000000000000000  --private-key ${QUORRA_PRIVATE_KEY}
-addMinBalByDateTagKevin:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTag(address,bytes32)" ${KEVIN} 0x5461796c65720000000000000000000000000000000000000000000000000000  --private-key ${QUORRA_PRIVATE_KEY}
-#<<Passing Transfer From Sam to Kevin>>
-transferFranksNFTSamToKevin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${SAM} ${KEVIN} 0 --private-key ${SAM_PRIVATE_KEY} --from ${SAM}
-#<<Failing Transfer From Kevin to Sam>>
-transferFranksNFTKevinToSamFails:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${KEVIN} ${SAM} 0 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
-#<<Move Time Forward to Expire Rule>>
-moveForwardinTime3days:; curl -H "Content-Type: application/json" -X POST --data '{"id":31337,"jsonrpc":"2.0","method":"evm_increaseTime","params":[259200]}' http://localhost:8545
-#<<Repeat Failed Transfer (passes)>>
-transferFranksNFTKevinToSamPasses:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${KEVIN} ${SAM} 0 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 
 #			<><><><><> ERC721 TRANSFER VOLUME RULE <><><><><>
 TransferVolumeMintFrankNFT1forKevin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${KEVIN} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}

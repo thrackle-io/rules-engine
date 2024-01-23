@@ -80,9 +80,10 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         bytes32[] memory accs = createBytes32Array("Oscar");
         uint256[] memory min = createUint256Array(10);
         uint256[] memory max = createUint256Array(1000);
+        uint16[] memory empty;
         // add the actual rule
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         ///update ruleId in coin rule handler
         // create the default actions array
         ActionTypes[] memory actionTypes = new ActionTypes[](2);
@@ -135,9 +136,10 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         bytes32[] memory accs = createBytes32Array("");
         uint256[] memory min = createUint256Array(10);
         uint256[] memory max = createUint256Array(1000);
+        uint16[] memory empty;
         // add the actual rule
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max);
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         ///update ruleId in coin rule handler
         // create the default actions array
         ActionTypes[] memory actionTypes = new ActionTypes[](2);
@@ -652,18 +654,23 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user3, 10 * ATTO);
     }
 
-    /// test Minimum Balance By Date rule
-    function testERC20_PassesMinBalByDateCoin() public {
+    /// test Minimum/Maximum Account Balance rule
+    function testERC20_PassesMinMaxAccBalCoin() public {
         // Set up the rule conditions
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256Array((1000 * ATTO), (2000 * ATTO), (3000 * ATTO));
+        uint256[] memory minAmounts = createUint256Array((1000 * ATTO), (2000 * ATTO), (3000 * ATTO));
+        uint256[] memory maxAmounts = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000
+        );
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, minAmounts, maxAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
-        applicationCoinHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
+        applicationCoinHandler.setMinMaxBalanceRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// load non admin users with application coin
         applicationCoin.transfer(rich_user, 10000 * ATTO);
@@ -707,13 +714,16 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         // Set up the rule conditions
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("");
-        uint256[] memory holdAmounts = createUint256Array((1000 * (10 ** 18)));
+        uint256[] memory minAmounts = createUint256Array((1000 * (10 ** 18)));
+        uint256[] memory maxAmounts = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000
+        );
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory holdPeriods = createUint16Array(720);
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, minAmounts, maxAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
-        applicationCoinHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
+        applicationCoinHandler.setMinMaxBalanceRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// load non admin users with application coin
         applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
@@ -1308,13 +1318,18 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(fee.maxBalance, maxBalance);
         assertEq(1, assetHandler.getFeeTotal());
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256Array((1000 * ATTO), (2000 * ATTO), (3000 * ATTO));
+        uint256[] memory minAmounts = createUint256Array((1000 * ATTO), (2000 * ATTO), (3000 * ATTO));
+        uint256[] memory maxAmounts = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000
+        );
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, minAmounts, maxAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
-        assetHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
+        assetHandler.setMinMaxBalanceRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
 
         /// load non admin users with application coin
@@ -1325,7 +1340,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user3, 10000 * ATTO);
         assertEq(applicationCoin.balanceOf(user3), 10000 * ATTO);
         switchToRuleAdmin();
-        assetHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
+        assetHandler.setMinMaxBalanceRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// tag the user
         applicationAppManager.addTag(rich_user, "Oscar"); ///add tag
@@ -1370,13 +1385,18 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoinHandler.proposeDataContractMigration(address(assetHandler));
         assetHandler.confirmDataContractMigration(address(applicationCoinHandler));
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
-        uint256[] memory holdAmounts = createUint256Array((1000 * ATTO), (2000 * ATTO), (3000 * ATTO));
+        uint256[] memory minAmounts = createUint256Array((1000 * ATTO), (2000 * ATTO), (3000 * ATTO));
+        uint256[] memory maxAmounts = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000
+        );
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory holdPeriods = createUint16Array(720, 4380, 17520);
         switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinBalByDateRule(address(applicationAppManager), accs, holdAmounts, holdPeriods, uint64(Blocktime));
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, minAmounts, maxAmounts, holdPeriods, uint64(Blocktime));
         assertEq(_index, 0);
-        assetHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
+        assetHandler.setMinMaxBalanceRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
 
         /// load non admin users with application coin
@@ -1387,7 +1407,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user3, 10000 * ATTO);
         assertEq(applicationCoin.balanceOf(user3), 10000 * ATTO);
         switchToRuleAdmin();
-        assetHandler.setMinBalByDateRuleId(_createActionsArray(), _index);
+        assetHandler.setMinMaxBalanceRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// tag the user
         applicationAppManager.addTag(rich_user, "Oscar"); ///add tag
