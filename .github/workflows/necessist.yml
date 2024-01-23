@@ -46,7 +46,7 @@ jobs:
 
       - name: Generate new Image Tag
         run: |
-          echo "NECESSIST_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:necessist:latest" >> $GITHUB_ENV
+          echo "NECESSIST_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:necessist-${GITHUB_SHA::7}" >> $GITHUB_ENV
 
       - name: Build and push docker image
         run: |
