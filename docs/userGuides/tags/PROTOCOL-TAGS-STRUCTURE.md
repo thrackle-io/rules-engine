@@ -14,8 +14,14 @@ Tags are also used for the assessment of fees within the protocol. When activate
 ## Scope 
 
 ### Account Tags: 
+- Tags can be applied to individual accounts and used to assess fees or facilitate rule checks throughout the procotol. When an account (user) is tagged, they will be subject to any rules that are active that utilize that tag. 
+
+###### *see[TAGGED-RULES](./TAGGED-RULES.md)* 
 
 ### Address Tags: 
+- Tags can be applied to addresses of contracts. These address tags are used in a similar way to account tags as they are used to assess fees or facilitate rule checks for specific addresses.
+
+###### *see [TRANSFER-COUNTER RULE](../rules/TRANSFER-COUNTER.md)*
 
 ## Data Structure
 Tags are a bytes32 array stored in a mapping inside the Tags data contract. 
@@ -91,11 +97,13 @@ function removeTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_R
 
 ### Parameter Optionality:
 
-There are no options for the parameters of this function.
+There are no options for the parameters of the add or remove functions.
+
+Application administrators can submit rules with "blank" tags. This allows for a default or always applicable rule values for [TAGGED-RULES](./TAGGED-RULES.md). 
 
 ### Parameter Validation:
 
-The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
+The following validation will be carried out by the addTag function in order to ensure that these parameters are valid and make sense:
 
 - `_tag` is not blank.
 - `_account` has the tag. When adding tags this is used to avoid duplication. When removing tags this is used to ensure account has the tag to be removed.   
@@ -119,7 +127,7 @@ The following validation will be carried out by the create function in order to 
         ```
     - Function to retrieve tags data contract address:
         ```c
-        functiongetTagsDataAddress() external view returns (address);
+        function getTagsDataAddress() external view returns (address);
         ```
     - Function to propose data contract migration to new handler:
         ```c
@@ -132,10 +140,12 @@ The following validation will be carried out by the create function in order to 
 
 ## Events
 
-- **FeeType(bytes32 indexed tag, bool indexed add, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount)**: emitted when:
-    - A fee has been added. In this case, the `add` field of the event will be *true*.
-    - A fee has been removed. In this case, the `add` field of the event will be *false*.
+- **Tag(address indexed _address, bytes32 indexed _tag, bool indexed add)**: emitted when:
+    - A tag has been added. In this case, the `add` field of the event will be *true*.
+    - A tag has been removed. In this case, the `add` field of the event will be *false*.
+- **TagAlreadyApplied(address indexed _address)**: emitted when: 
+    - A tag has already been added to an account. 
 
 ## Dependencies
 
-- **Tags**: 
+- **T**: 
