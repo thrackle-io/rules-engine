@@ -883,7 +883,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(user1, "Oscar"); //add tag
+        applicationAppManager.addTag(user1, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
         switchToSuperAdmin();
         applicationCoin.mint(user1, 10000);
@@ -905,10 +905,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         for (uint i = 1; i < 11; i++) {
-            applicationAppManager.addGeneralTag(user1, bytes32(i)); //add tag
+            applicationAppManager.addTag(user1, bytes32(i)); //add tag
         }
         vm.expectRevert(0xa3afb2e2);
-        applicationAppManager.addGeneralTag(user1, "xtra tag"); //add tag should fail
+        applicationAppManager.addTag(user1, "xtra tag"); //add tag should fail
 
         uint256 amount = 1;
         bytes32[] memory tags = new bytes32[](11);
@@ -932,7 +932,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(user1, "Oscar"); //add tag
+        applicationAppManager.addTag(user1, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
         switchToSuperAdmin();
         applicationCoin.mint(user1, 10000000000000000000000);
@@ -956,7 +956,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(user1, "Oscar"); //add tag
+        applicationAppManager.addTag(user1, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
         switchToSuperAdmin();
         uint256 amount = 999;
@@ -976,7 +976,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(user1, "Oscar"); //add tag
+        applicationAppManager.addTag(user1, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
         switchToSuperAdmin();
         applicationCoin.mint(user1, 10000000000000000000000000);
@@ -1022,12 +1022,12 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // add the actual rule
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         switchToAppAdministrator();
-        ///Add GeneralTag to account
-        applicationAppManager.addGeneralTag(user1, "Oscar"); ///add tag
+        ///Add Tag to account
+        applicationAppManager.addTag(user1, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
-        applicationAppManager.addGeneralTag(user2, "Oscar"); ///add tag
+        applicationAppManager.addTag(user2, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(user2, "Oscar"));
-        applicationAppManager.addGeneralTag(user3, "Oscar"); ///add tag
+        applicationAppManager.addTag(user3, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(user3, "Oscar"));
         ///perform transfer that checks rule
         vm.stopPrank();
@@ -1184,7 +1184,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         applicationNFTHandler.setTradeCounterRuleId(_createActionsArray(), _index);
         // tag the NFT collection
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
+        applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag
 
         // ensure standard transfer works by transferring 1 to user2 and back(2 trades)
         ///perform transfer that checks rule
@@ -1199,8 +1199,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
         // set to a tag that only allows 1 transfer
         switchToAppAdministrator();
-        applicationAppManager.removeGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
-        applicationAppManager.addGeneralTag(address(applicationNFT), "BoredGrape"); ///add tag
+        applicationAppManager.removeTag(address(applicationNFT), "DiscoPunk"); ///add tag
+        applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
         // perform 1 transfer
         vm.stopPrank();
         vm.startPrank(user1);
@@ -1219,7 +1219,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
         // add the other tag and check to make sure that it still only allows 1 trade
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(address(applicationNFT), "DiscoPunk"); ///add tag
+        applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag
         vm.stopPrank();
         vm.startPrank(user1);
         // first one should pass

@@ -5,12 +5,12 @@ import "./IDataModule.sol";
 import {ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError} from "src/common/IErrors.sol";
 
 /**
- * @title General Tag interface Contract
+ * @title Tag interface Contract
  * @notice Stores tag data for accounts
  * @dev Tags storage retrieval functions are defined here
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-interface IGeneralTags is IDataModule, ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError {
+interface ITags is IDataModule, ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError {
     /**
      * @dev Add the tag. Restricted to owner.
      * @param _address user address
@@ -47,5 +47,5 @@ interface IGeneralTags is IDataModule, ITagInputErrors, IRuleProcessorErrors, IM
      * @notice there is a hard limit of 10 tags per address. This limit is also enforced by the
 protocol, so keeping this limit here prevents transfers to unexpectedly revert
      */
-    function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external;
+    function addTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external;
 }

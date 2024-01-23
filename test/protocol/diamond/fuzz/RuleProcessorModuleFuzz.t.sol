@@ -315,8 +315,8 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
         {
             vm.stopPrank();
             vm.startPrank(superAdmin);
-            applicationAppManager.addGeneralTag(from, tagFrom); ///add tag
-            applicationAppManager.addGeneralTag(to, tagTo); ///add tag
+            applicationAppManager.addTag(from, tagFrom); ///add tag
+            applicationAppManager.addTag(to, tagTo); ///add tag
             /// add a minMaxBalance rule
             if (bMin == 0 || bMax == 0 || bMin > bMax) vm.expectRevert();
             bytes32[] memory _accountTypes = createBytes32Array(tagTo);

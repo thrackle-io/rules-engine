@@ -10,8 +10,8 @@ import "src/client/application/data/IAccessLevels.sol";
 import "src/client/application/data/AccessLevels.sol";
 import "src/client/application/data/IRiskScores.sol";
 import "src/client/application/data/RiskScores.sol";
-import "src/client/application/data/IGeneralTags.sol";
-import "src/client/application/data/GeneralTags.sol";
+import "src/client/application/data/ITags.sol";
+import "src/client/application/data/Tags.sol";
 import "src/client/application/data/IPauseRules.sol";
 import "src/client/application/data/PauseRules.sol";
 import "src/client/application/ProtocolApplicationHandler.sol";
@@ -43,13 +43,13 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     IAccounts accounts;
     IAccessLevels accessLevels;
     IRiskScores riskScores;
-    IGeneralTags generalTags;
+    ITags tags;
     IPauseRules pauseRules;
 
     // Data provider proposed addresses
     address newAccessLevelsProviderAddress;
     address newAccountsProviderAddress;
-    address newGeneralTagsProviderAddress;
+    address newTagsProviderAddress;
     address newPauseRulesProviderAddress;
     address newRiskScoresProviderAddress;
 
@@ -569,8 +569,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _tag Tag for the account. Can be any allowed string variant
      * @notice there is a hard limit of 10 tags per address.
      */
-    function addGeneralTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE) {
-        generalTags.addTag(_account, _tag);
+    function addTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE) {
+        tags.addTag(_account, _tag);
     }
 
     /**
@@ -579,20 +579,20 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _tag Tag for the account. Can be any allowed string variant
      * @notice there is a hard limit of 10 tags per address.
      */
-    function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE) {
-        generalTags.addGeneralTagToMultipleAccounts(_accounts, _tag);
+    function addTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE) {
+        tags.addTagToMultipleAccounts(_accounts, _tag);
     }
 
     /**
      * @dev Add a general tag to an account at index in array. Restricted to Application Administrators. Loops through existing tags on accounts and will emit  an event if tag is already applied.
      * @param _accounts Address array to be tagged
-     * @param _tag Tag array for the account at index. Can be any allowed string variant
+     * @param _tags Tag array for the account at index. Can be any allowed string variant
      * @notice there is a hard limit of 10 tags per address.
      */
-    function addMultipleGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tag) external onlyRole(APP_ADMIN_ROLE) {
-        if (_accounts.length != _tag.length) revert InputArraysMustHaveSameLength();
+    function addMultipleTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tags) external onlyRole(APP_ADMIN_ROLE) {
+        if (_accounts.length != _tags.length) revert InputArraysMustHaveSameLength();
         for (uint256 i; i < _accounts.length; ) {
-            generalTags.addTag(_accounts[i], _tag[i]);
+            tags.addTag(_accounts[i], _tags[i]);
             unchecked {
                 ++i;
             }
@@ -604,8 +604,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _account Address to have its tag removed
      * @param _tag The tag to remove
      */
-    function removeGeneralTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE) {
-        generalTags.removeTag(_account, _tag);
+    function removeTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE) {
+        tags.removeTag(_account, _tag);
     }
 
     /**
@@ -615,7 +615,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @return success true if account has the tag, false if it does not
      */
     function hasTag(address _account, bytes32 _tag) public view returns (bool) {
-        return generalTags.hasTag(_account, _tag);
+        return tags.hasTag(_account, _tag);
     }
 
     /**
@@ -624,7 +624,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @return tags Array of all tags for the account
      */
     function getAllTags(address _address) external view returns (bytes32[] memory) {
-        return generalTags.getAllTags(_address);
+        return tags.getAllTags(_address);
     }
 
     /**
@@ -648,17 +648,17 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev  First part of the 2 step process to set a new general tag provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
      * @param _newProvider Address of the new provider
      */
-    function proposeGeneralTagsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE) {
+    function proposeTagsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE) {
         if (_newProvider == address(0)) revert ZeroAddress();
-        newGeneralTagsProviderAddress = _newProvider;
+        newTagsProviderAddress = _newProvider;
     }
 
     /**
      * @dev Get the address of the general tag provider
      * @return provider Address of the provider
      */
-    function getGeneralTagProvider() external view returns (address) {
-        return address(generalTags);
+    function getTagProvider() external view returns (address) {
+        return address(tags);
     }
 
     /**
@@ -959,10 +959,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Getter for the general tags data contract address
-     * @return generalTagsDataAddress
+     * @return tagsDataAddress
      */
-    function getGeneralTagsDataAddress() external view returns (address) {
-        return address(generalTags);
+    function getTagsDataAddress() external view returns (address) {
+        return address(tags);
     }
 
     /**
@@ -1033,7 +1033,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         accounts = new Accounts(address(this));
         accessLevels = new AccessLevels(address(this));
         riskScores = new RiskScores(address(this));
-        generalTags = new GeneralTags(address(this));
+        tags = new Tags(address(this));
         pauseRules = new PauseRules(address(this));
     }
 
@@ -1045,7 +1045,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         accounts.proposeOwner(_newOwner);
         accessLevels.proposeOwner(_newOwner);
         riskScores.proposeOwner(_newOwner);
-        generalTags.proposeOwner(_newOwner);
+        tags.proposeOwner(_newOwner);
         pauseRules.proposeOwner(_newOwner);
         emit AppManagerDataUpgradeProposed(_newOwner, address(this));
     }
@@ -1061,8 +1061,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         accessLevels.confirmOwner();
         riskScores = RiskScores(oldAppManager.getRiskDataAddress());
         riskScores.confirmOwner();
-        generalTags = GeneralTags(oldAppManager.getGeneralTagsDataAddress());
-        generalTags.confirmOwner();
+        tags = Tags(oldAppManager.getTagsDataAddress());
+        tags.confirmOwner();
         pauseRules = PauseRules(oldAppManager.getPauseRulesDataAddress());
         pauseRules.confirmOwner();
         emit DataContractsMigrated(address(this));
@@ -1074,11 +1074,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function confirmNewDataProvider(IDataModule.ProviderType _providerType) external {
         if (_providerType == IDataModule.ProviderType.GENERAL_TAG) {
-            if (newGeneralTagsProviderAddress == address(0)) revert NoProposalHasBeenMade();
-            if (_msgSender() != newGeneralTagsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
-            generalTags = IGeneralTags(newGeneralTagsProviderAddress);
-            emit GeneralTagProviderSet(newGeneralTagsProviderAddress);
-            delete newGeneralTagsProviderAddress;
+            if (newTagsProviderAddress == address(0)) revert NoProposalHasBeenMade();
+            if (_msgSender() != newTagsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
+            tags = ITags(newTagsProviderAddress);
+            emit TagProviderSet(newTagsProviderAddress);
+            delete newTagsProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.RISK_SCORE) {
             if (newRiskScoresProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newRiskScoresProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();

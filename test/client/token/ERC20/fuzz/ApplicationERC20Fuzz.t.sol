@@ -110,12 +110,12 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
                 switchToAppAdministrator();
             }
             {
-                ///Add GeneralTag to account
-                applicationAppManager.addGeneralTag(_user1, _tag); ///add tag
+                ///Add Tag to account
+                applicationAppManager.addTag(_user1, _tag); ///add tag
                 assertTrue(applicationAppManager.hasTag(_user1, _tag));
-                applicationAppManager.addGeneralTag(_user2, _tag); ///add tag
+                applicationAppManager.addTag(_user2, _tag); ///add tag
                 assertTrue(applicationAppManager.hasTag(_user2, _tag));
-                applicationAppManager.addGeneralTag(_user3, _tag); ///add tag
+                applicationAppManager.addTag(_user3, _tag); ///add tag
                 assertTrue(applicationAppManager.hasTag(_user3, _tag));
             }
             {
@@ -562,11 +562,11 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         applicationCoinHandler.setMinMaxBalanceRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// tag the user
-        applicationAppManager.addGeneralTag(rich_user, tag1); ///add tag
+        applicationAppManager.addTag(rich_user, tag1); ///add tag
         assertTrue(applicationAppManager.hasTag(rich_user, tag1));
-        applicationAppManager.addGeneralTag(user2, tag2); ///add tag
+        applicationAppManager.addTag(user2, tag2); ///add tag
         assertTrue(applicationAppManager.hasTag(user2, tag2));
-        applicationAppManager.addGeneralTag(user3, tag3); ///add tag
+        applicationAppManager.addTag(user3, tag3); ///add tag
         assertTrue(applicationAppManager.hasTag(user3, tag3));
         /// switch to the user
         vm.stopPrank();
@@ -630,10 +630,10 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         assertEq(1, applicationCoinHandler.getFeeTotal());
 
         // now test the fee assessment
-        applicationAppManager.addGeneralTag(fromUser, "fee"); ///add tag
+        applicationAppManager.addTag(fromUser, "fee"); ///add tag
         // if the discount is set, then set it up too
         if (_discountSeed != 0) {
-            applicationAppManager.addGeneralTag(fromUser, "discount"); ///add tag
+            applicationAppManager.addTag(fromUser, "discount"); ///add tag
             switchToRuleAdmin();
             applicationCoinHandler.addFee("discount", 0, maxBalance, _discountSeed, address(0));
             switchToAppAdministrator();
@@ -695,10 +695,10 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         assertEq(1, applicationCoinHandler.getFeeTotal());
         switchToAppAdministrator();
         // now test the fee assessment
-        applicationAppManager.addGeneralTag(fromUser, "fee"); ///add tag
+        applicationAppManager.addTag(fromUser, "fee"); ///add tag
         // if the discount is set, then set it up too
         if (_discountSeed != 0) {
-            applicationAppManager.addGeneralTag(fromUser, "discount"); ///add tag
+            applicationAppManager.addTag(fromUser, "discount"); ///add tag
             switchToRuleAdmin();
             applicationCoinHandler.addFee("discount", 0, type(uint256).max, _discountSeed, address(0));
             fee = applicationCoinHandler.getFee("discount");

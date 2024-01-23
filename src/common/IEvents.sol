@@ -35,9 +35,9 @@ interface IAppLevelEvents {
     event AccountProviderSet(address indexed _address);
     event AccountAdded(address indexed account);
     event AccountRemoved(address indexed account);
-    ///GeneralTags
-    event GeneralTagProviderSet(address indexed _address);
-    event GeneralTag(address indexed _address, bytes32 indexed _tag, bool indexed add);
+    ///Tags
+    event TagProviderSet(address indexed _address);
+    event Tag(address indexed _address, bytes32 indexed _tag, bool indexed add);
     event TagAlreadyApplied(address indexed _address);
     ///AccessLevels
     event AccessLevelProviderSet(address indexed _address);

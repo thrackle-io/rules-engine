@@ -130,7 +130,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
+        applicationAppManager.addTag(superAdmin, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -157,7 +157,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
+        applicationAppManager.addTag(superAdmin, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -212,10 +212,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         for (uint i = 1; i < 11; i++) {
-            applicationAppManager.addGeneralTag(superAdmin, bytes32(i)); //add tag
+            applicationAppManager.addTag(superAdmin, bytes32(i)); //add tag
         }
         vm.expectRevert(0xa3afb2e2);
-        applicationAppManager.addGeneralTag(superAdmin, "xtra tag"); //add tag should fail
+        applicationAppManager.addTag(superAdmin, "xtra tag"); //add tag should fail
         vm.stopPrank();
         vm.startPrank(superAdmin);
         uint256 amount = 1;
@@ -241,7 +241,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
+        applicationAppManager.addTag(superAdmin, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -265,7 +265,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
+        applicationAppManager.addTag(superAdmin, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -289,7 +289,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
+        applicationAppManager.addTag(superAdmin, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -312,7 +312,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
+        applicationAppManager.addTag(superAdmin, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -338,7 +338,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         vm.stopPrank();
         vm.startPrank(appAdministrator);
-        applicationAppManager.addGeneralTag(superAdmin, "Oscar"); //add tag
+        applicationAppManager.addTag(superAdmin, "Oscar"); //add tag
         assertTrue(applicationAppManager.hasTag(superAdmin, "Oscar"));
         vm.stopPrank();
         vm.startPrank(superAdmin);

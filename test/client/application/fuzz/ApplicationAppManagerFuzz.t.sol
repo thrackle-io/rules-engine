@@ -318,7 +318,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
 
     ///---------------GENERAL TAGS--------------------
     // Test adding the general tags
-    function testAddGeneralTag(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, bytes32 Tag1, bytes32 Tag2) public {
+    function testAddTag(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, bytes32 Tag1, bytes32 Tag2) public {
         vm.assume(Tag1 != Tag2 && Tag2 != Tag1);
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
@@ -331,12 +331,12 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             vm.stopPrank();
             vm.startPrank(admin);
             if (Tag1 == "") vm.expectRevert();
-            applicationAppManager.addGeneralTag(address(0xBABE), Tag1); //add tag
+            applicationAppManager.addTag(address(0xBABE), Tag1); //add tag
             if (Tag1 != "") assertTrue(applicationAppManager.hasTag(address(0xBABE), Tag1));
             vm.stopPrank();
             vm.startPrank(random);
             if ((random != admin && random != superAdmin) || Tag2 == "") vm.expectRevert();
-            applicationAppManager.addGeneralTag(address(0xBABE), Tag2);
+            applicationAppManager.addTag(address(0xBABE), Tag2);
             if ((random == admin || random == superAdmin) && Tag2 != "") assertTrue(applicationAppManager.hasTag(address(0xBABE), Tag2));
         }
     }
@@ -357,7 +357,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         if (sender == superAdmin) {
             vm.stopPrank();
             vm.startPrank(admin);
-            applicationAppManager.addMultipleGeneralTagToMultipleAccounts(ADDRESSES, genTags);
+            applicationAppManager.addMultipleTagToMultipleAccounts(ADDRESSES, genTags);
             /// Test to prove addresses in array are tagged by index matched to secon array of tags
             assertTrue(applicationAppManager.hasTag(user, Tag3));
             assertTrue(applicationAppManager.hasTag(address(0xBEEF), Tag3));
@@ -366,28 +366,28 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testRemoveGeneralTag(uint8 addressIndexA, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3, bytes32 Tag4) public {
+    function testRemoveTag(uint8 addressIndexA, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3, bytes32 Tag4) public {
         vm.assume(Tag1 != Tag2 && Tag2 != Tag3 && Tag3 != Tag4 && Tag4 != Tag1 && Tag4 != Tag2 && Tag3 != Tag1);
 
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         switchToAppAdministrator();
         /// add first tag
         if (Tag1 == "") vm.expectRevert();
-        applicationAppManager.addGeneralTag(address(0xBABE), Tag1); //add tag
+        applicationAppManager.addTag(address(0xBABE), Tag1); //add tag
         if (Tag1 != "") {
             assertTrue(applicationAppManager.hasTag(address(0xBABE), Tag1));
             assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag2));
         }
         /// add second tag
         if (Tag2 == "") vm.expectRevert();
-        applicationAppManager.addGeneralTag(address(0xBABE), Tag2); //add tag
+        applicationAppManager.addTag(address(0xBABE), Tag2); //add tag
         if (Tag2 != "") {
             assertTrue(applicationAppManager.hasTag(address(0xBABE), Tag2));
             assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag3));
         }
         /// add a third tag
         if (Tag3 == "") vm.expectRevert();
-        applicationAppManager.addGeneralTag(address(0xBABE), Tag3); //add tag
+        applicationAppManager.addTag(address(0xBABE), Tag3); //add tag
         if (Tag3 != "") {
             assertTrue(applicationAppManager.hasTag(address(0xBABE), Tag3));
             assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag4));
@@ -396,13 +396,13 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(sender);
         if ((sender != appAdministrator)) vm.expectRevert();
-        applicationAppManager.removeGeneralTag(address(0xBABE), Tag3);
+        applicationAppManager.removeTag(address(0xBABE), Tag3);
         if ((sender == appAdministrator)) assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag3));
         if ((sender != appAdministrator)) vm.expectRevert();
-        applicationAppManager.removeGeneralTag(address(0xBABE), Tag2);
+        applicationAppManager.removeTag(address(0xBABE), Tag2);
         if ((sender == appAdministrator)) assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag2));
         if ((sender != appAdministrator)) vm.expectRevert();
-        applicationAppManager.removeGeneralTag(address(0xBABE), Tag1);
+        applicationAppManager.removeTag(address(0xBABE), Tag1);
         if ((sender == appAdministrator)) {
             assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag1));
         }

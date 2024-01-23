@@ -91,12 +91,12 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         actionTypes[1] = ActionTypes.SELL;
         applicationCoinHandler.setMinMaxBalanceRuleId(actionTypes, ruleId);
         switchToAppAdministrator();
-        ///Add GeneralTag to account
-        applicationAppManager.addGeneralTag(user1, "Oscar"); ///add tag
+        ///Add Tag to account
+        applicationAppManager.addTag(user1, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
-        applicationAppManager.addGeneralTag(user2, "Oscar"); ///add tag
+        applicationAppManager.addTag(user2, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(user2, "Oscar"));
-        applicationAppManager.addGeneralTag(user3, "Oscar"); ///add tag
+        applicationAppManager.addTag(user3, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(user3, "Oscar"));
 
         ///perform transfer that checks rule
@@ -680,11 +680,11 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user3, 10000 * ATTO);
         assertEq(applicationCoin.balanceOf(user3), 10000 * ATTO);
         /// tag the user
-        applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
+        applicationAppManager.addTag(rich_user, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
-        applicationAppManager.addGeneralTag(user2, "Tayler"); ///add tag
+        applicationAppManager.addTag(user2, "Tayler"); ///add tag
         assertTrue(applicationAppManager.hasTag(user2, "Tayler"));
-        applicationAppManager.addGeneralTag(user3, "Shane"); ///add tag
+        applicationAppManager.addTag(user3, "Shane"); ///add tag
         assertTrue(applicationAppManager.hasTag(user3, "Shane"));
         /// switch to the user
         vm.stopPrank();
@@ -729,7 +729,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(rich_user, 10000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(rich_user), 10000 * (10 ** 18));
         /// tag the users(unnecessary but won't hurt)
-        applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
+        applicationAppManager.addTag(rich_user, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
         /// switch to the user
         vm.stopPrank();
@@ -764,12 +764,12 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(fee.maxBalance, maxBalance);
         assertEq(1, applicationCoinHandler.getFeeTotal());
         // make sure fees don't affect Application Administrators(even if tagged)
-        applicationAppManager.addGeneralTag(superAdmin, "cheap"); ///add tag
+        applicationAppManager.addTag(superAdmin, "cheap"); ///add tag
         applicationCoin.transfer(user2, 100 * ATTO);
         assertEq(applicationCoin.balanceOf(user2), 100 * ATTO);
 
         // now test the fee assessment
-        applicationAppManager.addGeneralTag(user4, "cheap"); ///add tag
+        applicationAppManager.addTag(user4, "cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works
@@ -791,7 +791,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         applicationCoinHandler.addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(user4, "less cheap"); ///add tag
+        applicationAppManager.addTag(user4, "less cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         applicationCoin.transfer(user7, 100 * ATTO);
@@ -804,7 +804,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         applicationCoinHandler.addFee("discount", minBalance, maxBalance, -200, address(0));
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(user4, "discount"); ///add tag
+        applicationAppManager.addTag(user4, "discount"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         applicationCoin.transfer(user8, 100 * ATTO);
@@ -838,7 +838,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         applicationCoinHandler.addFee("", minBalance, maxBalance, feePercentage, targetAccount);
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(user4, "discount"); ///add tag
+        applicationAppManager.addTag(user4, "discount"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works
@@ -851,7 +851,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         applicationCoinHandler.addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(user4, "less cheap"); ///add tag
+        applicationAppManager.addTag(user4, "less cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         applicationCoin.transfer(user7, 100 * ATTO);
@@ -896,9 +896,9 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(fee.maxBalance, maxBalance);
 
         // now test the fee assessment
-        applicationAppManager.addGeneralTag(user4, "discount1"); ///add tag
-        applicationAppManager.addGeneralTag(user4, "discount2"); ///add tag
-        applicationAppManager.addGeneralTag(user4, "fee1"); ///add tag
+        applicationAppManager.addTag(user4, "discount1"); ///add tag
+        applicationAppManager.addTag(user4, "discount2"); ///add tag
+        applicationAppManager.addTag(user4, "fee1"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         // discounts are greater than fees so it should put fees to 0
@@ -926,7 +926,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(fee.maxBalance, maxBalance);
         assertEq(1, applicationCoinHandler.getFeeTotal());
         // make sure fees don't affect Application Administrators(even if tagged)
-        applicationAppManager.addGeneralTag(appAdministrator, "cheap"); ///add tag
+        applicationAppManager.addTag(appAdministrator, "cheap"); ///add tag
         applicationCoin.approve(address(transferFromUser), 100 * ATTO);
         vm.stopPrank();
         vm.startPrank(transferFromUser);
@@ -935,7 +935,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         // now test the fee assessment
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(user4, "cheap"); ///add tag
+        applicationAppManager.addTag(user4, "cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works
@@ -964,7 +964,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         applicationCoinHandler.addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(user4, "less cheap"); ///add tag
+        applicationAppManager.addTag(user4, "less cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         applicationCoin.approve(address(transferFromUser), 100 * ATTO);
@@ -980,7 +980,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         applicationCoinHandler.addFee("discount", minBalance, maxBalance, -200, address(0));
         switchToAppAdministrator();
-        applicationAppManager.addGeneralTag(user4, "discount"); ///add tag
+        applicationAppManager.addTag(user4, "discount"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         applicationCoin.approve(address(transferFromUser), 100 * ATTO);
@@ -1026,7 +1026,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(1, applicationCoinHandler.getFeeTotal());
 
         // now test the fee assessment
-        applicationAppManager.addGeneralTag(user4, "cheap"); ///add tag
+        applicationAppManager.addTag(user4, "cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works
@@ -1041,7 +1041,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoinHandler.addFee("less cheap", minBalance, maxBalance, feePercentage, targetAccount2);
         switchToAppAdministrator();
         // now test the fee assessment
-        applicationAppManager.addGeneralTag(user4, "less cheap"); ///add tag
+        applicationAppManager.addTag(user4, "less cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works(other fee will also be assessed)
@@ -1057,7 +1057,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoinHandler.addFee("super cheap", minBalance, maxBalance, feePercentage, targetAccount2);
         switchToAppAdministrator();
         // now test the fee assessment
-        applicationAppManager.addGeneralTag(user4, "super cheap"); ///add tag
+        applicationAppManager.addTag(user4, "super cheap"); ///add tag
         vm.stopPrank();
         vm.startPrank(user4);
         // make sure standard fee works(other fee will also be assessed)
@@ -1343,11 +1343,11 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assetHandler.setMinMaxBalanceRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// tag the user
-        applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
+        applicationAppManager.addTag(rich_user, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
-        applicationAppManager.addGeneralTag(user2, "Tayler"); ///add tag
+        applicationAppManager.addTag(user2, "Tayler"); ///add tag
         assertTrue(applicationAppManager.hasTag(user2, "Tayler"));
-        applicationAppManager.addGeneralTag(user3, "Shane"); ///add tag
+        applicationAppManager.addTag(user3, "Shane"); ///add tag
         assertTrue(applicationAppManager.hasTag(user3, "Shane"));
         /// switch to the user
         vm.stopPrank();
@@ -1410,11 +1410,11 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assetHandler.setMinMaxBalanceRuleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// tag the user
-        applicationAppManager.addGeneralTag(rich_user, "Oscar"); ///add tag
+        applicationAppManager.addTag(rich_user, "Oscar"); ///add tag
         assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
-        applicationAppManager.addGeneralTag(user2, "Tayler"); ///add tag
+        applicationAppManager.addTag(user2, "Tayler"); ///add tag
         assertTrue(applicationAppManager.hasTag(user2, "Tayler"));
-        applicationAppManager.addGeneralTag(user3, "Shane"); ///add tag
+        applicationAppManager.addTag(user3, "Shane"); ///add tag
         assertTrue(applicationAppManager.hasTag(user3, "Shane"));
         /// switch to the user
         vm.stopPrank();
@@ -1496,8 +1496,8 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         sellPeriod[0] = uint16(36); ///Hours
 
         /// Set the rule data
-        applicationAppManager.addGeneralTag(user1, "SellRule");
-        applicationAppManager.addGeneralTag(user2, "SellRule");
+        applicationAppManager.addTag(user1, "SellRule");
+        applicationAppManager.addTag(user2, "SellRule");
         /// add the rule.
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addSellRule(address(applicationAppManager), accs, sellAmounts, sellPeriod, uint64(Blocktime));
@@ -1535,8 +1535,8 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         period[0] = uint16(36); ///Hours
 
         /// Set the rule data
-        applicationAppManager.addGeneralTag(user1, accs[0]);
-        applicationAppManager.addGeneralTag(user2, accs[0]);
+        applicationAppManager.addTag(user1, accs[0]);
+        applicationAppManager.addTag(user2, accs[0]);
         /// add the rule.
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addPurchaseRule(address(applicationAppManager), accs, amounts, period, uint64(Blocktime));

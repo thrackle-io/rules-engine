@@ -16,4 +16,4 @@
 [version-url]: https://github.com/thrackle-io/Tron
 
 <!-- These are the body links -->
-[admin-roles]: ../deployment/ADMIN-ROLES.md 
+[admin-roles]: ../permissions/ADMIN-ROLES.md 
