@@ -16,7 +16,7 @@ Tags are also used for the assessment of fees within the protocol. When activate
 ### Account Tags: 
 - Tags can be applied to individual accounts and used to assess fees or facilitate rule checks throughout the procotol. When an account (user) is tagged, they will be subject to any rules that are active that utilize that tag. 
 
-###### *see[TAGGED-RULES](./TAGGED-RULES.md)* 
+###### *see [TAGGED-RULES](./TAGGED-RULES.md)* 
 
 ### Address Tags: 
 - Tags can be applied to addresses of contracts. These address tags are used in a similar way to account tags as they are used to assess fees or facilitate rule checks for specific addresses.
@@ -145,7 +145,5 @@ The following validation will be carried out by the addTag function in order to 
     - A tag has been removed. In this case, the `add` field of the event will be *false*.
 - **TagAlreadyApplied(address indexed _address)**: emitted when: 
     - A tag has already been added to an account. 
-
-## Dependencies
-
-- **T**: 
+- **TagProviderSet(address indexed _address)**: emitted when:
+    - A tag data contract has been migrated to the app manager address
