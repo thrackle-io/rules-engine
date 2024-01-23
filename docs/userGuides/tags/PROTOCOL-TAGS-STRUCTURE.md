@@ -4,7 +4,7 @@
 
 Tags are assigned to accounts and addresses by application administrators through the application manager contract. A maximum of 10 Tags per account or address are stored as bytes32 in the Tags data contract. This data contract is deployed when the app manager is deployed. The Tags data contract can be migrated to a new application manager during an upgrade to maintain tagged account and address data. [App administrators](../permissions/ADMIN-ROLES.md) can migrate data contracts to a new app manager through a two step migration process.
 
-The protocol utilizes tags in numerous rules to facilitate validation of the rules for inidividual users or addresses. Based on a user's tags different rule values will be assessed. Users with "TagA" may have a max balance limit of 1000 protocol supported tokens where users with "TagB" may have a 10,000 token limit. For a list of rules that utilize tags see [TAGGED-RULES](./TAGGED-RULES.md). 
+The protocol uses tags to assess fees and perform rule checks for tag-based rules. Based on a user's tags different rule values will be assessed. Users with "TagA" may have a max balance limit of 1000 protocol supported tokens where users with "TagB" may have a 10,000 token limit. For a list of rules that utilize tags see [TAGGED-RULES](./TAGGED-RULES.md). 
 
 Rules may utilize a "blank tag" where no specific tag is provided to the protocol when the rule is created. These rules will apply to all users of the protocol supported token that do not have a tag assigned to them. If a Min/Max Balance [TAGGED-RULES](./TAGGED-RULES.md) is active with a blank tag, every user that is not assigned a tag by the application administrators will be subject to the minimum and maximum limits of that rule. 
 
@@ -13,15 +13,10 @@ Tags are also used for the assessment of fees within the protocol. When activate
 
 ## Scope 
 
-### Account Tags: 
-- Tags can be applied to individual accounts and used to assess fees or facilitate rule checks throughout the procotol. When an account (user) is tagged, they will be subject to any rules that are active that utilize that tag. 
+Tags can be applied to individual accounts or addresses of contracts. Tags are used to assess fees or facilitate tagged rule checks throughout the procotol. When an account (user) is tagged, they will be subject to any rules that are active that utilize that tag. 
 
 ###### *see [TAGGED-RULES](./TAGGED-RULES.md)* 
 
-### Address Tags: 
-- Tags can be applied to addresses of contracts. These address tags are used in a similar way to account tags as they are used to assess fees or facilitate rule checks for specific addresses.
-
-###### *see [TRANSFER-COUNTER RULE](../rules/TRANSFER-COUNTER.md)*
 
 ## Data Structure
 Tags are a bytes32 array stored in a mapping inside the Tags data contract. 
