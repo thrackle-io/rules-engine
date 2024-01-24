@@ -9,7 +9,7 @@ Rule administrators can add and activate [RISK-RULES](./RISK-SCORE-RULES.md) via
 
 ## Scope 
 
-Risk scores can be applied to individual accounts or addresses of contracts. Risk scores are used to facilitate risk rule checks throughout the procotol. When an account (user) is given a risk score, they will be subject to any risk rules that are active. When a risk rule is added and activated every user with a risk score will be subjected to this risk rule. This means if the [TX-SIZE-PER-PERIOD](../rules/TX-SIZE-PER-PERIOD-BY-RISK-SCORE.md) is active and a has the following rule values: 
+Risk scores can be applied to individual accounts or addresses of contracts. Risk scores are used to facilitate risk rule checks throughout the protocol. When an account (user) is given a risk score, they will be subject to any risk rules that are active. When a risk rule is added and activated every user with a risk score will be subjected to this risk rule. This means if the [TX-SIZE-PER-PERIOD](../rules/TX-SIZE-PER-PERIOD-BY-RISK-SCORE.md) is active and a has the following rule values: 
 ```
 riskLevel = [25, 50, 75];
 maxSize = [500, 250, 50];
