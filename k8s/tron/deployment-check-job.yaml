@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: deployCheck
+  namespace: dev
+spec:
+  template:
+    metadata:
+      name: deployCheck
+    spec:
+      containers:
+      - name: deployCheck
+        image: {{TRON_TESTING_IMAGE_TAG}}
+      restartPolicy: Never
