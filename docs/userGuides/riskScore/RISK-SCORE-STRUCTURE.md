@@ -9,7 +9,7 @@ Rule administrators can add and activate [RISK-RULES](./RISK-SCORE-RULES.md) via
 
 ## Scope 
 
-Risk scores can be applied to individual accounts or addresses of contracts. Risk scores are used to facilitate risk rule checks throughout the procotol. When an account (user) is given a risk score, they will be subject to any rules that are active that utilize that tag. When a risk rule is added and activated every user with a risk score will be subjected to this risk rule. This means if the [TX-SIZE-PER-PERIOD](../rules/TX-SIZE-PER-PERIOD-BY-RISK-SCORE.md) is active and a has the following rule values: 
+Risk scores can be applied to individual accounts or addresses of contracts. Risk scores are used to facilitate risk rule checks throughout the procotol. When an account (user) is given a risk score, they will be subject to any risk rules that are active. When a risk rule is added and activated every user with a risk score will be subjected to this risk rule. This means if the [TX-SIZE-PER-PERIOD](../rules/TX-SIZE-PER-PERIOD-BY-RISK-SCORE.md) is active and a has the following rule values: 
 ```
 riskLevel = [25, 50, 75];
 maxSize = [500, 250, 50];
@@ -53,76 +53,69 @@ The selector for this error is `0xb3cbc6f3`.
 
 ## Add Functions
 
-Adding a tag is done through the function:
+Adding a risk score is done through the function:
 
 ```c
-function addRiskScore(address _account, uint8 _score) external onlyRole(APP_ADMIN_ROLE); 
+function addRiskScore(address _account, uint8 _score) external onlyRole(RISK_ADMIN_ROLE); 
 ```
 
-Adding multiple tags to a single account or address is done through the function:
+Adding multiple risk scores to a single account or address is done through the function:
 
 ```c
-function addTagToMultipleAccounts(address[] _accounts, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE); 
+function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyRole(RISK_ADMIN_ROLE); 
 ```
 
-Adding multiple tags to multiple accounts or addresses is done through the function:
+Adding multiple risk scores to multiple accounts or addresses is done through the function:
 
 ```c
-function addMultipleTagToMultipleAccounts(address[] _accounts, bytes32 _tags) external onlyRole(APP_ADMIN_ROLE); 
+function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyRole(RISK_ADMIN_ROLE); 
 ```
-
-###### *see [Tags](../../../client/application/data/Tags.sol)*
 
 ## Remove Function
 
-Removing a tag is done through the function:
+Removing a risk score from account or address is done through the function:
 
 ```c
-function removeTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE); 
+function removeRiskScore(address _account) external onlyRole(RISK_ADMIN_ROLE); 
 ```
-###### *see [Tags](../../../client/application/data/Tags.sol)*
+
+###### *see [App Manager](../../../client/application/AppManager.sol)*
 
 ### Parameters:
 
-- **_tag** (bytes32): tag for an account.
-- **_tags** (bytes32[]): array of tags for an account.
-- **_account** (address): address of the account to tag
-- **_accounts** (address[]): array of addresses to tag
+- **_score** (uint8): risk score for an account.
+- **_scores** (uint8): array of risk scores for an account.
+- **_account** (address): address of the account for the risk score
+- **_accounts** (address[]): array of addresses to for the risk scores
 
 
 ### Parameter Optionality:
 
-There are no options for the parameters of the add or remove functions.
-
-Application administrators can submit rules with "blank" tags. This allows for a default or always applicable rule values for [TAGGED-RULES](./TAGGED-RULES.md). 
+There are no options for the parameters for the add functions.
 
 ### Parameter Validation:
 
-The following validation will be carried out by the addTag function in order to ensure that these parameters are valid and make sense:
+The following validation will be carried out by the addRiskScore function in order to ensure that these parameters are valid and make sense:
 
-- `_tag` is not blank.
-- `_account` has the tag. When adding tags this is used to avoid duplication. When removing tags this is used to ensure account has the tag to be removed.   
+- `_score` is within the 0-99 score range.
+- `_account` is not the zero address.   
 
-###### *see [Tags](../../../client/application/data/Tags.sol)*
+###### *see [RiskScores](../../../src/client/application/data/RiskScores.sol)*
 
 ## Other Functions:
 
-- In [App Manager](../../../client/application/AppManager.sol):
-    -  Function to check if an account or address has a tag:
+- In [App Manager](../../../src/client/application/AppManager.sol):
+    -  Function to check the score of an account or address:
         ```c
-        function hasTag(address _address, bytes32 _tag) public view returns (bool);
-        ```
-    -  Function to get all the tags for an address:
-        ```c
-        function getAllTags(address _address) external view returns (bytes32[] memory);
+        function getRiskScore(address _account) external view virtual returns (uint8);
         ```
     -  Function to deploy new data contracts:
         ```c
         function deployDataContracts() private;
         ```
-    - Function to retrieve tags data contract address:
+    - Function to retrieve risk scores data contract address:
         ```c
-        function getTagsDataAddress() external view returns (address);
+        function getRiskDataAddress() external view returns (address);
         ```
     - Function to propose data contract migration to new handler:
         ```c
@@ -135,10 +128,9 @@ The following validation will be carried out by the addTag function in order to 
 
 ## Events
 
-- **Tag(address indexed _address, bytes32 indexed _tag, bool indexed add)**: emitted when:
-    - A tag has been added. In this case, the `add` field of the event will be *true*.
-    - A tag has been removed. In this case, the `add` field of the event will be *false*.
-- **TagAlreadyApplied(address indexed _address)**: emitted when: 
-    - A tag has already been added to an account. 
-- **TagProviderSet(address indexed _address)**: emitted when:
-    - A tag data contract has been migrated to the app manager address
+- **RiskScoreAdded(address indexed _address, uint8 _score)**: emitted when:
+    - A risk score has been added.
+- **RiskScoreRemoved(address indexed _address)**: emitted when: 
+    - A risk score is removed. 
+- **RiskProviderSet(address indexed _address)**: emitted when:
+    - A risk score data contract has been migrated to the app manager address
