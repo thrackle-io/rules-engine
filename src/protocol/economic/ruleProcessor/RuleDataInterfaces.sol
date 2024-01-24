@@ -90,11 +90,7 @@ interface ITaggedRules {
         uint256 amount;
         uint256 releaseDate; /// timestamp
     }
-    /// ******** Transaction Size Rules ********
-    struct TransactionSizeToRiskRule {
-        uint8[] riskLevel;
-        uint48[] maxSize; /// whole USD (no cents) -> 1 = 1 USD (Max allowed: 281 trillion USD)
-    }
+
     /// ******** NFT ********
     struct NFTTradeCounterRule {
         uint8 tradesAllowedPerDay;
@@ -111,29 +107,29 @@ interface IFeeRules {
 interface IApplicationRules {
     /// ******** Transaction Size Per Period Rules ********
     /**
-     * @dev maxSize size must be equal to riskLevel size + 1.
+     * @dev maxSize size must be equal to riskScores size + 1.
      * This is because the maxSize should also specified the max tx
-     * size allowed for anything between the highest risk level and 100
+     * size allowed for anything between the highest risk score and 100
      * which is specified in the last position of the maxSize.
      * The positionning of the elements within the arrays has meaning.
      * The first element in the maxSize array corresponds to the risk
      * range between 0 and the risk score specified in the first position
-     * of the riskLevel array (exclusive). The last maxSize value
+     * of the riskScores array (exclusive). The last maxSize value
      * will represent the max tx size allowed for any risk score above
-     * the risk level set in the last element of the riskLevel array.
-     * Therefore, the order of the values inside the riskLevel
+     * the risk score set in the last element of the riskScores array.
+     * Therefore, the order of the values inside the riskScores
      * array must be ascendant.
      */
     struct TxSizePerPeriodToRiskRule {
         uint48[] maxSize; /// whole USD (no cents) -> 1 = 1 USD (Max allowed: 281 trillion USD)
-        uint8[] riskLevel;
+        uint8[] riskScore;
         uint16 period; // hours
         uint64 startingTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024
     }
 
     /// ******** Account Balance Rules By Risk Score ********
     struct AccountBalanceToRiskRule {
-        uint8[] riskLevel; //
+        uint8[] riskScore; //
         uint48[] maxBalance; /// whole USD (no cents) -> 1 = 1 USD (Max allowed: 281 trillion USD)
     }
 }

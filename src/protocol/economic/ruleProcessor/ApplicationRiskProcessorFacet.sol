@@ -21,7 +21,7 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
      * @param _riskScore the Risk Score of the recepient account
      * @param _totalValuationTo recipient account's beginning balance in USD with 18 decimals of precision
      * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
-     * @notice _balanceLimits size must be equal to _riskLevel.
+     * @notice _balanceLimits size must be equal to _riskScore.
      * The positioning of the arrays is ascendant in terms of risk levels,
      * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
@@ -43,8 +43,8 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
         if (_toAddress != address(0)) {
             /// If risk score is less than the first risk score of the rule, there is no limit.
             /// Skips the loop for gas efficiency on low risk scored users 
-            if (_riskScore >= rule.riskLevel[0]) {
-                ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskLevel, rule.maxBalance);
+            if (_riskScore >= rule.riskScore[0]) {
+                ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskScore, rule.maxBalance);
                 if (total > ruleMaxSize) revert BalanceExceedsRiskScoreLimit();
             }
         }
@@ -53,7 +53,7 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
     /**
      * @dev Function to get the TransactionLimit in the rule set that belongs to an risk score
      * @param _index position of rule in array
-     * @return balanceAmount balance allowed for access levellevel
+     * @return balanceAmount balance allowed for Risk Score
      */
     function getAccountBalanceByRiskScore(uint32 _index) public view returns (ApplicationRuleStorage.AccountBalanceToRiskRule memory) {
         RuleS.AccountBalanceToRiskRuleS storage data = Storage.accountBalanceToRiskStorage();
@@ -84,7 +84,7 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
      * inside the current period, then this value is accumulated. If not, it is reset to current amount.
      * @dev this check will cause a revert if the new value of _usdValueTransactedInPeriod in USD exceeds
      * the limit for the address risk profile.
-     * @notice _balanceLimits size must be equal to _riskLevel 
+     * @notice _balanceLimits size must be equal to _riskScore
      * The positioning of the arrays is ascendant in terms of risk levels, 
      * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
@@ -107,8 +107,8 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
         
         /// If risk score is less than the first risk score of the rule, there is no limit.
         /// Skips the loop for gas efficiency on low risk scored users 
-        if (_riskScore >= rule.riskLevel[0]) {
-            ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskLevel, rule.maxSize);
+        if (_riskScore >= rule.riskScore[0]) {
+            ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskScore, rule.maxSize);
             if (amountTransactedInPeriod > ruleMaxSize) revert MaxTxSizePerPeriodReached(_riskScore, ruleMaxSize, rule.period);
             return amountTransactedInPeriod;
         } else {
@@ -120,7 +120,7 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
      * @dev Function to get the Max Tx Size Per Period By Risk rule.
      * @param _index position of rule in array
      * @return a touple of arrays, a uint8 and a uint64. The first array will be the _maxSize, the second
-     * will be the _riskLevel, the uint8 will be the period, and the last value will be the starting date.
+     * will be the _riskScore, the uint8 will be the period, and the last value will be the starting date.
      */
     function getMaxTxSizePerPeriodRule(uint32 _index) public view returns (ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory) {
         RuleS.TxSizePerPeriodToRiskRuleS storage data = Storage.txSizePerPeriodToRiskStorage();

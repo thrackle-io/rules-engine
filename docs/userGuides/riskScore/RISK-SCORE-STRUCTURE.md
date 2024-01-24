@@ -1,54 +1,54 @@
-# Protocol Tags Structure 
+# Protocol Risk Score Structure 
 
 ## Purpose
 
-Tags are assigned to accounts and addresses by application administrators through the application manager contract. A maximum of 10 Tags per account or address are stored as bytes32 in the Tags data contract. This data contract is deployed when the app manager is deployed. The Tags data contract can be migrated to a new application manager during an upgrade to maintain tagged account and address data. [App administrators](../permissions/ADMIN-ROLES.md) can migrate data contracts to a new app manager through a two step migration process.
+Application developers may wish to assign risk scores to accounts and addresses that they determine have a higher potential for behavior that is detrimental to their economy. These scores can range from 0-99. [Risk administrators](../permissions/ADMIN-ROLES.md) are the only admins that can assign risk scores to accounts and addresses. 
 
-The protocol uses tags to assess fees and perform rule checks for tag-based rules. Based on a user's tags different rule values will be assessed. Users with "TagA" may have a max balance limit of 1000 protocol supported tokens where users with "TagB" may have a 10,000 token limit. For a list of rules that utilize tags see [TAGGED-RULES](./TAGGED-RULES.md). 
-
-Rules may utilize a "blank tag" where no specific tag is provided to the protocol when the rule is created. These rules will apply to all users of the protocol supported token that do not have a tag assigned to them. If a Min/Max Balance [TAGGED-RULES](./TAGGED-RULES.md) is active with a blank tag, every user that is not assigned a tag by the application administrators will be subject to the minimum and maximum limits of that rule. 
-
-Tags are also used for the assessment of fees within the protocol. When activated, fees are additive and will be assessed for each tag an account or address has stored. 
+Rule administrators can add and activate [RISK-RULES](./RISK-SCORE-RULES.md) via the application handler contract. These rules are applied at the application level, meaning all assets within the application will be subjected to these rules. 
 
 
 ## Scope 
 
-Tags can be applied to individual accounts or addresses of contracts. Tags are used to assess fees or facilitate tagged rule checks throughout the procotol. When an account (user) is tagged, they will be subject to any rules that are active that utilize that tag. 
+Risk scores can be applied to individual accounts or addresses of contracts. Risk scores are used to facilitate risk rule checks throughout the procotol. When an account (user) is given a risk score, they will be subject to any rules that are active that utilize that tag. When a risk rule is added and activated every user with a risk score will be subjected to this risk rule. This means if the [TX-SIZE-PER-PERIOD](../rules/TX-SIZE-PER-PERIOD-BY-RISK-SCORE.md) is active and a has the following rule values: 
+```
+riskLevel = [25, 50, 75];
+maxSize = [500, 250, 50];
+```
+The max values per period will be as follows: 
 
-###### *see [TAGGED-RULES](./TAGGED-RULES.md)* 
+| risk score | balance | resultant logic |
+| - | - | - |
+| Implied* | Implied* | 0-24 ->  NO LIMIT |
+| 25 | $500 | 25-49 ->   $500 max |
+| 50 | $250 | 50-74 ->   $250 max |
+| 75 | $50 | 75-100 ->   $50 max |
+
+###### *see [RISK-RULES](./RISK-SCORE-RULES.md)* 
 
 
 ## Data Structure
-Tags are a bytes32 array stored in a mapping inside the Tags data contract. 
+Risk scores are a uint8 value stored in a mapping inside the RiskScores data contract. 
  
 ```c
-///     address   => tags 
-mapping(address => bytes32[]) public tagRecords;
+///     address   => riskScore 
+mapping(address => uint8) public scores;
 ```
 
-###### *see [Tags](../../../src/client/application/data/Tags.sol)*
+###### *see [RiskScores](../../../src/client/application/data/RiskScores.sol)*
 
 ## Enabling/Disabling
-- Tags can only be added in the app manager by an **app administrator**.
-- Tags can only be removed in the app manager by an **app administrator**.
+- Risk scores can only be added in the app manager by an **risk administrator**.
+- Risk scores can only be removed in the app manager by an **risk administrator**.
 
 
 ### Revert Messages
 
-The transaction will revert with the following error if the tag limit is reached when adding tags: 
+The transaction will revert with the following error if the risk score assigned is out of range when assigning risck scores: 
 
 ```
-error MaxTagLimitReached();
+error riskScoreOutOfRange();
 ```
-The selector for this error is `0xa3afb2e2`.
-
-
-The transaction will revert with the following error if there is no tag assigned when removing tags: 
-
-```
-error NoAddressToRemove();
-```
-The selector for this error is `0x7de8c17d`.
+The selector for this error is `0xb3cbc6f3`.
 
 
 ## Add Functions
@@ -56,7 +56,7 @@ The selector for this error is `0x7de8c17d`.
 Adding a tag is done through the function:
 
 ```c
-function addTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE); 
+function addRiskScore(address _account, uint8 _score) external onlyRole(APP_ADMIN_ROLE); 
 ```
 
 Adding multiple tags to a single account or address is done through the function:

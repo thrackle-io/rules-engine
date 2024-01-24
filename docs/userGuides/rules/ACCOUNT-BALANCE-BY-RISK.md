@@ -26,13 +26,13 @@ This rule works at the application level which means that all tokens in the app 
 
 An account-balance-by-risk rule is composed of 2 components:
 
-- **Risk Level** (uint8[]): The array of risk scores.
+- **Risk Score** (uint8[]): The array of risk scores.
 - **Max Balance** (uint48[]): The array of maximum whole dollar limits for risk score range.
 
 ```c
 /// ******** Account Balance Rules By Risk Score ********
 struct AccountBalanceToRiskRule {
-    uint8[] riskLevel; 
+    uint8[] riskScore; 
     uint48[] maxBalance; /// whole US dollar (no cents) -> 1 = 1 US dollar (Max allowed: 281 trillion USD)
 }
 ```

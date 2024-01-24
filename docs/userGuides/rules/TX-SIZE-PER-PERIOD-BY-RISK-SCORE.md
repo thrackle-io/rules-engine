@@ -18,27 +18,27 @@ This rule works at the application level which means that all tokens in the app 
 
 A transaction-size-per-period-by-risk-score rule is composed of 4 variables:
 
-- **riskLevel** (uint8[]): array of risk score delimiting the different risk segments.
+- **riskScore** (uint8[]): array of risk score delimiting the different risk segments.
 - **maxSize** (uint48[]): array of maximum USD worth of application assets that a transaction can move per risk segment in a period of time.
 - **period** (uint16): the amount of hours that defines a period.
 - **startingTime** (uint64): the Unix timestamp of the date when the rule starts the first *period*.
 
-The relation between `riskLevel` and `maxSize` can be explained better in the following example:
+The relation between `riskScore` and `maxSize` can be explained better in the following example:
 
 Imagine the following data structure
 ```
-riskLevel = [25, 50, 75];
+riskScore = [25, 50, 75];
 maxSize = [500, 250, 50];
 ```
 
- | risk score | balance | resultant logic |
+| risk score | balance | resultant logic |
 | - | - | - |
 | Implied* | Implied* | 0-24 ->  NO LIMIT |
 | 25 | $500 | 25-49 ->   $500 max |
 | 50 | $250 | 50-74 ->   $250 max |
 | 75 | $50 | 75-100 ->   $50 max |
 
-\* *Note that the first risk segment is implied and has no limit. This first segment is from risk score 0 to the lowest risk score defined in the rule (`riskLevel`). A no-implied-segment rule could be achieved by starting the `riskLevel` from 0.*
+\* *Note that the first risk segment is implied and has no limit. This first segment is from risk score 0 to the lowest risk score defined in the rule (`riskScore`). A no-implied-segment rule could be achieved by starting the `riskScore` from 0.*
 
 ***risk scores can be between 0 and 100.***
 
@@ -46,7 +46,7 @@ maxSize = [500, 250, 50];
 /// ******** Transaction Size Per Period Rules ********
 struct TxSizePerPeriodToRiskRule {
         uint48[] maxSize; /// whole USD (no cents) -> 1 = 1 USD (Max allowed: 281 trillion USD)
-        uint8[] riskLevel;
+        uint8[] riskScore;
         uint16 period; // hours
         uint64 startingTime; 
     }
@@ -112,7 +112,7 @@ Adding a transaction-size-per-period-by-risk-score rule is done through the func
 function addMaxTxSizePerPeriodByRiskRule(
             address _appManagerAddr,
             uint48[] calldata _maxSize,
-            uint8[] calldata _riskLevel,
+            uint8[] calldata _riskScore,
             uint16 _period,
             uint64 _startTimestamp
         ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
@@ -146,7 +146,7 @@ The following validation will be carried out by the create function in order to 
 ###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
 ## Other Functions:
-- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
+- In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
     - Function to get a rule by its Id:
         ```c
         function getMaxTxSizePerPeriodRule(uint32 _index) external view returns (AppRules.TxSizePerPeriodToRiskRule memory);
