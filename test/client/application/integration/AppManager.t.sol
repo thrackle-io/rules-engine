@@ -299,6 +299,14 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(44, applicationAppManager.getRiskScore(user));
     }
 
+    function testAddAndRemoveRiskScore() public {
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user, 75);
+        assertEq(75, applicationAppManager.getRiskScore(user));
+        applicationAppManager.removeRiskScore(user);
+        assertEq(0, applicationAppManager.getRiskScore(user));
+    }
+
     function testUpdateRiskScore() public {
         switchToRiskAdmin(); // create a risk admin and make it the sender.
         applicationAppManager.addRiskScore(user, 75);

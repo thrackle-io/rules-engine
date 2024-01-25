@@ -175,16 +175,6 @@ library RuleStoragePositionLib {
         }
     }
 
-    /**
-     * @dev Function to store Transaction Size by Risk rules
-     * @return ds Data Storage of Transaction Size by Risk Rule
-     */
-    function txSizeToRiskStorage() internal pure returns (IRuleStorage.TxSizeToRiskRuleS storage ds) {
-        bytes32 position = TX_SIZE_TO_RISK_RULE_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
 
     /**
      * @dev Function to store Transaction Size by Risk per Period rules

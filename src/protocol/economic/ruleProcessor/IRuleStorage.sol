@@ -120,12 +120,6 @@ interface IRuleStorage {
     *************** Risk Rules ****************
     /*****************************************/
 
-    /// ******** Transaction Size Rules ********
-    struct TxSizeToRiskRuleS {
-        mapping(uint32 => ITaggedRules.TransactionSizeToRiskRule) txSizeToRiskRule;
-        uint32 txSizeToRiskRuleIndex;
-    }
-
     /// ******** Account Balance Rules ********
     struct AccountBalanceToRiskRuleS {
         mapping(uint32 => IApplicationRules.AccountBalanceToRiskRule) balanceToRiskRule;

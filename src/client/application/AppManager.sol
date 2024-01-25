@@ -508,6 +508,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         return riskScores.getRiskScore(_account);
     }
 
+    /**
+     * @dev Remove the Risk Score for an account.
+     * @param _account address which the risk score will be removed from
+     */
+    function removeRiskScore(address _account) external onlyRole(RISK_ADMIN_ROLE) {
+        riskScores.removeScore(_account);
+    }
+
     /// --------------MAINTAIN PAUSE RULES---------------
 
     /**

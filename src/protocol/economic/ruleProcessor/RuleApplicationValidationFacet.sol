@@ -40,23 +40,6 @@ contract RuleApplicationValidationFacet {
         return data.ammFeeRuleIndex;
     }
 
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
-    function validateTransactionLimitByRiskScore(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllTransactionLimitByRiskRules());
-    }
-
-    /**
-     * @dev Function to get all Transaction Limit by Risk Score rules for validation
-     * @return Total length of array
-     */
-    function getAllTransactionLimitByRiskRules() internal view returns (uint32) {
-        RuleS.TxSizeToRiskRuleS storage data = Storage.txSizeToRiskStorage();
-        return data.txSizeToRiskRuleIndex;
-    }
 
     /**
      * @dev Validate the existence of the rule
