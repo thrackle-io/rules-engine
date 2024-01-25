@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  anvil:
+    build:
+      context: .
+      dockerfile: Dockerfile.anvil
+    environment:
+      FOUNDRY_PROFILE: docker
+      RUST_LOG: backend,api,node,rpc=warn
+    restart: unless-stopped
+    ports:
+      - "8545:8545"
+  tron-setup:
+    depends_on:
+      - anvil
+    build:
+      context: .
+      dockerfile: Dockerfile.deploymentCheck
+    environment:
+      FOUNDRY_PROFILE: docker

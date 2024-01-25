@@ -8,25 +8,12 @@ WORKDIR /usr/local/src/tron
 COPY . .
 
 RUN curl -L https://foundry.paradigm.xyz | bash
-RUN chmod a+x install-forge.sh necessist-run.sh
-RUN ./install-forge.sh
+RUN chmod a+x install-deploy-check.sh
+CMD ["./install-deploy-check.sh"]
 
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-RUN unzip awscliv2.zip
-RUN ./aws/install
 
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_SECRET_ACCESS_KEY
-ARG AWS_REGION
 
-ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-ENV AWS_DEFAULT_REGION=${AWS_REGION}
-
-RUN curl https://sh.rustup.rs -sSf > rustup.sh
-RUN chmod a+x rustup.sh
-RUN ./rustup.sh -y
-
-#CMD ["tail", "-f", "/dev/null"]
-# CMD ["./necessist-run.sh"]
-CMD ["forge script script/DeployAllModules.s.sol --ffi --broadcast --rpc-url http://anvil:8545"]
+# CMD ["tail", "-f", "/dev/null"]
+# # CMD ["./necessist-run.sh"]
+# CMD ["forge script script/DeployAllModules.s.sol --ffi --broadcast --rpc-url http://anvil:8545"]
+# CMD ["forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv"]

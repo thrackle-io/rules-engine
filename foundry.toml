@@ -9,6 +9,9 @@ eth-rpc-url = 'http://localhost:8545'
 [profile.docker]
 eth-rpc-url = 'http://anvil:8545'
 
+[profile.deployment-check]
+eth-rpc-url = 'http://anvil-deploy-check:8545'
+
 [profile.polygon]
 eth-rpc-url = 'http://172.20.0.2:10002'
 
