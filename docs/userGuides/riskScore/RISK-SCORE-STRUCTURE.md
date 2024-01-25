@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Application developers may wish to assign risk scores to accounts and addresses that they determine have a higher potential for behavior that is detrimental to their economy. These scores can range from 0-99. [Risk administrators](../permissions/ADMIN-ROLES.md) are the only admins that can assign risk scores to accounts and addresses. 
+Application developers may wish to assign risk scores to addresses that they determine have a higher potential for behavior that is detrimental to their economy. These scores can range from 0-99. [Risk administrators](../permissions/ADMIN-ROLES.md) are the only admins that can assign risk scores to addresses. 
 
 Rule administrators can add and activate [RISK-RULES](./RISK-SCORE-RULES.md) via the application handler contract. These rules are applied at the application level, meaning all assets within the application will be subjected to these rules. 
 
@@ -65,7 +65,7 @@ Adding multiple risk scores to a single account or address is done through the f
 function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyRole(RISK_ADMIN_ROLE); 
 ```
 
-Adding multiple risk scores to multiple accounts or addresses is done through the function:
+Adding multiple risk scores to multiple addresses is done through the function:
 
 ```c
 function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyRole(RISK_ADMIN_ROLE); 
@@ -73,7 +73,7 @@ function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _score
 
 ## Remove Function
 
-Removing a risk score from account or address is done through the function:
+Removing a risk score from an address is done through the function:
 
 ```c
 function removeRiskScore(address _account) external onlyRole(RISK_ADMIN_ROLE); 
@@ -105,7 +105,7 @@ The following validation will be carried out by the addRiskScore function in ord
 ## Other Functions:
 
 - In [App Manager](../../../src/client/application/AppManager.sol):
-    -  Function to check the score of an account or address:
+    -  Function to check the score of an address:
         ```c
         function getRiskScore(address _account) external view virtual returns (uint8);
         ```
