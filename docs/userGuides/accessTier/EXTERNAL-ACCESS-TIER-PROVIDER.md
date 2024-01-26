@@ -5,7 +5,7 @@ An external access tier provider may be utilized. In order to switch to an exter
 
 ## Required functions for the External Access Tier Provider
 
-###### *see [IAccessLevels](../../../client/application/data/IAccessLevels.sol)*
+###### *see [IAccessLevels](../../../src/client/application/data/IAccessLevels.sol)*
 
 ```c
     function addLevel(address _address, uint8 _level) external;
@@ -17,9 +17,9 @@ An external access tier provider may be utilized. In order to switch to an exter
 
 The implementations for each of the above functions can be found in the AccessLevels contract.
 
-###### *see [AccessLevels](../../../client/application/data/AccessLevels.sol)*
+###### *see [AccessLevels](../../../src/client/application/data/AccessLevels.sol)*
 
-###### *see [IDataModule](../../../client/application/data/IDataModule.sol)*
+###### *see [IDataModule](../../../src/client/application/data/IDataModule.sol)*
 
 ```c
     function proposeOwner(address _newOwner) external;
@@ -31,7 +31,7 @@ The implementations for each of the above functions can be found in the AccessLe
 
 The implementations for each of the above functions can be found in the DataModule contract.
 
-###### *see [DataModule](../../../client/application/data/DataModule.sol)*
+###### *see [DataModule](../../../src/client/application/data/DataModule.sol)*
 
 ## Process for switching to an external access tier provider
 

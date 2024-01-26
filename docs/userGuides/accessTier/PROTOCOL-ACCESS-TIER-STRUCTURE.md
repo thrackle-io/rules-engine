@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Access Tier levels can be assigned to accounts and addresses by Access Tier Administrators through the [AppManager](../../../src/client/application/AppManager.sol). They are predefined as 0,1,2,3,4 and are stored as uint8 in the AcessLevels data contract. This data contract is deployed when the app manager is deployed. The AccessLevels data contract can be migrated to a new application manager during an upgrade to maintain access level and address data. [Access Tier administrators](../permissions/ADMIN-ROLES.md) can migrate data contracts to a new app manager through a two step migration process.
+Access Tier levels can be assigned to accounts and addresses by Access Tier Administrators through the [AppManager](../../../src/client/application/AppManager.sol). They are predefined as 0,1,2,3,4 and are stored as uint8 in the AcessLevels data contract. This data contract is deployed when the app manager is deployed. The AccessLevels data contract can be migrated to a new application manager during an upgrade to maintain access level and address data. [Access Tier administrators](../permissions/ADMIN-CONFIG.md) can migrate data contracts to a new app manager through a two step migration process.
 
 The protocol uses access levels to perform access tier related rule checks. The levels may be used as needed to suit the needs of the application and the rules. 
 
@@ -23,7 +23,7 @@ Access Levels are a uint8 number stored in a mapping inside the AccessLevels dat
 mapping(address => uint8) public levels;
 ```
 
-###### *see [AccessLevels](../../../client/application/data/AccessLevels.sol)*
+###### *see [AccessLevels](../../../src/client/application/data/AccessLevels.sol)*
 
 ## Enabling/Disabling
 - Access Levels can only be set in the app manager by an **access tier administrator**.
@@ -66,7 +66,7 @@ Adding multiple access levels to multiple accounts or addresses is done through 
 function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyRole(ACCESS_TIER_ADMIN_ROLE);
 ```
 
-###### *see [AccessLevels](../../../client/application/data/AccessLevels.sol)*
+###### *see [AccessLevels](../../../src/client/application/data/AccessLevels.sol)*
 
 ## Remove Function
 
@@ -91,11 +91,11 @@ The following validation will be carried out by the addAccessLevel function in o
 - `_level` is not greater than 4.
 - `_account` is an address and not the zero address.
 
-###### *see [AccessLevels](../../../client/application/data/AccessLevels.sol)*
+###### *see [AccessLevels](../../../src/client/application/data/AccessLevels.sol)*
 
 ## Other Functions:
 
-- In [App Manager](../../../client/application/AppManager.sol):
+- In [App Manager](../../../src/client/application/AppManager.sol):
     -  Function to get the access level of an address:
         ```c
         function getAccessLevel(address _account) external view returns (uint8);
