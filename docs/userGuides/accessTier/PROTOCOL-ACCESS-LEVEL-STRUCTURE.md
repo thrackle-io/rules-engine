@@ -1,18 +1,18 @@
-# Protocol Access Tier Structure 
+# Protocol Access Level Structure 
 
 ## Purpose
 
-Access Tier levels can be assigned to accounts and addresses by Access Tier Administrators through the [AppManager](../../../src/client/application/AppManager.sol). They are predefined as 0,1,2,3,4 and are stored as uint8 in the [AccessLevels](../../../src/client/application/data/AccessLevels.sol) data contract. This data contract is deployed when the [AppManager](../../../src/client/application/AppManager.sol) is deployed. The AccessLevels data contract can be migrated to a new [AppManager](../../../src/client/application/AppManager.sol) during an upgrade to maintain access level and address data. [Access Tier administrators](../permissions/ADMIN-CONFIG.md) can migrate data contracts to a new [AppManager](../../../src/client/application/AppManager.sol) through a two step migration [process](./EXTERNAL-ACCESS-TIER-PROVIDER.md).
+Access Levels can be assigned to accounts and addresses by Access Level Administrators through the [AppManager](../../../src/client/application/AppManager.sol). They are predefined as 0,1,2,3,4 and are stored as uint8 in the [AccessLevels](../../../src/client/application/data/AccessLevels.sol) data contract. This data contract is deployed when the [AppManager](../../../src/client/application/AppManager.sol) is deployed. The AccessLevels data contract can be migrated to a new [AppManager](../../../src/client/application/AppManager.sol) during an upgrade to maintain access level and address data. [Access Level administrators](../permissions/ADMIN-CONFIG.md) can migrate data contracts to a new [AppManager](../../../src/client/application/AppManager.sol) through a two step migration [process](./EXTERNAL-ACCESS-LEVEL-PROVIDER.md).
 
-The protocol uses access levels to perform access tier related rule checks. The levels may be used as needed to suit the needs of the application and the rules. 
+The protocol uses access levels to perform access level related rule checks. The levels may be used as needed to suit the needs of the application and the rules. 
 
 The default access level for each account is 0. 
 
 ## Scope 
 
-Access Levels can be applied to individual accounts or addresses of contracts. When an access tier related rule is activated, all users will be subject to any limitations set by the rule related to their individual access level. 
+Access Levels are applied to addresses. When an access level related rule is activated, all users will be subject to any limitations set by the rule related to their individual access level. 
 
-###### *see [ACCESS-TIER-RULES](./ACCESS-TIER-RULES.md)* 
+###### *see [ACCESS-LEVEL-RULES](./ACCESS-LEVEL-RULES.md)* 
 
 
 ## Data Structure
@@ -26,7 +26,7 @@ mapping(address => uint8) public levels;
 ###### *see [AccessLevels](../../../src/client/application/data/AccessLevels.sol)*
 
 ## Enabling/Disabling
-- Access Levels can only be set in the [AppManager](../../../src/client/application/AppManager.sol) by an **Access Tier Administrator**.
+- Access Levels can only be set in the [AppManager](../../../src/client/application/AppManager.sol) by an **Access Level Administrator**.
 
 ### Revert Messages
 
@@ -51,19 +51,19 @@ The selector for this error is `0xd92e233d`.
 Adding an access level is done through the function:
 
 ```c
-function addAccessLevel(address _account, uint8 _level) public onlyRole(ACCESS_TIER_ADMIN_ROLE);
+function addAccessLevel(address _account, uint8 _level) public onlyRole(ACCESS_LEVEL_ADMIN_ROLE);
 ```
 
 Adding a single access level to multiple accounts or addresses is done through the function:
 
 ```c
-function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external onlyRole(ACCESS_TIER_ADMIN_ROLE);
+function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external onlyRole(ACCESS_LEVEL_ADMIN_ROLE);
 ```
 
 Adding multiple access levels to multiple accounts or addresses is done through the function:
 
 ```c
-function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyRole(ACCESS_TIER_ADMIN_ROLE);
+function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyRole(ACCESS_LEVEL_ADMIN_ROLE);
 ```
 
 ###### *see [AccessLevels](../../../src/client/application/data/AccessLevels.sol)*

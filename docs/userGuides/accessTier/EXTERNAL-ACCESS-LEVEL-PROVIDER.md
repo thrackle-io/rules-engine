@@ -1,9 +1,9 @@
-# External Access Tier Provider
+# External Access Level Provider
 [![Project Version][version-image]][version-url]
 
-An external access tier provider may be utilized. In order to switch to an external access tier provider, the external provider contract must conform to the IAccessLevels interface or an adapter contract that conforms to the interface must be used. Once the external provider contract is deployed, the [AppManager](../../../src/client/application/AppManager.sol) must be pointed to the new provider.
+An external access level provider may be utilized. In order to switch to an external access level provider, the external provider contract must conform to the IAccessLevels interface or an adapter contract that conforms to the interface must be used. Once the external provider contract is deployed, the [AppManager](../../../src/client/application/AppManager.sol) must be pointed to the new provider.
 
-## Required functions for the External Access Tier Provider
+## Required functions for the External Access Level Provider
 
 
 ```c
@@ -33,23 +33,23 @@ The implementations for each of the above functions can be found in the [DataMod
 ###### *see [IDataModule](../../../src/client/application/data/IDataModule.sol)*
 ###### *see [DataModule](../../../src/client/application/data/DataModule.sol)*
 
-## Process for switching to an external access tier provider
+## Process for switching to an external access level provider
 
 The switching process consists of proposing and confirming the data provider. The first part of the 2 step process is to propose a new access level provider in the [AppManager](../../../src/client/application/AppManager.sol). Once the new provider address is proposed, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in [AppManager](../../../src/client/application/AppManager.sol). The process is as follows:
 
-- 1. Deploy the external Access Tier Provider.
+- 1. Deploy the external Access Level Provider.
 - 2. Call proposeAccessLevelsProvider in the [AppManager](../../../src/client/application/AppManager.sol).
     ```c
     function proposeAccessLevelsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE);
     ```
-- 3. Call confirmDataProvider in the external access tier provider contract with provider type = IDataModule.ProviderType.ACCESS_LEVEL:
+- 3. Call confirmDataProvider in the external access level provider contract with provider type = IDataModule.ProviderType.ACCESS_LEVEL:
     ```c
     function confirmDataProvider(ProviderType _providerType) external;
     ```
     
 ### Revert Messages
 
-The confirmation will revert if the external access tier contract address does not match the proposed access tier provider: 
+The confirmation will revert if the external access level contract address does not match the proposed access level provider: 
 
 ```
 error ConfirmerDoesNotMatchProposedAddress();
