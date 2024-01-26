@@ -10,46 +10,53 @@
 4. Compile the contract
    ````
    forge build --use solc:0.8.17
-
    ````
 5. Deploy the contract sending in the following parameters:
-    1. _Owner Address_ - This is the account that is to be the first Application Administrator and Super Admin. NOTE: This address must be used throughout the deployment process
-    2. _appName_ - The Name for your Application. 
-    3. _ruleProcessorAddress_ - The address of the RuleProcessorDiamond contract set in Step 1.
-    4. _upgradeMode_ - This is a boolean value for if this is an upgraded AppManager being deployed. NOTE: Passing in a true boolean value will not deploy new data contracts. 
-    5. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
-    ````
-    forge create src/example/deploy/CastlevaniaAppManager.sol:CastlevaniaAppManager --constructor-args $APP_ADMIN_1 "Castlevania" false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
-    ````
-    6. Locate the address from the output, example:
-    ````
-    0x0116686E2291dbd5e317F47faDBFb43B599786Ef
-    ````
+    1. **Owner Address** - This is the account that is to be the first Application Administrator and Super Admin. This address **must** be used throughout the whole deployment process.
+    2. **appName** - The Name for your Application. 
+    3. **ruleProcessorAddress** - The address of the RuleProcessorDiamond contract set in Step 1.
+    4. **upgradeMode** - This is a boolean value for if this is an upgraded AppManager being deployed. NOTE: Passing in a `true` boolean value will not deploy new data contracts. 
+    5. Run the command to create and deploy the contract: 
+
+        *NOTE: The path includes source name and contract name.*
+    
+        ````
+        forge create src/example/deploy/CastlevaniaAppManager.sol:CastlevaniaAppManager --constructor-args $APP_ADMIN_1 "Castlevania" false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+        ````
+
+        The AppManager contract deployed in this step will automatically grant SuperAdmin and AppAdmin roles to the _Owner Address_ at construction time, and --if `_upgradeMode_ == false`-- new data contracts will be automatically deployed and connected to the AppManager.
+
+    6. Now, locate the address from the output, example:
+        ````
+        0x0116686E2291dbd5e317F47faDBFb43B599786Ef
+        ````
     7. Set the environment variable
-    ````
-    export APPLICATION_APP_MANAGER=address from output
-    ````
+        ````
+        export APPLICATION_APP_MANAGER=address from output
+        ````
 6. Deploy the applicationHandler contract with the following parameters:
-    1. _rule processor diamond address_ - The address of the RuleProcessorDiamond contract set in Step 1.
-    2. _application app manager address_ - The address of the app manager deployed in previous step.
-    3. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
-    ````
-    forge create src/example/deploy/ApplicationHandler.sol:CastlevaniaHandler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
-    ````
+    1. **rule processor diamond address** - The address of the RuleProcessorDiamond contract set in Step 1.
+    2. **application app manager address** - The address of the app manager deployed in previous step.
+    3. Run the command to create and deploy the contract. 
+
+        *NOTE: The path includes source name and contract name.*
+        ````
+        forge create src/example/deploy/ApplicationHandler.sol:CastlevaniaHandler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+        ````
     4. Locate the address from the output, example:
-    ````
-    0x0C25Bc46542acb274F055D7368F9Bec7fB23aE74
-    ````
+        ````
+        0x0C25Bc46542acb274F055D7368F9Bec7fB23aE74
+        ````
     5. Set the environment variable
-    ````
-    export APPLICATION_APPLICATION_HANDLER=address from output
-    ````
+        ````
+        export APPLICATION_APPLICATION_HANDLER=address from output
+        ````
 7. [Create additional administrators][createAdminRole-url] (Optional)
    
 
 
 <!-- These are the body links -->
-[createAdminRole-url]: ../permissions/ADMIN-CONFIG.md
+[createAdminRole-url]: ./ADMIN-CONFIG.md
 [deploymentDirectory-url]: ./DEPLOYMENT-DIRECTORY.md
 [environment-url]: ./SET-ENVIRONMENT.md
 

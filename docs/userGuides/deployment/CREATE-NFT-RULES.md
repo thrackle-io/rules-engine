@@ -5,6 +5,7 @@
 
 1.  Ensure the [environment variables][environment-url] are set correctly.
 2.  Create a token specific rule:
+    - Make sure you have set a [Rule Admin][admin-config] for your application, and use only an address with this role to execute all the transactions in this guide.
     -  Get the rule creation function from the [Token Specific Rule Directory][tokenSpecificRuleDirectory-url] and invoke it on the Rule Processor Diamond sending in the required parameters. NOTE: Each rule requires a different parameter set. For local deployments, the Rule Processor Diamond address can be found in previous steps, otherwise consult the [Deployment Directory][deploymentDirectory-url]. 
         -  This will return a ruleId, please take note of this value.
 3.  Apply the token specific rule to the application
