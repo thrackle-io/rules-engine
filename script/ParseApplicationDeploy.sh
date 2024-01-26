@@ -6,22 +6,31 @@ function parseContractAddress() {
     echo $ADDRESS
 }
 
-echo "Please enter the Chain ID:"
-read CHAIN_ID
-
-CORRECT_INPUT=false 
 ENV_FILE=".env"
 
-while ! [ "${CORRECT_INPUT}" ] ; do
-if [[ "$CHAIN_ID" =~ ^[0-9]{5}$ ]]; then
-  CORRECT_INPUT=true
-else 
-  echo
-  echo "Not a valid answer"
-  echo "Please enter the Chain ID:"
-  read CHAIN_ID 
-fi
-done
+CHAIN_ID=31337
+settingChainID=false
+
+  for var in "$@"
+  do
+    if [[ "$var" = "--chainid" ]]
+    then
+      settingChainID=true
+    elif $settingChainID;
+    then
+      CHAIN_ID="$var"
+      settingVal=false
+    elif [[ "$var" = "--help" ]]
+    then
+      echo "--------------------------------------------------"
+      echo "Possible Arguments:"
+      echo "--chainid - set the chain id for the deployment"
+      echo "--------------------------------------------------"
+      exit
+    else
+      echo "Unknown Argument"
+    fi
+  done
 
 echo
 

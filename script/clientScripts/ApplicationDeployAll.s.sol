@@ -37,8 +37,11 @@ contract ApplicationDeployAllScript is Script {
     function setUp() public {}
 
     function run() public {
+        vm.startBroadcast(vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY"));
+        applicationAppManager = new ApplicationAppManager(vm.envAddress("LOCAL_DEPLOYMENT_OWNER"), "Castlevania", false);
+        applicationAppManager.addAppAdministrator(vm.envAddress("QUORRA"));
+        vm.stopBroadcast();
         vm.startBroadcast(vm.envUint("QUORRA_PRIVATE_KEY"));
-        applicationAppManager = new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", false);
         applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
         applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
         vm.sleep(PERIOD_BETWEEN_TX_BATCHES_MS); // example of new cheat codes
@@ -87,6 +90,9 @@ contract ApplicationDeployAllScript is Script {
         new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", true);
         new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), true);
         
+        vm.stopBroadcast();
+        vm.startBroadcast(vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY"));
+
         /// Admin set up:
         /// Quorra sets Kevin as app admin
         applicationAppManager.addAppAdministrator(vm.envAddress("KEVIN"));

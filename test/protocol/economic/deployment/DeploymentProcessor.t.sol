@@ -17,10 +17,13 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function setUp() public {
         if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
             /// grab the deployed diamond addresses and set superAdmin and forkTest bool
-            superAdmin = vm.envAddress("DEPLOYMENT_OWNER");
+            vm.warp(Blocktime);
+            superAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
+            appAdministrator = vm.envAddress("DEPLOYMENT_OWNER");
             ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND")));
             ruleProcessorDiamondAddress = vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND");
             assertEq(ruleProcessorDiamondAddress, vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND"));
+            applicationAppManager = ApplicationAppManager(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER")));
             forkTest = true;
         } else {
             vm.warp(Blocktime);
@@ -709,7 +712,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         /// account for already deployed contract that has AccessLevelBalanceRule added
         if (forkTest == true) {
             uint256 testBalance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccessLevelBalanceRule(0, 2);
-            assertEq(testBalance, 100);
+            assertEq(testBalance, 500);
         } else {
             uint256 testBalance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccessLevelBalanceRule(_index, 2);
             assertEq(testBalance, 500);
