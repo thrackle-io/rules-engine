@@ -65,14 +65,14 @@ is an overview of this deployment process:
    *substitute <PROTOCOL_VERSION> with the proper value. i.e: "1.1.0".*
 
 10. (Optional) If a multi-sig wallet is to hold the protocol's ownership, then:
-   1. Export the multi-sig address to zsh:
-      ```
-      export MULTISIG_ADDRESS=<MULTI-SIG_ADDRESS>
-      ```   
-   2. transfer the ownership to multi-sig wallet.
-      ```
-      cast send $RULE_PROCESSOR_DIAMOND "transferOwnership(address)" $MULTISIG_ADDRESS --private-key $LOCAL_DEPLOYMENT_OWNER_KEY --rpc-url POLYGON_ETH_RPC_URL
-      ```
+      1. Export the multi-sig address to zsh:
+         ```
+         export MULTISIG_ADDRESS=<MULTI-SIG_ADDRESS>
+         ```   
+      2. Transfer the ownership to multi-sig wallet.
+         ```
+         cast send $RULE_PROCESSOR_DIAMOND "transferOwnership(address)" $MULTISIG_ADDRESS --private-key $LOCAL_DEPLOYMENT_OWNER_KEY --rpc-url POLYGON_ETH_RPC_URL
+         ```
 
 
 <!-- These are the body links -->
