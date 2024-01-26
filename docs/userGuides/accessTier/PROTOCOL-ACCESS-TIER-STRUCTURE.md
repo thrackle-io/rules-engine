@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Access Tier levels can be assigned to accounts and addresses by Access Tier Administrators through the [application manager](../../../client/application/ApplicationManager.sol). They are predefined as 0,1,2,3,4 and are stored as uint8 in the AcessLevels data contract. This data contract is deployed when the app manager is deployed. The AccessLevels data contract can be migrated to a new application manager during an upgrade to maintain access level and address data. [Access Tier administrators](../permissions/ADMIN-ROLES.md) can migrate data contracts to a new app manager through a two step migration process.
+Access Tier levels can be assigned to accounts and addresses by Access Tier Administrators through the [AppManager](../../src/client/application/AppManager.sol). They are predefined as 0,1,2,3,4 and are stored as uint8 in the AcessLevels data contract. This data contract is deployed when the app manager is deployed. The AccessLevels data contract can be migrated to a new application manager during an upgrade to maintain access level and address data. [Access Tier administrators](../permissions/ADMIN-ROLES.md) can migrate data contracts to a new app manager through a two step migration process.
 
 The protocol uses access levels to perform access tier related rule checks. The levels may be used as needed to suit the needs of the application and the rules. 
 
