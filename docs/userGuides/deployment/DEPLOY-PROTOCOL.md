@@ -17,7 +17,9 @@ is an overview of this deployment process:
         export ETH_RPC_URL=http://localhost:8545
         ````
 3. Set the Protocol Owner Private Key
-   1. This is the private key for the account that will "own" all the protocol contracts and has full permissions to upgrade. It is recommended that this address is a disposable address, and that the ownership of the protocol pass to a multi-signature wallet immediately after deployment. NOTE: This account needs to have sufficient funds to cover deployment costs and ownership transfer.
+   1. This is the private key for the account that will "own" all the protocol contracts and has full permissions to upgrade. It is recommended that this address is a disposable address, and that the ownership of the protocol pass to a multi-signature wallet immediately after deployment. 
+   
+      *NOTE: This account needs to have sufficient funds to cover deployment costs and ownership transfer.*
    2. Export it to zsh
         ````
         export LOCAL_DEPLOYMENT_OWNER_KEY=desired private key
@@ -28,14 +30,14 @@ is an overview of this deployment process:
         ````
         export LOCAL_DEPLOYMENT_OWNER=<address derived from owner private key>
         ````
-5. In the same terminal as above, ensure that the Foundry installation is ideally current (see troubleshooting section)
+5. In the same terminal as above, ensure that the Foundry installation is current (see troubleshooting section)
    ````
    foundryUp
    ````
 
    #### *Troubleshooting*
 
-   *if deployment fails (following steps), it might be caused by a faulty current version of Foundry. Try installing this specific version instead:*
+   *if deployment fails (following the next steps), it might be caused by a faulty current version of Foundry. Try installing this specific version instead:*
 
    ```bash
    foundryup --version nightly-09fe3e041369a816365a020f715ad6f94dbce9f2
@@ -67,12 +69,17 @@ is an overview of this deployment process:
 10. (Optional) If a multi-sig wallet is to hold the protocol's ownership, then:
       1. Export the multi-sig address to zsh:
          ```
-         export MULTISIG_ADDRESS=<MULTI-SIG_ADDRESS>
+         export MULTISIG_WALLET=<MULTI-SIG_ADDRESS>
          ```   
       2. Transfer the ownership to multi-sig wallet.
          ```
          cast send $RULE_PROCESSOR_DIAMOND "transferOwnership(address)" $MULTISIG_ADDRESS --private-key $LOCAL_DEPLOYMENT_OWNER_KEY --rpc-url POLYGON_ETH_RPC_URL
          ```
+      3. Check that the owner is the multi-sig wallet:
+         ```
+         cast call $RULE_PROCESSOR_DIAMOND "owner()(address)" --rpc-url POLYGON_ETH_RPC_URL
+         ```
+         If the response is the same address as MULTISIG_WALLET, the ownership transfer was successful. If not, repeat the process.
 
 
 <!-- These are the body links -->
