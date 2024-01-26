@@ -1,11 +1,10 @@
 # External Access Tier Provider
 [![Project Version][version-image]][version-url]
 
-An external access tier provider may be utilized. In order to switch to an external access tier provider, the external provider contract must conform to the IAccessLevels interface or an adapter contract that conforms to the interface must be used. Once the external provider contract is deployed, the AppManager must be pointed to the new provider.
+An external access tier provider may be utilized. In order to switch to an external access tier provider, the external provider contract must conform to the IAccessLevels interface or an adapter contract that conforms to the interface must be used. Once the external provider contract is deployed, the [AppManager](../../../src/client/application/AppManager.sol) must be pointed to the new provider.
 
 ## Required functions for the External Access Tier Provider
 
-###### *see [IAccessLevels](../../../src/client/application/data/IAccessLevels.sol)*
 
 ```c
     function addLevel(address _address, uint8 _level) external;
@@ -15,11 +14,11 @@ An external access tier provider may be utilized. In order to switch to an exter
     function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external;
 ```
 
-The implementations for each of the above functions can be found in the AccessLevels contract.
+The implementations for each of the above functions can be found in the [AccessLevels](../../../src/client/application/data/AccessLevels.sol) contract.
 
+###### *see [IAccessLevels](../../../src/client/application/data/IAccessLevels.sol)*
 ###### *see [AccessLevels](../../../src/client/application/data/AccessLevels.sol)*
 
-###### *see [IDataModule](../../../src/client/application/data/IDataModule.sol)*
 
 ```c
     function proposeOwner(address _newOwner) external;
@@ -29,16 +28,17 @@ The implementations for each of the above functions can be found in the AccessLe
     function confirmDataProvider(ProviderType _providerType) external;
 ```
 
-The implementations for each of the above functions can be found in the DataModule contract.
+The implementations for each of the above functions can be found in the [DataModule](../../../src/client/application/data/DataModule.sol) contract.
 
+###### *see [IDataModule](../../../src/client/application/data/IDataModule.sol)*
 ###### *see [DataModule](../../../src/client/application/data/DataModule.sol)*
 
 ## Process for switching to an external access tier provider
 
-The switching process consists of proposing and confirming the data provider. The first part of the 2 step process is to set a new access level provider. The new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in AppManager.
+The switching process consists of proposing and confirming the data provider. The first part of the 2 step process is to propose a new access level provider in the [AppManager](../../../src/client/application/AppManager.sol). Once the new provider address is proposed, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in [AppManager](../../../src/client/application/AppManager.sol). The process is as follows:
 
-- 1. Deploy the external Access Tier Provider
-- 2. Call proposeAccessLevelsProvider in the AppManager.
+- 1. Deploy the external Access Tier Provider.
+- 2. Call proposeAccessLevelsProvider in the [AppManager](../../../src/client/application/AppManager.sol).
     ```c
     function proposeAccessLevelsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE);
     ```
