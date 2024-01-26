@@ -5,9 +5,9 @@
 
 1. Ensure the [environment variables][environment-url] are set correctly.
 2. Copy the template from `src/example/application/ApplicationAppManager.sol` to your desired location.
-3. Change the name of the contract to suit your naming standards
-   - Do not change the import or parent contract
-4. Compile the contract
+3. Change the name of the contract to suit your naming standards.
+   - Do not change the import or parent contract.
+4. Compile the contract:
    ````
    forge build --use solc:0.8.17
    ````
@@ -30,7 +30,7 @@
         ````
         0x0116686E2291dbd5e317F47faDBFb43B599786Ef
         ````
-    7. Set the environment variable
+    7. Set the environment variable:
         ````
         export APPLICATION_APP_MANAGER=address from output
         ````
@@ -47,7 +47,7 @@
         ````
         0x0C25Bc46542acb274F055D7368F9Bec7fB23aE74
         ````
-    5. Set the environment variable
+    5. Set the environment variable:
         ````
         export APPLICATION_APPLICATION_HANDLER=address from output
         ````

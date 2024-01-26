@@ -8,22 +8,22 @@
 1. The Protocol must be deployed to the target chain, or is currently deployed to the target chain.
 2. An AppManager must be deployed to the target chain.
 
-### NFT minimum deployment:
+### ERC20 minimum deployment:
 
 1. The Protocol must be deployed to the target chain, or is currently deployed to the target chain.
 2. An AppManager must be deployed to the target chain, or is currently deployed to the target chain.
    - NOTE: AppManagers must be reused by all tokens in the ecosystem
-3. A ProtocolSupportedNFT must be be deployed to the target chain
-4. An NFTHandler must be deployed with each NFT and connected accordingly.
+3. A Protocol-Supported ERC20 must be be deployed to the target chain
+4. An ERC20Handler must be deployed with each ERC20 token and connected accordingly.
 
 
 ### Deployment
 
 1. Ensure the [environment variables][environment-url] are set correctly.
 2. Copy the template from `src/example/ERC20/ApplicationERC20.sol` to your desired location.
-3. Change the name of the contract to suit your naming standards
-   - Do not change the import or parent contract
-4. Compile the contract
+3. Change the name of the contract to suit your naming standards.
+   - Do not change the import or parent contract.
+4. Compile the contract:
    ````
    forge build --use solc:0.8.17
    ````
@@ -43,7 +43,7 @@
         ````
         0x0116686E2291dbd5e317F47faDBFb43B599786Ef
         ````
-    3. Set the environment variable
+    3. Set the environment variable:
         ````
         export APPLICATION_COIN=address from output
         ````
@@ -62,7 +62,7 @@
         ````
         0x0C25Bc46542acb274F055D7368F9Bec7fB23aE74
         ````
-    3. Set the environment variable
+    3. Set the environment variable:
         ````
         export APPLICATION_COIN_HANDLER=address from output
         ````
