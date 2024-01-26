@@ -70,20 +70,16 @@ To be able to use third-party pricing solutions with the protocol, you must make
 # Pricing Module Configuration 
 
 Once your pricing modules have been deployed, it is time to set their addresses in you appManager handler:
-1. Export your appManager handler address to zsh:
 
+Through a ruleAdmin private key (see [admin roles](./ADMIN-CONFIG.md)), do:
+- For ERC20 pricer:
     ```
-    export APP_MANAGER_HANDLER=<YOUR_APP_MANAGER_HANDLER_ADDRESS>
+    cast send $APP_MANAGER_HANDLER "setERC20PricingAddress(address)()" $APPLICATION_ERC20_PRICER --private-key $RULE_ADMIN_KEY --rpc-url $ETH_RPC_URL
     ```
-2. Through a ruleAdmin private key (see [admin roles](../permissions/ADMIN-ROLES.md)), do:
-    - For ERC20 pricer:
-        ```
-        cast send $APP_MANAGER_HANDLER "setERC20PricingAddress(address)()" $APPLICATION_ERC20_PRICER --private-key $RULE_ADMIN_KEY --rpc-url $ETH_RPC_URL
-        ```
-    - For ERC721 pricer:
-        ```
-        cast send $APP_MANAGER_HANDLER "setNFTPricingAddress(address)()" $APPLICATION_ERC721_PRICER --private-key $RULE_ADMIN_KEY --rpc-url $ETH_RPC_URL
-        ```
+- For ERC721 pricer:
+    ```
+    cast send $APPLICATION_APPLICATION_HANDLER "setNFTPricingAddress(address)()" $APPLICATION_ERC721_PRICER --private-key $RULE_ADMIN_KEY --rpc-url $ETH_RPC_URL
+    ```
 
 <!-- These are the body links -->
 [environment-url]: ./SET-ENVIRONMENT.md
