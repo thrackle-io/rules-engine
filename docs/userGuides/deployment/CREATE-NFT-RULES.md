@@ -33,7 +33,7 @@
         ````
 <!-- These are the body links -->
 [deploymentDirectory-url]: ./DEPLOYMENT-DIRECTORY.md
-[tokenSpecificRuleDirectory-url]: ../rules/TOKEN-RULE-DIRECTORY.md
+[tokenSpecificRuleDirectory-url]: ../rules/RULE-GUIDE.md
 [environment-url]: ./SET-ENVIRONMENT.md
 [keccak-url]: https://keccak-256.4tools.net
 

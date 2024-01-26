@@ -37,8 +37,8 @@
 
 
 <!-- These are the body links -->
-[deploymentDirectory-url]: ../rules/RULE-GUIDE.md
-[appRuleDirectory-url]: ../rules/APP-RULE-DIRECTORY.md
+[deploymentDirectory-url]: ./DEPLOYMENT-DIRECTORY.md
+[appRuleDirectory-url]: ../rules/RULE-GUIDE.md
 [environment-url]: ./SET-ENVIRONMENT.md
 
 
