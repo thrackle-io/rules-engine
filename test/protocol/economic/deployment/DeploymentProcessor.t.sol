@@ -20,8 +20,16 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
             vm.warp(Blocktime);
             superAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
             appAdministrator = vm.envAddress("DEPLOYMENT_OWNER");
+            ruleAdmin = vm.envAddress("QUORRA");
+            user1 = vm.envAddress("KEVIN");
+            user2 = vm.envAddress("SAM");
+            applicationNFT = ApplicationERC721(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_ADDRESS_1"));
+            applicationNFTHandler = ApplicationERC721Handler(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER"));
+            applicationCoin = ApplicationERC20(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS"));
             ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND")));
             ruleProcessorDiamondAddress = vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND");
+            oracleAllowed = OracleAllowed(vm.envAddress("TEST_DEPLOY_APPLICATION_ORACLE_ALLOWED_ADDRESS"));
+            oracleDenied = OracleDenied(vm.envAddress("TEST_DEPLOY_APPLICATION_ORACLE_DENIED_ADDRESS"));
             assertEq(ruleProcessorDiamondAddress, vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND"));
             applicationAppManager = ApplicationAppManager(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER")));
             forkTest = true;
@@ -649,19 +657,11 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
         uint8[] memory tradesAllowed = createUint8Array(1, 5);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-        if (forkTest == true) {
-            assertEq(_index, 1);
-            TaggedRules.NFTTradeCounterRule memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
-            assertEq(rule.tradesAllowedPerDay, 1);
-            rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[1]);
-            assertEq(rule.tradesAllowedPerDay, 5);
-        } else {
             assertEq(_index, 0);
             TaggedRules.NFTTradeCounterRule memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[0]);
             assertEq(rule.tradesAllowedPerDay, 1);
             rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getNFTTransferCounterRule(_index, nftTags[1]);
             assertEq(rule.tradesAllowedPerDay, 5);
-        }
     }
 
     /// testing only appAdministrators can add NFT Trade Counter Rule
@@ -677,17 +677,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         switchToRuleAdmin();
-        if (forkTest == true) {
-            uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-            assertEq(_index, 1);
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-            assertEq(_index, 2);
-        } else {
-            uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-            assertEq(_index, 0);
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-            assertEq(_index, 1);
-        }
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        assertEq(_index, 0);
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addNFTTransferCounterRule(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        assertEq(_index, 1);
     }
 
     /// testing total rules
@@ -736,13 +729,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = AppRuleDataFacet(address(ruleProcessor)).addAccessLevelBalanceRule(address(applicationAppManager), balanceAmounts);
         }
-        if (forkTest == true) {
-            uint256 result = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getTotalAccessLevelBalanceRules();
-            assertEq(result, _indexes.length + 1);
-        } else {
-            uint256 result = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getTotalAccessLevelBalanceRules();
-            assertEq(result, _indexes.length);
-        }
+        uint256 result = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getTotalAccessLevelBalanceRules();
+        assertEq(result, _indexes.length);
     }
 
     /**************** Tagged Admin Withdrawal Rule Testing  ****************/
