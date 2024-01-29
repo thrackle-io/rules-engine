@@ -1,7 +1,7 @@
 FROM debian:bookworm
 
 RUN apt update
-RUN apt install -y curl unzip git make procps python3 python3-pip python3.11-venv pkg-config libsqlite3-dev build-essential openssl libssl-dev npm jq
+RUN apt install -y curl unzip git make procps python3 python3-pip python3.11-venv pkg-config libsqlite3-dev build-essential openssl libssl-dev npm jq gh
 
 WORKDIR /usr/local/src/tron
 
@@ -9,11 +9,19 @@ COPY . .
 
 RUN curl -L https://foundry.paradigm.xyz | bash
 RUN chmod a+x install-deploy-check.sh
+
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
+
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ARG AWS_REGION
+
+ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+ENV AWS_DEFAULT_REGION=${AWS_REGION}
+
 CMD ["./install-deploy-check.sh"]
 
-
-
 # CMD ["tail", "-f", "/dev/null"]
-# # CMD ["./necessist-run.sh"]
-# CMD ["forge script script/DeployAllModules.s.sol --ffi --broadcast --rpc-url http://anvil:8545"]
-# CMD ["forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv"]

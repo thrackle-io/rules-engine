@@ -1,10 +1,11 @@
 name: K8s Build and Deploy
 
 on:
-  push:
-    branches:
-      - external
-      - main
+  workflow_dispatch:
+    inputs:
+      TEMP:
+        description: "Placeholder for now"
+        required: false
 
 env:
   AWS_REGION: us-east-1
