@@ -140,9 +140,8 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
             );
             if (_to != address(0)) {
                 lastTxDateRiskRule[_from] = uint64(block.timestamp);
-                /// check if recipient violates the rule
-                usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
-                    maxTxSizePerPeriodByRiskRuleId,
+                usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
+                    accountMaxTransactionValueByRiskScoreId,
                     usdValueTransactedInRiskPeriod[_to],
                     _transferValuation,
                     lastTxDateRiskRule[_to],
