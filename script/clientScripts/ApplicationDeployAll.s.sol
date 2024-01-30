@@ -35,6 +35,7 @@ contract ApplicationDeployAllScript is Script {
         ApplicationHandler applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
         applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
         vm.sleep(PERIOD_BETWEEN_TX_BATCHES_MS); // example of new cheat codes
+        applicationAppManager.addRuleAdministrator(vm.envAddress("QUORRA"));
         /// create ERC20 token 1
         ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
         applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), false);
