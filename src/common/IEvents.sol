@@ -21,7 +21,7 @@ interface IAppLevelEvents {
     event RemoveFromRegistry(string contractName, address contractAddress);
     event RuleAdmin(address indexed admin, bool indexed add);
     event RiskAdmin(address indexed admin, bool indexed add);
-    event AccessTierAdmin(address indexed admin, bool indexed add);
+    event AccessLevelAdmin(address indexed admin, bool indexed add);
     event AppAdministrator(address indexed admin, bool indexed add); 
     event SuperAdministrator(address indexed admin, bool indexed add);
     event RuleBypassAccount(address indexed bypassAccount, bool indexed add);  

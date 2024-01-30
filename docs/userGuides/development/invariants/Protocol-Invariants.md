@@ -42,7 +42,7 @@
 
 - An account's cumulative total of funds withdrawn from the protocol in USD terms must not exceed the maximum for that account's access level defined in the Withdraw-By-Access-Level rule applied for the application counting from the activation of the rule. This is a lifetime cumulative total which can't be ever reset.
 
-### checkAccessLevel0Passes
+### checkAccountDenyForNoAccessLevel
 
 - When this rule is applied, an account with access level 0 must not be allowed to transfer tokens of an application.
 
@@ -56,11 +56,11 @@
 
 ### Balance By Risk
 
-- When this rule is applied, the total USD balance in application assets (fungible and non-fungible) of an account must not exceed the maximum of the AccountBalanceToRiskRule applied for the application and the risk score of the account.
+- When this rule is applied, the total USD balance in application assets (fungible and non-fungible) of an account must not exceed the maximum of the AccountMaxValueByRiskScore applied for the application and the risk score of the account.
 
 ### Maximum Transaction Size Per Period By Risk
 
-- When this rule is applied, the cumulative USD value transacted in all application assets within a defined period of time can never exceed the maximum of the TxSizePerPeriodToRiskRule applied for the application and the risk score of the account.
+- When this rule is applied, the cumulative USD value transacted in all application assets within a defined period of time can never exceed the maximum of the AccountMaxTxValueByRiskScore applied for the application and the risk score of the account.
 
 
 ### Minimum Transfer
@@ -73,7 +73,7 @@
 
 ## Token Transfer Volume
 
-- When this rule is applied, the cumulative amount of tokens transacted in a defined period of time relative to the total supply of the token can never exceed the maximum of the TokenTransferVolumeRule applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
+- When this rule is applied, the cumulative amount of tokens transacted in a defined period of time relative to the total supply of the token can never exceed the maximum of the TokenMaxTradingVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
 
 ### Supply Votality
 
@@ -82,7 +82,7 @@
 
 ### Purchase Percentage
 
-- When this rule is applied, the cumulative amount of tokens purchased in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenPercentagePurchaseRule applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
+- When this rule is applied, the cumulative amount of tokens purchased in a defined period of time relative to the total supply at the beginning of the period can never exceed the maximum of the TokenMaxBuyVolume applied for the asset. The total supply can be given live or stored as a hard coded value in the rule itself.
 
 ### Sell Percentage
 
@@ -92,7 +92,7 @@
 
 ### Min Max Account Balance
 
-- When this rule is applied, the balance of a specific token of an account cannot be less than the minimum or greater than the maximum determined by the most restrictive tags of the account found in the MinMaxBalanceRule applied to the token while the rule is in the active and applicable period (If a period has been applied).
+- When this rule is applied, the balance of a specific token of an account cannot be less than the minimum or greater than the maximum determined by the most restrictive tags of the account found in the AccountMinMaxTokenBalance applied to the token while the rule is in the active and applicable period (If a period has been applied).
 
 ### Admin Withdrawal
 
@@ -100,11 +100,11 @@
 
 ### Purchase Limit
 
-- When this rule is applied, the cumulative amount of tokens purchased in a defined period of time can never exceed the maximum of the most restrictive tags of the account found in the PurchaseRule applied for the asset.  
+- When this rule is applied, the cumulative amount of tokens purchased in a defined period of time can never exceed the maximum of the most restrictive tags of the account found in the MaxBuySize applied for the asset.  
 
 ### Sell Limit
 
-- When this rule is applied, the cumulative amount of tokens sold in a defined period of time can never exceed the maximum of the most restrictive tags of the account found in the SellRule applied for the asset.  
+- When this rule is applied, the cumulative amount of tokens sold in a defined period of time can never exceed the maximum of the most restrictive tags of the account found in the AccountMaxSellSize applied for the asset.  
 
 ## ERC721RuleProcessorFacet
 
@@ -114,7 +114,7 @@
 
 ### NFT Transfer count
 
-- When this rule is applied, the amount of times that a particular NFT is transferred during a fixed 24-hour period can never exceed the maximum defined by the most restrictive tag of the NFT found in the NFTTradeCounterRule applied to the token.
+- When this rule is applied, the amount of times that a particular NFT is transferred during a fixed 24-hour period can never exceed the maximum defined by the most restrictive tag of the NFT found in the TokenMaxDailyTrades applied to the token.
 
 ## RiskTaggedRuleProcessorFacet
 

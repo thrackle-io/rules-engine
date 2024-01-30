@@ -14,9 +14,9 @@ in terms of USD with 18 decimals of precision.
 
 
 ## Functions
-### checkAccBalanceByRisk
+### checkAccountMaxValueByRiskScore
 
-_balanceLimits size must be equal to _riskLevel.
+_maxValue size must be equal to _riskScore.
 The positioning of the arrays is ascendant in terms of risk levels,
 and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
 will apply to all risk scores of 100.)
@@ -32,7 +32,7 @@ risk scores      balances         resultant logic
 
 
 ```solidity
-function checkAccBalanceByRisk(
+function checkAccountMaxValueByRiskScore(
     uint32 _ruleId,
     address _toAddress,
     uint8 _riskScore,
@@ -51,7 +51,7 @@ function checkAccBalanceByRisk(
 |`_amountToTransfer`|`uint128`|total dollar amount to be transferred in USD with 18 decimals of precision|
 
 
-### getAccountBalanceByRiskScore
+### getAccountMaxValueByRiskScore
 
 retrieve the rule
 perform the rule check
@@ -63,10 +63,10 @@ Skips the loop for gas efficiency on low risk scored users
 
 
 ```solidity
-function getAccountBalanceByRiskScore(uint32 _index)
+function getAccountMaxValueByRiskScore(uint32 _index)
     public
     view
-    returns (ApplicationRuleStorage.AccountBalanceToRiskRule memory);
+    returns (ApplicationRuleStorage.AccountMaxValueByRiskScore memory);
 ```
 **Parameters**
 
@@ -78,16 +78,16 @@ function getAccountBalanceByRiskScore(uint32 _index)
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`ApplicationRuleStorage.AccountBalanceToRiskRule`|balanceAmount balance allowed for access levellevel|
+|`<none>`|`ApplicationRuleStorage.AccountMaxValueByRiskScore`|balanceAmount balance allowed for access level|
 
 
-### getTotalAccountBalanceByRiskScoreRules
+### getTotalAccountMaxValueByRiskScore
 
 *Function to get total Transaction Limit by Risk Score rules*
 
 
 ```solidity
-function getTotalAccountBalanceByRiskScoreRules() public view returns (uint32);
+function getTotalAccountMaxValueByRiskScore() public view returns (uint32);
 ```
 **Returns**
 
@@ -96,11 +96,11 @@ function getTotalAccountBalanceByRiskScoreRules() public view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### checkMaxTxSizePerPeriodByRisk
+### checkAccountMaxTransactionValueByRiskScore
 
 that these ranges are set by ranges.
 
-_balanceLimits size must be equal to _riskLevel
+_maxValue size must be equal to _riskScore
 The positioning of the arrays is ascendant in terms of risk levels,
 and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
 will apply to all risk scores of 100.)
@@ -120,7 +120,7 @@ the limit for the address risk profile.*
 
 
 ```solidity
-function checkMaxTxSizePerPeriodByRisk(
+function checkAccountMaxTransactionValueByRiskScore(
     uint32 ruleId,
     uint128 _usdValueTransactedInPeriod,
     uint128 amount,
@@ -145,7 +145,7 @@ function checkMaxTxSizePerPeriodByRisk(
 |`<none>`|`uint128`|updated value for the _usdValueTransactedInPeriod. If _usdValueTransactedInPeriod are inside the current period, then this value is accumulated. If not, it is reset to current amount.|
 
 
-### getMaxTxSizePerPeriodRule
+### getAccountMaxTransactionValueByRiskScore
 
 we retrieve the rule
 resetting the "tradesWithinPeriod", unless we have been in current period for longer than the last update
@@ -156,10 +156,10 @@ Skips the loop for gas efficiency on low risk scored users
 
 
 ```solidity
-function getMaxTxSizePerPeriodRule(uint32 _index)
+function getAccountMaxTransactionValueByRiskScore(uint32 _index)
     public
     view
-    returns (ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory);
+    returns (ApplicationRuleStorage.AccountMaxTransactionValueByRiskScore memory);
 ```
 **Parameters**
 
@@ -171,16 +171,16 @@ function getMaxTxSizePerPeriodRule(uint32 _index)
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`ApplicationRuleStorage.TxSizePerPeriodToRiskRule`|a touple of arrays, a uint8 and a uint64. The first array will be the _maxSize, the second will be the _riskLevel, the uint8 will be the period, and the last value will be the starting date.|
+|`<none>`|`ApplicationRuleStorage.AccountMaxTransactionValueByRiskScore`|a touple of arrays, a uint8 and a uint64. The first array will be the _maxSize, the second will be the _riskScore, the uint8 will be the period, and the last value will be the starting date.|
 
 
-### getTotalMaxTxSizePerPeriodRules
+### getTotalAccountMaxTransactionValueByRiskScore
 
 *Function to get total Max Tx Size Per Period By Risk rules*
 
 
 ```solidity
-function getTotalMaxTxSizePerPeriodRules() public view returns (uint32);
+function getTotalAccountMaxTransactionValueByRiskScore() public view returns (uint32);
 ```
 **Returns**
 

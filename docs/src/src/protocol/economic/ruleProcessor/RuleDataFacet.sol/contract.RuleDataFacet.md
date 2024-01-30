@@ -35,7 +35,7 @@ uint24 constant MAX_VOLUME_PERCENTAGE = 100000;
 
 
 ## Functions
-### addPercentagePurchaseRule
+### addTokenMaxBuyVolume
 
 Note that no update method is implemented for rules. Since reutilization of
 rules is encouraged, it is preferred to add an extra rule to the
@@ -46,12 +46,12 @@ Token Purchase Percentage Getters/Setters **********
 
 
 ```solidity
-function addPercentagePurchaseRule(
+function addTokenMaxBuyVolume(
     address _appManagerAddr,
     uint16 _tokenPercentage,
-    uint16 _purchasePeriod,
+    uint16 _period,
     uint256 _totalSupply,
-    uint64 _startTimestamp
+    uint64 _startTime
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -60,9 +60,9 @@ function addPercentagePurchaseRule(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_tokenPercentage`|`uint16`|Percentage of Tokens allowed to purchase|
-|`_purchasePeriod`|`uint16`|Time period that transactions are accumulated|
+|`_period`|`uint16`|Time period that transactions are accumulated|
 |`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
-|`_startTimestamp`|`uint64`|start timestamp for the rule|
+|`_startTime`|`uint64`|start timestamp for the rule|
 
 **Returns**
 
@@ -71,7 +71,7 @@ function addPercentagePurchaseRule(
 |`<none>`|`uint32`|ruleId position of new rule in array|
 
 
-### addPercentageSellRule
+### addTokenMaxSellVolume
 
 Token Sell Percentage Getters/Setters **********
 
@@ -79,12 +79,12 @@ Token Sell Percentage Getters/Setters **********
 
 
 ```solidity
-function addPercentageSellRule(
+function addTokenMaxSellVolume(
     address _appManagerAddr,
     uint16 _tokenPercentage,
     uint16 _sellPeriod,
     uint256 _totalSupply,
-    uint64 _startTimestamp
+    uint64 _startTime
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -95,7 +95,7 @@ function addPercentageSellRule(
 |`_tokenPercentage`|`uint16`|Percent of Tokens allowed to sell|
 |`_sellPeriod`|`uint16`|Time period that transactions are frozen|
 |`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
-|`_startTimestamp`|`uint64`|start time for the period|
+|`_startTime`|`uint64`|start time for the period|
 
 **Returns**
 
@@ -171,7 +171,7 @@ function getTotalTokenPurchaseFeeByVolumeRules() public view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### addVolatilityRule
+### addTokenMaxPriceVolatility
 
 Token Volatility Getters/Setters **********
 
@@ -179,9 +179,9 @@ Token Volatility Getters/Setters **********
 
 
 ```solidity
-function addVolatilityRule(
+function addTokenMaxPriceVolatility(
     address _appManagerAddr,
-    uint16 _maxVolatility,
+    uint16 _max,
     uint16 _period,
     uint16 _hoursFrozen,
     uint256 _totalSupply
@@ -192,7 +192,7 @@ function addVolatilityRule(
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_maxVolatility`|`uint16`|Maximum allowed volume|
+|`_max`|`uint16`|Maximum allowed volume|
 |`_period`|`uint16`|period in hours for the rule|
 |`_hoursFrozen`|`uint16`|freeze period hours|
 |`_totalSupply`|`uint256`||
@@ -204,13 +204,13 @@ function addVolatilityRule(
 |`<none>`|`uint32`|ruleId position of new rule in array|
 
 
-### getVolatilityRule
+### getTokenMaxPriceVolatility
 
 *Function get Token Volatility Rule by index*
 
 
 ```solidity
-function getVolatilityRule(uint32 _index) external view returns (NonTaggedRules.TokenVolatilityRule memory);
+function getTokenMaxPriceVolatility(uint32 _index) external view returns (NonTaggedRules.TokenMaxPriceVolatility memory);
 ```
 **Parameters**
 
@@ -222,16 +222,16 @@ function getVolatilityRule(uint32 _index) external view returns (NonTaggedRules.
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`NonTaggedRules.TokenVolatilityRule`|volatilityRules rule at index position|
+|`<none>`|`NonTaggedRules.TokenMaxPriceVolatility`|tokenMaxPriceVolatilityRules rule at index position|
 
 
-### getTotalVolatilityRules
+### getTotalTokenMaxPriceVolatility
 
 *Function to get total Volatility rules*
 
 
 ```solidity
-function getTotalVolatilityRules() public view returns (uint32);
+function getTotalTokenMaxPriceVolatility() public view returns (uint32);
 ```
 **Returns**
 
@@ -240,7 +240,7 @@ function getTotalVolatilityRules() public view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### addTransferVolumeRule
+### addTokenMaxTradingVolume
 
 Token Transfer Volume Getters/Setters **********
 
@@ -248,11 +248,11 @@ Token Transfer Volume Getters/Setters **********
 
 
 ```solidity
-function addTransferVolumeRule(
+function addTokenMaxTradingVolume(
     address _appManagerAddr,
-    uint24 _maxVolumePercentage,
+    uint24 _maxPercentage,
     uint16 _hoursPerPeriod,
-    uint64 _startTimestamp,
+    uint64 _startTime,
     uint256 _totalSupply
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
@@ -261,9 +261,9 @@ function addTransferVolumeRule(
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_maxVolumePercentage`|`uint24`|Maximum allowed volume percentage (this is 4 digits to allow 2 decimal places)|
+|`_maxPercentage`|`uint24`|Maximum allowed volume percentage (this is 4 digits to allow 2 decimal places)|
 |`_hoursPerPeriod`|`uint16`|Allowed hours per period|
-|`_startTimestamp`|`uint64`|Timestamp to start the rule|
+|`_startTime`|`uint64`|Timestamp to start the rule|
 |`_totalSupply`|`uint256`|Circulating supply value to use in calculations. If not specified, defaults to ERC20 totalSupply|
 
 **Returns**
@@ -273,7 +273,7 @@ function addTransferVolumeRule(
 |`<none>`|`uint32`|ruleId position of new rule in array|
 
 
-### addMinimumTransferRule
+### addTokenMinTransactionSize
 
 Minimum Transfer Rule Getters/Setters **********
 
@@ -281,7 +281,7 @@ Minimum Transfer Rule Getters/Setters **********
 
 
 ```solidity
-function addMinimumTransferRule(address _appManagerAddr, uint256 _minimumTransfer)
+function addTokenMinTransactionSize(address _appManagerAddr, uint256 _minimumTransfer)
     external
     ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);
@@ -310,9 +310,9 @@ Supply Volatility Getters/Setters **********
 ```solidity
 function addSupplyVolatilityRule(
     address _appManagerAddr,
-    uint16 _maxVolumePercentage,
+    uint16 _maxPercentage,
     uint16 _period,
-    uint64 _startTimestamp,
+    uint64 _startTime,
     uint256 _totalSupply
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
@@ -321,9 +321,9 @@ function addSupplyVolatilityRule(
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_maxVolumePercentage`|`uint16`|Maximum amount of change allowed. This is not capped and will allow for values greater than 100%. Since there is no cap for _maxVolumePercentage this could allow burning of full totalSupply() if over 100% (10000).|
+|`_maxPercentage`|`uint16`|Maximum amount of change allowed. This is not capped and will allow for values greater than 100%. Since there is no cap for _maxPercentage this could allow burning of full totalSupply() if over 100% (10000).|
 |`_period`|`uint16`|Allowed hours per period|
-|`_startTimestamp`|`uint64`|Unix timestamp for the _period to start counting.|
+|`_startTime`|`uint64`|Unix timestamp for the _period to start counting.|
 |`_totalSupply`|`uint256`|this is an optional parameter. If 0, the toalSupply will be calculated dyamically. If not zero, this is going to be the locked value to calculate the rule|
 
 **Returns**
@@ -333,7 +333,7 @@ function addSupplyVolatilityRule(
 |`<none>`|`uint32`|ruleId position of new rule in array|
 
 
-### addOracleRule
+### addAccountApproveDenyOracle
 
 Oracle Getters/Setters **********
 
@@ -341,7 +341,7 @@ Oracle Getters/Setters **********
 
 
 ```solidity
-function addOracleRule(address _appManagerAddr, uint8 _type, address _oracleAddress)
+function addAccountApproveDenyOracle(address _appManagerAddr, uint8 _type, address _oracleAddress)
     external
     ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);

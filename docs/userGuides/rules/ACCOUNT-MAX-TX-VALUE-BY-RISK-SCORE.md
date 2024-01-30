@@ -1,4 +1,4 @@
-# Transaction Size Per Period By Risk Score Rule
+# Account Max Transaction Value By Risk Score Rule
 
 ## Purpose
 
@@ -16,19 +16,19 @@ This rule works at the application level which means that all tokens in the app 
 
 ## Data Structure
 
-A transaction-size-per-period-by-risk-score rule is composed of 4 variables:
+A ACCOUNT-MAX-TX-VALUE-BY-RISK-SCORE rule is composed of 4 variables:
 
 - **riskScore** (uint8[]): array of risk score delimiting the different risk segments.
-- **maxSize** (uint48[]): array of maximum USD worth of application assets that a transaction can move per risk segment in a period of time.
+- **maxValue** (uint48[]): array of maximum USD worth of application assets that a transaction can move per risk segment in a period of time.
 - **period** (uint16): the amount of hours that defines a period.
-- **startingTime** (uint64): the Unix timestamp of the date when the rule starts the first *period*.
+- **startTime** (uint64): the Unix timestamp of the date when the rule starts the first *period*.
 
-The relation between `riskScore` and `maxSize` can be explained better in the following example:
+The relation between `riskScore` and `maxValue` can be explained better in the following example:
 
 Imagine the following data structure
 ```
 riskScore = [25, 50, 75];
-maxSize = [500, 250, 50];
+maxValue = [500, 250, 50];
 ```
 
 | risk score | balance | resultant logic |
@@ -44,11 +44,11 @@ maxSize = [500, 250, 50];
 
 ```c
 /// ******** Transaction Size Per Period Rules ********
-struct TxSizePerPeriodToRiskRule {
-        uint48[] maxSize; /// whole USD (no cents) -> 1 = 1 USD (Max allowed: 281 trillion USD)
+struct AccountMaxTxValueByRiskScore {
+        uint48[] maxValue; /// whole USD (no cents) -> 1 = 1 USD (Max allowed: 281 trillion USD)
         uint8[] riskScore;
         uint16 period; // hours
-        uint64 startingTime; 
+        uint64 startTime; 
     }
 ```
 ###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
@@ -57,9 +57,9 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 ```c
  /// ******** Transaction Size Per Period Rules ********
-    struct TxSizePerPeriodToRiskRuleS {
-        mapping(uint32 => IApplicationRules.TxSizePerPeriodToRiskRule) txSizePerPeriodToRiskRule;
-        uint32 txSizePerPeriodToRiskRuleIndex;
+    struct AccountMaxTxValueByRiskScoreS {
+        mapping(uint32 => IApplicationRules.AccountMaxTxValueByRiskScore) accountMaxTxValueByRiskScoreRules;
+        uint32 accountMaxTxValueByRiskScoreIndex;
     }
 ```
 
@@ -77,13 +77,13 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 The rule will be evaluated with the following logic:
 
 1. The application handler calculates the US Dollar amount of tokens being transferred, and gets the risk score from the AppManager for the account in the *from* side of the transaction.
-2. The application handler then sends these values along with the rule Id of the transaction-size-per-period-by-risk-score rule set in the handler, the date of the last transfer of tokens by the account, and the accumulated US Dollar amount transferred during the period to the protocol.
+2. The application handler then sends these values along with the rule Id of the ACCOUNT-MAX-TX-VALUE-BY-RISK-SCORE rule set in the handler, the date of the last transfer of tokens by the account, and the accumulated US Dollar amount transferred during the period to the protocol.
 3. The protocol then proceeds to check if the rule has a period enabled in which case it checks if the current transaction is part of an ongoing period, or if it is the first one in a new period. If the rule doesn't have a period enabled, then it treats current transaction as the first one in a new period.
     - **If it is a new period, or no period enabled**, the protocol resets the accumulated US Dollar amount transferred during current period to just the amount being currently transferred. 
     - **If it is not a new period**, then the protocol accumulates the amount being currently transferred to the accumulated US Dollar amount transferred during the period. 
 4. The protocol then evaluates the accumulated US Dollar amount transferred during current period against the rule's maximum allowed for the risk segment in which the account is in. The protocol reverts the transaction if the accumulated amount exceeds this rule risk-segment's maximum.
 
-###### *see [ApplicationRiskProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkMaxTxSizePerPeriodByRisk*
+###### *see [ApplicationRiskProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccountMaxTxValueByRiskScore*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -94,27 +94,27 @@ The rule will be evaluated with the following logic:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error MaxTxSizePerPeriodReached(uint8 riskScore, uint256 maxTxSize, uint16 hoursOfPeriod);
+error OverMaxTxValueByRiskScore(uint8 riskScore, uint256 maxTxSize, uint16 hoursOfPeriod);
 ```
 
 - riskScore: account's risk score.
 - maxTxSize: the rule's risk-segment's maximum allowed.
 - hoursOfPeriod: the rule's risk-segment's period.
 
-The selector for this error is `0x3dcf1b35`.
+The selector for this error is `0xce406c16`.
 
 
 ## Create Function
 
-Adding a transaction-size-per-period-by-risk-score rule is done through the function:
+Adding a ACCOUNT-MAX-TX-VALUE-BY-RISK-SCORE rule is done through the function:
 
 ```c
-function addMaxTxSizePerPeriodByRiskRule(
+function addAccountMaxTxValueByRiskScore(
             address _appManagerAddr,
-            uint48[] calldata _maxSize,
+            uint48[] calldata _maxValue,
             uint8[] calldata _riskScore,
             uint16 _period,
-            uint64 _startTimestamp
+            uint64 _startTime
         ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 
@@ -127,7 +127,7 @@ The create function will return the protocol ID of the rule.
 - **_riskScores** (uint8[]): array of risk scores delimiting each risk segment.
 - **_txnLimits** (uint48[]): array of maximum US-Dollar amounts allowed to be transferred in a transaction for each risk segment (in whole US Dollars).
 - **_period** (uint16): the amount of hours that defines a period. 0 if no period is desired.
-- **_startTimestamp** (uint64): the timestamp of the date when the rule starts the first *period*.
+- **_startTime** (uint64): the timestamp of the date when the rule starts the first *period*.
 
 ### Parameter Optionality:
 
@@ -141,7 +141,7 @@ The following validation will be carried out by the create function in order to 
 - `_riskScores` and `_txnLimits` are the same size.
 - `_riskScores` elements are in ascending order and no greater than 99.
 - `_txnLimits` elements are in descending order.
-- `_startTimestamp` is not zero and is not more than 52 weeks in the future.
+- `_startTime` is not zero and is not more than 52 weeks in the future.
 
 ###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
 
@@ -149,19 +149,19 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
     - Function to get a rule by its Id:
         ```c
-        function getMaxTxSizePerPeriodRule(uint32 _index) external view returns (AppRules.TxSizePerPeriodToRiskRule memory);
+        function getAccountMaxTxValueByRiskScore(uint32 _index) external view returns (AppRules.AccountMaxTxValueByRiskScore memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalMaxTxSizePerPeriodRules() external view returns (uint32);
+        function getTotalAccountMaxTxValueByRiskScore() external view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
-        function checkMaxTxSizePerPeriodByRisk(
+        function checkAccountMaxTxValueByRiskScore(
                     uint32 ruleId, 
-                    uint128 _usdValueTransactedInPeriod, 
-                    uint128 amount, 
+                    uint128 _valueTransactedInPeriod, 
+                    uint128 txValue, 
                     uint64 lastTxDate, 
                     uint8 _riskScore
                 ) 
@@ -172,19 +172,19 @@ The following validation will be carried out by the create function in order to 
 - In the [Application Handler](../../../src/client/application/ProtocolApplicationHandler.sol):
     - Function to set and activate at the same time the rule in the application handler:
         ```c
-        function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setAccountMaxTxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule in the application handler:
         ```c
-        function activateMaxTxSizePerPeriodByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateAccountMaxTxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
      - Function to know the activation state of the rule in an application handler:
         ```c
-        function isMaxTxSizePerPeriodByRiskActive() external view returns (bool);
+        function isAccountMaxTxValueByRiskScoreActive() external view returns (bool);
         ```
     - Function to get the rule Id from the application handler:
         ```c
-        function getMaxTxSizePerPeriodByRiskRuleId() external view returns (uint32);
+        function getAccountMaxTxValueByRiskScoreId() external view returns (uint32);
         ```
 
 ## Return Data
@@ -218,13 +218,13 @@ mapping(address => uint64) lastTxDateRiskRule;
 - **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "MAX_TX_PER_PERIOD".
+        - ruleType: "ACC_MAX_TX_VALUE_BY_RISK_SCORE".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: empty array.
 - **event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
     - Emitted when: rule has been applied in an application manager handler.
     - Parameters: 
-        - ruleType: "MAX_TX_PER_PERIOD".
+        - ruleType: "ACC_MAX_TX_VALUE_BY_RISK_SCORE".
         - ruleId: the ruleId set for this rule in the handler.
 
 ## Dependencies

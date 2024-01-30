@@ -14,13 +14,13 @@ in terms of USD with 18 decimals of precision.
 
 
 ## Functions
-### checkAccBalanceByAccessLevel
+### checkAccountMaxValueByAccessLevel
 
 *Check if transaction passes Balance by AccessLevel rule.*
 
 
 ```solidity
-function checkAccBalanceByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _balance, uint128 _amountToTransfer)
+function checkAccountMaxValueByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _balance, uint128 _amountToTransfer)
     external
     view;
 ```
@@ -34,7 +34,7 @@ function checkAccBalanceByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint12
 |`_amountToTransfer`|`uint128`|total USD amount to be transferred with 18 decimals of precision|
 
 
-### getAccessLevelBalanceRule
+### getAccountMaxValueByAccessLevel
 
 Get the account's AccessLevel
 max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
@@ -43,7 +43,7 @@ max has to be multiplied by 10 ** 18 to take decimals in token pricing into acco
 
 
 ```solidity
-function getAccessLevelBalanceRule(uint32 _index, uint8 _accessLevel) public view returns (uint48);
+function getAccountMaxValueByAccessLevel(uint32 _index, uint8 _accessLevel) public view returns (uint48);
 ```
 **Parameters**
 
@@ -56,16 +56,16 @@ function getAccessLevelBalanceRule(uint32 _index, uint8 _accessLevel) public vie
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint48`|balanceAmount balance allowed for access levellevel|
+|`<none>`|`uint48`|balanceAmount balance allowed for access level|
 
 
-### getTotalAccessLevelBalanceRules
+### getTotalAccountMaxValueByAccessLevel
 
 *Function to get total AccessLevel Balance rules*
 
 
 ```solidity
-function getTotalAccessLevelBalanceRules() public view returns (uint32);
+function getTotalAccountMaxValueByAccessLevel() public view returns (uint32);
 ```
 **Returns**
 
@@ -74,13 +74,13 @@ function getTotalAccessLevelBalanceRules() public view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### checkwithdrawalLimitsByAccessLevel
+### checkAccountMaxValueOutByAccessLevel
 
 *Check if transaction passes Withdrawal by AccessLevel rule.*
 
 
 ```solidity
-function checkwithdrawalLimitsByAccessLevel(
+function checkAccountMaxValueOutByAccessLevel(
     uint32 _ruleId,
     uint8 _accessLevel,
     uint128 _usdWithdrawalTotal,
@@ -97,7 +97,7 @@ function checkwithdrawalLimitsByAccessLevel(
 |`_usdAmountTransferring`|`uint128`|total USD amount to be transferred with 18 decimals of precision|
 
 
-### getAccessLevelWithdrawalRules
+### getAccountMaxValueOutByAccessLevel
 
 max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
 
@@ -105,7 +105,7 @@ max has to be multiplied by 10 ** 18 to take decimals in token pricing into acco
 
 
 ```solidity
-function getAccessLevelWithdrawalRules(uint32 _index, uint8 _accessLevel) public view returns (uint48);
+function getAccountMaxValueOutByAccessLevel(uint32 _index, uint8 _accessLevel) public view returns (uint48);
 ```
 **Parameters**
 
@@ -118,16 +118,16 @@ function getAccessLevelWithdrawalRules(uint32 _index, uint8 _accessLevel) public
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint48`|balanceAmount balance allowed for access levellevel|
+|`<none>`|`uint48`|balanceAmount balance allowed for access level|
 
 
-### getTotalAccessLevelWithdrawalRule
+### getTotalAccountMaxValueOutByAccessLevel
 
 *Function to get total AccessLevel withdrawal rules*
 
 
 ```solidity
-function getTotalAccessLevelWithdrawalRule() external view returns (uint32);
+function getTotalAccountMaxValueOutByAccessLevel() external view returns (uint32);
 ```
 **Returns**
 
@@ -136,13 +136,13 @@ function getTotalAccessLevelWithdrawalRule() external view returns (uint32);
 |`<none>`|`uint32`|Total number of access level withdrawal rules|
 
 
-### checkAccessLevel0Passes
+### checkAccessLevel0
 
 *Check if transaction passes AccessLevel 0 rule.This has no stored rule as there are no additional variables needed.*
 
 
 ```solidity
-function checkAccessLevel0Passes(uint8 _accessLevel) external pure;
+function checkAccessLevel0(uint8 _accessLevel) external pure;
 ```
 **Parameters**
 

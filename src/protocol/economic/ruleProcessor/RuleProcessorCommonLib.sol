@@ -16,9 +16,9 @@ library RuleProcessorCommonLib {
     /**
      * @dev validate a user entered timestamp to ensure that it is valid. Validity depends on it being greater than UNIX epoch and not more than 1 year into the future. It reverts with custom error if invalid
      */
-    function validateTimestamp(uint64 _startTimestamp) internal view {
-        if (_startTimestamp == 0 || _startTimestamp > (block.timestamp + (52 * 1 weeks))) {
-            revert InvalidTimestamp(_startTimestamp);
+    function validateTimestamp(uint64 _startTime) internal view {
+        if (_startTime == 0 || _startTime > (block.timestamp + (52 * 1 weeks))) {
+            revert InvalidTimestamp(_startTime);
         }
     }
 
@@ -39,8 +39,8 @@ library RuleProcessorCommonLib {
     /**
      * @dev Determine is the rule is active. This is only for use in rules that are stored with activation timestamps.
      */
-    function isRuleActive(uint64 _startTs) internal view returns (bool) {
-        if (_startTs <= block.timestamp) {
+    function isRuleActive(uint64 _startTime) internal view returns (bool) {
+        if (_startTime <= block.timestamp) {
             return true;
         } else {
             return false;
@@ -49,18 +49,18 @@ library RuleProcessorCommonLib {
 
     /**
      * @dev determine if transaction should be accumulated with the previous or it is a new period which requires reset of accumulators
-     * @param _startTimestamp the timestamp the rule was enabled
+     * @param _startTime the timestamp the rule was enabled
      * @param _period amount of hours in the rule period
      * @param _lastTransferTs the last transfer timestamp
      * @return _withinPeriod returns true if current block time is within the rules period, else false.
      */
-    function isWithinPeriod(uint64 _startTimestamp, uint32 _period, uint64 _lastTransferTs) internal view returns (bool) {
+    function isWithinPeriod(uint64 _startTime, uint32 _period, uint64 _lastTransferTs) internal view returns (bool) {
         /// if no transactions have happened in the past, it's new
         if (_lastTransferTs == 0) {
             return false;
         }
         // current timestamp subtracted by the remainder of seconds since the rule was active divided by period in seconds
-        uint256 currentPeriodStart = block.timestamp - ((block.timestamp - _startTimestamp) % (_period * 1 hours));
+        uint256 currentPeriodStart = block.timestamp - ((block.timestamp - _startTime) % (_period * 1 hours));
         if (_lastTransferTs >= currentPeriodStart) {
             return true;
         } else {
@@ -85,21 +85,21 @@ library RuleProcessorCommonLib {
         if (_tags.length == 1 && _tags[0] == bytes32("")) return true;
     }
 
-    function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskLevels, uint48[] memory _maxSizes) internal pure returns(uint256){
-        uint256 maxSize;
-        for (uint256 i = 1; i < _riskLevels.length;) {
-            if (_riskScore < _riskLevels[i]) {
-                maxSize = uint(_maxSizes[i - 1]) * (10 ** 18); 
-                return maxSize;
+    function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskScores, uint48[] memory _maxValues) internal pure returns(uint256){
+        uint256 maxValue;
+        for (uint256 i = 1; i < _riskScores.length;) {
+            if (_riskScore < _riskScores[i]) {
+                maxValue = uint(_maxValues[i - 1]) * (10 ** 18); 
+                return maxValue;
             } 
             unchecked {
                 ++i;
             }
         }
-        if (_riskScore >= _riskLevels[_riskLevels.length - 1]) {
-            maxSize = uint(_maxSizes[_maxSizes.length - 1]) * (10 ** 18);
+        if (_riskScore >= _riskScores[_riskScores.length - 1]) {
+            maxValue = uint(_maxValues[_maxValues.length - 1]) * (10 ** 18);
         }
-        return maxSize; 
+        return maxValue; 
     }
 
      /**

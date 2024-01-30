@@ -13,13 +13,13 @@ Implements Token Fee Rules on Accounts.
 
 
 ## Functions
-### checkMinTransferPasses
+### checkTokenMinTransactionSize
 
 *Check if transaction passes minTransfer rule.*
 
 
 ```solidity
-function checkMinTransferPasses(uint32 _ruleId, uint256 amountToTransfer) external view;
+function checkTokenMinTransactionSize(uint32 _ruleId, uint256 amountToTransfer) external view;
 ```
 **Parameters**
 
@@ -50,13 +50,13 @@ function getMinimumTransferRule(uint32 _index) public view returns (NonTaggedRul
 |`<none>`|`NonTaggedRules.TokenMinimumTransferRule`|Rule at index|
 
 
-### getTotalMinimumTransferRules
+### getTotalTokenMinTransactionSize
 
 *Function to get total Minimum Transfer rules*
 
 
 ```solidity
-function getTotalMinimumTransferRules() public view returns (uint32);
+function getTotalTokenMinTransactionSize() public view returns (uint32);
 ```
 **Returns**
 
@@ -65,13 +65,13 @@ function getTotalMinimumTransferRules() public view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### checkOraclePasses
+### checkAccountApproveDenyOracle
 
 *This function receives a rule id, which it uses to get the oracle details, then calls the oracle to determine permissions.*
 
 
 ```solidity
-function checkOraclePasses(uint32 _ruleId, address _address) external view;
+function checkAccountApproveDenyOracle(uint32 _ruleId, address _address) external view;
 ```
 **Parameters**
 
@@ -81,7 +81,7 @@ function checkOraclePasses(uint32 _ruleId, address _address) external view;
 |`_address`|`address`|user address to be checked|
 
 
-### getOracleRule
+### getAccountApproveDenyOracle
 
 Allow List type
 If Allow List Oracle rule active, address(0) is exempt to allow for burning
@@ -93,7 +93,7 @@ Invalid oracle type
 
 
 ```solidity
-function getOracleRule(uint32 _index) public view returns (NonTaggedRules.OracleRule memory);
+function getAccountApproveDenyOracle(uint32 _index) public view returns (NonTaggedRules.AccountApproveDenyOracle memory);
 ```
 **Parameters**
 
@@ -105,16 +105,16 @@ function getOracleRule(uint32 _index) public view returns (NonTaggedRules.Oracle
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`NonTaggedRules.OracleRule`|OracleRule at index|
+|`<none>`|`NonTaggedRules.AccountApproveDenyOracle`|AccountApproveDenyOracle at index|
 
 
-### getTotalOracleRules
+### getTotalAccountApproveDenyOracles
 
 *Function get total Oracle rules*
 
 
 ```solidity
-function getTotalOracleRules() public view returns (uint32);
+function getTotalAccountApproveDenyOracles() public view returns (uint32);
 ```
 **Returns**
 
@@ -123,13 +123,13 @@ function getTotalOracleRules() public view returns (uint32);
 |`<none>`|`uint32`|total oracleRules array length|
 
 
-### checkTokenTransferVolumePasses
+### checkTokenMaxTradingVolume
 
 *Rule checks if the token transfer volume rule will be violated.*
 
 
 ```solidity
-function checkTokenTransferVolumePasses(
+function checkTokenMaxTradingVolume(
     uint32 _ruleId,
     uint256 _volume,
     uint256 _supply,
@@ -154,18 +154,18 @@ function checkTokenTransferVolumePasses(
 |`<none>`|`uint256`|_volume new accumulated volume|
 
 
-### getTransferVolumeRule
+### getTokenMaxTradingVolume
 
 we procede to retrieve the rule
 If the last trades "tradesWithinPeriod" were inside current period,
 we need to acumulate this trade to the those ones. If not, reset to only current amount.
 if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
 
-*Function get Token Transfer Volume Rule by index*
+*Function get Token Max Trading Volume by index*
 
 
 ```solidity
-function getTransferVolumeRule(uint32 _index) public view returns (NonTaggedRules.TokenTransferVolumeRule memory);
+function getTokenMaxTradingVolume(uint32 _index) public view returns (NonTaggedRules.TokenMaxTradingVolume memory);
 ```
 **Parameters**
 
@@ -177,16 +177,16 @@ function getTransferVolumeRule(uint32 _index) public view returns (NonTaggedRule
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`NonTaggedRules.TokenTransferVolumeRule`|TokenTransferVolumeRule rule at index position|
+|`<none>`|`NonTaggedRules.TokenMaxTradingVolume`|TokenMaxTradingVolume rule at index position|
 
 
-### getTotalTransferVolumeRules
+### getTotalTokenMaxTradingVolume
 
 *Function to get total Token Transfer Volume rules*
 
 
 ```solidity
-function getTotalTransferVolumeRules() public view returns (uint32);
+function getTotalTokenMaxTradingVolume() public view returns (uint32);
 ```
 **Returns**
 
@@ -195,13 +195,13 @@ function getTotalTransferVolumeRules() public view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### checkTotalSupplyVolatilityPasses
+### checkTokenMaxSupplyVolatility
 
 *Rule checks if the token total supply volatility rule will be violated.*
 
 
 ```solidity
-function checkTotalSupplyVolatilityPasses(
+function checkTokenMaxSupplyVolatility(
     uint32 _ruleId,
     int256 _volumeTotalForPeriod,
     uint256 _tokenTotalSupply,
@@ -256,6 +256,6 @@ function getTotalSupplyVolatilityRules() public view returns (uint32);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|supplyVolatilityRules total length of array|
+|`<none>`|`uint32`|tokenMaxSupplyVolatilityRules total length of array|
 
 

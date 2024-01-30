@@ -5,12 +5,15 @@ libs = ['lib']
 
 [profile.local]
 eth-rpc-url = 'http://localhost:8545'
+code-size-limit = 45000
 
 [profile.docker]
 eth-rpc-url = 'http://anvil:8545'
+code-size-limit = 45000
 
 [profile.polygon]
 eth-rpc-url = 'http://172.20.0.2:10002'
+code-size-limit = 45000
 
 remappings = ["forge-std/=lib/forge-std/src/",
     "ds-test/=lib/forge-std/lib/ds-test/src/",

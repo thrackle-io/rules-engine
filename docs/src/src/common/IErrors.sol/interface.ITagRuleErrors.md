@@ -3,16 +3,16 @@
 
 
 ## Errors
-### MaxBalanceExceeded
+### OverMaxBalance
 
 ```solidity
-error MaxBalanceExceeded();
+error OverMaxBalance();
 ```
 
-### BalanceBelowMin
+### UnderMinBalance
 
 ```solidity
-error BalanceBelowMin();
+error UnderMinBalance();
 ```
 
 ### TxnInFreezeWindow
@@ -21,9 +21,9 @@ error BalanceBelowMin();
 error TxnInFreezeWindow();
 ```
 
-### TemporarySellRestriction
+### OverMaxSellSize
 
 ```solidity
-error TemporarySellRestriction();
+error OverMaxSellSize();
 ```
 

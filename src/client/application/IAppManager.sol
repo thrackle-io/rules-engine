@@ -43,11 +43,11 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
     function isRuleBypassAccount(address account) external view returns (bool);
 
     /**
-     * @dev This function is where the access tier role is actually checked
+     * @dev This function is where the access level admin role is actually checked
      * @param account address to be checked
-     * @return success true if ACCESS_TIER_ADMIN_ROLE, false if not
+     * @return success true if ACCESS_LEVEL_ADMIN_ROLE, false if not
      */
-    function isAccessTier(address account) external view returns (bool);
+    function isAccessLevelAdmin(address account) external view returns (bool);
 
     /**
      * @dev This function is where the risk admin role is actually checked
@@ -92,8 +92,8 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
     function hasTag(address _account, bytes32 _tag) external view returns (bool);
 
     /**
-     * @dev Get the address of the access levelprovider
-     * @return accessLevelProvider Address of the access levelprovider
+     * @dev Get the address of the access level provider
+     * @return accessLevelProvider Address of the access level provider
      */
     function getAccessLevelProvider() external view returns (address);
 

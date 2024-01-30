@@ -1,4 +1,4 @@
-# Withdrawal Limit By Access Level Rule
+# Account Max Value Out By Access Level Rule
 
 ## Purpose
 
@@ -31,11 +31,11 @@ A withdrawal-by-access-level rule is composed of a single variable:
 These rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
 ```c
-/// Withdrawal Limit by Access Level
-    struct AccessLevelWithrawalRuleS {
+/// Account Max Value Out by Access Level
+    struct AccountMaxValueOutByAccessLevelS {
         /// ruleIndex => access level => max
-        mapping(uint32 => mapping(uint8 => uint48)) accessLevelWithdrawal;
-        uint32 accessLevelWithdrawalRuleIndex;
+        mapping(uint32 => mapping(uint8 => uint48)) accountMaxValueOutByAccessLevelRules;
+        uint32 accountMaxValueOutByAccessLevelIndex;
     }
 ```
 
@@ -66,10 +66,10 @@ The rule will be evaluated with the following logic:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error WithdrawalExceedsAccessLevelAllowedLimit();
+error OverMaxValueOutByAccessLevel();
 ```
 
-The selector for this error is `0x2bbc9aea`.
+The selector for this error is `0x8d857c50`.
 
 
 ## Create Function
@@ -77,7 +77,7 @@ The selector for this error is `0x2bbc9aea`.
 Adding a withdrawal-by-access-level rule is done through the function:
 
 ```c
-function addAccessLevelWithdrawalRule(
+function addAccountMaxValueOutByAccessLevel(
             address _appManagerAddr, 
             uint48[] calldata _withdrawalAmounts
         ) 
@@ -112,16 +112,16 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function to get a rule by its Id:
         ```c
-        function getAccessLevelWithdrawalRules(uint32 _index, uint8 _accessLevel) external view returns (uint48);
+        function getAccountMaxValueOutByAccessLevel(uint32 _index, uint8 _accessLevel) external view returns (uint48);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalAccessLevelWithdrawalRule() external view returns (uint32);
+        function getTotalAccountMaxValueOutByAccessLevel() external view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
-        function checkwithdrawalLimitsByAccessLevel(
+        function checkAccountMaxValueOutByAccessLevel(
                     uint32 _ruleId, 
                     uint8 _accessLevel, 
                     uint128 _usdWithdrawalTotal, 
@@ -133,19 +133,19 @@ The following validation will be carried out by the create function in order to 
 - In the [Application Handler](../../../src/client/application/ProtocolApplicationHandler.sol):
     - Function to set and activate at the same time the rule in the application handler:
         ```c
-        function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setAccountMaxValueOutByAccessLevelId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule in the application handler:
         ```c
-        function activateWithdrawalLimitByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateAccountMaxValueOutByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
      - Function to know the activation state of the rule in an asset handler:
         ```c
-        function isWithdrawalLimitByAccessLevelActive() external view returns (bool);
+        function isAccountMaxValueOutByAccessLevelActive() external view returns (bool);
         ```
     - Function to get the rule Id from the application handler:
         ```c
-        function getWithdrawalLimitByAccessLevelRule() external view returns (uint32);
+        function getAccountMaxValueOutByAccessLevelId() external view returns (uint32);
         ```
 
 ## Return Data
@@ -166,7 +166,7 @@ mapping(address => uint128) usdValueTotalWithrawals;
 This rule requires recording of the following information in the application handler:
 
 ```c
-    /// AccessLevelWithdrawalRule data
+    /// Account Max Value Out by Access Level data
     mapping(address => uint128) usdValueTotalWithrawals;
 ```
 
@@ -178,19 +178,19 @@ This rule requires recording of the following information in the application han
 - **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "ACCESS_LEVEL_WITHDRAWAL".
+        - ruleType: "ACC_MAX_VALUE_OUT_ACCESS_LEVEL".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: empty array.
 
 - **event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
     - Emitted when: rule has been applied in an application manager handler.
     - Parameters: 
-        - ruleType: "ACCESS_LEVEL_WITHDRAWAL".
+        - ruleType: "ACC_MAX_VALUE_OUT_ACCESS_LEVEL".
         - ruleId: the ruleId set for this rule in the handler.
 - **event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress)**:
     - Emitted when: a rule has been activated in an application handler:
     - Parameters: 
-        - ruleType: "ACCESS_LEVEL_WITHDRAWAL".
+        - ruleType: "ACC_MAX_VALUE_OUT_ACCESS_LEVEL".
         - handlerAddress: the address of the application handler where the rule has been activated.
 
 

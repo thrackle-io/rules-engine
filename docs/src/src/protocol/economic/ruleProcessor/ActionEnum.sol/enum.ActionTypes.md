@@ -9,7 +9,7 @@
 
 ```solidity
 enum ActionTypes {
-    PURCHASE,
+    BUY,
     SELL,
     TRADE,
     INQUIRE

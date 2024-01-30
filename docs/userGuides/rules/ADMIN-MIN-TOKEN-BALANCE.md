@@ -1,8 +1,8 @@
-# Admin Withdrawal Rule
+# Admin Min Token Balance
 
 ## Purpose
 
-The purpose of the admin-withdrawal rule is to allow developers to prove to their community that they will hold a certain amount of tokens for a certain period of time. Adding this rule prevents developers from flooding the market with their supply and effectively "rug pulling" their community. 
+The purpose of the admin-min-token-balance rule is to allow developers to prove to their community that they will hold a certain amount of tokens for a certain period of time. Adding this rule prevents developers from flooding the market with their supply and effectively "rug pulling" their community. 
 
 ## Applies To:
 
@@ -16,16 +16,16 @@ This rule works at a token level. It must be activated and configured for each d
 
 ## Data Structure
 
-An admin-withdrawal rule is composed of 2 variables:
+An admin-min-token-balance rule is composed of 2 variables:
 
-- **Amount** (uint256): The minimum amount of tokens to be held by the admin until the *releaseDate* (in wei).
-- **Release Date** (uint256): The Unix timestamp of the date after which the administrator is free to transfer the tokens.
+- **Amount** (uint256): The minimum amount of tokens to be held by the admin until the *endTime* (in wei).
+- **endTime** (uint256): The Unix timestamp of the date after which the administrator is free to transfer the tokens.
 
 ```c
 /// ******** Admin Withdrawal Rules ********
-    struct AdminWithdrawalRule {
+    struct AdminMinTokenBalance {
         uint256 amount;
-        uint256 releaseDate; /// timestamp
+        uint256 endTime; /// timestamp
     }
 ```
 ###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
@@ -34,9 +34,9 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
  ```c
     /// ******** Admin Withdrawal Rules ********
-    struct AdminWithdrawalRuleS {
-        mapping(uint32 => ITaggedRules.AdminWithdrawalRule) adminWithdrawalRulesPerToken;
-        uint32 adminWithdrawalRulesIndex;
+    struct AdminMinTokenBalanceS {
+        mapping(uint32 => ITaggedRules.AdminMinTokenBalance) adminMinTokenBalanceRules;
+        uint32 adminMinTokenBalanceIndex;
     }
 ```
 ###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
@@ -50,8 +50,8 @@ These rules are stored in a mapping indexed by ruleId(uint32) in order of creati
 
 Since this rule is intended to apply specifically to rule bypass accounts, there are some special restrictions:
 
-- This rule can only be deactivated if current rule is outside its active period (post `releaseDate`).
-- This rule prevents app administrators from renouncing their roles when the rule is in its active period (pre `releaseDate`).
+- This rule can only be deactivated if current rule is outside its active period (post `endTime`).
+- This rule prevents app administrators from renouncing their roles when the rule is in its active period (pre `endTime`).
 
 ## Rule Evaluation
 
@@ -62,9 +62,9 @@ The rule will be evaluated with the following logic:
 3. The handler sends the amount of tokens being transferred, the current balance of the app administrator account, and the ruleId to the protocol's rule processor.
 4. The rule processor calculates what the final balance of the administrator account would be if the transaction succeeds. If the final balance calculated is less than the minimum balance specified in the rule, the transaction reverts.
 
-**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 
-###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkAdminWithdrawalRule*
+###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkAdminMinTokenBalance*
 
 ### Evaluation Exceptions
 
@@ -75,20 +75,20 @@ The rule will be evaluated with the following logic:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error BalanceBelowMin();
+error UnderMinBalance();
 ```
 
-The selector for this error is `0xf1737570`.
+The selector for this error is `0x3e237976`.
 
 ## Create Function
 
-Adding an admin-withdrawal rule is done through the function:
+Adding an admin-min-token-balance rule is done through the function:
 
 ```c
-function addAdminWithdrawalRule(
+function addAdminMinTokenBalance(
             address _appManagerAddr, 
             uint256 _amount, 
-            uint256 _releaseDate
+            uint256 _endTime
         ) 
         external 
         ruleAdministratorOnly(_appManagerAddr) 
@@ -101,8 +101,8 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): the address of the application manager to verify that the caller has Rule administrator privileges.
-- **_amount** (uint256): the minimum amount of tokens to be held by the app administrator until `_releaseDate` (in wei).
-- **_releaseDate** (uint256[]): the Unix timestamp of the date after which the app aministrator is free to transfer the tokens.
+- **_amount** (uint256): the minimum amount of tokens to be held by the app administrator until `_endTime` (in wei).
+- **_endTime** (uint256[]): the Unix timestamp of the date after which the app aministrator is free to transfer the tokens.
 
 ### Parameter Optionality:
 
@@ -114,7 +114,7 @@ The following validation will be carried out by the create function in order to 
 
 - `_appManagerAddr` is not the zero address.
 - `_amount` is not zero.
-- `_releaseDate` is not in the past.
+- `_endTime` is not in the past.
 
 ###### *see [TaggedRuleDataFacet](../../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
 
@@ -123,42 +123,42 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
-        function getAdminWithdrawalRule(
+        function getAdminMinTokenBalance(
                     uint32 _index
                 ) 
                 external 
                 view 
-                returns (TaggedRules.AdminWithdrawalRule memory);
+                returns (TaggedRules.AdminMinTokenBalance memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalAdminWithdrawalRules() public view returns (uint32);
+        function getTotalAdminMinTokenBalance() public view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
-        function checkAdminWithdrawalRule(uint32 ruleId, uint256 currentBalance, uint256 amount) external view;
+        function checkAdminMinTokenBalance(uint32 ruleId, uint256 currentBalance, uint256 amount) external view;
         ```
 - in Asset Handler:
     - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setAdminWithdrawalRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setAdminMinTokenBalanceId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateAdminWithdrawalRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateAdminMinTokenBalance(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c 
-        function isAdminWithdrawalActive(ActionTypes _action) external view returns (bool);
+        function isAdminMinTokenBalanceActive(ActionTypes _action) external view returns (bool);
         ```
     - Function to know the activation state of the rule in an asset handler and if it is in the active period:
         ```c
-        function isAdminWithdrawalActiveAndApplicable() public view override returns (bool);
+        function isAdminMinTokenBalanceActiveAndApplicable() public view override returns (bool);
         ```
     - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getAdminWithdrawalRuleId(ActionTypes _action) external view returns (uint32);
+        function getAdminMinTokenBalanceId(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
@@ -173,21 +173,21 @@ This rule doesn't require of any data to be recorded.
 - **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "ADMIN_WITHDRAWAL".
+        - ruleType: "ADMIN_MIN_TOKEN_BALANCE".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: empty array.
 
 - **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - Parameters: 
-        - ruleType: "ADMIN_WITHDRAWAL".
+        - ruleType: "ADMIN_MIN_TOKEN_BALANCE".
         - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
 - **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
     - Emitted when: rule has been activated in the asset handler.
     - Parameters:
-        - ruleType: "ADMIN_WITHDRAWAL".
+        - ruleType: "ADMIN_MIN_TOKEN_BALANCE".
         - action: the protocol action for which the rule is being activated.
 
 ## Dependencies

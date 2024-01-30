@@ -29,8 +29,8 @@ Purchase Getters/Setters **********************
 function addPurchaseRule(
     address _appManagerAddr,
     bytes32[] calldata _accountTypes,
-    uint256[] calldata _purchaseAmounts,
-    uint16[] calldata _purchasePeriods,
+    uint256[] calldata _maxSizes,
+    uint16[] calldata _periods,
     uint64[] calldata _startTimes
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
@@ -40,8 +40,8 @@ function addPurchaseRule(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_purchaseAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_purchasePeriods`|`uint16[]`|Hours purhchases allowed|
+|`_maxSizes`|`uint256[]`|Allowed total purchase limits|
+|`_periods`|`uint16[]`|Hours purhchases allowed|
 |`_startTimes`|`uint64[]`|timestamp period to start|
 
 **Returns**
@@ -59,8 +59,8 @@ function addPurchaseRule(
 ```solidity
 function _addPurchaseRule(
     bytes32[] calldata _accountTypes,
-    uint256[] calldata _purchaseAmounts,
-    uint16[] calldata _purchasePeriods,
+    uint256[] calldata _maxSizes,
+    uint16[] calldata _periods,
     uint64[] calldata _startTimes
 ) internal returns (uint32);
 ```
@@ -69,8 +69,8 @@ function _addPurchaseRule(
 |Name|Type|Description|
 |----|----|-----------|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_purchaseAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_purchasePeriods`|`uint16[]`|Hours purhchases allowed|
+|`_maxSizes`|`uint256[]`|Allowed total purchase limits|
+|`_periods`|`uint16[]`|Hours purhchases allowed|
 |`_startTimes`|`uint64[]`|timestamps for first period to start|
 
 **Returns**
@@ -258,7 +258,7 @@ function _addWithdrawalRule(
 |`<none>`|`uint32`|position of new rule in array|
 
 
-### addAdminWithdrawalRule
+### addAdminMinTokenBalance
 
 Admin Account Withdrawal Getters/Setters **********
 
@@ -266,7 +266,7 @@ Admin Account Withdrawal Getters/Setters **********
 
 
 ```solidity
-function addAdminWithdrawalRule(address _appManagerAddr, uint256 _amount, uint256 _releaseDate)
+function addAdminMinTokenBalance(address _appManagerAddr, uint256 _amount, uint256 _releaseDate)
     external
     ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);
@@ -283,12 +283,12 @@ function addAdminWithdrawalRule(address _appManagerAddr, uint256 _amount, uint25
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|adminWithdrawalRulesPerToken position of new rule in array|
+|`<none>`|`uint32`|adminMinTokenBalanceRules position of new rule in array|
 
 
-### addMaxTxSizePerPeriodByRiskRule
+### addAccountMaxTransactionValueByRiskScore
 
-_txnLimits size must be equal to _riskLevel The positioning of the arrays is ascendant in terms of risk levels,
+_txnLimits size must be equal to _riskScore The positioning of the arrays is ascendant in terms of risk levels,
 and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
 will apply to all risk scores of 100.)
 
@@ -298,7 +298,7 @@ will apply to all risk scores of 100.)
 
 
 ```solidity
-function addMaxTxSizePerPeriodByRiskRule(
+function addAccountMaxTransactionValueByRiskScore(
     address _appManagerAddr,
     uint8[] calldata _riskScores,
     uint48[] calldata _txnLimits
@@ -319,13 +319,13 @@ function addMaxTxSizePerPeriodByRiskRule(
 |`<none>`|`uint32`|position of new rule in array|
 
 
-### _addMaxTxSizePerPeriodByRiskRule
+### _addAccountMaxTransactionValueByRiskScore
 
 *internal Function to avoid stack too deep error*
 
 
 ```solidity
-function _addMaxTxSizePerPeriodByRiskRule(uint8[] calldata _riskScores, uint48[] calldata _txnLimits)
+function _addAccountMaxTransactionValueByRiskScore(uint8[] calldata _riskScores, uint48[] calldata _txnLimits)
     internal
     returns (uint32);
 ```
@@ -358,7 +358,7 @@ function addMinBalByDateRule(
     bytes32[] calldata _accountTags,
     uint256[] calldata _holdAmounts,
     uint16[] calldata _holdPeriods,
-    uint64[] calldata _startTimestamps
+    uint64[] calldata _startTimes
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -369,7 +369,7 @@ function addMinBalByDateRule(
 |`_accountTags`|`bytes32[]`|Types of Accounts|
 |`_holdAmounts`|`uint256[]`|Allowed total purchase limits|
 |`_holdPeriods`|`uint16[]`|Hours purchases allowed|
-|`_startTimestamps`|`uint64[]`|Timestamp that the check should start|
+|`_startTimes`|`uint64[]`|Timestamp that the check should start|
 
 **Returns**
 
@@ -388,7 +388,7 @@ function _addMinBalByDateRule(
     bytes32[] calldata _accountTags,
     uint256[] calldata _holdAmounts,
     uint16[] calldata _holdPeriods,
-    uint64[] memory _startTimestamps
+    uint64[] memory _startTimes
 ) internal returns (uint32);
 ```
 **Parameters**
@@ -398,7 +398,7 @@ function _addMinBalByDateRule(
 |`_accountTags`|`bytes32[]`|Types of Accounts|
 |`_holdAmounts`|`uint256[]`|Allowed total purchase limits|
 |`_holdPeriods`|`uint16[]`|Hours purhchases allowed|
-|`_startTimestamps`|`uint64[]`|Timestamp that the check should start|
+|`_startTimes`|`uint64[]`|Timestamp that the check should start|
 
 **Returns**
 
@@ -407,7 +407,7 @@ function _addMinBalByDateRule(
 |`<none>`|`uint32`|ruleId of new rule in array|
 
 
-### addNFTTransferCounterRule
+### addTokenMaxDailyTrades
 
 if defaults sent for timestamp, start them with current block time
 NFT Getters/Setters **********
@@ -416,7 +416,7 @@ NFT Getters/Setters **********
 
 
 ```solidity
-function addNFTTransferCounterRule(
+function addTokenMaxDailyTrades(
     address _appManagerAddr,
     bytes32[] calldata _nftTypes,
     uint8[] calldata _tradesAllowed,
@@ -439,13 +439,13 @@ function addNFTTransferCounterRule(
 |`<none>`|`uint32`|_nftTransferCounterRules which returns location of rule in array|
 
 
-### _addNFTTransferCounterRule
+### _addTokenMaxDailyTrades
 
 *internal Function to avoid stack too deep error*
 
 
 ```solidity
-function _addNFTTransferCounterRule(bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed, uint64 _startTs)
+function _addTokenMaxDailyTrades(bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed, uint64 _startTs)
     internal
     returns (uint32);
 ```

@@ -21,7 +21,6 @@ contract FeeRuleProcessorFacet is IRuleProcessorErrors, IInputErrors {
      */
     function assessAMMFee(uint32 _ruleId, uint256 _collateralizedTokenAmount) external view returns (uint256) {
         Fee.AMMFeeRule memory feeRule = getAMMFeeRule(_ruleId);
-        /// the percentage is stored as three digits so the true percent is feePercentage/100
         if (feeRule.feePercentage > 0) {
             return (_collateralizedTokenAmount * feeRule.feePercentage) / 10000;
         }

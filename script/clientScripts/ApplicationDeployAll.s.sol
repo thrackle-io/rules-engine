@@ -9,7 +9,7 @@ import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwne
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import "src/example/OracleDenied.sol";
-import "src/example/OracleAllowed.sol";
+import "src/example/OracleApproved.sol";
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 
@@ -35,6 +35,7 @@ contract ApplicationDeployAllScript is Script {
         ApplicationHandler applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
         applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
         vm.sleep(PERIOD_BETWEEN_TX_BATCHES_MS); // example of new cheat codes
+        applicationAppManager.addRuleAdministrator(vm.envAddress("QUORRA"));
         /// create ERC20 token 1
         ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
         applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), false);
@@ -46,7 +47,7 @@ contract ApplicationDeployAllScript is Script {
         coin2.connectHandlerToToken(address(applicationCoinHandler2));
         
         /// oracle
-        new OracleAllowed();
+        new OracleApproved();
         new OracleDenied();
         
         /// create NFT
@@ -88,13 +89,13 @@ contract ApplicationDeployAllScript is Script {
          * Kevin as App admin sets:
          * Clu = Rule admin
          * Clu = Rule Bypass account 
-         * Gem = Access Tier admin
+         * Gem = Access Level admin
          * Sam = Risk admin
          */
         vm.stopBroadcast();
         vm.startBroadcast(vm.envUint("KEVIN_PRIVATE_KEY"));
         applicationAppManager.addRuleAdministrator(vm.envAddress("CLU"));
-        applicationAppManager.addAccessTier(vm.envAddress("GEM"));
+        applicationAppManager.addAccessLevelAdmin(vm.envAddress("GEM"));
         applicationAppManager.addRiskAdmin(vm.envAddress("CLU"));
         applicationAppManager.addRuleBypassAccount(vm.envAddress("CLU"));
         vm.stopBroadcast();

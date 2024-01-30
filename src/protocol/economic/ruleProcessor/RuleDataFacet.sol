@@ -25,71 +25,66 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
      * set instead of modifying an existing one.
      */
 
-    /************ Token Purchase Percentage Getters/Setters ***********/
 
     /**
-     * @dev Function to add a Token Purchase Percentage rule
+     * @dev Function to add a Token Max Buy Volume rule
      * @param _appManagerAddr Address of App Manager
-     * @param _tokenPercentage Percentage of Tokens allowed to purchase
-     * @param _purchasePeriod Time period that transactions are accumulated
+     * @param _supplyPercentage Percentage of Tokens allowed to purchase
+     * @param _period Time period that transactions are accumulated (in hours)
      * @param _totalSupply total supply of tokens (0 if using total supply from the token contract)
-     * @param _startTimestamp start timestamp for the rule
+     * @param _startTime start timestamp for the rule
      * @return ruleId position of new rule in array
      */
-    function addPercentagePurchaseRule(
+    function addTokenMaxBuyVolume(
         address _appManagerAddr,
-        uint16 _tokenPercentage,
-        uint16 _purchasePeriod,
+        uint16 _supplyPercentage,
+        uint16 _period,
         uint256 _totalSupply,
-        uint64 _startTimestamp
+        uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_tokenPercentage > MAX_TOKEN_PERCENTAGE) revert ValueOutOfRange(_tokenPercentage);
-        if (_purchasePeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
-        _startTimestamp.validateTimestamp();
-        RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
-        NonTaggedRules.TokenPercentagePurchaseRule memory rule = NonTaggedRules.TokenPercentagePurchaseRule(_tokenPercentage, _purchasePeriod, _totalSupply, _startTimestamp);
-        uint32 ruleId = data.percentagePurchaseRuleIndex;
-        data.percentagePurchaseRules[ruleId] = rule;
+        if (_supplyPercentage > MAX_TOKEN_PERCENTAGE) revert ValueOutOfRange(_supplyPercentage);
+        if (_period == 0 || _supplyPercentage == 0) revert ZeroValueNotPermited();
+        _startTime.validateTimestamp();
+        RuleS.TokenMaxBuyVolumeS storage data = Storage.accountMaxBuyVolumeStorage();
+        NonTaggedRules.TokenMaxBuyVolume memory rule = NonTaggedRules.TokenMaxBuyVolume(_supplyPercentage, _period, _totalSupply, _startTime);
+        uint32 ruleId = data.tokenMaxBuyVolumeIndex;
+        data.tokenMaxBuyVolumeRules[ruleId] = rule;
         bytes32[] memory empty;
-        emit ProtocolRuleCreated(PURCHASE_PERCENTAGE, ruleId, empty);
-        ++data.percentagePurchaseRuleIndex;
+        emit ProtocolRuleCreated(TOKEN_MAX_BUY_VOLUME, ruleId, empty);
+        ++data.tokenMaxBuyVolumeIndex;
         return ruleId;
     }
 
-    /************ Token Sell Percentage Getters/Setters ***********/
-
     /**
-     * @dev Function to add a Token Sell Percentage rule
+     * @dev Function to add a Token Max Sell Volume rule
      * @param _appManagerAddr Address of App Manager
-     * @param _tokenPercentage Percent of Tokens allowed to sell
-     * @param _sellPeriod Time period that transactions are frozen
+     * @param _supplyPercentage Percent of Tokens allowed to sell
+     * @param _period Time period that transactions are frozen
      * @param _totalSupply total supply of tokens (0 if using total supply from the token contract)
-     * @param _startTimestamp start time for the period
+     * @param _startTime start time for the period
      * @return ruleId position of new rule in array
      */
-    function addPercentageSellRule(
+    function addTokenMaxSellVolume(
         address _appManagerAddr,
-        uint16 _tokenPercentage,
-        uint16 _sellPeriod,
+        uint16 _supplyPercentage,
+        uint16 _period,
         uint256 _totalSupply,
-        uint64 _startTimestamp
+        uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_tokenPercentage > MAX_TOKEN_PERCENTAGE) revert ValueOutOfRange(_tokenPercentage);
-        if (_sellPeriod == 0 || _tokenPercentage == 0) revert ZeroValueNotPermited();
-        _startTimestamp.validateTimestamp();
-        RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
-        uint32 ruleId = data.percentageSellRuleIndex;
-        NonTaggedRules.TokenPercentageSellRule memory rule = NonTaggedRules.TokenPercentageSellRule(_tokenPercentage, _sellPeriod, _totalSupply, _startTimestamp);
-        data.percentageSellRules[ruleId] = rule;
+        if (_supplyPercentage > MAX_TOKEN_PERCENTAGE) revert ValueOutOfRange(_supplyPercentage);
+        if (_period == 0 || _supplyPercentage == 0) revert ZeroValueNotPermited();
+        _startTime.validateTimestamp();
+        RuleS.TokenMaxSellVolumeS storage data = Storage.accountMaxSellVolumeStorage();
+        uint32 ruleId = data.tokenMaxSellVolumeIndex;
+        NonTaggedRules.TokenMaxSellVolume memory rule = NonTaggedRules.TokenMaxSellVolume(_supplyPercentage, _period, _totalSupply, _startTime);
+        data.tokenMaxSellVolumeRules[ruleId] = rule;
         bytes32[] memory empty;
-        emit ProtocolRuleCreated(SELL_PERCENTAGE, ruleId, empty);
-        ++data.percentageSellRuleIndex;
+        emit ProtocolRuleCreated(TOKEN_MAX_SELL_VOLUME, ruleId, empty);
+        ++data.tokenMaxSellVolumeIndex;
         return ruleId;
     }
-
-    /************ Token Purchase Fee By Volume Getters/Setters ***********/
 
     /**
      * @dev Function to add a Token Purchase Fee By Volume rule
@@ -107,7 +102,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         uint32 ruleId = data.purchaseFeeByVolumeRuleIndex;
         data.purchaseFeeByVolumeRules[ruleId] = rule;
         bytes32[] memory empty;
-        emit ProtocolRuleCreated(PURCHASE_FEE_BY_VOLUME, ruleId, empty);
+        emit ProtocolRuleCreated(BUY_FEE_BY_VOLUME, ruleId, empty);
         ++data.purchaseFeeByVolumeRuleIndex;
         return ruleId;
     }
@@ -133,161 +128,152 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         return data.purchaseFeeByVolumeRuleIndex;
     }
 
-    /************ Token Volatility Getters/Setters ***********/
-
     /**
-     * @dev Function to add a Token Volatility rule
+     * @dev Function to add a Token Max Price Volatility rule
      * @param _appManagerAddr Address of App Manager
-     * @param _maxVolatility Maximum allowed volume
+     * @param _max Maximum allowed volume
      * @param _period period in hours for the rule
      * @param _hoursFrozen freeze period hours
      * @return ruleId position of new rule in array
      */
-    function addVolatilityRule(
+    function addTokenMaxPriceVolatility(
         address _appManagerAddr,
-        uint16 _maxVolatility,
+        uint16 _max,
         uint16 _period,
         uint16 _hoursFrozen,
         uint256 _totalSupply
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_maxVolatility == 0 || _period == 0 || _hoursFrozen == 0) revert ZeroValueNotPermited();
-        RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
-        NonTaggedRules.TokenVolatilityRule memory rule = NonTaggedRules.TokenVolatilityRule(_maxVolatility, _period, _hoursFrozen, _totalSupply);
-        uint32 ruleId = data.volatilityRuleIndex;
-        data.volatilityRules[ruleId] = rule;
+        if (_max == 0 || _period == 0 || _hoursFrozen == 0) revert ZeroValueNotPermited();
+        RuleS.TokenMaxPriceVolatilityS storage data = Storage.tokenMaxPriceVolatilityStorage();
+        NonTaggedRules.TokenMaxPriceVolatility memory rule = NonTaggedRules.TokenMaxPriceVolatility(_max, _period, _hoursFrozen, _totalSupply);
+        uint32 ruleId = data.tokenMaxPriceVolatilityIndex;
+        data.tokenMaxPriceVolatilityRules[ruleId] = rule;
         bytes32[] memory empty;
         emit ProtocolRuleCreated(TOKEN_VOLATILITY, ruleId, empty);
-        ++data.volatilityRuleIndex;
+        ++data.tokenMaxPriceVolatilityIndex;
         return ruleId;
     }
 
     /**
      * @dev Function get Token Volatility Rule by index
      * @param _index position of rule in array
-     * @return volatilityRules rule at index position
+     * @return tokenMaxPriceVolatilityRules rule at index position
      */
-    function getVolatilityRule(uint32 _index) external view returns (NonTaggedRules.TokenVolatilityRule memory) {
+    function getTokenMaxPriceVolatility(uint32 _index) external view returns (NonTaggedRules.TokenMaxPriceVolatility memory) {
         // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalVolatilityRules());
-        RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
-        return data.volatilityRules[_index];
+        _index.checkRuleExistence(getTotalTokenMaxPriceVolatility());
+        RuleS.TokenMaxPriceVolatilityS storage data = Storage.tokenMaxPriceVolatilityStorage();
+        return data.tokenMaxPriceVolatilityRules[_index];
     }
 
     /**
      * @dev Function to get total Volatility rules
      * @return Total length of array
      */
-    function getTotalVolatilityRules() public view returns (uint32) {
-        RuleS.VolatilityRuleS storage data = Storage.priceVolatilityStorage();
-        return data.volatilityRuleIndex;
+    function getTotalTokenMaxPriceVolatility() public view returns (uint32) {
+        RuleS.TokenMaxPriceVolatilityS storage data = Storage.tokenMaxPriceVolatilityStorage();
+        return data.tokenMaxPriceVolatilityIndex;
     }
 
-    /************ Token Transfer Volume Getters/Setters ***********/
-
     /**
-     * @dev Function to add a Token transfer Volume rules
+     * @dev Function to add a Token max trading Volume rules
      * @param _appManagerAddr Address of App Manager
-     * @param _maxVolumePercentage Maximum allowed volume percentage (this is 4 digits to allow 2 decimal places)
-     * @param _hoursPerPeriod Allowed hours per period
-     * @param _startTimestamp Timestamp to start the rule
+     * @param _maxPercentage Maximum allowed volume percentage (this is 4 digits to allow 2 decimal places)
+     * @param _hoursPerPeriod hours that define a period
+     * @param _startTime Timestamp to start the rule
      * @param _totalSupply Circulating supply value to use in calculations. If not specified, defaults to ERC20 totalSupply
      * @return ruleId position of new rule in array
      */
-    function addTransferVolumeRule(
+    function addTokenMaxTradingVolume(
         address _appManagerAddr,
-        uint24 _maxVolumePercentage,
+        uint24 _maxPercentage,
         uint16 _hoursPerPeriod,
-        uint64 _startTimestamp,
+        uint64 _startTime,
         uint256 _totalSupply
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_maxVolumePercentage > MAX_VOLUME_PERCENTAGE) revert ValueOutOfRange(_maxVolumePercentage);
-        if (_maxVolumePercentage == 0 || _hoursPerPeriod == 0) revert ZeroValueNotPermited();
-        _startTimestamp.validateTimestamp();
-        RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
-        NonTaggedRules.TokenTransferVolumeRule memory rule = NonTaggedRules.TokenTransferVolumeRule(_maxVolumePercentage, _hoursPerPeriod, _startTimestamp, _totalSupply);
-        uint32 ruleId = data.transferVolRuleIndex;
-        data.transferVolumeRules[ruleId] = rule;
+        if (_maxPercentage > MAX_VOLUME_PERCENTAGE) revert ValueOutOfRange(_maxPercentage);
+        if (_maxPercentage == 0 || _hoursPerPeriod == 0) revert ZeroValueNotPermited();
+        _startTime.validateTimestamp();
+        RuleS.TokenMaxTradingVolumeS storage data = Storage.tokenMaxTradingVolumeStorage();
+        NonTaggedRules.TokenMaxTradingVolume memory rule = NonTaggedRules.TokenMaxTradingVolume(_maxPercentage, _hoursPerPeriod, _startTime, _totalSupply);
+        uint32 ruleId = data.tokenMaxTradingVolumeIndex;
+        data.tokenMaxTradingVolumeRules[ruleId] = rule;
         bytes32[] memory empty;
-        emit ProtocolRuleCreated(TRANSFER_VOLUME, ruleId, empty);
-        ++data.transferVolRuleIndex;
+        emit ProtocolRuleCreated(TOKEN_MAX_TRADING_VOLUME, ruleId, empty);
+        ++data.tokenMaxTradingVolumeIndex;
         return ruleId;
     }
 
-    /************ Minimum Transfer Rule Getters/Setters ***********/
-
     /**
-     * @dev Function to add Min Transfer rules
+     * @dev Function to add Token Min Tx Size rules
      * @param _appManagerAddr Address of App Manager
-     * @param _minimumTransfer Mimimum amount of tokens required for transfer
+     * @param _minSize Mimimum amount of tokens required for transfer
      * @return ruleId position of new rule in array
      */
-    function addMinimumTransferRule(address _appManagerAddr, uint256 _minimumTransfer) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addTokenMinTxSize(address _appManagerAddr, uint256 _minSize) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_minimumTransfer == 0) revert ZeroValueNotPermited();
-        RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
-        NonTaggedRules.TokenMinimumTransferRule memory rule = NonTaggedRules.TokenMinimumTransferRule(_minimumTransfer);
-        uint32 ruleId = data.minimumTransferRuleIndex;
-        data.minimumTransferRules[ruleId] = rule;
+        if (_minSize == 0) revert ZeroValueNotPermited();
+        RuleS.TokenMinTxSizeS storage data = Storage.tokenMinTxSizePosition();
+        NonTaggedRules.TokenMinTxSize memory rule = NonTaggedRules.TokenMinTxSize(_minSize);
+        uint32 ruleId = data.tokenMinTxSizeIndex;
+        data.tokenMinTxSizeRules[ruleId] = rule;
         bytes32[] memory empty;
-        emit ProtocolRuleCreated(MIN_TRANSFER, ruleId, empty);
-        ++data.minimumTransferRuleIndex;
+        emit ProtocolRuleCreated(TOKEN_MIN_TX_SIZE, ruleId, empty);
+        ++data.tokenMinTxSizeIndex;
         return ruleId;
     }
 
-    /************ Supply Volatility Getters/Setters ***********/
 
     /**
-     * @dev Function Token Supply Volatility rules
+     * @dev Function Token Max Supply Volatility rules
      * @param _appManagerAddr Address of App Manager
-     * @param _maxVolumePercentage Maximum amount of change allowed. This is not capped and will allow for values greater than 100%.
-     * Since there is no cap for _maxVolumePercentage this could allow burning of full totalSupply() if over 100% (10000).
+     * @param _maxPercentage Maximum amount of change allowed. This is not capped and will allow for values greater than 100%.
+     * Since there is no cap for _maxPercentage this could allow burning of full totalSupply() if over 100% (10000).
      * @param _period Allowed hours per period
-     * @param _startTimestamp Unix timestamp for the _period to start counting.
+     * @param _startTime Unix timestamp for the _period to start counting.
      * @param _totalSupply this is an optional parameter. If 0, the toalSupply will be calculated dyamically. If not zero, this is  
      * going to be the locked value to calculate the rule 
      * @return ruleId position of new rule in array
      */
-    function addSupplyVolatilityRule(
+    function addTokenMaxSupplyVolatility(
         address _appManagerAddr,
-        uint16 _maxVolumePercentage,
+        uint16 _maxPercentage,
         uint16 _period,
-        uint64 _startTimestamp,
+        uint64 _startTime,
         uint256 _totalSupply
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_maxVolumePercentage == 0 || _period == 0) revert ZeroValueNotPermited();
-        _startTimestamp.validateTimestamp();
-        RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
-        NonTaggedRules.SupplyVolatilityRule memory rule = NonTaggedRules.SupplyVolatilityRule(_maxVolumePercentage, _period, _startTimestamp, _totalSupply);
-        uint32 ruleId = data.supplyVolatilityRuleIndex;
-        data.supplyVolatilityRules[ruleId] = rule;
+        if (_maxPercentage == 0 || _period == 0) revert ZeroValueNotPermited();
+        _startTime.validateTimestamp();
+        RuleS.TokenMaxSupplyVolatilityS storage data = Storage.tokenMaxSupplyVolatilityStorage();
+        NonTaggedRules.TokenMaxSupplyVolatility memory rule = NonTaggedRules.TokenMaxSupplyVolatility(_maxPercentage, _period, _startTime, _totalSupply);
+        uint32 ruleId = data.tokenMaxSupplyVolatilityIndex;
+        data.tokenMaxSupplyVolatilityRules[ruleId] = rule;
         bytes32[] memory empty;
-        emit ProtocolRuleCreated(SUPPLY_VOLATILITY, ruleId, empty);
-        ++data.supplyVolatilityRuleIndex;
+        emit ProtocolRuleCreated(TOKEN_MAX_SUPPLY_VOLATILITY, ruleId, empty);
+        ++data.tokenMaxSupplyVolatilityIndex;
         return ruleId;
     }
 
-    /************ Oracle Getters/Setters ***********/
-
     /**
-     * @dev Function add an Oracle rule
+     * @dev Function add an Account Approve/Deny Oracle rule
      * @param _appManagerAddr Address of App Manager
      * @param _type type of Oracle Rule --> 0 = restricted; 1 = allowed
      * @param _oracleAddress Address of Oracle
      * @return ruleId position of rule in storage
      */
-    function addOracleRule(address _appManagerAddr, uint8 _type, address _oracleAddress) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+    function addAccountApproveDenyOracle(address _appManagerAddr, uint8 _type, address _oracleAddress) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_oracleAddress == address(0)) revert ZeroAddress();
         if (_type > 1) revert InvalidOracleType(_type);
-        RuleS.OracleRuleS storage data = Storage.oracleStorage();
-        NonTaggedRules.OracleRule memory rule = NonTaggedRules.OracleRule(_type, _oracleAddress);
-        uint32 ruleId = data.oracleRuleIndex;
-        data.oracleRules[ruleId] = rule;
+        RuleS.AccountApproveDenyOracleS storage data = Storage.accountApproveDenyOracleStorage();
+        NonTaggedRules.AccountApproveDenyOracle memory rule = NonTaggedRules.AccountApproveDenyOracle(_type, _oracleAddress);
+        uint32 ruleId = data.accountApproveDenyOracleIndex;
+        data.accountApproveDenyOracleRules[ruleId] = rule;
         bytes32[] memory empty;
-        emit ProtocolRuleCreated(ORACLE, ruleId, empty);
-        ++data.oracleRuleIndex;
+        emit ProtocolRuleCreated(ACCOUNT_APPROVE_DENY_ORACLE, ruleId, empty);
+        ++data.accountApproveDenyOracleIndex;
         return ruleId;
     }
 

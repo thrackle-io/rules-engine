@@ -50,26 +50,26 @@ uint32 private accountBalanceByRiskRuleId;
 ```
 
 
-### maxTxSizePerPeriodByRiskRuleId
+### accountMaxTransactionValueByRiskScoreId
 
 ```solidity
-uint32 private maxTxSizePerPeriodByRiskRuleId;
+uint32 private accountMaxTransactionValueByRiskScoreId;
 ```
 
 
-### accountBalanceByRiskRuleActive
+### accountMaxValueByRiskScoreActive
 Application level Rule on-off switches
 
 
 ```solidity
-bool private accountBalanceByRiskRuleActive;
+bool private accountMaxValueByRiskScoreActive;
 ```
 
 
-### maxTxSizePerPeriodByRiskActive
+### accountMaxTransactionValueByRiskScoreActive
 
 ```solidity
-bool private maxTxSizePerPeriodByRiskActive;
+bool private accountMaxTransactionValueByRiskScoreActive;
 ```
 
 
@@ -82,19 +82,19 @@ uint32 private accountBalanceByAccessLevelRuleId;
 ```
 
 
-### withdrawalLimitByAccessLevelRuleId
+### accountMaxValueOutByAccessLevelId
 
 ```solidity
-uint32 private withdrawalLimitByAccessLevelRuleId;
+uint32 private accountMaxValueOutByAccessLevelId;
 ```
 
 
-### accountBalanceByAccessLevelRuleActive
+### accountMaxValueByAccessLevelActive
 AccessLevel Rule on-off switches
 
 
 ```solidity
-bool private accountBalanceByAccessLevelRuleActive;
+bool private accountMaxValueByAccessLevelActive;
 ```
 
 
@@ -105,10 +105,10 @@ bool private AccessLevel0RuleActive;
 ```
 
 
-### withdrawalLimitByAccessLevelRuleActive
+### accountMaxValueOutByAccessLevelActive
 
 ```solidity
-bool private withdrawalLimitByAccessLevelRuleActive;
+bool private accountMaxValueOutByAccessLevelActive;
 ```
 
 
@@ -254,7 +254,7 @@ function _checkAccessLevelRules(
 |`_usdAmountTransferring`|`uint128`|number of tokens transferred|
 
 
-### setAccountBalanceByRiskRuleId
+### setAccountMaxValueByRiskScoreId
 
 Check if sender is not AMM and then check sender access level
 Check if receiver is not an AMM or address(0) and then check the recipient access level. Exempting address(0) allows for burning.
@@ -266,7 +266,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setAccountBalanceByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setAccountMaxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -275,13 +275,13 @@ function setAccountBalanceByRiskRuleId(uint32 _ruleId) external ruleAdministrato
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
-### activateAccountBalanceByRiskRule
+### activateAccountMaxValueByRiskScore
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.*
 
 
 ```solidity
-function activateAccountBalanceByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAccountMaxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -290,13 +290,13 @@ function activateAccountBalanceByRiskRule(bool _on) external ruleAdministratorOn
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
-### isAccountBalanceByRiskActive
+### isAccountMaxValueByRiskScoreActive
 
 *Tells you if the accountBalanceByRiskRule is active or not.*
 
 
 ```solidity
-function isAccountBalanceByRiskActive() external view returns (bool);
+function isAccountMaxValueByRiskScoreActive() external view returns (bool);
 ```
 **Returns**
 
@@ -305,13 +305,13 @@ function isAccountBalanceByRiskActive() external view returns (bool);
 |`<none>`|`bool`|boolean representing if the rule is active|
 
 
-### getAccountBalanceByRiskRule
+### getAccountMaxValueByRiskScoreId
 
 *Retrieve the accountBalanceByRisk rule id*
 
 
 ```solidity
-function getAccountBalanceByRiskRule() external view returns (uint32);
+function getAccountMaxValueByRiskScoreId() external view returns (uint32);
 ```
 **Returns**
 
@@ -320,7 +320,7 @@ function getAccountBalanceByRiskRule() external view returns (uint32);
 |`<none>`|`uint32`|accountBalanceByRiskRuleId rule id|
 
 
-### setAccountBalanceByAccessLevelRuleId
+### setAccountMaxValueByAccessLevelId
 
 that setting a rule will automatically activate it.
 
@@ -328,7 +328,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setAccountMaxValueByAccessLevelId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -337,13 +337,13 @@ function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external ruleAdmin
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
-### activateAccountBalanceByAccessLevelRule
+### activateAccountMaxValueByAccessLevel
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.*
 
 
 ```solidity
-function activateAccountBalanceByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAccountMaxValueByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -352,13 +352,13 @@ function activateAccountBalanceByAccessLevelRule(bool _on) external ruleAdminist
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
-### isAccountBalanceByAccessLevelActive
+### isAccountMaxValueByAccessLevelActive
 
 *Tells you if the accountBalanceByAccessLevelRule is active or not.*
 
 
 ```solidity
-function isAccountBalanceByAccessLevelActive() external view returns (bool);
+function isAccountMaxValueByAccessLevelActive() external view returns (bool);
 ```
 **Returns**
 
@@ -367,13 +367,13 @@ function isAccountBalanceByAccessLevelActive() external view returns (bool);
 |`<none>`|`bool`|boolean representing if the rule is active|
 
 
-### getAccountBalanceByAccessLevelRule
+### getAccountMaxValueByAccessLevelId
 
 *Retrieve the accountBalanceByAccessLevel rule id*
 
 
 ```solidity
-function getAccountBalanceByAccessLevelRule() external view returns (uint32);
+function getAccountMaxValueByAccessLevelId() external view returns (uint32);
 ```
 **Returns**
 
@@ -412,7 +412,7 @@ function isAccessLevel0Active() external view returns (bool);
 |`<none>`|`bool`|boolean representing if the rule is active|
 
 
-### setWithdrawalLimitByAccessLevelRuleId
+### setAccountMaxValueOutByAccessLevelId
 
 that setting a rule will automatically activate it.
 
@@ -420,7 +420,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setAccountMaxValueOutByAccessLevelId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -429,13 +429,13 @@ function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external ruleAdmi
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
-### activateWithdrawalLimitByAccessLevelRule
+### activateAccountMaxValueOutByAccessLevel
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.*
 
 
 ```solidity
-function activateWithdrawalLimitByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAccountMaxValueOutByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -444,13 +444,13 @@ function activateWithdrawalLimitByAccessLevelRule(bool _on) external ruleAdminis
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
-### isWithdrawalLimitByAccessLevelActive
+### isAccountMaxValueOutByAccessLevelActive
 
 *Tells you if the withdrawalLimitByAccessLevelRule is active or not.*
 
 
 ```solidity
-function isWithdrawalLimitByAccessLevelActive() external view returns (bool);
+function isAccountMaxValueOutByAccessLevelActive() external view returns (bool);
 ```
 **Returns**
 
@@ -459,28 +459,28 @@ function isWithdrawalLimitByAccessLevelActive() external view returns (bool);
 |`<none>`|`bool`|boolean representing if the rule is active|
 
 
-### getWithdrawalLimitByAccessLevelRule
+### getAccountMaxValueOutByAccessLevelId
 
 *Retrieve the withdrawalLimitByAccessLevel rule id*
 
 
 ```solidity
-function getWithdrawalLimitByAccessLevelRule() external view returns (uint32);
+function getAccountMaxValueOutByAccessLevelId() external view returns (uint32);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|withdrawalLimitByAccessLevelRuleId rule id|
+|`<none>`|`uint32`|accountMaxValueOutByAccessLevelId rule id|
 
 
-### getMaxTxSizePerPeriodByRiskRuleId
+### getAccountMaxTransactionValueByRiskScoreId
 
 *Retrieve the MaxTxSizePerPeriodByRisk rule id*
 
 
 ```solidity
-function getMaxTxSizePerPeriodByRiskRuleId() external view returns (uint32);
+function getAccountMaxTransactionValueByRiskScoreId() external view returns (uint32);
 ```
 **Returns**
 
@@ -489,7 +489,7 @@ function getMaxTxSizePerPeriodByRiskRuleId() external view returns (uint32);
 |`<none>`|`uint32`|MaxTxSizePerPeriodByRisk rule id for specified token|
 
 
-### setMaxTxSizePerPeriodByRiskRuleId
+### setAccountMaxTransactionValueByRiskScoreId
 
 that setting a rule will automatically activate it.
 
@@ -497,7 +497,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setAccountMaxTransactionValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -506,13 +506,13 @@ function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external ruleAdminist
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
-### activateMaxTxSizePerPeriodByRiskRule
+### activateAccountMaxTransactionValueByRiskScore
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.*
 
 
 ```solidity
-function activateMaxTxSizePerPeriodByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAccountMaxTransactionValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -521,13 +521,13 @@ function activateMaxTxSizePerPeriodByRiskRule(bool _on) external ruleAdministrat
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
-### isMaxTxSizePerPeriodByRiskActive
+### isAccountMaxTransactionValueByRiskScoreActive
 
 *Tells you if the MaxTxSizePerPeriodByRisk is active or not.*
 
 
 ```solidity
-function isMaxTxSizePerPeriodByRiskActive() external view returns (bool);
+function isAccountMaxTransactionValueByRiskScoreActive() external view returns (bool);
 ```
 **Returns**
 

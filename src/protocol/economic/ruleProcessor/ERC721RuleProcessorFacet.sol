@@ -15,14 +15,14 @@ contract ERC721RuleProcessorFacet is IERC721Errors, IRuleProcessorErrors, IMaxTa
 
 
     /**
-     * @dev This function receives data needed to check Minimum hold time rule. This a simple rule and thus is not stored in the rule storage diamond.
+     * @dev This function receives data needed to check token min hold time rule. This a simple rule and thus is not stored in the rule storage diamond.
      * @param _holdHours minimum number of hours the asset must be held
      * @param _ownershipTs beginning of hold period
      */
-    function checkNFTHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view {
+    function checkTokenMinHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view {
         if (_ownershipTs > 0) {
             if ((block.timestamp - _ownershipTs) < _holdHours * 1 hours) {
-                revert MinimumHoldTimePeriodNotReached();
+                revert UnderHoldPeriod();
             }
         }
     }

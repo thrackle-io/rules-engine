@@ -22,7 +22,7 @@ uint8 constant MAX_TAGS = 10;
 
 
 ```solidity
-function validateTimestamp(uint64 _startTimestamp) internal view;
+function validateTimestamp(uint64 _startTime) internal view;
 ```
 
 ### checkRuleExistence
@@ -62,13 +62,13 @@ function isRuleActive(uint64 _startTs) internal view returns (bool);
 
 
 ```solidity
-function isWithinPeriod(uint64 _startTimestamp, uint32 _period, uint64 _lastTransferTs) internal view returns (bool);
+function isWithinPeriod(uint64 _startTime, uint32 _period, uint64 _lastTransferTs) internal view returns (bool);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_startTimestamp`|`uint64`|the timestamp the rule was enabled|
+|`_startTime`|`uint64`|the timestamp the rule was enabled|
 |`_period`|`uint32`|amount of hours in the rule period|
 |`_lastTransferTs`|`uint64`|the last transfer timestamp|
 
@@ -100,7 +100,7 @@ function checkMaxTags(bytes32[] memory _tags) internal pure;
 
 
 ```solidity
-function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskLevels, uint48[] memory _maxSizes)
+function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskScores, uint48[] memory _maxSizes)
     internal
     pure
     returns (uint256);

@@ -3,10 +3,10 @@
 
 
 ## Errors
-### MaxTxSizePerPeriodReached
+### OverMaxTxValueByRiskScore
 
 ```solidity
-error MaxTxSizePerPeriodReached(uint8 riskScore, uint256 maxTxSize, uint16 hoursOfPeriod);
+error OverMaxTxValueByRiskScore(uint8 riskScore, uint256 maxTxSize, uint16 hoursOfPeriod);
 ```
 
 ### TransactionExceedsRiskScoreLimit
@@ -15,9 +15,9 @@ error MaxTxSizePerPeriodReached(uint8 riskScore, uint256 maxTxSize, uint16 hours
 error TransactionExceedsRiskScoreLimit();
 ```
 
-### BalanceExceedsRiskScoreLimit
+### OverMaxAccValueByRiskScore
 
 ```solidity
-error BalanceExceedsRiskScoreLimit();
+error OverMaxAccValueByRiskScore();
 ```
 

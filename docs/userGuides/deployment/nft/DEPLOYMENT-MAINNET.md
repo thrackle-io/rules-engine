@@ -12,7 +12,7 @@
 3. Deploy [Pricing Module][deployPricingModule-url] (Optional)
 4.  Create [Application Rules][createAppRules-url] (Optional)    
 5.  Create [NFT Specific Rules][createNftRules-url] (Optional)    
-6.  Set [External Access Tier Provider][externalAccessTierProvider-url] (Optional)
+6.  Set [External Access Level Provider][externalAccessLevelProvider-url] (Optional)
 7.  [Set NFT Prices][settingNftPrice-url] (Optional)
     
 
@@ -22,7 +22,7 @@
 [deployPricingModule-url]: ../DEPLOY-PRICING.md
 [createAppRules-url]: ../CREATE-APP-RULES.md
 [createNftRules-url]: ../CREATE-NFT-RULES.md
-[externalAccessTierProvider-url]: ../../accessTier/EXTERNAL-ACCESS-TIER-PROVIDER.md
+[externalAccessLevelProvider-url]: ../../accessTier/EXTERNAL-ACCESS-LEVEL-PROVIDER.md
 [deployProtocolSupportedNft-url]: ./DEPLOY-NFT.md
 [settingNftPrice-url]: ./NFT-PRICING.md
 

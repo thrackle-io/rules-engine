@@ -7,11 +7,10 @@ identifies the possible action types for the protocol. Rules can be enabled for 
 ## Enum
 
 |Name|
-|----||
-|`PURCHASE`|
+|----|
+|`P2P_TRANSFER`|
+|`BUY`|
 |`SELL`|
-|`TRADE`|
 |`MINT`|
 |`BURN`|
-|`P2P_TRANSFER`|
 

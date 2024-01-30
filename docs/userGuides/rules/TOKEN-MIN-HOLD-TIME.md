@@ -1,8 +1,8 @@
-# Minimum Hold Time Rule
+# Token Min Hold Time
 
 ## Purpose
 
-The purpose of the minimum-hold-time rule is to reduce trade volitility by preventing transfers of tokens for a number of hours after ownership is acquired, either via minting or transfers. This rule allows developers to specifiy a number of hours, up to 43830 (5 years), that each tokenId must be held for.  
+The purpose of the token-min-hold-time rule is to reduce trade volitility by preventing transfers of tokens for a number of hours after ownership is acquired, either via minting or transfers. This rule allows developers to specifiy a number of hours, up to 43830 (5 years), that each tokenId must be held for.  
 
 ## Applies To:
 
@@ -20,7 +20,7 @@ The rule is a uint32 variable for number of hours each individual token must be 
 
 ```c
 /// simple rule(with single parameter) variables
-    uint32 private minimumHoldTimeHours;
+    uint32 private period;
 ```
 
 Additionally, each starting unix timestamp for the ownership of the tokenId is stored in a mapping inside the handler. 
@@ -45,12 +45,12 @@ The rule will be evaluated with the following logic:
 
 1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The handler evaluates the account's `ownershipStart` to check that it is greater than zero.
-3. The handler passes the account's `ownershipStart` and `minimumHoldTimeHours` to the processor. 
-4. The Processor evaluates if the current time minus `ownershipStart` is less than `minimumHoldTimeHours`. If it is the transaction reverts.
+3. The handler passes the account's `ownershipStart` and `period` to the processor. 
+4. The Processor evaluates if the current time minus `ownershipStart` is less than `period`. If it is the transaction reverts.
 
-**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 
-###### *see [ERC721RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkNFTHoldTime*
+###### *see [ERC721RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkTokenMinHoldTime*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -61,19 +61,19 @@ The rule will be evaluated with the following logic:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error MinimumHoldTimePeriodNotReached();
+error UnderHoldPeriod();
 ```
 
-The selector for this error is `0x6d12e45a`.
+The selector for this error is `0x5f98112f`.
 
 ## Create Function
 
-Adding a minimum-hold-time rule for the supplied actions is done through the function:
+Adding a token-min-hold-time rule for the supplied actions is done through the function:
 
 ```c
-function setMinimumHoldTimeHours(
+function setTokenMinHoldTime(
             ActionTypes[] calldata _actions,
-            uint32 _minimumHoldTimeHours
+            uint32 _minHoldTimeHours
         ) external ruleAdministratorOnly(_appManagerAddr);
 ```
 ###### *see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
@@ -81,7 +81,7 @@ function setMinimumHoldTimeHours(
 
 ### Parameters:
 
-- **_minimumHoldTimeHours** (uint32): Number of hours each tokenId must be held for.
+- **_minHoldTimeHours** (uint32): Number of hours each tokenId must be held for.
 
 
 ### Parameter Optionality:
@@ -92,8 +92,8 @@ There is no parameter optionality for this rule.
 
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
-- `_minimumHoldTimeHours` is greater than zero.
-- `_minimumHoldTimeHours` is less than `MAX_HOLD_TIME_HOURS`.
+- `_minHoldTimeHours` is greater than zero.
+- `_minHoldTimeHours` is less than `MAX_HOLD_TIME_HOURS`.
 
 
 ###### *see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
@@ -103,15 +103,15 @@ The following validation will be carried out by the create function in order to 
 - in Asset Handler:
     - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateMinimumHoldTimeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateTokenMinHoldTime(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isMinimumHoldTimeActive(ActionTypes _action) external view returns (bool);
+        function isTokenMinHoldTimeActive(ActionTypes _action) external view returns (bool);
         ```
     - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getMinimumHoldTimeHours(ActionTypes _action) external view returns (uint256);
+        function getTokenMinHoldTimePeriod(ActionTypes _action) external view returns (uint256);
         ```
 ## Return Data
 
@@ -126,21 +126,21 @@ This rule requires the unix timestamp for each tokenId each time the ownership o
 - **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "MINIMUM_HOLD_TIME".
+        - ruleType: "TOKEN_MIN_HOLD_TIME".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: the tags for each sub-rule.
 
 - **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - Parameters: 
-        - ruleType: "MINIMUM_HOLD_TIME".
+        - ruleType: "TOKEN_MIN_HOLD_TIME".
         - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
 - **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
     - Emitted when: A Minimum Hold TIme rule has been activated in an asset handler:
     - Parameters:
-        - ruleType: "MINIMUM_HOLD_TIME".
+        - ruleType: "TOKEN_MIN_HOLD_TIME".
         - action: the protocol action for which the rule is being activated.
 
 ## Dependencies

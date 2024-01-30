@@ -14,7 +14,7 @@ interface IAccessLevels is IDataModule, IAccessLevelErrors {
     /**
      * @dev Add the Access Level to the account. Restricted to the owner
      * @param _address address of the account
-     * @param _level access levellevel(0-4)
+     * @param _level access level(0-4)
      */
     function addLevel(address _address, uint8 _level) external;
     

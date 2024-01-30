@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-cp -r src/application src/interfaces src/data src/pricing src/token src/economic .
+#cp -r src/client src/common src/example src/protocol .
 
-rm -r src
+#rm -r src

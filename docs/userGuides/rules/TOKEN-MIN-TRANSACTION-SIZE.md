@@ -1,8 +1,8 @@
-# Minimum Transaction Rule
+# Token Min Tx Size
 
 ## Purpose
 
-The purpose of the minimum-transaction rule is to prevent micro-trades or dust trades within an ecosystem. A developer can set the minimum number of tokens required per transfer to prevent these types of trades. 
+The purpose of the token-min-tx-size rule is to prevent micro-trades or dust trades within an ecosystem. A developer can set the minimum number of tokens required per transfer to prevent these types of trades. 
 
 ## Applies To:
 
@@ -16,25 +16,25 @@ This rule works at a token level. It must be activated and configured for each d
 
 ## Data Structure
 
-A minimum-transaction rule is composed of 1 component:
+A token-min-tx-size rule is composed of 1 component:
 
-- **Min Transfer Amount**  (uint256): minimum number of tokens that must be transferred for each transaction. 
+- **minSize**  (uint256): minimum number of tokens that must be transferred for each transaction. 
 
 ```c
     /// ******** Token Minimum Transfer Rules ********
-    struct TokenMinimumTransferRule {
-        uint256 minTransferAmount;
+    struct TokenMinTxSize {
+        uint256 minSize;
     }
 ```
 ###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
-The minimum-transaction rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
+The token-min-tx-size rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
  ```c
     /// ******** Minimum Transaction ********
-    struct MinTransferRuleS {
-        mapping(uint32 => INonTaggedRules.TokenMinimumTransferRule) minimumTransferRules;
-        uint32 minimumTransferRuleIndex; /// increments every time someone adds a rule
+    struct TokenMinTxSizeS {
+        mapping(uint32 => INonTaggedRules.TokenMinTxSize) tokenMinTxSizeRules;
+        uint32 tokenMinTxSizeIndex; /// increments every time someone adds a rule
     }
 ```
 ###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
@@ -51,13 +51,13 @@ The minimum-transaction rules are stored in a mapping indexed by ruleId(uint32) 
 The rule will be evaluated with the following logic:
 
 1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
-2. The processor receives the ID of the minimum-transaction rule set in the token handler. 
+2. The processor receives the ID of the token-min-tx-size rule set in the token handler. 
 3. The processor receives the `amount` of tokens from the handler.
-4. The processor evaluates the `amount` against the rule `minTransferAmount` and reverts if the `amount` less than the rule minimum. 
+4. The processor evaluates the `amount` against the rule `minSize` and reverts if the `amount` less than the rule minimum. 
 
-**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 
-###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkMinTransferPasses*
+###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenMinTxSize*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -68,19 +68,19 @@ The rule will be evaluated with the following logic:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error BelowMinTransfer();
+error UnderMinTxSize();
 ```
 
-The selector for this error is `0x70311aa2`.
+The selector for this error is `0x7a78c901`.
 
 ## Create Function
 
-Adding a minimum-transaction rule is done through the function:
+Adding a token-min-tx-size rule is done through the function:
 
 ```c
-function addMinimumTransferRule(
+function addTokenMinTxSize(
     address _appManagerAddr,
-    uint256 _minimumTransfer
+    uint256 _minSize
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 ###### *see [RuleDataFacet](../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)* 
@@ -90,7 +90,7 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
-- **_minimumTransfer** (uint256): Minimum number of tokens for the transaction.
+- **_minSize** (uint256): Minimum number of tokens for the transaction.
 
 
 ### Parameter Optionality:
@@ -102,7 +102,7 @@ There is no parameter optionality for this rule.
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
 - `_appManagerAddr` is not the zero address.
-- `_minimumTransfer` is greater than 0.
+- `_minSize` is greater than 0.
 
 
 ###### *see [RuleDataFacet](../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
@@ -112,22 +112,22 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
-        function getMinimumTransferRule(
+        function getTokenMinTxSize(
                     uint32 _index
                 ) 
                 external 
                 view 
                 returns 
-                (NonTaggedRules.TokenMinimumTransferRule memory);
+                (NonTaggedRules.TokenMinTxSize memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalMinimumTransferRules() public view returns (uint32);
+        function getTotalTokenMinTxSize() public view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
-        function checkMinTransferPasses(
+        function checkTokenMinTxSize(
                     uint32 _ruleId, 
                     uint256 _amountToTransfer
                 ) 
@@ -137,19 +137,19 @@ The following validation will be carried out by the create function in order to 
 - in Asset Handler:
     - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setMinTransferRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setTokenMinTxSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule for the supplied actions actions in an asset handler:
         ```c
-        function activateMinTransfereRule(ActionTypes[] calldata _action, bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateTokenMinTxSize(ActionTypes[] calldata _action, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isMinTransferActive(ActionTypes _action) external view returns (bool);
+        function isTokenMinTxSizeActive(ActionTypes _action) external view returns (bool);
         ```
     - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getMinTransferRuleId(ActionTypes _action) external view returns (uint32);
+        function getTokenMinTxSizeId(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
@@ -164,22 +164,22 @@ This rule does not require any data to be recorded.
 - **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "MIN_TRANSFER".
+        - ruleType: "TOKEN_MIN_TX_SIZE".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
 - **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - parameters: 
-        - ruleType: "MIN_TRANSFER".
+        - ruleType: "TOKEN_MIN_TX_SIZE".
         - action: the protocol action the rule is being applied to.
         - ruleId: the index of the rule created in the protocol by rule type.
 
 
 - **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
-    - Emitted when: A Transfer counter rule has been activated in an asset handler:
+    - Emitted when: A Token Min Transaction Size rule has been activated in an asset handler:
     - Parameters:
-        - ruleType: "MIN_TRANSFER".
+        - ruleType: "TOKEN_MIN_TX_SIZE".
         - action: the protocol action for which the rule is being activated.
 
 ## Dependencies

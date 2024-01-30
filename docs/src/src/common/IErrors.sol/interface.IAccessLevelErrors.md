@@ -9,10 +9,10 @@
 error BalanceExceedsAccessLevelAllowedLimit();
 ```
 
-### WithdrawalExceedsAccessLevelAllowedLimit
+### OverMaxValueOutByAccessLevel
 
 ```solidity
-error WithdrawalExceedsAccessLevelAllowedLimit();
+error OverMaxValueOutByAccessLevel();
 ```
 
 ### NotAllowedForAccessLevel

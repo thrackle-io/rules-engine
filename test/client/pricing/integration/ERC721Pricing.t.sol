@@ -54,7 +54,6 @@ contract ERC721PricingTest is TestCommonFoundry {
      * @notice currently not supporting ERC1155.
      */
     function testSettingPriceFailingForInvalidContract() public {
-        //vm.expectRevert("0x930bba61000000000000000000000000000000000000000000000000000000000000babe");
         vm.expectRevert();
         openOcean.setSingleNFTPrice(address(0xBABE), 1, 5000 * (10 ** 18));
     }

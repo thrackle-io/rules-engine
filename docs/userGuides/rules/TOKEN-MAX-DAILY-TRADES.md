@@ -1,8 +1,8 @@
-# Transfer Counter Rule
+# Token Max Daily Trades
 
 ## Purpose
 
-The transfer-counter rule enforces a daily limit on the number of trades for each token within a collection. In the context of this rule, a "trade" is a transfer of a token from one address to another. Example uses of this rule: to mitigate price manipulation of tokens in the collection via the limitation of wash trading or the prevention of malfeasance for holders who transfer a token between addresses repeatedly. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a pseudo "soulBound" token, preventing all transfers of tokens in the collection.  
+The token-max-daily-trades rule enforces a daily limit on the number of trades for each token within a collection. In the context of this rule, a "trade" is a transfer of a token from one address to another. Example uses of this rule: to mitigate price manipulation of tokens in the collection via the limitation of wash trading or the prevention of malfeasance for holders who transfer a token between addresses repeatedly. When this rule is active and the tradesAllowedPerDay is 0 this rule will act as a pseudo "soulBound" token, preventing all transfers of tokens in the collection.  
 
 ## Applies To:
 
@@ -22,10 +22,10 @@ This is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection 
 - **Start timestamp** (uint64): The unix timestamp for the time that the rule starts. 
 
 ```c
-/// ******** NFT ********
-    struct NFTTradeCounterRule {
+/// ******** Token Max Daily Trades ********
+    struct TokenMaxDailyTrades {
         uint8 tradesAllowedPerDay;
-        uint64 startTs; // starting timestamp for the rule
+        uint64 startTime; // starting timestamp for the rule
     }
 ```
 ###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
@@ -38,22 +38,22 @@ tag -> token collection (sub-rule).
 
 ```c
     //       tag         =>   sub-rule
-    mapping(bytes32 => INonTaggedRules.NFTTradeCounterRule)
+    mapping(bytes32 => INonTaggedRules.TokenMaxDailyTrades)
 ```
 ###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
-The tagged token collections then compose a transfer-counter rule.
+The tagged token collections then compose a token-max-daily-trades rule.
 
  ```c
-    struct NFTTransferCounterRuleS {
+    struct TokenMaxDailyTradesS {
         /// ruleIndex => taggedNFT => tradesAllowed
-        mapping(uint32 => mapping(bytes32 => INonTaggedRules.NFTTradeCounterRule)) NFTTransferCounterRule;
-        uint32 NFTTransferCounterRuleIndex; /// increments every time someone adds a rule
+        mapping(uint32 => mapping(bytes32 => INonTaggedRules.TokenMaxDailyTrades)) tokenMaxDailyTradesRules;
+        uint32 tokenMaxDailyTradesIndex; /// increments every time someone adds a rule
     }
 ```
 ###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
 
-A transfer-counter rule must have at least one sub-rule. There is no maximum number of sub-rules.
+A token-max-daily-trades rule must have at least one sub-rule. There is no maximum number of sub-rules.
 
 ## Configuration and Enabling/Disabling
 - This rule can only be configured in the protocol by a **rule administrator**.
@@ -67,12 +67,12 @@ The rule will be evaluated in the following way:
 
 1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
 2. The collection being evaluated will pass to the protocol all the tags it has registered to its address in the application manager.
-3. The processor will receive these tags along with the ID of the transfer-counter rule set in the token handler.
+3. The processor will receive these tags along with the ID of the token-max-daily-trades rule set in the token handler.
 4. The processor will then try to retrieve the sub-rule associated with each tag.
 5. The processor will evaluate whether the trade is within a new period. If no, the rule will continue to the trades per day check (step 5). If yes, the rule will return `tradesInPeriod` of 1 (current trade) for the token Id. 
 6. The processor will evaluate if the total number of trades within the period plus the current trade would be more than the amount of trades allowed per day by the rule in the case of the transaction succeeding. If yes (trades will exceed allowable trades per day), then the transaction will revert.
 
-###### *see [ERC721RuleProcessor](../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkNFTTransferCounter*
+###### *see [ERC721RuleProcessor](../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) -> checkTokenMaxDailyTrades*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -83,23 +83,23 @@ The rule will be evaluated in the following way:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error MaxNFTTransferReached();
+error OverMaxDailyTrades();
 ```
 
-The selector for this error is `0x00b223e3`.
+The selector for this error is `0x09a92f2d`.
 ## Create Function
 
-Adding a transfer-counter rule is done through the function:
+Adding a token-max-daily-trades rule is done through the function:
 
 ```c
-function addNFTTransferCounterRule(
+function addTokenMaxDailyTrades(
         address _appManagerAddr,
-        bytes32[] calldata _nftTypes,
+        bytes32[] calldata _nftTags,
         uint8[] calldata _tradesAllowed,
-        uint64 _startTs
+        uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32)
 ```
-bytes32 _nftTypes are the same as [tags](../GLOSSARY.md) and are applied to the ERC721 contract address in the App Manager.  
+bytes32 _nftTags are the same as [tags](../GLOSSARY.md) and are applied to the ERC721 contract address in the App Manager.  
 
 The function will return the protocol id of the rule.
 
@@ -108,14 +108,14 @@ The function will return the protocol id of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
-- **_nftTypes** (bytes32[]): array of types (tags) that the NFT contract has registered in the application manager.
+- **_nftTags** (bytes32[]): array of types (tags) that the NFT contract has registered in the application manager.
 - **_tradesAllowed** (uint8[]): the amount of trades allowed in a day.
-- **_startTs** (uint64): starting timestamp of the rule. This timestamp will determine the time that a day starts and ends for the rule processing. For example, *the amount of trades will reset to 0 very day at 2:30 pm.*
+- **_startTime** (uint64): starting timestamp of the rule. This timestamp will determine the time that a day starts and ends for the rule processing. For example, *the amount of trades will reset to 0 very day at 2:30 pm.*
 
 ### Parameter Optionality:
 
 The parameters where developers have the options are:
-- **_startTimestamps**: developers can pass Unix timestamps or simply 0s. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation.  
+- **_startTimes**: developers can pass Unix timestamps or simply 0s. If a `startTimestamp` is 0, then the protocol will interpret this as the timestamp of rule creation.  
 
 ### Parameter Validation:
 
@@ -134,23 +134,23 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
-        function getNFTTransferCounterRule(
+        function getTokenMaxDailyTrades(
                     uint32 _index, 
-                    bytes32 _nftType
+                    bytes32 _nftTags
                 ) 
                 external 
                 view 
                 returns 
-                (TaggedRules.NFTTradeCounterRule memory);
+                (TaggedRules.TokenMaxDailyTrades memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalNFTTransferCounterRules() public view returns (uint32);
+        function getTotalTokenMaxDailyTrades() public view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
-        function checkNFTTransferCounter(
+        function checkTokenMaxDailyTrades(
                     uint32 ruleId, 
                     uint256 transfersWithinPeriod, 
                     bytes32[] calldata nftTags
@@ -161,19 +161,19 @@ The following validation will be carried out by the create function in order to 
 - in Asset Handler:
     - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setTradeCounterRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setTokenMaxDailyTradesId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateTradeCounterRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateTokenMaxDailyTrades(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isTradeCounterRuleActive(ActionTypes _action) external view returns (bool);
+        function isTokenMaxDailyTradesActive(ActionTypes _action) external view returns (bool);
         ```
     - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getTradeCounterRuleId(ActionTypes _action) external view returns (uint32);
+        function getTokenMaxDailyTradesId(ActionTypes _action) external view returns (uint32);
         ```
 
 ### Return Data
@@ -196,21 +196,21 @@ mapping(uint256 => uint64) lastTxDate;
 - **ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** 
     - Emitted when: A Transfer counter rule has been added. For this rule:
     - Parameters:
-        - ruleType: NFT_TRANSFER.
+        - ruleType: TOKEN_MAX_DAILY_TRADES.
         - index: the rule index set by the Protocol.
         - extraTags: an empty array.
 
 - **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: A Transfer counter rule has been added. For this rule:
     - Parameters: 
-        - ruleType: NFT_TRANSFER.
+        - ruleType: TOKEN_MAX_DAILY_TRADES.
         - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
 - **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: A Transfer counter rule has been activated in an asset handler:
     Parameters:
-        - ruleType: NFT_TRANSFER.
+        - ruleType: TOKEN_MAX_DAILY_TRADES.
         - action: the protocol action for which the rule is being activated.
 
 ### Dependencies
