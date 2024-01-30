@@ -6,7 +6,6 @@ import "test/util/TestCommonFoundry.sol";
 /**
  * @dev This test suite is for testing the deployed application.
  */
-
 contract ApplicationDeploymentTest is Test, TestCommonFoundry {
 
     address appManagerAddress;
