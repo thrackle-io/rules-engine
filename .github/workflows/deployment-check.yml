@@ -52,7 +52,7 @@ jobs:
       - name: Build and push docker image
         run: |
           docker build -t ${{ env.ANVIL_IMAGE_TAG }} -f Dockerfile.anvil .
-          docker build -t ${{ env.TRON_TESTING_IMAGE_TAG }} -f Dockerfile.deploymentCheck . --build-arg AWS_ACCESS_KEY_ID=${{ secrets.K8S_AWS_ACCESS_KEY_ID }} --build-arg AWS_SECRET_ACCESS_KEY=${{ secrets.K8S_AWS_SECRET_ACCESS_KEY }} --build-arg AWS_REGION=${{ env.AWS_REGION }}
+          docker build -t ${{ env.TRON_TESTING_IMAGE_TAG }} -f Dockerfile.deploymentCheck . --build-arg AWS_ACCESS_KEY_ID=${{ secrets.K8S_AWS_ACCESS_KEY_ID }} --build-arg AWS_SECRET_ACCESS_KEY=${{ secrets.K8S_AWS_SECRET_ACCESS_KEY }} --build-arg AWS_REGION=${{ env.AWS_REGION }} --build-arg BRANCH_NAME=${{ github.ref_name }}
           docker push ${{ env.ANVIL_IMAGE_TAG }}
           docker push ${{ env.TRON_TESTING_IMAGE_TAG }}
 
