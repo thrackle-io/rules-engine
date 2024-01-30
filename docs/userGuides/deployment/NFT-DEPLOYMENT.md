@@ -28,7 +28,7 @@
 #### [Customizations][customizations-url]
 
 
-## Fungible Token (NFT) Deployment
+## Fungible Token (FT) Deployment
 ** UNDER CONSTRUCTION **
 
 

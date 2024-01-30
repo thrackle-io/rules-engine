@@ -39,7 +39,7 @@
         - [ProtocolERC721Handler](src/client/token/ERC721/ProtocolERC721Handler.sol/contract.ProtocolERC721Handler.md)
       - [❱ data](src/client/token/data/README.md)
         - [Fees](src/client/token/data/Fees.sol/contract.Fees.md)
-      - [IAdminWithdrawalRuleCapable](src/client/token/IAdminWithdrawalRuleCapable.sol/abstract.IAdminWithdrawalRuleCapable.md)
+      - [IAdminMinTokenBalanceCapable](src/client/token/IAdminMinTokenBalanceCapable.sol/abstract.IAdminMinTokenBalanceCapable.md)
       - [ProtocolHandlerCommon](src/client/token/ProtocolHandlerCommon.sol/abstract.ProtocolHandlerCommon.md)
       - [IToken](src/client/token/ProtocolHandlerCommon.sol/interface.IToken.md)
       - [ProtocolTokenCommon](src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md)

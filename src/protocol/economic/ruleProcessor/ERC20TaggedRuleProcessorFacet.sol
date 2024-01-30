@@ -20,7 +20,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     bytes32 constant BLANK_TAG = bytes32("");
 
     /**
-     * @dev Check the minimum/maximum rule. This rule ensures that both the to and from accounts do not
+     * @dev Check the min/max token balance rule. This rule ensures that both the to and from accounts do not
      * exceed the max balance or go below the min balance.
      * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
      * @param balanceFrom Token balance of the sender address
@@ -29,13 +29,13 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param toTags tags applied via App Manager to recipient address
      * @param fromTags tags applied via App Manager to sender address
      */
-    function checkMinMaxAccountBalancePasses(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, uint256 amount, bytes32[] memory toTags, bytes32[] memory fromTags) external view {
-        minAccountBalanceCheck(balanceFrom, fromTags, amount, ruleId);
-        maxAccountBalanceCheck(balanceTo, toTags, amount, ruleId);
+    function checkAccountMinMaxTokenBalance(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, uint256 amount, bytes32[] memory toTags, bytes32[] memory fromTags) external view {
+        checkAccountMinTokenBalance(balanceFrom, fromTags, amount, ruleId);
+        ceckAccountMaxTokenBalance(balanceTo, toTags, amount, ruleId);
     }
 
     /**
-     * @dev Check the minimum/maximum rule through the AMM Swap
+     * @dev Check the min/max token balance rule through the AMM Swap
      * @param ruleIdToken0 Uint value of the ruleId storage pointer for applicable rule.
      * @param ruleIdToken1 Uint value of the ruleId storage pointer for applicable rule.
      * @param tokenBalance0 Token balance of the token being swapped
@@ -44,7 +44,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param amountOut total number of tokens to be received
      * @param fromTags tags applied via App Manager to sender address
      */
-    function checkMinMaxAccountBalancePassesAMM(
+    function checkAccountMinMaxTokenBalanceAMM(
         uint32 ruleIdToken0,
         uint32 ruleIdToken1,
         uint256 tokenBalance0,
@@ -54,42 +54,38 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         bytes32[] calldata fromTags
     ) public view {       
         // no need to check for max tags here since it is checked in the min and max functions
-        minAccountBalanceCheck(tokenBalance0, fromTags, amountOut, ruleIdToken0);
-        maxAccountBalanceCheck(tokenBalance1, fromTags, amountIn, ruleIdToken1);
+        checkAccountMinTokenBalance(tokenBalance0, fromTags, amountOut, ruleIdToken0);
+        ceckAccountMaxTokenBalance(tokenBalance1, fromTags, amountIn, ruleIdToken1);
     }
 
     /**
-     * @dev Check if tagged account passes maxAccountBalance rule
+     * @dev Check if tagged account passes AccountMaxTokenBalance rule
      * @param balanceTo Number of tokens held by recipient address
      * @param toTags Account tags applied to recipient via App Manager
      * @param amount Number of tokens to be transferred
      * @param ruleId Rule identifier for rule arguments
+     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through   
+     * tags and check for specific application. This was done in a minimal way to allow for   
+     * modifications later while not duplicating rule check logic.
      */
-    function maxAccountBalanceCheck(uint256 balanceTo, bytes32[] memory toTags, uint256 amount, uint32 ruleId) public view {
-        /// This Function checks the max account balance for accounts depending on GeneralTags.
-        /// Function will revert if a transaction breaks a single tag-dependent rule
+    function ceckAccountMaxTokenBalance(uint256 balanceTo, bytes32[] memory toTags, uint256 amount, uint32 ruleId) public view {
         toTags.checkMaxTags();
-        /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
-        /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
-        if(getMinMaxBalanceRule(ruleId, BLANK_TAG).maximum > 0){
+        if(getAccountMinMaxTokenBalance(ruleId, BLANK_TAG).max > 0){
             toTags = new bytes32[](1);
             toTags[0] = BLANK_TAG;
         }
-        uint64 startTime = getMinMaxBalRuleStart(ruleId);
+        uint64 startTime = getAccountMinMaxTokenBalanceStart(ruleId);
         if (startTime <= block.timestamp){
             for (uint i; i < toTags.length; ) {
-                uint256 max = getMinMaxBalanceRule(ruleId, toTags[i]).maximum;
-                uint256 duration = getMinMaxBalanceRule(ruleId, toTags[i]).holdPeriod;
-                /// check if holdPeriod is 0, 0 means a holdPeriod hasn't been applied to this rule
-                if(duration != 0) {
-                    /// Check to see if still in the hold period
-                    if ((block.timestamp - (duration * 1 hours)) < startTime) {
-                        /// If the transaction will violate the rule, then revert
-                        if (max > 0 && balanceTo + amount > max) revert TxnInFreezeWindow();
+                TaggedRules.AccountMinMaxTokenBalance memory rule = getAccountMinMaxTokenBalance(ruleId, toTags[i]);
+                /// check if period is 0, 0 means a period hasn't been applied to this rule
+                if(rule.period != 0) {
+                    if ((block.timestamp - (uint256(rule.period) * 1 hours)) < startTime) {
+                        if (rule.max > 0 && balanceTo + amount > rule.max) revert TxnInFreezeWindow();
                     }
                 } else {
                     /// if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
-                    if (max > 0 && balanceTo + amount > max) revert MaxBalanceExceeded();
+                    if (rule.max > 0 && balanceTo + amount > rule.max) revert OverMaxBalance();
                 }
                 unchecked {
                     ++i;
@@ -100,37 +96,35 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
 
 
     /**
-     * @dev Check if tagged account passes minAccountBalance rule
+     * @dev Check if tagged account passes AccountMinTokenBalance rule
      * @param balanceFrom Number of tokens held by sender address
      * @param fromTags Account tags applied to sender via App Manager
      * @param amount Number of tokens to be transferred
      * @param ruleId Rule identifier for rule arguments
+     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through 
+     * tags and check for specific application. This was done in a minimal way to allow for  
+     * modifications later while not duplicating rule check logic.
      */
-    function minAccountBalanceCheck(uint256 balanceFrom, bytes32[] memory fromTags, uint256 amount, uint32 ruleId) public view {
-        /// This Function checks the min account balance for accounts depending on GeneralTags.
-        /// Function will revert if a transaction breaks a single tag-dependent rule
+    function checkAccountMinTokenBalance(uint256 balanceFrom, bytes32[] memory fromTags, uint256 amount, uint32 ruleId) public view {
         fromTags.checkMaxTags();
-        /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
-        /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
-        if(getMinMaxBalanceRule(ruleId, BLANK_TAG).minimum > 0){            
+        if(getAccountMinMaxTokenBalance(ruleId, BLANK_TAG).min > 0){            
             fromTags = new bytes32[](1);
             fromTags[0] = BLANK_TAG;
         }
-        uint64 startTime = getMinMaxBalRuleStart(ruleId);
+        uint64 startTime = getAccountMinMaxTokenBalanceStart(ruleId);
         if (startTime <= block.timestamp){
             for (uint i = 0; i < fromTags.length; ) {
-                uint256 min = getMinMaxBalanceRule(ruleId, fromTags[i]).minimum;
-                uint256 duration = getMinMaxBalanceRule(ruleId, fromTags[i]).holdPeriod;
-                /// check if holdPeriod is 0, 0 means a holdPeriod hasn't been applied to this rule
-                if(duration != 0) {
+                TaggedRules.AccountMinMaxTokenBalance memory rule = getAccountMinMaxTokenBalance(ruleId, fromTags[i]);
+                /// check if period is 0, 0 means a period hasn't been applied to this rule
+                if(rule.period != 0) {
                     /// Check to see if still in the hold period
-                    if ((block.timestamp - (duration * 1 hours)) < startTime) {
+                    if ((block.timestamp - (uint256(rule.period) * 1 hours)) < startTime) {
                         /// If the transaction will violate the rule, then revert
-                        if (min > 0 && balanceFrom - amount < min) revert TxnInFreezeWindow();
+                        if (rule.min > 0 && balanceFrom - amount < rule.min) revert TxnInFreezeWindow();
                     }
                 } else {
                     /// if a min is 0 it means it is an empty-rule/no-rule. a min should be greater than 0
-                    if (min > 0 && balanceFrom - amount < min) revert BalanceBelowMin();
+                    if (rule.min > 0 && balanceFrom - amount < rule.min) revert UnderMinBalance();
                 }
                 unchecked {
                     ++i;
@@ -140,39 +134,37 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     }
 
     /**
-     * @dev Function get the minimum/maximum rule start timestamp
+     * @dev Function get the min/max rule start timestamp
      * @param _index position of rule in array
      * @return startTime rule start time
      */
-    function getMinMaxBalRuleStart(uint32 _index) public view returns (uint64 startTime) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalMinMaxBalanceRules());
-        RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
-        if (_index >= data.minMaxBalanceRuleIndex) revert IndexOutOfRange();
+    function getAccountMinMaxTokenBalanceStart(uint32 _index) public view returns (uint64 startTime) {
+        _index.checkRuleExistence(getTotalAccountMinMaxTokenBalances());
+        RuleS.AccountMinMaxTokenBalanceS storage data = Storage.accountMinMaxTokenBalanceStorage();
+        if (_index >= data.accountMinMaxTokenBalanceIndex) revert IndexOutOfRange();
         return data.startTimes[_index];
     }
 
     /**
-     * @dev Function get the minMaxBalanceRule in the rule set that belongs to an account type
+     * @dev Function get the accountMinMaxTokenBalance Rule in the rule set that belongs to an account type
      * @param _index position of rule in array
      * @param _accountType Type of Accounts
-     * @return minMaxBalanceRule at index location in array
+     * @return accountMinMaxTokenBalanceRule at index location in array
      */
-    function getMinMaxBalanceRule(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.MinMaxBalanceRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalMinMaxBalanceRules());
-        RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
-        if (_index >= data.minMaxBalanceRuleIndex) revert IndexOutOfRange();
-        return data.minMaxBalanceRulesPerUser[_index][_accountType];
+    function getAccountMinMaxTokenBalance(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.AccountMinMaxTokenBalance memory) {
+        _index.checkRuleExistence(getTotalAccountMinMaxTokenBalances());
+        RuleS.AccountMinMaxTokenBalanceS storage data = Storage.accountMinMaxTokenBalanceStorage();
+        if (_index >= data.accountMinMaxTokenBalanceIndex) revert IndexOutOfRange();
+        return data.accountMinMaxTokenBalanceRules[_index][_accountType];
     }
 
     /**
-     * @dev Function gets total Balance Limit rules
+     * @dev Function gets total AccountMinMaxTokenBalances rules
      * @return Total length of array
      */
-    function getTotalMinMaxBalanceRules() public view returns (uint32) {
-        RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
-        return data.minMaxBalanceRuleIndex;
+    function getTotalAccountMinMaxTokenBalances() public view returns (uint32) {
+        RuleS.AccountMinMaxTokenBalanceS storage data = Storage.accountMinMaxTokenBalanceStorage();
+        return data.accountMinMaxTokenBalanceIndex;
     }
 
     /**
@@ -183,59 +175,59 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @notice that the function will revert if the check finds a violation of the rule, but won't give anything
      * back if everything checks out.
      */
-    function checkAdminWithdrawalRule(uint32 ruleId, uint256 currentBalance, uint256 amount) external view {
-        TaggedRules.AdminWithdrawalRule memory rule = getAdminWithdrawalRule(ruleId);
-        if ((block.timestamp < rule.releaseDate) && (currentBalance - amount < rule.amount)) revert BalanceBelowMin();
+    function checkAdminMinTokenBalance(uint32 ruleId, uint256 currentBalance, uint256 amount) external view {
+        TaggedRules.AdminMinTokenBalance memory rule = getAdminMinTokenBalance(ruleId);
+        if ((block.timestamp < rule.endTime) && (currentBalance - amount < rule.amount)) revert UnderMinBalance();
     }
 
     /**
-     * @dev Function gets Admin withdrawal rule at index
+     * @dev Function gets AdminMinTokenBalance rule at index
      * @param _index position of rule in array
-     * @return adminWithdrawalRulesPerToken rule at indexed postion
+     * @return adminMinTokenBalanceRules rule at indexed postion
      */
-    function getAdminWithdrawalRule(uint32 _index) public view returns (TaggedRules.AdminWithdrawalRule memory) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalAdminWithdrawalRules());
-        RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
-        if (_index >= data.adminWithdrawalRulesIndex) revert IndexOutOfRange();
-        return data.adminWithdrawalRulesPerToken[_index];
+    function getAdminMinTokenBalance(uint32 _index) public view returns (TaggedRules.AdminMinTokenBalance memory) {
+        _index.checkRuleExistence(getTotalAdminMinTokenBalance());
+        RuleS.AdminMinTokenBalanceS storage data = Storage.adminMinTokenBalanceStorage();
+        if (_index >= data.adminMinTokenBalanceIndex) revert IndexOutOfRange();
+        return data.adminMinTokenBalanceRules[_index];
     }
 
     /**
-     * @dev Function to get total Admin withdrawal rules
-     * @return adminWithdrawalRulesPerToken total length of array
+     * @dev Function to get total AdminMinTokenBalance rules
+     * @return adminMinTokenBalanceRules total length of array
      */
-    function getTotalAdminWithdrawalRules() public view returns (uint32) {
-        RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
-        return data.adminWithdrawalRulesIndex;
+    function getTotalAdminMinTokenBalance() public view returns (uint32) {
+        RuleS.AdminMinTokenBalanceS storage data = Storage.adminMinTokenBalanceStorage();
+        return data.adminMinTokenBalanceIndex;
     }
 
     /**
      * @dev Rule checks if recipient balance + amount exceeded purchaseAmount during purchase period, prevent purchases for freeze period
      * @param ruleId Rule identifier for rule arguments
-     * @param purchasedWithinPeriod Number of tokens purchased within purchase Period
+     * @param boughtInPeriod Number of tokens bought during Period
      * @param amount Number of tokens to be transferred
      * @param toTags Account tags applied to sender via App Manager
      * @param lastUpdateTime block.timestamp of most recent transaction from sender.
-     * @return cumulativePurchaseTotal Total tokens sold within sell period.
+     * @return cumulativeBought Total tokens bought within sell period.
+     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through 
+     * tags and check for specific application. This was done in a minimal way to allow for  
+     * modifications later while not duplicating rule check logic.
      */
-    function checkPurchaseLimit(uint32 ruleId, uint256 purchasedWithinPeriod, uint256 amount, bytes32[] memory toTags, uint64 lastUpdateTime) external view returns (uint256) {
+    function checkAccountMaxBuySize(uint32 ruleId, uint256 boughtInPeriod, uint256 amount, bytes32[] memory toTags, uint64 lastUpdateTime) external view returns (uint256) {
         toTags.checkMaxTags();
-        uint64 startTime = getPurchaseRuleStart(ruleId);
+        uint64 startTime = getAccountMaxBuySizeStart(ruleId);
         uint256 cumulativeTotal;
         if (startTime <= block.timestamp){
-            /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
-            /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
-            if(getPurchaseRule(ruleId, BLANK_TAG).purchasePeriod > 0){
+            if(getAccountMaxBuySize(ruleId, BLANK_TAG).period > 0){
                 toTags = new bytes32[](1);
                 toTags[0] = BLANK_TAG;
             }
             for (uint i = 0; i < toTags.length; ) {
-                TaggedRules.PurchaseRule memory purchaseRule = getPurchaseRule(ruleId, toTags[i]);
-                if (purchaseRule.purchasePeriod > 0) {
-                    if (startTime.isWithinPeriod(purchaseRule.purchasePeriod, lastUpdateTime)) cumulativeTotal = purchasedWithinPeriod + amount;
+                TaggedRules.AccountMaxBuySize memory rule = getAccountMaxBuySize(ruleId, toTags[i]);
+                if (rule.period > 0) {
+                    if (startTime.isWithinPeriod(rule.period, lastUpdateTime)) cumulativeTotal = boughtInPeriod + amount;
                     else cumulativeTotal = amount;
-                    if (cumulativeTotal > purchaseRule.purchaseAmount) revert TxnInFreezeWindow();
+                    if (cumulativeTotal > rule.maxSize) revert TxnInFreezeWindow();
                 }
                 unchecked {
                     ++i;
@@ -246,95 +238,93 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     }
 
     /**
-     * @dev Function get the purchase rule in the rule set that belongs to an account type
+     * @dev Function get the account max buy size rule in the rule set that belongs to an account type
      * @param _index position of rule in array
      * @param _accountType Type of account
-     * @return PurchaseRule rule at index position
+     * @return AccountMaxBuySize rule at index position
      */
-    function getPurchaseRule(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.PurchaseRule memory) {
-        // No need to check the rule existence or index since it was already checked in getPurchaseRuleStart
-        RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
-        return (data.purchaseRulesPerUser[_index][_accountType]);
+    function getAccountMaxBuySize(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.AccountMaxBuySize memory) {
+        RuleS.AccountMaxBuySizeS storage data = Storage.accountMaxBuySizeStorage();
+        return (data.accountMaxBuySizeRules[_index][_accountType]);
     }
 
     /**
-     * @dev Function get the purchase rule start timestamp
+     * @dev Function get the account max buy size rule start timestamp
      * @param _index position of rule in array
      * @return startTime startTimestamp of rule at index position
      */
-    function getPurchaseRuleStart(uint32 _index) public view returns (uint64 startTime) {
+    function getAccountMaxBuySizeStart(uint32 _index) public view returns (uint64 startTime) {
         // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalPurchaseRule());
-        RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
-        if (_index >= data.purchaseRulesIndex) revert IndexOutOfRange();
+        _index.checkRuleExistence(getTotalAccountMaxBuySize());
+        RuleS.AccountMaxBuySizeS storage data = Storage.accountMaxBuySizeStorage();
+        if (_index >= data.accountMaxBuySizeIndex) revert IndexOutOfRange();
         return data.startTimes[_index];
     }
 
     /**
-     * @dev Function to get total purchase rules
+     * @dev Function to get total account max buy size rules
      * @return Total length of array
      */
-    function getTotalPurchaseRule() public view returns (uint32) {
-        RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
-        return data.purchaseRulesIndex;
+    function getTotalAccountMaxBuySize() public view returns (uint32) {
+        RuleS.AccountMaxBuySizeS storage data = Storage.accountMaxBuySizeStorage();
+        return data.accountMaxBuySizeIndex;
     }
 
     /**
-     * @dev Sell rule functions similar to purchase rule but "resets" at 12 utc after sellAmount is exceeded
+     * @dev Sell rule functions similar to account max buy size rule but "resets" at 12 utc after maxSize is exceeded
      * @param ruleId Rule identifier for rule arguments
      * @param amount Number of tokens to be transferred
      * @param fromTags Account tags applied to sender via App Manager
      * @param lastUpdateTime block.timestamp of most recent transaction from sender.
-     * @return cumulativeSalesTotal Total tokens sold within sell period.
+     * @return cumulativeSales Total tokens sold within sell period.
      */
-    function checkSellLimit(uint32 ruleId, uint256 salesWithinPeriod, uint256 amount, bytes32[] memory fromTags, uint64 lastUpdateTime) external view returns (uint256) {
+    function checkAccountMaxSellSize(uint32 ruleId, uint256 salesInPeriod, uint256 amount, bytes32[] memory fromTags, uint64 lastUpdateTime) external view returns (uint256) {
         fromTags.checkMaxTags();
-        uint64 startTime = getSellRuleStartByIndex(ruleId);
-        uint256 cumulativeSalesTotal;
+        uint64 startTime = getAccountMaxSellSizeStartByIndex(ruleId);
+        uint256 cumulativeSales;
         if (startTime <= block.timestamp){
             /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
             /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
-            if(getSellRuleByIndex(ruleId, BLANK_TAG).sellPeriod > 0){
+            if(getAccountMaxSellSizeByIndex(ruleId, BLANK_TAG).period > 0){
                 fromTags = new bytes32[](1);
                 fromTags[0] = BLANK_TAG;
             }
             for (uint i = 0; i < fromTags.length; ) {
-                TaggedRules.SellRule memory sellRule = getSellRuleByIndex(ruleId, fromTags[i]);
-                if (sellRule.sellPeriod > 0) {
-                    if (startTime.isWithinPeriod(sellRule.sellPeriod, lastUpdateTime)) cumulativeSalesTotal = salesWithinPeriod + amount;
-                    else cumulativeSalesTotal = amount;
-                    if (cumulativeSalesTotal > sellRule.sellAmount) revert TemporarySellRestriction();
+                TaggedRules.AccountMaxSellSize memory rule = getAccountMaxSellSizeByIndex(ruleId, fromTags[i]);
+                if (rule.period > 0) {
+                    if (startTime.isWithinPeriod(rule.period, lastUpdateTime)) cumulativeSales = salesInPeriod + amount;
+                    else cumulativeSales = amount;
+                    if (cumulativeSales > rule.maxSize) revert OverMaxSellSize();
                 }
                 unchecked {
                     ++i;
                 }
             }
         }
-        return cumulativeSalesTotal;
+        return cumulativeSales;
     }
 
     /**
      * @dev Function to get Sell rule at index
      * @param _index Position of rule in array
      * @param _accountType Types of Accounts
-     * @return SellRule at position in array
+     * @return AccountMaxSellSize at position in array
      */
-    function getSellRuleByIndex(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.SellRule memory) {
-        // No need to check the rule existence or index since it was already checked in getSellRuleStartByIndex
-        RuleS.SellRuleS storage data = Storage.sellStorage();
-        return data.sellRulesPerUser[_index][_accountType];
+    function getAccountMaxSellSizeByIndex(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.AccountMaxSellSize memory) {
+        // No need to check the rule existence or index since it was already checked in getAccountMaxSellSizeStartByIndex
+        RuleS.AccountMaxSellSizeS storage data = Storage.accountMaxSellSizeStorage();
+        return data.AccountMaxSellSizesRules[_index][_accountType];
     }
 
     /**
-    * @dev Function get the purchase rule start timestamp
+    * @dev Function get the account max buy size rule start timestamp
      * @param _index Position of rule in array
      * @return startTime rule start timestamp.
      */
-    function getSellRuleStartByIndex(uint32 _index) public view returns (uint64 startTime) {
-        // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalSellRule());
-        RuleS.SellRuleS storage data = Storage.sellStorage();
-        if (_index >= data.sellRulesIndex) revert IndexOutOfRange();
+    function getAccountMaxSellSizeStartByIndex(uint32 _index) public view returns (uint64 startTime) {
+        _index.checkRuleExistence(getTotalAccountMaxSellSize());
+        RuleS.AccountMaxSellSizeS storage data = Storage.accountMaxSellSizeStorage();
+        if (_index >= data.AccountMaxSellSizesIndex) revert IndexOutOfRange();
         return data.startTimes[_index];
     }
 
@@ -342,8 +332,8 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @dev Function to get total Sell rules
      * @return Total length of array
      */
-    function getTotalSellRule() public view returns (uint32) {
-        RuleS.SellRuleS storage data = Storage.sellStorage();
-        return data.sellRulesIndex;
+    function getTotalAccountMaxSellSize() public view returns (uint32) {
+        RuleS.AccountMaxSellSizeS storage data = Storage.accountMaxSellSizeStorage();
+        return data.AccountMaxSellSizesIndex;
     }
 }

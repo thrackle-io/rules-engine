@@ -15,25 +15,25 @@
 
 ```solidity
 struct TokenMinimumTransferRule {
-    uint256 minTransferAmount;
+    uint256 minSize;
 }
 ```
 
-### TokenPercentagePurchaseRule
-******** Token Purchase Percentage Rules ********
+### TokenMaxBuyVolume
+******** Token Max Buy Volume ********
 
 
 ```solidity
-struct TokenPercentagePurchaseRule {
+struct TokenMaxBuyVolume {
     uint16 tokenPercentage;
-    uint16 purchasePeriod;
+    uint16 period;
     uint256 totalSupply;
     uint64 startTime;
 }
 ```
 
 ### TokenPercentageSellRule
-******** Token Percentage Sell Rules ********
+******** Token Max Sell Volume Rules ********
 
 
 ```solidity
@@ -56,26 +56,26 @@ struct TokenPurchaseFeeByVolume {
 }
 ```
 
-### TokenVolatilityRule
+### TokenMaxPriceVolatility
 ******** Token Volatility ********
 
 
 ```solidity
-struct TokenVolatilityRule {
-    uint16 maxVolatility;
+struct TokenMaxPriceVolatility {
+    uint16 max;
     uint16 period;
     uint16 hoursFrozen;
     uint256 totalSupply;
 }
 ```
 
-### TokenTransferVolumeRule
+### TokenMaxTradingVolume
 ******** Token Transfer Volume ********
 
 
 ```solidity
-struct TokenTransferVolumeRule {
-    uint24 maxVolume;
+struct TokenMaxTradingVolume {
+    uint24 max;
     uint16 period;
     uint64 startTime;
     uint256 totalSupply;
@@ -88,19 +88,19 @@ struct TokenTransferVolumeRule {
 
 ```solidity
 struct SupplyVolatilityRule {
-    uint16 maxChange;
+    uint16 max;
     uint16 period;
     uint64 startingTime;
     uint256 totalSupply;
 }
 ```
 
-### OracleRule
+### AccountApproveDenyOracle
 ******** Oracle ********
 
 
 ```solidity
-struct OracleRule {
+struct AccountApproveDenyOracle {
     uint8 oracleType;
     address oracleAddress;
 }

@@ -7,9 +7,9 @@ pragma solidity ^0.8.17;
  * @dev stores the possible actions for the protocol
  */
 enum ActionTypes {
-    PURCHASE,
+    P2P_TRANSFER,
+    BUY,
     SELL,   
     MINT,
-    BURN,
-    P2P_TRANSFER
+    BURN
 }

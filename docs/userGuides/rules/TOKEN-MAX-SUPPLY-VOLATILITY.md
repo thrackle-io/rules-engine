@@ -1,4 +1,4 @@
-# Total Supply Volatility Rule
+# Token Max Supply Volatility
 
 ## Purpose
 
@@ -16,7 +16,7 @@ This rule works at a token level. It must be activated and configured for each d
 
 ## Data Structure
 
-A total-supply-volatility rule is composed of 4 variables:
+A token-max-supply-volatility rule is composed of 4 variables:
 
 - **Max Change** (uint16): the maximum percentage change allowed in the supply during a *period* of time (expressed in basis points).
 - **Period** (uint16): the amount of hours that defines a period.
@@ -24,11 +24,11 @@ A total-supply-volatility rule is composed of 4 variables:
 - **Total Supply** (uint256): if not zero, this value will always be used as the token's total supply for rule evaluation. This can be used when the amount of circulating supply is much smaller than the amount of the token totalSupply due to some tokens being locked in a dev account or a vesting contract, etc. Only use this value in such cases.
 
 ```c
-/// ******** Supply Volatility ********
-    struct SupplyVolatilityRule {
-        uint16 maxChange; /// from 0000 to 10000 => 0.00% to 100.00%.
+/// ******** Token Max Supply Volatility ********
+    struct TokenMaxSupplyVolatility {
+        uint16 max; /// from 0000 to 10000 => 0.00% to 100.00%.
         uint16 period; // hours
-        uint64 startingTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
+        uint64 startTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
         uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to token's totalSupply.
     }
 ```
@@ -37,10 +37,10 @@ A total-supply-volatility rule is composed of 4 variables:
 These rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
 ```c
-/// ******** Supply Volatility ********
-    struct SupplyVolatilityRuleS {
-        mapping(uint32 => INonTaggedRules.SupplyVolatilityRule) supplyVolatilityRules;
-        uint32 supplyVolatilityRuleIndex;
+/// ******** Token Max Supply Volatility ********
+    struct TokenMaxSupplyVolatilityS {
+        mapping(uint32 => INonTaggedRules.TokenMaxSupplyVolatility) tokenMaxSupplyVolatilityRules;
+        uint32 tokenMaxSupplyVolatilityIndex;
     }
 ```
 ###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
@@ -64,9 +64,9 @@ The rule will be evaluated with the following logic:
     - **If it is not a new period**, then the absolute net supply change for the period accumulates the amount of tokens minted/burned in current transaction. The totalSupply for the current period remains fixed to the value set in the first transaction of the period. 
 5. After current period's net supply change and totalSupply have been defined, the rule processor calculates the change in supply. If the change is greater than the rule's maximum, it reverts.
 
-**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
+**The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)**
 
-###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkTotalSupplyVolatilityPasses*
+###### *see [ERC20TaggedRuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) -> checkTokenMaxSupplyVolatility*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -77,21 +77,21 @@ The rule will be evaluated with the following logic:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error TotalSupplyVolatilityLimitReached();
+error OverMaxSupplyVolatility();
 ```
 
-The selector for this error is `0x81af27fa`.
+The selector for this error is `0xc406d470`.
 
 ## Create Function
 
-Adding a supply-volatility rule is done through the function:
+Adding a token-max-supply-volatility rule is done through the function: 
 
 ```c
-function addSupplyVolatilityRule(
+function addTokenMaxSupplyVolatility(
         address _appManagerAddr,
-        uint16 _maxVolumePercentage,
+        uint16 _maxPercentage,
         uint16 _period,
-        uint64 _startTimestamp,
+        uint64 _startTime,
         uint256 _totalSupply
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
@@ -102,9 +102,9 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): the address of the application manager to verify that the caller has rule administrator privileges.
-- **_maxVolumePercentage** (uint16): Maximum percentage change of supply allowed expressed in basis points (1 -> 0.01%; 100 -> 1.0%). 
+- **_maxPercentage** (uint16): Maximum percentage change of supply allowed expressed in basis points (1 -> 0.01%; 100 -> 1.0%). 
 - **_period** (uint16): amount of hours that defines a period.
-- **_startTimestamp** (uint64): Unix timestamp for the *_period*s to start counting.
+- **_startTime** (uint64): Unix timestamp for the *_period*s to start counting.
 - **_totalSupply** (uint256): (optional) if not 0, then this is the value used for totalSupply instead of the live token's totalSupply value at rule processing time.
 
 
@@ -119,9 +119,9 @@ The parameters where developers have options are:
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
 - `_appManagerAddr` is not the zero address.
-- `_maxVolumePercentage` is not zero.
+- `_maxPercentage` is not zero.
 - `_period` is not zero.
-- `_startTimestamp` is not zero and is not more than 52 weeks in the future.
+- `_startTime` is not zero and is not more than 52 weeks in the future.
 
 
 ###### *see [TaggedRuleDataFacet](../../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)*
@@ -131,16 +131,16 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
-        function getSupplyVolatilityRule(uint32 _index) external view returns (NonTaggedRules.SupplyVolatilityRule memory);
+        function getTokenMaxSupplyVolatility(uint32 _index) external view returns (NonTaggedRules.TokenMaxSupplyVolatility memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalSupplyVolatilityRules() public view returns (uint32);
+        function getTotalTokenMaxSupplyVolatility() public view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
-        function checkTotalSupplyVolatilityPasses(
+        function checkTokenMaxSupplyVolatility(
                 uint32 _ruleId,
                 int256 _volumeTotalForPeriod,
                 uint256 _tokenTotalSupply,
@@ -152,19 +152,19 @@ The following validation will be carried out by the create function in order to 
 - in Asset Handler:
     - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setTotalSupplyVolatilityRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setTokenMaxSupplyVolatilityId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateTotalSupplyVolatilityRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateTokenMaxSupplyVolatility(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isTotalSupplyVolatilityActive(ActionTypes _action) external view returns (bool);
+        function isTokenMaxSupplyVolatilityActive(ActionTypes _action) external view returns (bool);
         ```
     - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getTotalSupplyVolatilityRule(ActionTypes _action) external view returns (uint32);
+        function getTokenMaxSupplyVolatilityId(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
@@ -200,21 +200,21 @@ uint256 private totalSupplyForPeriod;
 - **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "SUPPLY_VOLATILITY".
+        - ruleType: "TOKEN_MAX_SUPPLY_VOLATILITY".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
 - **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - Parameters: 
-        - ruleType: "SUPPLY_VOLATILITY".
+        - ruleType: "TOKEN_MAX_SUPPLY_VOLATILITY".
         - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
 - **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
     - Emitted when: A Transfer counter rule has been activated in an asset handler:
     - Parameters:
-        - ruleType: "SUPPLY_VOLATILITY".
+        - ruleType: "TOKEN_MAX_SUPPLY_VOLATILITY".
         - action: the protocol action for which the rule is being activated.
 
 ## Dependencies

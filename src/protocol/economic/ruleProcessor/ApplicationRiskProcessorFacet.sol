@@ -15,15 +15,15 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for uint8; 
     /**
-     * @dev Account balance by Risk Score
+     * @dev Account Max Value By Risk Score
      * @param _ruleId Rule Identifier for rule arguments
      * @param _toAddress Address of the recipient
      * @param _riskScore the Risk Score of the recepient account
-     * @param _totalValuationTo recipient account's beginning balance in USD with 18 decimals of precision
+     * @param _totalValueTo recipient account's beginning balance in USD with 18 decimals of precision
      * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
-     * @notice _balanceLimits size must be equal to _riskScore.
-     * The positioning of the arrays is ascendant in terms of risk levels,
-     * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+     * @notice _maxValue array size must be equal to _riskScore array size.
+     * The positioning of the arrays is ascendant in terms of risk scores,
+     * and descendant in the value array. (i.e. if highest risk score is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      * eg.
      * risk scores      balances         resultant logic
@@ -33,42 +33,38 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
      *    50              250            50-74 =   250
      *    75              100            75-99 =   100
      */
-    function checkAccBalanceByRisk(uint32 _ruleId, address _toAddress, uint8 _riskScore, uint128 _totalValuationTo, uint128 _amountToTransfer) external view {
-        /// retrieve the rule
-        ApplicationRuleStorage.AccountBalanceToRiskRule memory rule = getAccountBalanceByRiskScore(_ruleId);
+    function checkAccountMaxValueByRiskScore(uint32 _ruleId, address _toAddress, uint8 _riskScore, uint128 _totalValueTo, uint128 _amountToTransfer) external view {
+        ApplicationRuleStorage.AccountMaxValueByRiskScore memory rule = getAccountMaxValueByRiskScore(_ruleId);
         uint256 ruleMaxSize;
-        uint256 total = _totalValuationTo + _amountToTransfer;
-        /// perform the rule check
+        uint256 total = _totalValueTo + _amountToTransfer;
         /// If recipient address being checked is zero address the rule passes (This allows for burning)
         if (_toAddress != address(0)) {
-            /// If risk score is less than the first risk score of the rule, there is no limit.
-            /// Skips the loop for gas efficiency on low risk scored users 
             if (_riskScore >= rule.riskScore[0]) {
-                ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskScore, rule.maxBalance);
-                if (total > ruleMaxSize) revert BalanceExceedsRiskScoreLimit();
+                ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskScore, rule.maxValue);
+                if (total > ruleMaxSize) revert OverMaxAccValueByRiskScore();
             }
         }
     }
 
     /**
-     * @dev Function to get the TransactionLimit in the rule set that belongs to an risk score
+     * @dev Function to get the Account Max Value By Risk Score rule by index
      * @param _index position of rule in array
-     * @return balanceAmount balance allowed for Risk Score
+     * @return AccountMaxValueByRiskScore rule
      */
-    function getAccountBalanceByRiskScore(uint32 _index) public view returns (ApplicationRuleStorage.AccountBalanceToRiskRule memory) {
-        RuleS.AccountBalanceToRiskRuleS storage data = Storage.accountBalanceToRiskStorage();
-        _index.checkRuleExistence(getTotalAccountBalanceByRiskScoreRules());
-        if (_index >= data.balanceToRiskRuleIndex) revert IndexOutOfRange();
-        return data.balanceToRiskRule[_index];
+    function getAccountMaxValueByRiskScore(uint32 _index) public view returns (ApplicationRuleStorage.AccountMaxValueByRiskScore memory) {
+        RuleS.AccountMaxValueByRiskScoreS storage data = Storage.accountMaxValueByRiskScoreStorage();
+        _index.checkRuleExistence(getTotalAccountMaxValueByRiskScore());
+        if (_index >= data.accountMaxValueByRiskScoreIndex) revert IndexOutOfRange();
+        return data.accountMaxValueByRiskScoreRules[_index];
     }
 
     /**
-     * @dev Function to get total Transaction Limit by Risk Score rules
+     * @dev Function to get total Account Max Value By Risk Score rules registered
      * @return Total length of array
      */
-    function getTotalAccountBalanceByRiskScoreRules() public view returns (uint32) {
-        RuleS.AccountBalanceToRiskRuleS storage data = Storage.accountBalanceToRiskStorage();
-        return data.balanceToRiskRuleIndex;
+    function getTotalAccountMaxValueByRiskScore() public view returns (uint32) {
+        RuleS.AccountMaxValueByRiskScoreS storage data = Storage.accountMaxValueByRiskScoreStorage();
+        return data.accountMaxValueByRiskScoreIndex;
     }    
 
     /**
@@ -76,17 +72,17 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
      * within a specified period of time.
      * @notice that these ranges are set by ranges.
      * @param ruleId to check against.
-     * @param _usdValueTransactedInPeriod the cumulative amount of tokens recorded in the last period.
-     * @param amount in USD of the current transaction with 18 decimals of precision.
+     * @param _valueTransactedInPeriod the cumulative amount of tokens recorded in the last period.
+     * @param txValue in USD of the current transaction with 18 decimals of precision.
      * @param lastTxDate timestamp of the last transfer of this token by this address.
      * @param _riskScore of the address (0 -> 100)
-     * @return updated value for the _usdValueTransactedInPeriod. If _usdValueTransactedInPeriod are
+     * @return updated value for the _valueTransactedInPeriod. If _valueTransactedInPeriod are
      * inside the current period, then this value is accumulated. If not, it is reset to current amount.
-     * @dev this check will cause a revert if the new value of _usdValueTransactedInPeriod in USD exceeds
+     * @dev this check will cause a revert if the new value of _valueTransactedInPeriod in USD exceeds
      * the limit for the address risk profile.
-     * @notice _balanceLimits size must be equal to _riskScore
-     * The positioning of the arrays is ascendant in terms of risk levels, 
-     * and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
+     * @notice _maxValue size must be equal to _riskScore 
+     * The positioning of the arrays is ascendant in terms of risk scores, 
+     * and descendant in the size of transactions. (i.e. if highest risk score is 99, the last balanceLimit
      * will apply to all risk scores of 100.)
      * eg.
      * risk scores      balances         resultant logic
@@ -96,20 +92,16 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
      *    50              250            50-74 =   250
      *    75              100            75-99 =   100
      */
-    function checkMaxTxSizePerPeriodByRisk(uint32 ruleId, uint128 _usdValueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 _riskScore) external view returns (uint128) {
+    function checkAccountMaxTxValueByRiskScore(uint32 ruleId, uint128 _valueTransactedInPeriod, uint128 txValue, uint64 lastTxDate, uint8 _riskScore) external view returns (uint128) {
         uint256 ruleMaxSize;
-        /// we retrieve the rule
-        ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory rule = getMaxTxSizePerPeriodRule(ruleId);
-        /// resetting the "tradesWithinPeriod", unless we have been in current period for longer than the last update
+        ApplicationRuleStorage.AccountMaxTxValueByRiskScore memory rule = getAccountMaxTxValueByRiskScore(ruleId);
         uint128 amountTransactedInPeriod = 
-            rule.period != 0 && rule.startingTime.isWithinPeriod(rule.period, lastTxDate) ? 
-            amount + _usdValueTransactedInPeriod : amount;
+            rule.period != 0 && rule.startTime.isWithinPeriod(rule.period, lastTxDate) ? 
+            txValue + _valueTransactedInPeriod : txValue;
         
-        /// If risk score is less than the first risk score of the rule, there is no limit.
-        /// Skips the loop for gas efficiency on low risk scored users 
         if (_riskScore >= rule.riskScore[0]) {
-            ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskScore, rule.maxSize);
-            if (amountTransactedInPeriod > ruleMaxSize) revert MaxTxSizePerPeriodReached(_riskScore, ruleMaxSize, rule.period);
+            ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskScore, rule.maxValue);
+            if (amountTransactedInPeriod > ruleMaxSize) revert OverMaxTxValueByRiskScore(_riskScore, ruleMaxSize);
             return amountTransactedInPeriod;
         } else {
             return amountTransactedInPeriod;
@@ -117,24 +109,24 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
     }
 
     /**
-     * @dev Function to get the Max Tx Size Per Period By Risk rule.
+     * @dev Function to get the Account Max Transaction Value By Risk Score rule.
      * @param _index position of rule in array
-     * @return a touple of arrays, a uint8 and a uint64. The first array will be the _maxSize, the second
+     * @return a touple of arrays, a uint8 and a uint64. The first array will be the _maxValue, the second
      * will be the _riskScore, the uint8 will be the period, and the last value will be the starting date.
      */
-    function getMaxTxSizePerPeriodRule(uint32 _index) public view returns (ApplicationRuleStorage.TxSizePerPeriodToRiskRule memory) {
-        RuleS.TxSizePerPeriodToRiskRuleS storage data = Storage.txSizePerPeriodToRiskStorage();
-        _index.checkRuleExistence(getTotalMaxTxSizePerPeriodRules());
-        if (_index >= data.txSizePerPeriodToRiskRuleIndex) revert IndexOutOfRange();
-        return data.txSizePerPeriodToRiskRule[_index];
+    function getAccountMaxTxValueByRiskScore(uint32 _index) public view returns (ApplicationRuleStorage.AccountMaxTxValueByRiskScore memory) {
+        RuleS.AccountMaxTxValueByRiskScoreS storage data = Storage.accountMaxTxValueByRiskScoreStorage();
+        _index.checkRuleExistence(getTotalAccountMaxTxValueByRiskScore());
+        if (_index >= data.accountMaxTxValueByRiskScoreIndex) revert IndexOutOfRange();
+        return data.accountMaxTxValueByRiskScoreRules[_index];
     }
 
     /**
-     * @dev Function to get total Max Tx Size Per Period By Risk rules
+     * @dev Function to get total Account Max Transaction Value By Risk Score rules
      * @return Total length of array
      */
-    function getTotalMaxTxSizePerPeriodRules() public view returns (uint32) {
-        RuleS.TxSizePerPeriodToRiskRuleS storage data = Storage.txSizePerPeriodToRiskStorage();
-        return data.txSizePerPeriodToRiskRuleIndex;
+    function getTotalAccountMaxTxValueByRiskScore() public view returns (uint32) {
+        RuleS.AccountMaxTxValueByRiskScoreS storage data = Storage.accountMaxTxValueByRiskScoreStorage();
+        return data.accountMaxTxValueByRiskScoreIndex;
     }
 }

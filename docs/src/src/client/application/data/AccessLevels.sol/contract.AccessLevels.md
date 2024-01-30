@@ -49,7 +49,7 @@ function addLevel(address _address, uint8 _level) public virtual onlyOwner;
 |Name|Type|Description|
 |----|----|-----------|
 |`_address`|`address`|address of the account|
-|`_level`|`uint8`|access levellevel(0-4)|
+|`_level`|`uint8`|access level(0-4)|
 
 
 ### addAccessLevelToMultipleAccounts
