@@ -1766,18 +1766,18 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
     function testERC20_TradeRuleByPasserRule() public {
         DummyAMM amm = _tradeRuleSetup();
-        applicationAppManager.approveAddressToTradingRuleWhitelist(user1, true);
+        applicationAppManager.approveAddressToTradingRuleAllowlist(user1, true);
 
         /// SELL PERCENTAGE RULE
         _setupSellPercentageRule();
         vm.warp(Blocktime + 36 hours);
-        /// WHITELISTED USER
+        /// ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user1);
         applicationCoin.approve(address(amm), 10000 * ATTO);
         applicationCoin2.approve(address(amm), 10000 * ATTO);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, true);
-        /// NOT WHITELISTED USER
+        /// NOT ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user2);
         applicationCoin.approve(address(amm), 10000 * ATTO);
@@ -1788,11 +1788,11 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         //PURCHASE PERCENTAGE RULE
         _setupPurchasePercentageRule();
-        /// WHITELISTED USER
+        /// ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user1);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, false);
-        /// NOT WHITELISTED USER
+        /// NOT ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user2);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 30_000_000, 30_000_000, false);

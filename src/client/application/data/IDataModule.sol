@@ -22,13 +22,13 @@ interface IDataModule is IAppLevelEvents {
     }
 
     /**
-     * @dev this function proposes a new owner that is put in storage to be confirmed in a separate process
+     * @dev This function proposes a new owner that is put in storage to be confirmed in a separate process
      * @param _newOwner the new address being proposed
      */
     function proposeOwner(address _newOwner) external;
 
     /**
-     * @dev this function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address
+     * @dev This function confirms a new appManagerAddress that was put in storage. It can only be confirmed by the proposed address
      */
     function confirmOwner() external;
 

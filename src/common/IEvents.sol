@@ -30,7 +30,7 @@ interface IAppLevelEvents {
     event TokenNameUpdated(string indexed _token, address indexed _address);
     event AMMRegistered(address indexed _address);
     event TreasuryRegistered(address indexed _address);
-    event TradingRuleAddressWhitelist(address indexed _address, bool indexed isApproved);
+    event TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
     ///Accounts
     event AccountProviderSet(address indexed _address);
     event AccountAdded(address indexed account);

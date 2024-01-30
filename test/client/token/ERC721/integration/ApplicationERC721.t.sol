@@ -1343,20 +1343,20 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
     function testERC721_TradeRuleByPasserRule() public {
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
-        applicationAppManager.approveAddressToTradingRuleWhitelist(user, true);
+        applicationAppManager.approveAddressToTradingRuleAllowlist(user, true);
 
         /// SELL PERCENTAGE RULE
         uint16 tokenPercentageSell = 30; /// 0.30%
         _setSellPercentageRule(tokenPercentageSell, 24); ///  24 hour periods
         vm.warp(Blocktime + 36 hours);
-        /// WHITELISTED USER
+        /// ALLOWLISTED USER
         switchToUser();
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
         /// we test going above rule percentage in the period is ok for user (... + 1)
         for(uint i = erc721Liq / 2; i < erc721Liq / 2 + (erc721Liq * tokenPercentageSell) / 10000 + 1; i++){
             _testSellNFT(i,  amm);
         }
-        /// NOT WHITELISTED USER
+        /// NOT ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user1);
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
@@ -1364,7 +1364,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         for(uint i = erc721Liq / 2 + 100; i < erc721Liq / 2 + 100 + (erc721Liq * tokenPercentageSell) / 10000 - 1; i++){
             _testSellNFT(i,  amm);
         }
-        /// and now we test the actual rule with a non-whitelisted address to check it will fail
+        /// and now we test the actual rule with a non-allowlisted address to check it will fail
         vm.expectRevert(0xb17ff693);
         _testSellNFT(erc721Liq / 2 + 100 + (erc721Liq * tokenPercentageSell) / 10000,  amm);
 
@@ -1373,13 +1373,13 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         _setPurchasePercentageRule(tokenPercentage, 24); /// 24 hour periods
         /// we make sure we are in a new period
         vm.warp(Blocktime + 72 hours);
-        /// WHITELISTED USER
+        /// ALLOWLISTED USER
         switchToUser();
         /// we test buying the *tokenPercentage* of the NFTs total supply + 1 to prove that *user* can break the rules with no consequences
         for(uint i = erc721Liq / 2 ; i < erc721Liq / 2 + (erc721Liq * tokenPercentage) / 10000 + 1; i++){
             _testBuyNFT(i, amm);
         }
-        /// NOT WHITELISTED USER
+        /// NOT ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user1);
         /// we test buying the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
@@ -1396,12 +1396,12 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         switchToAppAdministrator();
         applicationAppManager.addTag(user, "SellRule");
         applicationAppManager.addTag(user1, "SellRule");
-        /// WHITELISTED USER
+        /// ALLOWLISTED USER
         switchToUser();
         /// user can break the rules
         _testSellNFT(erc721Liq / 2, amm);
         _testSellNFT(erc721Liq / 2 + 1, amm);
-        /// NOT WHITELISTED USER
+        /// NOT ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user1);
         /// user1 cannot break the rules

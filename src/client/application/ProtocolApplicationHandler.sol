@@ -18,7 +18,7 @@ import {IApplicationHandlerEvents, ICommonApplicationHandlerEvents} from "src/co
 import {IZeroAddressError, IInputErrors, IAppHandlerErrors} from "src/common/IErrors.sol";
 
 /**
- * @title Protocol ApplicationHandler Contract
+ * @title Protocol Application Handler Contract
  * @notice This contract is the rules handler for all application level rules. It is implemented via the AppManager
  * @dev This contract is injected into the appManagers.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -45,7 +45,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     /// Pause Rule on-off switch
     bool private pauseRuleActive; 
 
-    // Pricing Module interfaces
+    /// Pricing Module interfaces
     IProtocolERC20Pricing erc20Pricer;
     IProtocolERC721Pricing nftPricer;
     address public erc20PricingAddress;
@@ -131,8 +131,6 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
             ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
         }
         if (maxTxSizePerPeriodByRiskActive) {
-            /// if rule is active check if the recipient is address(0) for burning tokens
-            /// check if sender violates the rule
             usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
                 maxTxSizePerPeriodByRiskRuleId,
                 usdValueTransactedInRiskPeriod[_from],
@@ -142,7 +140,6 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
             );
             if (_to != address(0)) {
                 lastTxDateRiskRule[_from] = uint64(block.timestamp);
-                /// check if recipient violates the rule
                 usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
                     maxTxSizePerPeriodByRiskRuleId,
                     usdValueTransactedInRiskPeriod[_to],
@@ -150,7 +147,6 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
                     lastTxDateRiskRule[_to],
                     riskScoreTo
                 );
-                // set the last timestamp of check
                 lastTxDateRiskRule[_to] = uint64(block.timestamp);
             }
         }
