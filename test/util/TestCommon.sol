@@ -59,12 +59,12 @@ import "src/client/application/data/AccessLevels.sol";
 import "src/client/application/data/RiskScores.sol";
 import "src/client/application/data/Accounts.sol";
 import "src/client/application/data/IDataModule.sol";
-import "src/client/token/IAdminWithdrawalRuleCapable.sol";
+import "src/client/token/IAdminMinTokenBalanceCapable.sol";
 /// common imports 
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import "src/example/OracleDenied.sol";
-import "src/example/OracleAllowed.sol";
+import "src/example/OracleApproved.sol";
 import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
 
 
@@ -101,7 +101,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     address user9 = address(99);
     address user10 = address(100);
     address transferFromUser = address(110);
-    address accessTier = address(3);
+    address accessLevel = address(3);
     address rich_user = address(45);
     address proxyOwner = address(787);
     address priorAddress;
@@ -136,7 +136,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationERC721UExtra2 public applicationNFTExtra2;
     ApplicationERC721UProxy public applicationNFTProxy;
 
-    OracleAllowed public oracleAllowed;
+    OracleApproved public oracleAllowed;
     OracleDenied public oracleDenied; 
 
     ApplicationERC721 public boredWhaleNFT;
@@ -176,7 +176,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     bytes32 public constant RULE_BYPASS_ACCOUNT = keccak256("RULE_BYPASS_ACCOUNT");
     bytes32 public constant USER_ROLE = keccak256("USER");
     bytes32 public constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-    bytes32 public constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
+    bytes32 public constant ACCESS_LEVEL_ADMIN_ROLE = keccak256("ACCESS_LEVEL_ADMIN_ROLE");
     bytes32 public constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
     bytes32 public constant PROPOSED_SUPER_ADMIN_ROLE = keccak256("PROPOSED_SUPER_ADMIN_ROLE");
 
@@ -409,8 +409,8 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
      * @dev Deploy Allowed Oracle 
      * @return _oracleAllowed address 
      */
-    function _createOracleAllowed() public returns (OracleAllowed _oracleAllowed){
-        return new OracleAllowed(); 
+    function _createOracleApproved() public returns (OracleApproved _oracleAllowed){
+        return new OracleApproved(); 
     }
 
     /** 

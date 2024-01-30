@@ -3,10 +3,10 @@
 
 
 ## Errors
-### BelowMinTransfer
+### UnderMinTxSize
 
 ```solidity
-error BelowMinTransfer();
+error UnderMinTxSize();
 ```
 
 ### AddressIsRestricted
@@ -15,10 +15,10 @@ error BelowMinTransfer();
 error AddressIsRestricted();
 ```
 
-### AddressNotOnAllowedList
+### AddressNotApproved
 
 ```solidity
-error AddressNotOnAllowedList();
+error AddressNotApproved();
 ```
 
 ### OracleTypeInvalid
@@ -27,27 +27,27 @@ error AddressNotOnAllowedList();
 error OracleTypeInvalid();
 ```
 
-### PurchasePercentageReached
+### OverMaxBuyVolume
 
 ```solidity
-error PurchasePercentageReached();
+error OverMaxBuyVolume();
 ```
 
-### SellPercentageReached
+### OverMaxSellVolume
 
 ```solidity
-error SellPercentageReached();
+error OverMaxSellVolume();
 ```
 
-### TransferExceedsMaxVolumeAllowed
+### OverMaxTradingVolume
 
 ```solidity
-error TransferExceedsMaxVolumeAllowed();
+error OverMaxTradingVolume();
 ```
 
-### TotalSupplyVolatilityLimitReached
+### OverMaxSupplyVolatility
 
 ```solidity
-error TotalSupplyVolatilityLimitReached();
+error OverMaxSupplyVolatility();
 ```
 

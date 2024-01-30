@@ -11,26 +11,26 @@ import "./ProtocolHandlerCommon.sol";
 contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdministratorOnly{
 
     /// RuleIds
-    uint32 internal purchaseLimitRuleId;
-    uint32 internal sellLimitRuleId;
-    uint32 internal purchasePercentageRuleId;
-    uint32 internal sellPercentageRuleId;
+    uint32 internal accountMaxBuySizeId;
+    uint32 internal accountMaxSellSizeId;
+    uint32 internal tokenMaxBuyVolumeId;
+    uint32 internal tokenMaxSellVolumeId;
 
     /// on-off switches for rules
-    bool internal purchaseLimitRuleActive;
-    bool internal sellLimitRuleActive;
-    bool internal purchasePercentageRuleActive;
-    bool internal sellPercentageRuleActive;
+    bool internal accountMaxBuySizeActive;
+    bool internal accountMaxSellSizeActive;
+    bool internal tokenMaxBuyVolumeActive;
+    bool internal tokenMaxSellVolumeActive;
 
     /// purchase/sell data
     uint64 public previousPurchaseTime;
     uint64 public previousSellTime;
-    uint256 internal totalPurchasedWithinPeriod; /// total number of tokens purchased in period
-    uint256 internal totalSoldWithinPeriod; /// total number of tokens purchased in period
+    uint256 internal totalBoughtInPeriod; /// total number of tokens purchased in period
+    uint256 internal totalSoldInPeriod; /// total number of tokens purchased in period
     /// Mapping lastUpdateTime for most recent previous tranaction through Protocol
     mapping(address => uint64) lastPurchaseTime;
-    mapping(address => uint256) purchasedWithinPeriod;
-    mapping(address => uint256) salesWithinPeriod;
+    mapping(address => uint256) boughtInPeriod;
+    mapping(address => uint256) salesInPeriod;
     mapping(address => uint64) lastSellTime;
 
      /// token level accumulators
@@ -51,22 +51,22 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
      * @param action if selling or buying (of ActionTypes type)
      */
     function _checkTradingRules(address _from, address _to, bytes32[] memory fromTags, bytes32[] memory toTags, uint256 _amount, ActionTypes action)internal{
-        if(action == ActionTypes.PURCHASE){
-            if (purchaseLimitRuleActive) {
-                purchasedWithinPeriod[_to] = ruleProcessor.checkPurchaseLimit(purchaseLimitRuleId, purchasedWithinPeriod[_to], _amount, toTags, lastPurchaseTime[_to]);
+        if(action == ActionTypes.BUY){
+            if (accountMaxBuySizeActive) {
+                boughtInPeriod[_to] = ruleProcessor.checkAccountMaxBuySize(accountMaxBuySizeId, boughtInPeriod[_to], _amount, toTags, lastPurchaseTime[_to]);
                 lastPurchaseTime[_to] = uint64(block.timestamp);
             }
-            if(purchasePercentageRuleActive){
-                totalPurchasedWithinPeriod = ruleProcessor.checkPurchasePercentagePasses(purchasePercentageRuleId,  IERC20Decimals(msg.sender).totalSupply(),  _amount,  previousPurchaseTime,  totalPurchasedWithinPeriod);
+            if(tokenMaxBuyVolumeActive){
+                totalBoughtInPeriod = ruleProcessor.checkTokenMaxBuyVolume(tokenMaxBuyVolumeId,  IERC20Decimals(msg.sender).totalSupply(),  _amount,  previousPurchaseTime,  totalBoughtInPeriod);
                 previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
             }
         }else{
-            if ( sellLimitRuleActive) {
-                salesWithinPeriod[_from] = ruleProcessor.checkSellLimit(sellLimitRuleId,  salesWithinPeriod[_from],  _amount,  fromTags,  lastSellTime[_from]);
+            if ( accountMaxSellSizeActive) {
+                salesInPeriod[_from] = ruleProcessor.checkAccountMaxSellSize(accountMaxSellSizeId,  salesInPeriod[_from],  _amount,  fromTags,  lastSellTime[_from]);
                 lastSellTime[_from] = uint64(block.timestamp);
             }
-            if(sellPercentageRuleActive){
-                totalSoldWithinPeriod = ruleProcessor.checkSellPercentagePasses(sellPercentageRuleId,   IERC20Decimals(msg.sender).totalSupply(),  _amount,  previousSellTime,  totalSoldWithinPeriod);
+            if(tokenMaxSellVolumeActive){
+                totalSoldInPeriod = ruleProcessor.checkTokenMaxSellVolume(tokenMaxSellVolumeId,   IERC20Decimals(msg.sender).totalSupply(),  _amount,  previousSellTime,  totalSoldInPeriod);
                 previousSellTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
             }
         }
@@ -74,83 +74,83 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
 
 
     /**
-     * @dev Set the PurchaseLimitRuleId. Restricted to app administrators only.
+     * @dev Set the AccountMaxBuySizeRuleId. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setPurchaseLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        purchaseLimitRuleId = _ruleId;
-        purchaseLimitRuleActive = true;
-        emit ApplicationHandlerActionApplied(PURCHASE_LIMIT, ActionTypes.PURCHASE, _ruleId);
+    function setAccountMaxBuySizeId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        accountMaxBuySizeId = _ruleId;
+        accountMaxBuySizeActive = true;
+        emit ApplicationHandlerActionApplied(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY, _ruleId);
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activatePurchaseLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        purchaseLimitRuleActive = _on;
+    function activateAccountMaxBuySize(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        accountMaxBuySizeActive = _on;
         if (_on) {
-            emit ApplicationHandlerActionActivated(PURCHASE_LIMIT, ActionTypes.PURCHASE);
+            emit ApplicationHandlerActionActivated(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY);
         } else {
-            emit ApplicationHandlerActionDeactivated(PURCHASE_LIMIT, ActionTypes.PURCHASE);
+            emit ApplicationHandlerActionDeactivated(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY);
         }
     }
 
     /**
-     * @dev Retrieve the Purchase Limit rule id
-     * @return purchaseLimitRuleId
+     * @dev Retrieve the Account Max Buy Size Rule Id
+     * @return accountMaxBuySizeId
      */
-    function getPurchaseLimitRuleId() external view returns (uint32) {
-        return purchaseLimitRuleId;
+    function getAccountMaxBuySizeId() external view returns (uint32) {
+        return accountMaxBuySizeId;
     }
 
     /**
-     * @dev Tells you if the Purchase Limit Rule is active or not.
+     * @dev Tells you if the Account Max Buy Size Rule is active or not.
      * @return boolean representing if the rule is active
      */
-    function isPurchaseLimitActive() external view returns (bool) {
-        return purchaseLimitRuleActive;
+    function isAccountMaxBuySizeActive() external view returns (bool) {
+        return accountMaxBuySizeActive;
     }
 
     /**
-     * @dev Set the SellLimitRuleId. Restricted to app administrators only.
+     * @dev Set the accountMaxSellSizeId. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setSellLimitRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        sellLimitRuleId = _ruleId;
-        sellLimitRuleActive = true;
-        emit ApplicationHandlerActionApplied(SELL_LIMIT, ActionTypes.SELL, _ruleId);
+    function setAccountMaxSellSizeId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        accountMaxSellSizeId = _ruleId;
+        accountMaxSellSizeActive = true;
+        emit ApplicationHandlerActionApplied(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL, _ruleId);
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateSellLimitRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        sellLimitRuleActive = _on;
+    function activateAccountMaxSellSize(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        accountMaxSellSizeActive = _on;
         if (_on) {
-            emit ApplicationHandlerActionActivated(SELL_LIMIT, ActionTypes.SELL);
+            emit ApplicationHandlerActionActivated(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL);
         } else {
-            emit ApplicationHandlerActionDeactivated(SELL_LIMIT, ActionTypes.SELL);
+            emit ApplicationHandlerActionDeactivated(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL);
         }
     }
 
     /**
-     * @dev Retrieve the Purchase Limit rule id
+     * @dev Retrieve the Account Max Sell Rule Id
      * @return oracleRuleId
      */
-    function getSellLimitRuleId() external view returns (uint32) {
-        return sellLimitRuleId;
+    function getAccountMaxSellSizeId() external view returns (uint32) {
+        return accountMaxSellSizeId;
     }
 
     /**
-     * @dev Tells you if the Purchase Limit Rule is active or not.
+     * @dev Tells you if the Account Max Sell Size Rule is active or not.
      * @return boolean representing if the rule is active
      */
-    function isSellLimitActive() external view returns (bool) {
-        return sellLimitRuleActive;
+    function isAccountMaxSellSizeActive() external view returns (bool) {
+        return accountMaxSellSizeActive;
     }
 
     /**
@@ -171,98 +171,98 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
 
     /**
      * @dev Get the cumulative total of the purchases for account in purchase period.
-     * @return purchasedWithinPeriod for account
+     * @return boughtInPeriod for account
      */
     function getPurchasedWithinPeriod(address account) external view returns (uint256) {
-        return purchasedWithinPeriod[account];
+        return boughtInPeriod[account];
     }
 
     /**
      * @dev Get the cumulative total of the Sales for account during sell period.
-     * @return salesWithinPeriod for account
+     * @return salesInPeriod for account
      */
     function getSalesWithinPeriod(address account) external view  returns (uint256) {
-        return salesWithinPeriod[account];
+        return salesInPeriod[account];
     }
 
     /**
-     * @dev Set the purchasePercentageRuleId. Restricted to app administrators only.
+     * @dev Set the tokenMaxBuyVolumeId. Restricted to Rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setPurchasePercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        purchasePercentageRuleId = _ruleId;
-        purchasePercentageRuleActive = true;
-        emit ApplicationHandlerActionApplied(PURCHASE_PERCENTAGE, ActionTypes.PURCHASE, _ruleId);
+    function setTokenMaxBuyVolumeId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        tokenMaxBuyVolumeId = _ruleId;
+        tokenMaxBuyVolumeActive = true;
+        emit ApplicationHandlerActionApplied(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY, _ruleId);
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activatePurchasePercentageRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        purchasePercentageRuleActive = _on;
+    function activateTokenMaxBuyVolume(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        tokenMaxBuyVolumeActive = _on;
         if (_on) {
-            emit ApplicationHandlerActionActivated(PURCHASE_PERCENTAGE, ActionTypes.PURCHASE);
+            emit ApplicationHandlerActionActivated(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY);
         } else {
-            emit ApplicationHandlerActionDeactivated(PURCHASE_PERCENTAGE, ActionTypes.PURCHASE);
+            emit ApplicationHandlerActionDeactivated(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY);
         }
     }
 
     /**
-     * @dev Retrieve the Purchase Percentage Rule Id
-     * @return purchasePercentageRuleId
+     * @dev Retrieve the Token Max Buy Volume Rule Id
+     * @return tokenMaxBuyVolumeId
      */
-    function getPurchasePercentageRuleId() external view returns (uint32) {
-        return purchasePercentageRuleId;
+    function getTokenMaxBuyVolumeId() external view returns (uint32) {
+        return tokenMaxBuyVolumeId;
     }
 
     /**
-     * @dev Tells you if the Purchase Percentage Rule is active or not.
+     * @dev Tells you if the Token Max Buy Volume Rule is active or not.
      * @return boolean representing if the rule is active
      */
-    function isPurchasePercentageRuleActive() external view returns (bool) {
-        return purchasePercentageRuleActive;
+    function isTokenMaxBuyVolumeActive() external view returns (bool) {
+        return tokenMaxBuyVolumeActive;
     }
 
     /**
-     * @dev Set the sellPercentageRuleId. Restricted to app administrators only.
+     * @dev Set the tokenMaxSellVolumeId. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setSellPercentageRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        sellPercentageRuleId = _ruleId;
-        sellPercentageRuleActive = true;
-        emit ApplicationHandlerActionApplied(SELL_PERCENTAGE, ActionTypes.SELL, _ruleId);
+    function setTokenMaxSellVolumeId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        tokenMaxSellVolumeId = _ruleId;
+        tokenMaxSellVolumeActive = true;
+        emit ApplicationHandlerActionApplied(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL, _ruleId);
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateSellPercentageRuleIdRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        sellPercentageRuleActive = _on;
+    function activateTokenMaxSellVolume(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        tokenMaxSellVolumeActive = _on;
         if (_on) {
-            emit ApplicationHandlerActionActivated(SELL_PERCENTAGE, ActionTypes.SELL);
+            emit ApplicationHandlerActionActivated(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL);
         } else {
-            emit ApplicationHandlerActionDeactivated(SELL_PERCENTAGE, ActionTypes.SELL);
+            emit ApplicationHandlerActionDeactivated(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL);
         }
     }
 
     /**
-     * @dev Retrieve the Purchase Percentage Rule Id
-     * @return purchasePercentageRuleId
+     * @dev Retrieve the Token Max Sell Volume Rule Id
+     * @return tokenMaxBuyVolumeId
      */
-    function getSellPercentageRuleId() external view returns (uint32) {
-        return sellPercentageRuleId;
+    function getTokenMaxSellVolumeId() external view returns (uint32) {
+        return tokenMaxSellVolumeId;
     }
 
     /**
-     * @dev Tells you if the Purchase Percentage Rule is active or not.
+     * @dev Tells you if the Token Max Sell Volume Rule is active or not.
      * @return boolean representing if the rule is active
      */
-    function isSellPercentageRuleActive() external view returns (bool) {
-        return sellPercentageRuleActive;
+    function isTokenMaxSellVolumeActive() external view returns (bool) {
+        return tokenMaxSellVolumeActive;
     }    
 
     /**

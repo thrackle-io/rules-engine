@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/OracleAllowed.sol";
+import "src/example/OracleApproved.sol";
 
 /**
  * @title Create the Allow Oracle
@@ -10,12 +10,12 @@ import "src/example/OracleAllowed.sol";
  * @dev As basic as create scripts get with the exception of needing all the setup addresses.
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  */
-contract OracleAllowedScript is Script {
+contract OracleApprovedScript is Script {
     function setUp() public {}
 
     function run() public {
         vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER"));
-        new OracleAllowed();
+        new OracleApproved();
         vm.stopBroadcast();
     }
 }

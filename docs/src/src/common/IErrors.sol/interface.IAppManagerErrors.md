@@ -36,10 +36,10 @@ error NotAUser(address _address);
 error AddressAlreadyRegistered();
 ```
 
-### AdminWithdrawalRuleisActive
+### AdminMinTokenBalanceisActive
 
 ```solidity
-error AdminWithdrawalRuleisActive();
+error AdminMinTokenBalanceisActive();
 ```
 
 ### NotRegisteredHandler

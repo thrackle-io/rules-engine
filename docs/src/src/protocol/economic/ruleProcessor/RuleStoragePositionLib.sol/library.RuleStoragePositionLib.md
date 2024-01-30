@@ -17,54 +17,54 @@ bytes32 constant DIAMOND_CUT_STORAGE_POSITION = bytes32(uint256(keccak256("diamo
 ```
 
 
-### PURCHASE_RULE_POSITION
+### ACCOUNT_MAX_BUY_SIZE_POSITION
 every rule has its own storage
 
 
 ```solidity
-bytes32 constant PURCHASE_RULE_POSITION = bytes32(uint256(keccak256("amm.purchase")) - 1);
+bytes32 constant ACCOUNT_MAX_BUY_SIZE_POSITION = bytes32(uint256(keccak256("amm.purchase")) - 1);
 ```
 
 
-### SELL_RULE_POSITION
+### ACCOUNT_MAX_SELL_SIZE_POSITION
 
 ```solidity
-bytes32 constant SELL_RULE_POSITION = bytes32(uint256(keccak256("amm.sell")) - 1);
+bytes32 constant ACCOUNT_MAX_SELL_SIZE_POSITION = bytes32(uint256(keccak256("amm.sell")) - 1);
 ```
 
 
-### PCT_PURCHASE_RULE_POSITION
+### ACCOUNT_MAX_BUY_VOLUME_POSITION
 
 ```solidity
-bytes32 constant PCT_PURCHASE_RULE_POSITION = bytes32(uint256(keccak256("amm.pct-purchase")) - 1);
+bytes32 constant ACCOUNT_MAX_BUY_VOLUME_POSITION = bytes32(uint256(keccak256("amm.pct-purchase")) - 1);
 ```
 
 
-### PCT_SELL_RULE_POSITION
+### ACCOUNT_MAX_SELL_VOLUME_POSITION
 
 ```solidity
-bytes32 constant PCT_SELL_RULE_POSITION = bytes32(uint256(keccak256("amm.pct.sell")) - 1);
+bytes32 constant ACCOUNT_MAX_SELL_VOLUME_POSITION = bytes32(uint256(keccak256("amm.pct.sell")) - 1);
 ```
 
 
-### PURCHASE_FEE_BY_VOLUME_RULE_POSITION
+### BUY_FEE_BY_TOKEN_MAX_TRADING_VOLUME_POSITION
 
 ```solidity
-bytes32 constant PURCHASE_FEE_BY_VOLUME_RULE_POSITION = bytes32(uint256(keccak256("amm.fee-by-volume")) - 1);
+bytes32 constant BUY_FEE_BY_TOKEN_MAX_TRADING_VOLUME_POSITION = bytes32(uint256(keccak256("amm.fee-by-volume")) - 1);
 ```
 
 
-### PRICE_VOLATILITY_RULE_POSITION
+### TOKEN_MAX_PRICE_VOLATILITY_POSITION
 
 ```solidity
-bytes32 constant PRICE_VOLATILITY_RULE_POSITION = bytes32(uint256(keccak256("amm.price.volatility")) - 1);
+bytes32 constant TOKEN_MAX_PRICE_VOLATILITY_POSITION = bytes32(uint256(keccak256("amm.price.volatility")) - 1);
 ```
 
 
-### VOLUME_RULE_POSITION
+### TOKEN_MAX_TRADING_VOLUME_POSITION
 
 ```solidity
-bytes32 constant VOLUME_RULE_POSITION = bytes32(uint256(keccak256("amm.volume")) - 1);
+bytes32 constant TOKEN_MAX_TRADING_VOLUME_POSITION = bytes32(uint256(keccak256("amm.volume")) - 1);
 ```
 
 
@@ -75,45 +75,45 @@ bytes32 constant WITHDRAWAL_RULE_POSITION = bytes32(uint256(keccak256("vault.wit
 ```
 
 
-### ADMIN_WITHDRAWAL_RULE_POSITION
+### ADMIN_MIN_TOKEN_BALANCE_POSITION
 
 ```solidity
-bytes32 constant ADMIN_WITHDRAWAL_RULE_POSITION = bytes32(uint256(keccak256("vault.admin-withdrawal")) - 1);
+bytes32 constant ADMIN_MIN_TOKEN_BALANCE_POSITION = bytes32(uint256(keccak256("vault.admin-withdrawal")) - 1);
 ```
 
 
-### MIN_TRANSFER_RULE_POSITION
+### TOKEN_MIN_TX_SIZE_POSITION
 
 ```solidity
-bytes32 constant MIN_TRANSFER_RULE_POSITION = bytes32(uint256(keccak256("token.min-transfer")) - 1);
+bytes32 constant TOKEN_MIN_TX_SIZE_POSITION = bytes32(uint256(keccak256("token.min-transfer")) - 1);
 ```
 
 
-### MIN_MAX_BALANCE_RULE_POSITION
+### ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION
 
 ```solidity
-bytes32 constant MIN_MAX_BALANCE_RULE_POSITION = bytes32(uint256(keccak256("token.min-max-balance-limit")) - 1);
+bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION = bytes32(uint256(keccak256("token.min-max-balance-limit")) - 1);
 ```
 
 
-### SUPPLY_VOLATILITY_RULE_POSITION
+### TOKEN_MAX_SUPPLY_VOLATILITY_POSITION
 
 ```solidity
-bytes32 constant SUPPLY_VOLATILITY_RULE_POSITION = bytes32(uint256(keccak256("token.supply-volatility")) - 1);
+bytes32 constant TOKEN_MAX_SUPPLY_VOLATILITY_POSITION = bytes32(uint256(keccak256("token.supply-volatility")) - 1);
 ```
 
 
-### ORACLE_RULE_POSITION
+### ACC_APPROVE_DENY_ORACLE_POSITION
 
 ```solidity
-bytes32 constant ORACLE_RULE_POSITION = bytes32(uint256(keccak256("all.oracle")) - 1);
+bytes32 constant ACC_APPROVE_DENY_ORACLE_POSITION = bytes32(uint256(keccak256("all.oracle")) - 1);
 ```
 
 
-### ACCESS_LEVEL_RULE_POSITION
+### ACC_MAX_VALUE_BY_ACCESS_LEVEL_POSITION
 
 ```solidity
-bytes32 constant ACCESS_LEVEL_RULE_POSITION = bytes32(uint256(keccak256("token.access")) - 1);
+bytes32 constant ACC_MAX_VALUE_BY_ACCESS_LEVEL_POSITION = bytes32(uint256(keccak256("token.access")) - 1);
 ```
 
 
@@ -124,25 +124,25 @@ bytes32 constant TX_SIZE_TO_RISK_RULE_POSITION = bytes32(uint256(keccak256("toke
 ```
 
 
-### TX_SIZE_PER_PERIOD_TO_RISK_RULE_POSITION
+### ACC_MAX_TX_VALUE_BY_RISK_SCORE
 
 ```solidity
-bytes32 constant TX_SIZE_PER_PERIOD_TO_RISK_RULE_POSITION =
+bytes32 constant ACC_MAX_TX_VALUE_BY_RISK_SCORE =
     bytes32(uint256(keccak256("token.tx-size-per-period-to-risk")) - 1);
 ```
 
 
-### BALANCE_LIMIT_TO_RISK_RULE_POSITION
+### ACCOUNT_MAX_VALUE_BY_RISK_SCORE_POSITION
 
 ```solidity
-bytes32 constant BALANCE_LIMIT_TO_RISK_RULE_POSITION = bytes32(uint256(keccak256("token.balance-limit-to-risk")) - 1);
+bytes32 constant ACCOUNT_MAX_VALUE_BY_RISK_SCORE_POSITION = bytes32(uint256(keccak256("token.balance-limit-to-risk")) - 1);
 ```
 
 
-### NFT_TRANSFER_RULE_POSITION
+### TOKEN_MAX_DAILY_TRADES_POSITION
 
 ```solidity
-bytes32 constant NFT_TRANSFER_RULE_POSITION = bytes32(uint256(keccak256("NFT.transfer-rule")) - 1);
+bytes32 constant TOKEN_MAX_DAILY_TRADES_POSITION = bytes32(uint256(keccak256("NFT.transfer-rule")) - 1);
 ```
 
 
@@ -160,10 +160,10 @@ bytes32 constant AMM_FEE_RULE_POSITION = bytes32(uint256(keccak256("AMM.fee-rule
 ```
 
 
-### ACCESS_LEVEL_WITHDRAWAL_RULE_POSITION
+### ACC_MAX_VALUE_OUT_ACCESS_LEVEL_POSITION
 
 ```solidity
-bytes32 constant ACCESS_LEVEL_WITHDRAWAL_RULE_POSITION =
+bytes32 constant ACC_MAX_VALUE_OUT_ACCESS_LEVEL_POSITION =
     bytes32(uint256(keccak256("token.access-level-withdrawal-rule")) - 1);
 ```
 
@@ -184,13 +184,13 @@ function purchaseStorage() internal pure returns (IRuleStorage.PurchaseRuleS sto
 |`ds`|`IRuleStorage.PurchaseRuleS`|Data Storage of Purchase Rule|
 
 
-### sellStorage
+### accountMaxSellSizeStorage
 
 *Function to store Sell rules*
 
 
 ```solidity
-function sellStorage() internal pure returns (IRuleStorage.SellRuleS storage ds);
+function accountMaxSellSizeStorage() internal pure returns (IRuleStorage.SellRuleS storage ds);
 ```
 **Returns**
 
@@ -199,34 +199,34 @@ function sellStorage() internal pure returns (IRuleStorage.SellRuleS storage ds)
 |`ds`|`IRuleStorage.SellRuleS`|Data Storage of Sell Rule|
 
 
-### pctPurchaseStorage
+### accountMaxBuyVolumeStorage
 
 *Function to store Percent Purchase rules*
 
 
 ```solidity
-function pctPurchaseStorage() internal pure returns (IRuleStorage.PctPurchaseRuleS storage ds);
+function accountMaxBuyVolumeStorage() internal pure returns (IRuleStorage.TokenMaxBuyVolumeS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.PctPurchaseRuleS`|Data Storage of Percent Purchase Rule|
+|`ds`|`IRuleStorage.TokenMaxBuyVolumeS`|Data Storage of Percent Purchase Rule|
 
 
-### pctSellStorage
+### accountMaxSellVolumeStorage
 
 *Function to store Percent Sell rules*
 
 
 ```solidity
-function pctSellStorage() internal pure returns (IRuleStorage.PctSellRuleS storage ds);
+function accountMaxSellVolumeStorage() internal pure returns (IRuleStorage.TokenMaxSellVolumeS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.PctSellRuleS`|Data Storage of Percent Sell Rule|
+|`ds`|`IRuleStorage.TokenMaxSellVolumeS`|Data Storage of Percent Sell Rule|
 
 
 ### purchaseFeeByVolumeStorage
@@ -244,28 +244,28 @@ function purchaseFeeByVolumeStorage() internal pure returns (IRuleStorage.Purcha
 |`ds`|`IRuleStorage.PurchaseFeeByVolRuleS`|Data Storage of Purchase Fee by Volume Rule|
 
 
-### priceVolatilityStorage
+### tokenMaxPriceVolatilityStrorage
 
 *Function to store Price Volitility rules*
 
 
 ```solidity
-function priceVolatilityStorage() internal pure returns (IRuleStorage.VolatilityRuleS storage ds);
+function tokenMaxPriceVolatilityStrorage() internal pure returns (IRuleStorage.TokenMaxPriceVolatilityS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.VolatilityRuleS`|Data Storage of Price Volitility Rule|
+|`ds`|`IRuleStorage.TokenMaxPriceVolatilityS`|Data Storage of Price Volitility Rule|
 
 
-### volumeStorage
+### tokenMaxTradingVolumeStorage
 
 *Function to store Volume rules*
 
 
 ```solidity
-function volumeStorage() internal pure returns (IRuleStorage.TransferVolRuleS storage ds);
+function tokenMaxTradingVolumeStorage() internal pure returns (IRuleStorage.TransferVolRuleS storage ds);
 ```
 **Returns**
 
@@ -289,34 +289,34 @@ function withdrawalStorage() internal pure returns (IRuleStorage.WithdrawalRuleS
 |`ds`|`IRuleStorage.WithdrawalRuleS`|Data Storage of Withdrawal Rule|
 
 
-### adminWithdrawalStorage
+### adminMinTokenBalanceStorage
 
 *Function to store AppAdministrator Withdrawal rules*
 
 
 ```solidity
-function adminWithdrawalStorage() internal pure returns (IRuleStorage.AdminWithdrawalRuleS storage ds);
+function adminMinTokenBalanceStorage() internal pure returns (IRuleStorage.AdminMinTokenBalanceS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.AdminWithdrawalRuleS`|Data Storage of AppAdministrator Withdrawal Rule|
+|`ds`|`IRuleStorage.AdminMinTokenBalanceS`|Data Storage of AppAdministrator Withdrawal Rule|
 
 
-### minTransferStorage
+### tokenMinTxSizePosition
 
 *Function to store Minimum Transfer rules*
 
 
 ```solidity
-function minTransferStorage() internal pure returns (IRuleStorage.MinTransferRuleS storage ds);
+function tokenMinTxSizePosition() internal pure returns (IRuleStorage.TokenMinTransactionSizeS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.MinTransferRuleS`|Data Storage of Minimum Transfer Rule|
+|`ds`|`IRuleStorage.TokenMinTransactionSizeS`|Data Storage of Minimum Transfer Rule|
 
 
 ### minMaxBalanceStorage
@@ -334,49 +334,49 @@ function minMaxBalanceStorage() internal pure returns (IRuleStorage.MinMaxBalanc
 |`ds`|`IRuleStorage.MinMaxBalanceRuleS`|Data Storage of Balance Limit Rule|
 
 
-### supplyVolatilityStorage
+### tokenMaxSupplyVolatilityStorage
 
 *Function to store Supply Volitility rules*
 
 
 ```solidity
-function supplyVolatilityStorage() internal pure returns (IRuleStorage.SupplyVolatilityRuleS storage ds);
+function tokenMaxSupplyVolatilityStorage() internal pure returns (IRuleStorage.TokenMaxSupplyVolatilityS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.SupplyVolatilityRuleS`|Data Storage of Supply Volitility Rule|
+|`ds`|`IRuleStorage.TokenMaxSupplyVolatilityS`|Data Storage of Supply Volitility Rule|
 
 
-### oracleStorage
+### accountApproveDenyOracleStorage
 
 *Function to store Oracle rules*
 
 
 ```solidity
-function oracleStorage() internal pure returns (IRuleStorage.OracleRuleS storage ds);
+function accountApproveDenyOracleStorage() internal pure returns (IRuleStorage.AccountApproveDenyOracleS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.OracleRuleS`|Data Storage of Oracle Rule|
+|`ds`|`IRuleStorage.AccountApproveDenyOracleS`|Data Storage of Oracle Rule|
 
 
-### accessStorage
+### accountMaxValueByAccessLevelStorage
 
 *Function to store AccessLevel rules*
 
 
 ```solidity
-function accessStorage() internal pure returns (IRuleStorage.AccessLevelRuleS storage ds);
+function accountMaxValueByAccessLevelStorage() internal pure returns (IRuleStorage.MaxValueByAccessLevelS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.AccessLevelRuleS`|Data Storage of AccessLevel Rule|
+|`ds`|`IRuleStorage.MaxValueByAccessLevelS`|Data Storage of AccessLevel Rule|
 
 
 ### txSizeToRiskStorage
@@ -394,49 +394,49 @@ function txSizeToRiskStorage() internal pure returns (IRuleStorage.TxSizeToRiskR
 |`ds`|`IRuleStorage.TxSizeToRiskRuleS`|Data Storage of Transaction Size by Risk Rule|
 
 
-### txSizePerPeriodToRiskStorage
+### accountMaxTxValueByRiskScoreStorage
 
 *Function to store Transaction Size by Risk per Period rules*
 
 
 ```solidity
-function txSizePerPeriodToRiskStorage() internal pure returns (IRuleStorage.TxSizePerPeriodToRiskRuleS storage ds);
+function accountMaxTxValueByRiskScoreStorage() internal pure returns (IRuleStorage.AccountMaxTransactionValueByRiskScoreS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.TxSizePerPeriodToRiskRuleS`|Data Storage of Transaction Size by Risk per Period Rule|
+|`ds`|`IRuleStorage.AccountMaxTransactionValueByRiskScoreS`|Data Storage of Transaction Size by Risk per Period Rule|
 
 
-### accountBalanceToRiskStorage
+### accountMaxValueByRiskScoreStorage
 
 *Function to store Account Balance rules*
 
 
 ```solidity
-function accountBalanceToRiskStorage() internal pure returns (IRuleStorage.AccountBalanceToRiskRuleS storage ds);
+function accountMaxValueByRiskScoreStorage() internal pure returns (IRuleStorage.AccountMaxValueByRiskScoreS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.AccountBalanceToRiskRuleS`|Data Storage of Account Balance Rule|
+|`ds`|`IRuleStorage.AccountMaxValueByRiskScoreS`|Data Storage of Account Balance Rule|
 
 
-### nftTransferStorage
+### TokenMaxDailyTradesStorage
 
 *Function to store NFT Transfer rules*
 
 
 ```solidity
-function nftTransferStorage() internal pure returns (IRuleStorage.NFTTransferCounterRuleS storage ds);
+function TokenMaxDailyTradesStorage() internal pure returns (IRuleStorage.TokenMaxDailyTradesS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.NFTTransferCounterRuleS`|Data Storage of NFT Transfer rule|
+|`ds`|`IRuleStorage.TokenMaxDailyTradesS`|Data Storage of NFT Transfer rule|
 
 
 ### ammFeeRuleStorage
@@ -469,18 +469,18 @@ function minBalByDateRuleStorage() internal pure returns (IRuleStorage.MinBalByD
 |`ds`|`IRuleStorage.MinBalByDateRuleS`|Data Storage of Minimum Balance by Date rule|
 
 
-### accessLevelWithdrawalRuleStorage
+### accountMaxValueOutByAccessLevelStorage
 
 *Function to store Access Level Withdrawal rules*
 
 
 ```solidity
-function accessLevelWithdrawalRuleStorage() internal pure returns (IRuleStorage.AccessLevelWithrawalRuleS storage ds);
+function accountMaxValueOutByAccessLevelStorage() internal pure returns (IRuleStorage.AccountMaxValueOutByAccessLevelS storage ds);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`IRuleStorage.AccessLevelWithrawalRuleS`|Data Storage of Access Level Withdrawal rule|
+|`ds`|`IRuleStorage.AccountMaxValueOutByAccessLevelS`|Data Storage of Access Level Withdrawal rule|
 
 

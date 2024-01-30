@@ -149,7 +149,7 @@ abstract contract TestCommonFoundry is TestCommon {
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
         switchToAppAdministrator();
-        oracleAllowed = _createOracleAllowed();
+        oracleAllowed = _createOracleApproved();
         oracleDenied = _createOracleDenied();
         /// reset the user to the original
         switchToOriginalUser();
@@ -293,7 +293,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
         switchToAppAdministrator();
 
-        oracleAllowed = _createOracleAllowed();
+        oracleAllowed = _createOracleApproved();
         oracleDenied = _createOracleDenied();
         /// reset the user to the original
         switchToOriginalUser();
@@ -350,7 +350,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
         switchToAppAdministrator();
         
-        oracleAllowed = _createOracleAllowed();
+        oracleAllowed = _createOracleApproved();
         oracleDenied = _createOracleDenied();
         /// reset the user to the original
         switchToOriginalUser();
@@ -397,7 +397,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
         switchToAppAdministrator();
 
-        oracleAllowed = _createOracleAllowed();
+        oracleAllowed = _createOracleApproved();
         oracleDenied = _createOracleDenied();
 
         /// create ERC721 examples
@@ -456,16 +456,16 @@ abstract contract TestCommonFoundry is TestCommon {
         vm.startPrank(superAdmin);
         applicationAppManager.addAppAdministrator(appAdministrator); //set a app administrator
 
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the app admin
         vm.startPrank(appAdministrator); //interact as the created app administrator
     }
 
     function switchToAccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
 
-        applicationAppManager.addAccessTier(accessLevelAdmin); //add AccessLevel admin
+        applicationAppManager.addAccessLevelAdmin(accessLevelAdmin); //add AccessLevel admin
 
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the access level admin
         vm.startPrank(accessLevelAdmin); //interact as the created AccessLevel admin
     }
 
@@ -483,7 +483,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
         applicationAppManager.addRiskAdmin(riskAdmin); //add Risk admin
 
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the risk admin
         vm.startPrank(riskAdmin); //interact as the created Risk admin
     }
 
@@ -492,12 +492,12 @@ abstract contract TestCommonFoundry is TestCommon {
 
         applicationAppManager.addRuleAdministrator(ruleAdmin); //add Rule admin
 
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the rule admin
         vm.startPrank(ruleAdmin); //interact as the created Rule admin
     }
 
     function switchToUser() public {
-        vm.stopPrank(); //stop interacting as the default admin
+        vm.stopPrank(); //stop interacting as the previous admin
         vm.startPrank(user); //interact as the user
     }
     

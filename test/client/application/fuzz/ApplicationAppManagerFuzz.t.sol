@@ -25,7 +25,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     }
 
     ///---------------APP ADMIN--------------------
-    // Test the Application Administrators roles(only DEFAULT_ADMIN can add app administrator)
+    // Test the Application Administrators roles(only Super Admin can add app administrator)
     function testAddAppAdministrator(uint8 addressIndexA, uint8 addressIndexB) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
@@ -178,9 +178,9 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    ///---------------ACCESS TIER--------------------
-    // Test adding the Access Tier roles
-    function testAddAccessTier(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    ///---------------ACCESS LEVEL--------------------
+    // Test adding the Access Level roles
+    function testAddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -191,18 +191,18 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         if (sender == superAdmin) {
             vm.stopPrank();
             vm.startPrank(admin);
-            applicationAppManager.addAccessTier(random); //add AccessLevel admin
-            assertTrue(applicationAppManager.isAccessTier(random));
-            assertFalse(applicationAppManager.isAccessTier(address(88)));
+            applicationAppManager.addAccessLevelAdmin(random); //add AccessLevel admin
+            assertTrue(applicationAppManager.isAccessLevelAdmin(random));
+            assertFalse(applicationAppManager.isAccessLevelAdmin(address(88)));
             vm.stopPrank();
             vm.startPrank(random);
             if (random != superAdmin && random != admin) vm.expectRevert();
-            applicationAppManager.addAccessTier(address(0xBABE)); //add AccessLevel
+            applicationAppManager.addAccessLevelAdmin(address(0xBABE)); //add AccessLevel
         }
     }
 
-    // Test adding the Access Tier roles for multiple addresses
-    function testMultipleAddAccessTier(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    // Test adding the Access Level roles for multiple addresses
+    function testMultipleAddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -213,17 +213,17 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         if (sender == superAdmin) {
             vm.stopPrank();
             vm.startPrank(admin);
-            applicationAppManager.addMultipleAccessTier(ADDRESSES); //add AccessLevel admins
-            assertTrue(applicationAppManager.isAccessTier(random));
-            assertTrue(applicationAppManager.isAccessTier(address(0xF00D)));
-            assertTrue(applicationAppManager.isAccessTier(address(0xBEEF)));
-            assertTrue(applicationAppManager.isAccessTier(address(0xC0FFEE)));
-            assertFalse(applicationAppManager.isAccessTier(address(88)));
+            applicationAppManager.addMultipleAccessLevelAdmins(ADDRESSES); //add AccessLevel admins
+            assertTrue(applicationAppManager.isAccessLevelAdmin(random));
+            assertTrue(applicationAppManager.isAccessLevelAdmin(address(0xF00D)));
+            assertTrue(applicationAppManager.isAccessLevelAdmin(address(0xBEEF)));
+            assertTrue(applicationAppManager.isAccessLevelAdmin(address(0xC0FFEE)));
+            assertFalse(applicationAppManager.isAccessLevelAdmin(address(88)));
         }
     }
 
-    /// Test renounce Access Tier role
-    function testRenounceAccessTier(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    /// Test renounce Access Level role
+    function testRenounceAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -234,19 +234,19 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         if (sender == superAdmin) {
             vm.stopPrank();
             vm.startPrank(admin);
-            applicationAppManager.addAccessTier(random); //add AccessLevel admin
-            assertTrue(applicationAppManager.isAccessTier(random));
-            assertFalse(applicationAppManager.isAccessTier(address(88)));
+            applicationAppManager.addAccessLevelAdmin(random); //add AccessLevel admin
+            assertTrue(applicationAppManager.isAccessLevelAdmin(random));
+            assertFalse(applicationAppManager.isAccessLevelAdmin(address(88)));
 
             vm.stopPrank(); //stop interacting as the app administrator
             vm.startPrank(random); //interact as the created risk admin
-            applicationAppManager.renounceAccessTier();
-            assertFalse(applicationAppManager.isAccessTier(random));
+            applicationAppManager.renounceAccessLevelAdmin();
+            assertFalse(applicationAppManager.isAccessLevelAdmin(random));
         }
     }
 
-    /// Test revoke Access Tier role
-    function testRevokeAccessTier(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    /// Test revoke Access Level role
+    function testRevokeAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -257,18 +257,18 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         if (sender == superAdmin) {
             vm.stopPrank();
             vm.startPrank(admin);
-            applicationAppManager.addAccessTier(random); //add AccessLevel admin
-            assertTrue(applicationAppManager.isAccessTier(random));
-            assertFalse(applicationAppManager.isAccessTier(address(88)));
+            applicationAppManager.addAccessLevelAdmin(random); //add AccessLevel admin
+            assertTrue(applicationAppManager.isAccessLevelAdmin(random));
+            assertFalse(applicationAppManager.isAccessLevelAdmin(address(88)));
             vm.stopPrank();
             vm.startPrank(random);
             if (random != superAdmin && random != admin) vm.expectRevert();
-            applicationAppManager.revokeRole(ACCESS_TIER_ADMIN_ROLE, admin);
+            applicationAppManager.revokeRole(ACCESS_LEVEL_ADMIN_ROLE, admin);
             if (random == superAdmin || random == admin) assertFalse(applicationAppManager.isRiskAdmin(admin));
         }
     }
 
-    ///---------------AccessLevel LEVEL MAINTENANCE--------------------
+    ///---------------AccessLevel MAINTENANCE--------------------
     function testAddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint8 AccessLevel) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
@@ -276,9 +276,9 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
         if (sender != superAdmin) vm.expectRevert();
-        applicationAppManager.addAccessTier(admin);
+        applicationAppManager.addAccessLevelAdmin(admin);
         if (sender == superAdmin) {
-            assertTrue(applicationAppManager.isAccessTier(admin));
+            assertTrue(applicationAppManager.isAccessLevelAdmin(admin));
             vm.stopPrank();
             vm.startPrank(random);
             if (random != admin || (AccessLevel > 4)) vm.expectRevert();
@@ -421,7 +421,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         if (sender == superAdmin) {
             vm.stopPrank();
             vm.startPrank(admin);
-            /// we are adding a repeated rule to test the reciliency of the
+            /// we are adding a repeated rule to test the resiliency of the
             /// contract to this scenario
             if (start >= end || start <= block.timestamp) vm.expectRevert();
             applicationAppManager.addPauseRule(start, end);

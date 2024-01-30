@@ -1,5 +1,5 @@
-# IAdminWithdrawalRuleCapable
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/token/IAdminWithdrawalRuleCapable.sol)
+# IAdminMinTokenBalanceCapable
+[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/token/IAdminMinTokenBalanceCapable.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -24,9 +24,9 @@ function isAdminWithdrawalActiveAndApplicable() external virtual returns (bool);
 
 
 ## Errors
-### AdminWithdrawalRuleisActive
+### AdminMinTokenBalanceisActive
 
 ```solidity
-error AdminWithdrawalRuleisActive();
+error AdminMinTokenBalanceisActive();
 ```
 

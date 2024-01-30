@@ -81,7 +81,7 @@ function maxAccountBalanceERC721(uint256 balanceTo, bytes32[] calldata toTags, u
 
 we increase the balance to check the rule.
 
-*Function get the purchase rule in the rule set that belongs to an account type*
+*Function get the account max buy size rule in the rule set that belongs to an account type*
 
 
 ```solidity
@@ -119,13 +119,13 @@ function getTotalMinMaxBalanceRulesERC721() public view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### checkNFTTransferCounter
+### checkTokenMaxDailyTrades
 
 *This function receives a rule id, which it uses to get the NFT Trade Counter rule to check if the transfer is valid.*
 
 
 ```solidity
-function checkNFTTransferCounter(
+function checkTokenMaxDailyTrades(
     uint32 ruleId,
     uint256 transfersWithinPeriod,
     bytes32[] calldata nftTags,
@@ -142,16 +142,16 @@ function checkNFTTransferCounter(
 |`lastTransferTime`|`uint64`|block.timestamp of most recent transaction from sender.|
 
 
-### getNFTTransferCounterRule
+### getTokenMaxDailyTrades
 
 *Function get the NFT Transfer Counter rule in the rule set that belongs to an NFT type*
 
 
 ```solidity
-function getNFTTransferCounterRule(uint32 _index, bytes32 _nftType)
+function getTokenMaxDailyTrades(uint32 _index, bytes32 _nftType)
     public
     view
-    returns (TaggedRules.NFTTradeCounterRule memory);
+    returns (TaggedRules.TokenMaxDailyTrades memory);
 ```
 **Parameters**
 
@@ -164,16 +164,16 @@ function getNFTTransferCounterRule(uint32 _index, bytes32 _nftType)
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`TaggedRules.NFTTradeCounterRule`|NftTradeCounterRule at index location in array|
+|`<none>`|`TaggedRules.TokenMaxDailyTrades`|NftTradeCounterRule at index location in array|
 
 
-### getTotalNFTTransferCounterRules
+### getTotalTokenMaxDailyTrades
 
 *Function gets total NFT Trade Counter rules*
 
 
 ```solidity
-function getTotalNFTTransferCounterRules() public view returns (uint32);
+function getTotalTokenMaxDailyTrades() public view returns (uint32);
 ```
 **Returns**
 

@@ -9,7 +9,7 @@ import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Hand
 import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 import "src/example/OracleDenied.sol";
-import "src/example/OracleAllowed.sol";
+import "src/example/OracleApproved.sol";
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 

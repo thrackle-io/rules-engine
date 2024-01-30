@@ -18,7 +18,7 @@ made in AMMs rather than at token level.
 ```solidity
 struct PurchaseRuleS {
     mapping(uint32 => mapping(bytes32 => ITaggedRules.PurchaseRule)) purchaseRulesPerUser;
-    uint32 purchaseRulesIndex;
+    uint32 accountMaxBuySizeIndex;
 }
 ```
 
@@ -33,25 +33,25 @@ struct SellRuleS {
 }
 ```
 
-### PctPurchaseRuleS
-******** Token Purchase Percentage Rules ********
+### TokenMaxBuyVolumeS
+******** Token Max Buy Volume ********
 
 
 ```solidity
-struct PctPurchaseRuleS {
-    mapping(uint32 => INonTaggedRules.TokenPercentagePurchaseRule) percentagePurchaseRules;
-    uint32 percentagePurchaseRuleIndex;
+struct TokenMaxBuyVolumeS {
+    mapping(uint32 => INonTaggedRules.TokenMaxBuyVolume) tokenMaxBuyVolumeRules;
+    uint32 tokenMaxBuyVolumeIndex;
 }
 ```
 
-### PctSellRuleS
-******** Token Percentage Sell Rules ********
+### TokenMaxSellVolumeS
+******** Token Max Sell Volume Rules ********
 
 
 ```solidity
-struct PctSellRuleS {
-    mapping(uint32 => INonTaggedRules.TokenPercentageSellRule) percentageSellRules;
-    uint32 percentageSellRuleIndex;
+struct TokenMaxSellVolumeS {
+    mapping(uint32 => INonTaggedRules.TokenPercentageSellRule) tokenMaxSellVolumeRules;
+    uint32 tokenMaxSellVolumeIndex;
 }
 ```
 
@@ -66,14 +66,14 @@ struct PurchaseFeeByVolRuleS {
 }
 ```
 
-### VolatilityRuleS
+### TokenMaxPriceVolatilityS
 ******** Token Volatility ********
 
 
 ```solidity
-struct VolatilityRuleS {
-    mapping(uint32 => INonTaggedRules.TokenVolatilityRule) volatilityRules;
-    uint32 volatilityRuleIndex;
+struct TokenMaxPriceVolatilityS {
+    mapping(uint32 => INonTaggedRules.TokenMaxPriceVolatility) tokenMaxPriceVolatilityRules;
+    uint32 tokenMaxPriceVolatilityIndex;
 }
 ```
 
@@ -83,8 +83,8 @@ struct VolatilityRuleS {
 
 ```solidity
 struct TransferVolRuleS {
-    mapping(uint32 => INonTaggedRules.TokenTransferVolumeRule) transferVolumeRules;
-    uint32 transferVolRuleIndex;
+    mapping(uint32 => INonTaggedRules.TokenMaxTradingVolume) tokenMaxTradingVolumeRules;
+    uint32 tokenMaxTradingVolumeIndex;
 }
 ```
 
@@ -99,25 +99,25 @@ struct WithdrawalRuleS {
 }
 ```
 
-### AdminWithdrawalRuleS
+### AdminMinTokenBalanceS
 ******** Admin Withdrawal Rules ********
 
 
 ```solidity
-struct AdminWithdrawalRuleS {
-    mapping(uint32 => ITaggedRules.AdminWithdrawalRule) adminWithdrawalRulesPerToken;
-    uint32 adminWithdrawalRulesIndex;
+struct AdminMinTokenBalanceS {
+    mapping(uint32 => ITaggedRules.AdminMinTokenBalance) adminMinTokenBalanceRules;
+    uint32 adminMinTokenBalanceIndex;
 }
 ```
 
-### MinTransferRuleS
+### TokenMinTransactionSizeS
 ******** Minimum Transaction ********
 
 
 ```solidity
-struct MinTransferRuleS {
-    mapping(uint32 => INonTaggedRules.TokenMinimumTransferRule) minimumTransferRules;
-    uint32 minimumTransferRuleIndex;
+struct TokenMinTransactionSizeS {
+    mapping(uint32 => INonTaggedRules.TokenMinimumTransferRule) tokenMinTxSizeRules;
+    uint32 tokenMinTxSizeIndex;
 }
 ```
 
@@ -127,8 +127,8 @@ struct MinTransferRuleS {
 
 ```solidity
 struct MinMaxBalanceRuleS {
-    mapping(uint32 => mapping(bytes32 => ITaggedRules.MinMaxBalanceRule)) minMaxBalanceRulesPerUser;
-    uint32 minMaxBalanceRuleIndex;
+    mapping(uint32 => mapping(bytes32 => ITaggedRules.MinMaxBalanceRule)) accountMinMaxTokenBalanceRules;
+    uint32 accountMinMaxTokenBalanceIndex;
 }
 ```
 
@@ -143,61 +143,61 @@ struct MinBalByDateRuleS {
 }
 ```
 
-### SupplyVolatilityRuleS
+### TokenMaxSupplyVolatilityS
 ******** Supply Volatility ********
 
 
 ```solidity
-struct SupplyVolatilityRuleS {
-    mapping(uint32 => INonTaggedRules.SupplyVolatilityRule) supplyVolatilityRules;
-    uint32 supplyVolatilityRuleIndex;
+struct TokenMaxSupplyVolatilityS {
+    mapping(uint32 => INonTaggedRules.SupplyVolatilityRule) tokenMaxSupplyVolatilityRules;
+    uint32 tokenMaxSupplyVolatilityIndex;
 }
 ```
 
-### OracleRuleS
+### AccountApproveDenyOracleS
 ******** Oracle ********
 
 
 ```solidity
-struct OracleRuleS {
-    mapping(uint32 => INonTaggedRules.OracleRule) oracleRules;
-    uint32 oracleRuleIndex;
+struct AccountApproveDenyOracleS {
+    mapping(uint32 => INonTaggedRules.AccountApproveDenyOracle) oracleRules;
+    uint32 accountApproveDenyOracleIndex;
 }
 ```
 
-### AccessLevelRuleS
+### MaxValueByAccessLevelS
 AccessLevel Rules ***********
 /****************************************
 Balance Limit by Access Level
 
 
 ```solidity
-struct AccessLevelRuleS {
-    mapping(uint32 => mapping(uint8 => uint48)) accessRulesPerToken;
-    uint32 accessRuleIndex;
+struct MaxValueByAccessLevelS {
+    mapping(uint32 => mapping(uint8 => uint48)) maxValueByAccessLevelRules;
+    uint32 accountMaxValueByAccessLevelIndex;
 }
 ```
 
-### AccessLevelWithrawalRuleS
-Withdrawal Limit by Access Level
+### AccountMaxValueOutByAccessLevelS
+Account Max Value Out by Access Level
 
 
 ```solidity
-struct AccessLevelWithrawalRuleS {
-    mapping(uint32 => mapping(uint8 => uint48)) accessLevelWithdrawal;
-    uint32 accessLevelWithdrawalRuleIndex;
+struct AccountMaxValueOutByAccessLevelS {
+    mapping(uint32 => mapping(uint8 => uint48)) accountMaxValueOutByAccessLevelRules;
+    uint32 accountMaxValueOutByAccessLevelIndex;
 }
 ```
 
-### NFTTransferCounterRuleS
+### TokenMaxDailyTradesS
 NFT Rules ****************
 /****************************************
 
 
 ```solidity
-struct NFTTransferCounterRuleS {
-    mapping(uint32 => mapping(bytes32 => ITaggedRules.NFTTradeCounterRule)) NFTTransferCounterRule;
-    uint32 NFTTransferCounterRuleIndex;
+struct TokenMaxDailyTradesS {
+    mapping(uint32 => mapping(bytes32 => ITaggedRules.TokenMaxDailyTrades)) tokenMaxDailyTradesRules;
+    uint32 tokenMaxDailyTradesIndex;
 }
 ```
 
@@ -214,25 +214,25 @@ struct TxSizeToRiskRuleS {
 }
 ```
 
-### AccountBalanceToRiskRuleS
+### AccountMaxValueByRiskScoreS
 ******** Account Balance Rules ********
 
 
 ```solidity
-struct AccountBalanceToRiskRuleS {
-    mapping(uint32 => IApplicationRules.AccountBalanceToRiskRule) balanceToRiskRule;
-    uint32 balanceToRiskRuleIndex;
+struct AccountMaxValueByRiskScoreS {
+    mapping(uint32 => IApplicationRules.AccountMaxValueByRiskScore) accountMaxValueByRiskScoreRules;
+    uint32 accountMaxValueByRiskScoreIndex;
 }
 ```
 
-### TxSizePerPeriodToRiskRuleS
+### AccountMaxTransactionValueByRiskScoreS
 ******** Transaction Size Per Period Rules ********
 
 
 ```solidity
-struct TxSizePerPeriodToRiskRuleS {
-    mapping(uint32 => IApplicationRules.TxSizePerPeriodToRiskRule) txSizePerPeriodToRiskRule;
-    uint32 txSizePerPeriodToRiskRuleIndex;
+struct AccountMaxTransactionValueByRiskScoreS {
+    mapping(uint32 => IApplicationRules.AccountMaxTransactionValueByRiskScore) accountMaxTxValueByRiskScoreRules;
+    uint32 accountMaxTxValueByRiskScoreIndex;
 }
 ```
 

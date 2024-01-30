@@ -38,14 +38,14 @@ function checkMinMaxAccountBalancePasses(
 |`fromTags`|`bytes32[]`|tags applied via App Manager to sender address|
 
 
-### checkMinTransferPasses
+### checkTokenMinTransactionSize
 
 *Check the minimum transfer rule. This rule ensures accounts cannot transfer less than
 the specified amount.*
 
 
 ```solidity
-function checkMinTransferPasses(uint32 ruleId, uint256 amount) external view;
+function checkTokenMinTransactionSize(uint32 ruleId, uint256 amount) external view;
 ```
 **Parameters**
 
@@ -80,13 +80,13 @@ function checkMinMaxAccountBalanceERC721(
 |`fromTags`|`bytes32[]`|tags applied via App Manager to sender address|
 
 
-### checkOraclePasses
+### checkAccountApproveDenyOracle
 
 *This function receives a rule id, which it uses to get the oracle details, then calls the oracle to determine permissions.*
 
 
 ```solidity
-function checkOraclePasses(uint32 _ruleId, address _address) external view;
+function checkAccountApproveDenyOracle(uint32 _ruleId, address _address) external view;
 ```
 **Parameters**
 
@@ -127,7 +127,7 @@ function checkBalanceByAccessLevelPasses(
 ```solidity
 function checkPurchaseLimit(
     uint32 ruleId,
-    uint256 purchasedWithinPeriod,
+    uint256 boughtInPeriod,
     uint256 amount,
     bytes32[] calldata toTags,
     uint64 lastUpdateTime
@@ -138,7 +138,7 @@ function checkPurchaseLimit(
 |Name|Type|Description|
 |----|----|-----------|
 |`ruleId`|`uint32`|Rule identifier for rule arguments|
-|`purchasedWithinPeriod`|`uint256`|Number of tokens purchased within purchase Period|
+|`boughtInPeriod`|`uint256`|Number of tokens purchased within purchase Period|
 |`amount`|`uint256`|Number of tokens to be transferred|
 |`toTags`|`bytes32[]`|Account tags applied to sender via App Manager|
 |`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
@@ -198,13 +198,13 @@ function checkMinMaxAccountBalancePassesAMM(
 |`fromTags`|`bytes32[]`|tags applied via App Manager to sender address|
 
 
-### checkNFTTransferCounter
+### checkTokenMaxDailyTrades
 
 *This function receives a rule id, which it uses to get the NFT Trade Counter rule to check if the transfer is valid.*
 
 
 ```solidity
-function checkNFTTransferCounter(
+function checkTokenMaxDailyTrades(
     uint32 ruleId,
     uint256 transfersWithinPeriod,
     bytes32[] calldata nftTags,
@@ -254,7 +254,7 @@ function assessAMMFee(uint32 _ruleId, uint256 _collateralizedTokenAmount) extern
 |`_collateralizedTokenAmount`|`uint256`|total number of collateralized tokens to be swapped(this could be the "token in" or "token out" as the fees are always * assessed from the collateralized token)|
 
 
-### checkAdminWithdrawalRule
+### checkAdminMinTokenBalance
 
 that the function will revert if the check finds a violation of the rule, but won't give anything
 back if everything checks out.
@@ -263,7 +263,7 @@ back if everything checks out.
 
 
 ```solidity
-function checkAdminWithdrawalRule(uint32 _ruleId, uint256 _currentBalance, uint256 _amountToTransfer) external view;
+function checkAdminMinTokenBalance(uint32 _ruleId, uint256 _currentBalance, uint256 _amountToTransfer) external view;
 ```
 **Parameters**
 
@@ -294,13 +294,13 @@ function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount,
 |`toTags`|`bytes32[]`|Account tags applied to sender via App Manager|
 
 
-### checkAccBalanceByRisk
+### checkAccountMaxValueByRiskScore
 
 *This function checks if the requested action is valid according to the AccountBalanceByRiskScore rule*
 
 
 ```solidity
-function checkAccBalanceByRisk(
+function checkAccountMaxValueByRiskScore(
     uint32 _ruleId,
     address _toAddress,
     uint8 _riskScoreTo,
@@ -319,13 +319,13 @@ function checkAccBalanceByRisk(
 |`_amountToTransfer`|`uint128`|total dollar amount to be transferred in USD with 18 decimals of precision|
 
 
-### checkAccBalanceByAccessLevel
+### checkAccountMaxValueByAccessLevel
 
 *This function checks if the requested action is valid according to the AccountBalanceByAccessLevel rule*
 
 
 ```solidity
-function checkAccBalanceByAccessLevel(
+function checkAccountMaxValueByAccessLevel(
     uint32 _ruleId,
     uint8 _accessLevelTo,
     uint128 _totalValuationTo,
@@ -342,7 +342,7 @@ function checkAccBalanceByAccessLevel(
 |`_amountToTransfer`|`uint128`|total dollar amount to be transferred in USD with 18 decimals of precision|
 
 
-### checkMaxTxSizePerPeriodByRisk
+### checkAccountMaxTransactionValueByRiskScore
 
 that these ranges are set by ranges.
 
@@ -354,7 +354,7 @@ the limit for the address risk profile.*
 
 
 ```solidity
-function checkMaxTxSizePerPeriodByRisk(
+function checkAccountMaxTransactionValueByRiskScore(
     uint32 ruleId,
     uint128 _usdValueTransactedInPeriod,
     uint128 amount,
@@ -379,14 +379,14 @@ function checkMaxTxSizePerPeriodByRisk(
 |`<none>`|`uint128`|updated value for the _usdValueTransactedInPeriod. If _usdValueTransactedInPeriod are inside the current period, then this value is accumulated. If not, it is reset to current amount.|
 
 
-### checkAccessLevel0Passes
+### checkAccessLevel0
 
 *Ensure that Access Level = 0 rule passes. This seems like an easy rule to check but it is still
 abstracted to through the token rule router to allow for updates later(like special values)*
 
 
 ```solidity
-function checkAccessLevel0Passes(uint8 _accessLevel) external view;
+function checkAccessLevel0(uint8 _accessLevel) external view;
 ```
 **Parameters**
 
@@ -395,7 +395,7 @@ function checkAccessLevel0Passes(uint8 _accessLevel) external view;
 |`_accessLevel`|`uint8`|account access level|
 
 
-### checkwithdrawalLimitsByAccessLevel
+### checkAccountMaxValueOutByAccessLevel
 
 that these ranges are set by ranges.
 
@@ -403,7 +403,7 @@ that these ranges are set by ranges.
 
 
 ```solidity
-function checkwithdrawalLimitsByAccessLevel(
+function checkAccountMaxValueOutByAccessLevel(
     uint32 _ruleId,
     uint8 _accessLevel,
     uint128 _withdrawal,
@@ -441,13 +441,13 @@ function checkPauseRules(address _dataServer) external view;
 |`_dataServer`|`address`|address of the Application Rule Processor Diamond contract|
 
 
-### checkTokenTransferVolumePasses
+### checkTokenMaxTradingVolume
 
 *Rule checks if the token transfer volume rule will be violated.*
 
 
 ```solidity
-function checkTokenTransferVolumePasses(
+function checkTokenMaxTradingVolume(
     uint32 _ruleId,
     uint256 _volume,
     uint256 _supply,
@@ -472,13 +472,13 @@ function checkTokenTransferVolumePasses(
 |`<none>`|`uint256`|volumeTotal new accumulated volume|
 
 
-### checkTotalSupplyVolatilityPasses
+### checkTokenMaxSupplyVolatility
 
 *Rule checks if the total supply volatility rule will be violated.*
 
 
 ```solidity
-function checkTotalSupplyVolatilityPasses(
+function checkTokenMaxSupplyVolatility(
     uint32 _ruleId,
     int256 _volumeTotalForPeriod,
     uint256 _totalSupplyForPeriod,
@@ -567,13 +567,13 @@ function validateMinMaxAccountBalanceERC721(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateNFTTransferCounter
+### validateTokenMaxDailyTrades
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateNFTTransferCounter(uint32 _ruleId) external view;
+function validateTokenMaxDailyTrades(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -597,13 +597,13 @@ function validateMinMaxAccountBalance(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validatePurchaseLimit
+### validateAccountMaxBuySize
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validatePurchaseLimit(uint32 _ruleId) external view;
+function validateAccountMaxBuySize(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -657,13 +657,13 @@ function validateMinBalByDate(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateMinTransfer
+### validateTokenMinTransactionSize
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateMinTransfer(uint32 _ruleId) external view;
+function validateTokenMinTransactionSize(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -672,13 +672,13 @@ function validateMinTransfer(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateOracle
+### validateAccountApproveDenyOracle
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateOracle(uint32 _ruleId) external view;
+function validateAccountApproveDenyOracle(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -687,13 +687,13 @@ function validateOracle(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validatePurchasePercentage
+### validateTokenMaxBuyVolume
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validatePurchasePercentage(uint32 _ruleId) external view;
+function validateTokenMaxBuyVolume(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -702,13 +702,13 @@ function validatePurchasePercentage(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateSellPercentage
+### validateTokenMaxSellVolume
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateSellPercentage(uint32 _ruleId) external view;
+function validateTokenMaxSellVolume(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -717,13 +717,13 @@ function validateSellPercentage(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateTokenTransferVolume
+### validateTokenMaxTradingVolume
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateTokenTransferVolume(uint32 _ruleId) external view;
+function validateTokenMaxTradingVolume(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -732,13 +732,13 @@ function validateTokenTransferVolume(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateSupplyVolatility
+### validateTokenMaxSupplyVolatility
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateSupplyVolatility(uint32 _ruleId) external view;
+function validateTokenMaxSupplyVolatility(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -747,13 +747,13 @@ function validateSupplyVolatility(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateAccBalanceByRisk
+### validateAccountMaxValueByRiskScore
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateAccBalanceByRisk(uint32 _ruleId) external view;
+function validateAccountMaxValueByRiskScore(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -762,13 +762,13 @@ function validateAccBalanceByRisk(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateMaxTxSizePerPeriodByRisk
+### validateAccountMaxTransactionValueByRiskScore
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateMaxTxSizePerPeriodByRisk(uint32 _ruleId) external view;
+function validateAccountMaxTransactionValueByRiskScore(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -793,13 +793,13 @@ function validatePause(uint32 _ruleId, address _dataServer) external view;
 |`_dataServer`|`address`|address of the appManager contract|
 
 
-### validateAccBalanceByAccessLevel
+### validateAccountMaxValueByAccessLevel
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateAccBalanceByAccessLevel(uint32 _ruleId) external view;
+function validateAccountMaxValueByAccessLevel(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -808,13 +808,13 @@ function validateAccBalanceByAccessLevel(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateWithdrawalLimitsByAccessLevel
+### validateAccountMaxValueOutByAccessLevel
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateWithdrawalLimitsByAccessLevel(uint32 _ruleId) external view;
+function validateAccountMaxValueOutByAccessLevel(uint32 _ruleId) external view;
 ```
 **Parameters**
 

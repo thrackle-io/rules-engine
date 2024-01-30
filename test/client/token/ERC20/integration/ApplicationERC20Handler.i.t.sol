@@ -43,7 +43,7 @@ contract ApplicationERC20HandlerTest is Test, ProtocolHandlerCommon {
         sender = address(this);
         to = user1;
         from = address(this);
-        assertEq(uint8(ActionTypes.PURCHASE), uint8(determineTransferAction(from, to, sender)));
+        assertEq(uint8(ActionTypes.BUY), uint8(determineTransferAction(from, to, sender)));
 
         // sale
         sender = user2;

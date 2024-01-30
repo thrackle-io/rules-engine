@@ -2,7 +2,7 @@
 [Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/token/ERC721/ProtocolERC721Handler.sol)
 
 **Inherits:**
-Ownable, [ProtocolHandlerCommon](/src/client/token/ProtocolHandlerCommon.sol/abstract.ProtocolHandlerCommon.md), [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IAdminWithdrawalRuleCapable](/src/client/token/IAdminWithdrawalRuleCapable.sol/abstract.IAdminWithdrawalRuleCapable.md), ERC165
+Ownable, [ProtocolHandlerCommon](/src/client/token/ProtocolHandlerCommon.sol/abstract.ProtocolHandlerCommon.md), [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IAdminMinTokenBalanceCapable](/src/client/token/IAdminMinTokenBalanceCapable.sol/abstract.IAdminMinTokenBalanceCapable.md), ERC165
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -81,10 +81,10 @@ uint32 private adminWithdrawalRuleId;
 ```
 
 
-### tokenTransferVolumeRuleId
+### tokenMaxTradingVolumeRuleId
 
 ```solidity
-uint32 private tokenTransferVolumeRuleId;
+uint32 private tokenMaxTradingVolumeRuleId;
 ```
 
 
@@ -139,10 +139,10 @@ bool private adminWithdrawalActive;
 ```
 
 
-### tokenTransferVolumeRuleActive
+### tokenMaxTradingVolumeRuleActive
 
 ```solidity
-bool private tokenTransferVolumeRuleActive;
+bool private tokenMaxTradingVolumeRuleActive;
 ```
 
 
@@ -472,13 +472,13 @@ function getMinMaxBalanceRuleId() external view returns (uint32);
 |`<none>`|`uint32`|minMaxBalance rule id.|
 
 
-### isMinMaxBalanceActive
+### isAccountMinMaxTokenBalanceActive
 
 *Tells you if the MinMaxBalanceRule is active or not.*
 
 
 ```solidity
-function isMinMaxBalanceActive() external view returns (bool);
+function isAccountMinMaxTokenBalanceActive() external view returns (bool);
 ```
 **Returns**
 
@@ -487,7 +487,7 @@ function isMinMaxBalanceActive() external view returns (bool);
 |`<none>`|`bool`|boolean representing if the rule is active|
 
 
-### setOracleRuleId
+### setAccountApproveDenyOracleId
 
 that setting a rule will automatically activate it.
 
@@ -495,7 +495,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setAccountApproveDenyOracleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -504,13 +504,13 @@ function setOracleRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManag
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
-### activateOracleRule
+### activateAccountApproveDenyOracle
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.*
 
 
 ```solidity
-function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAccountApproveDenyOracle(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -519,13 +519,13 @@ function activateOracleRule(bool _on) external ruleAdministratorOnly(appManagerA
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
-### getOracleRuleId
+### getAccountApproveDenyOracleId
 
 *Retrieve the oracle rule id*
 
 
 ```solidity
-function getOracleRuleId() external view returns (uint32);
+function getAccountApproveDenyOracleId() external view returns (uint32);
 ```
 **Returns**
 
@@ -534,13 +534,13 @@ function getOracleRuleId() external view returns (uint32);
 |`<none>`|`uint32`|oracleRuleId|
 
 
-### isOracleActive
+### isAccountAllowDenyOracleActive
 
 *Tells you if the oracle rule is active or not.*
 
 
 ```solidity
-function isOracleActive() external view returns (bool);
+function isAccountAllowDenyOracleActive() external view returns (bool);
 ```
 **Returns**
 
@@ -549,7 +549,7 @@ function isOracleActive() external view returns (bool);
 |`<none>`|`bool`|boolean representing if the rule is active|
 
 
-### setTradeCounterRuleId
+### setTokenMaxDailyTradesId
 
 that setting a rule will automatically activate it.
 
@@ -557,7 +557,7 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setTradeCounterRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setTokenMaxDailyTradesId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -566,13 +566,13 @@ function setTradeCounterRuleId(uint32 _ruleId) external ruleAdministratorOnly(ap
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
-### activateTradeCounterRule
+### activateTokenMaxDailyTrades
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.*
 
 
 ```solidity
-function activateTradeCounterRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateTokenMaxDailyTrades(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -581,13 +581,13 @@ function activateTradeCounterRule(bool _on) external ruleAdministratorOnly(appMa
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
-### getTradeCounterRuleId
+### getTokenMaxDailyTradesId
 
 *Retrieve the trade counter rule id*
 
 
 ```solidity
-function getTradeCounterRuleId() external view returns (uint32);
+function getTokenMaxDailyTradesId() external view returns (uint32);
 ```
 **Returns**
 
@@ -596,13 +596,13 @@ function getTradeCounterRuleId() external view returns (uint32);
 |`<none>`|`uint32`|tradeCounterRuleId|
 
 
-### isTradeCounterRuleActive
+### isTokenMaxDailyTradesActive
 
 *Tells you if the tradeCounterRule is active or not.*
 
 
 ```solidity
-function isTradeCounterRuleActive() external view returns (bool);
+function isTokenMaxDailyTradesActive() external view returns (bool);
 ```
 **Returns**
 
@@ -750,15 +750,15 @@ function isMinBalByDateActive() external view returns (bool);
 |`<none>`|`bool`|boolean representing if the rule is active|
 
 
-### setAdminWithdrawalRuleId
+### setAdminMinTokenBalanceId
 
 that setting a rule will automatically activate it.
 
-*Set the AdminWithdrawalRule. Restricted to app administrators only.*
+*Set the AdminMinTokenBalance. Restricted to app administrators only.*
 
 
 ```solidity
-function setAdminWithdrawalRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setAdminMinTokenBalanceId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -785,13 +785,13 @@ function isAdminWithdrawalActiveAndApplicable() public view override returns (bo
 |`<none>`|`bool`|Success equals true if all checks pass|
 
 
-### activateAdminWithdrawalRule
+### activateAdminMinTokenBalance
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.*
 
 
 ```solidity
-function activateAdminWithdrawalRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAdminMinTokenBalance(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -817,13 +817,13 @@ function isAdminWithdrawalActive() external view returns (bool);
 |`<none>`|`bool`|boolean representing if the rule is active|
 
 
-### getAdminWithdrawalRuleId
+### getAdminMinTokenBalanceId
 
 *Retrieve the admin withdrawal rule id*
 
 
 ```solidity
-function getAdminWithdrawalRuleId() external view returns (uint32);
+function getAdminMinTokenBalanceId() external view returns (uint32);
 ```
 **Returns**
 
@@ -832,30 +832,30 @@ function getAdminWithdrawalRuleId() external view returns (uint32);
 |`<none>`|`uint32`|adminWithdrawalRuleId rule id|
 
 
-### getTokenTransferVolumeRule
+### getTokenMaxTradingVolume
 
 *Retrieve the token transfer volume rule id*
 
 
 ```solidity
-function getTokenTransferVolumeRule() external view returns (uint32);
+function getTokenMaxTradingVolume() external view returns (uint32);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|tokenTransferVolumeRuleId rule id|
+|`<none>`|`uint32`|tokenMaxTradingVolumeRuleId rule id|
 
 
-### setTokenTransferVolumeRuleId
+### setTokenMaxTradingVolumeId
 
 that setting a rule will automatically activate it.
 
-*Set the tokenTransferVolumeRuleId. Restricted to game admins only.*
+*Set the tokenMaxTradingVolumeRuleId. Restricted to game admins only.*
 
 
 ```solidity
-function setTokenTransferVolumeRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setTokenMaxTradingVolumeId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -864,13 +864,13 @@ function setTokenTransferVolumeRuleId(uint32 _ruleId) external ruleAdministrator
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
-### activateTokenTransferVolumeRule
+### activateTokenMaxTradingVolume
 
 *Tells you if the token transfer volume rule is active or not.*
 
 
 ```solidity
-function activateTokenTransferVolumeRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateTokenMaxTradingVolume(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -898,7 +898,7 @@ function getTotalSupplyVolatilityRule() external view returns (uint32);
 
 that setting a rule will automatically activate it.
 
-*Set the tokenTransferVolumeRuleId. Restricted to game admins only.*
+*Set the tokenMaxTradingVolumeRuleId. Restricted to game admins only.*
 
 
 ```solidity
@@ -926,13 +926,13 @@ function activateTotalSupplyVolatilityRule(bool _on) external ruleAdministratorO
 |`_on`|`bool`|boolean representing if the rule is active|
 
 
-### isTotalSupplyVolatilityActive
+### isTokenMaxSupplyVolatilityActive
 
-*Tells you if the Total Supply Volatility is active or not.*
+*Tells you if the Token Max Supply Volatility is active or not.*
 
 
 ```solidity
-function isTotalSupplyVolatilityActive() external view returns (bool);
+function isTokenMaxSupplyVolatilityActive() external view returns (bool);
 ```
 **Returns**
 
@@ -941,7 +941,7 @@ function isTotalSupplyVolatilityActive() external view returns (bool);
 |`<none>`|`bool`|boolean representing if the rule is active|
 
 
-### activateMinimumHoldTimeRule
+### activateTokenMinHoldTime
 
 -------------SIMPLE RULE SETTERS and GETTERS---------------
 
@@ -949,7 +949,7 @@ function isTotalSupplyVolatilityActive() external view returns (bool);
 
 
 ```solidity
-function activateMinimumHoldTimeRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateTokenMinHoldTime(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -958,13 +958,13 @@ function activateMinimumHoldTimeRule(bool _on) external ruleAdministratorOnly(ap
 |`_on`|`bool`|boolean representing if the rule is active|
 
 
-### setMinimumHoldTimeHours
+### setTokenMinHoldTime
 
 *Setter the minimum hold time rule hold hours*
 
 
 ```solidity
-function setMinimumHoldTimeHours(uint32 _minimumHoldTimeHours) external ruleAdministratorOnly(appManagerAddress);
+function setTokenMinHoldTime(uint32 _minimumHoldTimeHours) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -973,13 +973,13 @@ function setMinimumHoldTimeHours(uint32 _minimumHoldTimeHours) external ruleAdmi
 |`_minimumHoldTimeHours`|`uint32`|minimum amount of time to hold the asset|
 
 
-### getMinimumHoldTimeHours
+### getTokenMinHoldTimePeriod
 
 *Get the minimum hold time rule hold hours*
 
 
 ```solidity
-function getMinimumHoldTimeHours() external view returns (uint256);
+function getTokenMinHoldTimePeriod() external view returns (uint256);
 ```
 **Returns**
 

@@ -9,8 +9,8 @@ import {IOracleEvents} from "src/common/IEvents.sol";
  * @notice This is an example on-chain oracle that maintains an allow list.
  * @dev This is intended to be a model only. It stores the allow list internally and returns bool true if address is in list.
  */
-contract OracleAllowed is Ownable, IOracleEvents {
-    mapping(address => bool) private allowedAddresses;
+contract OracleApproved is Ownable, IOracleEvents {
+    mapping(address => bool) private approvedAddresses;
 
 
     /**
@@ -25,16 +25,16 @@ contract OracleAllowed is Ownable, IOracleEvents {
      * @return name the name of the contract
      */
     function name() external pure returns (string memory) {
-        return "Example allow oracle(Allow List)";
+        return "Example approve oracle(Approved List)";
     }
 
     /**
      * @dev Add addresses to the allow list. Restricted to owner.
      * @param newAllows the addresses to add
      */
-    function addToAllowList(address[] memory newAllows) public onlyOwner {
+    function addToApprovedList(address[] memory newAllows) public onlyOwner {
         for (uint256 i = 0; i < newAllows.length; i++) {
-            allowedAddresses[newAllows[i]] = true;
+            approvedAddresses[newAllows[i]] = true;
         }
         emit OracleListChanged(true, newAllows);
     }
@@ -43,8 +43,8 @@ contract OracleAllowed is Ownable, IOracleEvents {
      * @dev Add single address to the allow list. Restricted to owner.
      * @param newAllow the addresses to add
      */
-    function addAddressToAllowList(address newAllow) public onlyOwner {
-        allowedAddresses[newAllow] = true;
+    function addAddressToApprovedList(address newAllow) public onlyOwner {
+        approvedAddresses[newAllow] = true;
         address[] memory addresses = new address[](1);
         addresses[0] =  newAllow;
         emit OracleListChanged(true,addresses);
@@ -54,9 +54,9 @@ contract OracleAllowed is Ownable, IOracleEvents {
      * @dev Remove addresses from the allow list. Restricted to owner.
      * @param removeAllows the addresses to remove
      */
-    function removeFromAllowedList(address[] memory removeAllows) public onlyOwner {
+    function removeFromAprovededList(address[] memory removeAllows) public onlyOwner {
         for (uint256 i = 0; i < removeAllows.length; i++) {
-            allowedAddresses[removeAllows[i]] = false;
+            approvedAddresses[removeAllows[i]] = false;
         }
         emit OracleListChanged(false, removeAllows);
     }
@@ -66,8 +66,8 @@ contract OracleAllowed is Ownable, IOracleEvents {
      * @param addr the address to check
      * @return allowed returns true if in the allowed list, false if not.
      */
-    function isAllowed(address addr) public view returns (bool) {
-        return allowedAddresses[addr];
+    function isApproved(address addr) public view returns (bool) {
+        return approvedAddresses[addr];
     }
 
     /**
@@ -75,8 +75,8 @@ contract OracleAllowed is Ownable, IOracleEvents {
      * @param addr the address to check
      * @return allowed returns true if in the allowed list, false if not.
      */
-    function isAllowedVerbose(address addr) public returns (bool) {
-        if (isAllowed(addr)) {
+    function isApprovedVerbose(address addr) public returns (bool) {
+        if (isApproved(addr)) {
             emit AllowedAddress(addr);
             return true;
         } else {

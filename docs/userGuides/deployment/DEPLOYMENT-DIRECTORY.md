@@ -6,11 +6,8 @@
 
 | Version | Environment     | Contract Name        | Contract Address |
 | :--- |:----------------|:---------------------| :--- | 
-| v1.0.1 | Ethereum Goerli | RuleStorageDiamond | 0x5038B18cCd5B0886e6c6736ad3Ac10039446eCe6 
 | v1.0.1 | Ethereum Goerli | RuleProcessorDiamond | 0xf0319D73Db76b7B594D5Fd659bbE03502D97816E
-| v1.0.1 | Polygon Mumbai  | RuleStorageDiamond | 0xc42E13D26917014B2109824780B73760d513a566
 | v1.0.1 | Polygon Mumbai  | RuleProcessorDiamond | 0x26DB256496aCc3cAC7F4D7254F8f96A947AFaaAf
-| v0.0.3 | Polygon PoS     | RuleStorageDiamond | TBD
 | v0.0.3 | Polygon PoS     | RuleProcessorDiamond | TBD
 
 

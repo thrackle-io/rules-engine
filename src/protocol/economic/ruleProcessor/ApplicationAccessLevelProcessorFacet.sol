@@ -16,81 +16,80 @@ contract ApplicationAccessLevelProcessorFacet is IInputErrors, IRuleProcessorErr
     using RuleProcessorCommonLib for uint8; 
     
     /**
-     * @dev Check if transaction passes Balance by AccessLevel rule.
+     * @dev Check if transaction passes Account Max Value By AccessLevel rule.
      * @param _ruleId Rule Identifier for rule arguments
      * @param _accessLevel the Access Level of the account
      * @param _balance account's beginning balance in USD with 18 decimals of precision
      * @param _amountToTransfer total USD amount to be transferred with 18 decimals of precision
      */
-    function checkAccBalanceByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _balance, uint128 _amountToTransfer) external view {
-        /// Get the account's AccessLevel
-        uint48 max = getAccessLevelBalanceRule(_ruleId, _accessLevel);
+    function checkAccountMaxValueByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _balance, uint128 _amountToTransfer) external view {
+        uint48 max = getAccountMaxValueByAccessLevel(_ruleId, _accessLevel);
         /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
-        if (_amountToTransfer + _balance > (uint256(max) * (10 ** 18))) revert BalanceExceedsAccessLevelAllowedLimit();
+        if (_amountToTransfer + _balance > (uint256(max) * (10 ** 18))) revert OverMaxValueByAccessLevel();
     }
 
     /**
-     * @dev Function to get the AccessLevel Balance rule in the rule set that belongs to the Access Level
+     * @dev Function to get the Account Max Value By Access Level rule in the rule set that belongs to the Access Level
      * @param _index position of rule in array
      * @param _accessLevel AccessLevel Level to check
-     * @return balanceAmount balance allowed for access levellevel
+     * @return balanceAmount balance allowed for access level
      */
-    function getAccessLevelBalanceRule(uint32 _index, uint8 _accessLevel) public view returns (uint48) {
-        RuleS.AccessLevelRuleS storage data = Storage.accessStorage();
-        if (_index >= data.accessRuleIndex) revert IndexOutOfRange();
-        return data.accessRulesPerToken[_index][_accessLevel];
+    function getAccountMaxValueByAccessLevel(uint32 _index, uint8 _accessLevel) public view returns (uint48) {
+        RuleS.AccountMaxValueByAccessLevelS storage data = Storage.accountMaxValueByAccessLevelStorage();
+        if (_index >= data.accountMaxValueByAccessLevelIndex) revert IndexOutOfRange();
+        return data.accountMaxValueByAccessLevelRules[_index][_accessLevel];
     }
 
     /**
-     * @dev Function to get total AccessLevel Balance rules
+     * @dev Function to get total Account Max Value By Access Level rules
      * @return Total length of array
      */
-    function getTotalAccessLevelBalanceRules() public view returns (uint32) {
-        RuleS.AccessLevelRuleS storage data = Storage.accessStorage();
-        return data.accessRuleIndex;
+    function getTotalAccountMaxValueByAccessLevel() public view returns (uint32) {
+        RuleS.AccountMaxValueByAccessLevelS storage data = Storage.accountMaxValueByAccessLevelStorage();
+        return data.accountMaxValueByAccessLevelIndex;
     }
 
     /**
-     * @dev Check if transaction passes Withdrawal by AccessLevel rule.
+     * @dev Check if transaction passes Account Max Value Out By Access Level rule.
      * @param _ruleId Rule Identifier for rule arguments
      * @param _accessLevel the Access Level of the account
      * @param _usdWithdrawalTotal account's total amount withdrawn in USD with 18 decimals of precision
      * @param _usdAmountTransferring total USD amount to be transferred with 18 decimals of precision
      */
-    function checkwithdrawalLimitsByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _usdWithdrawalTotal, uint128 _usdAmountTransferring) external view returns (uint128) {
-        uint48 max = getAccessLevelWithdrawalRules(_ruleId, _accessLevel);
+    function checkAccountMaxValueOutByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _usdWithdrawalTotal, uint128 _usdAmountTransferring) external view returns (uint128) {
+        uint48 max = getAccountMaxValueOutByAccessLevel(_ruleId, _accessLevel);
         /// max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
-        if (_usdAmountTransferring + _usdWithdrawalTotal > (uint256(max) * (10 ** 18))) revert WithdrawalExceedsAccessLevelAllowedLimit();
+        if (_usdAmountTransferring + _usdWithdrawalTotal > (uint256(max) * (10 ** 18))) revert OverMaxValueOutByAccessLevel();
         else _usdWithdrawalTotal += _usdAmountTransferring;
         return _usdWithdrawalTotal;
     }
     
     /**
-     * @dev Function to get the Access Level Withdrawal rule in the rule set that belongs to the Access Level
+     * @dev Function to get the Account Max Value Out By Access Level rule in the rule set that belongs to the Access Level
      * @param _index position of rule in array
      * @param _accessLevel AccessLevel Level to check
-     * @return balanceAmount balance allowed for access levellevel
+     * @return balanceAmount balance allowed for access level
      */
-    function getAccessLevelWithdrawalRules(uint32 _index, uint8 _accessLevel) public view returns (uint48) {
-        RuleS.AccessLevelWithrawalRuleS storage data = Storage.accessLevelWithdrawalRuleStorage();
-        if (_index >= data.accessLevelWithdrawalRuleIndex) revert IndexOutOfRange();
-        return data.accessLevelWithdrawal[_index][_accessLevel];
+    function getAccountMaxValueOutByAccessLevel(uint32 _index, uint8 _accessLevel) public view returns (uint48) {
+        RuleS.AccountMaxValueOutByAccessLevelS storage data = Storage.accountMaxValueOutByAccessLevelStorage();
+        if (_index >= data.accountMaxValueOutByAccessLevelIndex) revert IndexOutOfRange();
+        return data.accountMaxValueOutByAccessLevelRules[_index][_accessLevel];
     }
 
     /**
-     * @dev Function to get total AccessLevel withdrawal rules
+     * @dev Function to get total Account Max Value Out By Access Level rules
      * @return Total number of access level withdrawal rules
      */
-    function getTotalAccessLevelWithdrawalRule() external view returns (uint32) {
-        RuleS.AccessLevelWithrawalRuleS storage data = Storage.accessLevelWithdrawalRuleStorage();
-        return data.accessLevelWithdrawalRuleIndex;
+    function getTotalAccountMaxValueOutByAccessLevel() external view returns (uint32) {
+        RuleS.AccountMaxValueOutByAccessLevelS storage data = Storage.accountMaxValueOutByAccessLevelStorage();
+        return data.accountMaxValueOutByAccessLevelIndex;
     }
 
     /**
-     * @dev Check if transaction passes AccessLevel 0 rule.This has no stored rule as there are no additional variables needed.
+     * @dev Check if transaction passes Account Deny For No Access Level rule.This has no stored rule as there are no additional variables needed.
      * @param _accessLevel the Access Level of the account
      */
-    function checkAccessLevel0Passes(uint8 _accessLevel) external pure {
+    function checkAccountDenyForNoAccessLevel(uint8 _accessLevel) external pure {
         if (_accessLevel == 0) {
             revert NotAllowedForAccessLevel();
         }
