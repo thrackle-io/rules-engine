@@ -279,13 +279,13 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(applicationNFT.balanceOf(address(69)), 0);
         // check the allowed list type
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
         applicationNFTHandler.setAccountApproveDenyOracleId(actionTypes, _index);
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(address(59));
-        oracleAllowed.addToApprovedList(goodBoys);
+        oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
         vm.startPrank(user1);
         // This one should pass
@@ -298,10 +298,10 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         switchToRuleAdmin();
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
 
         /// set oracle back to allow and attempt to burn token
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         applicationNFTHandler.setAccountApproveDenyOracleId(actionTypes, _index);
         /// swap to user and burn
         vm.stopPrank();
@@ -1473,10 +1473,10 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
     function _setAllowedAccountApproveDenyOracle() internal returns(uint32 ruleId){
         switchToRuleAdmin();
-        ruleId = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        ruleId = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         NonTaggedRules.AccountApproveDenyOracle memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(ruleId);
         assertEq(rule.oracleType, 1);
-        assertEq(rule.oracleAddress, address(oracleAllowed));
+        assertEq(rule.oracleAddress, address(oracleApproved));
         applicationNFTHandler.setAccountApproveDenyOracleId(_createActionsArray(), ruleId);
     }
 

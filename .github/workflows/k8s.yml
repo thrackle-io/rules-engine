@@ -2,10 +2,6 @@ name: K8s Build and Deploy
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - external
-      - main
 
 env:
   AWS_REGION: us-east-1
