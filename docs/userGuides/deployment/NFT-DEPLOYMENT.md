@@ -33,7 +33,7 @@
 
 ## Release History
 
-* 0.1.1  --> NOT SURE WHAT TO PUT HERE
+* 0.1.1
     * Initial document creation
   
 <!-- These are the body links -->

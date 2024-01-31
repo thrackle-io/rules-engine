@@ -21,7 +21,7 @@
         *NOTE: The path includes source name and contract name.*
     
         ````
-        forge create src/example/deploy/CastlevaniaAppManager.sol:CastlevaniaAppManager --constructor-args $APP_ADMIN_1 "Castlevania" false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+        forge create src/example/deploy/CastlevaniaAppManager.sol:CastlevaniaAppManager --constructor-args $APP_ADMIN_1 "Castlevania" false --private-key $SUPER_ADMIN_KEY --rpc-url $ETH_RPC_URL
         ````
 
         The AppManager contract deployed in this step will automatically grant SuperAdmin and AppAdmin roles to the _Owner Address_ at construction time, and --if `_upgradeMode_ == false`-- new data contracts will be automatically deployed and connected to the AppManager.
@@ -41,7 +41,7 @@
 
         *NOTE: The path includes source name and contract name.*
         ````
-        forge create src/example/deploy/ApplicationHandler.sol:CastlevaniaHandler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+        forge create src/example/deploy/ApplicationHandler.sol:CastlevaniaHandler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER --private-key $SUPER_ADMIN_KEY --rpc-url $ETH_RPC_URL
         ````
     4. Locate the address from the output, example:
         ````

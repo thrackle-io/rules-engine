@@ -17,10 +17,8 @@
 1.  Create an application rule:
     -  Get the _Account Max Value by Access Level Rule_ creation function from the [Application Rule Directory][appRuleDirectory-url] and invoke it on the RuleProcessorDiamond, sending in the required parameters. NOTE: Each rule requires a different parameter set. For local deployments, the RuleProcessorDiamond address can be found in previous steps, otherwise consult the [Deployment Directory][deploymentDirectory-url]. 
 
-        *Note: we are assumming that APP_ADMIN_1_KEY was also granted Rule Admin privileges.*
-
         ````
-        cast send $RULE_PROCESSOR_DIAMOND "addAccountMaxValueByAccessLevel(address,uint48[])(uint256)" $APPLICATION_APP_MANAGER \[0,10,100,1000,100000] --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+        cast send $RULE_PROCESSOR_DIAMOND "addAccountMaxValueByAccessLevel(address,uint48[])(uint256)" $APPLICATION_APP_MANAGER \[0,10,100,1000,100000] --private-key $RULE_ADMIN_KEY --rpc-url $ETH_RPC_URL 
         ````
 
     -  This function will return a ruleId, please take note of this value. It can be found in the _logs_ section of the output as the second value in the topics section. It will be the last digits so in the example, _00002_ is the ruleId:
@@ -31,7 +29,7 @@
 2.  Apply the application rule to the application
     -  Get the rule application function from the rule directory and invoke it on the ApplicationHandler created in previous steps.
         ````
-        cast send $APPLICATION_APPLICATION_HANDLER "setAccountMaxValueByAccessLevelId(uint32)" 00002  --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+        cast send $APPLICATION_APPLICATION_HANDLER "setAccountMaxValueByAccessLevelId(uint32)" 00002  --private-key $RULE_ADMIN_KEY --rpc-url $ETH_RPC_URL
         ````
 
 

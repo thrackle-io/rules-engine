@@ -69,7 +69,7 @@ To be able to use third-party pricing solutions with the protocol, you must make
 
 # Pricing Module Configuration 
 
-Once your pricing modules have been deployed, it is time to set their addresses in you appManager handler. The appManager handler needs both variables set to work:
+Once your pricing modules have been deployed, it is time to set their addresses in your appManager handler. The appManager handler needs both variables set to work:
 
 Signing with a ruleAdmin private key (see [admin roles](./ADMIN-CONFIG.md)), do:
 - For ERC20 pricer:

@@ -15,6 +15,7 @@
    - NOTE: AppManagers must be reused by all tokens in the ecosystem
 3. A Protocol-Supported ERC20 must be be deployed to the target chain
 4. An ERC20Handler must be deployed with each ERC20 token and connected accordingly.
+5. The token must be registered in the appManager.
 
 
 ### Deployment
