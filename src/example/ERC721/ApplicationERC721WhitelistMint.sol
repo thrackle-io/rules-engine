@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * and they have a certain amount of availbale mints.
  */
 
-contract ApplicationERC721 is ProtocolERC721 {
+contract ApplicationERC721WhitelistMint is ProtocolERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
 
