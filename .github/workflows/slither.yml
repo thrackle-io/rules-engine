@@ -1,0 +1,56 @@
+name: Slither Analysis
+
+on:
+  push:
+    branches:
+      - external
+  workflow_dispatch:
+    inputs:
+      CONFIG:
+        type: string
+        description: Path to slither config file
+        required: false
+        default: ./slither.config.json
+  pull_request:
+    types: [ opened, synchronize, reopened, edited, ready_for_review ]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly-09fe3e041369a816365a020f715ad6f94dbce9f2
+
+      - name: Slither Analyze
+        uses: crytic/slither-action@v0.3.0
+        if: github.event_name != 'pull_request'
+        id: slither
+        with:
+          slither-config: ${{ inputs.CONFIG }}
+          sarif: results.sarif
+          fail-on: none
+
+      - name: Slither Analyze Pull Request
+        uses: crytic/slither-action@v0.3.0
+        if: github.event_name == 'pull_request'
+        id: slither
+        with:
+          slither-config: ${{ inputs.CONFIG }}
+          fail-on: none
+          slither-args: --checklist --markdown-root ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/
+
+      - name: Create/update checklist as PR comment
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const script = require('.github/scripts/comment')
+            const header = '# Slither report'
+            const body = `${{ steps.slither.outputs.stdout }}`
+            await script({ github, context, header, body })
