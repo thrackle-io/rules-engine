@@ -1,6 +1,7 @@
 name: K8s Build and Deploy
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - external
