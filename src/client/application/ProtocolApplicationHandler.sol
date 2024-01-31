@@ -30,18 +30,18 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     IRuleProcessor immutable ruleProcessor;
 
     /// Risk Rule Ids
-    uint32 private accountBalanceByRiskRuleId;
-    uint32 private maxTxSizePerPeriodByRiskRuleId;
+    uint32 private accountMaxValueByRiskScoreId;
+    uint32 private accountMaxTransactionValueByRiskScoreId;
     /// Risk Rule on-off switches
-    bool private accountBalanceByRiskRuleActive;
-    bool private maxTxSizePerPeriodByRiskActive;
+    bool private accountMaxValueByRiskScoreActive;
+    bool private accountMaxTransactionValueByRiskScoreActive;
     /// AccessLevel Rule Ids
-    uint32 private accountBalanceByAccessLevelRuleId;
-    uint32 private withdrawalLimitByAccessLevelRuleId;
+    uint32 private accountMaxValueByAccessLevelId;
+    uint32 private accountMaxValueOutByAccessLevelId;
     /// AccessLevel Rule on-off switches
-    bool private accountBalanceByAccessLevelRuleActive;
-    bool private AccessLevel0RuleActive;
-    bool private withdrawalLimitByAccessLevelRuleActive;
+    bool private accountMaxValueByAccessLevelActive;
+    bool private AccountDenyForNoAccessLevelRuleActive;
+    bool private accountMaxValueOutByAccessLevelActive;
     /// Pause Rule on-off switch
     bool private pauseRuleActive; 
 
@@ -54,7 +54,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     /// MaxTxSizePerPeriodByRisk data
     mapping(address => uint128) usdValueTransactedInRiskPeriod;
     mapping(address => uint64) lastTxDateRiskRule;
-    /// AccessLevelWithdrawalRule data
+    /// AdminMinTokenBalanceRule data
     mapping(address => uint128) usdValueTotalWithrawals;
 
     /**
@@ -77,8 +77,8 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      */
     function requireApplicationRulesChecked() public view returns (bool) {
         return pauseRuleActive ||
-               accountBalanceByRiskRuleActive || maxTxSizePerPeriodByRiskActive || 
-               accountBalanceByAccessLevelRuleActive || withdrawalLimitByAccessLevelRuleActive || AccessLevel0RuleActive;
+               accountMaxValueByRiskScoreActive || accountMaxTransactionValueByRiskScoreActive || 
+               accountMaxValueByAccessLevelActive || accountMaxValueOutByAccessLevelActive || AccountDenyForNoAccessLevelRuleActive;
     }
 
     /**
@@ -108,10 +108,10 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
             balanceValuation = uint128(getAccTotalValuation(_to, _nftValuationLimit));
             transferValuation = uint128(nftPricer.getNFTPrice(_tokenAddress, _tokenId));
         }
-        if (accountBalanceByAccessLevelRuleActive || AccessLevel0RuleActive || withdrawalLimitByAccessLevelRuleActive) {
+        if (accountMaxValueByAccessLevelActive || AccountDenyForNoAccessLevelRuleActive || accountMaxValueOutByAccessLevelActive) {
             _checkAccessLevelRules(_from, _to, balanceValuation, transferValuation);
         }
-        if (accountBalanceByRiskRuleActive || maxTxSizePerPeriodByRiskActive) {
+        if (accountMaxValueByRiskScoreActive || accountMaxTransactionValueByRiskScoreActive) {
             _checkRiskRules(_from, _to, balanceValuation, transferValuation);
         }
         return true;
@@ -127,14 +127,14 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function _checkRiskRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation) internal {
         uint8 riskScoreTo = appManager.getRiskScore(_to);
         uint8 riskScoreFrom = appManager.getRiskScore(_from);
-        if (accountBalanceByRiskRuleActive) {
-            ruleProcessor.checkAccBalanceByRisk(accountBalanceByRiskRuleId, _to, riskScoreTo, _balanceValuation, _transferValuation);
+        if (accountMaxValueByRiskScoreActive) {
+            ruleProcessor.checkAccountMaxValueByRiskScore(accountMaxValueByRiskScoreId, _to, riskScoreTo, _balanceValuation, _transferValuation);
         }
-        if (maxTxSizePerPeriodByRiskActive) {
+        if (accountMaxTransactionValueByRiskScoreActive) {
             /// if rule is active check if the recipient is address(0) for burning tokens
             /// check if sender violates the rule
-            usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
-                maxTxSizePerPeriodByRiskRuleId,
+            usdValueTransactedInRiskPeriod[_from] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
+                accountMaxTransactionValueByRiskScoreId,
                 usdValueTransactedInRiskPeriod[_from],
                 _transferValuation,
                 lastTxDateRiskRule[_from],
@@ -143,8 +143,8 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
             if (_to != address(0)) {
                 lastTxDateRiskRule[_from] = uint64(block.timestamp);
                 /// check if recipient violates the rule
-                usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkMaxTxSizePerPeriodByRisk(
-                    maxTxSizePerPeriodByRiskRuleId,
+                usdValueTransactedInRiskPeriod[_to] = ruleProcessor.checkAccountMaxTxValueByRiskScore(
+                    accountMaxTransactionValueByRiskScoreId,
                     usdValueTransactedInRiskPeriod[_to],
                     _transferValuation,
                     lastTxDateRiskRule[_to],
@@ -166,14 +166,14 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
         /// Check if sender is not AMM and then check sender access level
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccessLevel0Passes(fromScore);
+        if (AccountDenyForNoAccessLevelRuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
         /// Check if receiver is not an AMM or address(0) and then check the recipient access level. Exempting address(0) allows for burning.
-        if (AccessLevel0RuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccessLevel0Passes(score);
+        if (AccountDenyForNoAccessLevelRuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
         /// Check that the recipient is not address(0). If it is we do not check this rule as it is a burn.
-        if (accountBalanceByAccessLevelRuleActive && _to != address(0))
-            ruleProcessor.checkAccBalanceByAccessLevel(accountBalanceByAccessLevelRuleId, score, _balanceValuation, _transferValuation);
-        if (withdrawalLimitByAccessLevelRuleActive) {
-            usdValueTotalWithrawals[_from] = ruleProcessor.checkwithdrawalLimitsByAccessLevel(withdrawalLimitByAccessLevelRuleId, fromScore, usdValueTotalWithrawals[_from], _transferValuation);
+        if (accountMaxValueByAccessLevelActive && _to != address(0))
+            ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevelId, score, _balanceValuation, _transferValuation);
+        if (accountMaxValueOutByAccessLevelActive) {
+            usdValueTotalWithrawals[_from] = ruleProcessor.checkAccountMaxValueOutByAccessLevel(accountMaxValueOutByAccessLevelId, fromScore, usdValueTotalWithrawals[_from], _transferValuation);
         }
     }
 
@@ -289,14 +289,14 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
 
 
     /**
-     * @dev Set the accountBalanceByRiskRule. Restricted to app administrators only.
+     * @dev Set the accountMaxValueByRiskScoreRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setAccountBalanceByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateAccBalanceByRisk(_ruleId);
-        accountBalanceByRiskRuleId = _ruleId;
-        accountBalanceByRiskRuleActive = true;
+    function setAccountMaxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxValueByRiskScore(_ruleId);
+        accountMaxValueByRiskScoreId = _ruleId;
+        accountMaxValueByRiskScoreActive = true;
         emit ApplicationRuleApplied(BALANCE_BY_RISK, _ruleId);
     }
 
@@ -304,8 +304,8 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAccountBalanceByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        accountBalanceByRiskRuleActive = _on;
+    function activateAccountMaxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        accountMaxValueByRiskScoreActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(BALANCE_BY_RISK);
         } else {
@@ -314,68 +314,68 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Tells you if the accountBalanceByRiskRule is active or not.
+     * @dev Tells you if the accountMaxValueByRiskScoreRule is active or not.
      * @return boolean representing if the rule is active
      */
-    function isAccountBalanceByRiskActive() external view returns (bool) {
-        return accountBalanceByRiskRuleActive;
+    function isAccountMaxValueByRiskScoreActive() external view returns (bool) {
+        return accountMaxValueByRiskScoreActive;
     }
 
     /**
-     * @dev Retrieve the accountBalanceByRisk rule id
-     * @return accountBalanceByRiskRuleId rule id
+     * @dev Retrieve the accountMaxValueByRiskScoreRule id
+     * @return accountMaxValueByRiskScoreId rule id
      */
-    function getAccountBalanceByRiskRule() external view returns (uint32) {
-        return accountBalanceByRiskRuleId;
+    function getAccountMaxValueByRiskScoreId() external view returns (uint32) {
+        return accountMaxValueByRiskScoreId;
     }
 
     /**
-     * @dev Set the accountBalanceByAccessLevelRule. Restricted to app administrators only.
+     * @dev Set the accountMaxValueByAccessLevelRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setAccountBalanceByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateAccBalanceByAccessLevel(_ruleId);
-        accountBalanceByAccessLevelRuleId = _ruleId;
-        accountBalanceByAccessLevelRuleActive = true;
-        emit ApplicationRuleApplied(BALANCE_BY_ACCESSLEVEL, _ruleId);
+    function setAccountMaxValueByAccessLevelId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxValueByAccessLevel(_ruleId);
+        accountMaxValueByAccessLevelId = _ruleId;
+        accountMaxValueByAccessLevelActive = true;
+        emit ApplicationRuleApplied(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _ruleId);
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAccountBalanceByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        accountBalanceByAccessLevelRuleActive = _on;
+    function activateAccountMaxValueByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        accountMaxValueByAccessLevelActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(BALANCE_BY_ACCESSLEVEL);
+            emit ApplicationHandlerActivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL);
         } else {
-            emit ApplicationHandlerDeactivated(BALANCE_BY_ACCESSLEVEL);
+            emit ApplicationHandlerDeactivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL);
         }
     }
 
     /**
-     * @dev Tells you if the accountBalanceByAccessLevelRule is active or not.
+     * @dev Tells you if the accountMaxValueByAccessLevelRule is active or not.
      * @return boolean representing if the rule is active
      */
-    function isAccountBalanceByAccessLevelActive() external view returns (bool) {
-        return accountBalanceByAccessLevelRuleActive;
+    function isAccountMaxValueByAccessLevelActive() external view returns (bool) {
+        return accountMaxValueByAccessLevelActive;
     }
 
     /**
-     * @dev Retrieve the accountBalanceByAccessLevel rule id
-     * @return accountBalanceByAccessLevelRuleId rule id
+     * @dev Retrieve the accountMaxValueByAccessLevel rule id
+     * @return accountMaxValueByAccessLevelId rule id
      */
-    function getAccountBalanceByAccessLevelRule() external view returns (uint32) {
-        return accountBalanceByAccessLevelRuleId;
+    function getAccountMaxValueByAccessLevelId() external view returns (uint32) {
+        return accountMaxValueByAccessLevelId;
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAccessLevel0Rule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        AccessLevel0RuleActive = _on;
+    function activateAccountDenyForNoAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        AccountDenyForNoAccessLevelRuleActive = _on;
         if (_on) {
             emit ApplicationHandlerActivated(ACCESS_LEVEL_0);
         } else {
@@ -384,72 +384,72 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Tells you if the AccessLevel0 Rule is active or not.
+     * @dev Tells you if the AccountDenyForNoAccessLevel Rule is active or not.
      * @return boolean representing if the rule is active
      */
-    function isAccessLevel0Active() external view returns (bool) {
-        return AccessLevel0RuleActive;
+    function isAccountDenyForNoAccessLevelActive() external view returns (bool) {
+        return AccountDenyForNoAccessLevelRuleActive;
     }
 
     /**
-     * @dev Set the withdrawalLimitByAccessLevelRule. Restricted to app administrators only.
+     * @dev Set the accountMaxValueOutByAccessLevelRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setWithdrawalLimitByAccessLevelRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateWithdrawalLimitsByAccessLevel(_ruleId);
-        withdrawalLimitByAccessLevelRuleId = _ruleId;
-        withdrawalLimitByAccessLevelRuleActive = true;
-        emit ApplicationRuleApplied(ACCESS_LEVEL_WITHDRAWAL, _ruleId);
+    function setAccountMaxValueOutByAccessLevelId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxValueOutByAccessLevel(_ruleId);
+        accountMaxValueOutByAccessLevelId = _ruleId;
+        accountMaxValueOutByAccessLevelActive = true;
+        emit ApplicationRuleApplied(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _ruleId);
     }
 
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateWithdrawalLimitByAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        withdrawalLimitByAccessLevelRuleActive = _on;
+    function activateAccountMaxValueOutByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        accountMaxValueOutByAccessLevelActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ACCESS_LEVEL_WITHDRAWAL);
+            emit ApplicationHandlerActivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL);
         } else {
-            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_WITHDRAWAL);
+            emit ApplicationHandlerDeactivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL);
         }
     }
 
     /**
-     * @dev Tells you if the withdrawalLimitByAccessLevelRule is active or not.
+     * @dev Tells you if the accountMaxValueOutByAccessLevelRule is active or not.
      * @return boolean representing if the rule is active
      */
-    function isWithdrawalLimitByAccessLevelActive() external view returns (bool) {
-        return withdrawalLimitByAccessLevelRuleActive;
+    function isAccountMaxValueOutByAccessLevelActive() external view returns (bool) {
+        return accountMaxValueOutByAccessLevelActive;
     }
 
     /**
-     * @dev Retrieve the withdrawalLimitByAccessLevel rule id
-     * @return withdrawalLimitByAccessLevelRuleId rule id
+     * @dev Retrieve the accountMaxValueOutByAccessLevelRule rule id
+     * @return accountMaxValueOutByAccessLevelId rule id
      */
-    function getWithdrawalLimitByAccessLevelRule() external view returns (uint32) {
-        return withdrawalLimitByAccessLevelRuleId;
+    function getAccountMaxValueOutByAccessLevelId() external view returns (uint32) {
+        return accountMaxValueOutByAccessLevelId;
     }
 
     /**
-     * @dev Retrieve the MaxTxSizePerPeriodByRisk rule id
-     * @return MaxTxSizePerPeriodByRisk rule id for specified token
+     * @dev Retrieve the AccountMaxTransactionValueByRiskScore rule id
+     * @return accountMaxTransactionValueByRiskScoreId rule id for specified token
      */
-    function getMaxTxSizePerPeriodByRiskRuleId() external view returns (uint32) {
-        return maxTxSizePerPeriodByRiskRuleId;
+    function getAccountMaxTxValueByRiskScoreId() external view returns (uint32) {
+        return accountMaxTransactionValueByRiskScoreId;
     }
 
     /**
-     * @dev Set the MaxTxSizePerPeriodByRisk. Restricted to app administrators only.
+     * @dev Set the AccountMaxTransactionValueByRiskScoreRule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setMaxTxSizePerPeriodByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateMaxTxSizePerPeriodByRisk(_ruleId);
-        maxTxSizePerPeriodByRiskRuleId = _ruleId;
-        maxTxSizePerPeriodByRiskActive = true;
-        emit ApplicationRuleApplied(MAX_TX_PER_PERIOD, _ruleId);
+    function setAccountMaxTxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxTxValueByRiskScore(_ruleId);
+        accountMaxTransactionValueByRiskScoreId = _ruleId;
+        accountMaxTransactionValueByRiskScoreActive = true;
+        emit ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _ruleId);
     }
 
     /**
@@ -457,21 +457,21 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @param _on boolean representing if a rule must be checked or not.
      */
 
-    function activateMaxTxSizePerPeriodByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        maxTxSizePerPeriodByRiskActive = _on;
+    function activateAccountMaxTxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress) {
+        accountMaxTransactionValueByRiskScoreActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(MAX_TX_PER_PERIOD);
+            emit ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE);
         } else {
-            emit ApplicationHandlerDeactivated(MAX_TX_PER_PERIOD);
+            emit ApplicationHandlerDeactivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE);
         }
     }
 
     /**
-     * @dev Tells you if the MaxTxSizePerPeriodByRisk is active or not.
+     * @dev Tells you if the accountMaxTransactionValueByRiskScoreRule is active or not.
      * @return boolean representing if the rule is active for specified token
      */
-    function isMaxTxSizePerPeriodByRiskActive() external view returns (bool) {
-        return maxTxSizePerPeriodByRiskActive;
+    function isAccountMaxTxValueByRiskScoreActive() external view returns (bool) {
+        return accountMaxTransactionValueByRiskScoreActive;
     }
 
     /**

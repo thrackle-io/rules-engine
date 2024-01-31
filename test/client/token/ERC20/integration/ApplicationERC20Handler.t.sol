@@ -146,74 +146,74 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
     }
 
     ///Test risk score max size of 99 when adding risk rules
-    function testRiskScoreRiskLevelMaxSize() public {
-        uint48[] memory _maxSize = createUint48Array(1000000, 10000, 10); 
-        uint8[] memory _riskLevel = createUint8Array(25, 50, 75);
+    function testAccountMaxTransactionValueByRiskScore() public {
+        uint48[] memory _maxValue = createUint48Array(1000000, 10000, 10); 
+        uint8[] memory _riskScore = createUint8Array(25, 50, 75);
         switchToRuleAdmin();
-        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), _maxSize, _riskLevel, 0, uint64(block.timestamp));
+        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), _maxValue, _riskScore, 0, uint64(block.timestamp));
         ///Activate rule
-        applicationHandler.setMaxTxSizePerPeriodByRiskRuleId(ruleId);
-        ///add txnLimit failing (risk level 100)
-        uint48[] memory maxSize = createUint48Array(1000000, 10000, 10);
-        uint8[] memory riskLevel = createUint8Array(25, 75, 100);
+        applicationHandler.setAccountMaxTxValueByRiskScoreId(ruleId);
+        ///add txnLimit failing (risk score 100)
+        uint48[] memory maxValue = createUint48Array(1000000, 10000, 10);
+        uint8[] memory riskScore = createUint8Array(25, 75, 100);
         vm.expectRevert();
-        AppRuleDataFacet(address(ruleProcessor)).addMaxTxSizePerPeriodByRiskRule(address(applicationAppManager), maxSize, riskLevel, 0, uint64(block.timestamp));
+        AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), maxValue, riskScore, 0, uint64(block.timestamp));
 
         ///add balanceLimit passing (less than 100)
         uint8[] memory _riskScores = createUint8Array(25, 50, 75);
-        uint48[] memory _balanceLimits = createUint48Array(1000000, 10000, 10);
-        AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), _riskScores, _balanceLimits);
+        // uint48[] memory _maxValue = createUint48Array(1000000, 10000, 10);
+        AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByRiskScore(address(applicationAppManager), _riskScores, _maxValue);
 
-        ///add balanceLimit failing (risk level 100)
+        ///add balanceLimit failing (risk score 100)
         uint8[] memory riskScores = createUint8Array(25, 50, 100);
         uint48[] memory balanceLimits = createUint48Array(1000000, 10000, 10);
         vm.expectRevert();
-        AppRuleDataFacet(address(ruleProcessor)).addAccountBalanceByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
+        AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
     }
 
     /// now disable since it won't work unless an ERC20 is using it
-    function testTaggedCheckForMinMaxBalancePasses() public {
+    function testAccountMinMaxTokenBalanceTaggedCheckPasses() public {
         bytes32[] memory _accountTypes = createBytes32Array("BALLER");
-        uint256[] memory _minimum = createUint256Array(10);
-        uint256[] memory _maximum = createUint256Array(1000);
+        uint256[] memory _min = createUint256Array(10);
+        uint256[] memory _max = createUint256Array(1000);
         uint16[] memory empty;
         /// Set the min/max rule data
         applicationAppManager.addTag(user1, "BALLER");
         applicationAppManager.addTag(user2, "BALLER");
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum, empty, uint64(Blocktime));
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), _accountTypes, _min, _max, empty, uint64(Blocktime));
         /// connect the rule to this handler
-        applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(_createActionsArray(), ruleId);
+        applicationCoinHandlerSpecialOwner.setAccountMinMaxTokenBalanceId(_createActionsArray(), ruleId);
         switchToAppAdministrator();
         /// execute a passing check for the minimum
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, user1, 10);
         /// execute a passing check for the maximum
         applicationCoinHandlerSpecialOwner.checkAllRules(1000, 0, user1, user2, user1, 500);
         // execute a failing check for the minimum
-        vm.expectRevert(0xf1737570);
+        vm.expectRevert(0x3e237976);
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, user1, 15);
         // execute a passing check for the maximum
-        vm.expectRevert(0x24691f6b);
+        vm.expectRevert(0x1da56a44);
         applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, user1, 500);
     }
 
     /// now disable since it won't work unless an ERC20 is using it
-    function testOracleERC20Handler() public {
+    function testAccountApproveDenyOracleERC20Handler() public {
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 0, address(oracleDenied));
         switchToAppAdministrator();
         assertEq(_index, 0);
-        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
+        NonTaggedRules.AccountApproveDenyOracle memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleDenied));
-        // add a blocked address
+        // add a denied address
         badBoys.push(address(69));
         oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
-        applicationCoinHandlerSpecialOwner.setOracleRuleId(_createActionsArray(), _index);
+        applicationCoinHandlerSpecialOwner.setAccountApproveDenyOracleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         // test that the oracle works
         // This one should pass
@@ -222,33 +222,33 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         vm.expectRevert(0x2767bda4);
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(69), user1, 10);
 
-        // check the allowed list type
+        // check the approved list type
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandlerSpecialOwner.setOracleRuleId(_createActionsArray(), _index);
+        applicationCoinHandlerSpecialOwner.setAccountApproveDenyOracleId(_createActionsArray(), _index);
         switchToAppAdministrator();
-        // add an allowed address
+        // add an approved address
         goodBoys.push(address(59));
-        oracleAllowed.addToAllowList(goodBoys);
+        oracleAllowed.addToApprovedList(goodBoys);
         // This one should pass
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(59), user1, 10);
         // This one should fail
-        vm.expectRevert(0x7304e213);
+        vm.expectRevert(0xcafd3316);
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), user1, 10);
 
         // Finally, check the invalid type
         switchToRuleAdmin();
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
-        _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 2, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleAllowed));
     }
 
     /// now disable since it won't work unless an ERC20 is using it
     function testTurningOnOffRules() public {
         bytes32[] memory _accountTypes = createBytes32Array("BALLER");
-        uint256[] memory _minimum = createUint256Array(10);
-        uint256[] memory _maximum = createUint256Array(1000);
+        uint256[] memory _min = createUint256Array(10);
+        uint256[] memory _max = createUint256Array(1000);
         uint16[] memory empty;
 
         /// Set the min/max rule data
@@ -256,42 +256,42 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationAppManager.addTag(user2, "BALLER");
         // add the rule.
         switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addMinMaxBalanceRule(address(applicationAppManager), _accountTypes, _minimum, _maximum, empty, uint64(Blocktime));
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), _accountTypes, _min, _max, empty, uint64(Blocktime));
         /// connect the rule to this handler
-        applicationCoinHandlerSpecialOwner.setMinMaxBalanceRuleId(_createActionsArray(), ruleId);
+        applicationCoinHandlerSpecialOwner.setAccountMinMaxTokenBalanceId(_createActionsArray(), ruleId);
         switchToAppAdministrator();
         /// execute a passing check for the minimum
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, user2, user1, 10);
         /// execute a passing check for the maximum
         applicationCoinHandlerSpecialOwner.checkAllRules(1000, 0, user1, user2, user1, 500);
         // execute a failing check for the minimum
-        vm.expectRevert(0xf1737570);
+        vm.expectRevert(0x3e237976);
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, user1, 15);
         // execute a failing check for the maximum
-        vm.expectRevert(0x24691f6b);
+        vm.expectRevert(0x1da56a44);
         applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, user1, 500);
         /// turning rules off
         switchToRuleAdmin();
-        applicationCoinHandlerSpecialOwner.activateMinMaxBalanceRule(_createActionsArray(), false);
+        applicationCoinHandlerSpecialOwner.activateAccountMinMaxTokenBalance(_createActionsArray(), false);
         switchToAppAdministrator();
         /// now we can "break" the rules
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, user1, 15);
         applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, user1, 500);
         /// turning rules back on
         switchToRuleAdmin();
-        applicationCoinHandlerSpecialOwner.activateMinMaxBalanceRule(_createActionsArray(), true);
+        applicationCoinHandlerSpecialOwner.activateAccountMinMaxTokenBalance(_createActionsArray(), true);
         switchToAppAdministrator();
         /// now we cannot break the rules again
-        vm.expectRevert(0xf1737570);
+        vm.expectRevert(0x3e237976);
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 1000, user1, user2, user1, 15);
-        vm.expectRevert(0x24691f6b);
+        vm.expectRevert(0x1da56a44);
         applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, user1, 500);
 
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 0, address(oracleDenied));
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 0, address(oracleDenied));
         assertEq(_index, 0);
-        NonTaggedRules.OracleRule memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
+        NonTaggedRules.AccountApproveDenyOracle memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(_index);
         assertEq(rule.oracleType, 0);
         assertEq(rule.oracleAddress, address(oracleDenied));
         // add a blocked address
@@ -300,7 +300,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
-        applicationCoinHandlerSpecialOwner.setOracleRuleId(_createActionsArray(), _index);
+        applicationCoinHandlerSpecialOwner.setAccountApproveDenyOracleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         // test that the oracle works
         // This one should pass
@@ -312,15 +312,15 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         // check the allowed list type
         switchToRuleAdmin();
-        uint32 _indexTwo = RuleDataFacet(address(ruleProcessor)).addOracleRule(address(applicationAppManager), 1, address(oracleAllowed));
+        uint32 _indexTwo = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
         /// connect the rule to this handler
-        applicationCoinHandlerSpecialOwner.setOracleRuleId(_createActionsArray(), _indexTwo);
+        applicationCoinHandlerSpecialOwner.setAccountApproveDenyOracleId(_createActionsArray(), _indexTwo);
 
-        NonTaggedRules.OracleRule memory ruleCheck = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_index);
+        NonTaggedRules.AccountApproveDenyOracle memory ruleCheck = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(_index);
         assertEq(ruleCheck.oracleType, 0);
         assertEq(ruleCheck.oracleAddress, address(oracleDenied));
 
-        NonTaggedRules.OracleRule memory ruleCheckTwo = ERC20RuleProcessorFacet(address(ruleProcessor)).getOracleRule(_indexTwo);
+        NonTaggedRules.AccountApproveDenyOracle memory ruleCheckTwo = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(_indexTwo);
         assertEq(ruleCheckTwo.oracleType, 1);
         assertEq(ruleCheckTwo.oracleAddress, address(oracleAllowed));
 
@@ -328,16 +328,16 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         // add an allowed address
         goodBoys.push(address(59));
         goodBoys.push(address(68));
-        oracleAllowed.addToAllowList(goodBoys);
+        oracleAllowed.addToApprovedList(goodBoys);
         // This one should pass
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(59), user1, 10);
         // This one should fail
-        vm.expectRevert(0x7304e213);
+        vm.expectRevert(0xcafd3316);
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), user1, 10);
 
         // let's turn the allowed list rule off
         switchToRuleAdmin();
-        applicationCoinHandlerSpecialOwner.activateOracleRule(_createActionsArray(), false, _indexTwo);
+        applicationCoinHandlerSpecialOwner.activateAccountApproveDenyOracle(_createActionsArray(), false, _indexTwo);
         switchToAppAdministrator();
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), user1, 10);
 
@@ -347,14 +347,14 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         // let's turn it back on
         switchToRuleAdmin();
-        applicationCoinHandlerSpecialOwner.activateOracleRule(_createActionsArray(), true, _indexTwo);
+        applicationCoinHandlerSpecialOwner.activateAccountApproveDenyOracle(_createActionsArray(), true, _indexTwo);
         switchToAppAdministrator();
-        vm.expectRevert(0x7304e213);
+        vm.expectRevert(0xcafd3316);
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(88), user1, 10);
 
         // Remove the denied list rule and verify it no longer fails.
         switchToRuleAdmin();
-        applicationCoinHandlerSpecialOwner.removeOracleRule(_createActionsArray(), _index);
+        applicationCoinHandlerSpecialOwner.removeAccountApproveDenyOracle(_createActionsArray(), _index);
         switchToAppAdministrator();
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(68), user1, 10);
     }

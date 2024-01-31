@@ -16,7 +16,7 @@ in terms of USD with 18 decimals of precision.
 ## Functions
 ### checkTransactionLimitByRiskScore
 
-_transactionSize size must be equal to _riskLevel.
+_transactionSize size must be equal to _riskScore.
 The positioning of the arrays is ascendant in terms of risk levels,
 and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
 will apply to all risk scores of 100.)
@@ -67,7 +67,7 @@ function getTransactionLimitByRiskRules(uint32 _index)
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`TaggedRules.TransactionSizeToRiskRule`|balanceAmount balance allowed for access levellevel|
+|`<none>`|`TaggedRules.TransactionSizeToRiskRule`|balanceAmount balance allowed for access level|
 
 
 ### getTotalTransactionLimitByRiskRule

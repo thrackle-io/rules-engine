@@ -9,9 +9,9 @@ import "src/client/application/IAppManager.sol";
 import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "src/client/application/IAppManagerUser.sol";
-import "./IAdminWithdrawalRuleCapable.sol";
+import "./IAdminMinTokenBalanceCapable.sol";
 import "./IProtocolTokenHandler.sol";
-import "src/client/token/IAdminWithdrawalRuleCapable.sol";
+import "src/client/token/IAdminMinTokenBalanceCapable.sol";
 import "src/client/token/HandlerTypeEnum.sol";
 import "src/client/token/ITokenInterface.sol";
 import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
@@ -84,17 +84,14 @@ abstract contract ProtocolHandlerCommon is
      * @return action intended in the transfer
      */
     function determineTransferAction(address _from, address _to, address _sender) internal view returns (ActionTypes action){
-        action = ActionTypes.P2P_TRANSFER;
-        if(_from == address(0) && _to != address(0)){
+        if(_from == address(0)){
             action = ActionTypes.MINT;
-        } else if(_to == address(0) && _from != address(0)){
+        } else if(_to == address(0)){
             action = ActionTypes.BURN;
         } else if(!(_sender == _from)){ 
             action = ActionTypes.SELL;
-        } else if(!isContract(_from) && !isContract(_to)){
-            action = ActionTypes.P2P_TRANSFER;
         } else if(isContract(_from)) {
-            action = ActionTypes.PURCHASE;
+            action = ActionTypes.BUY;
         }
     }  
     /**

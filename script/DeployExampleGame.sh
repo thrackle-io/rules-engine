@@ -198,9 +198,9 @@ sed -i '' 's/ApplicationERC20Handler/'$APP_NAME'ERC20Handler/g' ./src/example/$A
 
 # Oracle
 
-cp ./src/example/OracleAllowed.sol ./src/example/$APP_NAME/$ORACLE_FILE_NAME
+cp ./src/example/OracleApproved.sol ./src/example/$APP_NAME/$ORACLE_FILE_NAME
 
-sed -i '' 's/OracleAllowed/'$APP_NAME'Allowed/g' ./src/example/$APP_NAME/$ORACLE_FILE_NAME
+sed -i '' 's/OracleApproved/'$APP_NAME'Allowed/g' ./src/example/$APP_NAME/$ORACLE_FILE_NAME
 
 forge build --use solc:0.8.17
 
@@ -399,16 +399,16 @@ echo "################################################################"
 echo
 
 # Comment the following line out to see the oracle rule fail
-cast send $ORACLE_1_HANDLER "addAddressToAllowList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
-cast send $ORACLE_2_HANDLER "addAddressToAllowList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_2_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
-echo  Create NFT Transfer Counter Rule
+echo  Create NFT Token Max Daily Trades Rule
 echo "################################################################"
 echo
 
-cast send $RULE_PROCESSOR_DIAMOND "addNFTTransferCounterRule(address,bytes32[],uint8[],uint64)(uint32)" $APPLICATION_APP_MANAGER \[0x5461796c65720000000000000000000000000000000000000000000000000000\] \[1\] 1675723152 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt 
+cast send $RULE_PROCESSOR_DIAMOND "addTokenMaxDailyTrades(address,bytes32[],uint8[],uint64)(uint32)" $APPLICATION_APP_MANAGER \[0x5461796c65720000000000000000000000000000000000000000000000000000\] \[1\] 1675723152 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt 
 
 OUTPUT_JSON=$(sed -n 's/logs //p' transaction_output.txt)
 
@@ -426,14 +426,14 @@ echo  Set the Rule on the Handler
 echo "################################################################"
 echo
 
-cast send $APPLICATION_ERC721_1_HANDLER "setTradeCounterRuleId(uint8[], uint32)" [2] $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+cast send $APPLICATION_ERC721_1_HANDLER "setTokenMaxDailyTradesId(uint8[], uint32)" [2] $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
 echo "################################################################"
 echo  Create two Oracle Rules
 echo "################################################################"
 echo
 
-cast send $RULE_PROCESSOR_DIAMOND "addOracleRule(address, uint8, address)" $APPLICATION_APP_MANAGER 1 $ORACLE_1_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt
+cast send $RULE_PROCESSOR_DIAMOND "addAccountApproveDenyOracle(address, uint8, address)" $APPLICATION_APP_MANAGER 1 $ORACLE_1_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt
 
 cat transaction_output.txt
 
@@ -454,12 +454,12 @@ echo "################################################################"
 echo
 
 
-cast send $APPLICATION_ERC20_1_HANDLER "setOracleRuleId(uint8[], uint32)" [2], $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1_HANDLER "setAccountApproveDenyOracleId(uint8[], uint32)" [2], $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
 # Swap this with the ERC20 call above to run this test on an ERC721
-# cast send $APPLICATION_ERC721_1_HANDLER "setOracleRuleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+# cast send $APPLICATION_ERC721_1_HANDLER "setAccountApproveDenyOracleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
-cast send $RULE_PROCESSOR_DIAMOND "addOracleRule(address, uint8, address)" $APPLICATION_APP_MANAGER 1 $ORACLE_2_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt
+cast send $RULE_PROCESSOR_DIAMOND "addAccountApproveDenyOracle(address, uint8, address)" $APPLICATION_APP_MANAGER 1 $ORACLE_2_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt
 
 cat transaction_output.txt
 
@@ -479,10 +479,10 @@ echo  Set the Rule on the Handler
 echo "################################################################"
 echo
 
-cast send $APPLICATION_ERC20_1_HANDLER "setOracleRuleId(uint8[], uint32)" [2], $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1_HANDLER "setAccountApproveDenyOracleId(uint8[], uint32)" [2], $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
 # Swap this with the ERC20 call above to run this test on an ERC721
-# cast send $APPLICATION_ERC721_1_HANDLER "setOracleRuleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+# cast send $APPLICATION_ERC721_1_HANDLER "setAccountApproveDenyOracleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
 cast call $APPLICATION_ERC20_1_HANDLER "checkAllRules(uint256, uint256, address, address, address, uint256)(bool)" 20 10 $APP_ADMIN_3 $APP_ADMIN_2 $APP_ADMIN_3 100  --rpc-url $ETH_RPC_URL --from $APPLICATION_ERC20_1
 

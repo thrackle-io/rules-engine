@@ -11,34 +11,36 @@ import {INonTaggedRules, ITaggedRules, IFeeRules, IApplicationRules} from "./Rul
  */
 interface IRuleStorage {
     /**
-     * Note The following are market-related rules. Checks must be
-     * made in AMMs rather than at token level.
+     * Note The following are market-related oppertation rules. Checks depend on the
+     * accuracy of the method to determine when a transfer is part of a trade and what 
+     * direction it is taking (buy or sell).
      */
-    struct PurchaseRuleS {
+     /// ******** Account Max Buy Sizes ********
+    struct AccountMaxBuySizeS {
         /// ruleIndex => userType => rules
-        mapping(uint32 => mapping(bytes32 => ITaggedRules.PurchaseRule)) purchaseRulesPerUser;
+        mapping(uint32 => mapping(bytes32 => ITaggedRules.AccountMaxBuySize)) accountMaxBuySizeRules;
         mapping(uint32 => uint64) startTimes;///Time the rule is applied
-        uint32 purchaseRulesIndex; /// increments every time someone adds a rule
+        uint32 accountMaxBuySizeIndex;
     }
 
-    /// ******** Account Sell Rules ********
-    struct SellRuleS {
+    /// ******** Account Max Sell Sizes ********
+    struct AccountMaxSellSizeS {
         /// ruleIndex => userType => rules
-        mapping(uint32 => mapping(bytes32 => ITaggedRules.SellRule)) sellRulesPerUser;
+        mapping(uint32 => mapping(bytes32 => ITaggedRules.AccountMaxSellSize)) AccountMaxSellSizesRules;
         mapping(uint32 => uint64) startTimes;///Time the rule is applied
-        uint32 sellRulesIndex; /// increments every time someone adds a rule
+        uint32 AccountMaxSellSizesIndex;
     }
 
-    /// ******** Token Purchase Percentage Rules ********
-    struct PctPurchaseRuleS {
-        mapping(uint32 => INonTaggedRules.TokenPercentagePurchaseRule) percentagePurchaseRules;
-        uint32 percentagePurchaseRuleIndex;
+    /// ******** Token Max Buy Volume ********
+    struct TokenMaxBuyVolumeS {
+        mapping(uint32 => INonTaggedRules.TokenMaxBuyVolume) tokenMaxBuyVolumeRules;
+        uint32 tokenMaxBuyVolumeIndex;
     }
 
-    /// ******** Token Percentage Sell Rules ********
-    struct PctSellRuleS {
-        mapping(uint32 => INonTaggedRules.TokenPercentageSellRule) percentageSellRules;
-        uint32 percentageSellRuleIndex;
+    /// ******** Token Max Sell Volume Rules ********
+    struct TokenMaxSellVolumeS {
+        mapping(uint32 => INonTaggedRules.TokenMaxSellVolume) tokenMaxSellVolumeRules;
+        uint32 tokenMaxSellVolumeIndex;
     }
 
     /// ******** Token Purchase Fee By Volume Rules ********
@@ -47,89 +49,87 @@ interface IRuleStorage {
         uint32 purchaseFeeByVolumeRuleIndex;
     }
 
-    /// ******** Token Volatility ********
-    struct VolatilityRuleS {
-        mapping(uint32 => INonTaggedRules.TokenVolatilityRule) volatilityRules;
-        uint32 volatilityRuleIndex;
+    /// ******** Token Max Price Volatility ********
+    struct TokenMaxPriceVolatilityS {
+        mapping(uint32 => INonTaggedRules.TokenMaxPriceVolatility) tokenMaxPriceVolatilityRules;
+        uint32 tokenMaxPriceVolatilityIndex;
     }
 
-    /// ******** Token Transfer Volume ********
-    struct TransferVolRuleS {
-        mapping(uint32 => INonTaggedRules.TokenTransferVolumeRule) transferVolumeRules;
-        uint32 transferVolRuleIndex;
+    /// ******** Token Max Trading Volume ********
+    struct TokenMaxTradingVolumeS {
+        mapping(uint32 => INonTaggedRules.TokenMaxTradingVolume) tokenMaxTradingVolumeRules;
+        uint32 tokenMaxTradingVolumeIndex;
     }
 
-    /// ******** Admin Withdrawal Rules ********
+    /// ******** Admin Min Token Balance ********
 
-    struct AdminWithdrawalRuleS {
-        mapping(uint32 => ITaggedRules.AdminWithdrawalRule) adminWithdrawalRulesPerToken;
-        uint32 adminWithdrawalRulesIndex;
+    struct AdminMinTokenBalanceS {
+        mapping(uint32 => ITaggedRules.AdminMinTokenBalance) adminMinTokenBalanceRules;
+        uint32 adminMinTokenBalanceIndex;
     }
 
-    /// ******** Minimum Transaction ********
-    struct MinTransferRuleS {
-        mapping(uint32 => INonTaggedRules.TokenMinimumTransferRule) minimumTransferRules;
-        uint32 minimumTransferRuleIndex; /// increments every time someone adds a rule
+    /// ******** Token Min Tx Size ********
+    struct TokenMinTxSizeS {
+        mapping(uint32 => INonTaggedRules.TokenMinTxSize) tokenMinTxSizeRules;
+        uint32 tokenMinTxSizeIndex;
     }
 
-    /// ******** Minimum/Maximum Account Balances ********
-    struct MinMaxBalanceRuleS {
-        /// ruleIndex => taggedAccount => minimumTransfer
-        mapping(uint32 => mapping(bytes32 => ITaggedRules.MinMaxBalanceRule)) minMaxBalanceRulesPerUser;
-        mapping(uint32 => uint64) startTimes;///Time the rule is applied
-        uint32 minMaxBalanceRuleIndex; /// increments every time someone adds a rule
+    /// ******** Account Minimum/Maximum Token Balance ********
+    struct AccountMinMaxTokenBalanceS {
+        mapping(uint32 => mapping(bytes32 => ITaggedRules.AccountMinMaxTokenBalance)) accountMinMaxTokenBalanceRules;
+        mapping(uint32 => uint64) startTimes; ///Time the rule is applied
+        uint32 accountMinMaxTokenBalanceIndex;
     }
 
-    /// ******** Supply Volatility ********
-    struct SupplyVolatilityRuleS {
-        mapping(uint32 => INonTaggedRules.SupplyVolatilityRule) supplyVolatilityRules;
-        uint32 supplyVolatilityRuleIndex;
+    /// ******** Token Max Supply Volatility ********
+    struct TokenMaxSupplyVolatilityS {
+        mapping(uint32 => INonTaggedRules.TokenMaxSupplyVolatility) tokenMaxSupplyVolatilityRules;
+        uint32 tokenMaxSupplyVolatilityIndex;
     }
 
-    /// ******** Oracle ********
-    struct OracleRuleS {
-        mapping(uint32 => INonTaggedRules.OracleRule) oracleRules;
-        uint32 oracleRuleIndex;
+    /// ******** Account Approve/Deny Oracle ********
+    struct AccountApproveDenyOracleS {
+        mapping(uint32 => INonTaggedRules.AccountApproveDenyOracle) accountApproveDenyOracleRules;
+        uint32 accountApproveDenyOracleIndex;
     }
 
     /*****************************************
     ************* AccessLevel Rules ***********
     /*****************************************/
-    /// Balance Limit by Access Level
-    struct AccessLevelRuleS {
-        /// ruleIndex => level => max
-        mapping(uint32 => mapping(uint8 => uint48)) accessRulesPerToken;
-        uint32 accessRuleIndex; /// increments every time someone adds a rule
+    /// ******** Account Max Value by Access Level ********
+    struct AccountMaxValueByAccessLevelS {
+        mapping(uint32 => mapping(uint8 => uint48)) accountMaxValueByAccessLevelRules;
+        uint32 accountMaxValueByAccessLevelIndex;
     }
 
-    /// Withdrawal Limit by Access Level
-    struct AccessLevelWithrawalRuleS {
-        /// ruleIndex => access level => max
-        mapping(uint32 => mapping(uint8 => uint48)) accessLevelWithdrawal;
-        uint32 accessLevelWithdrawalRuleIndex;
+    /// ******** Account Max Value Out by Access Level ********
+    struct AccountMaxValueOutByAccessLevelS {
+        mapping(uint32 => mapping(uint8 => uint48)) accountMaxValueOutByAccessLevelRules;
+        uint32 accountMaxValueOutByAccessLevelIndex;
     }
     /*****************************************
     *************** NFT Rules ****************
     /*****************************************/
-    struct NFTTransferCounterRuleS {
+    /// ******** Token Max Daily Trades ********
+    struct TokenMaxDailyTradesS {
         /// ruleIndex => taggedNFT => tradesAllowed
-        mapping(uint32 => mapping(bytes32 => ITaggedRules.NFTTradeCounterRule)) NFTTransferCounterRule;
-        uint32 NFTTransferCounterRuleIndex; /// increments every time someone adds a rule
+        mapping(uint32 => mapping(bytes32 => ITaggedRules.TokenMaxDailyTrades)) tokenMaxDailyTradesRules;
+        uint32 tokenMaxDailyTradesIndex;
     }
     /*****************************************
     *************** Risk Rules ****************
     /*****************************************/
 
-    /// ******** Account Balance Rules ********
-    struct AccountBalanceToRiskRuleS {
-        mapping(uint32 => IApplicationRules.AccountBalanceToRiskRule) balanceToRiskRule;
-        uint32 balanceToRiskRuleIndex;
+    /// ******** Account Max Value By Risk Score Rules ********
+    struct AccountMaxValueByRiskScoreS {
+        mapping(uint32 => IApplicationRules.AccountMaxValueByRiskScore) accountMaxValueByRiskScoreRules;
+        uint32 accountMaxValueByRiskScoreIndex;
     }
 
-    /// ******** Transaction Size Per Period Rules ********
-    struct TxSizePerPeriodToRiskRuleS {
-        mapping(uint32 => IApplicationRules.TxSizePerPeriodToRiskRule) txSizePerPeriodToRiskRule;
-        uint32 txSizePerPeriodToRiskRuleIndex;
+    /// ******** Account Max Transaction Value By Period Rules ********
+    struct AccountMaxTxValueByRiskScoreS {
+        mapping(uint32 => IApplicationRules.AccountMaxTxValueByRiskScore) accountMaxTxValueByRiskScoreRules;
+        uint32 accountMaxTxValueByRiskScoreIndex;
     }
 
     /*****************************************

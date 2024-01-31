@@ -1,8 +1,8 @@
-# Account Balance By Risk Rule
+# Account Max Value By Risk Score
 
 ## Purpose
 
-The account-balance-by-risk rule enforces accumulated balance limits in U.S. dollars for user accounts based on a protocol assigned risk score to that account via the application manager. Risk scores are ranged between 0-99. Balance limits are set by range based on the risk scores given at rule creation. For example, if risk scores given in the array are: 25,50,75 and balance limits are: 500,250,100. The balance limit ranges are as follows: 0-24 = NO LIMIT, 25-49 = 500, 50-74 = 250, 75-99 = 100. 
+The account-max-value-by-risk-score rule enforces accumulated balance limits in U.S. dollars for user accounts based on a protocol assigned risk score to that account via the application manager. Risk scores are ranged between 0-99. Balance limits are set by range based on the risk scores given at rule creation. For example, if risk scores given in the array are: 25,50,75 and balance limits are: 500,250,100. The balance limit ranges are as follows: 0-24 = NO LIMIT, 25-49 = 500, 50-74 = 250, 75-99 = 100. 
 ```c
 risk scores      balances         resultant logic
 -----------      --------         ---------------
@@ -24,27 +24,27 @@ This rule works at the application level which means that all tokens in the app 
 
 ## Data Structure
 
-An account-balance-by-risk rule is composed of 2 components:
+An account-max-value-by-risk-score rule is composed of 2 components:
 
 - **Risk Score** (uint8[]): The array of risk scores.
-- **Max Balance** (uint48[]): The array of maximum whole dollar limits for risk score range.
+- **Max Value** (uint48[]): The array of maximum whole dollar limits for risk score range.
 
 ```c
-/// ******** Account Balance Rules By Risk Score ********
-struct AccountBalanceToRiskRule {
+/// ******** Account Max Value By Risk Scoree ********
+struct AccountMaxValueByRiskScore {
     uint8[] riskScore; 
-    uint48[] maxBalance; /// whole US dollar (no cents) -> 1 = 1 US dollar (Max allowed: 281 trillion USD)
+    uint48[] maxValue; /// whole US dollar (no cents) -> 1 = 1 US dollar (Max allowed: 281 trillion USD)
 }
 ```
 ###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
-The account-balance-by-risk-score rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
+The account-max-value-by-risk-score-score rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
  ```c
-    /// ******** Account Balance Rules ********
-    struct AccountBalanceToRiskRuleS {
-        mapping(uint32 => IApplicationRules.AccountBalanceToRiskRule) balanceToRiskRule;
-        uint32 balanceToRiskRuleIndex;
+    /// ******** Account Max Value Rules ********
+    struct AccountMaxValueByRiskScoreS {
+        mapping(uint32 => IApplicationRules.AccountMaxValueByRiskScore) accountMaxValueByRiskScoreRules;
+        uint32 accountMaxValueByRiskScoreIndex;
     }
 ```
 ###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
@@ -59,13 +59,13 @@ The account-balance-by-risk-score rules are stored in a mapping indexed by ruleI
 
 The rule will be evaluated with the following logic:
 
-1. The processor receives the ID of the account-balance-by-risk rule set in the application handler. 
+1. The processor receives the ID of the account-max-value-by-risk-score rule set in the application handler. 
 2. The processor receives the risk score of the user set in the app manager.
 3. The processor receives the U.S. dollar value of all protocol supported tokens owned by the to address and the U.S. dollar value of the transaction. 
-4. The processor finds the `max balance` value for the risk score.  
-5. The processor checks if the transaction value + current balance total is less than the risk score `max balance`. If total is greater than `max balance`, the rule reverts. 
+4. The processor finds the `max value` value for the risk score.  
+5. The processor checks if the transaction value + current balance total is less than the risk score `max value`. If total is greater than `max value`, the rule reverts. 
 
-###### *see [ApplicationRiskProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccBalanceByRisk*
+###### *see [ApplicationRiskProcessorFacet](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol) -> checkAccountMaxValueByRiskScore*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -76,20 +76,20 @@ The rule will be evaluated with the following logic:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error BalanceExceedsRiskScoreLimit();
+error OverMaxAccValueByRiskScore();
 ```
 
-The selector for this error is `0x58b13098`.
+The selector for this error is `0x8312246e`.
 
 ## Create Function
 
-Adding an account-balance-by-risk rule is done through the function:
+Adding an account-max-value-by-risk-score rule is done through the function:
 
 ```c
-function addAccountBalanceByRiskScore(
+function addAccountMaxValueByRiskScore(
     address _appManagerAddr, 
     uint8[] calldata _riskScores, 
-    uint48[] calldata _balanceLimits
+    uint48[] calldata _maxValue
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 ###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
@@ -100,7 +100,7 @@ The create function will return the protocol ID of the rule.
 
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
 - **_riskScores** (uint8): The array of risk score ranges (0-99).
-- **_balanceLimits** (uint48): the maximum whole U.S. dollar limit for each risk score range.
+- **_maxValue** (uint48): the maximum whole U.S. dollar limit for each risk score range.
 
 
 ### Parameter Optionality:
@@ -112,10 +112,10 @@ There is no parameter optionality for this rule.
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
 - `_appManagerAddr` is not the zero address.
-- `_riskScores` and `_balanceLimits` arrays are equal in length. 
+- `_riskScores` and `_maxValue` arrays are equal in length. 
 - `_riskScores` array last value is not greater than 99.
 - `_riskScores` array is in ascending order (the next value is always larger than the previous value in the array).
-- `_balanceLimits` array is in descending order (the next value is always smaller than the previous value in the array). 
+- `_maxValue` array is in descending order (the next value is always smaller than the previous value in the array). 
 
 
 ###### *see [AppRuleDataFacet](../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)*
@@ -125,26 +125,26 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol)):
     -  Function to get a rule by its ID:
         ```c
-        function getAccountBalanceByRiskScore(
+        function getAccountMaxValueByRiskScore(
                     uint32 _index
                 ) 
                 external 
                 view 
                 returns 
-                (appRules.AccountBalanceToRiskRule memory);
+                (appRules.AccountMaxValueByRiskScore memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalAccountBalanceByRiskScoreRules() public view returns (uint32);
+        function getTotalAccountMaxValueByRiskScore() public view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
-        function checkAccBalanceByRisk(
+        function checkAccountMaxValueByRiskScore(
                     uint32 _ruleId, 
                     address _toAddress, 
                     uint8 _riskScore, 
-                    uint128 _totalValuationTo, 
+                    uint128 _totalValueTo, 
                     uint128 _amountToTransfer
                 ) 
                 external 
@@ -153,19 +153,19 @@ The following validation will be carried out by the create function in order to 
 - in Application Handler:
     - Function to set and activate at the same time the rule in an application handler:
         ```c
-        function setAccountBalanceByRiskRuleId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setAccountMaxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule in an application handler:
         ```c
-        function activateAccountBalanceByRiskRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateAccountMaxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule in an application handler:
         ```c
-        function isAccountBalanceByRiskActive() external view returns (bool);
+        function isAccountMaxValueByRiskScoreActive() external view returns (bool);
         ```
     - Function to get the rule Id from an application handler:
         ```c
-        function getAccountBalanceByRiskRule() external view returns (uint32);
+        function getAccountMaxValueByRiskScoreId() external view returns (uint32);
         ```
 ## Return Data
 

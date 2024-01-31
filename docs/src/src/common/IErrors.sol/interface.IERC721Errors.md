@@ -14,9 +14,9 @@ All errors are declared in this file, and then inherited in contracts.
 error MaxNFTTransferReached();
 ```
 
-### MinimumHoldTimePeriodNotReached
+### UnderHoldPeriod
 
 ```solidity
-error MinimumHoldTimePeriodNotReached();
+error UnderHoldPeriod();
 ```
 

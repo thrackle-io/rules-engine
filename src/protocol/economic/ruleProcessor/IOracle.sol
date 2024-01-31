@@ -16,9 +16,9 @@ interface IOracle {
     function isDenied(address _address) external view returns (bool);
 
     /**
-     * @dev This function checks to see if the address is on the oracle's allowed list. This is the ALLOWED_LIST type.
+     * @dev This function checks to see if the address is on the oracle's approved list. This is the APPROVED_LIST type.
      * @param _address Account address to check
-     * @return denied returns true if allowed, false if not
+     * @return denied returns true if approved, false if not
      */
-    function isAllowed(address _address) external view returns (bool);
+    function isApproved(address _address) external view returns (bool);
 }

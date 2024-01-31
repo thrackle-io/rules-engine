@@ -9,8 +9,8 @@ pragma solidity ^0.8.17;
  */
 
 interface IERC721Errors {
-    error MaxNFTTransferReached();
-    error MinimumHoldTimePeriodNotReached();
+    error OverMaxDailyTrades();
+    error UnderHoldPeriod();
 }
 
 interface IRuleProcessorErrors {
@@ -18,8 +18,8 @@ interface IRuleProcessorErrors {
 }
 
 interface IAccessLevelErrors {
-    error BalanceExceedsAccessLevelAllowedLimit();
-    error WithdrawalExceedsAccessLevelAllowedLimit();
+    error OverMaxValueByAccessLevel();
+    error OverMaxValueOutByAccessLevel();
     error NotAllowedForAccessLevel();
     error AccessLevelIsNotValid(uint8 accessLevel);
 }
@@ -31,20 +31,19 @@ interface IPauseRuleErrors {
 }
 
 interface IRiskErrors {
-    error MaxTxSizePerPeriodReached(uint8 riskScore, uint256 maxTxSize, uint16 hoursOfPeriod);
-    error TransactionExceedsRiskScoreLimit();
-    error BalanceExceedsRiskScoreLimit();
+    error OverMaxTxValueByRiskScore(uint8 riskScore, uint256 maxTxSize);
+    error OverMaxAccValueByRiskScore();
 }
 
 interface IERC20Errors {
-    error BelowMinTransfer();
+    error UnderMinTxSize();
     error AddressIsDenied();
-    error AddressNotOnAllowedList();
+    error AddressNotApproved();
     error OracleTypeInvalid();
-    error PurchasePercentageReached();
-    error SellPercentageReached();
-    error TransferExceedsMaxVolumeAllowed();
-    error TotalSupplyVolatilityLimitReached();
+    error OverMaxBuyVolume();
+    error OverMaxSellVolume();
+    error OverMaxTradingVolume();
+    error OverMaxSupplyVolatility();
 }
 
 interface IMaxTagLimitError {
@@ -52,10 +51,10 @@ interface IMaxTagLimitError {
 }
 
 interface ITagRuleErrors {
-    error MaxBalanceExceeded();
-    error BalanceBelowMin();
+    error OverMaxBalance();
+    error UnderMinBalance();
     error TxnInFreezeWindow();
-    error TemporarySellRestriction();
+    error OverMaxSellSize();
 }
 
 interface IInputErrors {
@@ -107,11 +106,11 @@ interface INoAddressToRemove{
 
 interface IAppManagerErrors is INoAddressToRemove{
     error PricingModuleNotConfigured(address _erc20PricingAddress, address nftPricingAddress);
-    error NotAccessTierAdministrator(address _address);
+    error NotAccessLevelAdministrator(address _address);
     error NotRiskAdmin(address _address);
     error NotAUser(address _address);
     error AddressAlreadyRegistered();
-    error AdminWithdrawalRuleisActive();
+    error AdminMinTokenBalanceisActive();
     error NotRegisteredHandler(address);
 }
 
@@ -156,12 +155,12 @@ interface IZeroAddressError {
 
 interface IAssetHandlerErrors {
     error actionCheckFailed();
-    error CannotTurnOffAccessLevel0WithAccessLevelBalanceActive();
+    error CannotTurnOffAccountDenyForNoAccessLevelWhileActive();
     error PeriodExceeds5Years();
     error ZeroValueNotPermited();
     error BatchMintBurnNotSupported();
     error FeesAreGreaterThanTransactionAmount(address);
-    error OracleRulesPerAssetLimitReached();
+    error AccountApproveDenyOraclesPerAssetLimitReached();
 }
 
 interface IOwnershipErrors {

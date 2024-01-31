@@ -2,7 +2,7 @@
 # The Protocol
 [![Project Version][version-image]][version-url]
 
-> The protocol allows client applications to leverage controls in order to manage their assets and create an economic climate that suits their ecosystem. Transfer restrictions, access-tier-based rules, risk mitigations, and many other functionalities are available.
+> The protocol allows client applications to leverage controls in order to manage their assets and create an economic climate that suits their ecosystem. Transfer restrictions, access-level-based rules, risk mitigations, and many other functionalities are available.
 >
 > All the rules are configurable and may be modified to suit the needs of each client. They can be activated/deactivated as needed. 
 

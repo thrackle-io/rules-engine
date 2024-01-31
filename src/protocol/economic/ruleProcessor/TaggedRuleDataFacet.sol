@@ -17,235 +17,235 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     using RuleProcessorCommonLib for bytes32[]; 
 
 
-    /********************** Purchase Getters/Setters ***********************/
+    /********************** Account Max Buy Size ***********************/
     /**
-     * @dev Function add a Token Purchase Percentage rule
+     * @dev Function add an Account Max Buy Size rule
      * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _accountTypes Types of Accounts
-     * @param _purchaseAmounts Allowed total purchase limits
-     * @param _purchasePeriods Hours purhchases allowed
+     * @param _maxSizes Allowed total purchase limits
+     * @param _periods Hours purhchases allowed
      * @param _startTime timestamp period to start
      * @return position of new rule in array
      */
-    function addPurchaseRule(
+    function addAccountMaxBuySize(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
-        uint256[] calldata _purchaseAmounts,
-        uint16[] calldata _purchasePeriods,
+        uint256[] calldata _maxSizes,
+        uint16[] calldata _periods,
         uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_accountTypes.length != _purchaseAmounts.length || _accountTypes.length != _purchasePeriods.length) revert InputArraysMustHaveSameLength();
+        if (_accountTypes.length != _maxSizes.length || _accountTypes.length != _periods.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
         _accountTypes.areTagsValid();
-        return _addPurchaseRule(_accountTypes, _purchaseAmounts, _purchasePeriods, _startTime);
+        return _addAccountMaxBuySize(_accountTypes, _maxSizes, _periods, _startTime);
     }
 
     /**
      * @dev internal Function to avoid stack too deep error
      * @param _accountTypes Types of Accounts
-     * @param _purchaseAmounts Allowed total purchase limits
-     * @param _purchasePeriods Hours purhchases allowed
+     * @param _maxSizes Allowed total buy sizes
+     * @param _periods Amount of hours that define the periods
      * @param _startTime timestamp for first period to start
      * @return position of new rule in array
      */
-    function _addPurchaseRule(bytes32[] calldata _accountTypes, uint256[] calldata _purchaseAmounts, uint16[] calldata _purchasePeriods, uint64 _startTime) internal returns (uint32) {
-        RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
-        uint32 index = data.purchaseRulesIndex;
+    function _addAccountMaxBuySize(bytes32[] calldata _accountTypes, uint256[] calldata _maxSizes, uint16[] calldata _periods, uint64 _startTime) internal returns (uint32) {
+        RuleS.AccountMaxBuySizeS storage data = Storage.accountMaxBuySizeStorage();
+        uint32 index = data.accountMaxBuySizeIndex;
         _startTime.validateTimestamp();
         for (uint256 i; i < _accountTypes.length; ) {
-            if (_purchaseAmounts[i] == 0 || _purchasePeriods[i] == 0) revert ZeroValueNotPermited();
-            data.purchaseRulesPerUser[index][_accountTypes[i]] = TaggedRules.PurchaseRule(_purchaseAmounts[i], _purchasePeriods[i]);
+            if (_maxSizes[i] == 0 || _periods[i] == 0) revert ZeroValueNotPermited();
+            data.accountMaxBuySizeRules[index][_accountTypes[i]] = TaggedRules.AccountMaxBuySize(_maxSizes[i], _periods[i]);
 
             unchecked {
                 ++i;
             }
         }
         data.startTimes[index] = _startTime;
-        emit ProtocolRuleCreated(PURCHASE_LIMIT, index, _accountTypes);
-        ++data.purchaseRulesIndex;
+        emit ProtocolRuleCreated(ACCOUNT_MAX_BUY_SIZE, index, _accountTypes);
+        ++data.accountMaxBuySizeIndex;
         return index;
     }
 
-    /********************** Sell Getters/Setters **********************/
+    /********************** Account Max Sell Size **********************/
 
     /**
-     * @dev Function to add set of sell rules
+     * @dev Function to add an Account Max Sell Size rules
      * @param _appManagerAddr Address of App Manager
      * @param _accountTypes Types of Accounts
-     * @param _sellAmounts Allowed total sell limits
-     * @param _sellPeriod Period for sales
+     * @param _maxSizes Allowed total sell sizes
+     * @param _period Amount of hours that define the periods
      * @param _startTime rule starts
      * @return position of new rule in array
      */
-    function addSellRule(
+    function addAccountMaxSellSize(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
-        uint192[] calldata _sellAmounts,
-        uint16[] calldata _sellPeriod,
+        uint192[] calldata _maxSizes,
+        uint16[] calldata _period,
         uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_accountTypes.length != _sellAmounts.length || _accountTypes.length != _sellPeriod.length) revert InputArraysMustHaveSameLength();
+        if (_accountTypes.length != _maxSizes.length || _accountTypes.length != _period.length) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
         _accountTypes.areTagsValid();
-        return _addSellRule(_accountTypes, _sellAmounts, _sellPeriod, _startTime);
+        return _addAccountMaxSellSize(_accountTypes, _maxSizes, _period, _startTime);
     }
 
     /**
      * @dev internal Function to avoid stack too deep error
      * @param _accountTypes Types of Accounts
-     * @param _sellAmounts Allowed total sell limits
-     * @param _sellPeriod Period for sales
+     * @param _maxSizes Allowed total sell limits
+     * @param _period Period for sales
      * @param _startTime rule starts
      * @return position of new rule in array
      */
-    function _addSellRule(bytes32[] calldata _accountTypes, uint192[] calldata _sellAmounts, uint16[] calldata _sellPeriod, uint64 _startTime) internal returns (uint32) {
-        RuleS.SellRuleS storage data = Storage.sellStorage();
-        uint32 index = data.sellRulesIndex;
+    function _addAccountMaxSellSize(bytes32[] calldata _accountTypes, uint192[] calldata _maxSizes, uint16[] calldata _period, uint64 _startTime) internal returns (uint32) {
+        RuleS.AccountMaxSellSizeS storage data = Storage.accountMaxSellSizeStorage();
+        uint32 index = data.AccountMaxSellSizesIndex;
         _startTime.validateTimestamp();
         for (uint256 i; i < _accountTypes.length; ) {
-            if (_sellAmounts[i] == 0 || _sellPeriod[i] == 0) revert ZeroValueNotPermited();
-            data.sellRulesPerUser[index][_accountTypes[i]] = TaggedRules.SellRule(_sellAmounts[i], _sellPeriod[i]);
+            if (_maxSizes[i] == 0 || _period[i] == 0) revert ZeroValueNotPermited();
+            data.AccountMaxSellSizesRules[index][_accountTypes[i]] = TaggedRules.AccountMaxSellSize(_maxSizes[i], _period[i]);
             unchecked {
                 ++i;
             }
         }
         data.startTimes[index] = _startTime;
-        emit ProtocolRuleCreated(SELL_LIMIT, index, _accountTypes);
-        ++data.sellRulesIndex;
+        emit ProtocolRuleCreated(ACCOUNT_MAX_SELL_SIZE, index, _accountTypes);
+        ++data.AccountMaxSellSizesIndex;
         return index;
     }
 
-    /********************** Balance Limit Getters/Setters ***********************/
+    /********************** Account Min Max Token Balance ***********************/
 
     /**
-     * @dev Function adds Balance Limit Rule
+     * @dev Function adds Account Min Max Token Balance Rule
      * @param _appManagerAddr App Manager Address
      * @param _accountTypes Types of Accounts
-     * @param _minimum Minimum Balance allowed for tagged accounts
-     * @param _maximum Maximum Balance allowed for tagged accounts
-     * @param _holdPeriods Hours purhchases allowed
-     * @param _startTimestamp Timestamp that the check should start
-     * @return _addMinMaxBalanceRule which returns location of rule in array
+     * @param _min Minimum Balance allowed for tagged accounts
+     * @param _max Maximum Balance allowed for tagged accounts
+     * @param _periods Amount of hours that define the periods
+     * @param _startTime Timestamp that the check should start
+     * @return _addAccountMinMaxTokenBalance which returns location of rule in array
      */
-    function addMinMaxBalanceRule(
+    function addAccountMinMaxTokenBalance(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
-        uint256[] calldata _minimum,
-        uint256[] calldata _maximum,
-        uint16[] calldata _holdPeriods,
-        uint64 _startTimestamp
+        uint256[] calldata _min,
+        uint256[] calldata _max,
+        uint16[] calldata _periods,
+        uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_accountTypes.length != _minimum.length || _accountTypes.length != _maximum.length || (_holdPeriods.length > 0 && _accountTypes.length != _holdPeriods.length)) revert InputArraysMustHaveSameLength();
+        if (_accountTypes.length != _min.length || _accountTypes.length != _max.length || (_periods.length > 0 && _accountTypes.length != _periods.length)) revert InputArraysMustHaveSameLength();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
         _accountTypes.areTagsValid();
-        return _addMinMaxBalanceRule(_accountTypes, _minimum, _maximum, _holdPeriods, _startTimestamp);
+        return _addAccountMinMaxTokenBalance(_accountTypes, _min, _max, _periods, _startTime);
     }
 
     /**
      * @dev internal Function to avoid stack too deep error
      * @param _accountTypes Types of Accounts
-     * @param _minimum Minimum Balance allowed for tagged accounts
-     * @param _maximum Maximum Balance allowed for tagged accounts
-     * @param _holdPeriods Hours purhchases allowed
-     * @param _startTimestamp Timestamp that the check should start
+     * @param _min Minimum Balance allowed for tagged accounts
+     * @param _max Maximum Balance allowed for tagged accounts
+     * @param _periods Amount of hours that define the periods
+     * @param _startTime Timestamp that the check should start
      * @return position of new rule in array
      */
-    function _addMinMaxBalanceRule(
+    function _addAccountMinMaxTokenBalance(
         bytes32[] calldata _accountTypes, 
-        uint256[] calldata _minimum, 
-        uint256[] calldata _maximum,
-        uint16[] calldata _holdPeriods,
-        uint64 _startTimestamp
+        uint256[] calldata _min, 
+        uint256[] calldata _max,
+        uint16[] calldata _periods,
+        uint64 _startTime
     ) internal returns (uint32) {
-        RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
-        uint32 index = data.minMaxBalanceRuleIndex;
-        if (_startTimestamp == 0) _startTimestamp = uint64(block.timestamp);
+        RuleS.AccountMinMaxTokenBalanceS storage data = Storage.accountMinMaxTokenBalanceStorage();
+        uint32 index = data.accountMinMaxTokenBalanceIndex;
+        if (_startTime == 0) _startTime = uint64(block.timestamp);
         for (uint256 i; i < _accountTypes.length; ) {
-            if (_minimum[i] == 0 || _maximum[i] == 0) revert ZeroValueNotPermited();
-            if (_minimum[i] > _maximum[i]) revert InvertedLimits();
-            if (_holdPeriods.length > 0 && _holdPeriods[i] == 0) revert CantMixPeriodicAndNonPeriodic();
-            data.minMaxBalanceRulesPerUser[index][_accountTypes[i]] = TaggedRules.MinMaxBalanceRule(_minimum[i], _maximum[i], _holdPeriods.length == 0 ? 0 : _holdPeriods[i]);
+            if (_min[i] == 0 || _max[i] == 0) revert ZeroValueNotPermited();
+            if (_min[i] > _max[i]) revert InvertedLimits();
+            if (_periods.length > 0 && _periods[i] == 0) revert CantMixPeriodicAndNonPeriodic();
+            data.accountMinMaxTokenBalanceRules[index][_accountTypes[i]] = TaggedRules.AccountMinMaxTokenBalance(_min[i], _max[i], _periods.length == 0 ? 0 : _periods[i]);
             unchecked {
                 ++i;
             }
         }
-        data.startTimes[index] = _startTimestamp;
-        emit ProtocolRuleCreated(MIN_MAX_BALANCE_LIMIT, index, _accountTypes);
-        ++data.minMaxBalanceRuleIndex;
+        data.startTimes[index] = _startTime;
+        emit ProtocolRuleCreated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, index, _accountTypes);
+        ++data.accountMinMaxTokenBalanceIndex;
         return index;
     }
 
-    /************ Admin Account Withdrawal Getters/Setters ***********/
+    /************ Admin Min Token Balance ***********/
 
     /**
-     * @dev Function adds Withdrawal Rule for admins
+     * @dev Function adds Admin Min Token Balance rule
      * @param _appManagerAddr Address of App Manager
-     * @param _amount Transaction total
-     * @param _releaseDate Date of release
-     * @return adminWithdrawalRulesPerToken position of new rule in array
+     * @param _amount Minimum amount of token to hold to
+     * @param _endTime Date of release
+     * @return adminMinTokenBalanceRules position of new rule in array
      */
-    function addAdminWithdrawalRule(address _appManagerAddr, uint256 _amount, uint256 _releaseDate) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
+    function addAdminMinTokenBalance(address _appManagerAddr, uint256 _amount, uint256 _endTime) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
+        RuleS.AdminMinTokenBalanceS storage data = Storage.adminMinTokenBalanceStorage();
         if (_amount == 0) revert ZeroValueNotPermited();
-        if (_releaseDate <= block.timestamp) revert DateInThePast(_releaseDate);
-        uint32 index = data.adminWithdrawalRulesIndex;
-        TaggedRules.AdminWithdrawalRule memory rule = TaggedRules.AdminWithdrawalRule(_amount, _releaseDate);
-        data.adminWithdrawalRulesPerToken[index] = rule;
+        if (_endTime <= block.timestamp) revert DateInThePast(_endTime);
+        uint32 index = data.adminMinTokenBalanceIndex;
+        TaggedRules.AdminMinTokenBalance memory rule = TaggedRules.AdminMinTokenBalance(_amount, _endTime);
+        data.adminMinTokenBalanceRules[index] = rule;
         bytes32[] memory empty;
-        emit ProtocolRuleCreated(ADMIN_WITHDRAWAL, index, empty);
-        ++data.adminWithdrawalRulesIndex;
+        emit ProtocolRuleCreated(ADMIN_MIN_TOKEN_BALANCE, index, empty);
+        ++data.adminMinTokenBalanceIndex;
         return index;
     }
 
-    /************ NFT Getters/Setters ***********/
+    /************ Token Max Daily Trades ***********/
     /**
-     * @dev Function adds Balance Limit Rule
+     * @dev Function adds Token Max Daily Trades Rule
      * @param _appManagerAddr App Manager Address
-     * @param _nftTypes Types of NFTs
+     * @param _nftTags Tags of NFTs
      * @param _tradesAllowed Maximum trades allowed within 24 hours
-     * @param _startTs starting timestamp for the rule
+     * @param _startTime starting timestamp for the rule
      * @return _nftTransferCounterRules which returns location of rule in array
      */
-    function addNFTTransferCounterRule(
+    function addTokenMaxDailyTrades(
         address _appManagerAddr,
-        bytes32[] calldata _nftTypes,
+        bytes32[] calldata _nftTags,
         uint8[] calldata _tradesAllowed,
-        uint64 _startTs
+        uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_nftTypes.length == 0 || _startTs == 0) revert ZeroValueNotPermited();
-        if (_nftTypes.length != _tradesAllowed.length) revert InputArraysMustHaveSameLength();
-        _startTs.validateTimestamp();
-        _nftTypes.areTagsValid();
-        return _addNFTTransferCounterRule(_nftTypes, _tradesAllowed, _startTs);
+        if (_nftTags.length == 0 || _startTime == 0) revert ZeroValueNotPermited();
+        if (_nftTags.length != _tradesAllowed.length) revert InputArraysMustHaveSameLength();
+        _startTime.validateTimestamp();
+        _nftTags.areTagsValid();
+        return _addTokenMaxDailyTrades(_nftTags, _tradesAllowed, _startTime);
     }
 
     /**
      * @dev internal Function to avoid stack too deep error
-     * @param _nftTypes Types of NFTs
+     * @param _nftTags Tags of NFTs
      * @param _tradesAllowed Maximum trades allowed within 24 hours
-     * @param _startTs starting timestamp for the rule
+     * @param _startTime starting timestamp for the rule
      * @return position of new rule in array
      */
-    function _addNFTTransferCounterRule(bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed, uint64 _startTs) internal returns (uint32) {
-        RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
-        uint32 index = data.NFTTransferCounterRuleIndex;
-        for (uint256 i; i < _nftTypes.length; ) {
-            TaggedRules.NFTTradeCounterRule memory rule = TaggedRules.NFTTradeCounterRule(_tradesAllowed[i], _startTs);
-            data.NFTTransferCounterRule[index][_nftTypes[i]] = rule;
+    function _addTokenMaxDailyTrades(bytes32[] calldata _nftTags, uint8[] calldata _tradesAllowed, uint64 _startTime) internal returns (uint32) {
+        RuleS.TokenMaxDailyTradesS storage data = Storage.TokenMaxDailyTradesStorage();
+        uint32 index = data.tokenMaxDailyTradesIndex;
+        for (uint256 i; i < _nftTags.length; ) {
+            TaggedRules.TokenMaxDailyTrades memory rule = TaggedRules.TokenMaxDailyTrades(_tradesAllowed[i], _startTime);
+            data.tokenMaxDailyTradesRules[index][_nftTags[i]] = rule;
             unchecked {
                 ++i;
             }
         }
         bytes32[] memory empty;
-        emit ProtocolRuleCreated(NFT_TRANSFER, index, empty);
-        ++data.NFTTransferCounterRuleIndex;
+        emit ProtocolRuleCreated(TOKEN_MAX_DAILY_TRADES, index, empty);
+        ++data.tokenMaxDailyTradesIndex;
         return index;
     }
 

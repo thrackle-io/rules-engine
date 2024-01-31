@@ -1,8 +1,8 @@
-# Token Transfer Volume Rule
+# Token Max Trading Volume
 
 ## Purpose
 
-The purpose of the token-transfer-volume rule is to reduce high trading volatility periods by allowing developers to set a maximum volume (as a percentage of the token's total supply) that can be traded within a period of time. When the trading volume maximum is reached, transfers are suspended until the next period begins. Trading volume is the accumulated total number of tokens transferred during each period, and reset with each new period by the first transaction of that period. 
+The purpose of the token-max-trading-volume rule is to reduce high trading volatility periods by allowing developers to set a maximum volume (as a percentage of the token's total supply) that can be traded within a period of time. When the trading volume maximum is reached, transfers are suspended until the next period begins. Trading volume is the accumulated total number of tokens transferred during each period, and reset with each new period by the first transaction of that period. 
 
 ## Applies To:
 
@@ -16,7 +16,7 @@ This rule works at a token level. It must be activated and configured for each d
 
 ## Data Structure
 
-A token-transfer-volume rule is composed of 4 components:
+A token-max-trading-volume rule is composed of 4 components:
 
 - **Max Volume** (uint24): The maximum percent in basis units of total supply to be traded during the *period*.
 - **Period** (uint16): The amount of hours that defines a period.
@@ -24,9 +24,9 @@ A token-transfer-volume rule is composed of 4 components:
 - **Total Supply** (uint256): if not zero, this value will always be used as the token's total supply for rule evaluation. This can be used when the amount of circulating supply is much smaller than the amount of the token totalSupply due to some tokens being locked in a dev account or a vesting contract, etc. Only use this value in such cases.
 
 ```c
-/// ******** Token Transfer Volume ********
-    struct TokenTransferVolumeRule {
-        uint24 maxVolume; // this is a percentage with 2 decimals of precision (2500 = 25%)
+/// ******** Token Max Trading Volume ********
+    struct TokenMaxTradingVolume {
+        uint24 max; // this is a percentage with 2 decimals of precision (2500 = 25%)
         uint16 period; // hours
         uint64 startTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024
         uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to token's totalSupply.
@@ -34,13 +34,13 @@ A token-transfer-volume rule is composed of 4 components:
 ```
 ###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
-The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
+The token-max-trading-volume rules are stored in a mapping indexed by ruleId(uint32) in order of creation:
 
  ```c
 /// ******** Token Transfer Volume ********
-    struct TransferVolRuleS {
-        mapping(uint32 => INonTaggedRules.TokenTransferVolumeRule) transferVolumeRules;
-        uint32 transferVolRuleIndex;
+    struct TokenMaxTradingVolumeS {
+        mapping(uint32 => INonTaggedRules.TokenMaxTradingVolume) tokenMaxTradingVolumeRules;
+        uint32 tokenMaxTradingVolumeIndex;
     }
 ```
 ###### *see [IRuleStorage](../../../src/protocol/economic/ruleProcessor/IRuleStorage.sol)*
@@ -57,7 +57,7 @@ The token-transfer-volume rules are stored in a mapping indexed by ruleId(uint32
 The rule will be evaluated with the following logic:
 
 1. The handler determines if the rule is active from the supplied action. If not, processing does not continue past this step.
-2. The processor receives the ID of the token-transfer-volume rule set in the token handler. 
+2. The processor receives the ID of the token-max-trading-volume rule set in the token handler. 
 3. The processor receives the current `transfer volume`, `last transfer time`, `amount` and token's total supply from the handler.
 4. The processor evaluates whether the rule has a set total supply or use the token's total supply provided by the handler set at the beginning of every new `period`. 
 5. The processor evaluates whether the rule is active based on the `starting timestamp`. If it is not active, the rule evaluation skips the next steps, and simply returns the `transfer volume` value.
@@ -71,7 +71,7 @@ The rule will be evaluated with the following logic:
 
 **The list of available actions rules can be applied to can be found at [ACTION_TYPES.md](./ACTION-TYPES.md)]**
 
-###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenTransferVolumePasses*
+###### *see [ERC20RuleProcessorFacet](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol) -> checkTokenMaxTradingVolume*
 
 ## Evaluation Exceptions 
 - This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
@@ -82,21 +82,21 @@ The rule will be evaluated with the following logic:
 The rule processor will revert with the following error if the rule check fails: 
 
 ```
-error TransferExceedsMaxVolumeAllowed();
+error OverMaxTradingVolume();
 ```
 
-The selector for this error is `0x3627495d`.
+The selector for this error is `0x009da0ce`.
 
 ## Create Function
 
-Adding a token-transfer-volume rule is done through the function:
+Adding a token-max-trading-volume rule is done through the function:
 
 ```c
-function addTransferVolumeRule(
+function addTokenMaxTradingVolume(
     address _appManagerAddr,
-    uint24 _maxVolumePercentage,
+    uint24 _maxPercentage,
     uint16 _hoursPerPeriod,
-    uint64 _startTimestamp,
+    uint64 _startTime,
     uint256 _totalSupply
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
@@ -107,9 +107,9 @@ The create function will return the protocol ID of the rule.
 ### Parameters:
 
 - **_appManagerAddr** (address): The address of the application manager to verify that the caller has Rule administrator privileges.
-- **_maxVolumePercentage** (uint24): maximum allowable basis unit percentage of trading volume per period.
+- **_maxPercentage** (uint24): maximum allowable basis unit percentage of trading volume per period.
 - **_hoursPerPeriod** (uint16): the amount of hours per period.
-- **_startTimestamp** (uint64): starting timestamp of the rule. This timestamp will determine the time that a day starts and ends for the rule processing. For example, *the amount of trades will reset to 0 every day at 2:30 pm.*
+- **_startTime** (uint64): starting timestamp of the rule. This timestamp will determine the time that a day starts and ends for the rule processing. For example, *the amount of trades will reset to 0 every day at 2:30 pm.*
 - **_totalSupply** (uint256): (optional) if not 0, then this is the value used for totalSupply instead of the live token's totalSupply value at rule processing time.
 
 
@@ -123,9 +123,9 @@ The parameters where developers have the options are:
 The following validation will be carried out by the create function in order to ensure that these parameters are valid and make sense:
 
 - `_appManagerAddr` is not the zero address.
-- `_maxVolumePercentage_` is not greater than 1000000 (1000%). 
-- `maxVolumePercentage` and `_hoursPerPeriod` are greater than a value of 0.
-- `_startTimestamp` is not zero and is not more than 52 weeks in the future.
+- `_maxPercentage_` is not greater than 1000000 (1000%). 
+- `maxPercentage` and `_hoursPerPeriod` are greater than a value of 0.
+- `_startTime` is not zero and is not more than 52 weeks in the future.
 
 
 ###### *see [RuleDataFacet](../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)*
@@ -135,22 +135,22 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
-        function getTransferVolumeRule(
+        function getTokenMaxTradingVolume(
                     uint32 _index
                 ) 
                 external 
                 view 
                 returns 
-                (NonTaggedRules.TokenTransferVolumeRule memory);
+                (NonTaggedRules.TokenMaxTradingVolume memory);
         ```
     - Function to get current amount of rules in the protocol:
         ```c
-        function getTotalTransferVolumeRules() public view returns (uint32);
+        function getTotalTokenMaxTradingVolume() public view returns (uint32);
         ```
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol):
     - Function that evaluates the rule:
         ```c
-        function checkTokenTransferVolumePasses(
+        function checkTokenMaxTradingVolume(
                     uint32 _ruleId, 
                     uint256 _volume,
                     uint256 _supply, 
@@ -163,19 +163,19 @@ The following validation will be carried out by the create function in order to 
 - in Asset Handler:
     - Function to set and activate at the same time the rule for the supplied actions in an asset handler:
         ```c
-        function setTokenTransferVolumeRuleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+        function setTokenMaxTradingVolumeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to activate/deactivate the rule for the supplied actions in an asset handler:
         ```c
-        function activateTokenTransferVolumeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
+        function activateTokenMaxTradingVolume(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress);
         ```
     - Function to know the activation state of the rule for the supplied action in an asset handler:
         ```c
-        function isTokenTransferVolumeActive(ActionTypes _action) external view returns (bool);
+        function isTokenMaxTradingVolumeActive(ActionTypes _action) external view returns (bool);
         ```
     - Function to get the rule Id for the supplied action from an asset handler:
         ```c
-        function getTokenTransferVolumeRule(ActionTypes _action) external view returns (uint32);
+        function getTokenMaxTradingVolumeId(ActionTypes _action) external view returns (uint32);
         ```
 ## Return Data
 
@@ -207,21 +207,21 @@ uint256 private transferVolume;
 - **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "TRANSFER_VOLUME".
+        - ruleType: "TOKEN_MAX_TRADING_VOLUME".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
 - **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - parameters: 
-        - ruleType: "TRANSFER_VOLUME".
+        - ruleType: "TOKEN_MAX_TRADING_VOLUME".
         - action: the protocol action the rule is being applied to.
         - ruleId: the index of the rule created in the protocol by rule type.
 
 - **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
     - Emitted when: A Transfer counter rule has been activated in an asset handler:
     - Parameters: 
-        - ruleType: "TRANSFER_VOLUME".
+        - ruleType: "TOKEN_MAX_TRADING_VOLUME".
         - action: the protocol action for which the rule is being activated.
 
 ## Dependencies

@@ -40,50 +40,49 @@ contract RuleApplicationValidationFacet {
         return data.ammFeeRuleIndex;
     }
 
-
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateMinMaxAccountBalanceERC721(uint32 _ruleId) external view {
+    function validateAccountMinMaxTokenBalanceERC721(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllMinMaxBalanceRules());
+        _ruleId.checkRuleExistence(getTotalAccountMinMaxTokenBalance());
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateMinMaxAccountBalance(uint32 _ruleId) external view {
+    function validateAccountMinMaxTokenBalance(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllMinMaxBalanceRules());
+        _ruleId.checkRuleExistence(getTotalAccountMinMaxTokenBalance());
     }
 
     /**
-     * @dev Function gets total Balance Limit rules
+     * @dev Function gets total AccountMinMaxTokenBalance rules
      * @return Total length of array
      */
-    function getAllMinMaxBalanceRules() internal view returns (uint32) {
-        RuleS.MinMaxBalanceRuleS storage data = Storage.minMaxBalanceStorage();
-        return data.minMaxBalanceRuleIndex;
+    function getTotalAccountMinMaxTokenBalance() internal view returns (uint32) {
+        RuleS.AccountMinMaxTokenBalanceS storage data = Storage.accountMinMaxTokenBalanceStorage();
+        return data.accountMinMaxTokenBalanceIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateNFTTransferCounter(uint32 _ruleId) external view {
+    function validateTokenMaxDailyTrades(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllNFTTransferCounterRules());
+        _ruleId.checkRuleExistence(getTotalTokenMaxDailyTradesRules());
     }
 
     /**
-     * @dev Function gets total NFT Trade Counter rules
+     * @dev Function gets total tokenMaxDailyTrades rules
      * @return Total length of array
      */
-    function getAllNFTTransferCounterRules() internal view returns (uint32) {
-        RuleS.NFTTransferCounterRuleS storage data = Storage.nftTransferStorage();
-        return data.NFTTransferCounterRuleIndex;
+    function getTotalTokenMaxDailyTradesRules() internal view returns (uint32) {
+        RuleS.TokenMaxDailyTradesS storage data = Storage.TokenMaxDailyTradesStorage();
+        return data.tokenMaxDailyTradesIndex;
     }
 
 
@@ -91,198 +90,198 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validatePurchaseLimit(uint32 _ruleId) external view {
+    function validateAccountMaxBuySize(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllPurchaseRule());
+        _ruleId.checkRuleExistence(getTotalAccountMaxBuySize());
     }
 
     /**
-     * @dev Function to get total purchase rules
+     * @dev Function to get total account max buy size rules
      * @return Total length of array
      */
-    function getAllPurchaseRule() internal view returns (uint32) {
-        RuleS.PurchaseRuleS storage data = Storage.purchaseStorage();
-        return data.purchaseRulesIndex;
+    function getTotalAccountMaxBuySize() internal view returns (uint32) {
+        RuleS.AccountMaxBuySizeS storage data = Storage.accountMaxBuySizeStorage();
+        return data.accountMaxBuySizeIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateSellLimit(uint32 _ruleId) external view {
+    function validateAccountMaxSellSize(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllSellRule());
+        _ruleId.checkRuleExistence(getTotalAccountMaxSellSize());
     }
 
     /**
-     * @dev Function to get total Sell rules
+     * @dev Function to get total Account Max Sell Size rules
      * @return Total length of array
      */
-    function getAllSellRule() internal view returns (uint32) {
-        RuleS.SellRuleS storage data = Storage.sellStorage();
-        return data.sellRulesIndex;
+    function getTotalAccountMaxSellSize() internal view returns (uint32) {
+        RuleS.AccountMaxSellSizeS storage data = Storage.accountMaxSellSizeStorage();
+        return data.AccountMaxSellSizesIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAdminWithdrawal(uint32 _ruleId) external view {
+    function validateAdminMinTokenBalance(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllAdminWithdrawalRules());
+        _ruleId.checkRuleExistence(getTotalAdminMinTokenBalance());
     }
 
     /**
-     * @dev Function to get total Admin withdrawal rules
-     * @return adminWithdrawalRulesPerToken total length of array
+     * @dev Function to get total Admin Min Token Balance rules
+     * @return adminMinTokenBalanceRules total length of array
      */
-    function getAllAdminWithdrawalRules() internal view returns (uint32) {
-        RuleS.AdminWithdrawalRuleS storage data = Storage.adminWithdrawalStorage();
-        return data.adminWithdrawalRulesIndex;
+    function getTotalAdminMinTokenBalance() internal view returns (uint32) {
+        RuleS.AdminMinTokenBalanceS storage data = Storage.adminMinTokenBalanceStorage();
+        return data.adminMinTokenBalanceIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateMinTransfer(uint32 _ruleId) external view {
+    function validateTokenMinTxSize(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllMinimumTransferRules());
+        _ruleId.checkRuleExistence(getTotalTokenMinTxSize());
     }
 
     /**
-     * @dev Function to get total Minimum Transfer rules
+     * @dev Function to get total Token Min Tx Size rules
      * @return Total length of array
      */
-    function getAllMinimumTransferRules() internal view returns (uint32) {
-        RuleS.MinTransferRuleS storage data = Storage.minTransferStorage();
-        return data.minimumTransferRuleIndex;
+    function getTotalTokenMinTxSize() internal view returns (uint32) {
+        RuleS.TokenMinTxSizeS storage data = Storage.tokenMinTxSizePosition();
+        return data.tokenMinTxSizeIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateOracle(uint32 _ruleId) external view {
+    function validateAccountApproveDenyOracle(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllOracleRules());
+        _ruleId.checkRuleExistence(getTotalAccountApproveDenyOracle());
     }
 
     /**
-     * @dev Function get total Oracle rules
-     * @return total oracleRules array length
+     * @dev Function get total Account Approve Deny Oracle rules
+     * @return total accountApproveDenyOracleRules array length
      */
-    function getAllOracleRules() internal view returns (uint32) {
-        RuleS.OracleRuleS storage data = Storage.oracleStorage();
-        return data.oracleRuleIndex;
+    function getTotalAccountApproveDenyOracle() internal view returns (uint32) {
+        RuleS.AccountApproveDenyOracleS storage data = Storage.accountApproveDenyOracleStorage();
+        return data.accountApproveDenyOracleIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validatePurchasePercentage(uint32 _ruleId) external view {
+    function validateTokenMaxBuyVolume(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllPctPurchaseRule());
+        _ruleId.checkRuleExistence(getTotalTokenMaxBuyVolume());
     }
 
     /**
-     * @dev Function to get total Token Purchase Percentage
+     * @dev Function to get total Token Max Buy Volume
      * @return Total length of array
      */
-    function getAllPctPurchaseRule() internal view returns (uint32) {
-        RuleS.PctPurchaseRuleS storage data = Storage.pctPurchaseStorage();
-        return data.percentagePurchaseRuleIndex;
+    function getTotalTokenMaxBuyVolume() internal view returns (uint32) {
+        RuleS.TokenMaxBuyVolumeS storage data = Storage.accountMaxBuyVolumeStorage();
+        return data.tokenMaxBuyVolumeIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateSellPercentage(uint32 _ruleId) external view {
+    function validateTokenMaxSellVolume(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllPctSellRule());
+        _ruleId.checkRuleExistence(getTotalTokenMaxSellVolume());
     }
 
     /**
-     * @dev Function to get total Token Percentage Sell
+     * @dev Function to get total Token Max Sell Volume
      * @return Total length of array
      */
-    function getAllPctSellRule() internal view returns (uint32) {
-        RuleS.PctSellRuleS storage data = Storage.pctSellStorage();
-        return data.percentageSellRuleIndex;
+    function getTotalTokenMaxSellVolume() internal view returns (uint32) {
+        RuleS.TokenMaxSellVolumeS storage data = Storage.accountMaxSellVolumeStorage();
+        return data.tokenMaxSellVolumeIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenTransferVolume(uint32 _ruleId) external view {
+    function validateTokenMaxTradingVolume(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllTransferVolumeRules());
+        _ruleId.checkRuleExistence(getTotalTokenMaxTradingVolume());
     }
 
     /**
-     * @dev Function to get total Token Transfer Volume rules
+     * @dev Function to get total Token Max Trading Volume
      * @return Total length of array
      */
-    function getAllTransferVolumeRules() internal view returns (uint32) {
-        RuleS.TransferVolRuleS storage data = Storage.volumeStorage();
-        return data.transferVolRuleIndex;
+    function getTotalTokenMaxTradingVolume() internal view returns (uint32) {
+        RuleS.TokenMaxTradingVolumeS storage data = Storage.tokenMaxTradingVolumeStorage();
+        return data.tokenMaxTradingVolumeIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateSupplyVolatility(uint32 _ruleId) external view {
+    function validateTokenMaxSupplyVolatility(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllSupplyVolatilityRules());
+        _ruleId.checkRuleExistence(getTotalTokenMaxSupplyVolatility());
     }
 
     /**
-     * @dev Function to get total Supply Volitility rules
-     * @return supplyVolatilityRules total length of array
+     * @dev Function to get total Token Max Supply Volitility rules
+     * @return tokenMaxSupplyVolatilityRules total length of array
      */
-    function getAllSupplyVolatilityRules() internal view returns (uint32) {
-        RuleS.SupplyVolatilityRuleS storage data = Storage.supplyVolatilityStorage();
-        return data.supplyVolatilityRuleIndex;
+    function getTotalTokenMaxSupplyVolatility() internal view returns (uint32) {
+        RuleS.TokenMaxSupplyVolatilityS storage data = Storage.tokenMaxSupplyVolatilityStorage();
+        return data.tokenMaxSupplyVolatilityIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccBalanceByRisk(uint32 _ruleId) external view {
+    function validateAccountMaxValueByRiskScore(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllAccountBalanceByRiskScoreRules());
+        _ruleId.checkRuleExistence(getTotalAccountMaxValueByRiskScore());
     }
 
     /**
-     * @dev Function to get total Transaction Limit by Risk Score rules
+     * @dev Function to get total Account Max Value by Risk Score rules
      * @return Total length of array
      */
-    function getAllAccountBalanceByRiskScoreRules() internal view returns (uint32) {
-        RuleS.AccountBalanceToRiskRuleS storage data = Storage.accountBalanceToRiskStorage();
-        return data.balanceToRiskRuleIndex;
+    function getTotalAccountMaxValueByRiskScore() internal view returns (uint32) {
+        RuleS.AccountMaxValueByRiskScoreS storage data = Storage.accountMaxValueByRiskScoreStorage();
+        return data.accountMaxValueByRiskScoreIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateMaxTxSizePerPeriodByRisk(uint32 _ruleId) external view {
+    function validateAccountMaxTxValueByRiskScore(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllMaxTxSizePerPeriodRules());
+        _ruleId.checkRuleExistence(getTotalAccountMaxTxValueByRiskScore());
     }
 
     /**
-     * @dev Function to get total Max Tx Size Per Period By Risk rules
+     * @dev Function to get total Account Max Transaction Value by Risk rules
      * @return Total length of array
      */
-    function getAllMaxTxSizePerPeriodRules() internal view returns (uint32) {
-        RuleS.TxSizePerPeriodToRiskRuleS storage data = Storage.txSizePerPeriodToRiskStorage();
-        return data.txSizePerPeriodToRiskRuleIndex;
+    function getTotalAccountMaxTxValueByRiskScore() internal view returns (uint32) {
+        RuleS.AccountMaxTxValueByRiskScoreS storage data = Storage.accountMaxTxValueByRiskScoreStorage();
+        return data.accountMaxTxValueByRiskScoreIndex;
     }
 
     /**
@@ -300,35 +299,35 @@ contract RuleApplicationValidationFacet {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccBalanceByAccessLevel(uint32 _ruleId) external view {
+    function validateAccountMaxValueByAccessLevel(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllAccessLevelBalanceRules());
+        _ruleId.checkRuleExistence(getTotalAccountMaxValueByAccessLevel());
     }
 
     /**
-     * @dev Function to get total AccessLevel Balance rules
+     * @dev Function to get total Account Max Value By Access Level rules
      * @return Total length of array
      */
-    function getAllAccessLevelBalanceRules() internal view returns (uint32) {
-        RuleS.AccessLevelRuleS storage data = Storage.accessStorage();
-        return data.accessRuleIndex;
+    function getTotalAccountMaxValueByAccessLevel() internal view returns (uint32) {
+        RuleS.AccountMaxValueByAccessLevelS storage data = Storage.accountMaxValueByAccessLevelStorage();
+        return data.accountMaxValueByAccessLevelIndex;
     }
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateWithdrawalLimitsByAccessLevel(uint32 _ruleId) external view {
+    function validateAccountMaxValueOutByAccessLevel(uint32 _ruleId) external view {
         // Check to make sure the rule exists within rule storage
-        _ruleId.checkRuleExistence(getAllAccessLevelWithdrawalRules());
+        _ruleId.checkRuleExistence(getTotalAccountMaxValueOutByAccessLevel());
     }
 
     /**
-     * @dev Function to get total AccessLevel withdrawal rules
+     * @dev Function to get total Account Max Value Out By Access Level rules
      * @return Total number of access level withdrawal rules
      */
-    function getAllAccessLevelWithdrawalRules() internal view returns (uint32) {
-        RuleS.AccessLevelWithrawalRuleS storage data = Storage.accessLevelWithdrawalRuleStorage();
-        return data.accessLevelWithdrawalRuleIndex;
+    function getTotalAccountMaxValueOutByAccessLevel() internal view returns (uint32) {
+        RuleS.AccountMaxValueOutByAccessLevelS storage data = Storage.accountMaxValueOutByAccessLevelStorage();
+        return data.accountMaxValueOutByAccessLevelIndex;
     }
 }

@@ -70,7 +70,7 @@ checkApplicationHandlerInquire:; cast call ${APPLICATION_HANDLER} "checkAction(u
 checkApplicationHandlerInquire2:; cast call ${APPLICATION_APP_MANAGER} "checkAction(uint8,address)(bool)" ${ACTION_INQUIRE} ${ADDRESS_USER} --private-key ${PRIVATE_KEY_01} 
 checkApplicationHandlerSell:; cast send ${APPLICATION_APP_MANAGER} "addAccessLevel(address,int8)" ${ADDRESS_USER} 4  --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkApplicationHandlerSell2:; cast call ${APPLICATION_HANDLER} "checkAction(uint8,address, address)(bool)" ${ACTION_SELL} ${APPLICATION_APP_MANAGER} ${ADDRESS_USER} --private-key ${PRIVATE_KEY_01} 
-checkRulesAddRule:; cast send ${RULE_STORAGE_DIAMOND} "addPercentagePurchaseRule(address,uint16,uint32)(uint256)" ${APPLICATION_APP_MANAGER} 9000 2 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+checkRulesAddRule:; cast send ${RULE_STORAGE_DIAMOND} "addTokenMaxBuyVolume(address,uint16,uint32)(uint256)" ${APPLICATION_APP_MANAGER} 9000 2 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 
 # <><><><><><><><><><> APP MANAGER TESTS <><><><><><><><><><>
 addMultipleAppAdmins:; cast send ${APPLICATION_APP_MANAGER} "addMultipleAppAdministrator(address[])" [${QUORRA},${CLU},${SAM}]  --private-key ${QUORRA_PRIVATE_KEY}
@@ -99,14 +99,14 @@ addAccessTierToMultipleAccounts:; cast send ${APPLICATION_APP_MANAGER} "addAcces
 #			<><><><><> Minimum Transfer Rule <><><><><>
 loadUserWithTokens:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 1000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkBalanceKevin1:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${KEVIN} --from ${KEVIN}
-addMinTransferRule:; cast send ${RULE_STORAGE_DIAMOND} "addMinimumTransferRule(address,uint256)(uint256)" ${APPLICATION_APP_MANAGER} 10 ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyMinTransferRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setMinTransferRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addMinTransferRule:; cast send ${RULE_STORAGE_DIAMOND} "addTokenMinTxSize(address,uint256)(uint256)" ${APPLICATION_APP_MANAGER} 10 ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applyMinTransferRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setTokenMinTxSizeId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkERC20PassMinTransfer:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${SAM} 1000 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 checkERC20FailMinTransfer:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${SAM} 5 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 
 #			<><><><><> Min Max Balance Rule ERC20 <><><><><>
 checkAddAccountBalanceRule:; cast send ${RULE_STORAGE_DIAMOND} "addBalanceLimitRules(address,bytes32[],uint256[],uint256[])(uint256)" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [10] [100000] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyAccountBalanceRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setMinMaxBalanceRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applyAccountBalanceRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setAccountMinMaxTokenBalanceId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 addGeneralTagMinMax:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTag(address,bytes32)" ${CLU} 0x5461796c65720000000000000000000000000000000000000000000000000000  --private-key ${QUORRA_PRIVATE_KEY}
 checkERC20PassMinMaxBalanceCtrl:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 100 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 checkERC20FailMinBalanceCtrl:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 100 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
@@ -115,22 +115,22 @@ checkBalanceClu:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uin
 checkBalanceClu2:; cast call ${APPLICATION_ERC20_ADDRESS_2} "balanceOf(address)(uint256)" ${CLU} --from ${KEVIN}
 
 #			<><><><><> Purchase Limit Rule <><><><><>
-addPurchaseLimitRule:; cast send ${RULE_STORAGE_DIAMOND} "addPurchaseRule(address,bytes32[],uint192[],uint32[],uint32[])" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [99] [24] [24] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyPurchaseLimitRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setPurchaseLimitRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addPurchaseLimitRule:; cast send ${RULE_STORAGE_DIAMOND} "addAccountMaxBuySize(address,bytes32[],uint192[],uint32[],uint32[])" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [99] [24] [24] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applyPurchaseLimitRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setAccountMaxBuySizeId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkAddGeneralTag:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTag(address,bytes32)" ${CLU} 0x5461796c65720000000000000000000000000000000000000000000000000000  --private-key ${QUORRA_PRIVATE_KEY}
 checkPassPurchaseLimit:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 99 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 checkFailPurchaseLimit:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 101 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 #			<><><><><> Sell Limit Rule <><><><><>
-addSellLimitRule:; cast send ${RULE_STORAGE_DIAMOND} "addSetOfSellRule(address,bytes32[],uint192[],uint32[])" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [100] [24] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applySellLimitRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setSellLimitRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addSellLimitRule:; cast send ${RULE_STORAGE_DIAMOND} "addAccountMaxSellSize(address,bytes32[],uint192[],uint32[])" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [100] [24] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applySellLimitRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setAccountMaxSellSizeId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkAddGeneralTagSellLimit:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTag(address,bytes32)" ${CLU} 0x5461796c65720000000000000000000000000000000000000000000000000000  --private-key ${QUORRA_PRIVATE_KEY}
 checkPassSellLimit:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 99 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
 checkFailSellLimit:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 101 --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
 
 #			<><><><><> ORACLE RULE <><><><><>
 loadUserWithTokensOracle:; :; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 1000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-addOracleRule:; cast send ${RULE_STORAGE_DIAMOND} "addOracleRule(address,uint8,address)(uint256)" ${APPLICATION_APP_MANAGER} 0 ${APPLICATION_ORACLE_0_ADDRESS} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyOracleRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setOracleRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addAccountApproveDenyOracle:; cast send ${RULE_STORAGE_DIAMOND} "addAccountApproveDenyOracle(address,uint8,address)(uint256)" ${APPLICATION_APP_MANAGER} 0 ${APPLICATION_ORACLE_0_ADDRESS} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applyAccountApproveDenyOracle:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setAccountApproveDenyOracleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 mintFranksOracle:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${QUORRA} 10000000000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkBalanceFranksOracle:; cast call ${APPLICATION_ERC20_ADDRESS} "balanceOf(address)(uint256)" ${QUORRA} --from ${KEVIN}
 TransferFranksToKevin:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 10000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
@@ -146,9 +146,9 @@ checkTokenRegistered:; cast call ${APPLICATION_APP_MANAGER} "getTokenAddress(str
 loadUserWithFranks:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${SAM} 1000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 loadUserWithDracs:; cast send ${APPLICATION_ERC20_ADDRESS_2} "transfer(address,uint256)(bool)" ${SAM} 1000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkDracsBalanceSam:; cast call ${APPLICATION_ERC20_ADDRESS_2} "balanceOf(address)(uint256)" ${SAM} --from ${SAM}
-addBalanceByAccessLevelRule:; cast send ${RULE_STORAGE_DIAMOND} "addAccessLevelBalanceRule(address,uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [0,10,100,1000,100000] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyBalanceByAccessLevelRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "setAccountBalanceByAccessLevelRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-checkBalanceByAccessLevelRuleActive:; cast call ${APPLICATION_APPLICATION_HANDLER} "isAccountBalanceByAccessLevelActive()(bool)" --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addBalanceByAccessLevelRule:; cast send ${RULE_STORAGE_DIAMOND} "addAccountMaxValueByAccessLevel(address,uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [0,10,100,1000,100000] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applyBalanceByAccessLevelRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "setAccountMaxValueByAccessLevelId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+checkBalanceByAccessLevelRuleActive:; cast call ${APPLICATION_APPLICATION_HANDLER} "isAccountMaxValueByAccessLevelActive()(bool)" --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 applicationAddCluAsAccessTier:; cast send ${APPLICATION_APP_MANAGER} "addAccessTier(address)" ${CLU}  --private-key ${QUORRA_PRIVATE_KEY}
 applicationAddAccessLevel1toKevin:; cast send ${APPLICATION_APP_MANAGER} "addAccessLevel(address,uint8)" ${KEVIN} 1 --private-key ${CLU_PRIVATE_KEY}
 applicationGetKevinAccessLevel:; cast call ${APPLICATION_APP_MANAGER} "getAccessLevel(address)(uint8)" ${KEVIN}  --private-key ${CLU_PRIVATE_KEY} --from ${CLU}
@@ -163,8 +163,8 @@ Transfer1FranksToKevin:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(addres
 # mint Franks and dracs 
 sendFranksFromQuorraToKevin:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 10000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 sendDracsFromSQuorraToKevin:; cast send ${APPLICATION_ERC20_ADDRESS_2} "transfer(address,uint256)(bool)" ${KEVIN} 10000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-addWithdrawalByAccessLevelRule:; cast send ${RULE_STORAGE_DIAMOND} "addAccessLevelWithdrawalRule(address,uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [0,10,100,1000,100000] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyWithdrawalByAccessLevelRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "setWithdrawalLimitByAccessLevelRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addWithdrawalByAccessLevelRule:; cast send ${RULE_STORAGE_DIAMOND} "addAccountMaxValueOutByAccessLevel(address,uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [0,10,100,1000,100000] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applyWithdrawalByAccessLevelRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "setAccountMaxValueOutByAccessLevelId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # add kevin access level 1 
 transferFranksFromKevintoSamSuccess:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${SAM} 9000000000000000000 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 transferDracsFromKevinToSameSuccess:; cast send ${APPLICATION_ERC20_ADDRESS_2} "transfer(address,uint256)(bool)" ${SAM} 1000000000000000000 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
@@ -175,14 +175,14 @@ transferDracsToSameFromKevinFail:; cast send ${APPLICATION_ERC20_ADDRESS_2} "tra
 
 #			<><><><><> MAX TX SIZE PER PERIOD BY RISK SCORE RULES <><><><><>
 addSamAsRiskAdminMaxTX:; cast send ${APPLICATION_APP_MANAGER} "addRiskAdmin(address)" ${SAM} --private-key ${QUORRA_PRIVATE_KEY} 
-addMaxTxSizePerPeriodByRiskRule:; cast send ${RULE_STORAGE_DIAMOND} "addMaxTxSizePerPeriodByRiskRule(address,uint48[],uint8[],uint8,uint8)(uint32)" ${APPLICATION_APP_MANAGER} [10000000000,10000000,10000,1] [25,50,75] 12 12 --private-key ${QUORRA_PRIVATE_KEY} 
+addAccountMaxTxValueByRiskScore:; cast send ${RULE_STORAGE_DIAMOND} "addAccountMaxTxValueByRiskScore(address,uint48[],uint8[],uint8,uint8)(uint32)" ${APPLICATION_APP_MANAGER} [10000000000,10000000,10000,1] [25,50,75] 12 12 --private-key ${QUORRA_PRIVATE_KEY} 
 assignCluRiskScoreOf55:; cast send ${APPLICATION_APP_MANAGER} "addRiskScore(address,uint8)" ${CLU} 55 --private-key ${SAM_PRIVATE_KEY} 
-applyMaxTxSizePerPeriodByRiskRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "setMaxTxSizePerPeriodByRiskRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY}
-checkMaxTxSizePerPeriodByRiskIsActive:; cast call ${APPLICATION_APPLICATION_HANDLER} "isMaxTxSizePerPeriodByRiskActive()(bool)"
+applyMaxTxSizePerPeriodByRiskRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "setAccountMaxTxValueByRiskScoreId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY}
+checkAccountMaxTxValueByRiskScoreIsActive:; cast call ${APPLICATION_APPLICATION_HANDLER} "isAccountMaxTxValueByRiskScoreActive()(bool)"
 loadCluWithFranks:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 100000000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 loadKevinWithFranks:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${KEVIN} 100000000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-turnOffMaxTxSizePerPeriodByRiskRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateMaxTxSizePerPeriodByRiskRule(bool)" 0 --private-key ${QUORRA_PRIVATE_KEY} 
-turnOnMaxTxSizePerPeriodByRiskRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateMaxTxSizePerPeriodByRiskRule(bool)" 1 --private-key ${QUORRA_PRIVATE_KEY} 
+turnOffMaxTxSizePerPeriodByRiskRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateAccountMaxTxValueByRiskScore(bool)" 0 --private-key ${QUORRA_PRIVATE_KEY} 
+turnOnMaxTxSizePerPeriodByRiskRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateAccountMaxTxValueByRiskScore(bool)" 1 --private-key ${QUORRA_PRIVATE_KEY} 
 moveForwardInTime6Hours:; curl -H "Content-Type: application/json" -X POST --data '{"id":31337,"jsonrpc":"2.0","method":"evm_increaseTime","params":[21600]}' http://localhost:8545
 cluTransfers2FrankToKevin:;  cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${KEVIN} 2000000000000000000 --private-key ${CLU_PRIVATE_KEY}
 cluTransfers9998FrankToKevin:;  cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${KEVIN} 9998000000000000000000 --private-key ${CLU_PRIVATE_KEY}
@@ -192,8 +192,8 @@ kevinTransfers9998FrankToClu:;  cast send ${APPLICATION_ERC20_ADDRESS} "transfer
 
 #			<><><><><> ACCOUNT BALANCE BY RISK RULE <><><><><>
 # mint Franks and give user Franks 
-addAccountBalanceByRiskRule:; cast send ${RULE_STORAGE_DIAMOND} "addAccountBalanceByRiskScore(address,uint8[],uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [10,20,30,40,50,60,70,80,90] [1000000000,1000000000,100000000,10000000,1000000,100000,10000,1000,100,10] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyAccountBalanceByRiskRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "setAccountBalanceByRiskRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addAccountBalanceByRiskRule:; cast send ${RULE_STORAGE_DIAMOND} "addAccountMaxValueByRiskScore(address,uint8[],uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [10,20,30,40,50,60,70,80,90] [1000000000,1000000000,100000000,10000000,1000000,100000,10000,1000,100,10] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applyAccountBalanceByRiskRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "setAccountMaxValueByRiskScoreId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 addSamAsRiskAdmin:; cast send ${APPLICATION_APP_MANAGER} "addRiskAdmin(address)" ${SAM}  --private-key ${QUORRA_PRIVATE_KEY}
 addRiskScoreKevin:; cast send ${APPLICATION_APP_MANAGER} "addRiskScore(address,uint8)" ${KEVIN}  10 --private-key ${SAM_PRIVATE_KEY}
 addRiskScoreClu:; cast send ${APPLICATION_APP_MANAGER} "addRiskScore(address,uint8)" ${CLU}  90 --private-key ${SAM_PRIVATE_KEY}
@@ -204,7 +204,7 @@ transferFranksFromKevinToClu:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(
 
 #			<><><><><> TRANSACTION LIMIT BY RISK RULE <><><><><>
 # mint Franks and give user Franks 
-addMaxTxSizePerPeriodByRiskRule:; cast send ${RULE_STORAGE_DIAMOND} "addMaxTxSizePerPeriodByRiskRule(address,uint8[],uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [10,20,30,40,50,60,70,80,90] [1000000000,1000000000,100000000,10000000,1000000,100000,10000,1000,100,10] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addAccountMaxTxValueByRiskScore:; cast send ${RULE_STORAGE_DIAMOND} "addAccountMaxTxValueByRiskScore(address,uint8[],uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [10,20,30,40,50,60,70,80,90] [1000000000,1000000000,100000000,10000000,1000000,100000,10000,1000,100,10] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 applyTransactionLimitByRiskScore:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setTransactionLimitByRiskRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # add Risk Scores to Kevin and Clu 
 # transfer Franks From Sam to Kevin 
@@ -219,32 +219,32 @@ applyTransactionLimitByRiskScore:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS
 # transfer Frank NFT From Kevin To Sam
 transferFranksFromKevinToSam:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${SAM} 1 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 transferFrankNFTFromSamToKevin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${SAM} ${KEVIN} 0 --private-key ${SAM_PRIVATE_KEY} --from ${SAM}
-turnOnAccessLevel0RuleForNFT:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateAccessLevel0Rule(bool)" true --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-turnOnAccessLevel0RuleForCoin:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateAccessLevel0Rule(bool)" true --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+turnOnAccountDenyForNoAccessLevelRuleForNFT:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateAccountDenyForNoAccessLevelRule(bool)" true --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+turnOnAccountDenyForNoAccessLevelRuleForCoin:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateAccountDenyForNoAccessLevelRule(bool)" true --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 addQuorraAsAccessTier:; cast send ${APPLICATION_APP_MANAGER} "addAccessTier(address)" ${QUORRA}  --private-key ${QUORRA_PRIVATE_KEY}
 addAccessLevel1toSam:; cast send ${APPLICATION_APP_MANAGER} "addAccessLevel(address,uint8)" ${SAM} 1 --private-key ${QUORRA_PRIVATE_KEY}
 # transferFrankNFTFromKevinToSam 
-addAccessLevel0toSam:; cast send ${APPLICATION_APP_MANAGER} "addAccessLevel(address,uint8)" ${SAM} 0 --private-key ${QUORRA_PRIVATE_KEY}
+addAccountDenyForNoAccessLeveltoSam:; cast send ${APPLICATION_APP_MANAGER} "addAccessLevel(address,uint8)" ${SAM} 0 --private-key ${QUORRA_PRIVATE_KEY}
 # these should fail
 # transferFrankNFTFromKevinToSam
 # transferFranksFromKevinToSam
 
 #			<><><><><> ADMIN WITHDRAWAL RULE <><><><><>
 mintAMillFranksToQuorra:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${QUORRA} 1000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-registerAdminWithdrawalRuleA:; cast send ${RULE_STORAGE_DIAMOND} "addAdminWithdrawalRule(address,uint256,uint256)(uint32)" ${APPLICATION_APP_MANAGER} 1000000000000000000000000 1704110400 --private-key ${QUORRA_PRIVATE_KEY}
-registerAdminWithdrawalRuleB:; cast send ${RULE_STORAGE_DIAMOND} "addAdminWithdrawalRule(address,uint256,uint256)(uint32)" ${APPLICATION_APP_MANAGER} 100000000000000000000000 1709294400 --private-key ${QUORRA_PRIVATE_KEY}
-applyAdminWithdrawalRuleA:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setAdminWithdrawalRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY}
-applyAdminWithdrawalRuleB:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setAdminWithdrawalRuleId(uint32)" 1 --private-key ${QUORRA_PRIVATE_KEY}
-turnOffAdminWithdrawalRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "activateAdminWithdrawalRule(bool)" 0 --private-key ${QUORRA_PRIVATE_KEY}
-turnOnAdminWithdrawalRule:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "activateAdminWithdrawalRule(bool)" 1 --private-key ${QUORRA_PRIVATE_KEY}
+registerAdminMinTokenBalanceA:; cast send ${RULE_STORAGE_DIAMOND} "addAdminMinTokenBalance(address,uint256,uint256)(uint32)" ${APPLICATION_APP_MANAGER} 1000000000000000000000000 1704110400 --private-key ${QUORRA_PRIVATE_KEY}
+registerAdminMinTokenBalanceB:; cast send ${RULE_STORAGE_DIAMOND} "addAdminMinTokenBalance(address,uint256,uint256)(uint32)" ${APPLICATION_APP_MANAGER} 100000000000000000000000 1709294400 --private-key ${QUORRA_PRIVATE_KEY}
+applyAdminMinTokenBalanceA:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setAdminMinTokenBalanceId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY}
+applyAdminMinTokenBalanceB:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setAdminMinTokenBalanceId(uint32)" 1 --private-key ${QUORRA_PRIVATE_KEY}
+turnOffAdminMinTokenBalance:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "activateAdminMinTokenBalance(bool)" 0 --private-key ${QUORRA_PRIVATE_KEY}
+turnOnAdminMinTokenBalance:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "activateAdminMinTokenBalance(bool)" 1 --private-key ${QUORRA_PRIVATE_KEY}
 transferFromQuorraToCluToBreakRuleA:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${CLU} 800000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY}
 transferFromQuorraToCluToBreakRuleB:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${CLU} 100000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY}
 
 #			<><><><><> ERC20 TRANSFER VOLUME RULE <><><><><>
 # mintFranks
 # giveKevin1000Franks
-addTokenTransferVolumeRule:; cast send ${RULE_STORAGE_DIAMOND} "addTransferVolumeRule(address, uint16, uint8, uint64,uint256)(uint32)" ${APPLICATION_APP_MANAGER} 200 2 0 1000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyTokenTransferVolumeRuleToToken:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setTokenTransferVolumeRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addTokenMaxTradingVolume:; cast send ${RULE_STORAGE_DIAMOND} "addTokenMaxTradingVolume(address, uint16, uint8, uint64,uint256)(uint32)" ${APPLICATION_APP_MANAGER} 200 2 0 1000 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applyTokenMaxTradingVolumeToToken:; cast send ${APPLICATION_ERC20_HANDLER_ADDRESS} "setTokenMaxTradingVolumeId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # these should pass but will contribute to the threshold being reached
 Transfer19FranksFromKevinToClu:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 19 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 # this one should fail
@@ -272,9 +272,9 @@ _tokenFee_checkFranksBalanceUser1:; cast call ${APPLICATION_ERC20_ADDRESS} "bala
 # Application Administrators Mints an Frankenstein NFT
 mintFrankNFT:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${QUORRA} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # Create an NFT Trade Counter Rule for any NFT tagged as a "BoredGrape" to only allow 1 trade per day
-addNFTTransferCounterRule:; cast send ${RULE_STORAGE_DIAMOND} "addNFTTransferCounterRule(address,bytes32[],uint8[])(uint256)" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [1] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addTokenMaxDailyTrades:; cast send ${RULE_STORAGE_DIAMOND} "addTokenMaxDailyTrades(address,bytes32[],uint8[])(uint256)" ${APPLICATION_APP_MANAGER} [0x5461796c65720000000000000000000000000000000000000000000000000000] [1] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # Apply the NFT Trade Counter Rule to Frankenstein NFT
-applyNFTTransferCounterRule:; cast send ${APPLICATION_ERC721_HANDLER} "setTradeCounterRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applytokenMaxDailyTradesRules:; cast send ${APPLICATION_ERC721_HANDLER} "setTokenMaxDailyTradesId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # Tag the Frankenstein NFT with "BoredGrape" metadata tag
 tagFrankNFT:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTag(address,bytes32)" ${APPLICATION_ERC721_ADDRESS_1} 0x5461796c65720000000000000000000000000000000000000000000000000000  --private-key ${QUORRA_PRIVATE_KEY}
 # Verify Frankenstein NFT is a "BoredGrape"
@@ -296,7 +296,7 @@ transferFrankNFTFromSamToCluAgain:;cast send ${APPLICATION_ERC721_ADDRESS_1} "tr
 # !!!! NOTE !!!! They could turn this into a soulbound NFT by setting the trades at 0
 
 #			<><><><><> AccessLevel LEVEL RULES NFT <><><><><>
-addAccessLevelBalanceRule:; cast send ${RULE_STORAGE_DIAMOND} "addAccessLevelBalanceRule(address,uint48[])" ${APPLICATION_APP_MANAGER} [15,30,60,120,210] --private-key ${QUORRA_PRIVATE_KEY} 
+addAccountMaxValueByAccessLevel:; cast send ${RULE_STORAGE_DIAMOND} "addAccountMaxValueByAccessLevel(address,uint48[])" ${APPLICATION_APP_MANAGER} [15,30,60,120,210] --private-key ${QUORRA_PRIVATE_KEY} 
 makeKevinAccessTier:; cast send ${APPLICATION_APP_MANAGER} "addAccessTier(address)" ${KEVIN}  --private-key ${QUORRA_PRIVATE_KEY}
 giveGemAccessLevel2:; cast send ${APPLICATION_APP_MANAGER} "addAccessLevel(address,uint8)" ${GEM} 2 --private-key ${KEVIN_PRIVATE_KEY}
 giveSamAccessLevel3:; cast send ${APPLICATION_APP_MANAGER} "addAccessLevel(address,uint8)" ${SAM} 3 --private-key ${KEVIN_PRIVATE_KEY}
@@ -308,23 +308,23 @@ setNFT4A200USDPrice:; cast send ${ERC721_PRICING_CONTRACT} "setSingleNFTPrice(ad
 send10USDWorthOfCoinsToGem:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${GEM} 10000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} 
 send10USDWorthOfCoinsToClu:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${CLU} 10000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} 
 send10USDWorthOfCoinsToSam:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)" ${SAM} 10000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} 
-applyAccessLevelRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "setAccountBalanceByAccessLevelRuleId(uint32)" 0  --private-key ${QUORRA_PRIVATE_KEY} 
+applyAccessLevelRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "setAccountMaxValueByAccessLevelId(uint32)" 0  --private-key ${QUORRA_PRIVATE_KEY} 
 tryToTransferNFT2ToGem:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeTransferFrom(address,address,uint256)" ${CLU} ${GEM} 2 --private-key ${CLU_PRIVATE_KEY} 
 transferNFT1ToGem:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeTransferFrom(address,address,uint256)" ${CLU} ${GEM} 1 --private-key ${CLU_PRIVATE_KEY} 
 tryToTransferNFT4ToSam:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeTransferFrom(address,address,uint256)" ${CLU} ${SAM} 4 --private-key ${CLU_PRIVATE_KEY} 
 transferNFT0ToSam:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeTransferFrom(address,address,uint256)" ${CLU} ${SAM} 0 --private-key ${CLU_PRIVATE_KEY} 
 mintCoinsForQuorra:; cast send ${APPLICATION_ERC20_ADDRESS} "mint(address,uint256)" ${QUORRA} 100000000000000000000000000000000000 --private-key ${QUORRA_PRIVATE_KEY} 
-turnOffAccessLevelRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateAccountBalanceByAccessLevelRule(bool)" 0 --private-key ${QUORRA_PRIVATE_KEY} 
-turnOnAccessLevelRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateAccountBalanceByAccessLevelRule(bool)" 1 --private-key ${QUORRA_PRIVATE_KEY} 
+turnOffAccessLevelRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateAccountMaxValueByAccessLevel(bool)" 0 --private-key ${QUORRA_PRIVATE_KEY} 
+turnOnAccessLevelRule:; cast send ${APPLICATION_APPLICATION_HANDLER} "activateAccountMaxValueByAccessLevel(bool)" 1 --private-key ${QUORRA_PRIVATE_KEY} 
 
 
 #			<><><><><> NFT Application Administrators Withdrawal Rule <><><><><>  
 # Mint NFTs to app admin account 
 mintFrankNFTforAdmin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${QUORRA} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # Add Rule
-addNFTAdminWithdrawalRule:; cast send ${RULE_STORAGE_DIAMOND} "addAdminWithdrawalRule(address,uint256,uint256)(uint32)" ${APPLICATION_APP_MANAGER} 5 1704110400 --private-key ${QUORRA_PRIVATE_KEY}
+addNFTAdminMinTokenBalance:; cast send ${RULE_STORAGE_DIAMOND} "addAdminMinTokenBalance(address,uint256,uint256)(uint32)" ${APPLICATION_APP_MANAGER} 5 1704110400 --private-key ${QUORRA_PRIVATE_KEY}
 # Apply Withdrawal rule 
-applyNFTAdminWithdrawalRule:; cast send ${APPLICATION_ERC721_HANDLER} "setAdminWithdrawalRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY}
+applyNFTAdminMinTokenBalance:; cast send ${APPLICATION_ERC721_HANDLER} "setAdminMinTokenBalanceId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY}
 # Attempt to transfer before rule expires (fails)
 transferFrankNFTFromQuorraToSamFails:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${QUORRA} ${SAM} 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # Move time to after rule 
@@ -334,7 +334,7 @@ transferNFTFromQuorraToSam:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transfer
 
 #			<><><><><> NFT TransactionLimitByRisk RULE <><><><><>
 # <<Quorra mints 0-4 token IDs>>
-addMaxTxSizePerPeriodByRiskRuleNFTrule:; cast send ${RULE_STORAGE_DIAMOND} "addMaxTxSizePerPeriodByRiskRule(address,uint8[],uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [10,20,30,40,50,60,70,80,90] [70000,60000,50000,40000,30000,20000,10000,1000,100,10] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+addAccountMaxTxValueByRiskScoreNFTrule:; cast send ${RULE_STORAGE_DIAMOND} "addAccountMaxTxValueByRiskScore(address,uint8[],uint48[])(uint32)" ${APPLICATION_APP_MANAGER} [10,20,30,40,50,60,70,80,90] [70000,60000,50000,40000,30000,20000,10000,1000,100,10] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 applyTransactionLimitByRiskScoreNFT:; cast send ${APPLICATION_ERC721_HANDLER} "setTransactionLimitByRiskRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # add Sam As Risk Admin
 addRiskScoreGem:; cast send ${APPLICATION_APP_MANAGER} "addRiskScore(address,uint8)" ${GEM}  10 --private-key ${SAM_PRIVATE_KEY}
@@ -351,7 +351,7 @@ tryToTransferNFT4ToCluFail:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transfer
 
 #			<><><><><> Min Max Balance Rule ERC721 <><><><><>
 addAccountBalanceRuleNFT:; cast send ${RULE_STORAGE_DIAMOND} "addBalanceLimitRules(address,bytes32[],uint256[],uint256[])(uint256)" ${APPLICATION_APP_MANAGER} [0x4f73636172000000000000000000000000000000000000000000000000000000] [1] [4] --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applyAccountBalanceRuleNFT:; cast send ${APPLICATION_ERC721_HANDLER} "setMinMaxBalanceRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applyAccountBalanceRuleNFT:; cast send ${APPLICATION_ERC721_HANDLER} "setAccountMinMaxTokenBalanceId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 checkAddGeneralTagNFT:; cast send ${APPLICATION_APP_MANAGER} "addGeneralTag(address,bytes32)" ${CLU} 0x4f73636172000000000000000000000000000000000000000000000000000000  --private-key ${QUORRA_PRIVATE_KEY}
 checkERC721PassMinMaxBalanceCtrl:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 100 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 checkERC721FailMinBalanceCtrl:; cast send ${APPLICATION_ERC20_ADDRESS} "transfer(address,uint256)(bool)" ${CLU} 100 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
@@ -375,8 +375,8 @@ transferNFT6FromKevinToClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeTran
 #			<><><><><> ERC721 TRANSFER VOLUME RULE <><><><><>
 TransferVolumeMintFrankNFT1forKevin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${KEVIN} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 TransferVolumeMintFrankNFT2forKevin:; cast send ${APPLICATION_ERC721_ADDRESS_1} "safeMint(address)" ${KEVIN} --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-TransferVolumeAddTokenTransferVolumeRule:; cast send ${RULE_STORAGE_DIAMOND} "addTransferVolumeRule(address, uint16, uint8, uint64,uint256)(uint32)" ${APPLICATION_APP_MANAGER} 2000 48 0 10 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-TransferVolumeApplyTokenTransferVolumeRuleToToken:; cast send ${APPLICATION_ERC721_HANDLER} "setTokenTransferVolumeRuleId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+TransferVolumeAddTokenMaxTradingVolume:; cast send ${RULE_STORAGE_DIAMOND} "addTokenMaxTradingVolume(address, uint16, uint8, uint64,uint256)(uint32)" ${APPLICATION_APP_MANAGER} 2000 48 0 10 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+TransferVolumeApplyTokenMaxTradingVolumeToToken:; cast send ${APPLICATION_ERC721_HANDLER} "setTokenMaxTradingVolumeId(uint32)" 0 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 # this should pass
 TransferVolumeTransferNFT0ToFromKevinToClu:; cast send ${APPLICATION_ERC721_ADDRESS_1} "transferFrom(address,address,uint256)" ${KEVIN} ${CLU} 0 --private-key ${KEVIN_PRIVATE_KEY} --from ${KEVIN}
 # this one should fail
@@ -442,8 +442,8 @@ applicationTokenCheckSamBalance:; cast call ${APPLICATION_ERC20_ADDRESS} "balanc
 # Kevin starts spamming ecosystem
 
 # Create Minimum Transfer Rule 
-applicationRulesAddMinTransfer:; cast send ${RULE_STORAGE_DIAMOND} "addMinimumTransferRule(address,uint256)(uint256)" ${APPLICATION_APP_MANAGER} 10 ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
-applicationCheckRulesMinTransfer:; cast call ${RULE_STORAGE_DIAMOND} "getMinimumTransferRule(uint32)(uint256)" 1 ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applicationRulesAddMinTransfer:; cast send ${RULE_STORAGE_DIAMOND} "addTokenMinTxSize(address,uint256)(uint256)" ${APPLICATION_APP_MANAGER} 10 ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
+applicationCheckRulesMinTransfer:; cast call ${RULE_STORAGE_DIAMOND} "getTokenMinTxSize(uint32)(uint256)" 1 ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 
 # Apply Minimum Transfer Rule to Application Token
 applicationTokenApplyMinTransferRule:; cast send ${APPLICATION_ERC20_ADDRESS} "setRuleByIndex(uint8,uint32)" 9 1 --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}

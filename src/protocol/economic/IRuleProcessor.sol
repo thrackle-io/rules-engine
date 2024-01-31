@@ -11,7 +11,7 @@ pragma solidity ^0.8.17;
 
 interface IRuleProcessor {
     /**
-     * @dev Check the minimum/maximum rule. This rule ensures that both the to and from accounts do not
+     * @dev Check the AccountMinMaxTokenBalanc rule. This rule ensures that both the to and from accounts do not
      * exceed the max balance or go below the min balance.
      * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
      * @param balanceFrom Token balance of the sender address
@@ -20,18 +20,18 @@ interface IRuleProcessor {
      * @param toTags tags applied via App Manager to recipient address
      * @param fromTags tags applied via App Manager to sender address
      */
-    function checkMinMaxAccountBalancePasses(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, uint256 amount, bytes32[] calldata toTags, bytes32[] calldata fromTags) external view;
+    function checkAccountMinMaxTokenBalance(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, uint256 amount, bytes32[] calldata toTags, bytes32[] calldata fromTags) external view;
 
     /**
-     * @dev Check the minimum transfer rule. This rule ensures accounts cannot transfer less than
+     * @dev Check the TokenMinTxSize rule. This rule ensures accounts cannot transfer less than
      * the specified amount.
      * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
      * @param amount total number of tokens to be transferred
      */
-    function checkMinTransferPasses(uint32 ruleId, uint256 amount) external view;
+    function checkTokenMinTxSize(uint32 ruleId, uint256 amount) external view;
 
     /**
-     * @dev Check the minMaxAccoutBalace rule. This rule ensures accounts cannot exceed or drop below specified account balances via account tags.
+     * @dev Check the MinMaxAccountBalanceERC721 rule. This rule ensures accounts cannot exceed or drop below specified account balances via account tags.
      * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
      * @param balanceFrom Token balance of the sender address
      * @param balanceTo Token balance of the recipient address
@@ -45,7 +45,7 @@ interface IRuleProcessor {
      * @param _ruleId Rule Id
      * @param _address user address to be checked
      */
-    function checkOraclePasses(uint32 _ruleId, address _address) external view;
+    function checkAccountApproveDenyOracle(uint32 _ruleId, address _address) external view;
 
     /**
      * @dev Check if transaction passes Balance by AccessLevel rule.
@@ -57,23 +57,23 @@ interface IRuleProcessor {
     function checkBalanceByAccessLevelPasses(uint32 _ruleId, uint8 _accessLevel, uint256 _balance, uint256 _amountToTransfer) external view;
 
     /**
-     * @dev This function receives a rule id for Purchase Limit details and checks that transaction passes.
+     * @dev This function receives a rule id for AccountMaxBuySize details and checks that transaction passes.
      * @param ruleId Rule identifier for rule arguments
-     * @param purchasedWithinPeriod Number of tokens purchased within purchase Period
+     * @param boughtInPeriod Number of tokens purchased within purchase Period
      * @param amount Number of tokens to be transferred
      * @param toTags Account tags applied to sender via App Manager
      * @param lastUpdateTime block.timestamp of most recent transaction from sender.
      */
-    function checkPurchaseLimit(uint32 ruleId, uint256 purchasedWithinPeriod, uint256 amount, bytes32[] calldata toTags, uint64 lastUpdateTime) external view returns (uint256);
+    function checkAccountMaxBuySize(uint32 ruleId, uint256 boughtInPeriod, uint256 amount, bytes32[] calldata toTags, uint64 lastUpdateTime) external view returns (uint256);
 
     /**
-     * @dev This function receives a rule id for Sell Limit details and checks that transaction passes.
+     * @dev This function receives a rule id for AccountMaxSellSize details and checks that transaction passes.
      * @param ruleId Rule identifier for rule arguments
      * @param amount Number of tokens to be transferred
      * @param fromTags Account tags applied to sender via App Manager
      * @param lastUpdateTime block.timestamp of most recent transaction from sender.
      */
-    function checkSellLimit(uint32 ruleId, uint256 salesWithinPeriod, uint256 amount, bytes32[] calldata fromTags, uint64 lastUpdateTime) external view returns (uint256);
+    function checkAccountMaxSellSize(uint32 ruleId, uint256 salesInPeriod, uint256 amount, bytes32[] calldata fromTags, uint64 lastUpdateTime) external view returns (uint256);
 
     /**
      * @dev Check the minimum/maximum rule through the AMM Swap
@@ -85,7 +85,7 @@ interface IRuleProcessor {
      * @param amountOut total number of tokens to be received
      * @param fromTags tags applied via App Manager to sender address
      */
-    function checkMinMaxAccountBalancePassesAMM(
+    function checkAccountMinMaxTokenBalanceAMM(
         uint32 ruleIdToken0,
         uint32 ruleIdToken1,
         uint256 tokenBalance0,
@@ -96,13 +96,13 @@ interface IRuleProcessor {
     ) external view;
 
     /**
-     * @dev This function receives a rule id, which it uses to get the NFT Trade Counter rule to check if the transfer is valid.
+     * @dev This function receives a rule id, which it uses to get the TokenMaxDailyTrades rule to check if the transfer is valid.
      * @param ruleId Rule identifier for rule arguments
      * @param transfersWithinPeriod Number of transfers within the time period
      * @param nftTags NFT tags applied
      * @param lastTransferTime block.timestamp of most recent transaction from sender.
      */
-    function checkNFTTransferCounter(uint32 ruleId, uint256 transfersWithinPeriod, bytes32[] calldata nftTags, uint64 lastTransferTime) external view returns (uint256);
+    function checkTokenMaxDailyTrades(uint32 ruleId, uint256 transfersWithinPeriod, bytes32[] calldata nftTags, uint64 lastTransferTime) external view returns (uint256);
 
     /**
      * @dev Assess the fee associated with the AMM Fee Rule
@@ -119,44 +119,44 @@ interface IRuleProcessor {
      * @notice that the function will revert if the check finds a violation of the rule, but won't give anything
      * back if everything checks out.
      */
-    function checkAdminWithdrawalRule(uint32 _ruleId, uint256 _currentBalance, uint256 _amountToTransfer) external view;
+    function checkAdminMinTokenBalance(uint32 _ruleId, uint256 _currentBalance, uint256 _amountToTransfer) external view;
 
     // --------------------------- APPLICATION LEVEL --------------------------------
 
     /**
-     * @dev This function checks if the requested action is valid according to the AccountBalanceByRiskScore rule
+     * @dev This function checks if the requested action is valid according to the AccountMaxValueByRiskScore rule
      * @param _ruleId Rule Identifier
      * @param _toAddress Address of the recipient
      * @param _riskScoreTo the Risk Score of the recepient account
-     * @param _totalValuationTo recepient account's beginning balance in USD with 18 decimals of precision
+     * @param _totalValueTo recepient account's beginning balance in USD with 18 decimals of precision
      * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
      */
-    function checkAccBalanceByRisk(uint32 _ruleId, address _toAddress, uint8 _riskScoreTo, uint128 _totalValuationTo, uint128 _amountToTransfer) external view;
+    function checkAccountMaxValueByRiskScore(uint32 _ruleId, address _toAddress, uint8 _riskScoreTo, uint128 _totalValueTo, uint128 _amountToTransfer) external view;
 
     /**
-     * @dev This function checks if the requested action is valid according to the AccountBalanceByAccessLevel rule
+     * @dev This function checks if the requested action is valid according to the AccountMaxValueByAccessLevel rule
      * @param _ruleId Rule Identifier
      * @param _accessLevelTo the Access Level of the recepient account
-     * @param _totalValuationTo recepient account's beginning balance in USD with 18 decimals of precision
+     * @param _totalValueTo recepient account's beginning balance in USD with 18 decimals of precision
      * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
      */
-    function checkAccBalanceByAccessLevel(uint32 _ruleId, uint8 _accessLevelTo, uint128 _totalValuationTo, uint128 _amountToTransfer) external view;
+    function checkAccountMaxValueByAccessLevel(uint32 _ruleId, uint8 _accessLevelTo, uint128 _totalValueTo, uint128 _amountToTransfer) external view;
 
     /**
      * @dev rule that checks if the tx exceeds the limit size in USD for a specific risk profile
      * within a specified period of time.
      * @notice that these ranges are set by ranges.
      * @param ruleId to check against.
-     * @param _usdValueTransactedInPeriod the cumulative amount of tokens recorded in the last period.
+     * @param _valueTransactedInPeriod the cumulative amount of tokens recorded in the last period.
      * @param amount in USD of the current transaction with 18 decimals of precision.
      * @param lastTxDate timestamp of the last transfer of this token by this address.
      * @param riskScore of the address (0 -> 100)
-     * @return updated value for the _usdValueTransactedInPeriod. If _usdValueTransactedInPeriod are
+     * @return updated value for the _valueTransactedInPeriod. If _valueTransactedInPeriod are
      * inside the current period, then this value is accumulated. If not, it is reset to current amount.
-     * @dev this check will cause a revert if the new value of _usdValueTransactedInPeriod in USD exceeds
+     * @dev this check will cause a revert if the new value of _valueTransactedInPeriod in USD exceeds
      * the limit for the address risk profile.
      */
-    function checkMaxTxSizePerPeriodByRisk(uint32 ruleId, uint128 _usdValueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 riskScore) external view returns (uint128);
+    function checkAccountMaxTxValueByRiskScore(uint32 ruleId, uint128 _valueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 riskScore) external view returns (uint128);
 
     /**
      * @dev Ensure that Access Level = 0 rule passes. This seems like an easy rule to check but it is still
@@ -164,10 +164,10 @@ interface IRuleProcessor {
      * @param _accessLevel account access level
      *
      */
-    function checkAccessLevel0Passes(uint8 _accessLevel) external view;
+    function checkAccountDenyForNoAccessLevel(uint8 _accessLevel) external view;
 
     /**
-     * @dev rule that checks if the withdrawal exceeds the limit size in USD for a specific access level
+     * @dev rule that checks if the value out exceeds the limit size in USD for a specific access level
      * @notice that these ranges are set by ranges.
      * @param _ruleId to check against.
      * @param _accessLevel access level of the sending account
@@ -175,7 +175,7 @@ interface IRuleProcessor {
      * @param _amountToTransfer total value of the transfer
      * @return Sending account's new total withdrawn.
      */
-    function checkwithdrawalLimitsByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _withdrawal, uint128 _amountToTransfer) external view returns (uint128);
+    function checkAccountMaxValueOutByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _withdrawal, uint128 _amountToTransfer) external view returns (uint128);
 
     /**
      * @dev This function checks if the requested action is valid according to pause rules.
@@ -184,33 +184,33 @@ interface IRuleProcessor {
     function checkPauseRules(address _dataServer) external view;
 
     /**
-     * @dev Function receives a rule id, retrieves the rule data and checks if the Purchase Percentage Rule passes
+     * @dev Function receives a rule id, retrieves the rule data and checks if the TokenMaxBuyVolume Rule passes
      * @param ruleId id of the rule to be checked
      * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
      * @param amountToTransfer total number of tokens to be transferred in transaction.
      * @param lastPurchaseTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
      */
-    function checkPurchasePercentagePasses(
+    function checkTokenMaxBuyVolume(
         uint32 ruleId,
         uint256 currentTotalSupply,
         uint256 amountToTransfer,
         uint64 lastPurchaseTime,
-        uint256 totalPurchasedWithinPeriod
+        uint256 totalBoughtInPeriod
     ) external view returns (uint256);
 
     /**
-     * @dev Function receives a rule id, retrieves the rule data and checks if the Sell Percentage Rule passes
+     * @dev Function receives a rule id, retrieves the rule data and checks if the TokenMaxSellVolume Rule passes
      * @param ruleId id of the rule to be checked
      * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
      * @param amountToTransfer total number of tokens to be transferred in transaction.
      * @param lastSellTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
-     * @param totalSoldWithinPeriod total amount of tokens sold during period.
+     * @param totalSoldInPeriod total amount of tokens sold during period.
      */
-    function checkSellPercentagePasses(uint32 ruleId, uint256 currentTotalSupply, uint256 amountToTransfer, uint64 lastSellTime, uint256 totalSoldWithinPeriod) external view returns (uint256);
+    function checkTokenMaxSellVolume(uint32 ruleId, uint256 currentTotalSupply, uint256 amountToTransfer, uint64 lastSellTime, uint256 totalSoldInPeriod) external view returns (uint256);
 
 
     /**
-     * @dev Rule checks if the token transfer volume rule will be violated.
+     * @dev Rule checks if the token max trading volume rule will be violated.
      * @param _ruleId Rule identifier for rule arguments
      * @param _volume token's trading volume thus far
      * @param _amount Number of tokens to be transferred from this account
@@ -218,10 +218,10 @@ interface IRuleProcessor {
      * @param _lastTransferTs the time of the last transfer
      * @return volumeTotal new accumulated volume
      */
-    function checkTokenTransferVolumePasses(uint32 _ruleId, uint256 _volume, uint256 _supply, uint256 _amount, uint64 _lastTransferTs) external view returns (uint256);
+    function checkTokenMaxTradingVolume(uint32 _ruleId, uint256 _volume, uint256 _supply, uint256 _amount, uint64 _lastTransferTs) external view returns (uint256);
 
     /**
-     * @dev Rule checks if the total supply volatility rule will be violated.
+     * @dev Rule checks if the tokenMaxSupplyVolatility rule will be violated.
      * @param _ruleId Rule identifier for rule arguments
      * @param _volumeTotalForPeriod token's increase/decreased volume total in period
      * @param _totalSupplyForPeriod token total supply updated at begining of period
@@ -230,7 +230,7 @@ interface IRuleProcessor {
      * @param _lastSupplyUpdateTime the time of the last transfer
      * @return volumeTotal new accumulated volume
      */
-    function checkTotalSupplyVolatilityPasses(
+    function checkTokenMaxSupplyVolatility(
         uint32 _ruleId,
         int256 _volumeTotalForPeriod,
         uint256 _totalSupplyForPeriod,
@@ -244,7 +244,7 @@ interface IRuleProcessor {
      * @param _holdHours minimum number of hours the asset must be held
      * @param _ownershipTs beginning of hold period
      */
-    function checkNFTHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view;
+    function checkTokenMinHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view;
 
     /* ---------------------------- Rule Validation Functions --------------------------------- */
     /**
@@ -263,85 +263,85 @@ interface IRuleProcessor {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateMinMaxAccountBalanceERC721(uint32 _ruleId) external view;
+    function validateAccountMinMaxTokenBalanceERC721(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateNFTTransferCounter(uint32 _ruleId) external view;
+    function validateTokenMaxDailyTrades(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateMinMaxAccountBalance(uint32 _ruleId) external view;
+    function validateAccountMinMaxTokenBalance(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validatePurchaseLimit(uint32 _ruleId) external view;
+    function validateAccountMaxBuySize(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateSellLimit(uint32 _ruleId) external view;
+    function validateAccountMaxSellSize(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAdminWithdrawal(uint32 _ruleId) external view;
+    function validateAdminMinTokenBalance(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateMinTransfer(uint32 _ruleId) external view;
+    function validateTokenMinTxSize(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateOracle(uint32 _ruleId) external view;
+    function validateAccountApproveDenyOracle(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validatePurchasePercentage(uint32 _ruleId) external view;
+    function validateTokenMaxBuyVolume(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateSellPercentage(uint32 _ruleId) external view;
+    function validateTokenMaxSellVolume(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenTransferVolume(uint32 _ruleId) external view;
+    function validateTokenMaxTradingVolume(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateSupplyVolatility(uint32 _ruleId) external view;
+    function validateTokenMaxSupplyVolatility(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccBalanceByRisk(uint32 _ruleId) external view;
+    function validateAccountMaxValueByRiskScore(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateMaxTxSizePerPeriodByRisk(uint32 _ruleId) external view;
+    function validateAccountMaxTxValueByRiskScore(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
@@ -354,11 +354,11 @@ interface IRuleProcessor {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccBalanceByAccessLevel(uint32 _ruleId) external view;
+    function validateAccountMaxValueByAccessLevel(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateWithdrawalLimitsByAccessLevel(uint32 _ruleId) external view;
+    function validateAccountMaxValueOutByAccessLevel(uint32 _ruleId) external view;
 }

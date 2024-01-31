@@ -8,12 +8,12 @@ import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
  * @dev This interface provides the ABI for any asset handler capable of implementing the admin withdrawal rule
  */
 
-abstract contract IAdminWithdrawalRuleCapable {
-    error AdminWithdrawalRuleisActive();
+abstract contract IAdminMinTokenBalanceCapable {
+    error AdminMinTokenBalanceisActive();
 
     /**
-     * @dev This function is used by the app manager to determine if the AdminWithdrawal rule is active for any of the actions
+     * @dev This function is used by the app manager to determine if the AdminMinTokenBalance rule is active for any of the actions
      * @return Success equals true if all checks pass
      */
-    function isAdminWithdrawalActiveAndApplicable() external virtual returns (bool);
+    function isAdminMinTokenBalanceActiveAndApplicable() external virtual returns (bool);
 }

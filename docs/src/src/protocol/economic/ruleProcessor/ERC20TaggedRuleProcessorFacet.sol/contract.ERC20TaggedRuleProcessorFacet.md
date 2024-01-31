@@ -70,13 +70,13 @@ function checkMinMaxAccountBalancePassesAMM(
 |`fromTags`|`bytes32[]`|tags applied via App Manager to sender address|
 
 
-### maxAccountBalanceCheck
+### ceckAccountMaxTokenBalance
 
 *Check if tagged account passes maxAccountBalance rule*
 
 
 ```solidity
-function maxAccountBalanceCheck(uint256 balanceTo, bytes32[] calldata toTags, uint256 amount, uint32 ruleId)
+function ceckAccountMaxTokenBalance(uint256 balanceTo, bytes32[] calldata toTags, uint256 amount, uint32 ruleId)
     public
     view;
 ```
@@ -90,7 +90,7 @@ function maxAccountBalanceCheck(uint256 balanceTo, bytes32[] calldata toTags, ui
 |`ruleId`|`uint32`|Rule identifier for rule arguments|
 
 
-### minAccountBalanceCheck
+### checkAccountMinTokenBalance
 
 This Function checks the max account balance for accounts depending on GeneralTags.
 Function will revert if a transaction breaks a single tag-dependent rule
@@ -100,7 +100,7 @@ if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than
 
 
 ```solidity
-function minAccountBalanceCheck(uint256 balanceFrom, bytes32[] calldata fromTags, uint256 amount, uint32 ruleId)
+function checkAccountMinTokenBalance(uint256 balanceFrom, bytes32[] calldata fromTags, uint256 amount, uint32 ruleId)
     public
     view;
 ```
@@ -158,7 +158,7 @@ function getTotalMinMaxBalanceRules() public view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### checkAdminWithdrawalRule
+### checkAdminMinTokenBalance
 
 that the function will revert if the check finds a violation of the rule, but won't give anything
 back if everything checks out.
@@ -167,7 +167,7 @@ back if everything checks out.
 
 
 ```solidity
-function checkAdminWithdrawalRule(uint32 ruleId, uint256 currentBalance, uint256 amount) external view;
+function checkAdminMinTokenBalance(uint32 ruleId, uint256 currentBalance, uint256 amount) external view;
 ```
 **Parameters**
 
@@ -178,13 +178,13 @@ function checkAdminWithdrawalRule(uint32 ruleId, uint256 currentBalance, uint256
 |`amount`|`uint256`|Number of tokens to be transferred|
 
 
-### getAdminWithdrawalRule
+### getAdminMinTokenBalance
 
 *Function gets Admin withdrawal rule at index*
 
 
 ```solidity
-function getAdminWithdrawalRule(uint32 _index) public view returns (TaggedRules.AdminWithdrawalRule memory);
+function getAdminMinTokenBalance(uint32 _index) public view returns (TaggedRules.AdminMinTokenBalance memory);
 ```
 **Parameters**
 
@@ -196,22 +196,22 @@ function getAdminWithdrawalRule(uint32 _index) public view returns (TaggedRules.
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`TaggedRules.AdminWithdrawalRule`|adminWithdrawalRulesPerToken rule at indexed postion|
+|`<none>`|`TaggedRules.AdminMinTokenBalance`|adminMinTokenBalanceRules rule at indexed postion|
 
 
-### getTotalAdminWithdrawalRules
+### getTotalAdminMinTokenBalance
 
 *Function to get total Admin withdrawal rules*
 
 
 ```solidity
-function getTotalAdminWithdrawalRules() public view returns (uint32);
+function getTotalAdminMinTokenBalance() public view returns (uint32);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|adminWithdrawalRulesPerToken total length of array|
+|`<none>`|`uint32`|adminMinTokenBalanceRules total length of array|
 
 
 ### checkMinBalByDatePasses

@@ -48,7 +48,7 @@ It is strongly recommended that the Super Administrator is a multi-signature acc
 ## APP ADMIN
 
 ### Overview
-App admin is set at contruction and can be granted only by the super admin at any time. App Admins do not have the ability to create/revoke other App Admins. This role can grant permissions to the access tier, risk and rule admin roles as well as rule bypass accounts. This role also has control over setting addresses for provider contracts, registering/deregistering asset contracts and setting upgraded handler addresses. Functions with the modifier onlyRole(APP_ADMIN_ROLE) can only be called by this role. 
+App admin is set at contruction and can be granted only by the super admin at any time. App Admins do not have the ability to create/revoke other App Admins. This role can grant permissions to the access level, risk and rule admin roles as well as rule bypass accounts. This role also has control over setting addresses for provider contracts, registering/deregistering asset contracts and setting upgraded handler addresses. Functions with the modifier onlyRole(APP_ADMIN_ROLE) can only be called by this role. 
 
 ### Add Command
 The following is an example of the command used to add an app admin:
@@ -59,9 +59,9 @@ cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" 0xf39Fd6e51aad
 ### Capabilities 
 * Application Administrators may add/remove Rule Administrators
 * Application Administrators may add/remove Risk Administrators.
-* Application Administrators may add/remove Access Tier Administrators.
+* Application Administrators may add/remove Access Level Administrators.
 * Application Administrators may add/remove Rule Bypass Accounts.
-* Application Administrators may add/edit/remove player account metadata such as tags (not including risk/access tier levels).
+* Application Administrators may add/edit/remove player account metadata such as tags (not including risk/access levels).
 * Application Administrators may renounce their role.
 * Application Administrators may register/deregister asset contracts.
 * Application Administrators may set upgraded hnadler addresses.
@@ -97,21 +97,21 @@ Keccak256: 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f
 
 ---
 
-## ACCESS TIER ADMIN
+## ACCESS LEVEL ADMIN
 
 ### Overview
-Access tier can be granted at any time by the app admin. This role sets the access level for addresses within the application app manager. Functions with the modifier onlyRole(ACCESS_TIER_ADMIN_ROLE) can only be called by this role.
+Access level admin can be granted at any time by the app admin. This role sets the access level for addresses within the application app manager. Functions with the modifier onlyRole(ACCESS_LEVEL_ADMIN_ROLE) can only be called by this role.
 
 ### Add Command
-The following is an example of the command used to add an access tier admin:
+The following is an example of the command used to add an access level admin:
 ````
-cast send $APPLICATION_APP_MANAGER "addAccessTier(address)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $APPLICATION_APP_MANAGER "addAccessLevel(address)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 ````
 
 ### Capabilities
-* Access Tier Administrators may alter player access tier levels.
-* Access Tier Administrators may not alter any rule configurations to include risk related rules.
-* Access Tier Administrators may renounce their role.
+* Access Level Administrators may alter player access levels.
+* Access Level Administrators may not alter any rule configurations to include risk related rules.
+* Access Level Administrators may renounce their role.
 
 ### Role Hash
 ````

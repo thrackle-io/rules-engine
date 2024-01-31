@@ -9,8 +9,8 @@
 
 ```solidity
 struct PurchaseRule {
-    uint256 purchaseAmount;
-    uint16 purchasePeriod;
+    uint256 maxSize;
+    uint16 period;
     uint64 startTime;
 }
 ```
@@ -49,12 +49,12 @@ struct MinMaxBalanceRule {
 }
 ```
 
-### AdminWithdrawalRule
+### AdminMinTokenBalance
 ******** Admin Withdrawal Rules ********
 
 
 ```solidity
-struct AdminWithdrawalRule {
+struct AdminMinTokenBalance {
     uint256 amount;
     uint256 releaseDate;
 }
@@ -66,7 +66,7 @@ struct AdminWithdrawalRule {
 
 ```solidity
 struct TransactionSizeToRiskRule {
-    uint8[] riskLevel;
+    uint8[] riskScore;
     uint48[] maxSize;
 }
 ```
@@ -83,12 +83,12 @@ struct MinBalByDateRule {
 }
 ```
 
-### NFTTradeCounterRule
+### TokenMaxDailyTrades
 ******** NFT ********
 
 
 ```solidity
-struct NFTTradeCounterRule {
+struct TokenMaxDailyTrades {
     uint8 tradesAllowedPerDay;
     uint64 startTs;
 }
