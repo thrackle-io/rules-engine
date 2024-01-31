@@ -118,7 +118,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev This function consolidates all the Risk rules that utilize application level Risk rules. 
+     * @dev This function consolidates all the Risk rule checks. 
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _balanceValuation recepient address current total application valuation in USD with 18 decimals of precision
@@ -153,7 +153,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev This function consolidates all the application level AccessLevel rules.
+     * @dev This function consolidates all the Access Level rule checks.
      * @param _to address of the to account
      * @param _balanceValuation recepient address current total application valuation in USD with 18 decimals of precision
      * @param _transferValuation valuation of the token being transferred in USD with 18 decimals of precision
@@ -161,11 +161,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        /// Check if sender is not AMM and then check sender access level
         if (AccountDenyForNoAccessLevelRuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
-        /// Check if receiver is not an AMM or address(0) and then check the recipient access level. Exempting address(0) allows for burning.
+        /// Exempting address(0) allows for burning.
         if (AccountDenyForNoAccessLevelRuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
-        /// Check that the recipient is not address(0). If it is we do not check this rule as it is a burn.
         if (accountMaxValueByAccessLevelActive && _to != address(0))
             ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevelId, score, _balanceValuation, _transferValuation);
         if (accountMaxValueOutByAccessLevelActive) {
@@ -175,7 +173,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
 
     /// -------------- Pricing Module Configurations ---------------
     /**
-     * @dev sets the address of the nft pricing contract and loads the contract.
+     * @dev Sets the address of the nft pricing contract and loads the contract.
      * @param _address Nft Pricing Contract address.
      */
     function setNFTPricingAddress(address _address) external ruleAdministratorOnly(appManagerAddress) {
@@ -186,7 +184,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev sets the address of the erc20 pricing contract and loads the contract.
+     * @dev Sets the address of the erc20 pricing contract and loads the contract.
      * @param _address ERC20 Pricing Contract address.
      */
     function setERC20PricingAddress(address _address) external ruleAdministratorOnly(appManagerAddress) {
@@ -211,7 +209,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         } else {
             /// Loop through all Nfts and ERC20s and add values to balance for account valuation
             for (uint256 i; i < tokenList.length; ) {
-                /// First check to see if user owns the asset
+                /// Check to see if user owns the asset
                 tokenAmount = (IToken(tokenList[i]).balanceOf(_account));
                 if (tokenAmount > 0) {
                     try IERC165(tokenList[i]).supportsInterface(0x80ac58cd) returns (bool isERC721) {
@@ -269,7 +267,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Get the total value for all tokens held by wallet for specific collection. This is done by interacting with the pricing module
+     * @dev Get the total value for all tokens held by a wallet for a specific collection. This is done by interacting with the pricing module
      * @notice This function gets the total token value in dollars of all tokens owned in each collection by address.
      * @param _tokenAddress the address of the token
      * @param _tokenAmount amount of NFTs from _tokenAddress contract
@@ -310,7 +308,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Tells you if the accountMaxValueByRiskScoreRule is active or not.
+     * @dev Tells you if the accountMaxValueByRiskScore Rule is active or not.
      * @return boolean representing if the rule is active
      */
     function isAccountMaxValueByRiskScoreActive() external view returns (bool) {
@@ -318,7 +316,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Retrieve the accountMaxValueByRiskScoreRule id
+     * @dev Retrieve the accountMaxValueByRiskScore Rule id
      * @return accountMaxValueByRiskScoreId rule id
      */
     function getAccountMaxValueByRiskScoreId() external view returns (uint32) {
@@ -351,7 +349,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Tells you if the accountMaxValueByAccessLevelRule is active or not.
+     * @dev Tells you if the accountMaxValueByAccessLevel Rule is active or not.
      * @return boolean representing if the rule is active
      */
     function isAccountMaxValueByAccessLevelActive() external view returns (bool) {
@@ -388,7 +386,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Set the accountMaxValueOutByAccessLevelRule. Restricted to app administrators only.
+     * @dev Set the accountMaxValueOutByAccessLevel Rule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
@@ -413,7 +411,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Tells you if the accountMaxValueOutByAccessLevelRule is active or not.
+     * @dev Tells you if the accountMaxValueOutByAccessLevel Rule is active or not.
      * @return boolean representing if the rule is active
      */
     function isAccountMaxValueOutByAccessLevelActive() external view returns (bool) {
@@ -421,7 +419,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Retrieve the accountMaxValueOutByAccessLevelRule rule id
+     * @dev Retrieve the accountMaxValueOutByAccessLevel Rule rule id
      * @return accountMaxValueOutByAccessLevelId rule id
      */
     function getAccountMaxValueOutByAccessLevelId() external view returns (uint32) {
@@ -437,7 +435,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Set the AccountMaxTransactionValueByRiskScoreRule. Restricted to app administrators only.
+     * @dev Set the AccountMaxTransactionValueByRiskScore Rule. Restricted to app administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
@@ -463,7 +461,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     }
 
     /**
-     * @dev Tells you if the accountMaxTransactionValueByRiskScoreRule is active or not.
+     * @dev Tells you if the accountMaxTransactionValueByRiskScore Rule is active or not.
      * @return boolean representing if the rule is active for specified token
      */
     function isAccountMaxTxValueByRiskScoreActive() external view returns (bool) {

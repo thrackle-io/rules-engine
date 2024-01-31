@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-/// TODO Create a wizard that creates custom versions of this contract for each implementation.
-
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
@@ -10,7 +8,7 @@ import "../ProtocolHandlerCommon.sol";
 import "../ProtocolHandlerTradingRulesCommon.sol";
 
 /**
- * @title Base NFT Handler Contract
+ * @title Protocol ERC721 Handler Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev This contract performs all rule checks related to the the ERC721 that implements it.
  *      Any rule handlers may be updated by modifying this contract, redeploying, and pointing the ERC721 to the new version.
@@ -40,7 +38,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
 
     /// Simple Rule Mapping
     mapping(ActionTypes => TokenMinHoldTime) tokenMinHoldTime;
-
 
     /// NFT Collection Valuation Limit
     uint16 private nftValuationLimit = 100;
@@ -86,7 +83,8 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev This function is the one called from the contract that implements this handler. It's the entry point to protocol.
+     * @dev This function is the one called from the token contract that implements this handler. It's the entry point to protocol.
+     * @notice Standard rules do not apply when either to or from address is a Rule Bypass Account.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _from sender address
@@ -101,11 +99,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
         ActionTypes action = determineTransferAction(_from, _to, _sender);
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
-        /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
             appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
             _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
-
             _checkNonTaggedRules(action, _from, _to, _amount, _tokenId);
             _checkSimpleRules(action, _tokenId);
             /// set the ownership start time for the token if the Minimum Hold time rule is active or action is mint
@@ -114,12 +110,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
             ruleProcessor.checkAdminMinTokenBalance(adminMinTokenBalance[action].ruleId, _balanceFrom, _amount);
             emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress);
         }
-        /// If all rule checks pass, return true
         return true;
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the actual rule checks.
+     * @dev This function performs the checks for NonTagged rules.
      * @param action current action
      * @param _from address of the from account
      * @param _to address of the to account
@@ -134,9 +129,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
                 ++accountApproveDenyOracleIndex;
             }
         }
-
         if (tokenMaxDailyTrades[action].active) {
-            // get all the tags for this NFT
             bytes32[] memory tags = appManager.getAllTags(erc721Address);
             tradesInPeriod[tokenId] = ruleProcessor.checkTokenMaxDailyTrades(tokenMaxDailyTrades[action].ruleId, tradesInPeriod[tokenId], tags, lastTxDate[tokenId]);
             lastTxDate[tokenId] = uint64(block.timestamp);
@@ -160,7 +153,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
+     * @dev This function performs the tagged and trading rule checks.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
@@ -174,7 +167,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
+     * @dev This function consolidates all the tagged rules that utilize account tags plus all trading rules.
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _balanceFrom token balance of sender address
@@ -198,7 +191,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
+     * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks (Ones that have simple parameters and are not stored in the rule storage diamond).
      * @param _action action to be checked
      * @param _tokenId the specific token in question
      */
@@ -207,7 +200,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
      /**
-     * @dev Set the accountMinMaxTokenBalanceRuleId. Restricted to rule administrators only.
+     * @dev Set the accountMinMaxTokenBalance Rule Id. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions the action types
      * @param _ruleId Rule Id to set
@@ -244,7 +237,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * Get the accountMinMaxTokenBalanceRuleId.
+     * @dev Get the accountMinMaxTokenBalance Rule Id.
      * @param _action the action type
      * @return accountMinMaxTokenBalance rule id.
      */
@@ -380,7 +373,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev Set the tokenMaxDailyTradesRuleId. Restricted to rule administrators only.
+     * @dev Set the tokenMaxDailyTrades Rule Id. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions the action types
      * @param _ruleId Rule Id to set
@@ -426,7 +419,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev Tells you if the tokenMaxDailyTradesRule is active or not.
+     * @dev Tells you if the tokenMaxDailyTrades Rule is active or not.
      * @param _action the action type
      * @return boolean representing if the rule is active
      */
@@ -445,14 +438,13 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
      /**
-     * @dev Set the AdminMinTokenBalance. Restricted to rule administrators only.
+     * @dev Set the AdminMinTokenBalance Rule Id. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions the action type
      * @param _ruleId Rule Id to set
      */
     function setAdminMinTokenBalanceId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateAdminMinTokenBalance(_ruleId);
-        /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
         if (isAdminMinTokenBalanceActiveForAnyAction()) {
             if (isAdminMinTokenBalanceActiveAndApplicable()) revert AdminMinTokenBalanceisActive();
         }
@@ -556,7 +548,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev Set the tokenMaxTradingVolumeRuleId. Restricted to rule admins only.
+     * @dev Set the tokenMaxTradingVolume Rule Id. Restricted to rule admins only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions the action type
      * @param _ruleId Rule Id to set

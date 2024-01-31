@@ -14,7 +14,7 @@ import "../../IProtocolTokenHandler.sol";
 import "../../ProtocolTokenCommonU.sol";
 
 /**
- * @title ERC721 Upgradeable Protocol Contract
+ * @title Protocol ERC721 Upgradeable Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This is the base contract for all protocol ERC721Upgradeables
  */
@@ -77,13 +77,17 @@ contract ProtocolERC721U is
     }
 
     /**
-     * @dev Function to return baseUri for contract
+     * @dev Function to return baseURI for contract
      * @return baseUri URI link to NFT metadata
      */
     function _baseURI() internal view override returns (string memory) {
         return baseUri;
     }
 
+    /**
+     * @dev Function to return tokenURI for contract
+     * @return tokenURI link to NFT metadata
+     */
     function tokenURI(uint256 tokenId) public view virtual override(ERC721Upgradeable, ERC721URIStorageUpgradeable) returns (string memory) {
         return super.tokenURI(tokenId);
     }
@@ -131,9 +135,8 @@ contract ProtocolERC721U is
      * represent the first id to start the batch.
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
-        // Rule Processor Module Check
+        /// Rule Processor Module Check
         require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to,  _msgSender(), tokenId));
-
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
@@ -147,7 +150,7 @@ contract ProtocolERC721U is
     }
 
     /**
-     * @dev this function returns the handler address
+     * @dev This function returns the handler address
      * @return handlerAddress
      */
     function getHandlerAddress() external view returns (address) {

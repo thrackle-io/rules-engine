@@ -6,22 +6,21 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
-import {IApplicationEvents} from "src/common/IEvents.sol";
-import {IZeroAddressError, IProtocolERC20Errors} from "src/common/IErrors.sol";
-import "../ProtocolTokenCommon.sol";
+import "src/client/token/ProtocolTokenCommon.sol";
 import "src/client/token/ERC20/ProtocolERC20Handler.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
+import {IApplicationEvents} from "src/common/IEvents.sol";
+import {IZeroAddressError, IProtocolERC20Errors} from "src/common/IErrors.sol";
 
 /**
  * @title ERC20 Base Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This is the base contract for all protocol ERC20s
- * @dev The only thing to recognize is that flash minting is added but not allowed...yet
+ * @dev The only thing to recognize is that flash minting is added but not yet allowed. 
  */
 contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, ProtocolTokenCommon, IProtocolERC20Errors {
-    // address of the Handler
-    ProtocolERC20Handler handler;
 
+    ProtocolERC20Handler handler;
     /// Max supply should only be set once. Zero means infinite supply.
     uint256 MAX_SUPPLY;
 
@@ -30,7 +29,6 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * @param _name name of token
      * @param _symbol abreviated name for token (i.e. THRK)
      * @param _appManagerAddress address of app manager contract
-     * _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.
      */
     constructor(string memory _name, string memory _symbol, address _appManagerAddress) ERC20(_name, _symbol) {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
@@ -41,7 +39,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     }
 
     /**
-     * @dev pauses the contract. Only whenPaused modified functions will work once called.
+     * @dev Pauses the contract. Only whenPaused modified functions will work once called.
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      */
     function pause() public virtual appAdministratorOnly(appManagerAddress) {
@@ -85,7 +83,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address owner = _msgSender();
-        // if transfer fees/discounts are defined then process them first
+        /// if transfer fees/discounts are defined then process them first
         if (handler.isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
@@ -93,16 +91,16 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
             (targetAccounts, feePercentages) = handler.getApplicableFees(owner, balanceOf(owner));
             for (uint i; i < feePercentages.length; ) {
                 if (feePercentages[i] > 0) {
-                    // trim the fee and send it to the target treasury account
+                    /// trim the fee and send it to the target treasury account
                     _transfer(owner, targetAccounts[i], (amount * uint24(feePercentages[i])) / 10000);
-                    // accumulate all fees
+                    /// accumulate all fees
                     fees += (amount * uint24(feePercentages[i])) / 10000;
                 }
                 unchecked {
                     ++i;
                 }
             }
-            // subtract the total fees from main transfer amount
+            /// subtract the total fees from main transfer amount
             amount -= fees;
         }
         _transfer(owner, to, amount);
@@ -128,7 +126,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
-        // if transfer fees/discounts are defined then process them first
+        /// if transfer fees/discounts are defined then process them first
         if (handler.isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
@@ -136,7 +134,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
             (targetAccounts, feePercentages) = handler.getApplicableFees(from, balanceOf(from));
             for (uint i; i < feePercentages.length; ) {
                 if (feePercentages[i] > 0) {
-                    // trim the fee and send it to the target treasury account
+                    /// trim the fee and send it to the target treasury account
                     uint fee = (amount * uint24(feePercentages[i])) / 10000;
                     if (fee > 0) {
                         _transfer(from, targetAccounts[i], fee);
@@ -148,7 +146,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
                     ++i;
                 }
             }
-            // subtract the total fees from main transfer amount
+            /// subtract the total fees from main transfer amount
             amount -= fees;
         }
         _transfer(from, to, amount);
@@ -161,7 +159,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * @param amount number of tokens to mint
      */
     function mint(address to, uint256 amount) public virtual {
-        ///check that the address calling mint is authorized(appAdminstrator, AMM or Staking Contract)
+        /// Check that the address calling mint is authorized(appAdminstrator, AMM or Staking Contract)
         if (!appManager.isAppAdministrator(msg.sender) && !appManager.isRegisteredAMM(msg.sender)) {
             revert CallerNotAuthorizedToMint();
         }
@@ -198,7 +196,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     }
 
     /**
-     * @dev this function returns the handler address
+     * @dev This function returns the handler address
      * @return handlerAddress
      */
     function getHandlerAddress() external view override returns (address) {

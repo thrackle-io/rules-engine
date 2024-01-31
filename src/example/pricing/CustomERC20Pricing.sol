@@ -30,7 +30,7 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
     }
 
     /**
-     * @dev gets the price of a Token. It will return the Token's specific price. This function is left here to preserve the function signature
+     * @dev Gets the price of a Token. It will return the Token's specific price. This function is left here to preserve the function signature
      * @param tokenContract is the address of the Token contract
      * @return price of the Token in weis of dollars. 10^18 => $ 1.00 USD
      * @notice that the price is for the whole token and not of its atomic unit. This means that if
@@ -52,7 +52,7 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
     }
 
     /**
-     * @dev gets the Chainlink price feed for DOGE in USD. This is an example that works for any decimal denomination.
+     * @dev Gets the Chainlink price feed for DOGE in USD. This is an example that works for any decimal denomination.
      * @return price The current price in USD for this token according to Chainlink aggregation
      */
     function getChainlinkDOGEtoUSDFeedPrice() public view returns (uint256) {
@@ -75,7 +75,7 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
     }
 
     /**
-     * @dev gets the Chainlink price feed for AAVE in USD.
+     * @dev Gets the Chainlink price feed for AAVE in USD.
      * @notice This price feed is actually 8 decimals so it must be converted to 18.
      * @return price The current price in USD for this token according to Chainlink aggregation
      */
@@ -93,7 +93,7 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
     }
 
     /**
-     * @dev gets the Chainlink price feed for AAVE in USD.
+     * @dev Gets the Chainlink price feed for AAVE in USD.
      * @notice This price feed is actually 8 decimals so it must be converted to 18.
      * @return price The current price in USD for this token according to Chainlink aggregation
      */
