@@ -11,10 +11,6 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         vm.warp(Blocktime); // set block.timestamp
     }
 
-    /**
-     * ################### TEST FUNCTIONS SINGULARLY ####################
-     */
-
     /// testing renouncing admin role
     function testRenounceAppAdmin(uint8 addressIndex) public {
         vm.stopPrank();
@@ -316,8 +312,8 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    ///---------------GENERAL TAGS--------------------
-    // Test adding the general tags
+    ///---------------TAGS--------------------
+    // Test adding the tags
     function testAddTag(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, bytes32 Tag1, bytes32 Tag2) public {
         vm.assume(Tag1 != Tag2 && Tag2 != Tag1);
         vm.stopPrank();
@@ -358,7 +354,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             vm.stopPrank();
             vm.startPrank(admin);
             applicationAppManager.addMultipleTagToMultipleAccounts(ADDRESSES, genTags);
-            /// Test to prove addresses in array are tagged by index matched to secon array of tags
+            /// Test to prove addresses in array are tagged by index matched to second array of tags
             assertTrue(applicationAppManager.hasTag(user, Tag3));
             assertTrue(applicationAppManager.hasTag(address(0xBEEF), Tag3));
             assertTrue(applicationAppManager.hasTag(address(0xC0FFEE), Tag4));

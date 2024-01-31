@@ -1077,7 +1077,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _providerType the type of data provider
      */
     function confirmNewDataProvider(IDataModule.ProviderType _providerType) external {
-        if (_providerType == IDataModule.ProviderType.GENERAL_TAG) {
+        if (_providerType == IDataModule.ProviderType.TAG) {
             if (newTagsProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newTagsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             tags = ITags(newTagsProviderAddress);

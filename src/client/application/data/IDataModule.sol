@@ -16,7 +16,7 @@ interface IDataModule is IAppLevelEvents {
     enum ProviderType {
         ACCESS_LEVEL,
         ACCOUNT,
-        GENERAL_TAG,
+        TAG,
         PAUSE_RULE,
         RISK_SCORE
     }

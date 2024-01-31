@@ -16,11 +16,13 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         switchToAppAdministrator();
     }
 
+    /// Test Handler Versioning 
     function testERC721_HandlerVersions() public {
         string memory version = applicationNFTHandler.version();
         assertEq(version, "1.1.0");
     }
 
+    /// Test Mint 
     function testERC721_Mint() public {
         /// Owner Mints new tokenId
         applicationNFT.safeMint(appAdministrator);
@@ -31,6 +33,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(applicationNFT.balanceOf(appAdministrator), 2);
     }
 
+    /// Test Transfer 
     function testERC721_Transfer() public {
         applicationNFT.safeMint(appAdministrator);
         applicationNFT.transferFrom(appAdministrator, user, 0);
@@ -38,6 +41,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(applicationNFT.balanceOf(user), 1);
     }
 
+    /// Test Burn 
     function testERC721_Burn() public {
         ///Mint and transfer tokenId 0
         applicationNFT.safeMint(appAdministrator);
@@ -56,6 +60,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(applicationNFT.balanceOf(appAdministrator), 0);
     }
 
+    /// Test Burn fail scenario 
     function testERC721_BurnERC721_Negative() public {
         ///Mint and transfer tokenId 0
         applicationNFT.safeMint(appAdministrator);
@@ -65,6 +70,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.burn(0);
     }
 
+    /// Test zero address checks 
     function testERC721_ZeroAddressChecksERC721() public {
         vm.expectRevert();
         new ApplicationERC721("FRANK", "FRANK", address(0x0), "https://SampleApp.io");
@@ -83,6 +89,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationHandler.setNFTPricingAddress(address(0x00));
     }
 
+    /// Test Account Min Max Token Balance Rule 
     function testERC721_AccountMinMaxTokenBalanceRule() public {
         /// mint 6 NFTs to appAdministrator for transfer
         applicationNFT.safeMint(appAdministrator);
@@ -165,6 +172,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.burn(11);
     }
 
+    /// Test Account Min Max Token Balance with blank tags 
     function testERC721_AccountMinMaxTokenBalanceBlankTag2() public {
         /// mint 6 NFTs to appAdministrator for transfer
         applicationNFT.safeMint(appAdministrator);
@@ -234,9 +242,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
     }
 
-    /**
-     * @dev Test the AccountApproveDenyOracle rule, both approve and denied types
-     */
+    /// Test the AccountApproveDenyOracle rule, both approve and denied types
     function testERC721_AccountApproveDenyOracle() public {
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1);
@@ -321,6 +327,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.burn(3);
     }
 
+    /// Test Pause Rules 
     function testERC721_PauseRulesViaAppManager() public {
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1);
@@ -341,9 +348,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.transferFrom(user1, address(59), 2);
     }
 
-    /**
-     * @dev Test the TokenMaxDailyTrades rule
-     */
+    /// Test the TokenMaxDailyTrades rule
     function testERC721_TokenMaxDailyTrades() public {
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1); // tokenId = 0
@@ -413,6 +418,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.transferFrom(user2, user1, 2);
     }
 
+    /// Test Token Max Daily Trades with blank tags 
     function testERC721_TokenMaxDailyTradesBlankTag() public {
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1); // tokenId = 0
@@ -456,6 +462,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(applicationNFT.balanceOf(user2), 0);
     }
 
+    /// Test Account Max Transaction Value By Risk Score Rule 
     function testERC721_AccountMaxTransactionValueByRiskScore() public {
         ///Set transaction limit rule params
         uint8[] memory riskScores = createUint8Array(0, 10, 40, 80, 99);
@@ -566,9 +573,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.burn(6);
     }
 
-    /**
-     * @dev Test the AccessLevel = 0 rule
-     */
+    /// Test Account Deny For No Access Level Rule 
     function testERC721_AccountDenyForNoAccessLevelInNFT() public {
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1); // tokenId = 0
@@ -603,6 +608,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(applicationNFT.balanceOf(user2), 1);
     }
 
+    /// Test Account Min Max Token Balance Rule 
     function testERC721_AccountMinMaxTokenBalance() public {
         /// Mint NFTs for users 1, 2, 3
         applicationNFT.safeMint(user1); // tokenId = 0
@@ -700,6 +706,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.safeTransferFrom(user3, rich_user, 6);
     }
     
+    /// Test Account Min Max Token Balance with blank tags 
     function testERC721_AccountMinMaxTokenBalanceBlankTag() public {
         /// Mint NFTs for users 1, 2, 3
         applicationNFT.safeMint(user1); // tokenId = 0
@@ -738,6 +745,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
     
     }
 
+    /// Test Admin Min Token Balance Rule 
     function testERC721_AdminMinTokenBalance() public {
         /// Mint TokenId 0-6 to super admin
         for (uint i; i < 7; i++ ) {
@@ -774,7 +782,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFTHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
     }
 
-    /// test the transfer volume rule in erc721
+    /// Test the transfer volume rule in erc721
     function testERC721_TransferVolumeRule() public {
         /// set the rule for 40% in 2 hours, starting at midnight
         switchToRuleAdmin();
@@ -813,7 +821,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.safeTransferFrom(user1, user2, 3);
     }
 
-    /// test the TransferVolumeRule in erc721
+    /// Test the Transfer Volume Rule in erc721 with supply set 
     function testERC721_TransferVolumeRuleWithSupplySet() public {
         /// set the rule for 2% in 2 hours, starting at midnight
         switchToRuleAdmin();
@@ -853,7 +861,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.safeTransferFrom(user1, user2, 3);
     }
 
-    /// test the minimum hold time rule in erc721
+    /// Test the minimum hold time rule in erc721
     function testERC721_TokenMinHoldTime() public {
         /// set the rule for 24 hours
         switchToRuleAdmin();
@@ -889,7 +897,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.safeTransferFrom(user2, user1, 0);
     }
 
-    /// test supply volatility rule
+    /// Test token max supply volatility rule
     function testERC721_CollectionTokenMaxSupplyVolatility() public {
         /// Mint tokens to specific supply
         for (uint i = 0; i < 10; i++) {
@@ -934,6 +942,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.safeMint(user1);
     }
 
+    /// Test NFT Valuation 
     function testERC721_NFTValuationOrig() public {
         /// mint NFTs and set price to $1USD for each token
         for (uint i = 0; i < 10; i++) {
@@ -1057,6 +1066,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         _applicationNFT2.burn(36);
     }
 
+    /// Test Upgrading Handlers 
     function testERC721_UpgradingHandlersERC721() public {
         ///deploy new modified appliction asset handler contract
         ApplicationERC721HandlerMod _AssetHandler = new ApplicationERC721HandlerMod(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), true);
@@ -1161,6 +1171,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         console.log(_AssetHandler.newTestFunction(), testAddress);
     }
 
+    /// Test Upgrading App Manager 
     function testERC721_UpgradeAppManager721() public {
         address newAdmin = address(75);
         /// create a new app manager
@@ -1195,6 +1206,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationAppManager3.confirmAppManager(address(applicationNFT));
     }
 
+    /// Test Setting up Trade Rules 
     function setupTradingRuleTests() internal returns(DummyNFTAMM) {
         DummyNFTAMM amm = new DummyNFTAMM();
         _safeMintERC721(erc721Liq);
@@ -1205,6 +1217,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         return amm;
     }
 
+    /// Test Token Max Buy Volume Rule 
     function testERC721_TokenMaxBuyVolumeRule() public {
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
@@ -1242,6 +1255,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
     }
 
+    /// Test Token Max Sell Volume Rule
     function testERC721_TokenMaxSellVolumeRule() public {
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
@@ -1278,6 +1292,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
     }
 
+    /// Test Account Max Sell Size Rule 
     function testERC721_AccountMaxSellSize() public {
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
@@ -1299,6 +1314,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
+    /// Test Account Max Sell Size Rule with blank tags 
     function testERC721_AccountMaxSellSizeBlankTag() public {
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
@@ -1317,6 +1333,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
+    /// Test Account Max Buy Size Rule 
     function testERC721_AccountMaxBuySizeRule() public {
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
@@ -1340,6 +1357,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         _testBuyNFT(1, amm);
     }
 
+    /// Test Max Sell Volume Rule 
     function testERC721_TokenMaxSellVolumeRuleByPasserRule() public {
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
