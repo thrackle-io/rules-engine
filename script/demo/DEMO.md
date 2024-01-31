@@ -10,7 +10,7 @@ This is a basic run down of what is needed to demo Tron in a local anvil
    1. This will deploy the protocol, retrieve the addresses, and deploy the following application contracts:
       1. AppManager
       2. FrankensteinCoin with a configured handler
-      3. Mint 1_000_000 Frankensteins to Admin
+      3. Mint 1_000_000_000 Frankensteins to Admin
       4. Create Account Min/Max Token Balance rule       
       3. Apply Account Min/Max Token Balance rule to P2P transfer
 2. Live DEMO

@@ -53,18 +53,18 @@ if [ "$LOCAL" = "y" ]; then
     echo
     APP_ADMIN_1_KEY="${array[5]}"
     APP_ADMIN_1="${array[1]//\"}"
-    
+
     ARRAY=$(cat anvil_output.txt | grep \(1\) | tr '\n' ' ')
     IFS=' ' read -r -a array <<< "$ARRAY"
     echo $ARRAY
     echo
-    USER_1="${array[1]//\"}"
+    APP_ADMIN_2="${array[1]//\"}"
 
     ARRAY=$(cat anvil_output.txt | grep \(2\) | tr '\n' ' ')
     echo $ARRAY
     echo
     IFS=' ' read -r -a array <<< "$ARRAY"
-    USER_2="${array[1]//\"}"
+    APP_ADMIN_3="${array[1]//\"}"
 
 
     export ETH_RPC_URL=http://127.0.0.1:8545
@@ -207,7 +207,7 @@ cp ./src/example/OracleApproved.sol ./src/example/$APP_NAME/$ORACLE_FILE_NAME
 
 sed -i '' 's/OracleApproved/'$APP_NAME'Allowed/g' ./src/example/$APP_NAME/$ORACLE_FILE_NAME
 
-forge build 
+forge build --use solc:0.8.17
 
 # Deploying the App specific contracts
 echo "################################################################"
@@ -405,13 +405,6 @@ echo
 cast send $APPLICATION_APP_MANAGER "registerToken(string,address)" "ufta" $APPLICATION_ERC20_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL 
 
 echo "################################################################"
-echo  Mint a billion coins
-echo "################################################################"
-echo
-
-cast send $APPLICATION_ERC20_1 "mint(address,uint256)" $APP_ADMIN_1 10000000000000000000000000000000 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
-
-echo "################################################################"
 echo  Set Price of ERC721 collection
 echo "################################################################"
 echo
@@ -431,16 +424,16 @@ echo "################################################################"
 echo
 
 # Comment the following line out to see the oracle rule fail
-cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $USER_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
-cast send $ORACLE_2_HANDLER "addAddressToApprovedList(address)" $USER_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_2_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
-echo  Create Account Min/Max Token Balance Rule
+echo  Create NFT Token Max Daily Trades Rule
 echo "################################################################"
 echo
 
-cast send $RULE_PROCESSOR_DIAMOND "addAccountMinMaxTokenBalance(address,bytes32[],uint256[],uint256[],uint16[],uint64)(uint32)" $APPLICATION_APP_MANAGER [0x0000000000000000000000000000000000000000000000000000000000000000\] [1] [100] [] 1675723152 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt 
+cast send $RULE_PROCESSOR_DIAMOND "addTokenMaxDailyTrades(address,bytes32[],uint8[],uint64)(uint32)" $APPLICATION_APP_MANAGER \[0x5461796c65720000000000000000000000000000000000000000000000000000\] \[1\] 1675723152 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt 
 
 OUTPUT_JSON=$(sed -n 's/logs //p' transaction_output.txt)
 
@@ -458,25 +451,71 @@ echo  Set the Rule on the Handler
 echo "################################################################"
 echo
 
-cast send $APPLICATION_ERC20_1_HANDLER "setAccountMinMaxTokenBalanceId(uint8[], uint32)" [0] 0 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+cast send $APPLICATION_ERC721_1_HANDLER "setTokenMaxDailyTradesId(uint8[], uint32)" [2] $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
 
-# echo "################################################################"
-# echo  Tag USER_1
-# echo "################################################################"
-# echo
+echo "################################################################"
+echo  Create two Oracle Rules
+echo "################################################################"
+echo
 
-# cast send $APPLICATION_APP_MANAGER "addTag(address,bytes32)" $USER_1 0x5461796c65720000000000000000000000000000000000000000000000000000  --private-key $APP_ADMIN_1_KEY
+cast send $RULE_PROCESSOR_DIAMOND "addAccountApproveDenyOracle(address, uint8, address)" $APPLICATION_APP_MANAGER 1 $ORACLE_1_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt
+
+cat transaction_output.txt
+
+OUTPUT_JSON=$(sed -n 's/logs //p' transaction_output.txt)
+
+PARSED_RULE_ID=$(echo $OUTPUT_JSON | jq '.[0].topics[2]' | tr -d '"')
+RULE_ID="${PARSED_RULE_ID: -1}"
+
+echo "################################################################"
+echo PARSED_RULE_ID=$PARSED_RULE_ID
+echo  export Rule_ID=$RULE_ID | tee -a $OUTPUTFILE
+echo "################################################################"
+echo
+
+echo "################################################################"
+echo  Set the Rule on the Handler
+echo "################################################################"
+echo
+
+
+cast send $APPLICATION_ERC20_1_HANDLER "setAccountApproveDenyOracleId(uint8[], uint32)" [2] $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+
+# Swap this with the ERC20 call above to run this test on an ERC721
+# cast send $APPLICATION_ERC721_1_HANDLER "setAccountApproveDenyOracleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+
+cast send $RULE_PROCESSOR_DIAMOND "addAccountApproveDenyOracle(address, uint8, address)" $APPLICATION_APP_MANAGER 1 $ORACLE_2_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL &> ./transaction_output.txt
+
+cat transaction_output.txt
+
+OUTPUT_JSON=$(sed -n 's/logs //p' transaction_output.txt)
+
+PARSED_RULE_ID=$(echo $OUTPUT_JSON | jq '.[0].topics[2]' | tr -d '"')
+RULE_ID="${PARSED_RULE_ID: -1}"
+
+echo "################################################################"
+echo PARSED_RULE_ID=$PARSED_RULE_ID
+echo  export Rule_ID=$RULE_ID | tee -a $OUTPUTFILE
+echo "################################################################"
+echo
+
+echo "################################################################"
+echo  Set the Rule on the Handler
+echo "################################################################"
+echo
+
+cast send $APPLICATION_ERC20_1_HANDLER "setAccountApproveDenyOracleId(uint8[], uint32)" [2] $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+
+# Swap this with the ERC20 call above to run this test on an ERC721
+# cast send $APPLICATION_ERC721_1_HANDLER "setAccountApproveDenyOracleId(uint32)" $RULE_ID --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
+
+cast call $APPLICATION_ERC20_1_HANDLER "checkAllRules(uint256, uint256, address, address, address, uint256)(bool)" 20 10 $APP_ADMIN_3 $APP_ADMIN_2 $APP_ADMIN_3 100  --rpc-url $ETH_RPC_URL --from $APPLICATION_ERC20_1
+
+# Swap this with the ERC20 call above to run this test on an ERC721
+# cast call $APPLICATION_ERC721_1_HANDLER "checkAllRules(uint256, uint256, address, address, address, uint256)(bool)" 20 10 $APP_ADMIN_3 $APP_ADMIN_2 $APP_ADMIN_3 1  --rpc-url $ETH_RPC_URL --from $APPLICATION_ERC721_1
 
 if [ "$LOCAL" = "y" ]; then
     rm ./anvil_output.txt
 fi
-ECHO "export ETH_RPC_URL=http://127.0.0.1:8545"
-ECHO "export RULE_PROCESSOR_DIAMOND=$RULE_PROCESSOR_DIAMOND"
-ECHO "export APPLICATION_APP_MANAGER=$APPLICATION_APP_MANAGER"
-ECHO "export APP_ADMIN_1_KEY=$APP_ADMIN_1_KEY"
-ECHO "export APP_ADMIN_1=$APP_ADMIN_1"
-ECHO "export USER_1=$USER_1"
-ECHO "export USER_2=$USER_2"
-ECHO "export APPLICATION_ERC20_1=$APPLICATION_ERC20_1"
-ECHO "export APPLICATION_ERC20_1_HANDLER=$APPLICATION_ERC20_1_HANDLER"
+
 rm ./transaction_output.txt
