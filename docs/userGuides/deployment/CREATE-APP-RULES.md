@@ -16,12 +16,9 @@
 ## Example using Account Max Value by Access Level Rule
 1.  Create an application rule:
     -  Get the _Account Max Value by Access Level Rule_ creation function from the [Application Rule Directory][appRuleDirectory-url] and invoke it on the RuleProcessorDiamond, sending in the required parameters. NOTE: Each rule requires a different parameter set. For local deployments, the RuleProcessorDiamond address can be found in previous steps, otherwise consult the [Deployment Directory][deploymentDirectory-url]. 
-<<<<<<< HEAD
 
         *Note: we are assumming that APP_ADMIN_1_KEY was also granted Rule Admin privileges.*
 
-=======
->>>>>>> external
         ````
         cast send $RULE_PROCESSOR_DIAMOND "addAccountMaxValueByAccessLevel(address,uint48[])(uint256)" $APPLICATION_APP_MANAGER \[0,10,100,1000,100000] --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
         ````
