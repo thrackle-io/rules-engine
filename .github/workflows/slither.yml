@@ -39,7 +39,7 @@ jobs:
       - name: Slither Analyze Pull Request
         uses: crytic/slither-action@v0.3.0
         if: github.event_name == 'pull_request'
-        id: slither
+        id: slither-pull
         with:
           slither-config: ${{ inputs.CONFIG }}
           fail-on: none
