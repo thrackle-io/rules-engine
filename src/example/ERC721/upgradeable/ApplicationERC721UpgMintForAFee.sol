@@ -88,7 +88,6 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
 
     /**
      * @dev Function to confirm the Treasury address for Mint Fees to be sent upon withdrawal
-     * @param _treasury address of the treasury for mint fees to be sent upon withdrawal.
      */
     function confirmTreasuryAddress() external {
         if (_msgSender() != proposedTreasury) revert NotProposedTreasury(proposedTreasury);

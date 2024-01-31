@@ -27,7 +27,7 @@ contract FeeRuleProcessorFacet is IRuleProcessorErrors, IInputErrors {
         return 0;
     }
 
-        /**s
+    /**
      * @dev Function get AMM Fee Rule by index
      * @param _index Position of rule in storage
      * @return AMMFeeRule at index

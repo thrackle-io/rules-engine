@@ -4,10 +4,10 @@ pragma solidity ^0.8.17;
 import "./RuleProcessorDiamondImports.sol";
 
 /**
- * @title AccessLevel Handler Facet Contract
+ * @title Access Level Processor Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev This contract implements rules to be checked by Handler.
- * @notice Implements AccessLevel Rule Checks. AccessLevel rules are measured in
+ * @dev This contract implements rules to be checked by am Application Handler.
+ * @notice Implements Access Level Rule Checks. Access Level rules are measured in
  * in terms of USD with 18 decimals of precision.
  */
 contract ApplicationAccessLevelProcessorFacet is IInputErrors, IRuleProcessorErrors, IAccessLevelErrors {

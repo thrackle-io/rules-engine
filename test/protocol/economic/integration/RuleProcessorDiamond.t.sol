@@ -273,7 +273,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(superAdmin), totalSupply);
         bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
 
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).ceckAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
 
     function testAccountMinMaxTokenBalanceBlankTagProcessChecks() public {
@@ -297,7 +297,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(superAdmin), totalSupply);
         bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
 
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).ceckAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
 
     function testFailsAccountMinMaxTokenBalanceChecks() public {
@@ -321,7 +321,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
 
         //vm.expectRevert(0x1da56a44);
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).ceckAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
 
     function tesAccountMinMaxTokenBalanceBlankTagCheckNegative() public {
@@ -347,7 +347,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
         uint256 balance = applicationCoin.balanceOf(superAdmin);
         vm.expectRevert(0x1da56a44);
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).ceckAccountMaxTokenBalance(balance, tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMaxTokenBalance(balance, tags, amount, ruleId);
     }
 
     /***************** Test Setters and Getters Rule Storage *****************/

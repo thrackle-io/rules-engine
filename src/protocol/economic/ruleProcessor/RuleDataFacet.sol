@@ -7,7 +7,7 @@ import "../AppAdministratorOnly.sol";
 import "./RuleProcessorDiamondImports.sol";
 
 /**
- * @title RuleDataFacet
+ * @title Rule Data Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev setters and getters for non tagged token specific rules
  * @notice This contract sets and gets the Rules for the protocol
@@ -24,7 +24,6 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
      * rules is encouraged, it is preferred to add an extra rule to the
      * set instead of modifying an existing one.
      */
-
 
     /**
      * @dev Function to add a Token Max Buy Volume rule

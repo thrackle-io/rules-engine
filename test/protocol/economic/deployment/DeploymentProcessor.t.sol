@@ -962,7 +962,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint256 amount = 999;
         bytes32[] memory tags = applicationAppManager.getAllTags(user1);
         switchToUser();
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).ceckAccountMaxTokenBalance(applicationCoin.balanceOf(user1), tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMaxTokenBalance(applicationCoin.balanceOf(user1), tags, amount, ruleId);
     }
 
     function testAccountMinMaxTokenBalanceNotPassingCheck2() public {
@@ -986,7 +986,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint256 balance = applicationCoin.balanceOf(user1);
         switchToUser();
         vm.expectRevert(0x1da56a44);
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).ceckAccountMaxTokenBalance(balance, tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMaxTokenBalance(balance, tags, amount, ruleId);
     }
 
     function testAccountMinMaxTokenBalanceRuleNFT() public {

@@ -6,9 +6,9 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import {IPermissionModifierErrors} from "src/common/IErrors.sol";
 
 /**
- * @title Application Administrators Only Modifier Contract
+ * @title Rule Administrators Only Modifier Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev appAdministratorOnly modifier encapsulated for easy imports.
+ * @dev ruleAdministratorOnly modifier encapsulated for easy imports.
  */
 contract RuleAdministratorOnly is Context, IPermissionModifierErrors {
     /**

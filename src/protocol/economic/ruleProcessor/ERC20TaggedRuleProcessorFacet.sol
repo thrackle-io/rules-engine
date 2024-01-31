@@ -7,7 +7,7 @@ import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
 
 
 /**
- * @title ERC20 Tagged Rule Processor Facet Contract
+ * @title ERC20 Tagged Rule Processor Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev Contract implements rules to be checked by Handler.
  * @notice  Implements Token Rules on Tagged Accounts.
@@ -31,7 +31,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      */
     function checkAccountMinMaxTokenBalance(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, uint256 amount, bytes32[] memory toTags, bytes32[] memory fromTags) external view {
         checkAccountMinTokenBalance(balanceFrom, fromTags, amount, ruleId);
-        ceckAccountMaxTokenBalance(balanceTo, toTags, amount, ruleId);
+        checkAccountMaxTokenBalance(balanceTo, toTags, amount, ruleId);
     }
 
     /**
@@ -55,7 +55,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     ) public view {       
         // no need to check for max tags here since it is checked in the min and max functions
         checkAccountMinTokenBalance(tokenBalance0, fromTags, amountOut, ruleIdToken0);
-        ceckAccountMaxTokenBalance(tokenBalance1, fromTags, amountIn, ruleIdToken1);
+        checkAccountMaxTokenBalance(tokenBalance1, fromTags, amountIn, ruleIdToken1);
     }
 
     /**
@@ -68,7 +68,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * tags and check for specific application. This was done in a minimal way to allow for   
      * modifications later while not duplicating rule check logic.
      */
-    function ceckAccountMaxTokenBalance(uint256 balanceTo, bytes32[] memory toTags, uint256 amount, uint32 ruleId) public view {
+    function checkAccountMaxTokenBalance(uint256 balanceTo, bytes32[] memory toTags, uint256 amount, uint32 ruleId) public view {
         toTags.checkMaxTags();
         if(getAccountMinMaxTokenBalance(ruleId, BLANK_TAG).max > 0){
             toTags = new bytes32[](1);
@@ -119,7 +119,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
                 if(rule.period != 0) {
                     /// Check to see if still in the hold period
                     if ((block.timestamp - (uint256(rule.period) * 1 hours)) < startTime) {
-                        /// If the transaction will violate the rule, then revert
                         if (rule.min > 0 && balanceFrom - amount < rule.min) revert TxnInFreezeWindow();
                     }
                 } else {
@@ -149,7 +148,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @dev Function get the accountMinMaxTokenBalance Rule in the rule set that belongs to an account type
      * @param _index position of rule in array
      * @param _accountType Type of Accounts
-     * @return accountMinMaxTokenBalanceRule at index location in array
+     * @return accountMinMaxTokenBalance Rule at index location in array
      */
     function getAccountMinMaxTokenBalance(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.AccountMinMaxTokenBalance memory) {
         _index.checkRuleExistence(getTotalAccountMinMaxTokenBalances());
@@ -168,7 +167,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     }
 
     /**
-     * @dev checks that an admin won't hold less tokens than promised until a certain date
+     * @dev Checks that an admin won't hold less tokens than promised until a certain date
      * @param ruleId Rule identifier for rule arguments
      * @param currentBalance of tokens held by the admin
      * @param amount Number of tokens to be transferred
@@ -208,7 +207,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param amount Number of tokens to be transferred
      * @param toTags Account tags applied to sender via App Manager
      * @param lastUpdateTime block.timestamp of most recent transaction from sender.
-     * @return cumulativeBought Total tokens bought within sell period.
+     * @return cumulativeTotal total amount of tokens bought within buy period.
      * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through 
      * tags and check for specific application. This was done in a minimal way to allow for  
      * modifications later while not duplicating rule check logic.
@@ -283,8 +282,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         uint64 startTime = getAccountMaxSellSizeStartByIndex(ruleId);
         uint256 cumulativeSales;
         if (startTime <= block.timestamp){
-            /// If the rule applies to all users, check blank only. Otherwise loop through tags and check for specific application
-            /// This was done in a minimal way to allow for modifications later while not duplicating rule check logic.
             if(getAccountMaxSellSizeByIndex(ruleId, BLANK_TAG).period > 0){
                 fromTags = new bytes32[](1);
                 fromTags[0] = BLANK_TAG;
