@@ -19,13 +19,17 @@
 
 
 ### Manual Deployments
+
+#### [Deploy A Protocol-Compatible NFT][nft-deplyment]
+
+#### [Customizations][customizations-url]
+
 #### [Local Deployment with Foundry][localDeploymentFoundry-url]
 
 #### [Testnet Deployments][testnetDeployment-url]
 
 #### [Mainnet Deployments][mainnetDeployment-url]
 
-#### [Customizations][customizations-url]
 
 ## Release History
 
@@ -40,6 +44,7 @@
 [deployAppManager]: DEPLOY-APPMANAGER.md
 [deployProtocol]: DEPLOY-PROTOCOL.md
 [environment-url]: ./SET-ENVIRONMENT.md
+[nft-deplyment]: ./nft/DEPLOY-NFT.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
