@@ -30,6 +30,12 @@ jobs:
         with:
           version: nightly-09fe3e041369a816365a020f715ad6f94dbce9f2
 
+      - name: Install dependencies
+        run: |
+          git config user.email "cloudops@thrackle.io"
+          git config user.name "CloudOps Thrackle"
+          make install
+
       - name: Slither Analyze
         uses: crytic/slither-action@v0.3.0
         if: github.event_name != 'pull_request'
