@@ -2,10 +2,9 @@ name: Run Deployment Check
 
 on:
   workflow_dispatch:
-    inputs:
-      TEMP:
-        description: "Placeholder for now"
-        required: false
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
 
 env:
   AWS_REGION: us-east-1
@@ -46,22 +45,27 @@ jobs:
 
       - name: Generate new Image Tag
         run: |
-          echo "TRON_TESTING_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:trontest-${GITHUB_SHA::7}" >> $GITHUB_ENV
-          echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-${{ github.ref_name }}-${GITHUB_SHA::7}' >> $GITHUB_ENV
+          echo "TRON_TESTING_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:deploy-check-${GITHUB_SHA::7}" >> $GITHUB_ENV
+          echo 'ANVIL_IMAGE_TAG=${{ env.ECR_REPOSITORY }}:anvil-deploy-check-${{ github.ref_name }}-${GITHUB_SHA::7}' >> $GITHUB_ENV
 
       - name: Build and push docker image
         run: |
-          docker build -t ${{ env.TRON_TESTING_IMAGE_TAG }} -f Dockerfile.deploymentCheck . --build-arg AWS_ACCESS_KEY_ID=${{ secrets.K8S_AWS_ACCESS_KEY_ID }} --build-arg AWS_SECRET_ACCESS_KEY=${{ secrets.K8S_AWS_SECRET_ACCESS_KEY }} --build-arg AWS_REGION=${{ env.AWS_REGION }}
           docker build -t ${{ env.ANVIL_IMAGE_TAG }} -f Dockerfile.anvil .
+          docker build -t ${{ env.TRON_TESTING_IMAGE_TAG }} -f Dockerfile.deploymentCheck . --build-arg AWS_ACCESS_KEY_ID=${{ secrets.K8S_AWS_ACCESS_KEY_ID }} --build-arg AWS_SECRET_ACCESS_KEY=${{ secrets.K8S_AWS_SECRET_ACCESS_KEY }} --build-arg AWS_REGION=${{ env.AWS_REGION }} --build-arg BRANCH_NAME=${{ github.ref_name }}
           docker push ${{ env.ANVIL_IMAGE_TAG }}
           docker push ${{ env.TRON_TESTING_IMAGE_TAG }}
 
       - name: Update k8s manifest
         run: |
+          sed -i "s|{{ANVIL_IMAGE_TAG}}|${{ env.ANVIL_IMAGE_TAG }}|g" k8s/anvil/anvil-deployment-check.yaml
           sed -i "s|{{TRON_TESTING_IMAGE_TAG}}|${{ env.TRON_TESTING_IMAGE_TAG }}|g" k8s/tron/deployment-check-job.yaml
 
       - name: Run the necessist job with k8s
         run: |
-          kubectl delete job deployCheck --ignore-not-found=true -n dev
+          kubectl delete job deploy-check --ignore-not-found=true -n dev
           sleep 5
+          kubectl set image deploy/anvil-deploy-check anvil-deploy-check=${{ env.ANVIL_IMAGE_TAG }} -n dev
+          kubectl rollout restart deploy/anvil-deploy-check -n dev
+          kubectl apply -f k8s/anvil/deployment-check-service.yaml -n dev
           kubectl apply -f k8s/tron/deployment-check-job.yaml -n dev
+
