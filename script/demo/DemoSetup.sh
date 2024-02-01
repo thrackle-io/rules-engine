@@ -18,10 +18,10 @@ echo "################################################################"
 echo
 foundryup --version nightly-09fe3e041369a816365a020f715ad6f94dbce9f2 &> /dev/null
 
-echo "Is this a local deployment (y or n)?"
-read LOCAL
+# echo "Is this a local deployment (y or n)?"
+# read LOCAL
 
-LOCAL=$(echo "$LOCAL" | tr '[:upper:]' '[:lower:]')
+LOCAL="y"
 
 while [ "y" != "$LOCAL" ] && [ "n" != "$LOCAL" ] ; do
   echo
@@ -143,8 +143,8 @@ else
 fi
 
 # Asking the user for the name of the application
-echo Enter the name of your application
-read APP_NAME
+echo Name of your application is Frankenstein
+APP_NAME="Frankenstein"
 
 echo "################################################################"
 echo Creating/Compiling 
