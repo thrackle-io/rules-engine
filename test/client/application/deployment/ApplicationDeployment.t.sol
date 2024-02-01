@@ -15,52 +15,52 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         if(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER") != address(0x0)) {
             // Verify App Manager has been deployed
             superAdmin = vm.envAddress("QUORRA");
-            applicationAppManager = ApplicationAppManager(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER")));
+            applicationAppManager = ApplicationAppManager(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER"));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER"), address(applicationAppManager));
             
             // Verify App Handler has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_APPLICATION_HANDLER") != address(0x0));
-            applicationHandler = ApplicationHandler(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_APPLICATION_HANDLER")));
+            applicationHandler = ApplicationHandler(vm.envAddress("TEST_DEPLOY_APPLICATION_APPLICATION_HANDLER"));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_APPLICATION_HANDLER"), address(applicationHandler));
 
             // Verify ERC20 has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS") != address(0x0));
-            applicationCoin = ApplicationERC20(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS")));
+            applicationCoin = ApplicationERC20(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS"));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS"), address(applicationCoin));
 
             // Verify ERC20 Handler has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS") != address(0x0));
-            applicationCoinHandler = ApplicationERC20Handler(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS")));
+            applicationCoinHandler = ApplicationERC20Handler(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS"));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS"), address(applicationCoinHandler));
 
             // Verify the second ERC20 has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS_2") != address(0x0));
-            applicationCoin2 = ApplicationERC20(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS_2")));
+            applicationCoin2 = ApplicationERC20(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS_2"));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS_2"), address(applicationCoin2));
 
             // Verify the second ERC20 Handler has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS_2") != address(0x0));
-            applicationCoinHandler2 = ApplicationERC20Handler(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS_2")));
+            applicationCoinHandler2 = ApplicationERC20Handler(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS_2"));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS_2"), address(applicationCoinHandler2));
 
             // Verify the second ERC721 has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_ADDRESS_1") != address(0x0));
-            applicationNFT = ApplicationERC721(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_ADDRESS_1")));
+            applicationNFT = ApplicationERC721(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_ADDRESS_1"));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_ADDRESS_1"), address(applicationNFT));
 
             // Verify the ERC721 has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER") != address(0x0));
-            applicationNFTHandler = ApplicationERC721Handler(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER")));
+            applicationNFTHandler = ApplicationERC721Handler(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER"));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER"), address(applicationNFTHandler));
 
             // Verify the ERC20 Pricing Contract has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_ERC20_PRICING_CONTRACT") != address(0x0));
-            erc20Pricer = ApplicationERC20Pricing(payable(vm.envAddress("TEST_DEPLOY_ERC20_PRICING_CONTRACT")));
+            erc20Pricer = ApplicationERC20Pricing(vm.envAddress("TEST_DEPLOY_ERC20_PRICING_CONTRACT"));
             assertEq(vm.envAddress("TEST_DEPLOY_ERC20_PRICING_CONTRACT"), address(erc20Pricer));
 
             // Verify the ERC721 Pricing Contract has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_ERC721_PRICING_CONTRACT") != address(0x0));
-            erc721Pricer = ApplicationERC721Pricing(payable(vm.envAddress("TEST_DEPLOY_ERC721_PRICING_CONTRACT")));
+            erc721Pricer = ApplicationERC721Pricing(vm.envAddress("TEST_DEPLOY_ERC721_PRICING_CONTRACT"));
             assertEq(vm.envAddress("TEST_DEPLOY_ERC721_PRICING_CONTRACT"), address(erc721Pricer));
 
             forkTest = true;
