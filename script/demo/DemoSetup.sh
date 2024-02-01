@@ -16,7 +16,7 @@ echo "################################################################"
 echo Running foundryUp
 echo "################################################################"
 echo
-# foundryup --version nightly-09fe3e041369a816365a020f715ad6f94dbce9f2 &> /dev/null
+foundryup --version nightly-09fe3e041369a816365a020f715ad6f94dbce9f2 &> /dev/null
 
 # echo "Is this a local deployment (y or n)?"
 # read LOCAL
