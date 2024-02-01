@@ -11,6 +11,9 @@ code-size-limit = 45000
 eth-rpc-url = 'http://anvil:8545'
 code-size-limit = 45000
 
+[profile.deployment-check]
+eth-rpc-url = 'http://anvil-deploy-check:8545'
+
 [profile.polygon]
 eth-rpc-url = 'http://172.20.0.2:10002'
 code-size-limit = 45000
