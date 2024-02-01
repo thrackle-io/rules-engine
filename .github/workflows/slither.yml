@@ -49,10 +49,11 @@ jobs:
           fail-on: none
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
+        uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with:
-          sarif_file: ${{ steps.slither.outputs.sarif }}
+          name: results.sarif
+          path: ${{ steps.slither.outputs.sarif }}
 
       - name: Slither Analyze Pull Request
         uses: crytic/slither-action@v0.3.0
