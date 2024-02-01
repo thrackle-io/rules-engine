@@ -57,7 +57,7 @@ NOTE: NFT Batch minting and burning is not supported in this release.
 
 
 <!-- These are the body links -->
-[ERC721-url]: https://docs.openzeppelin.com/contracts/2.x/api/token/erc721
+[ERC721-url]: https://eips.ethereum.org/EIPS/eip-721
 [ERC721Handler-url]: ./DEPLOY-NFTHANDLER.md
 [environment-url]: ./SETENVIRONMENT.md
 
