@@ -106,22 +106,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * modifications later while not duplicating rule check logic.
      */
     function checkAccountMinTokenBalance(uint256 balanceFrom, bytes32[] memory fromTags, uint256 amount, uint32 ruleId) public view {
-<<<<<<< HEAD
-        fromTags.checkMaxTags();
-        if(getAccountMinMaxTokenBalance(ruleId, BLANK_TAG).min > 0){            
-            fromTags = new bytes32[](1);
-            fromTags[0] = BLANK_TAG;
-        }
-        uint64 startTime = getAccountMinMaxTokenBalanceStart(ruleId);
-        if (startTime <= block.timestamp){
-            for (uint i = 0; i < fromTags.length; ) {
-                TaggedRules.AccountMinMaxTokenBalance memory rule = getAccountMinMaxTokenBalance(ruleId, fromTags[i]);
-                /// check if period is 0, 0 means a period hasn't been applied to this rule
-                if(rule.period != 0) {
-                    /// Check to see if still in the hold period
-                    if ((block.timestamp - (uint256(rule.period) * 1 hours)) < startTime) {
-                        if (rule.min > 0 && balanceFrom - amount < rule.min) revert TxnInFreezeWindow();
-=======
         // if the balanceFrom is 0, then skip processing because this is a mint and it's impossible for a mint to violate the minium balance
         if (balanceFrom!=0){
             fromTags.checkMaxTags();
@@ -146,7 +130,6 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
                     }
                     unchecked {
                         ++i;
->>>>>>> 74b4055b (Demo script plus commands)
                     }
                 }
             }
