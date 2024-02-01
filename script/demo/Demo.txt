@@ -1,3 +1,18 @@
+What has already been done:
+
+1. Anvil started
+2. Protocol Deployed
+3. AppManager Deployed and configured
+4. FrankensteinCoin Deployed and configured
+5. Minted 1B coins
+6. Created and applied Account Min/Max Token Balance rule
+
+LIVE DEMO
+1. Brief overview of Architecture
+2. Explain Action Based Rules
+3. Discuss setup steps for the demo
+
+
 ## transfer
 cast send $APPLICATION_ERC20_1 "transfer(address,uint256)" $USER_1 100 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
 
