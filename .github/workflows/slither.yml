@@ -37,7 +37,6 @@ jobs:
       - name: Slither Analyze
         uses: crytic/slither-action@v0.3.0
         if: github.event_name != 'pull_request'
-        continue-on-error: true
         id: slither
         with:
           node-version: 16
@@ -46,14 +45,14 @@ jobs:
 
       - name: Upload SARIF file
         uses: actions/upload-artifact@v4
-        if: github.event_name != 'pull_request'
+        if: always() && (github.event_name != 'pull_request')
         with:
           name: results.sarif
           path: ${{ steps.slither.outputs.sarif }}
 
       - name: Slither Analyze Pull Request
         uses: crytic/slither-action@v0.3.0
-        if: github.event_name == 'pull_request'
+        if: always() && (github.event_name == 'pull_request')
         id: slither-pull
         with:
           node-version: 16
