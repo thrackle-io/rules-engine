@@ -18,10 +18,8 @@ echo "################################################################"
 echo
 foundryup --version nightly-09fe3e041369a816365a020f715ad6f94dbce9f2 &> /dev/null
 
-# echo "Is this a local deployment (y or n)?"
-# read LOCAL
-
-LOCAL="y"
+echo "Is this a local deployment (y or n)?"
+read LOCAL
 
 while [ "y" != "$LOCAL" ] && [ "n" != "$LOCAL" ] ; do
   echo
@@ -143,8 +141,8 @@ else
 fi
 
 # Asking the user for the name of the application
-echo Name of your application is Frankenstein
-APP_NAME="Frankenstein"
+echo Enter the name of your application
+read APP_NAME
 
 echo "################################################################"
 echo Creating/Compiling 
@@ -431,9 +429,9 @@ echo "################################################################"
 echo
 
 # Comment the following line out to see the oracle rule fail
-cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $USER_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
-cast send $ORACLE_2_HANDLER "addAddressToApprovedList(address)" $USER_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_2_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
 echo  Create Account Min/Max Token Balance Rule
@@ -459,13 +457,6 @@ echo "################################################################"
 echo
 
 cast send $APPLICATION_ERC20_1_HANDLER "setAccountMinMaxTokenBalanceId(uint8[], uint32)" [0] 0 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1
-
-# echo "################################################################"
-# echo  Tag USER_1
-# echo "################################################################"
-# echo
-
-# cast send $APPLICATION_APP_MANAGER "addTag(address,bytes32)" $USER_1 0x5461796c65720000000000000000000000000000000000000000000000000000  --private-key $APP_ADMIN_1_KEY
 
 if [ "$LOCAL" = "y" ]; then
     rm ./anvil_output.txt
