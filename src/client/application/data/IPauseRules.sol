@@ -6,7 +6,7 @@ import "./IDataModule.sol";
 import {IPauseRuleErrors} from "src/common/IErrors.sol";
 
 /**
- * @title Pause Rule Interface
+ * @title Pause Rules Interface
  * @notice Contains data structure for a pause rule and the interface
  * @dev Contains Pause Rule Storage and retrieval function definitions
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett

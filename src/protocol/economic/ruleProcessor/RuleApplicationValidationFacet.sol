@@ -11,8 +11,6 @@ import {RuleDataFacet} from "./RuleDataFacet.sol";
 import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
 
 
-
-
 /**
  * @title Rule Application Validation Facet Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -27,7 +25,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateAMMFee(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getAllAMMFeeRules());
     }
 
@@ -45,7 +42,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateAccountMinMaxTokenBalanceERC721(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalAccountMinMaxTokenBalance());
     }
 
@@ -54,7 +50,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateAccountMinMaxTokenBalance(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalAccountMinMaxTokenBalance());
     }
 
@@ -85,13 +80,11 @@ contract RuleApplicationValidationFacet {
         return data.tokenMaxDailyTradesIndex;
     }
 
-
     /**
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
     function validateAccountMaxBuySize(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalAccountMaxBuySize());
     }
 
@@ -127,7 +120,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateAdminMinTokenBalance(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalAdminMinTokenBalance());
     }
 
@@ -145,7 +137,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateTokenMinTxSize(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalTokenMinTxSize());
     }
 
@@ -163,7 +154,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateAccountApproveDenyOracle(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalAccountApproveDenyOracle());
     }
 
@@ -181,7 +171,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateTokenMaxBuyVolume(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalTokenMaxBuyVolume());
     }
 
@@ -199,7 +188,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateTokenMaxSellVolume(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalTokenMaxSellVolume());
     }
 
@@ -217,7 +205,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateTokenMaxTradingVolume(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalTokenMaxTradingVolume());
     }
 
@@ -253,7 +240,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateAccountMaxValueByRiskScore(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalAccountMaxValueByRiskScore());
     }
 
@@ -271,7 +257,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateAccountMaxTxValueByRiskScore(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalAccountMaxTxValueByRiskScore());
     }
 
@@ -291,7 +276,6 @@ contract RuleApplicationValidationFacet {
      */
     function validatePause(uint32 _ruleId, address _dataServer) external view {
         PauseRule[] memory pauseRules = IAppManager(_dataServer).getPauseRules();
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(uint32(pauseRules.length));
     }
 
@@ -300,7 +284,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateAccountMaxValueByAccessLevel(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalAccountMaxValueByAccessLevel());
     }
 
@@ -318,7 +301,6 @@ contract RuleApplicationValidationFacet {
      * @param _ruleId Rule Identifier
      */
     function validateAccountMaxValueOutByAccessLevel(uint32 _ruleId) external view {
-        // Check to make sure the rule exists within rule storage
         _ruleId.checkRuleExistence(getTotalAccountMaxValueOutByAccessLevel());
     }
 

@@ -7,9 +7,9 @@ import "../../IProtocolTokenHandler.sol";
 import "../../ProtocolTokenCommonU.sol";
 
 /**
- * @title ERC721 Upgradeable Protocol Contract
+ * @title ERC721 Upgradeable Minimal Protocol Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
- * @notice This is the base contract for all protocol ERC721Upgradeables
+ * @notice This is the base contract for all protocol ERC721Upgradeable Minimals. 
  */
 contract ProtocolERC721Umin is Initializable, ERC721EnumerableUpgradeable, ProtocolTokenCommonU {
     address private handlerAddress;
@@ -40,13 +40,13 @@ contract ProtocolERC721Umin is Initializable, ERC721EnumerableUpgradeable, Proto
      * represent the first id to start the batch.
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal virtual override {
-        // Rule Processor Module Check
+        /// Rule Processor Module Check
         require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
     /**
-     * @dev this function returns the handler address
+     * @dev This function returns the handler address
      * @return handlerAddress
      */
     function getHandlerAddress() external view returns (address) {

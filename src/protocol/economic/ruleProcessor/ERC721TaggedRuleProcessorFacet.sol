@@ -6,7 +6,7 @@ import "./RuleProcessorDiamondImports.sol";
 /**
  * @title NFT Tagged Rule Processor Facet Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev This contract implements rules to be checked by Handler.
+ * @dev This contract implements rules to be checked by a Token Handler.
  * @notice Implements Non-Fungible Token Checks on Tagged Accounts.
  */
 contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRuleProcessorErrors, ITagRuleErrors, IMaxTagLimitError {
@@ -73,17 +73,17 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
     }
 
     /**
-     * @dev Function get the Account Min Max Token Balance ERC721 rule in the rule set that belongs to an account type
+     * @dev Function get the Account Min Max Token Balance ERC721 rule in the rule set that belongs to a specific tag.
      * @param _index position of rule in array
-     * @param _accountType Type of Accounts
+     * @param _nftTag nft tag for rule application
      * @return AccountMinMaxTokenBalance at index location in array
      */
-    function getAccountMinMaxTokenBalanceERC721(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.AccountMinMaxTokenBalance memory) {
+    function getAccountMinMaxTokenBalanceERC721(uint32 _index, bytes32 _nftTag) public view returns (TaggedRules.AccountMinMaxTokenBalance memory) {
         // check one of the required non zero values to check for existence, if not, revert
         _index.checkRuleExistence(getTotalAccountMinMaxTokenBalancesERC721());
         RuleS.AccountMinMaxTokenBalanceS storage data = Storage.accountMinMaxTokenBalanceStorage();
         if (_index >= data.accountMinMaxTokenBalanceIndex) revert IndexOutOfRange();
-        return data.accountMinMaxTokenBalanceRules[_index][_accountType];
+        return data.accountMinMaxTokenBalanceRules[_index][_nftTag];
     }
 
     /**

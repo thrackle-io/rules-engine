@@ -19,7 +19,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
     uint8 mintsAllowed;
 
     /**
-     * @dev these storage slots are saved for future upgrades. Please be aware of common constraints for upgradeable contracts regarding storage slots,
+     * @dev These storage slots are saved for future upgrades. Please be aware of common constraints for upgradeable contracts regarding storage slots,
      * like maintaining the order of the variables to avoid mislabeling of storage slots, and to keep some reserved slots to avoid storage collisions.
      * @notice the length of this array must be shrunk by the same amount of new variables added in an upgrade. This is to keep track of the remaining
      * storage slots available for variables in future upgrades and avoid storage collisions.
@@ -54,7 +54,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
     }
 
     /**
-     * @dev add an address to the whitelist
+     * @dev Add an address to the whitelist
      * @param _address Address to enjoy the free mints
      * @notice the amount of free mints granted to this address is limited and it will be equal to "mintsAllowed"
      */
@@ -63,7 +63,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
     }
 
     /**
-     * @dev update the value of "mintsAllowed"
+     * @dev Update the value of "mintsAllowed"
      * @notice this variable will affect directly the amount of free mints granted to an address through "addAddressToWhitelist"
      * @param _mintsAllowed uint8 that represents the amount of free mints granted through "addAddressToWhitelist" from now on
      */
