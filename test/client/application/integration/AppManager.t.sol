@@ -12,14 +12,11 @@ contract AppManagerBaseTest is TestCommonFoundry {
         vm.warp(Blocktime); // set block.timestamp
     }
 
-    ///---------------SUPER ADMIN--------------------
-    /// Test the Super Admin roles
     function testIsSuperAdmin() public {
         assertEq(applicationAppManager.isSuperAdmin(superAdmin), true);
         assertEq(applicationAppManager.isSuperAdmin(appAdministrator), false);
     }
 
-    /// Test the Application Administrators roles
     function testIsAppAdministrator() public {
         assertEq(applicationAppManager.isAppAdministrator(superAdmin), true);
     }
@@ -70,13 +67,8 @@ contract AppManagerBaseTest is TestCommonFoundry {
         // let's check that newSuperAdmin can in fact do superAdmin stuff
         applicationAppManager.addAppAdministrator(address(0xB0b));
         applicationAppManager.revokeRole(APP_ADMIN_ROLE,address(0xB0b));
-
-
-
     }
 
-    ///---------------APP ADMIN--------------------
-    // Test the Application Administrators roles(only Super Admin can add app administrator)
     function testAddAppAdministratorAppManager() public {
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -90,7 +82,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertFalse(applicationAppManager.isAppAdministrator(address(77)));
     }
 
-     /// Test revoke Application Administrators role
     function testRevokeAppAdministratorApp() public {
         switchToSuperAdmin();
         applicationAppManager.addAppAdministrator(appAdministrator); //set an app administrator
@@ -103,7 +94,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), false);
     }
 
-     /// Test failed revoke Application Administrators role
     function testNegativeRevokeAppAdministrator() public {
         switchToSuperAdmin();
         applicationAppManager.addAppAdministrator(appAdministrator); //set an app administrator
@@ -128,8 +118,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         applicationAppManager.renounceAppAdministrator();
     }
 
-    ///---------------Risk ADMIN--------------------
-    // Test adding the Risk Admin roles
     function testAddRiskAdmin() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
 
@@ -138,7 +126,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(applicationAppManager.isRiskAdmin(address(88)), false);
     }
 
-    // Test non app administrator attempt to add the Risk Admin roles
     function testFailAddRiskAdmin() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
 
@@ -152,7 +139,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         applicationAppManager.addRiskAdmin(address(88)); //add risk admin
     }
 
-    /// Test renounce risk Admin role
     function testRenounceRiskAdmin() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         applicationAppManager.addRiskAdmin(riskAdmin); //add risk admin
@@ -164,7 +150,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         applicationAppManager.renounceRiskAdmin();
     }
 
-    /// Test revoke risk Admin role
     function testRevokeRiskAdmin() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         applicationAppManager.addRiskAdmin(riskAdmin); //add risk admin
@@ -176,7 +161,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(applicationAppManager.isRiskAdmin(riskAdmin), false);
     }
 
-    /// Test attempt to revoke risk Admin role from non app administrator
     function testFailRevokeRiskAdmin() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         applicationAppManager.addRiskAdmin(riskAdmin); //add risk admin
@@ -189,8 +173,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         applicationAppManager.revokeRole(RISK_ADMIN_ROLE, riskAdmin);
     }
 
-    ///---------------ACCESS LEVEL--------------------
-    // Test adding the Access Level roles
     function testAddaccessLevelAdmin() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         switchToSuperAdmin(); // create an app administrator and make it the sender.
@@ -200,7 +182,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(applicationAppManager.isAccessLevelAdmin(address(88)), false);
     }
 
-    // Test non app administrator attempt to add the Access Level roles
     function testFailAddaccessLevelAdmin() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
 
@@ -214,7 +195,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         applicationAppManager.addAccessLevelAdmin(address(88)); //add AccessLevel admin
     }
 
-    /// Test renounce Access Level role
     function testRenounceAccessLevelAdmin() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         applicationAppManager.addAccessLevelAdmin(accessLevelAdmin); //add AccessLevel admin
@@ -226,7 +206,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         applicationAppManager.renounceAccessLevelAdmin();
     }
 
-    /// Test revoke Access Level role
     function testRevokeAccessLevelAdmin() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         applicationAppManager.addAccessLevelAdmin(accessLevelAdmin); //add AccessLevel admin
@@ -238,7 +217,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(applicationAppManager.isAccessLevelAdmin(accessLevelAdmin), false);
     }
 
-    /// Test attempt to revoke Access Level role from non app administrator
     function testFailRevokeAccessLevelAdmin() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         applicationAppManager.addAccessLevelAdmin(accessLevelAdmin); //add AccessLevel admin
@@ -252,7 +230,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         applicationAppManager.revokeRole(ACCESS_LEVEL_ADMIN_ROLE, accessLevelAdmin);
     }
 
-    ///---------------Access LEVEL MAINTENANCE--------------------
     function testAddAccessLevel() public {
         switchToAccessLevelAdmin();
         console.log("Access Level Admin Address");
@@ -280,7 +257,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(retLevel, 1);
     }
 
-    ///---------------RISK SCORE MAINTENANCE--------------------
     function testAddRiskScore() public {
         switchToRiskAdmin(); // create a risk admin and make it the sender.
         applicationAppManager.addRiskScore(user, 75);
@@ -316,21 +292,17 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(55, applicationAppManager.getRiskScore(user));
     }
 
-    ///---------------TAGS--------------------
-    // Test adding the tags
     function testAddTag() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         applicationAppManager.addTag(user, "TAG1"); //add tag
         assertTrue(applicationAppManager.hasTag(user, "TAG1"));
     }
 
-    // Test when tag is invalid
     function testFailAddTag() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         applicationAppManager.addTag(user, ""); //add blank tag
     }
 
-    // Test scenarios for checking specific tags.
     function testHasTag() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         applicationAppManager.addTag(user, "TAG1"); //add tag
@@ -340,7 +312,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertTrue(applicationAppManager.hasTag(user, "TAG3"));
     }
 
-    // Test removal of the tag
     function testRemoveTag() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         applicationAppManager.addTag(user, "TAG1"); //add tag
@@ -349,8 +320,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertFalse(applicationAppManager.hasTag(user, "TAG1"));
     }
 
-    ///---------------PAUSE RULES----------------
-    // Test setting/listing/removing pause rules
     function testAddPauseRule() public {
         switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769955500, 1769984800);
@@ -444,9 +413,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         vm.warp(Blocktime);
     }
 
-    ///--------------- PROVIDER UPGRADES ---------------
-
-    // Test setting Tag provider contract address
     function testSetNewTagProvider() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         Tags dataMod = new Tags(address(applicationAppManager));
@@ -455,7 +421,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(address(dataMod), applicationAppManager.getTagProvider());
     }
 
-    // Test setting access level provider contract address
     function testSetNewAccessLevelProvider() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         AccessLevels dataMod = new AccessLevels(address(applicationAppManager));
@@ -464,7 +429,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(address(dataMod), applicationAppManager.getAccessLevelProvider());
     }
 
-    // Test setting account provider contract address
     function testSetNewAccountProvider() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         Accounts dataMod = new Accounts(address(applicationAppManager));
@@ -473,7 +437,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(address(dataMod), applicationAppManager.getAccountProvider());
     }
 
-    // Test setting risk provider contract address
     function testSetNewRiskScoreProvider() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         RiskScores dataMod = new RiskScores(address(applicationAppManager));
@@ -482,7 +445,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(address(dataMod), applicationAppManager.getRiskScoresProvider());
     }
 
-    // Test setting pause provider contract address
     function testSetNewPauseRulesProvider() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
         PauseRules dataMod = new PauseRules(address(applicationAppManager));
@@ -491,10 +453,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
         assertEq(address(dataMod), applicationAppManager.getPauseRulesProvider());
     }
 
-    ///---------------UPGRADEABILITY---------------
-    /**
-     * @dev This function ensures that an app manager can be upgraded without losing its data
-     */
     function testUpgradeAppManagerBaseAppManager() public {
         /// create user addresses
         address upgradeUser1 = address(100);

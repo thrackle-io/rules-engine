@@ -134,11 +134,9 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
             (targetAccounts, feePercentages) = handler.getApplicableFees(from, balanceOf(from));
             for (uint i; i < feePercentages.length; ) {
                 if (feePercentages[i] > 0) {
-                    /// trim the fee and send it to the target treasury account
                     uint fee = (amount * uint24(feePercentages[i])) / 10000;
                     if (fee > 0) {
                         _transfer(from, targetAccounts[i], fee);
-                        // accumulate all fees
                         fees += fee;
                     }
                 }

@@ -21,7 +21,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
     }
 
-    /// Test Fee Data setting/getting
     function testFeeCreationAndSetting() public {
         bytes32 tag1 = "cheap";
         uint256 minBalance = 10 * 10 ** 18;
@@ -83,7 +82,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoinHandlerSpecialOwner.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
     }
 
-    /// Test getting the fees and discounts that apply and how they apply
     function testGetApplicableFees() public {
         switchToRuleAdmin();
         bytes32 tag1 = "cheap";
@@ -171,7 +169,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
     }
 
-    /// Test Account Min Max Token Balance Rule 
     function testAccountMinMaxTokenBalanceTaggedCheckPasses() public {
         bytes32[] memory _accountTypes = createBytes32Array("BALLER");
         uint256[] memory _min = createUint256Array(10);
@@ -244,7 +241,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleAllowed));
     }
 
-    /// Test Toggling Rules on / off 
     function testTurningOnOffRules() public {
         bytes32[] memory _accountTypes = createBytes32Array("BALLER");
         uint256[] memory _min = createUint256Array(10);
@@ -359,10 +355,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(68), user1, 10);
     }
 
-    ///---------------UPGRADEABILITY---------------
-
-   /// This function tests that the token handler can be upgraded without losing its data
-
     function testUpgradeApplicationERC20Handler() public {
         /// put data in the old rule handler
         /// Fees
@@ -403,7 +395,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoinHandlerSpecialOwnerNew.proposeDataContractMigration(address(applicationCoinHandlerSpecialOwner));
     }
 
-    /// Test Zero Address Errors 
     function testZeroAddressErrors() public {
         /// test both address checks in constructor
         vm.expectRevert();

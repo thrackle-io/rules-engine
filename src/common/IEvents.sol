@@ -5,7 +5,7 @@ import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
 /**
  * @title Protocol Events Interface
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev This library is for all events in the Protocol module for the protocol. Each contract in the Protocol module should inherit thier specific library for emitting events.
+ * @dev This library is for all events in the Protocol. Each contract should inherit thier specific library for emitting events.
  * @notice Protocol Module Events Library
  */
 
