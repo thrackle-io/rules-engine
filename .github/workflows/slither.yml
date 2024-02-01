@@ -35,6 +35,7 @@ jobs:
           git config user.email "cloudops@thrackle.io"
           git config user.name "CloudOps Thrackle"
           make install
+          npm install
 
       - name: Slither Analyze
         uses: crytic/slither-action@v0.3.0
