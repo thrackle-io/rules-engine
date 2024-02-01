@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @notice This is an example implementation of the protocol ERC721 where minting is open to anybody willing to pay for the NFT.
  */
 
-contract ApplicationERC721 is ProtocolERC721 {
+contract ApplicationERC721MintForAFee is ProtocolERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
 

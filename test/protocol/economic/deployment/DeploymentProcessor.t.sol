@@ -17,10 +17,21 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
     function setUp() public {
         if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
             /// grab the deployed diamond addresses and set superAdmin and forkTest bool
-            superAdmin = vm.envAddress("DEPLOYMENT_OWNER");
+            vm.warp(Blocktime);
+            superAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
+            appAdministrator = vm.envAddress("DEPLOYMENT_OWNER");
+            ruleAdmin = vm.envAddress("QUORRA");
+            user1 = vm.envAddress("KEVIN");
+            user2 = vm.envAddress("SAM");
+            applicationNFT = ApplicationERC721(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_ADDRESS_1"));
+            applicationNFTHandler = ApplicationERC721Handler(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER"));
+            applicationCoin = ApplicationERC20(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS"));
             ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND")));
             ruleProcessorDiamondAddress = vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND");
+            oracleApproved = OracleApproved(vm.envAddress("TEST_DEPLOY_APPLICATION_ORACLE_ALLOWED_ADDRESS"));
+            oracleDenied = OracleDenied(vm.envAddress("TEST_DEPLOY_APPLICATION_ORACLE_DENIED_ADDRESS"));
             assertEq(ruleProcessorDiamondAddress, vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND"));
+            applicationAppManager = ApplicationAppManager(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER")));
             forkTest = true;
         } else {
             vm.warp(Blocktime);
@@ -722,19 +733,11 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
         uint8[] memory tradesAllowed = createUint8Array(1, 5);
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-        if (forkTest == true) {
-            assertEq(_index, 1);
-            TaggedRules.TokenMaxDailyTrades memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(_index, nftTags[0]);
-            assertEq(rule.tradesAllowedPerDay, 1);
-            rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(_index, nftTags[1]);
-            assertEq(rule.tradesAllowedPerDay, 5);
-        } else {
             assertEq(_index, 0);
             TaggedRules.TokenMaxDailyTrades memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(_index, nftTags[0]);
             assertEq(rule.tradesAllowedPerDay, 1);
             rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(_index, nftTags[1]);
             assertEq(rule.tradesAllowedPerDay, 5);
-        }
     }
 
     /// Test only ruleAdministrators can add TokenMaxDailyTrades Rule
@@ -750,17 +753,11 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         switchToRuleAdmin();
-        if (forkTest == true) {
-            uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-            assertEq(_index, 1);
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-            assertEq(_index, 2);
-        } else {
-            uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-            assertEq(_index, 0);
-            _index = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-            assertEq(_index, 1);
-        }
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        assertEq(_index, 0);
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        assertEq(_index, 1);
+
     }
 
     /// Test total rules
@@ -785,7 +782,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         /// account for already deployed contract that has AccessLevelBalanceRule added
         if (forkTest == true) {
             uint256 testBalance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccountMaxValueByAccessLevel(0, 2);
-            assertEq(testBalance, 100);
+            assertEq(testBalance, 500);
         } else {
             uint256 testBalance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccountMaxValueByAccessLevel(_index, 2);
             assertEq(testBalance, 500);
@@ -810,13 +807,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         for (uint8 i = 0; i < _indexes.length; i++) {
             _indexes[i] = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByAccessLevel(address(applicationAppManager), balanceAmounts);
         }
-        if (forkTest == true) {
-            uint256 result = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getTotalAccountMaxValueByAccessLevel();
-            assertEq(result, _indexes.length + 1);
-        } else {
-            uint256 result = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getTotalAccountMaxValueByAccessLevel();
-            assertEq(result, _indexes.length);
-        }
+
+        uint256 result = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getTotalAccountMaxValueByAccessLevel();
+        assertEq(result, _indexes.length);
+
     }
 
     /**************** AdminMinTokenBalance Rule Testing  ****************/
@@ -1132,13 +1126,13 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(address(69)), 0);
         // check the allowed list type
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
         applicationNFTHandler.setAccountApproveDenyOracleId(actionTypes, _index);
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(address(59));
-        oracleAllowed.addToApprovedList(goodBoys);
+        oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
         vm.startPrank(user1);
         // This one should pass
@@ -1151,10 +1145,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         switchToRuleAdmin();
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
 
         /// set oracle back to allow and attempt to burn token
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         applicationNFTHandler.setAccountApproveDenyOracleId(actionTypes, _index);
         /// swap to user and burn
         vm.stopPrank();

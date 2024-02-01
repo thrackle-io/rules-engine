@@ -25,9 +25,9 @@ import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "sr
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
 /// ERC721 Example test imports 
-import {ApplicationERC721 as MintForAFeeERC721} from "src/example/ERC721/ApplicationERC721MintForAFee.sol";
-import {ApplicationERC721 as WhitelistMintERC721} from "src/example/ERC721/ApplicationERC721WhitelistMint.sol";
-import {ApplicationERC721 as FreeForAllERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
+import {ApplicationERC721MintForAFee as MintForAFeeERC721} from "src/example/ERC721/ApplicationERC721MintForAFee.sol";
+import {ApplicationERC721WhitelistMint as WhitelistMintERC721} from "src/example/ERC721/ApplicationERC721WhitelistMint.sol";
+import {ApplicationERC721FreeMint as FreeForAllERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import {ApplicationERC721Upgradeable as MintForAFeeERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgMintForAFee.sol";
 import {ApplicationERC721Upgradeable as WhitelistMintERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
@@ -43,7 +43,7 @@ import "src/example/application/ApplicationAppManager.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
 import "src/example/ERC20/ApplicationERC20Handler.sol";
 
-import "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import { ApplicationERC721AdminOrOwnerMint as ApplicationERC721 } from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import "src/example/ERC721/ApplicationERC721Handler.sol";
 import "test/util/ApplicationERC721WithBatchMintBurn.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
@@ -136,7 +136,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationERC721UExtra2 public applicationNFTExtra2;
     ApplicationERC721UProxy public applicationNFTProxy;
 
-    OracleApproved public oracleAllowed;
+    OracleApproved public oracleApproved;
     OracleDenied public oracleDenied; 
 
     ApplicationERC721 public boredWhaleNFT;

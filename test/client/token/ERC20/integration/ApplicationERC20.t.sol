@@ -203,7 +203,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         // check the approved list type
 
         switchToRuleAdmin();
-        uint32 _indexAllowed = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        uint32 _indexAllowed = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
         applicationCoinHandler.setAccountApproveDenyOracleId(actionTypes, _indexAllowed);
         switchToAppAdministrator();
@@ -211,7 +211,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         // add approved addresses
         goodBoys.push(address(59));
         goodBoys.push(address(user5));
-        oracleAllowed.addToApprovedList(goodBoys);
+        oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
         vm.startPrank(user1);
         // This one should pass
@@ -225,7 +225,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
 
         /// test burning while oracle rule is active (allow list active)
         applicationCoinHandler.setAccountApproveDenyOracleId(actionTypes, _indexAllowed);
@@ -257,11 +257,11 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         /// Test adding single address to allow list 
         switchToRuleAdmin();
-        uint32 _indexAllowed = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        uint32 _indexAllowed = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
         applicationCoinHandler.setAccountApproveDenyOracleId(_createActionsArray(), _indexAllowed);
         switchToAppAdministrator();
-        oracleAllowed.addAddressToApprovedList(address(59));
+        oracleApproved.addAddressToApprovedList(address(59));
 
         vm.stopPrank();
         vm.startPrank(user1);

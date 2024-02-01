@@ -221,13 +221,13 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         // check the approved list type
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
         applicationCoinHandlerSpecialOwner.setAccountApproveDenyOracleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         // add an approved address
         goodBoys.push(address(59));
-        oracleAllowed.addToApprovedList(goodBoys);
+        oracleApproved.addToApprovedList(goodBoys);
         // This one should pass
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(59), user1, 10);
         // This one should fail
@@ -238,7 +238,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToRuleAdmin();
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
     }
 
     function testTurningOnOffRules() public {
@@ -308,7 +308,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         // check the allowed list type
         switchToRuleAdmin();
-        uint32 _indexTwo = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        uint32 _indexTwo = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
         applicationCoinHandlerSpecialOwner.setAccountApproveDenyOracleId(_createActionsArray(), _indexTwo);
 
@@ -318,13 +318,13 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         NonTaggedRules.AccountApproveDenyOracle memory ruleCheckTwo = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(_indexTwo);
         assertEq(ruleCheckTwo.oracleType, 1);
-        assertEq(ruleCheckTwo.oracleAddress, address(oracleAllowed));
+        assertEq(ruleCheckTwo.oracleAddress, address(oracleApproved));
 
         switchToAppAdministrator();
         // add an allowed address
         goodBoys.push(address(59));
         goodBoys.push(address(68));
-        oracleAllowed.addToApprovedList(goodBoys);
+        oracleApproved.addToApprovedList(goodBoys);
         // This one should pass
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(59), user1, 10);
         // This one should fail
