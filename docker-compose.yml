@@ -16,6 +16,6 @@ services:
       - anvil
     build:
       context: .
-      dockerfile: Dockerfile.deploymentCheck
+      dockerfile: Dockerfile.tron
     environment:
       FOUNDRY_PROFILE: docker
