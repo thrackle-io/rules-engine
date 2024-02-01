@@ -37,6 +37,7 @@ jobs:
       - name: Slither Analyze
         uses: crytic/slither-action@v0.3.0
         if: github.event_name != 'pull_request'
+        continue-on-error: true
         id: slither
         with:
           node-version: 16
@@ -67,6 +68,6 @@ jobs:
           script: |
             const script = require('.github/scripts/comment')
             const header = '# Slither report'
-            const body = `${{ steps.slither.outputs.stdout }}`
+            const body = `${{ steps.slither-pull.outputs.stdout }}`
             await script({ github, context, header, body })
             
