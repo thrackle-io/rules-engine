@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @notice This is an example implementation of the protocol ERC721 where minting is free and open to anybody.
  */
 
-contract ApplicationERC721 is ProtocolERC721 {
+contract ApplicationERC721FreeMint is ProtocolERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
 

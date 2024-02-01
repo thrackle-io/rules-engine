@@ -149,7 +149,7 @@ abstract contract TestCommonFoundry is TestCommon {
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
         switchToAppAdministrator();
-        oracleAllowed = _createOracleApproved();
+        oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
         /// reset the user to the original
         switchToOriginalUser();
@@ -293,7 +293,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
         switchToAppAdministrator();
 
-        oracleAllowed = _createOracleApproved();
+        oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
         /// reset the user to the original
         switchToOriginalUser();
@@ -350,7 +350,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
         switchToAppAdministrator();
         
-        oracleAllowed = _createOracleApproved();
+        oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
         /// reset the user to the original
         switchToOriginalUser();
@@ -397,7 +397,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
         switchToAppAdministrator();
 
-        oracleAllowed = _createOracleApproved();
+        oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
 
         /// create ERC721 examples
