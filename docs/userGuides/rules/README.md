@@ -24,7 +24,7 @@
 | [Minimum Transaction](./TOKEN-MIN-TRANSACTION-SIZE.md)| The purpose of the token-min-tx-size rule is to prevent micro-trades or dust trades within an ecosystem. A developer can set the minimum number of tokens required per transfer to prevent these types of trades. |
 
 
-- [Action Types For Rules](./ACTION-TYPES.md)
+[Action Types For Rules](./ACTION-TYPES.md)
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
 [version-url]: https://github.com/thrackle-io/Tron
