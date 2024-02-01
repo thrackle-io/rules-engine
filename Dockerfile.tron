@@ -8,8 +8,8 @@ WORKDIR /usr/local/src/tron
 COPY . .
 
 RUN curl -L https://foundry.paradigm.xyz | bash
-#RUN chmod a+x install-forge.sh
+RUN chmod a+x install-forge.sh
 
-#CMD ["./install-forge.sh", "--with-deploy"]
+CMD ["./install-forge.sh", "--with-deploy"]
 
-CMD ["tail", "-f", "/dev/null"]
+#CMD ["tail", "-f", "/dev/null"]
