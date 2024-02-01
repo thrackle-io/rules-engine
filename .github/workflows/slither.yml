@@ -17,10 +17,6 @@ on:
 jobs:
   analyze:
     runs-on: ubuntu-22.04
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
     steps:
       - uses: actions/checkout@v3
         with:
@@ -46,7 +42,6 @@ jobs:
           node-version: 16
           slither-config: ${{ inputs.CONFIG }}
           sarif: results.sarif
-          fail-on: none
 
       - name: Upload SARIF file
         uses: actions/upload-artifact@v4
@@ -74,3 +69,4 @@ jobs:
             const header = '# Slither report'
             const body = `${{ steps.slither.outputs.stdout }}`
             await script({ github, context, header, body })
+            
