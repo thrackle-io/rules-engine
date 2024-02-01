@@ -184,13 +184,13 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(_user3), 0);
         // check the approved list type
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
         applicationCoinHandler.setAccountApproveDenyOracleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         // add an approved address
         goodBoys.push(_user4);
-        oracleAllowed.addToApprovedList(goodBoys);
+        oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
         vm.startPrank(_user1);
         // This one should pass

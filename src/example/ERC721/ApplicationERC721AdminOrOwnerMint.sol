@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @notice This is an example implementation of the protocol ERC721 where minting is only available for app administrators or contract owners.
  */
 
-contract ApplicationERC721 is ProtocolERC721 {
+contract ApplicationERC721AdminOrOwnerMint is ProtocolERC721 {
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
      * @param _name Name of NFT

@@ -1,0 +1,6 @@
+name: Slither Analysis
+
+on:
+  workflow_dispatch:
+
+jobs:
