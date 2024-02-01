@@ -83,7 +83,6 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address owner = _msgSender();
-        /// if transfer fees/discounts are defined then process them first
         if (handler.isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
@@ -91,16 +90,13 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
             (targetAccounts, feePercentages) = handler.getApplicableFees(owner, balanceOf(owner));
             for (uint i; i < feePercentages.length; ) {
                 if (feePercentages[i] > 0) {
-                    /// trim the fee and send it to the target treasury account
                     _transfer(owner, targetAccounts[i], (amount * uint24(feePercentages[i])) / 10000);
-                    /// accumulate all fees
                     fees += (amount * uint24(feePercentages[i])) / 10000;
                 }
                 unchecked {
                     ++i;
                 }
             }
-            /// subtract the total fees from main transfer amount
             amount -= fees;
         }
         _transfer(owner, to, amount);
@@ -126,7 +122,6 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
-        /// if transfer fees/discounts are defined then process them first
         if (handler.isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
@@ -144,7 +139,6 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
                     ++i;
                 }
             }
-            /// subtract the total fees from main transfer amount
             amount -= fees;
         }
         _transfer(from, to, amount);
