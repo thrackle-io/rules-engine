@@ -120,7 +120,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user2, 10091);
     }
 
-    function testERC20_AccountMinMaxTokenBalanceBlankTag() public {
+    function testERC20_AccountMinMaxTokenBalanceBlankTag3() public {
         /// set up a non admin user with tokens
         applicationCoin.transfer(rich_user, 100000);
         assertEq(applicationCoin.balanceOf(rich_user), 100000);
@@ -136,9 +136,10 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         ///update ruleId in coin rule handler
         // create the default actions array
-        ActionTypes[] memory actionTypes = new ActionTypes[](2);
+        ActionTypes[] memory actionTypes = new ActionTypes[](3);
         actionTypes[0] = ActionTypes.P2P_TRANSFER;
         actionTypes[1] = ActionTypes.SELL;
+        actionTypes[2] = ActionTypes.MINT;
         applicationCoinHandler.setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
         switchToAppAdministrator();
 
