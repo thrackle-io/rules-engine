@@ -41,6 +41,7 @@ jobs:
         with:
           node-version: 16
           slither-config: ${{ inputs.CONFIG }}
+          fail-on: none
           sarif: results.sarif
 
       - name: Upload SARIF file
@@ -49,6 +50,7 @@ jobs:
         with:
           name: results.sarif
           path: ${{ steps.slither.outputs.sarif }}
+          retention-days: 5
 
       - name: Slither Analyze Pull Request
         uses: crytic/slither-action@v0.3.0
@@ -70,3 +72,29 @@ jobs:
             const body = `${{ steps.slither-pull.outputs.stdout }}`
             await script({ github, context, header, body })
             
+  upgradeability-check:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly-09fe3e041369a816365a020f715ad6f94dbce9f2
+
+      - name: Install dependencies
+        run: |
+          git config user.email "cloudops@thrackle.io"
+          git config user.name "CloudOps Thrackle"
+          make install
+          npm install
+
+      - name: Install Slither
+        run: |
+          pip3 install slither-analyzer
+
+      - name: Check Upgradeability
+        run: |
+          bash .github/scripts/slither-check-upgradeability.sh
