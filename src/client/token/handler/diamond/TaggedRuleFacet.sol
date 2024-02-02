@@ -7,8 +7,9 @@ import "../../../../protocol/economic/IRuleProcessor.sol";
 import {Rule} from "../common/DataStructures.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 import "../../../application/IAppManager.sol";
+import "../ruleContracts/AccountMinMaxTokenBalance.sol";
 
-contract TaggedRuleFacet{
+contract TaggedRuleFacet is AccountMinMaxTokenBalanceGetterSetter{
 
     /**
      * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
