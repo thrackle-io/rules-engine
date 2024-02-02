@@ -25,14 +25,10 @@ struct FacetAddressAndSelectorPosition {
     uint16 selectorPosition;
 }
 
-struct RuleProcessorDiamondStorage {
+struct HandlerDiamondStorage {
     /// function selector => facet address and selector position in selectors array
     mapping(bytes4 => FacetAddressAndSelectorPosition) facetAddressAndSelectorPosition;
     bytes4[] selectors;
-}
-
-struct RuleDataStorage {
-    address rules;
 }
 
 /**
@@ -42,31 +38,20 @@ struct RuleDataStorage {
  * on rules compliance.
  * @notice Contract serves as library for the Processor Diamond
  */
-library RuleProcessorDiamondLib {
+library HandlerDiamondLib {
     bytes32 constant DIAMOND_CUT_STORAGE = bytes32(uint256(keccak256("diamond-cut.storage")) - 1);
-    bytes32 constant RULE_DATA_POSITION = keccak256("nontagged-ruless.rule-data.storage");
 
     /**
-     * @dev Function for position of facets and their selectors. Every facet has its own storage.
-     * @return ds Data storage for Rule Processor Facet Storage
+     * @dev Function for position of rules. Every rule has its own storage.
+     * @return ds Data storage for Rule Processor Storage
      */
-    function s() internal pure returns (RuleProcessorDiamondStorage storage ds) {
+    function s() internal pure returns (HandlerDiamondStorage storage ds) {
         bytes32 position = DIAMOND_CUT_STORAGE;
         assembly {
             ds.slot := position
         }
     }
 
-    /**
-     * @dev Function to store rules
-     * @return ds Data Storage of Rule Data Storage
-     */
-    function ruleDataStorage() internal pure returns (RuleDataStorage storage ds) {
-        bytes32 position = RULE_DATA_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
 
     event DiamondCut(FacetCut[] _diamondCut, address init, bytes data);
 
@@ -114,7 +99,7 @@ library RuleProcessorDiamondLib {
             revert CannotAddSelectorsToZeroAddress(_functionSelectors);
         }
 
-        RuleProcessorDiamondStorage storage ds = s();
+        HandlerDiamondStorage storage ds = s();
         uint16 selectorCount = uint16(ds.selectors.length);
         enforceHasContractCode(_facetAddress, "DiamondCutLib: Add facet has no code");
 
@@ -139,7 +124,7 @@ library RuleProcessorDiamondLib {
      * @param _functionSelectors Signature array of function selectors
      */
     function replaceFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
-        RuleProcessorDiamondStorage storage ds = s();
+        HandlerDiamondStorage storage ds = s();
         if (_facetAddress == address(0)) {
             revert CannotReplaceFunctionsFromFacetWithZeroAddress(_functionSelectors);
         }
@@ -171,7 +156,7 @@ library RuleProcessorDiamondLib {
      * @param _functionSelectors Signature array of function selectors
      */
     function removeFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
-        RuleProcessorDiamondStorage storage ds = s();
+        HandlerDiamondStorage storage ds = s();
         uint256 selectorCount = ds.selectors.length;
         if (_facetAddress != address(0)) {
             revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);

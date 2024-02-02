@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {Rule} from "./DataStructures.sol";
-import {ActionTypes} from "../../../protocol/economic/ruleProcessor/ActionEnum.sol";
-import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
-import {StorageLib as lib} from "./facets/StorageLib.sol";
+import {Rule} from "../common/DataStructures.sol";
+import {ActionTypes} from "src/common/ActionEnum.sol";
+import {StorageLib as lib} from "../diamond/StorageLib.sol";
 import {ITokenHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
 import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
+import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
 
 /**
  * @title Protocol Handler Common

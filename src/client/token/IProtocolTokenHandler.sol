@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
-import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
+import {ActionTypes} from "src/common/ActionEnum.sol";
 
 /**
  * @title Asset Handler Interface
