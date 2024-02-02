@@ -9,4 +9,4 @@ The purpose of oracles within the protocol is to give applications flexibility i
 
 Access levels are used with the following rules:
 
-- [Account Approve Deny Oracle Rule](../rules/ACCOUNT-APPROVE-DENY-ORACLE.md)
+- [Oracle Rules](./ORACLE-RULES.md)
