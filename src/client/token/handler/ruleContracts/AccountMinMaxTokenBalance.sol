@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {Rule} from "../DataStructures.sol";
-import {ActionTypes} from "../../../../protocol/economic/ruleProcessor/ActionEnum.sol";
-import "../../../../protocol/economic/IRuleProcessor.sol";
-import {ACCOUNT_MIN_MAX_TOKEN_BALANCE} from "../../../../protocol/economic/ruleProcessor/RuleCodeData.sol";
-import {StorageLib as lib} from "../facets/StorageLib.sol";
-import "src/protocol/economic/RuleAdministratorOnly.sol";
+import {Rule} from "../common/DataStructures.sol";
+import {ActionTypes} from "src/common/ActionEnum.sol";
+import {StorageLib as lib} from "../diamond/StorageLib.sol";
 import {ITokenHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
+import "../../../../protocol/economic/IRuleProcessor.sol";
+import "../../../../protocol/economic/ruleProcessor/RuleCodeData.sol";
+import "src/protocol/economic/RuleAdministratorOnly.sol";
 
 
 /**
@@ -51,9 +51,8 @@ contract AccountMinMaxTokenBalanceGetterSetter is RuleAdministratorOnly, ITokenH
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateAccountMinMaxTokenBalance(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManagerAddress) {
-        AccountMinMaxTokenBalanceHandlerS storage data = lib.accountMinMaxTokenBalanceStorage();
         for (uint i; i < _actions.length; ) {
-            data.accountMinMaxTokenBalance[_actions[i]].active = _on;
+            lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance[_actions[i]].active = _on;
             if (_on) {
                 emit ApplicationHandlerActionActivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i]);
             } else {
@@ -71,8 +70,7 @@ contract AccountMinMaxTokenBalanceGetterSetter is RuleAdministratorOnly, ITokenH
      * @return accountMinMaxTokenBalance rule id.
      */
     function getAccountMinMaxTokenBalanceId(ActionTypes _action) external view returns (uint32) {
-        AccountMinMaxTokenBalanceHandlerS storage data = lib.accountMinMaxTokenBalanceStorage();
-        return data.accountMinMaxTokenBalance[_action].ruleId;
+        return lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance[_action].ruleId;
     }
 
     /**
@@ -81,8 +79,7 @@ contract AccountMinMaxTokenBalanceGetterSetter is RuleAdministratorOnly, ITokenH
      * @return boolean representing if the rule is active
      */
     function isAccountMinMaxTokenBalanceActive(ActionTypes _action) external view returns (bool) {
-        AccountMinMaxTokenBalanceHandlerS storage data = lib.accountMinMaxTokenBalanceStorage();
-        return data.accountMinMaxTokenBalance[_action].active;
+        return lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance[_action].active;
     }
 
 

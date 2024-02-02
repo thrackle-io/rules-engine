@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
-import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
+import {ActionTypes} from "src/common/ActionEnum.sol";
 import "src/client/application/data/Accounts.sol";
 import "src/client/application/data/IAccounts.sol";
 import "src/client/application/data/IAccessLevels.sol";

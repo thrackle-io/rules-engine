@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "src/protocol/economic/ruleProcessor/RuleCodeData.sol";
 import "src/protocol/economic/IRuleProcessor.sol";
-import "src/protocol/economic/ruleProcessor/ActionEnum.sol";
+import {ActionTypes} from "src/common/ActionEnum.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "src/client/application/AppManager.sol";
 import "src/common/IProtocolERC721Pricing.sol";

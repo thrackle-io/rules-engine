@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 // import "./IRuleStorage.sol";
 import {AccountMinMaxTokenBalanceHandlerS, ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION} from "../ruleContracts/AccountMinMaxTokenBalance.sol";
-import {HandlerBaseS, HANDLER_BASE_POSITION} from "../HandlerBase.sol";
+import {HandlerBaseS, HANDLER_BASE_POSITION} from "../ruleContracts/HandlerBase.sol";
 
 
 /**
