@@ -30,7 +30,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     mapping(ActionTypes => Rule) tokenMaxTradingVolume;
     mapping(ActionTypes => Rule) tokenMaxSupplyVolatility;
     /// Oracle rule mapping(allows multiple rules per action)
-    mapping(ActionTypes => Rule[]) accountAllowDenyOracle;
+    mapping(ActionTypes => Rule[]) accountApproveDenyOracle;
     /// RuleIds for implemented tagged rules of the ERC20
     Rule[] private accountApproveDenyOracleRules;
 
@@ -104,8 +104,8 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     function _checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) internal {
         if (tokenMinTxSize[action].active) ruleProcessor.checkTokenMinTxSize(tokenMinTxSize[action].ruleId, _amount);
 
-        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[action].length; ) {
-            if (accountAllowDenyOracle[action][accountApproveDenyOracleIndex].active) ruleProcessor.checkAccountApproveDenyOracle(accountAllowDenyOracle[action][accountApproveDenyOracleIndex].ruleId, _to);
+        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[action].length; ) {
+            if (accountApproveDenyOracle[action][accountApproveDenyOracleIndex].active) ruleProcessor.checkAccountApproveDenyOracle(accountApproveDenyOracle[action][accountApproveDenyOracleIndex].ruleId, _to);
             unchecked {
                 ++accountApproveDenyOracleIndex;
             }
@@ -426,14 +426,14 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     function setAccountApproveDenyOracleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateAccountApproveDenyOracle(_ruleId);
         for (uint i; i < _actions.length; ) {
-            if (accountAllowDenyOracle[_actions[i]].length >= MAX_ORACLE_RULES) {
+            if (accountApproveDenyOracle[_actions[i]].length >= MAX_ORACLE_RULES) {
                 revert AccountApproveDenyOraclesPerAssetLimitReached();
             }
 
             Rule memory newEntity;
             newEntity.ruleId = _ruleId;
             newEntity.active = true;
-            accountAllowDenyOracle[_actions[i]].push(newEntity);
+            accountApproveDenyOracle[_actions[i]].push(newEntity);
             emit ApplicationHandlerActionApplied(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i], _ruleId);
             unchecked {
                         ++i;
@@ -451,9 +451,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     function activateAccountApproveDenyOracle(ActionTypes[] calldata _actions, bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             
-            for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[_actions[i]].length; ) {
-                if (accountAllowDenyOracle[_actions[i]][accountApproveDenyOracleIndex].ruleId == ruleId) {
-                    accountAllowDenyOracle[_actions[i]][accountApproveDenyOracleIndex].active = _on;
+            for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[_actions[i]].length; ) {
+                if (accountApproveDenyOracle[_actions[i]][accountApproveDenyOracleIndex].ruleId == ruleId) {
+                    accountApproveDenyOracle[_actions[i]][accountApproveDenyOracleIndex].active = _on;
 
                     if (_on) {
                         emit ApplicationHandlerActionActivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i]);
@@ -477,9 +477,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @return oracleRuleId
      */
     function getAccountApproveDenyOracleIds(ActionTypes _action) external view returns (uint32[] memory ) {
-        uint32[] memory ruleIds = new uint32[](accountAllowDenyOracle[_action].length);
-        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[_action].length; ) {
-            ruleIds[accountApproveDenyOracleIndex] = accountAllowDenyOracle[_action][accountApproveDenyOracleIndex].ruleId;
+        uint32[] memory ruleIds = new uint32[](accountApproveDenyOracle[_action].length);
+        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[_action].length; ) {
+            ruleIds[accountApproveDenyOracleIndex] = accountApproveDenyOracle[_action][accountApproveDenyOracleIndex].ruleId;
             unchecked {
                 ++accountApproveDenyOracleIndex;
             }
@@ -493,10 +493,10 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @param ruleId the id of the rule to check
      * @return boolean representing if the rule is active
      */
-    function isAccountAllowDenyOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool) {
-        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[_action].length; ) {
-            if (accountAllowDenyOracle[_action][accountApproveDenyOracleIndex].ruleId == ruleId) {
-                return accountAllowDenyOracle[_action][accountApproveDenyOracleIndex].active;
+    function isaccountApproveDenyOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool) {
+        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[_action].length; ) {
+            if (accountApproveDenyOracle[_action][accountApproveDenyOracleIndex].ruleId == ruleId) {
+                return accountApproveDenyOracle[_action][accountApproveDenyOracleIndex].active;
             }
             unchecked {
                 ++accountApproveDenyOracleIndex;
@@ -512,11 +512,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      */
     function removeAccountApproveDenyOracle(ActionTypes[] calldata _actions, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
-            Rule memory lastId = accountAllowDenyOracle[_actions[i]][accountAllowDenyOracle[_actions[i]].length -1];
+            Rule memory lastId = accountApproveDenyOracle[_actions[i]][accountApproveDenyOracle[_actions[i]].length -1];
             if(ruleId != lastId.ruleId){
                 uint index = 0;
-                for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[_actions[i]].length; ) {
-                    if (accountAllowDenyOracle[_actions[i]][accountApproveDenyOracleIndex].ruleId == ruleId) {
+                for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[_actions[i]].length; ) {
+                    if (accountApproveDenyOracle[_actions[i]][accountApproveDenyOracleIndex].ruleId == ruleId) {
                         index = accountApproveDenyOracleIndex; 
                         break;
                     }
@@ -524,10 +524,10 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
                         ++accountApproveDenyOracleIndex;
                     }
                 }
-                accountAllowDenyOracle[_actions[i]][index] = lastId;
+                accountApproveDenyOracle[_actions[i]][index] = lastId;
             }
 
-            accountAllowDenyOracle[_actions[i]].pop();
+            accountApproveDenyOracle[_actions[i]].pop();
             unchecked {
                         ++i;
             }

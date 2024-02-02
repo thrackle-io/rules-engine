@@ -1,7 +1,7 @@
 # Oracle Configuration
 [![Project Version][version-image]][version-url]
 
-Oracles may be used with the protocol to provide approved and/or denied lists. These oracles are used in conjunction with the [Account Approve Deny Oracle Rule](../rules/ACCOUNT-APPROVE-DENY-ORACLE.md) which is created and applied like any other rule. Up to ten oracle rules may be applied per action. The protocol provides example oracle contracts([OracleApproved](../../../src/example/OracleApproved.sol), [OracleDenied](../../../src/example/OracleDenied.sol)) or [external oracles](./EXTERNAL-ORACLE.md) can be created to suit the use case.
+Oracles may be used with the protocol to provide approved and/or denied lists. These oracles are used in conjunction with the [Account Approve Deny Oracle Rule](../rules/ACCOUNT-APPROVE-DENY-ORACLE.md) which is created and applied like any other rule. Up to ten oracle rules may be applied per [action](../rules/ACTION-TYPES.md). The protocol provides example oracle contracts([OracleApproved](../../../src/example/OracleApproved.sol), [OracleDenied](../../../src/example/OracleDenied.sol)) or [external oracles](./EXTERNAL-ORACLE.md) can be created to suit the use case.
 
 ## Approval List Oracle
 
