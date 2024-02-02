@@ -234,9 +234,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
     }
 
-    /**
-     * @dev Test the AccountApproveDenyOracle rule, both approve and denied types
-     */
     function testERC721_AccountApproveDenyOracle() public {
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1);
@@ -279,13 +276,13 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(applicationNFT.balanceOf(address(69)), 0);
         // check the allowed list type
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
         applicationNFTHandler.setAccountApproveDenyOracleId(actionTypes, _index);
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(address(59));
-        oracleAllowed.addToApprovedList(goodBoys);
+        oracleApproved.addToApprovedList(goodBoys);
         vm.stopPrank();
         vm.startPrank(user1);
         // This one should pass
@@ -298,10 +295,10 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         switchToRuleAdmin();
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
 
         /// set oracle back to allow and attempt to burn token
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         applicationNFTHandler.setAccountApproveDenyOracleId(actionTypes, _index);
         /// swap to user and burn
         vm.stopPrank();
@@ -341,9 +338,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.transferFrom(user1, address(59), 2);
     }
 
-    /**
-     * @dev Test the TokenMaxDailyTrades rule
-     */
     function testERC721_TokenMaxDailyTrades() public {
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1); // tokenId = 0
@@ -412,7 +406,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         vm.expectRevert(0x09a92f2d);
         applicationNFT.transferFrom(user2, user1, 2);
     }
-
+ 
     function testERC721_TokenMaxDailyTradesBlankTag() public {
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1); // tokenId = 0
@@ -566,9 +560,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.burn(6);
     }
 
-    /**
-     * @dev Test the AccessLevel = 0 rule
-     */
     function testERC721_AccountDenyForNoAccessLevelInNFT() public {
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1); // tokenId = 0
@@ -774,7 +765,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFTHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
     }
 
-    /// test the transfer volume rule in erc721
     function testERC721_TransferVolumeRule() public {
         /// set the rule for 40% in 2 hours, starting at midnight
         switchToRuleAdmin();
@@ -813,7 +803,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.safeTransferFrom(user1, user2, 3);
     }
 
-    /// test the TransferVolumeRule in erc721
     function testERC721_TransferVolumeRuleWithSupplySet() public {
         /// set the rule for 2% in 2 hours, starting at midnight
         switchToRuleAdmin();
@@ -853,7 +842,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.safeTransferFrom(user1, user2, 3);
     }
 
-    /// test the minimum hold time rule in erc721
     function testERC721_TokenMinHoldTime() public {
         /// set the rule for 24 hours
         switchToRuleAdmin();
@@ -889,7 +877,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         applicationNFT.safeTransferFrom(user2, user1, 0);
     }
 
-    /// test supply volatility rule
     function testERC721_CollectionTokenMaxSupplyVolatility() public {
         /// Mint tokens to specific supply
         for (uint i = 0; i < 10; i++) {
@@ -1194,7 +1181,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         vm.expectRevert(0x41284967);
         applicationAppManager3.confirmAppManager(address(applicationNFT));
     }
-
+ 
     function setupTradingRuleTests() internal returns(DummyNFTAMM) {
         DummyNFTAMM amm = new DummyNFTAMM();
         _safeMintERC721(erc721Liq);
@@ -1343,20 +1330,20 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
     function testERC721_TokenMaxSellVolumeRuleByPasserRule() public {
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
-        applicationAppManager.approveAddressToTradingRuleWhitelist(user, true);
+        applicationAppManager.approveAddressToTradingRuleAllowlist(user, true);
 
         /// SELL PERCENTAGE RULE
         uint16 tokenPercentageSell = 30; /// 0.30%
         _setTokenMaxSellVolumeRule(tokenPercentageSell, 24); ///  24 hour periods
         vm.warp(Blocktime + 36 hours);
-        /// WHITELISTED USER
+        /// ALLOWLISTED USER
         switchToUser();
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
         /// we test going above rule percentage in the period is ok for user (... + 1)
         for(uint i = erc721Liq / 2; i < erc721Liq / 2 + (erc721Liq * tokenPercentageSell) / 10000 + 1; i++){
             _testSellNFT(i,  amm);
         }
-        /// NOT WHITELISTED USER
+        /// NOT ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user1);
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
@@ -1364,7 +1351,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         for(uint i = erc721Liq / 2 + 100; i < erc721Liq / 2 + 100 + (erc721Liq * tokenPercentageSell) / 10000 - 1; i++){
             _testSellNFT(i,  amm);
         }
-        /// and now we test the actual rule with a non-whitelisted address to check it will fail
+        /// and now we test the actual rule with a non-allowlisted address to check it will fail
         vm.expectRevert(0x806a3391);
         _testSellNFT(erc721Liq / 2 + 100 + (erc721Liq * tokenPercentageSell) / 10000,  amm);
 
@@ -1373,13 +1360,13 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         _setupTokenMaxBuyVolumeRule(tokenPercentage, 24); /// 24 hour periods
         /// we make sure we are in a new period
         vm.warp(Blocktime + 72 hours);
-        /// WHITELISTED USER
+        /// ALLOWLISTED USER
         switchToUser();
         /// we test buying the *tokenPercentage* of the NFTs total supply + 1 to prove that *user* can break the rules with no consequences
         for(uint i = erc721Liq / 2 ; i < erc721Liq / 2 + (erc721Liq * tokenPercentage) / 10000 + 1; i++){
             _testBuyNFT(i, amm);
         }
-        /// NOT WHITELISTED USER
+        /// NOT ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user1);
         /// we test buying the *tokenPercentage* of the NFTs total supply -1 to get to the limit of the rule
@@ -1396,12 +1383,12 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         switchToAppAdministrator();
         applicationAppManager.addTag(user, "AccountMaxSellSize");
         applicationAppManager.addTag(user1, "AccountMaxSellSize");
-        /// WHITELISTED USER
+        /// ALLOWLISTED USER
         switchToUser();
         /// user can break the rules
         _testSellNFT(erc721Liq / 2, amm);
         _testSellNFT(erc721Liq / 2 + 1, amm);
-        /// NOT WHITELISTED USER
+        /// NOT ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user1);
         /// user1 cannot break the rules
@@ -1410,8 +1397,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         _testSellNFT(erc721Liq / 2 + 100 + 1, amm);
     }
 
-    /// HELPER INTERNAL FUNCTIONS
-
+    /// INTERNAL HELPER FUNCTIONS
     function _approveTokens(DummyNFTAMM amm, uint256 amountERC20, bool _isApprovalERC721) internal {
         applicationCoin.approve(address(amm), amountERC20);
         applicationNFT.setApprovalForAll(address(amm), _isApprovalERC721);
@@ -1473,10 +1459,10 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
     function _setAllowedAccountApproveDenyOracle() internal returns(uint32 ruleId){
         switchToRuleAdmin();
-        ruleId = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleAllowed));
+        ruleId = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         NonTaggedRules.AccountApproveDenyOracle memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(ruleId);
         assertEq(rule.oracleType, 1);
-        assertEq(rule.oracleAddress, address(oracleAllowed));
+        assertEq(rule.oracleAddress, address(oracleApproved));
         applicationNFTHandler.setAccountApproveDenyOracleId(_createActionsArray(), ruleId);
     }
 

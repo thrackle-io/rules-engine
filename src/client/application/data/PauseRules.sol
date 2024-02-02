@@ -6,7 +6,7 @@ import "./DataModule.sol";
 
 /**
  * @title Pause Rules Data Contract
- * @notice Data contract to store Pause for user accounts
+ * @notice Data contract to store Pause rules for the application
  * @dev This contract stores and serves pause rules via an internal mapping
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */

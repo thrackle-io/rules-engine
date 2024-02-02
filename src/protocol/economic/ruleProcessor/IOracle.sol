@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 /**
- * @title Denied and Permission Oracle Interface
+ * @title Approved and Denied Oracle Interface
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This stores the function signature for external oracles
- * @dev Both "allow list" and "deny list" oracles will use this interface
+ * @dev Both "approve list" and "deny list" oracles will use this interface
  */
 interface IOracle {
     /**

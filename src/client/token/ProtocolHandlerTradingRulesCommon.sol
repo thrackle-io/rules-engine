@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
+
 import "./ProtocolHandlerCommon.sol";
 
 /**
@@ -74,7 +75,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
 
 
     /**
-     * @dev Set the AccountMaxBuySizeRuleId. Restricted to rule administrators only.
+     * @dev Set the AccountMaxBuySize Rule Id. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
@@ -114,7 +115,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     }
 
     /**
-     * @dev Set the accountMaxSellSizeId. Restricted to rule administrators only.
+     * @dev Set the accountMaxSellSize Rule Id. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
@@ -186,7 +187,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     }
 
     /**
-     * @dev Set the tokenMaxBuyVolumeId. Restricted to Rule administrators only.
+     * @dev Set the tokenMaxBuyVolume Rule Id. Restricted to Rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
@@ -226,7 +227,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     }
 
     /**
-     * @dev Set the tokenMaxSellVolumeId. Restricted to rule administrators only.
+     * @dev Set the tokenMaxSellVolume Rule Id. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
@@ -266,7 +267,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     }    
 
     /**
-     * @dev checks the appManager to determine if an address is an AMM or not
+     * @dev Checks the appManager to determine if an address is a registered AMM or not
      * @param _address the address to check if is an AMM
      * @return true if the _address is an AMM
      */

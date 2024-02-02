@@ -17,7 +17,7 @@ contract ProtocolTokenCommonU is AppAdministratorOnlyU, IApplicationEvents, IZer
     IAppManager appManager;
 
     /**
-     * @dev this function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process
+     * @dev This function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process
      * @param _newAppManagerAddress the new address being proposed
      */
     function proposeAppManagerAddress(address _newAppManagerAddress) external appAdministratorOnly(appManagerAddress) {
@@ -26,7 +26,7 @@ contract ProtocolTokenCommonU is AppAdministratorOnlyU, IApplicationEvents, IZer
     }
 
     /**
-     * @dev this function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address
+     * @dev This function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address
      */
     function confirmAppManagerAddress() external {
         if (newAppManagerAddress == address(0)) revert NoProposalHasBeenMade();

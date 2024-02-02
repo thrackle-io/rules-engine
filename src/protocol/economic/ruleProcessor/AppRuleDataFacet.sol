@@ -7,7 +7,7 @@ import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
 
 
 /**
- * @title App Rules Facet
+ * @title Application Rules Storage Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev Setters and getters for Application level Rules
  * @notice This contract sets and gets the App Rules for the protocol
@@ -26,7 +26,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _maxValues Balance restrictions for each 5 levels from level 0 to 4 in whole USD.
-     * @notice that position within the array matters. position 0 represents access level 0,
+     * @notice The position within the array matters. Position 0 represents access level 0,
      * and position 4 represents level 4.
      * @return position of new rule in array
      */
@@ -57,14 +57,13 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
      * @dev Function has ruleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _withdrawalAmounts withdrawal amaount restrictions for each 5 levels from level 0 to 4 in whole USD.
-     * @notice that position within the array matters. position 0 represents access level 0,
+     * @notice The position within the array matters. Position 0 represents access level 0,
      * and position 4 represents level 4.
      * @return position of new rule in array
      */
     function addAccountMaxValueOutByAccessLevel(address _appManagerAddr, uint48[] calldata _withdrawalAmounts) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         RuleS.AccountMaxValueOutByAccessLevelS storage data = Storage.accountMaxValueOutByAccessLevelStorage();
         uint32 index = data.accountMaxValueOutByAccessLevelIndex;
-        ///validation block
         if (_withdrawalAmounts.length != MAX_ACCESSLEVELS) revert WithdrawalAmountsShouldHave5Levels(uint8(_withdrawalAmounts.length));
         for (uint i = 1; i < _withdrawalAmounts.length; ) {
             if (_withdrawalAmounts[i] < _withdrawalAmounts[i - 1]) revert WrongArrayOrder();
@@ -117,7 +116,6 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         uint16 _period,
         uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        /// Validation block
         if (_maxValue.length != _riskScore.length) revert InputArraysSizesNotValid();
         // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_maxValue.length == 0) revert InvalidRuleInput();
@@ -135,7 +133,6 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
             }
         }
         _startTime.validateTimestamp();
-        /// We create the rule now
         RuleS.AccountMaxTxValueByRiskScoreS storage data = Storage.accountMaxTxValueByRiskScoreStorage();
         uint32 ruleId = data.accountMaxTxValueByRiskScoreIndex;
         ApplicationRuleStorage.AccountMaxTxValueByRiskScore memory rule = ApplicationRuleStorage.AccountMaxTxValueByRiskScore(_maxValue, _riskScore, _period, _startTime);
@@ -186,7 +183,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
     }
 
     /**
-     * @dev internal Function to avoid stack too deep error
+     * @dev Internal Function to avoid stack too deep error
      * @param _riskScores Account Risk Score
      * @param _maxValue Account Max Value Limit for each Score in USD (no cents). It corresponds to the _riskScores array.
      * A value of 1000 in this arrays will be interpreted as $1000.00 USD.

@@ -148,11 +148,11 @@ interface IAppManager is IAppManagerErrors, IPermissionModifierErrors, IInputErr
     function isTreasury(address _treasuryAddress) external view returns (bool);
 
     /**
-     * @dev manage the whitelist for trading-rule bypasser accounts
+     * @dev manage the allowlist for trading-rule bypasser accounts
      * @param _address account in the list to manage
      * @param isApproved set to true to indicate that _address can bypass trading rules.
      */
-    function approveAddressToTradingRuleWhitelist(address _address, bool isApproved) external;
+    function approveAddressToTradingRuleAllowlist(address _address, bool isApproved) external;
 
     /**
      * @dev tells if an address can bypass trading rules

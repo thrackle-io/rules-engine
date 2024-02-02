@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * and they have a certain amount of availbale mints.
  */
 
-contract ApplicationERC721 is ProtocolERC721 {
+contract ApplicationERC721WhitelistMint is ProtocolERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
 
@@ -45,7 +45,7 @@ contract ApplicationERC721 is ProtocolERC721 {
     }
 
     /**
-     * @dev add an address to the whitelist
+     * @dev Add an address to the whitelist
      * @param _address Address to enjoy the free mints
      * @notice the amount of free mints granted to this address is limited and it will be equal to "mintsAllowed"
      */
@@ -54,8 +54,8 @@ contract ApplicationERC721 is ProtocolERC721 {
     }
 
     /**
-     * @dev update the value of "mintsAllowed"
-     * @notice this variable will affect directly the amount of free mints granted to an address through "addAddressToWhitelist"
+     * @dev Update the value of "mintsAllowed"
+     * @notice This variable will affect directly the amount of free mints granted to an address through "addAddressToWhitelist"
      * @param _mintsAllowed uint8 that represents the amount of free mints granted through "addAddressToWhitelist" from now on
      */
     function updateMintsAmount(uint8 _mintsAllowed) external appAdministratorOrOwnerOnly(appManagerAddress) {

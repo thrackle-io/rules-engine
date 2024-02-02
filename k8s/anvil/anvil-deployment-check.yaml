@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: anvil-deploy-check
+  name: anvil-deploy-check
+  namespace: dev
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: anvil-deploy-check
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: anvil-deploy-check
+    spec:
+      containers:
+        - env:
+            - name: FOUNDRY_PROFILE
+              value: deployment-check
+            - name: RUST_LOG
+              value: backend,api,node,rpc=warn
+            - name: CHAIN_ID
+              value: "31337"
+          image: {{ANVIL_IMAGE_TAG}}
+          imagePullPolicy: Always
+          name: anvil-deploy-check
+          ports:
+            - containerPort: 8545
+              protocol: TCP

@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @notice This is an example implementation of the protocol ERC721 where minting is open to anybody willing to pay for the NFT.
  */
 
-contract ApplicationERC721 is ProtocolERC721 {
+contract ApplicationERC721MintForAFee is ProtocolERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
 
@@ -77,6 +77,9 @@ contract ApplicationERC721 is ProtocolERC721 {
         proposedTreasury = _treasury;
     }
 
+    /**
+     * @dev Function to confirm the Treasury address for Mint Fees to be sent upon withdrawal
+     */
     function confirmTreasuryAddress() external {
         if (_msgSender() != proposedTreasury) revert NotProposedTreasury(proposedTreasury);
         treasury = payable(proposedTreasury);
@@ -107,7 +110,7 @@ contract ApplicationERC721 is ProtocolERC721 {
     }
 
     /**
-     * @dev gets value of treasury
+     * @dev Gets value of treasury
      * @return address of trasury
      */
     function getTreasuryAddress() external view returns (address) {
@@ -115,7 +118,7 @@ contract ApplicationERC721 is ProtocolERC721 {
     }
 
     /**
-     * @dev gets value of proposedTreasury
+     * @dev Gets value of proposedTreasury
      * @return address of proposedTreasury
      */
     function getProposedTreasuryAddress() external view returns (address) {
@@ -125,7 +128,7 @@ contract ApplicationERC721 is ProtocolERC721 {
     /// Receive function for contract to receive chain native tokens in unordinary ways
     receive() external payable {}
 
-    /// function to handle wrong data sent to this contract
+    /// Function to handle wrong data sent to this contract
     fallback() external payable {
         revert FunctionDoesNotExist();
     }

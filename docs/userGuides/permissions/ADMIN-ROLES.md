@@ -5,10 +5,19 @@ The super admin account is set during the [deployment][deployAppManager-url] of 
 
 ---
 
+## Index
+
+1. [Super Admin](#SUPER-ADMIN).
+2. [App Admin](#APP-ADMIN).
+3. [Risk Admin](#RISK-ADMIN).
+4. [Access-Tier Admin](#ACCESS-TIER-ADMIN).
+5. [Rule Admin](#RULE-ADMIN).
+6. [Rule-Bypass Account](#RULE-BYPASS-ACCOUNT).
+
 ## SUPER ADMIN
 
 ### Overview
-Super admin is set at construction of the App Manager(the deploying address of the AppManager). This role is the highest in the hierarchy of roles and can grant/revoke the app admin role. Functions with the modifier onlyRole(SUPER_ADMIN_ROLE) can only be called by this role. **There can only be one super admin in an application**, and the only way to grant another account the super-admin role is by using the function `proposeNewSuperAdmin` in which case current super admin would effectively renounce the super admin role and all of its privilages to grant it to the new address. The new address has to confirm the acceptance of the super-admin role for the process to take effect, otherwise the old super admin will remain in the role.
+Super admin is set at construction of the App Manager(the deploying address of the AppManager). This role is the highest in the hierarchy of roles and can grant/revoke the app admin role. Functions with the modifier onlyRole(SUPER_ADMIN_ROLE) can only be called by this role. **There can only be one super admin in an application**, and the only way to grant another account the super-admin role is by using the function `proposeNewSuperAdmin` in which case current super admin would effectively renounce the super admin role and all of its privileges to grant it to the new address. The new address has to confirm the acceptance of the super-admin role for the process to take effect, otherwise the old super admin will remain in the role.
 
 ### Proposed Super Admin
 There is a transitionary role called "proposed super Admin". There can only be one address member of this role, and it can only be added by the super admin role when invoking `proposeNewSuperAdmin`. Once the proposed account confirms the role by invoking `confirmSuperAdmin`, the new super Admin will renounce to the proposed-super-Admin role. 
@@ -32,7 +41,14 @@ Keccak256: 0x16c600d7bfbb199b1bbbaaec72d225e1b669f7d0c812d7cafcf00672fb42b30d
 ````
 
 ### Recommendations
-It is strongly recommended that the Super Administrator is a multi-signature account.
+
+- To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
+
+    ```
+    export SUPER_ADMIN_KEY=<super admin privkey>
+    ```
+
+- For the production phase, it is strongly recommended that the Super Administrator is a multi-signature wallet where the approved signers don't have admin privileges and their private keys are stored in hardware wallets.
 
 ---
 
@@ -55,12 +71,25 @@ cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" 0xf39Fd6e51aad
 * Application Administrators may add/edit/remove player account metadata such as tags (not including risk/access levels).
 * Application Administrators may renounce their role.
 * Application Administrators may register/deregister asset contracts.
-* Application Administrators may set upgraded hnadler addresses.
+* Application Administrators may set upgraded handler addresses.
    
 ### Role Hash
 ````
 Keccak256: 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60
 ````
+
+### Recommendations
+- It is recommended to have as little app admins as possible in the application since these have great indirect privileges. One app admin is the optimal amount.
+
+- It is recommended to have a dedicated account for this role that doesn't have any other admin roles in the application.
+
+- To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
+
+    ```
+    export APP_ADMIN_1_KEY=<app admin privkey>
+    ```
+
+---
 
 ---
 
@@ -84,6 +113,14 @@ cast send $APPLICATION_APP_MANAGER "addRiskAdmin(address)" 0xf39Fd6e51aad88F6F4c
 ````
 Keccak256: 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f
 ````
+
+### Recommendations
+- It is recommended to have a dedicated account for this role that doesn't have any other admin roles in the application.
+- To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
+
+    ```
+    export RISK_ADMIN_KEY=<risk admin privkey>
+    ```
 
 
 ---
@@ -109,6 +146,14 @@ cast send $APPLICATION_APP_MANAGER "addAccessLevel(address)" 0xf39Fd6e51aad88F6F
 Keccak256: 0x31f80d5aea029b856920c9e867db87c5fae0f51b2923773b55e653791d4c12c0
 ````
 
+### Recommendations
+- It is recommended to have a dedicated account for this role that doesn't have any other admin roles in the application.
+- To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
+
+    ```
+    export ACCESS_LEVEL_ADMIN_KEY=<access level admin privkey>
+    ```
+
 ---
 
 ## RULE ADMIN
@@ -133,6 +178,15 @@ cast send $APPLICATION_APP_MANAGER "addRuleAdministrator(address)" 0xf39Fd6e51aa
 Keccak256: 0x5ff038c4899bb7fbbc7cf40ef4accece5ebd324c2da5ab7db2c3b81e845e2a7a
 ````
 
+### Recommendations
+- It is recommended to have a dedicated account for this role that doesn't have any other admin roles in the application.
+- To ensure this guide can be followed during the development phase, it is recommended to export the private key for this admin as an environment variable (you might want to follow other practices in production for security reasons):
+
+    ```
+    export RULE_ADMIN_KEY=<rule admin privkey>
+    ```
+
+
 ---
 
 ## RULE BYPASS ACCOUNT
@@ -153,6 +207,15 @@ cast send $APPLICATION_APP_MANAGER "addRuleBypassAccount(address)" 0xf39Fd6e51aa
 ````
 Keccak256: 0x5cb9147a971eae9c63c04beb424326d7db091a71473987979b49bb1e189f3457
 ````
+
+### Recommendations
+- It is recommended to have a dedicated account for this role that doesn't have any other roles in the application.
+- To ensure this guide can be followed during the development phase, it is recommended to export the private key for this account as an environment variable (you might want to follow other practices in production for security reasons):
+
+    ```
+    export RULE_BYPASS_ACC_KEY=<rule bypass account privkey>
+    ```
+
 
 <!-- These are the body links -->
 [createAdminRole-url]: ../permissions/ADMIN-CONFIG.md

@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "forge-std/Script.sol";
 import "src/example/application/ApplicationHandler.sol";
 import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
-import {ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import {ApplicationERC721AdminOrOwnerMint} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 
 /**
@@ -39,7 +39,7 @@ contract ApplicationDeployNFTScript is Script {
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
 
         /// Create NFT
-        ApplicationERC721 nft1 = new ApplicationERC721("Clyde", "CLYDEPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
+        ApplicationERC721AdminOrOwnerMint nft1 = new ApplicationERC721AdminOrOwnerMint("Clyde", "CLYDEPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
         applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1), false);
         nft1.connectHandlerToToken(address(applicationNFTHandler));
 
