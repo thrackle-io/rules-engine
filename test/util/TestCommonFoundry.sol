@@ -84,6 +84,66 @@ abstract contract TestCommonFoundry is TestCommon {
         return ruleProcessorInternal;
     }
 
+
+    /**
+     * @dev Deploy and set up the Rules Processor Diamond
+     * @return diamond fully configured rules processor diamond
+     */
+    function _createERC20HandlerDiamond() public returns (HandlerDiamond diamond) {
+        // Start by deploying the DiamonInit contract.
+        DiamondInit diamondInit = new DiamondInit();
+
+        // Register all facets.
+        string[5] memory facets = [
+            // diamond version
+            "VersionFacet",
+            // Native facets,
+            "ProtocolNativeFacet",
+            // Raw implementation facets.
+            "ProtocolRawFacet",
+            // Protocol facets.
+            //rule processor facets
+            "HandlerMainFacet",
+            "TaggedRuleFacet"
+        ];
+
+        string[] memory inputs = new string[](3);
+        inputs[0] = "python3";
+        inputs[1] = "script/python/get_selectors.py";
+
+        // Loop on each facet, deploy them and create the FacetCut.
+        for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
+            string memory facet = facets[facetIndex];
+
+            // Deploy the facet.
+            bytes memory bytecode = vm.getCode(string.concat(facet, ".sol"));
+            address facetAddress;
+            assembly {
+                facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
+            }
+
+            // Get the facet selectors.
+            inputs[2] = facet;
+            bytes memory res = vm.ffi(inputs);
+            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
+
+            // Create the FacetCut struct for this facet.
+            _erc20HandlerFacetCuts.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
+        }
+
+        // Build the DiamondArgs.
+        HandlerDiamondArgs memory diamondArgs = HandlerDiamondArgs({
+            init: address(diamondInit),
+            // NOTE: "interfaceId" can be used since "init" is the only function in IDiamondInit.
+            initCalldata: abi.encode(type(IDiamondInit).interfaceId)
+        });
+        /// Build the diamond
+        HandlerDiamond handlerInternal = new HandlerDiamond(_erc20HandlerFacetCuts, diamondArgs);
+
+        // Deploy the diamond.
+        return handlerInternal;
+    }
+
     /**
      * @dev Deploy and set up the main protocol contracts. This includes:
      * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond
@@ -449,6 +509,58 @@ abstract contract TestCommonFoundry is TestCommon {
         /// reset the user to the original
         switchToOriginalUser();
     }
+
+    /**
+     * @dev Deploy and set up ERC20 token with DIAMOND handler 
+     */
+    function setUpProcotolAndCreateERC20AndDiamondHandler() public {
+        switchToSuperAdminWithSave();
+        // create the rule processor diamond
+        ruleProcessor = _createRulesProcessorDiamond();
+        // create the app manager
+        applicationAppManager = _createAppManager();
+        switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
+        // create the app handler and connect it to the appManager
+        applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
+        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
+
+        /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
+        /// requires a token be attached and registered for permissions in appManager
+        // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
+        switchToAppAdministrator();
+        // create the ERC20 and connect it to its handler
+        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
+        HandlerDiamond handlerDiamond = _createERC20HandlerDiamond();
+        HandlerMainFacet(address(handlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
+        /// register the token
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        /// set up the pricer for erc20
+        erc20Pricer = _createERC20Pricing();
+
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
+
+        /// create an ERC721
+        applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
+        applicationNFTHandler = _createERC721Handler(ruleProcessor, applicationAppManager, applicationNFT);
+        /// register the token
+        applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
+        /// set up the pricer for erc20
+        erc721Pricer = _createERC721Pricing();
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
+        switchToRuleAdmin(); 
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
+
+        switchToAppAdministrator();
+
+        oracleApproved = _createOracleApproved();
+        oracleDenied = _createOracleDenied();
+        /// reset the user to the original
+        switchToOriginalUser();
+
+    }
+
+    
 
     ///---------------USER SWITCHING--------------------
     function switchToAppAdministrator() public {

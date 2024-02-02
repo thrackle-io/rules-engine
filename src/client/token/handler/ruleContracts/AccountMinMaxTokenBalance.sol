@@ -32,7 +32,7 @@ contract AccountMinMaxTokenBalanceGetterSetter is RuleAdministratorOnly, ITokenH
      * @param _actions the action types
      * @param _ruleId Rule Id to set
      */
-    function setAccountMinMaxTokenBalanceId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManagerAddress) {
+    function setAccountMinMaxTokenBalanceId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMinMaxTokenBalance(_ruleId);
         for (uint i; i < _actions.length; ) {
             AccountMinMaxTokenBalanceHandlerS storage data = lib.accountMinMaxTokenBalanceStorage();
@@ -50,7 +50,7 @@ contract AccountMinMaxTokenBalanceGetterSetter is RuleAdministratorOnly, ITokenH
      * @param _actions the action types
      * @param _on boolean representing if a rule must be checked or not.
      */
-    function activateAccountMinMaxTokenBalance(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManagerAddress) {
+    function activateAccountMinMaxTokenBalance(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         for (uint i; i < _actions.length; ) {
             lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance[_actions[i]].active = _on;
             if (_on) {

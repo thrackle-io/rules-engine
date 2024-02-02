@@ -38,6 +38,8 @@ import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod
 import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
+import {HandlerDiamond, HandlerDiamondArgs} from "src/client/token/handler/diamond/HandlerDiamond.sol";
+import {HandlerMainFacet} from "src/client/token/handler/diamond/HandlerMainFacet.sol";
 import "src/example/application/ApplicationAppManager.sol";
 
 import "src/example/ERC20/ApplicationERC20.sol";
@@ -78,6 +80,7 @@ import {ActionTypes} from "src/common/ActionEnum.sol";
  */
 abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     FacetCut[] _ruleProcessorFacetCuts;
+    FacetCut[] _erc20HandlerFacetCuts;
 
     uint256 constant ATTO = 10 ** 18;
 
@@ -122,6 +125,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationERC20Handler public applicationCoinHandler;
     ApplicationERC20Handler public applicationCoinHandler2;
     ApplicationERC20Handler public applicationCoinHandlerSpecialOwner;
+    HandlerDiamond public applicationCoinHandlerDiamond;
     ApplicationERC20Pricing public erc20Pricer;
 
     ApplicationERC721 public applicationNFT;
