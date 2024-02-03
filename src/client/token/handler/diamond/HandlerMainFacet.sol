@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "../common/FacetUtils.sol";
 import "../common/HandlerUtils.sol";
 import "../ruleContracts/HandlerBase.sol";
 
-contract HandlerMainFacet is HandlerBase, FacetUtils, HandlerUtils{
+contract HandlerMainFacet is HandlerBase, HandlerUtils{
 
 
     /**
