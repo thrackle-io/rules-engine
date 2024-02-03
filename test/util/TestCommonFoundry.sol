@@ -94,7 +94,7 @@ abstract contract TestCommonFoundry is TestCommon {
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[5] memory facets = [
+        string[6] memory facets = [
             // diamond version
             "VersionFacet",
             // Native facets,
@@ -104,7 +104,8 @@ abstract contract TestCommonFoundry is TestCommon {
             // Protocol facets.
             //rule processor facets
             "HandlerMainFacet",
-            "TaggedRuleFacet"
+            "TaggedRuleFacet",
+            "FeesFacet"
         ];
 
         string[] memory inputs = new string[](3);
@@ -530,8 +531,9 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToAppAdministrator();
         // create the ERC20 and connect it to its handler
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        HandlerDiamond handlerDiamond = _createERC20HandlerDiamond();
+        handlerDiamond = _createERC20HandlerDiamond();
         HandlerMainFacet(address(handlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
+        applicationCoin.connectHandlerToToken(address(handlerDiamond));
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
         /// set up the pricer for erc20

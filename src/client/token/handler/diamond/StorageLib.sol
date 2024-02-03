@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 // import "./IRuleStorage.sol";
 import {AccountMinMaxTokenBalanceHandlerS, ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION} from "../ruleContracts/AccountMinMaxTokenBalance.sol";
 import {HandlerBaseS, HANDLER_BASE_POSITION} from "../ruleContracts/HandlerBase.sol";
+import {FeeS, FEES_POSITION} from "../ruleContracts/Fees.sol";
 
 
 /**
@@ -13,32 +14,24 @@ import {HandlerBaseS, HANDLER_BASE_POSITION} from "../ruleContracts/HandlerBase.
  */
 library StorageLib {
     bytes32 constant DIAMOND_CUT_STORAGE_HANDLER_POS = bytes32(uint256(keccak256("diamond-cut.storage-handler")) - 1);
-    /// every rule has its own storage
-    bytes32 constant ACCOUNT_MAX_BUY_SIZE_HANDLER_POS = bytes32(uint256(keccak256("account-max-buy-size-handler")) - 1);
-    bytes32 constant ACCOUNT_MAX_SELL_SIZE_HANDLER_POS = bytes32(uint256(keccak256("account-max-sell-size-handler")) - 1);
-    bytes32 constant ACCOUNT_MAX_BUY_VOLUME_HANDLER_POS = bytes32(uint256(keccak256("account-max-buy-volume-handler")) - 1);
-    bytes32 constant ACCOUNT_MAX_SELL_VOLUME_HANDLER_POS = bytes32(uint256(keccak256("account-max-sell-volume-handler")) - 1);
-    bytes32 constant BUY_FEE_BY_TOKEN_MAX_TRADING_VOLUME_HANDLER_POS = bytes32(uint256(keccak256("amm.fee-by-volume-handler")) - 1);
-    bytes32 constant TOKEN_MAX_PRICE_VOLATILITY_HANDLER_POS = bytes32(uint256(keccak256("token-max-price-volatility-handler")) - 1);
-    bytes32 constant TOKEN_MAX_TRADING_VOLUME_HANDLER_POS = bytes32(uint256(keccak256("token-max-trading-volume-handler")) - 1);
-    bytes32 constant ADMIN_MIN_TOKEN_BALANCE_HANDLER_POS = bytes32(uint256(keccak256("admin-min-token-balance-handler")) - 1);
-    bytes32 constant TOKEN_MIN_TX_SIZE_HANDLER_POS = bytes32(uint256(keccak256("token-min-tx-size-handler")) - 1);
-    bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE_HANDLER_POS = bytes32(uint256(keccak256("account-min-max-token-balance-handler")) - 1);
-    bytes32 constant TOKEN_MAX_SUPPLY_VOLATILITY_HANDLER_POS = bytes32(uint256(keccak256("token-max-supply-volatility-handler")) - 1);
-    bytes32 constant ACC_APPROVE_DENY_ORACLE_HANDLER_POS = bytes32(uint256(keccak256("account-approve-deny-oracle-handler")) - 1);
-    bytes32 constant ACC_MAX_VALUE_BY_ACCESS_LEVEL_HANDLER_POS = bytes32(uint256(keccak256("account-max-value-by-access-level-handler")) - 1);
-    bytes32 constant ACC_MAX_TX_VALUE_BY_RISK_SCORE_HANDLER_POS = bytes32(uint256(keccak256("account-max-transaction-value-by-access-level-handler")) - 1);
-    bytes32 constant ACCOUNT_MAX_VALUE_BY_RISK_SCORE_HANDLER_POS = bytes32(uint256(keccak256("account-max-value-by-risk-score-handler")) - 1);
-    bytes32 constant TOKEN_MAX_DAILY_TRADES_HANDLER_POS = bytes32(uint256(keccak256("token-max-daily-trades-handler")) - 1);
-    bytes32 constant AMM_FEE_RULE_HANDLER_POS = bytes32(uint256(keccak256("AMM.fee-rule-handler")) - 1);
-    bytes32 constant ACC_MAX_VALUE_OUT_ACCESS_LEVEL_HANDLER_POS = bytes32(uint256(keccak256("account-max-value-out-by-access-level-handler")) - 1);
-
+    
     /**
      * @dev Function to store Handler Base
      * @return ds Data Storage of Handler Base
      */
     function handlerBaseStorage() internal pure returns (HandlerBaseS storage ds) {
         bytes32 position = HANDLER_BASE_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
+
+    /**
+     * @dev Function to store the fees
+     * @return ds Data Storage of Fees
+     */
+    function feeStorage() internal pure returns (FeeS storage ds) {
+        bytes32 position = FEES_POSITION;
         assembly {
             ds.slot := position
         }
