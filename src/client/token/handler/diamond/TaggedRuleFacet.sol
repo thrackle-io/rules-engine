@@ -20,7 +20,7 @@ contract TaggedRuleFacet is AccountMinMaxTokenBalanceGetterSetter{
      * @param _amount number of tokens transferred
      * @param action if selling or buying (of ActionTypes type)
      */
-    function checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal view {
+    function checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) external view {
         _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
     }
 

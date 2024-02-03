@@ -20,9 +20,9 @@ struct HandlerDiamondArgs {
 /**
  * @title Rule Processors Diamond Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev Main contract of the diamond pattern. Responsible for checking
- * on rules compliance.
- * @notice Contract checks the rules for success
+ * @dev The proxy contract of the diamond pattern. Responsible for handling 
+ * the token rule configuration and communication with the application and protocol.
+ * @notice The diamond inherits ERC173 for ownership management.
  */
 contract HandlerDiamond is ERC173{
 
