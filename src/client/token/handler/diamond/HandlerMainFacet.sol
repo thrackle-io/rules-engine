@@ -6,7 +6,6 @@ import "../ruleContracts/HandlerBase.sol";
 
 contract HandlerMainFacet is HandlerBase, HandlerUtils{
 
-
     /**
      * @dev Constructor sets params
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
@@ -70,6 +69,7 @@ contract HandlerMainFacet is HandlerBase, HandlerUtils{
                         action
                     )
                 );
+                
             //     _checkNonTaggedRules(_from, _to, _amount, action);
             // } else if (adminMinTokenBalance[action].active && isFromBypassAccount) {
             //     ruleProcessor.checkAdminMinTokenBalance(adminMinTokenBalance[action].ruleId, balanceFrom, _amount);
