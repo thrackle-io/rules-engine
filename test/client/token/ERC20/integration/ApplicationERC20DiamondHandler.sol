@@ -46,6 +46,40 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         actionTypes[1] = ActionTypes.SELL;
         TaggedRuleFacet(address(handlerDiamond)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
         switchToAppAdministrator();
+
+        ///Add Tag to account
+        applicationAppManager.addTag(user1, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
+        applicationAppManager.addTag(user2, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "Oscar"));
+        applicationAppManager.addTag(user3, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user3, "Oscar"));
+
+        ///perform transfer that checks rule
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.transfer(user2, 10);
+        assertEq(applicationCoin.balanceOf(user2), 10);
+        assertEq(applicationCoin.balanceOf(user1), 990);
+
+        // make sure the minimum rules fail results in revert
+        //vm.expectRevert("Balance Will Drop Below Minimum");
+        vm.expectRevert(0x3e237976);
+        applicationCoin.transfer(user3, 989);
+        // see if approving for another user bypasses rule
+        applicationCoin.approve(address(888), 989);
+        vm.stopPrank();
+        vm.startPrank(address(888));
+        //vm.expectRevert("Balance Will Drop Below Minimum");
+        vm.expectRevert(0x3e237976);
+        applicationCoin.transferFrom(user1, user3, 989);
+
+        /// make sure the maximum rule fail results in revert
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        // vm.expectRevert("Balance Will Exceed Maximum");
+        vm.expectRevert(0x1da56a44);
+        applicationCoin.transfer(user2, 10091);
     }
 
 }

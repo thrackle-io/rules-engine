@@ -9,6 +9,7 @@ contract FacetUtils{
         HandlerDiamondStorage storage ds = HandlerDiamondLib.s();
         address facet = ds.facetAddressAndSelectorPosition[_functionSelector].facetAddress;
         (success, res) = address(facet).delegatecall(_callData);
+        if (!success) assembly {revert(add(res,0x20),mload(res))}
     }
 
 }
