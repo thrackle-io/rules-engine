@@ -62,6 +62,7 @@ import "src/client/application/data/RiskScores.sol";
 import "src/client/application/data/Accounts.sol";
 import "src/client/application/data/IDataModule.sol";
 import "src/client/token/IAdminMinTokenBalanceCapable.sol";
+import "src/client/token/handler/diamond/TaggedRuleFacet.sol";
 /// common imports 
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
@@ -125,7 +126,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationERC20Handler public applicationCoinHandler;
     ApplicationERC20Handler public applicationCoinHandler2;
     ApplicationERC20Handler public applicationCoinHandlerSpecialOwner;
-    HandlerDiamond public applicationCoinHandlerDiamond;
+    HandlerDiamond public handlerDiamond;
     ApplicationERC20Pricing public erc20Pricer;
 
     ApplicationERC721 public applicationNFT;

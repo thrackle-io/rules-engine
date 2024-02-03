@@ -56,6 +56,11 @@ interface IAppLevelEvents {
     event RiskScoreAdded(address indexed _address, uint8 _score);
     event RiskScoreRemoved(address indexed _address);
 }
+
+interface IAppManagerAddressSet{
+    event AppManagerAddressSet(address indexed _address);
+}
+
 /**
  * @dev The library for all events for the Oracle contracts for the protocol.
  * @notice Oracle Events Library
@@ -124,7 +129,7 @@ interface IEconomicEvents {
  * @dev This library is for all Token Handler Events.
  * @notice Token Handler Events Library
  */
-interface ITokenHandlerEvents {
+interface ITokenHandlerEvents is IAppManagerAddressSet{
     ///Handler
     event HandlerDeployed(address indexed appManager);
     /// Rule applied
@@ -136,7 +141,6 @@ interface ITokenHandlerEvents {
     event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action);
     /// NFT Valuation Limit Updated
     event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
-    event AppManagerAddressSet(address indexed _address);
     event AppManagerAddressProposed(address indexed _address);
     /// Fees
     event FeeActivationSet(bool indexed _activation);
@@ -149,7 +153,7 @@ interface ITokenHandlerEvents {
  * @notice Application Events Library
  */
 
-interface IApplicationEvents {
+interface IApplicationEvents is IAppManagerAddressSet{
     /// Application Handler
     event HandlerConnected(address indexed handlerAddress, address indexed assetAddress); // ...in favor of this one since regular deploy and upgrade now looks the same?
     ///ProtocolERC20
@@ -168,6 +172,4 @@ interface IApplicationEvents {
     event CollectionPrice(address indexed collection, uint256 indexed price);
     ///Fees
     event FeeType(bytes32 indexed tag, bool indexed add, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount);
-    ///AppManager set
-    event AppManagerAddressSet(address indexed _address);
 }

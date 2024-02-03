@@ -6,7 +6,9 @@ import {ActionTypes} from "src/common/ActionEnum.sol";
 import {StorageLib as lib} from "../diamond/StorageLib.sol";
 import {ITokenHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
 import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
-import "../common/AppAdministratorOrOwnerOnlyForDiamond.sol";
+import "../common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
+import "../ruleContracts/Fees.sol";
+import "src/protocol/economic/RuleAdministratorOnly.sol";
 
 /**
  * @title Protocol Handler Common
@@ -22,7 +24,7 @@ import "../common/AppAdministratorOrOwnerOnlyForDiamond.sol";
 
 bytes32 constant HANDLER_BASE_POSITION = bytes32(uint256(keccak256("handler-base-position")) - 1);
 
- contract HandlerBase is AppAdministratorOrOwnerOnlyForDiamond, ITokenHandlerEvents, IOwnershipErrors, IZeroAddressError{
+ contract HandlerBase is AppAdministratorOrOwnerOnlyDiamondVersion, ITokenHandlerEvents, IOwnershipErrors, IZeroAddressError{
     /// This is used to set the max action for an efficient check of all actions in the enum
     uint8 constant LAST_POSSIBLE_ACTION = uint8(ActionTypes.P2P_TRANSFER);
     uint16 constant MAX_ORACLE_RULES = 10;
