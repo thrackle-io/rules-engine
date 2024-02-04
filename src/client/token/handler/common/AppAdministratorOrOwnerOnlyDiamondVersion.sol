@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 /**
  * @title App Admin or Owner Permission module
  * @dev Allows for proper permissioning parent/child contract relationships so that owner and app admins may have permission.
- * @notice This contract relies on the fact that a ERC173 is being deployed in the diamond.
+ * @notice This contract relies on an ERC173 facet already deployed in the diamond.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract AppAdministratorOrOwnerOnlyDiamondVersion is IPermissionModifierErrors, Context, FacetUtils {
