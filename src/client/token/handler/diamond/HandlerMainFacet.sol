@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "../common/HandlerUtils.sol";
 import "../ruleContracts/HandlerBase.sol";
 import "./TaggedRuleFacet.sol";
+import "./NonTaggedRuleFacet.sol";
 
 contract HandlerMainFacet is HandlerBase, HandlerUtils{
 
@@ -73,7 +74,8 @@ contract HandlerMainFacet is HandlerBase, HandlerUtils{
                 // );
                 // // another way (gas cost: 61447): (~1.4% cheaper)
                 TaggedRuleFacet(address(this)).checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
-            //     _checkNonTaggedRules(_from, _to, _amount, action);
+                //     _checkNonTaggedRules(_from, _to, _amount, action);
+                NonTaggedRuleFacet(address(this)).checkNonTaggedRules(_from, _to, _amount, action);
             // } else if (adminMinTokenBalance[action].active && isFromBypassAccount) {
             //     ruleProcessor.checkAdminMinTokenBalance(adminMinTokenBalance[action].ruleId, balanceFrom, _amount);
             //     emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress); 

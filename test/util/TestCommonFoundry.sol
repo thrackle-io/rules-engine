@@ -94,7 +94,7 @@ abstract contract TestCommonFoundry is TestCommon {
         DiamondInit diamondInit = new DiamondInit();
 
         // Register all facets.
-        string[6] memory facets = [
+        string[7] memory facets = [
             // diamond version
             "VersionFacet",
             // Native facets,
@@ -105,6 +105,7 @@ abstract contract TestCommonFoundry is TestCommon {
             //rule processor facets
             "HandlerMainFacet",
             "TaggedRuleFacet",
+            "NonTaggedRuleFacet",
             "FeesFacet"
         ];
 

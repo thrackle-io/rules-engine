@@ -52,7 +52,7 @@ contract TaggedRuleFacet is HandlerAccountMinMaxTokenBalance{
             fromTags = IAppManager(handlerBaseStorage.appManager).getAllTags(_from);
         }
         if (accountMinMaxTokenBalance[action].active) 
-            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAccountMinMaxTokenBalance(accountMinMaxTokenBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
+            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinMaxTokenBalance(accountMinMaxTokenBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
         // if((mustCheckBuyRules && (accountMaxBuySizeActive || tokenMaxBuyVolumeActive)) || 
         //     (mustCheckSellRules && (accountMaxSellSizeActive || tokenMaxSellVolumeActive))
         // )

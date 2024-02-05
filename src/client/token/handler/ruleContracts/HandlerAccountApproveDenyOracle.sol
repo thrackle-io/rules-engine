@@ -5,6 +5,8 @@ import "./HandlerRuleContractsCommonImports.sol";
 import {IAssetHandlerErrors} from "src/common/IErrors.sol";
 
 
+uint8 constant MAX_ORACLE_RULES = 10;
+
 /**
  * @title Handler Account Approve Deny Oracle 
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -12,12 +14,6 @@ import {IAssetHandlerErrors} from "src/common/IErrors.sol";
  * facet to easily support the rule.
  */
 
- struct AccountApproveDenyOracleS{
-    mapping(ActionTypes => Rule[]) accountAllowDenyOracle;
- }
-
-bytes32 constant ACCOUNT_APPROVE_DENY_ORACLE_POSITION = bytes32(uint256(keccak256("account-approve-deny-oracle-position")) - 1);
-uint8 constant MAX_ORACLE_RULES = 10;
 
 contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors{
 

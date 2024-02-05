@@ -5,22 +5,7 @@ import {IApplicationEvents, ICommonApplicationHandlerEvents, ITokenHandlerEvents
 import {IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import {StorageLib as lib} from "../diamond/StorageLib.sol";
-
-
-struct Fee {
-    uint256 minBalance;
-    uint256 maxBalance;
-    int24 feePercentage;
-    address feeCollectorAccount;
-}
-
-struct FeeS{    
-    mapping(bytes32 => Fee) feesByTag;
-    uint256 feeTotal;
-    bool feeActive;
-}
-    
-bytes32 constant FEES_POSITION = bytes32(uint256(keccak256("fees-position")) - 1);
+import "../diamond/RuleStorage.sol";
 
 /**
  * @title Fees
@@ -30,8 +15,6 @@ bytes32 constant FEES_POSITION = bytes32(uint256(keccak256("fees-position")) - 1
  */
 contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError, AppAdministratorOnly {
     
-    
-
     /**
      * @dev This function adds a fee to the token. Blank tags are allowed
      * @param _tag meta data tag for fee

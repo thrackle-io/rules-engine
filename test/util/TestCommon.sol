@@ -63,6 +63,7 @@ import "src/client/application/data/Accounts.sol";
 import "src/client/application/data/IDataModule.sol";
 import "src/client/token/IAdminMinTokenBalanceCapable.sol";
 import "src/client/token/handler/diamond/TaggedRuleFacet.sol";
+import "src/client/token/handler/diamond/NonTaggedRuleFacet.sol";
 /// common imports 
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";

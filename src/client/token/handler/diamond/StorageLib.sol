@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 // import "./IRuleStorage.sol";
-import {AccountMinMaxTokenBalanceHandlerS, ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION} from "../ruleContracts/HandlerAccountMinMaxTokenBalance.sol";
-import {HandlerBaseS, HANDLER_BASE_POSITION} from "../ruleContracts/HandlerBase.sol";
-import {FeeS, FEES_POSITION} from "../ruleContracts/Fees.sol";
-import {AccountApproveDenyOracleS, ACCOUNT_APPROVE_DENY_ORACLE_POSITION} from "../ruleContracts/HandlerAccountApproveDenyOracle.sol";
-import {AccountMaxBuySizeS, ACCOUNT_MAX_BUY_SIZE_POSITION} from "../ruleContracts/HandlerAccountMaxBuySize.sol";
+import "./RuleStorage.sol";
 
 /**
  * @title Rules Storage Library
@@ -15,7 +11,14 @@ import {AccountMaxBuySizeS, ACCOUNT_MAX_BUY_SIZE_POSITION} from "../ruleContract
  */
 library StorageLib {
     bytes32 constant DIAMOND_CUT_STORAGE_HANDLER_POS = bytes32(uint256(keccak256("diamond-cut.storage-handler")) - 1);
-    
+    bytes32 constant ACCOUNT_MAX_BUY_SIZE_HANDLER_POSITION = bytes32(uint256(keccak256("account-max-buy-size-position")) - 1);
+    bytes32 constant ACCOUNT_APPROVE_DENY_ORACLE_HANDLER_POSITION = bytes32(uint256(keccak256("account-approve-deny-oracle-position")) - 1);
+    bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE_HANDLER_POSITION = bytes32(uint256(keccak256("account-min-max-token-balance-position")) - 1);
+    bytes32 constant HANDLER_BASE_POSITION = bytes32(uint256(keccak256("handler-base-position")) - 1);    
+    bytes32 constant FEES_HANDLER_POSITION = bytes32(uint256(keccak256("fees-position")) - 1);
+
+
+
     /**
      * @dev Function to store Handler Base
      * @return ds Data Storage of Handler Base
@@ -32,7 +35,7 @@ library StorageLib {
      * @return ds Data Storage of Fees
      */
     function feeStorage() internal pure returns (FeeS storage ds) {
-        bytes32 position = FEES_POSITION;
+        bytes32 position = FEES_HANDLER_POSITION;
         assembly {
             ds.slot := position
         }
@@ -43,7 +46,7 @@ library StorageLib {
      * @return ds Data Storage of Purchase Rule
      */
     function accountMaxBuySizeStorage() internal pure returns (AccountMaxBuySizeS storage ds) {
-        bytes32 position = ACCOUNT_MAX_BUY_SIZE_POSITION;
+        bytes32 position = ACCOUNT_MAX_BUY_SIZE_HANDLER_POSITION;
         assembly {
             ds.slot := position
         }
@@ -142,7 +145,7 @@ library StorageLib {
      * @return ds Data Storage of Account Min Max Token Balance Rule
      */
     function accountMinMaxTokenBalanceStorage() internal pure returns (AccountMinMaxTokenBalanceHandlerS storage ds) {
-        bytes32 position = ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION;
+        bytes32 position = ACCOUNT_MIN_MAX_TOKEN_BALANCE_HANDLER_POSITION;
         assembly {
             ds.slot := position
         }
@@ -164,7 +167,7 @@ library StorageLib {
      * @return ds Data Storage of Oracle Rule
      */
     function accountApproveDenyOracleStorage() internal pure returns (AccountApproveDenyOracleS storage ds) {
-        bytes32 position = ACCOUNT_APPROVE_DENY_ORACLE_POSITION;
+        bytes32 position = ACCOUNT_APPROVE_DENY_ORACLE_HANDLER_POSITION;
         assembly {
             ds.slot := position
         }
