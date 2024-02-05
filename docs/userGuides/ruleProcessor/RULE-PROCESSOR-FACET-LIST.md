@@ -4,7 +4,7 @@
 ---
 
 | Facet Location |
-|:-|
+|:-|:-|
 ## Processor Facets: 
 | [ApplicationAccessLevelProcessorFacet.sol](../../../src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol) |
 | [ApplicationPauseProcessorFacet.sol](../../../src/protocol/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol) |
