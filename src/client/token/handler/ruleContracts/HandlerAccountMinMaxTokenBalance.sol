@@ -1,19 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {Rule} from "../common/DataStructures.sol";
-import {ActionTypes} from "src/common/ActionEnum.sol";
-import {StorageLib as lib} from "../diamond/StorageLib.sol";
-import {ITokenHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
-import "../../../../protocol/economic/IRuleProcessor.sol";
-import "../../../../protocol/economic/ruleProcessor/RuleCodeData.sol";
-import "src/protocol/economic/RuleAdministratorOnly.sol";
+import "./HandlerRuleContractsCommonImports.sol";
+// import "src/protocol/economic/RuleAdministratorOnly.sol";
 
 
 /**
- * @title Handly Type Enum
+ * @title Handler Account Min Max Token Balance 
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev stores the Handler Types for the protocol 
+ * @dev Setters and getters for the rule in the handler. Meant to be inherited by a handler
+ * facet to easily support the rule.
  */
 
  struct AccountMinMaxTokenBalanceHandlerS{

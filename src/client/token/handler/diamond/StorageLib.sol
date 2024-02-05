@@ -5,7 +5,7 @@ import {AccountMinMaxTokenBalanceHandlerS, ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITIO
 import {HandlerBaseS, HANDLER_BASE_POSITION} from "../ruleContracts/HandlerBase.sol";
 import {FeeS, FEES_POSITION} from "../ruleContracts/Fees.sol";
 import {AccountApproveDenyOracleS, ACCOUNT_APPROVE_DENY_ORACLE_POSITION} from "../ruleContracts/HandlerAccountApproveDenyOracle.sol";
-
+import {AccountMaxBuySizeS, ACCOUNT_MAX_BUY_SIZE_POSITION} from "../ruleContracts/HandlerAccountMaxBuySize.sol";
 
 /**
  * @title Rules Storage Library
@@ -38,16 +38,16 @@ library StorageLib {
         }
     }
 
-    // /**
-    //  * @dev Function to store Purchase rules
-    //  * @return ds Data Storage of Purchase Rule
-    //  */
-    // function accountMaxBuySizeStorage() internal pure returns (IRuleStorage.AccountMaxBuySizeS storage ds) {
-    //     bytes32 position = ACCOUNT_MAX_BUY_SIZE_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
+    /**
+     * @dev Function to store Purchase rules
+     * @return ds Data Storage of Purchase Rule
+     */
+    function accountMaxBuySizeStorage() internal pure returns (AccountMaxBuySizeS storage ds) {
+        bytes32 position = ACCOUNT_MAX_BUY_SIZE_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
 
     // /**
     //  * @dev Function to store Sell rules
