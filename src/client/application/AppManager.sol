@@ -59,7 +59,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     /// Application Handler Contract
     ProtocolApplicationHandler public applicationHandler;
     address applicationHandlerAddress;
-    bool applicationRulesActive;
 
     mapping(string => address) tokenToAddress;
     mapping(address => string) addressToToken;
