@@ -8,5 +8,6 @@ import {ITokenHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/I
 import "../../../../protocol/economic/IRuleProcessor.sol";
 import "src/protocol/economic/RuleAdministratorOnly.sol";
 import "../../../../protocol/economic/ruleProcessor/RuleCodeData.sol";
+import "../diamond/RuleStorage.sol";
 
 abstract contract HandlerRuleContractsCommonImports{}

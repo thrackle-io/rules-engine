@@ -11,12 +11,6 @@ import "./HandlerRuleContractsCommonImports.sol";
  * facet to easily support the rule.
  */
 
- struct AccountMaxBuySizeS{
-    uint32 accountMaxBuySizeId;
-    bool accountMaxBuySizeActive;
- }
-
-bytes32 constant ACCOUNT_MAX_BUY_SIZE_POSITION = bytes32(uint256(keccak256("account-max-buy-size-position")) - 1);
 
 contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents{
 

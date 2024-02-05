@@ -13,13 +13,6 @@ import "../ruleContracts/Fees.sol";
  * @notice This contract contains common variables and functions for all Protocol Asset Handlers
  */
 
- struct HandlerBaseS{
-    address newAppManagerAddress;
-    address ruleProcessor;
-    address appManager;
- }
-
-bytes32 constant HANDLER_BASE_POSITION = bytes32(uint256(keccak256("handler-base-position")) - 1);
 
  contract HandlerBase is AppAdministratorOrOwnerOnlyDiamondVersion, ITokenHandlerEvents, IOwnershipErrors, IZeroAddressError{
     /// This is used to set the max action for an efficient check of all actions in the enum

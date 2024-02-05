@@ -12,12 +12,6 @@ import "./HandlerRuleContractsCommonImports.sol";
  * facet to easily support the rule.
  */
 
- struct AccountMinMaxTokenBalanceHandlerS{
-    mapping(ActionTypes => Rule) accountMinMaxTokenBalance; 
- }
-
-bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION = bytes32(uint256(keccak256("account-min-max-token-balance-position")) - 1);
-
 
 contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandlerEvents{
 
