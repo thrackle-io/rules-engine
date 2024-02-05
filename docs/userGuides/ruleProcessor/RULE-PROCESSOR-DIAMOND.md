@@ -58,10 +58,26 @@ constructor(FacetCut[] memory diamondCut, RuleProcessorDiamondArgs memory args) 
 
 ## Data Structures 
 
+```c
+/**
+ * This is used in diamond constructor
+ * more arguments are added to this struct
+ * this avoids stack too deep errors
+ */
+struct RuleProcessorDiamondArgs {
+    address init;
+    bytes initCalldata;
+}
+```
 
 ## Errors 
+The rule processor will revert with the following error if the function selector is not found in storage: 
 
+```
+error FunctionNotFound(bytes4 _functionSelector);
+```
 
-## Events 
+The selector for this error is `0xd6009a50`.
+
 
 ## Upgrading 

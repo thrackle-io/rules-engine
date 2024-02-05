@@ -1,8 +1,10 @@
-# Protocol Rule Processor Diamond Facets  
+# Protocol Rule Processor Diamond Facets 
 
 ## Purpose
 
-#### *[see diamond diagram]()*
+The Rule Processor Diamond Facets 
+
+#### *[see facet list](./RULE-PROCESSOR-FACET-LIST.md)*
 
 ## Functions 
 
