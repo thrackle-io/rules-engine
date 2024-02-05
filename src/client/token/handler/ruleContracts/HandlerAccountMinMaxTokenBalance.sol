@@ -23,7 +23,7 @@ import "src/protocol/economic/RuleAdministratorOnly.sol";
 bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION = bytes32(uint256(keccak256("account-min-max-token-balance-position")) - 1);
 
 
-contract AccountMinMaxTokenBalanceGetterSetter is RuleAdministratorOnly, ITokenHandlerEvents{
+contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandlerEvents{
 
     /// Rule Setters and Getters
     /**

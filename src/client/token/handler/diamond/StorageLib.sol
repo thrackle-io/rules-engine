@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 // import "./IRuleStorage.sol";
-import {AccountMinMaxTokenBalanceHandlerS, ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION} from "../ruleContracts/AccountMinMaxTokenBalance.sol";
+import {AccountMinMaxTokenBalanceHandlerS, ACCOUNT_MIN_MAX_TOKEN_BALANCE_POSITION} from "../ruleContracts/HandlerAccountMinMaxTokenBalance.sol";
 import {HandlerBaseS, HANDLER_BASE_POSITION} from "../ruleContracts/HandlerBase.sol";
 import {FeeS, FEES_POSITION} from "../ruleContracts/Fees.sol";
+import {AccountApproveDenyOracleS, ACCOUNT_APPROVE_DENY_ORACLE_POSITION} from "../ruleContracts/HandlerAccountApproveDenyOracle.sol";
 
 
 /**
@@ -158,16 +159,16 @@ library StorageLib {
     //     }
     // }
 
-    // /**
-    //  * @dev Function to store Oracle rules
-    //  * @return ds Data Storage of Oracle Rule
-    //  */
-    // function accountApproveDenyOracleStorage() internal pure returns (IRuleStorage.AccountApproveDenyOracleS storage ds) {
-    //     bytes32 position = ACC_APPROVE_DENY_ORACLE_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
+    /**
+     * @dev Function to store Oracle rules
+     * @return ds Data Storage of Oracle Rule
+     */
+    function accountApproveDenyOracleStorage() internal pure returns (AccountApproveDenyOracleS storage ds) {
+        bytes32 position = ACCOUNT_APPROVE_DENY_ORACLE_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
 
     // /**
     //  * @dev Function to store Account Max Value Access Level rules
