@@ -81,3 +81,4 @@ The selector for this error is `0xd6009a50`.
 
 
 ## Upgrading 
+Facets may be added or removed over time. [Rule Processor Facets](./RULE-PROCESSOR-FACETS.md) contains the process for upgrading facets. 
