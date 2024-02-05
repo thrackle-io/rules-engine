@@ -1,19 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {Rule} from "../common/DataStructures.sol";
-import {ActionTypes} from "src/common/ActionEnum.sol";
-import {StorageLib as lib} from "../diamond/StorageLib.sol";
-import {ITokenHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
-import "../../../../protocol/economic/IRuleProcessor.sol";
-import "../../../../protocol/economic/ruleProcessor/RuleCodeData.sol";
-import "src/protocol/economic/RuleAdministratorOnly.sol";
+import "./HandlerRuleContractsCommonImports.sol";
+import {IAssetHandlerErrors} from "src/common/IErrors.sol";
 
 
 /**
- * @title Handly Type Enum
+ * @title Handler Account Approve Deny Oracle 
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev stores the Handler Types for the protocol 
+ * @dev Setters and getters for the rule in the handler. Meant to be inherited by a handler
+ * facet to easily support the rule.
  */
 
  struct AccountApproveDenyOracleS{
@@ -21,9 +17,9 @@ import "src/protocol/economic/RuleAdministratorOnly.sol";
  }
 
 bytes32 constant ACCOUNT_APPROVE_DENY_ORACLE_POSITION = bytes32(uint256(keccak256("account-approve-deny-oracle-position")) - 1);
+uint8 constant MAX_ORACLE_RULES = 10;
 
-
-contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandlerEvents{
+contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors{
 
     /// Rule Setters and Getters
     /**
@@ -32,7 +28,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
      * @param _actions the action types
      * @param _ruleId Rule Id to set
      */
-    function setAccountApproveDenyOracleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+    function setAccountApproveDenyOracleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountApproveDenyOracle(_ruleId);
         for (uint i; i < _actions.length; ) {
             mapping(ActionTypes => Rule[]) storage accountAllowDenyOracle = lib.accountApproveDenyOracleStorage().accountAllowDenyOracle;
@@ -58,7 +54,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
      * @param ruleId the id of the rule to activate/deactivate
      */
 
-    function activateAccountApproveDenyOracle(ActionTypes[] calldata _actions, bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+    function activateAccountApproveDenyOracle(ActionTypes[] calldata _actions, bool _on, uint32 ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         for (uint i; i < _actions.length; ) {
             mapping(ActionTypes => Rule[]) storage accountAllowDenyOracle = lib.accountApproveDenyOracleStorage().accountAllowDenyOracle;
             for (uint256 ruleIndex; ruleIndex < accountAllowDenyOracle[_actions[i]].length; ) {
@@ -122,7 +118,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
      * @param _actions the action types
      * @param ruleId the id of the rule to remove
      */
-    function removeAccountApproveDenyOracle(ActionTypes[] calldata _actions, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
+    function removeAccountApproveDenyOracle(ActionTypes[] calldata _actions, uint32 ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         mapping(ActionTypes => Rule[]) storage accountAllowDenyOracle = lib.accountApproveDenyOracleStorage().accountAllowDenyOracle;
         for (uint i; i < _actions.length; ) {
             Rule memory lastId = accountAllowDenyOracle[_actions[i]][accountAllowDenyOracle[_actions[i]].length -1];
