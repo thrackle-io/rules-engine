@@ -3,10 +3,9 @@ pragma solidity ^0.8.17;
 
 // import "./IAppAdministratorOrOwnerOnly.sol";
 import {IAppManager} from "src/client/application/IAppManager.sol";
-import {IPermissionModifierErrors} from "src/common/IErrors.sol";
 import {ERC173Lib} from "diamond-std/implementations/ERC173/ERC173Lib.sol";
 import "../common/FacetUtils.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
+import "./RBACModifiersCommonImports.sol";
 
 /**
  * @title App Admin or Owner Permission module
@@ -14,7 +13,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
  * @notice This contract relies on an ERC173 facet already deployed in the diamond.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract AppAdministratorOrOwnerOnlyDiamondVersion is IPermissionModifierErrors, Context, FacetUtils {
+contract AppAdministratorOrOwnerOnlyDiamondVersion is RBACModifiersCommonImports, FacetUtils {
 
     
     /**

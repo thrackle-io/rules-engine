@@ -3,10 +3,13 @@ pragma solidity ^0.8.17;
 
 import "../common/HandlerUtils.sol";
 import "../ruleContracts/HandlerBase.sol";
+import "../ruleContracts/HandlerAdminMinTokenBalance.sol";
 import "./TaggedRuleFacet.sol";
 import "./NonTaggedRuleFacet.sol";
+import "../../../application/IAppManager.sol";
+import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
 
-contract HandlerMainFacet is HandlerBase, HandlerUtils{
+contract HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents{
 
     /**
      * @dev Constructor sets params
@@ -49,13 +52,14 @@ contract HandlerMainFacet is HandlerBase, HandlerUtils{
      * @return true if all checks pass
      */
     function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _amount)external returns (bool) {
-        // bool isFromBypassAccount = appManager.isRuleBypassAccount(_from);
-        // bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
+        HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
+        bool isFromBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_from);
+        bool isToBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_to);
         ActionTypes action = determineTransferAction(_from, _to, _sender);
         // // // All transfers to treasury account are allowed
         // if (!appManager.isTreasury(_to)) {
         //     /// standard rules do not apply when either to or from is an admin
-        //     if (!isFromBypassAccount && !isToBypassAccount) {
+            if (!isFromBypassAccount && !isToBypassAccount) {
         //         /// appManager requires uint16 _nftValuationLimit and uin256 _tokenId for NFT pricing, 0 is passed for fungible token pricing
         //         appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
             //    _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action); => 36bd6ea7
@@ -76,10 +80,10 @@ contract HandlerMainFacet is HandlerBase, HandlerUtils{
                 TaggedRuleFacet(address(this)).checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
                 //     _checkNonTaggedRules(_from, _to, _amount, action);
                 NonTaggedRuleFacet(address(this)).checkNonTaggedRules(_from, _to, _amount, action);
-            // } else if (adminMinTokenBalance[action].active && isFromBypassAccount) {
-            //     ruleProcessor.checkAdminMinTokenBalance(adminMinTokenBalance[action].ruleId, balanceFrom, _amount);
-            //     emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress); 
-            // }
+            } else if (lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].active && isFromBypassAccount) {
+                IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].ruleId, balanceFrom, _amount);
+                emit RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
+            }
             
        // }
         /// If all rule checks pass, return true

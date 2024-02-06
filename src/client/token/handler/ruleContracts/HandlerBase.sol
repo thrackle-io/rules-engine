@@ -5,7 +5,7 @@ import "./HandlerRuleContractsCommonImports.sol";
 import {IAssetHandlerErrors, IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
 import "../common/AppAdministratorOrOwnerOnlyDiamondVersion.sol";
 import "../ruleContracts/Fees.sol";
-// import "src/protocol/economic/RuleAdministratorOnly.sol";
+
 
 /**
  * @title Protocol Handler Common
@@ -14,9 +14,8 @@ import "../ruleContracts/Fees.sol";
  */
 
 
- contract HandlerBase is AppAdministratorOrOwnerOnlyDiamondVersion, ITokenHandlerEvents, IOwnershipErrors, IZeroAddressError{
-    /// This is used to set the max action for an efficient check of all actions in the enum
-    uint8 constant LAST_POSSIBLE_ACTION = uint8(ActionTypes.P2P_TRANSFER);
+ contract HandlerBase is IZeroAddressError, ITokenHandlerEvents, IOwnershipErrors, AppAdministratorOrOwnerOnlyDiamondVersion{
+    
     uint16 constant MAX_ORACLE_RULES = 10;
     bytes32 constant BLANK_TAG = bytes32("");
     
