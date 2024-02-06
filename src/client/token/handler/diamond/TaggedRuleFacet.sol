@@ -2,7 +2,6 @@
 pragma solidity ^0.8.17;
 
 import {StorageLib as lib} from "../diamond/StorageLib.sol";
-import {HandlerBaseS} from "../ruleContracts/HandlerBase.sol";
 import "../../../../protocol/economic/IRuleProcessor.sol";
 import {Rule} from "../common/DataStructures.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";

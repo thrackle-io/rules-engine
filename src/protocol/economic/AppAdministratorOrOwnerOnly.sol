@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 // import "./IAppAdministratorOrOwnerOnly.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {IAppManager} from "src/client/application/IAppManager.sol";
-import {IPermissionModifierErrors} from "src/common/IErrors.sol";
+import "../../client/token/handler/common/RBACModifiersCommonImports.sol";
 
 /**
  * @title App Admin or Owner Permission module
@@ -12,7 +12,7 @@ import {IPermissionModifierErrors} from "src/common/IErrors.sol";
  * @dev Allows for proper permissioning parent/child contract relationships so that owner and app admins may have permission.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract AppAdministratorOrOwnerOnly is Ownable, IPermissionModifierErrors {
+contract AppAdministratorOrOwnerOnly is Ownable, RBACModifiersCommonImports {
     /**
      * @dev Modifier ensures function caller is a Application Administrators or the parent contract
      */

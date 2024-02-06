@@ -17,7 +17,7 @@ library StorageLib {
     bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE_HANDLER_POSITION = bytes32(uint256(keccak256("account-min-max-token-balance-position")) - 1);
     bytes32 constant HANDLER_BASE_POSITION = bytes32(uint256(keccak256("handler-base-position")) - 1);    
     bytes32 constant FEES_HANDLER_POSITION = bytes32(uint256(keccak256("fees-position")) - 1);
-
+    bytes32 constant ADMIN_MIN_TOKEN_BALANCE_HANDLER_POSITION = bytes32(uint256(keccak256("admin-min-token-balance-position")) - 1);
 
 
     /**
@@ -119,16 +119,16 @@ library StorageLib {
     //     }
     // }
 
-    // /**
-    //  * @dev Function to store Admin Min Token Balance rules
-    //  * @return ds Data Storage of Admin Min Token Balance Rule
-    //  */
-    // function adminMinTokenBalanceStorage() internal pure returns (IRuleStorage.AdminMinTokenBalanceS storage ds) {
-    //     bytes32 position = ADMIN_MIN_TOKEN_BALANCE_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
+    /**
+     * @dev Function to store Admin Min Token Balance rules
+     * @return ds Data Storage of Admin Min Token Balance Rule
+     */
+    function adminMinTokenBalanceStorage() internal pure returns (AdminMinTokenBalanceS storage ds) {
+        bytes32 position = ADMIN_MIN_TOKEN_BALANCE_HANDLER_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
 
     // /**
     //  * @dev Function to store Token Min Transaction Size rules

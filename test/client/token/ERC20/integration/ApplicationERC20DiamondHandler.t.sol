@@ -395,7 +395,34 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
     }
 
+    function testERC20_AdminMinTokenBalanceFuzz(uint256 amount, uint32 secondsForward) public {
+        /// we load the admin with tokens
+        applicationCoin.mint(ruleBypassAccount, type(uint256).max);
+        /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
+        switchToRuleAdmin();
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
 
+        HandlerMainFacet(address(handlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
+        /// check that we cannot change the rule or turn it off while the current rule is still active
+        vm.expectRevert();
+        applicationCoinHandler.activateAdminMinTokenBalance(_createActionsArray(), false);
+        vm.expectRevert();
+        applicationCoinHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        switchToAppAdministrator();
+        vm.warp(block.timestamp + secondsForward);
+        switchToRuleBypassAccount();
+
+        if (secondsForward < 365 days && type(uint256).max - amount < 1_000_000 * (10 ** 18)) vm.expectRevert();
+
+        applicationCoin.transfer(user1, amount);
+        switchToRuleAdmin();
+        /// if last rule is expired, we should be able to turn off and update the rule
+        if (secondsForward >= 365 days) {
+            applicationCoinHandler.activateAdminMinTokenBalance(_createActionsArray(), false);
+            applicationCoinHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        }
+    }
 
     function initializeAMMAndUsers() public returns (DummyAMM amm){
         amm = new DummyAMM();

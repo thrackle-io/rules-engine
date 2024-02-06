@@ -2,15 +2,14 @@
 pragma solidity ^0.8.17;
 
 import {IAppManager} from "src/client/application/IAppManager.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
-import {IPermissionModifierErrors} from "src/common/IErrors.sol";
+import "../../client/token/handler/common/RBACModifiersCommonImports.sol";
 
 /**
  * @title Application Administrators Only Modifier Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev appAdministratorOnly modifier encapsulated for easy imports.
  */
-contract RuleAdministratorOnly is Context, IPermissionModifierErrors {
+contract RuleAdministratorOnly is RBACModifiersCommonImports {
     /**
      * @dev Modifier ensures function caller is a App Admin
      * @param _appManagerAddr Address of App Manager

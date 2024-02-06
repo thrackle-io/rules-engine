@@ -45,3 +45,7 @@ struct FeeS{
     address ruleProcessor;
     address appManager;
  }
+
+ struct AdminMinTokenBalanceS{
+    mapping(ActionTypes => Rule) adminMinTokenBalance; 
+ }
