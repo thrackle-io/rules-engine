@@ -22,9 +22,9 @@ contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents{
      */
     function setAccountMaxBuySizeId(uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMaxBuySize(_ruleId);
-        AccountMaxBuySizeS storage data = lib.accountMaxBuySizeStorage();
-        data.accountMaxBuySizeId = _ruleId;
-        data.accountMaxBuySizeActive = true;
+        AccountMaxBuySizeS storage AccountMaxBuySize = lib.accountMaxBuySizeStorage();
+        AccountMaxBuySize.id = _ruleId;
+        AccountMaxBuySize.active = true;
         emit ApplicationHandlerActionApplied(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY, _ruleId);
     }
 
@@ -33,7 +33,7 @@ contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents{
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateAccountMaxBuySize(bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        lib.accountMaxBuySizeStorage().accountMaxBuySizeActive = _on;
+        lib.accountMaxBuySizeStorage().active = _on;
         if (_on) {
             emit ApplicationHandlerActionActivated(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY);
         } else {
@@ -46,7 +46,7 @@ contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents{
      * @return accountMaxBuySizeId
      */
     function getAccountMaxBuySizeId() external view returns (uint32) {
-        return lib.accountMaxBuySizeStorage().accountMaxBuySizeId;
+        return lib.accountMaxBuySizeStorage().id;
     }
 
     /**
@@ -54,7 +54,7 @@ contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents{
      * @return boolean representing if the rule is active
      */
     function isAccountMaxBuySizeActive() external view returns (bool) {
-        return lib.accountMaxBuySizeStorage().accountMaxBuySizeActive;
+        return lib.accountMaxBuySizeStorage().active;
     }
 
 
