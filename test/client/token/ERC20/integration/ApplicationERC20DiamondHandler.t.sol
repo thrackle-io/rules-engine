@@ -397,7 +397,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
     function testERC20_AdminMinTokenBalanceFuzz(uint256 amount, uint32 secondsForward) public {
         /// we load the admin with tokens
-        applicationCoin.mint(ruleBypassAccount, type(uint256).max);
+        applicationCoin.mint(ruleBypassAccount, type(uint256).max / 2);
         /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
