@@ -18,6 +18,14 @@ risk scores      balances         resultant logic
 - [x] ERC721
 - [ ] AMM
 
+## Applies To Actions:
+
+- [x] MINT
+- [x] BURN
+- [x] BUY
+- [x] SELL
+- [x] TRANSFER(Peer to Peer)
+  
 ## Scope 
 
 This rule works at the application level which means that all tokens in the app will comply with this rule when the rule is active. Each token in the application ecosystem will be valued and contribute to the rule balance calculation.

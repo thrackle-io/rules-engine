@@ -10,6 +10,14 @@ The Account Max Buy Size Rule is an account based measure which restricts an acc
 - [x] ERC721
 - [ ] AMM
 
+## Applies To Actions:
+
+- [ ] MINT
+- [ ] BURN
+- [x] BUY
+- [ ] SELL
+- [ ] TRANSFER(Peer to Peer)
+  
 ## Scope 
 
 This rule works at the token level. It must be activated and configured for each token in the corresponding token handler.

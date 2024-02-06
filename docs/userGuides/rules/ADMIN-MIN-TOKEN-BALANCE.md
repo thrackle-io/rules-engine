@@ -10,6 +10,14 @@ The purpose of the admin-min-token-balance rule is to allow developers to prove 
 - [x] ERC721
 - [ ] AMM
 
+## Applies To Actions:
+
+- [ ] MINT
+- [x] BURN
+- [ ] BUY
+- [x] SELL
+- [x] TRANSFER(Peer to Peer)
+  
 ## Scope 
 
 This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.

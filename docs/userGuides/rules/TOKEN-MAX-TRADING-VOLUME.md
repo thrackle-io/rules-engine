@@ -10,6 +10,14 @@ The purpose of the token-max-trading-volume rule is to reduce high trading volat
 - [x] ERC721
 - [ ] AMM
 
+## Applies To Actions:
+
+- [x] MINT
+- [ ] BURN
+- [x] BUY
+- [x] SELL
+- [x] TRANSFER(Peer to Peer)
+  
 ## Scope 
 
 This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.

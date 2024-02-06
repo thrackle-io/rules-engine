@@ -10,6 +10,14 @@ The purpose of the token-min-tx-size rule is to prevent micro-trades or dust tra
 - [ ] ERC721
 - [ ] AMM
 
+## Applies To Actions:
+
+- [x] MINT
+- [x] BURN
+- [x] BUY
+- [x] SELL
+- [x] TRANSFER(Peer to Peer)
+  
 ## Scope 
 
 This rule works at a token level. It must be activated and configured for each desired token in the corresponding token handler.
