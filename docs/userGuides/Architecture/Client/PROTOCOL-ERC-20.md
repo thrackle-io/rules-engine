@@ -30,7 +30,7 @@ function pause() public virtual appAdministratorOnly(appManagerAddress)
 function unpause() public virtual appAdministratorOnly(appManagerAddress) 
 ```
 
-- _beforeTokenTransfer: overridden to add check the protocol rules first.
+- _beforeTokenTransfer: overridden to allow protocol rule check hook.
 
 ```c
 function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused
@@ -67,7 +67,7 @@ function flashLoan(IERC3156FlashBorrower receiver, address token, uint256 amount
 ```
 
 ### Added Functions
-The following functions have been added specific to the ProtocolERC20 contract:
+The following functions have been added specifically to the ProtocolERC20 contract:
 - connectHandlerToToken: Used to connect a deployed Protocol Token Handler to the token.
 
 ```c

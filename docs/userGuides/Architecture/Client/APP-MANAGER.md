@@ -16,7 +16,7 @@ The App Manager also provides the ability to check application level rules via i
 
 #### Roles
 
-The App Manager can be utilized for both updating and checking an accounts role in relation to the application. These capabilites are provided for the following roles:
+The App Manager can be utilized for both updating and checking an account's role in relation to the application. These capabilites are provided for the following roles:
 
 - Super Admin
 - App Admin

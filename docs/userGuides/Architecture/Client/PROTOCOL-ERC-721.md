@@ -35,7 +35,7 @@ function unpause() public virtual appAdministratorOnly(appManagerAddress)
 function safeMint(address to) public payable virtual whenNotPaused appAdministratorOrOwnerOnly(appManagerAddress)
 ```
 
-- _beforeTokenTransfer: overridden to add check the protocol rules first.
+- _beforeTokenTransfer: overridden to allow protocol rule check hook.
 
 ```c
 function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) whenNotPaused
@@ -60,7 +60,7 @@ function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC7
 ```
 
 ### Added Functions
-The following functions have been added specific to the ProtocolERC721 contract:
+The following functions have been added specifically to the ProtocolERC721 contract:
 - connectHandlerToToken: Used to connect a deployed Protocol Token Handler to the token.
 
 ```c
@@ -79,7 +79,7 @@ function getHandlerAddress() external view override returns (address)
 function setBaseURI(string memory _baseUri) public virtual appAdministratorOnly(appManagerAddress)
 ```
 
-- _baseURI: used to retreive the URI for the contract.
+- _baseURI: used to retrieve the URI for the contract.
 
 ```c
 function _baseURI() internal view override returns (string memory)
