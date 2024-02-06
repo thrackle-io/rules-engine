@@ -8,7 +8,7 @@ The Rule Processor Diamond Facets are where rule adding and rule check functions
 
 
 ## Upgrading
-- The new facet that is to be added to the diamond should first be deployed to the network the Rule Processor Diamond is deployed too. 
+- The new facet that is to be added to the diamond should first be deployed to the network the Rule Processor Diamond is deployed to. 
 
 - The new facet address and function selectors are used as parameters for the DiamondCut function. 
 
