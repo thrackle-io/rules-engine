@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "./RuleProcessorDiamondImports.sol";
-import "./IOracle.sol";
+import "src/common/IOracle.sol";
 
 /**
  * @title ERC20 Handler Facet 

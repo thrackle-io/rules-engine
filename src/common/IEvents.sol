@@ -61,9 +61,9 @@ interface IAppLevelEvents {
  * @notice Oracle Events Library
  */
 interface IOracleEvents{
-    event AllowedAddress(address indexed addr);
-    event NotAllowedAddress(address indexed addr);
-    event AllowListOracleDeployed();
+    event ApprovedAddress(address indexed addr);
+    event NotApprovedAddress(address indexed addr);
+    event ApproveListOracleDeployed();
     event DeniedAddress(address indexed addr);
     event NonDeniedAddress(address indexed addr);
     event DeniedListOracleDeployed();

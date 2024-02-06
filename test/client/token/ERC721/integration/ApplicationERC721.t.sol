@@ -234,7 +234,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
     }
 
-    function testERC721_AccountApproveDenyOracle() public {
+    function testERC721_AccountApproveDenyOracle2() public {
         /// set up a non admin user an nft
         applicationNFT.safeMint(user1);
         applicationNFT.safeMint(user1);
