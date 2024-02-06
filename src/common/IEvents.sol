@@ -106,7 +106,7 @@ interface ICommonApplicationHandlerEvents {
  */
 interface IRuleStorageDiamondEvents {
     ///RuleStorageDiamond
-    event RuleStorageDiamondDeployed(address indexed econRuleDiamond);
+    event RuleProtocolDiamondDeployed();
 }
 
 /**

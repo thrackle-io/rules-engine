@@ -44,7 +44,7 @@ contract TaggedRuleFacet is HandlerAccountMinMaxTokenBalance{
         bool mustCheckSellRules = action == ActionTypes.SELL && !IAppManager(handlerBaseStorage.appManager).isTradingRuleBypasser(_from);
         if (accountMinMaxTokenBalance[action].active 
             || mustCheckBuyRules
-            // || mustCheckSellRules
+            || mustCheckSellRules
         )
         {
             // We get all tags for sender and recipient

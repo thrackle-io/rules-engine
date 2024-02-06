@@ -23,10 +23,17 @@ struct FeeS{
  }
 
  struct AccountMaxBuySizeS{
-    uint32 accountMaxBuySizeId;
-    bool accountMaxBuySizeActive;
+    uint32 id;
+    bool active;
     mapping(address => uint256) boughtInPeriod;
     mapping(address => uint64) lastPurchaseTime;
+ }
+
+ struct AccountMaxSellSizeS{
+    uint32 id;
+    bool active;
+    mapping(address => uint256) salesInPeriod;
+    mapping(address => uint64) lastSellTime;
  }
 
  struct AccountMinMaxTokenBalanceHandlerS{

@@ -310,6 +310,93 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         amm.dummyTrade(address(applicationCoin2), address(applicationCoin), 500, 500, true);
     }
 
+    function _setupAccountMaxSellSize() internal {
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        ///Add tag to user
+        bytes32[] memory accs = new bytes32[](1);
+        uint192[] memory maxSizes = new uint192[](1);
+        uint16[] memory period = new uint16[](1);
+        accs[0] = bytes32("AccountMaxSellSize");
+        maxSizes[0] = uint192(600); ///Amount to trigger Sell freeze rules
+        period[0] = uint16(36); ///Hours
+
+        /// Set the rule data
+        applicationAppManager.addTag(user1, "AccountMaxSellSize");
+        applicationAppManager.addTag(user2, "AccountMaxSellSize");
+        /// add the rule.
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxSellSize(address(applicationAppManager), accs, maxSizes, period, uint64(Blocktime));
+        ///update ruleId in application AMM rule handler
+        TradingRuleFacet(address(handlerDiamond)).setAccountMaxSellSizeId(ruleId);
+    }
+
+    function _setupAccountMaxSellSizeBlankTag() internal {
+        vm.stopPrank();
+        vm.startPrank(superAdmin);
+        ///Add tag to user
+        bytes32[] memory accs = new bytes32[](1);
+        uint192[] memory maxSizes = new uint192[](1);
+        uint16[] memory period = new uint16[](1);
+        accs[0] = bytes32("");
+        maxSizes[0] = uint192(600); ///Amount to trigger Sell freeze rules
+        period[0] = uint16(36); ///Hours
+
+        /// add the rule.
+        switchToRuleAdmin();
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxSellSize(address(applicationAppManager), accs, maxSizes, period, uint64(Blocktime));
+        ///update ruleId in token handler
+        TradingRuleFacet(address(handlerDiamond)).setAccountMaxSellSizeId(ruleId);
+    }
+
+    ///TODO Test sell rule through AMM once Purchase functionality is created
+    function testERC20_AccountMaxSellSize() public {
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(amm), 50000);
+        _setupAccountMaxSellSize();
+        
+        /// Swap that passes rule check
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// Approve transfer(1M)
+        applicationCoin.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
+
+        /// Swap that fails
+        vm.expectRevert(0x91985774);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
+    }
+
+    ///TODO Test sell rule through AMM once Purchase functionality is created
+    function testERC20_AccountMaxSellSizeBlankTag() public {
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(amm), 50000);
+        _setupAccountMaxSellSizeBlankTag();
+        
+        /// Swap that passes rule check
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// Approve transfer(1M)
+        applicationCoin.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
+
+        /// Swap that fails
+        vm.expectRevert(0x91985774);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
+    }
+
+
+
     function initializeAMMAndUsers() public returns (DummyAMM amm){
         amm = new DummyAMM();
         applicationCoin2 = _createERC20("application2", "GMC2", applicationAppManager);

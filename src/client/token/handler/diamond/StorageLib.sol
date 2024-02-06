@@ -12,6 +12,7 @@ import "./RuleStorage.sol";
 library StorageLib {
     bytes32 constant DIAMOND_CUT_STORAGE_HANDLER_POS = bytes32(uint256(keccak256("diamond-cut.storage-handler")) - 1);
     bytes32 constant ACCOUNT_MAX_BUY_SIZE_HANDLER_POSITION = bytes32(uint256(keccak256("account-max-buy-size-position")) - 1);
+    bytes32 constant ACCOUNT_MAX_SELL_SIZE_HANDLER_POSITION = bytes32(uint256(keccak256("account-max-buy-size-position")) - 1);
     bytes32 constant ACCOUNT_APPROVE_DENY_ORACLE_HANDLER_POSITION = bytes32(uint256(keccak256("account-approve-deny-oracle-position")) - 1);
     bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE_HANDLER_POSITION = bytes32(uint256(keccak256("account-min-max-token-balance-position")) - 1);
     bytes32 constant HANDLER_BASE_POSITION = bytes32(uint256(keccak256("handler-base-position")) - 1);    
@@ -52,16 +53,16 @@ library StorageLib {
         }
     }
 
-    // /**
-    //  * @dev Function to store Sell rules
-    //  * @return ds Data Storage of Sell Rule
-    //  */
-    // function accountMaxSellSizeStorage() internal pure returns (IRuleStorage.AccountMaxSellSizeS storage ds) {
-    //     bytes32 position = ACCOUNT_MAX_SELL_SIZE_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
+    /**
+     * @dev Function to store Sell rules
+     * @return ds Data Storage of Sell Rule
+     */
+    function accountMaxSellSizeStorage() internal pure returns (AccountMaxSellSizeS storage ds) {
+        bytes32 position = ACCOUNT_MAX_SELL_SIZE_HANDLER_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
 
     // /**
     //  * @dev Function to store Account Max Buy Volume rules
