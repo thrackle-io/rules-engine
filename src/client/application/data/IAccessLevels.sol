@@ -31,4 +31,10 @@ interface IAccessLevels is IDataModule, IAccessLevelErrors {
      * @param _level Access Level to add
      */
     function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level) external;
+
+        /**
+     * @dev Remove the Access Level for the account. Restricted to the owner
+     * @param _account address of the account
+     */
+    function removeAccessLevel(address _account) external;
 }

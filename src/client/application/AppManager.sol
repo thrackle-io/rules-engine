@@ -460,6 +460,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         return accessLevels.getAccessLevel(_account);
     }
 
+    /**
+     * @dev Remove the Access Level for an account.
+     * @param _account address which the Access Level will be removed from
+     */
+    function removeAccessLevel(address _account) external onlyRole(ACCESS_LEVEL_ADMIN_ROLE) {
+        accessLevels.removeAccessLevel(_account);
+    }
+
     /// -------------MAINTAIN RISK SCORES---------------
 
     /**
