@@ -48,3 +48,11 @@ function diamondCut(FacetCut[] memory _diamondCut, address init, bytes memory da
 
 - The diamondCut function will add the new selectors to storage and are then able to be called through the proxy address.
 
+## Events 
+
+- **event DiamondCut(_diamondCut, init, data)**: 
+    - Emitted when: the Rule Processor Diamond has been upgraded.
+    - Parameters:
+        - _diamondCut: Facets Array
+        - init: Address of the contract or facet to execute "data"
+        - data: A function call, including function selector and arguments calldata is executed with delegatecall on "init"

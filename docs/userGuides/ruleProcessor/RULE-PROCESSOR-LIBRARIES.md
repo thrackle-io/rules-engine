@@ -4,7 +4,7 @@
 
 The Rule Processor Diamond Libraries store functions used by the diamond structure. The Rule Processor Diamond Lib contract holds the function to store rules when added to the protocol, the diamond cut function for upgrading the diamond and adding or removing functions from facets. The Rule Processor Common Lib holds functions used throughout the facets to validate rules and parameters passed to the rule check functions. 
 
-The importance of using these singular library contracts prevents data storage collision as functionality is added or removed from the protocol. Utilizing the remove function in the diamond cut function in Rule Processor Diamond Lib prevents a situation where a facet may have been self destructed but the function selectors are still stored in the diamond. This could result in a "false posistive" successful transaction when attempting to add a rule and the rule is never added to the diamond. 
+The importance of using these singular library contracts prevents data storage collision as functionality is added or removed from the protocol. Facets should always be removed through the diamond cut function in Rule Processor Diamond Lib.This prevents a situation where a facet may have been self destructed but the function selectors are still stored in the diamond. This could result in a "false posistive" successful transaction when attempting to add a rule and the rule is never added to the diamond. Protocol Rule Processor facets are never written with self destruct functionality. 
 
 
 ## Functions 
@@ -39,7 +39,7 @@ function ruleDataStorage() internal pure returns (RuleDataStorage storage ds) {
 }
 ```
 
-The function that is used for setting the facets and function selectors at construction and upgrading the diamond post deployment is: 
+The function that is used for setting the facets and function selectors at construction and upgrading the diamond post deployment: 
 
 ```c
 /**
@@ -86,6 +86,7 @@ function removeFunctions(address _facetAddress, bytes4[] memory _functionSelecto
 The Rule Processor Common Lib holds the following validation functions: 
 
 Timestamp validation: 
+
 ```c
 /**
 * @dev Validate a user entered timestamp to ensure that it is valid. Validity depends on it being greater than UNIX epoch and not more than 1 year into the future. It reverts with custom error if invalid
@@ -96,7 +97,9 @@ function validateTimestamp(uint64 _startTime) internal view {
     }
 }
 ```
+
 Rule existence validation: 
+
 ```c
 /**
 * @dev Generic function to check the existence of a rule
@@ -114,6 +117,7 @@ function checkRuleExistence(uint32 _ruleIndex, uint32 _ruleTotal) internal pure 
 ```
 
 Is the rule active validation: 
+
 ```c
 /**
 * @dev Determine is the rule is active. This is only for use in rules that are stored with activation timestamps.
@@ -128,6 +132,7 @@ function isRuleActive(uint64 _startTime) internal view returns (bool) {
 ```
 
 Is the rule within the rule period validation: 
+
 ```c
 /**
 * @dev Determine if transaction should be accumulated with the previous or it is a new period which requires reset of accumulators
@@ -152,6 +157,7 @@ function isWithinPeriod(uint64 _startTime, uint32 _period, uint64 _lastTransferT
 ```
 
 Max tag limit validation: 
+
 ```c
 /**
 * @dev Determine if the max tag number is reached
@@ -163,6 +169,7 @@ function checkMaxTags(bytes32[] memory _tags) internal pure {
 ```
 
 Is the rule applicable to all users validation: 
+
 ```c
 /**
 * @dev Determine if the rule applies to all users
@@ -175,6 +182,7 @@ function isApplicableToAllUsers(bytes32[] memory _tags) internal pure returns(bo
 ```
 
 Retrieve the max size for the risk score provided: 
+
 ```c
 /**
 * @dev Retrieve the max size of the risk rule for the risk score provided. 
@@ -202,6 +210,7 @@ function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskScores, 
 ```
 
 Tag validation: 
+
 ```c
 /**
 * @dev validate tags to ensure only a blank or valid tags were submitted.
@@ -221,6 +230,7 @@ function areTagsValid(bytes32[] calldata _accountTags) internal pure returns (bo
     return true;
 } 
 ```
+
 These validation functions are utilized throughout the diamond facets in order to validate rules when added or checked via the check all rules function.  
 
 ## Data Structures 
@@ -228,6 +238,7 @@ These validation functions are utilized throughout the diamond facets in order t
 The Rule Processor Diamond Lib stores the rules, the facet addresses and their function selectors. 
 
 The facet addresses and selectors are stored in the struct: 
+
 ```c
 struct FacetAddressAndSelectorPosition {
     address facetAddress;
@@ -236,6 +247,7 @@ struct FacetAddressAndSelectorPosition {
 ```
 
 Those structs are then stored in a mapping: 
+
 ```c
 struct RuleProcessorDiamondStorage {
     /// function selector => facet address and selector position in selectors array
@@ -245,16 +257,16 @@ struct RuleProcessorDiamondStorage {
 ```
 
 Rules are stored in the struct: 
+
 ```c
 struct RuleDataStorage {
     address rules;
 }
-
 ```
 
 ## Events 
 
-- **event DDiamondCut(_diamondCut, init, data)**: 
+- **event DiamondCut(_diamondCut, init, data)**: 
     - Emitted when: the Rule Processor Diamond has been upgraded.
     - Parameters:
         - _diamondCut: Facets Array
