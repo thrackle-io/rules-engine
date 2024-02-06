@@ -64,20 +64,20 @@ contract HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUt
         //         appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
             //    _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action); => 36bd6ea7
                 // gas cost: 61926
-                // callAnotherFacet(
-                //     0x36bd6ea7, 
-                //     abi.encodeWithSignature(
-                //         "checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)",
-                //         balanceFrom, 
-                //         balanceTo, 
-                //         _from, 
-                //         _to, 
-                //         _amount, 
-                //         action
-                //     )
-                // );
+                callAnotherFacet(
+                    0x36bd6ea7, 
+                    abi.encodeWithSignature(
+                        "checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)",
+                        balanceFrom, 
+                        balanceTo, 
+                        _from, 
+                        _to, 
+                        _amount, 
+                        action
+                    )
+                );
                 // // another way (gas cost: 61447): (~1.4% cheaper)
-                TaggedRuleFacet(address(this)).checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
+                // TaggedRuleFacet(address(this)).checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
                 //     _checkNonTaggedRules(_from, _to, _amount, action);
                 NonTaggedRuleFacet(address(this)).checkNonTaggedRules(_from, _to, _amount, action);
             } else if (lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].active && isFromBypassAccount) {

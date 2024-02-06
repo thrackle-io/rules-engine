@@ -5,11 +5,12 @@ import {StorageLib as lib} from "../diamond/StorageLib.sol";
 import "../../../../protocol/economic/IRuleProcessor.sol";
 import {Rule} from "../common/DataStructures.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
+import "../common/FacetUtils.sol";
 import "../../../application/IAppManager.sol";
 import "../ruleContracts/HandlerAccountMinMaxTokenBalance.sol";
 import "./TradingRuleFacet.sol";
 
-contract TaggedRuleFacet is HandlerAccountMinMaxTokenBalance{
+contract TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
 
     /**
      * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
@@ -55,6 +56,18 @@ contract TaggedRuleFacet is HandlerAccountMinMaxTokenBalance{
         // if((mustCheckBuyRules && (accountMaxBuySizeActive || tokenMaxBuyVolumeActive)) || 
         //     (mustCheckSellRules && (accountMaxSellSizeActive || tokenMaxSellVolumeActive))
         // )
-            TradingRuleFacet(address(this)).checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
+        callAnotherFacet(
+            0xd874686f, 
+            abi.encodeWithSignature(
+                "checkTradingRules(address,address,bytes32[],bytes32[],uint256,uint8)",
+                _from, 
+                _to, 
+                fromTags, 
+                toTags, 
+                _amount, 
+                action
+            )
+        );
+            // TradingRuleFacet(address(this)).checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
     }
 }
