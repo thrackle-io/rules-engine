@@ -424,6 +424,78 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         }
     }
 
+
+    function _setupTokenMaxBuyVolumeRule() internal {    
+        uint16 tokenPercentage = 5000; /// 50%
+        uint16 period = 24; /// 24 hour periods
+        uint256 _totalSupply = 100_000_000;
+        uint64 ruleStartTime = Blocktime;
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuyVolume(address(applicationAppManager), tokenPercentage, period, _totalSupply, ruleStartTime);
+        /// add and activate rule
+        TradingRuleFacet(address(handlerDiamond)).setTokenMaxBuyVolumeId(ruleId);
+    }
+
+    function _setupTokenMaxBuyVolumeRuleB() internal {    
+        uint16 tokenPercentage = 1; /// 0.01%
+        uint16 period = 24; /// 24 hour periods
+        uint256 _totalSupply = 100_000;
+        uint64 ruleStartTime = Blocktime;
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuyVolume(address(applicationAppManager), tokenPercentage, period, _totalSupply, ruleStartTime);
+        /// add and activate rule
+        TradingRuleFacet(address(handlerDiamond)).setTokenMaxBuyVolumeId(ruleId);
+    }
+
+
+    function testERC20_TokenMaxBuyVolumeRule() public {
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+        /// set up rule
+        _setupTokenMaxBuyVolumeRule();
+        vm.warp(Blocktime + 36 hours);
+        /// test swap below percentage
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        uint256 initialCoinBalance = applicationCoin.balanceOf(user1);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 40_000_000, 40_000_000, false); /// percentage limit hit now
+        assertEq(applicationCoin.balanceOf(user1), initialCoinBalance + 40_000_000);
+        /// test swaps after we hit limit
+        vm.expectRevert(0x6a46d1f4);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
+        /// switch users and test rule still fails
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        vm.expectRevert(0x6a46d1f4);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
+        /// wait until new period
+        vm.warp(Blocktime + 36 hours + 30 hours);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, false);
+
+        /// check that rule does not apply to coin 0 as this would be a sell
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, true);
+
+        /// Low percentage rule checks
+        switchToRuleAdmin();
+        /// create new rule
+        _setupTokenMaxBuyVolumeRuleB();
+        vm.warp(Blocktime + 96 hours);
+        /// test swap below percentage
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 1, 1, false);
+
+        vm.expectRevert(0x6a46d1f4);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 9, 9, false);
+    }
+   
+
     function initializeAMMAndUsers() public returns (DummyAMM amm){
         amm = new DummyAMM();
         applicationCoin2 = _createERC20("application2", "GMC2", applicationAppManager);

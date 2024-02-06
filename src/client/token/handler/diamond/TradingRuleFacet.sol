@@ -9,8 +9,10 @@ import "../../../application/IAppManager.sol";
 import "./RuleStorage.sol";
 import "../ruleContracts/HandlerAccountMaxBuySize.sol";
 import "../ruleContracts/HandlerAccountMaxSellSize.sol";
+import "../ruleContracts/HandlerTokenMaxBuyVolume.sol";
+import "../../ERC20/IERC20Decimals.sol";
 
-contract TradingRuleFacet is HandlerAccountMaxBuySize, HandlerAccountMaxSellSize{
+contract TradingRuleFacet is HandlerAccountMaxBuySize, HandlerTokenMaxBuyVolume, HandlerAccountMaxSellSize{
 
     /**
      * @dev This function consolidates all the trading rules.
@@ -22,11 +24,10 @@ contract TradingRuleFacet is HandlerAccountMaxBuySize, HandlerAccountMaxSellSize
      * @param action if selling or buying (of ActionTypes type)
      */
     function checkTradingRules(address _from, address _to, bytes32[] memory fromTags, bytes32[] memory toTags, uint256 _amount, ActionTypes action) external {
-        //IRuleProcessor ruleProcessor = IRuleProcessor(lib.handlerBaseStorage().ruleProcessor);
-        AccountMaxBuySizeS storage maxBuySize = lib.accountMaxBuySizeStorage();
-        AccountMaxSellSizeS storage maxSellSize = lib.accountMaxSellSizeStorage();
+        
         if(action == ActionTypes.BUY){
-            if (maxBuySize.active) {
+            if (lib.accountMaxBuySizeStorage().active) {
+                 AccountMaxBuySizeS storage maxBuySize = lib.accountMaxBuySizeStorage();
                 maxBuySize.boughtInPeriod[_to] = IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAccountMaxBuySize(
                     maxBuySize.id, 
                     maxBuySize.boughtInPeriod[_to], 
@@ -35,13 +36,21 @@ contract TradingRuleFacet is HandlerAccountMaxBuySize, HandlerAccountMaxSellSize
                     maxBuySize.lastPurchaseTime[_to]);
             maxBuySize.lastPurchaseTime[_to] = uint64(block.timestamp);
             }
-            // if(tokenMaxBuyVolumeActive){
-            //     totalBoughtInPeriod = ruleProcessor.checkTokenMaxBuyVolume(tokenMaxBuyVolumeId,  IERC20Decimals(msg.sender).totalSupply(),  _amount,  previousPurchaseTime,  totalBoughtInPeriod);
-            //     previousPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
-            // }
+            if(lib.tokenMaxBuyVolumeStorage().active){
+                TokenMaxBuyVolumeS storage maxBuyVolume = lib.tokenMaxBuyVolumeStorage();
+                maxBuyVolume.boughtInPeriod = IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkTokenMaxBuyVolume(
+                    maxBuyVolume.id,  
+                    IERC20Decimals(msg.sender).totalSupply(),  
+                    _amount,  
+                    maxBuyVolume.lastPurchaseTime,  
+                    maxBuyVolume.boughtInPeriod
+                );
+                maxBuyVolume.lastPurchaseTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
+            }
         }
         else{
-            if ( maxSellSize.active) {
+            if ( lib.accountMaxSellSizeStorage().active) {
+                AccountMaxSellSizeS storage maxSellSize = lib.accountMaxSellSizeStorage();
                 maxSellSize.salesInPeriod[_from] = IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAccountMaxSellSize(
                     maxSellSize.id,  
                     maxSellSize.salesInPeriod[_from],  

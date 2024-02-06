@@ -36,6 +36,20 @@ struct FeeS{
     mapping(address => uint64) lastSellTime;
  }
 
+ struct TokenMaxBuyVolumeS{
+    uint32 id;
+    bool active;
+    uint256 boughtInPeriod;
+    uint64 lastPurchaseTime;
+ }
+
+ struct TokenMaxSellVolumeS{
+    uint32 id;
+    bool active;
+    uint256 salesInPeriod;
+    uint64 lastSellTime;
+ }
+
  struct AccountMinMaxTokenBalanceHandlerS{
     mapping(ActionTypes => Rule) accountMinMaxTokenBalance; 
  }
