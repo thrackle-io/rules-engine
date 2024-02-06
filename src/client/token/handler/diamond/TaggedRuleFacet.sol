@@ -8,6 +8,7 @@ import {Rule} from "../common/DataStructures.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 import "../../../application/IAppManager.sol";
 import "../ruleContracts/HandlerAccountMinMaxTokenBalance.sol";
+import "./TradingRuleFacet.sol";
 
 contract TaggedRuleFacet is HandlerAccountMinMaxTokenBalance{
 
@@ -20,7 +21,7 @@ contract TaggedRuleFacet is HandlerAccountMinMaxTokenBalance{
      * @param _amount number of tokens transferred
      * @param action if selling or buying (of ActionTypes type)
      */
-    function checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) external view {
+    function checkTaggedAndTradingRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) external {
         _checkTaggedIndividualRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
     }
 
@@ -33,18 +34,17 @@ contract TaggedRuleFacet is HandlerAccountMinMaxTokenBalance{
      * @param _amount number of tokens transferred
      * @param action if selling or buying (of ActionTypes type)
      */
-    function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal view {
+    function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
+        HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
+        mapping(ActionTypes => Rule) storage accountMinMaxTokenBalance = lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance;
         bytes32[] memory toTags;
         bytes32[] memory fromTags;
         
-        // bool mustCheckBuyRules = action == ActionTypes.BUY && !appManager.isTradingRuleBypasser(_to);
-        // bool mustCheckSellRules = action == ActionTypes.SELL && !appManager.isTradingRuleBypasser(_from);
-        HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
-        mapping(ActionTypes => Rule) storage accountMinMaxTokenBalance = lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance;
+        bool mustCheckBuyRules = action == ActionTypes.BUY && !IAppManager(handlerBaseStorage.appManager).isTradingRuleBypasser(_to);
+        bool mustCheckSellRules = action == ActionTypes.SELL && !IAppManager(handlerBaseStorage.appManager).isTradingRuleBypasser(_from);
         if (accountMinMaxTokenBalance[action].active 
-            // ||
-            // (mustCheckBuyRules && accountMaxBuySizeActive) ||
-            // (mustCheckSellRules && accountMaxSellSizeActive)
+            || mustCheckBuyRules
+            // || mustCheckSellRules
         )
         {
             // We get all tags for sender and recipient
@@ -56,6 +56,6 @@ contract TaggedRuleFacet is HandlerAccountMinMaxTokenBalance{
         // if((mustCheckBuyRules && (accountMaxBuySizeActive || tokenMaxBuyVolumeActive)) || 
         //     (mustCheckSellRules && (accountMaxSellSizeActive || tokenMaxSellVolumeActive))
         // )
-        //     _checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
+            TradingRuleFacet(address(this)).checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
     }
 }
