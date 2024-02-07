@@ -495,6 +495,48 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 9, 9, false);
     }
    
+   function _setupTokenMaxSellVolumeRule() internal {
+        uint16 tokenPercentage = 5000; /// 50%
+        uint16 period = 24; /// 24 hour periods
+        uint256 _totalSupply = 100_000_000;
+        uint64 ruleStartTime = Blocktime;
+        switchToRuleAdmin();
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxSellVolume(address(applicationAppManager), tokenPercentage, period, _totalSupply, ruleStartTime);
+        /// add and activate rule
+        TradingRuleFacet(address(handlerDiamond)).setTokenMaxSellVolumeId(ruleId);
+    }
+
+    function testERC20_TokenMaxSellVolumeRule() public {
+        /// initialize AMM and give two users more app tokens and "chain native" tokens
+        DummyAMM amm = _tradeRuleSetup();
+        /// set up rule
+        _setupTokenMaxSellVolumeRule();
+        vm.warp(Blocktime + 36 hours);
+        /// test swap below percentage
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 40_000_000, 40_000_000, true); /// percentage limit hit now
+        /// test swaps after we hit limit
+        vm.expectRevert(0x806a3391);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
+        /// switch users and test rule still fails
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        vm.expectRevert(0x806a3391);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
+        /// wait until new period
+        vm.warp(Blocktime + 36 hours + 30 hours);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 10_000_000, 10_000_000, true);
+
+        /// check that rule does not apply to coin 0 as this would be a sell
+        // amm.swap(address(applicationCoin2), 60_000_000);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, false);
+    }
+
 
     function initializeAMMAndUsers() public returns (DummyAMM amm){
         amm = new DummyAMM();

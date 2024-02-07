@@ -10,9 +10,10 @@ import "./RuleStorage.sol";
 import "../ruleContracts/HandlerAccountMaxBuySize.sol";
 import "../ruleContracts/HandlerAccountMaxSellSize.sol";
 import "../ruleContracts/HandlerTokenMaxBuyVolume.sol";
+import "../ruleContracts/HandlerTokenMaxSellVolume.sol";
 import "../../ERC20/IERC20Decimals.sol";
 
-contract TradingRuleFacet is HandlerAccountMaxBuySize, HandlerTokenMaxBuyVolume, HandlerAccountMaxSellSize{
+contract TradingRuleFacet is HandlerAccountMaxBuySize, HandlerTokenMaxBuyVolume, HandlerAccountMaxSellSize, HandlerTokenMaxSellVolume {
 
     /**
      * @dev This function consolidates all the trading rules.
@@ -60,10 +61,17 @@ contract TradingRuleFacet is HandlerAccountMaxBuySize, HandlerTokenMaxBuyVolume,
                 );
                 maxSellSize.lastSellTime[_from] = uint64(block.timestamp);
             }
-            // if(tokenMaxSellVolumeActive){
-            //     totalSoldInPeriod = ruleProcessor.checkTokenMaxSellVolume(tokenMaxSellVolumeId,   IERC20Decimals(msg.sender).totalSupply(),  _amount,  previousSellTime,  totalSoldInPeriod);
-            //     previousSellTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
-            // }
+            if(lib.tokenMaxSellVolumeStorage().active){
+                TokenMaxSellVolumeS storage maxSellVolume = lib.tokenMaxSellVolumeStorage();
+                maxSellVolume.salesInPeriod = IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkTokenMaxSellVolume(
+                    maxSellVolume.id,   
+                    IERC20Decimals(msg.sender).totalSupply(),  
+                    _amount,  
+                    maxSellVolume.lastSellTime,  
+                    maxSellVolume.salesInPeriod
+                );
+                maxSellVolume.lastSellTime = uint64(block.timestamp); /// update with new blockTime if rule check is successful
+            }
         }
     }
 
