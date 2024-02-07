@@ -11,8 +11,9 @@ import "../../ITokenInterface.sol";
 import "../ruleContracts/HandlerAccountApproveDenyOracle.sol";
 import "../ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
 import "../ruleContracts/HandlerTokenMaxTradingVolume.sol";
+import "../ruleContracts/HandlerTokenMinTxSize.sol";
 
-contract NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume{
+contract NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize{
 
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual  rule checks.
@@ -24,7 +25,9 @@ contract NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxS
     function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         mapping(ActionTypes => Rule[]) storage accountAllowDenyOracle = lib.accountApproveDenyOracleStorage().accountAllowDenyOracle;
-        //if (tokenMinTxSize[action].active) ruleProcessor.checkTokenMinTxSize(tokenMinTxSize[action].ruleId, _amount);
+        
+        if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) 
+            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMinTxSize(lib.tokenMinTxSizeStorage().tokenMinTxSize[action].ruleId, _amount);
 
         for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[action].length; ) {
             if (accountAllowDenyOracle[action][accountApproveDenyOracleIndex].active) 
