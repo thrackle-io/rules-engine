@@ -137,7 +137,7 @@ library StorageLib {
      * @dev Function to store Token Min Transaction Size rules
      * @return ds Data Storage of Token Min Transaction Size Rule
      */
-    function tokenMinTxSizeStorgae() internal pure returns (TokenMinTxSizeS storage ds) {
+    function tokenMinTxSizeStorage() internal pure returns (TokenMinTxSizeS storage ds) {
         bytes32 position = TOKEN_MIN_TX_SIZE_HANDLER_POSITION;
         assembly {
             ds.slot := position

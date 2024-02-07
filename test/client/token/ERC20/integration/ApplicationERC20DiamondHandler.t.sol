@@ -687,6 +687,29 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(user1), 79_999 * ATTO);
     }
 
+    function testERC20_testTokenMinTransactionSize() public {
+        /// We add the empty rule at index 0
+        switchToRuleAdmin();
+        RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 1);
+
+        // Then we add the actual rule. Its index should be 1
+        uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 10);
+
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
+        /// we update the rule id in the token
+         NonTaggedRuleFacet(address(handlerDiamond)).setTokenMinTxSizeId(_createActionsArray(), ruleId);
+        switchToAppAdministrator();
+        /// now we perform the transfer
+        applicationCoin.transfer(rich_user, 1000000);
+        assertEq(applicationCoin.balanceOf(rich_user), 1000000);
+        vm.stopPrank();
+
+        vm.startPrank(rich_user);
+        // now we check for proper failure
+        vm.expectRevert(0x7a78c901);
+        applicationCoin.transfer(user3, 5);
+    }
+
     function initializeAMMAndUsers() public returns (DummyAMM amm){
         amm = new DummyAMM();
         applicationCoin2 = _createERC20("application2", "GMC2", applicationAppManager);
