@@ -56,3 +56,5 @@ function diamondCut(FacetCut[] memory _diamondCut, address init, bytes memory da
         - _diamondCut: Facets Array
         - init: Address of the contract or facet to execute "data"
         - data: A function call, including function selector and arguments calldata is executed with delegatecall on "init"
+
+<!-- TODO: Update section with Facet Upgrade script steps  -->
