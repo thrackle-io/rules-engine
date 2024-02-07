@@ -148,6 +148,67 @@ abstract contract TestCommonFoundry is TestCommon {
     }
 
     /**
+     * @dev Deploy and set up the Rules Processor Diamond
+     * @return diamond fully configured rules processor diamond
+     */
+    function _createERC721HandlerDiamond() public returns (HandlerDiamond diamond) {
+        // Start by deploying the DiamonInit contract.
+        DiamondInit diamondInit = new DiamondInit();
+
+        // Register all facets.
+        string[7] memory facets = [
+            // diamond version
+            "VersionFacet",
+            // Native facets,
+            "ProtocolNativeFacet",
+            // Raw implementation facets.
+            "ProtocolRawFacet",
+            // Protocol facets.
+            //rule processor facets
+            "ERC721HandlerMainFacet",
+            "ERC721TaggedRuleFacet",
+            "ERC721NonTaggedRuleFacet",
+            "TradingRuleFacet"
+        ];
+
+        string[] memory inputs = new string[](3);
+        inputs[0] = "python3";
+        inputs[1] = "script/python/get_selectors.py";
+
+        // Loop on each facet, deploy them and create the FacetCut.
+        for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
+            string memory facet = facets[facetIndex];
+
+            // Deploy the facet.
+            bytes memory bytecode = vm.getCode(string.concat(facet, ".sol"));
+            address facetAddress;
+            assembly {
+                facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
+            }
+
+            // Get the facet selectors.
+            inputs[2] = facet;
+            bytes memory res = vm.ffi(inputs);
+            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
+
+            // Create the FacetCut struct for this facet.
+            _erc20HandlerFacetCuts.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
+        }
+
+        // Build the DiamondArgs.
+        HandlerDiamondArgs memory diamondArgs = HandlerDiamondArgs({
+            init: address(diamondInit),
+            // NOTE: "interfaceId" can be used since "init" is the only function in IDiamondInit.
+            initCalldata: abi.encode(type(IDiamondInit).interfaceId)
+        });
+        /// Build the diamond
+        HandlerDiamond handlerInternal = new HandlerDiamond(_erc20HandlerFacetCuts, diamondArgs);
+
+        // Deploy the diamond.
+        return handlerInternal;
+    }
+
+    /**
      * @dev Deploy and set up the main protocol contracts. This includes:
      * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond
      */
@@ -533,9 +594,9 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToAppAdministrator();
         // create the ERC20 and connect it to its handler
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        handlerDiamond = _createERC20HandlerDiamond();
-        ERC20HandlerMainFacet(address(handlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
-        applicationCoin.connectHandlerToToken(address(handlerDiamond));
+        coinHandlerDiamond = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(coinHandlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
+        applicationCoin.connectHandlerToToken(address(coinHandlerDiamond));
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
         /// set up the pricer for erc20

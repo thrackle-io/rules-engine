@@ -39,7 +39,6 @@ import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.s
 import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import {HandlerDiamond, HandlerDiamondArgs} from "src/client/token/handler/diamond/HandlerDiamond.sol";
-import {ERC20HandlerMainFacet} from "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
 import "src/example/application/ApplicationAppManager.sol";
 
 import "src/example/ERC20/ApplicationERC20.sol";
@@ -64,7 +63,11 @@ import "src/client/application/data/IDataModule.sol";
 import "src/client/token/IAdminMinTokenBalanceCapable.sol";
 import "src/client/token/handler/diamond/ERC20TaggedRuleFacet.sol";
 import "src/client/token/handler/diamond/ERC20NonTaggedRuleFacet.sol";
+import "src/client/token/handler/diamond/ERC721TaggedRuleFacet.sol";
+import "src/client/token/handler/diamond/ERC721NonTaggedRuleFacet.sol";
 import "src/client/token/handler/diamond/TradingRuleFacet.sol";
+import {ERC20HandlerMainFacet} from "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
+import {ERC721HandlerMainFacet} from "src/client/token/handler/diamond/ERC721HandlerMainFacet.sol";
 /// common imports 
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
@@ -128,7 +131,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationERC20Handler public applicationCoinHandler;
     ApplicationERC20Handler public applicationCoinHandler2;
     ApplicationERC20Handler public applicationCoinHandlerSpecialOwner;
-    HandlerDiamond public handlerDiamond;
+    HandlerDiamond public coinHandlerDiamond;
     ApplicationERC20Pricing public erc20Pricer;
 
     ApplicationERC721 public applicationNFT;

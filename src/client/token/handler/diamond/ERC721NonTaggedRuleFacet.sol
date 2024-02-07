@@ -12,22 +12,23 @@ import "../ruleContracts/HandlerAccountApproveDenyOracle.sol";
 import "../ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
 import "../ruleContracts/HandlerTokenMaxTradingVolume.sol";
 import "../ruleContracts/HandlerTokenMinTxSize.sol";
+import "../ruleContracts/HandlerTokenMinHoldTime.sol";
 
-contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize{
+contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize, HandlerTokenMinHoldTime{
 
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual  rule checks.
      * @param _from address of the from account
      * @param _to address of the to account
-     * @param _amount number of tokens transferred
+     * @param _tokenId id of the NFT being transferred
      * @param action if selling or buying (of ActionTypes type)
      */
-    function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external {
+    function checkNonTaggedRules(address _from, address _to, uint256 _tokenId, ActionTypes action) external {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         mapping(ActionTypes => Rule[]) storage accountAllowDenyOracle = lib.accountApproveDenyOracleStorage().accountAllowDenyOracle;
         
         if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) 
-            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMinTxSize(lib.tokenMinTxSizeStorage().tokenMinTxSize[action].ruleId, _amount);
+            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMinTxSize(lib.tokenMinTxSizeStorage().tokenMinTxSize[action].ruleId, _tokenId);
 
         for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[action].length; ) {
             if (accountAllowDenyOracle[action][accountApproveDenyOracleIndex].active) 
@@ -38,7 +39,7 @@ contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTok
         }
         if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
             TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
-            maxTradingVolume.transferVolume = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxTradingVolume(maxTradingVolume.tokenMaxTradingVolume[action].ruleId, maxTradingVolume.transferVolume, IToken(msg.sender).totalSupply(), _amount, maxTradingVolume.lastTransferTime);
+            maxTradingVolume.transferVolume = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxTradingVolume(maxTradingVolume.tokenMaxTradingVolume[action].ruleId, maxTradingVolume.transferVolume, IToken(msg.sender).totalSupply(), _tokenId, maxTradingVolume.lastTransferTime);
             maxTradingVolume.lastTransferTime = uint64(block.timestamp);
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
@@ -49,13 +50,23 @@ contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTok
                 maxSupplyVolatility.volumeTotalForPeriod,
                 maxSupplyVolatility.totalSupplyForPeriod,
                 IToken(msg.sender).totalSupply(),
-                _to == address(0x00) ? int(_amount) * -1 : int(_amount),
+                _to == address(0x00) ? int(_tokenId) * -1 : int(_tokenId),
                 maxSupplyVolatility.lastSupplyUpdateTime
             );
             maxSupplyVolatility.lastSupplyUpdateTime = uint64(block.timestamp);
         }
+        _checkSimpleRules(action, _tokenId);
     }
 
-
+    /**
+     * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
+     * @param _action action to be checked
+     * @param _tokenId the specific token in question
+     */
+    function _checkSimpleRules(ActionTypes _action, uint256 _tokenId) internal view {
+        TokenMinHoldTimeS storage minHodlTime = lib.tokenMinHoldTimeStorage();
+        if (minHodlTime.tokenMinHoldTime[_action].active && minHodlTime.ownershipStart[_tokenId] > 0) 
+            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkTokenMinHoldTime(minHodlTime.tokenMinHoldTime[_action].period, minHodlTime.ownershipStart[_tokenId]);
+    }
 
 }
