@@ -18,6 +18,10 @@ struct FeeS{
     bool feeActive;
 }
 
+struct TokenMinTxSizeS{
+    mapping(ActionTypes => Rule) tokenMinTxSize;
+}
+
  struct AccountApproveDenyOracleS{
     mapping(ActionTypes => Rule[]) accountAllowDenyOracle;
  }
