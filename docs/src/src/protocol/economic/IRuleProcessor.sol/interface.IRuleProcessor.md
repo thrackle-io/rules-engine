@@ -452,7 +452,7 @@ function checkTokenMaxTradingVolume(
     uint256 _volume,
     uint256 _supply,
     uint256 _amount,
-    uint64 _lastTransferTs
+    uint64 _lastTransferTime
 ) external view returns (uint256);
 ```
 **Parameters**
@@ -463,7 +463,7 @@ function checkTokenMaxTradingVolume(
 |`_volume`|`uint256`|token's trading volume thus far|
 |`_supply`|`uint256`|Number of tokens in supply|
 |`_amount`|`uint256`|Number of tokens to be transferred from this account|
-|`_lastTransferTs`|`uint64`|the time of the last transfer|
+|`_lastTransferTime`|`uint64`|the time of the last transfer|
 
 **Returns**
 

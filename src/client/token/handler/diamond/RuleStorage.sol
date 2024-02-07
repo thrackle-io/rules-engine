@@ -70,3 +70,9 @@ struct FeeS{
     int256 volumeTotalForPeriod;
     uint256 totalSupplyForPeriod;
  }
+
+ struct TokenMaxTradingVolumeS{
+    mapping(ActionTypes => Rule) tokenMaxTradingVolume;
+    uint256 transferVolume;
+    uint64 lastTransferTime;
+ }

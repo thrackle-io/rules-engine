@@ -21,6 +21,7 @@ library StorageLib {
     bytes32 constant TOKEN_MAX_BUY_VOLUME_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-buy-volume-position")) - 1);
     bytes32 constant TOKEN_MAX_SELL_VOLUME_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-sell-volume-position")) - 1);
     bytes32 constant TOKEN_MAX_SUPPLY_VOLATILITY_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-supply-volatility-position")) - 1);
+    bytes32 constant TOKEN_MAX_TRADING_VOLUME_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-trading-volume-position")) - 1);
 
     /**
      * @dev Function to store Handler Base
@@ -110,16 +111,16 @@ library StorageLib {
     //     }
     // }
 
-    // /**
-    //  * @dev Function to store Max Trading Volume rules
-    //  * @return ds Data Storage of Max Trading Volume Rule
-    //  */
-    // function tokenMaxTradingVolumeStorage() internal pure returns (IRuleStorage.TokenMaxTradingVolumeS storage ds) {
-    //     bytes32 position = TOKEN_MAX_TRADING_VOLUME_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
+    /**
+     * @dev Function to store Max Trading Volume rules
+     * @return ds Data Storage of Max Trading Volume Rule
+     */
+    function tokenMaxTradingVolumeStorage() internal pure returns (TokenMaxTradingVolumeS storage ds) {
+        bytes32 position = TOKEN_MAX_TRADING_VOLUME_HANDLER_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
 
     /**
      * @dev Function to store Admin Min Token Balance rules

@@ -641,7 +641,51 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoin.burn(2550 * ATTO);
     }
 
-
+    function testERC20_TokenMaxTradingVolumeWithSupplySet() public {
+        /// set the rule for 40% in 2 hours, starting at midnight
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addTokenMaxTradingVolume(address(applicationAppManager), 4000, 2, Blocktime, 100_000 * ATTO);
+        assertEq(_index, 0);
+        NonTaggedRules.TokenMaxTradingVolume memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMaxTradingVolume(_index);
+        assertEq(rule.max, 4000);
+        assertEq(rule.period, 2);
+        assertEq(rule.startTime, Blocktime);
+        switchToAppAdministrator();
+        /// load non admin users with game coin
+        applicationCoin.transfer(rich_user, 100_000 * ATTO);
+        assertEq(applicationCoin.balanceOf(rich_user), 100_000 * ATTO);
+        /// apply the rule
+        switchToRuleAdmin();
+        NonTaggedRuleFacet(address(handlerDiamond)).setTokenMaxTradingVolumeId(_createActionsArray(), _index);
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        /// make sure that transfer under the threshold works
+        applicationCoin.transfer(user1, 39_000 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 39_000 * ATTO);
+        /// now take it right up to the threshold(39,999)
+        applicationCoin.transfer(user1, 999 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 39_999 * ATTO);
+        /// now violate the rule and ensure revert
+        vm.expectRevert(0x009da0ce);
+        applicationCoin.transfer(user1, 1 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 39_999 * ATTO);
+        /// now move a little over 2 hours into the future to make sure the next block will work
+        vm.warp(Blocktime + 121 minutes);
+        applicationCoin.transfer(user1, 1 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 40_000 * ATTO);
+        /// now violate the rule in this block and ensure revert
+        vm.expectRevert(0x009da0ce);
+        applicationCoin.transfer(user1, 39_999 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 40_000 * ATTO);
+        /// now move 1 day into the future and try again
+        vm.warp(Blocktime + 1 days);
+        applicationCoin.transfer(user1, 39_999 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 79_999 * ATTO);
+        /// once again, break the rule
+        vm.expectRevert(0x009da0ce);
+        applicationCoin.transfer(user1, 1 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 79_999 * ATTO);
+    }
 
     function initializeAMMAndUsers() public returns (DummyAMM amm){
         amm = new DummyAMM();

@@ -36,7 +36,7 @@ contract ProtocolHandlerTradingRulesCommon is RuleAdministratorOnly, ProtocolHan
 
      /// token level accumulators
     uint256 internal transferVolume;
-    uint64 internal lastTransferTs;
+    uint64 internal lastTransferTime;
     uint64 internal lastSupplyUpdateTime;
     int256 internal volumeTotalForPeriod;
     uint256 internal totalSupplyForPeriod;

@@ -135,8 +135,8 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
             lastTxDate[tokenId] = uint64(block.timestamp);
         }
         if (tokenMaxTradingVolume[action].active) {
-            transferVolume = ruleProcessor.checkTokenMaxTradingVolume(tokenMaxTradingVolume[action].ruleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
-            lastTransferTs = uint64(block.timestamp);
+            transferVolume = ruleProcessor.checkTokenMaxTradingVolume(tokenMaxTradingVolume[action].ruleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTime);
+            lastTransferTime = uint64(block.timestamp);
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
         if (tokenMaxSupplyVolatility[action].active && (action == ActionTypes.MINT || action == ActionTypes.BURN)) {
