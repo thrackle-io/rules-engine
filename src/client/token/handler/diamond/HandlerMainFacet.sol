@@ -78,8 +78,17 @@ contract HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUt
                 );
                 // // another way (gas cost: 61447): (~1.4% cheaper)
                 // TaggedRuleFacet(address(this)).checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
-                //     _checkNonTaggedRules(_from, _to, _amount, action);
-                NonTaggedRuleFacet(address(this)).checkNonTaggedRules(_from, _to, _amount, action);
+                callAnotherFacet(
+                    0x6f43d91d, 
+                    abi.encodeWithSignature(
+                        "checkNonTaggedRules(address,address,uint256,uint8)",
+                        _from, 
+                        _to, 
+                        _amount, 
+                        action
+                    )
+                );
+               // NonTaggedRuleFacet(address(this)).checkNonTaggedRules(_from, _to, _amount, action);
             } else if (lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].active && isFromBypassAccount) {
                 IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].ruleId, balanceFrom, _amount);
                 emit RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 

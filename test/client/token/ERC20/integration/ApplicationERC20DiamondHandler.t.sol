@@ -583,6 +583,65 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, false);
     }
 
+    function testERC20_TokenMaxSupplyVolatility() public {
+        /// burn tokens to specific supply
+        applicationCoin.burn(10_000_000_000_000_000_000_000 * ATTO);
+        applicationCoin.mint(appAdministrator, 100_000 * ATTO);
+        applicationCoin.transfer(user1, 5000 * ATTO);
+
+        /// create rule params
+        uint16 volatilityLimit = 1000; /// 10%
+        uint8 rulePeriod = 24; /// 24 hours
+        uint64 _startTime = Blocktime; /// default timestamp
+        uint256 tokenSupply = 0; /// calls totalSupply() for the token
+
+        /// set rule id and activate
+        switchToRuleAdmin();
+        uint32 _index = RuleDataFacet(address(ruleProcessor)).addTokenMaxSupplyVolatility(address(applicationAppManager), volatilityLimit, rulePeriod, _startTime, tokenSupply);
+        ActionTypes[] memory actionTypes = new ActionTypes[](2);
+        // load actions with mint and burn rather than P2P_Transfer
+        actionTypes[0] = ActionTypes.BURN;
+        actionTypes[1] = ActionTypes.MINT;
+        NonTaggedRuleFacet(address(handlerDiamond)).setTokenMaxSupplyVolatilityId(actionTypes, _index);
+        switchToAppAdministrator();
+        /// move within period
+        vm.warp(Blocktime + 13 hours);
+        console.log(applicationCoin.totalSupply());
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// mint tokens to the cap
+        applicationCoin.mint(user1, 1);
+        applicationCoin.mint(user1, 1000 * ATTO);
+        applicationCoin.mint(user1, 8000 * ATTO);
+        /// fail transactions (mint and burn with passing transfers)
+        vm.expectRevert(0xc406d470);
+        applicationCoin.mint(user1, 6500 * ATTO);
+
+        /// move out of rule period
+        vm.warp(Blocktime + 40 hours);
+        applicationCoin.mint(user1, 2550 * ATTO);
+
+        /// burn tokens
+        /// move into fresh period
+        vm.warp(Blocktime + 95 hours);
+        applicationCoin.burn(1000 * ATTO);
+        applicationCoin.burn(1000 * ATTO);
+        applicationCoin.burn(8000 * ATTO);
+
+        vm.expectRevert(0xc406d470);
+        applicationCoin.burn(2550 * ATTO);
+
+        applicationCoin.mint(user1, 2550 * ATTO);
+        applicationCoin.burn(2550 * ATTO);
+        applicationCoin.mint(user1, 2550 * ATTO);
+        applicationCoin.burn(2550 * ATTO);
+        applicationCoin.mint(user1, 2550 * ATTO);
+        applicationCoin.burn(2550 * ATTO);
+        applicationCoin.mint(user1, 2550 * ATTO);
+        applicationCoin.burn(2550 * ATTO);
+    }
+
+
 
     function initializeAMMAndUsers() public returns (DummyAMM amm){
         amm = new DummyAMM();
