@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import {IRuleProcessorDiamondEvents} from "src/common/IEvents.sol";
 import {RuleProcessorDiamondLib as DiamondLib, RuleProcessorDiamondStorage, RuleDataStorage, FacetCut} from "./RuleProcessorDiamondLib.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
 
@@ -33,6 +34,7 @@ contract RuleProcessorDiamond is ERC173{
      */
     constructor(FacetCut[] memory diamondCut, RuleProcessorDiamondArgs memory args) payable {
         DiamondLib.diamondCut(diamondCut, args.init, args.initCalldata);
+        emit RuleProcessorDiamondDeployed();
     }
 
     /**
