@@ -25,7 +25,7 @@ struct RuleProcessorDiamondArgs {
  * on rules compliance.
  * @notice Contract checks the rules for success
  */
-contract RuleProcessorDiamond is ERC173{
+contract RuleProcessorDiamond is ERC173, IRuleProcessorDiamondEvents {
 
     /**
      * @dev constructor creates facets for the diamond at deployment
