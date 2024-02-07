@@ -10,6 +10,14 @@ The purpose of this rule is to prevent accounts identified as "risky" from movin
 - [x] ERC721
 - [x] AMM
 
+## Applies To Actions:
+
+- [x] MINT
+- [ ] BURN
+- [x] BUY
+- [x] SELL
+- [x] TRANSFER(Peer to Peer)
+  
 ## Scope 
 
 This rule works at the application level which means that all tokens in the app will have no choice but to comply with this rule when active.

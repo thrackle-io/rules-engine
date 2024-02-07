@@ -37,12 +37,11 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
     function checkAccountMaxValueByRiskScore(uint32 _ruleId, address _toAddress, uint8 _riskScore, uint128 _totalValueTo, uint128 _amountToTransfer) external view {
         ApplicationRuleStorage.AccountMaxValueByRiskScore memory rule = getAccountMaxValueByRiskScore(_ruleId);
         uint256 ruleMaxSize;
-        uint256 total = _totalValueTo + _amountToTransfer;
         /// If recipient address being checked is zero address the rule passes (This allows for burning)
         if (_toAddress != address(0)) {
             if (_riskScore >= rule.riskScore[0]) {
                 ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskScore, rule.maxValue);
-                if (total > ruleMaxSize) revert OverMaxAccValueByRiskScore();
+                if ((_totalValueTo + _amountToTransfer) > ruleMaxSize) revert OverMaxAccValueByRiskScore();
             }
         }
     }
