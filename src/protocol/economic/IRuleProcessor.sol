@@ -215,10 +215,10 @@ interface IRuleProcessor {
      * @param _volume token's trading volume thus far
      * @param _amount Number of tokens to be transferred from this account
      * @param _supply Number of tokens in supply
-     * @param _lastTransferTs the time of the last transfer
+     * @param _lastTransferTime the time of the last transfer
      * @return volumeTotal new accumulated volume
      */
-    function checkTokenMaxTradingVolume(uint32 _ruleId, uint256 _volume, uint256 _supply, uint256 _amount, uint64 _lastTransferTs) external view returns (uint256);
+    function checkTokenMaxTradingVolume(uint32 _ruleId, uint256 _volume, uint256 _supply, uint256 _amount, uint64 _lastTransferTime) external view returns (uint256);
 
     /**
      * @dev Rule checks if the tokenMaxSupplyVolatility rule will be violated.

@@ -178,10 +178,10 @@ uint256 private transferVolume;
 ```
 
 
-### lastTransferTs
+### lastTransferTime
 
 ```solidity
-uint64 private lastTransferTs;
+uint64 private lastTransferTime;
 ```
 
 

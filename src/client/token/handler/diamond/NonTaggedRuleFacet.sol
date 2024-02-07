@@ -10,8 +10,9 @@ import "./RuleStorage.sol";
 import "../../ITokenInterface.sol";
 import "../ruleContracts/HandlerAccountApproveDenyOracle.sol";
 import "../ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
+import "../ruleContracts/HandlerTokenMaxTradingVolume.sol";
 
-contract NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility{
+contract NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume{
 
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual  rule checks.
@@ -32,10 +33,11 @@ contract NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxS
                 ++accountApproveDenyOracleIndex;
             }
         }
-        // if (tokenMaxTradingVolume[action].active) {
-        //     transferVolume = ruleProcessor.checkTokenMaxTradingVolume(tokenMaxTradingVolume[action].ruleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
-        //     lastTransferTs = uint64(block.timestamp);
-        // }
+        if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
+            TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
+            maxTradingVolume.transferVolume = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxTradingVolume(maxTradingVolume.tokenMaxTradingVolume[action].ruleId, maxTradingVolume.transferVolume, IToken(msg.sender).totalSupply(), _amount, maxTradingVolume.lastTransferTime);
+            maxTradingVolume.lastTransferTime = uint64(block.timestamp);
+        }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
         if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action].active && (_from == address(0x00) || _to == address(0x00))) {
             TokenMaxSupplyVolatilityS storage maxSupplyVolatility = lib.tokenMaxSupplyVolatilityStorage();

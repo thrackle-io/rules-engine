@@ -113,8 +113,8 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
             }
         }
         if (tokenMaxTradingVolume[action].active) {
-            transferVolume = ruleProcessor.checkTokenMaxTradingVolume(tokenMaxTradingVolume[action].ruleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTs);
-            lastTransferTs = uint64(block.timestamp);
+            transferVolume = ruleProcessor.checkTokenMaxTradingVolume(tokenMaxTradingVolume[action].ruleId, transferVolume, IToken(msg.sender).totalSupply(), _amount, lastTransferTime);
+            lastTransferTime = uint64(block.timestamp);
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
         if (tokenMaxSupplyVolatility[action].active && (_from == address(0x00) || _to == address(0x00))) {

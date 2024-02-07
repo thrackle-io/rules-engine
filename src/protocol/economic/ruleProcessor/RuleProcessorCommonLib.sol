@@ -51,17 +51,17 @@ library RuleProcessorCommonLib {
      * @dev determine if transaction should be accumulated with the previous or it is a new period which requires reset of accumulators
      * @param _startTime the timestamp the rule was enabled
      * @param _period amount of hours in the rule period
-     * @param _lastTransferTs the last transfer timestamp
+     * @param _lastTransferTime the last transfer timestamp
      * @return _withinPeriod returns true if current block time is within the rules period, else false.
      */
-    function isWithinPeriod(uint64 _startTime, uint32 _period, uint64 _lastTransferTs) internal view returns (bool) {
+    function isWithinPeriod(uint64 _startTime, uint32 _period, uint64 _lastTransferTime) internal view returns (bool) {
         /// if no transactions have happened in the past, it's new
-        if (_lastTransferTs == 0) {
+        if (_lastTransferTime == 0) {
             return false;
         }
         // current timestamp subtracted by the remainder of seconds since the rule was active divided by period in seconds
         uint256 currentPeriodStart = block.timestamp - ((block.timestamp - _startTime) % (_period * 1 hours));
-        if (_lastTransferTs >= currentPeriodStart) {
+        if (_lastTransferTime >= currentPeriodStart) {
             return true;
         } else {
             return false;
