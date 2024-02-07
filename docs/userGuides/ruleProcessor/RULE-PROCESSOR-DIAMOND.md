@@ -10,77 +10,8 @@ The Rule Processor diamond architecture consists of the Rule Processor Diamond, 
 
 ### Diamond Pattern
 
-The diamond pattern allows the protocol to upgrade, add new features and improvements through the use of a proxy contract. New facet contracts can be deployed and connected to the diamond via a specialized function called diamondCut. New facets and functions allow the protocol to grow while maintaining address immutability with the proxy contract. Calling contracts will only need to set the address of the diamond proxy at deployment, without having to worry about that address changing overtime.  
+The diamond pattern allows the protocol to upgrade, add new features and improvements through the use of a proxy contract. New facet contracts can be deployed and connected to the diamond via a specialized function called diamondCut. New facets and functions allow the protocol to grow while maintaining address immutability with the proxy contract. Calling contracts will only need to set the address of the diamond proxy at deployment, without having to worry about that address changing overtime. The Protocol Rule Processor follows ERC 2535 standards for storage and functions. 
 #### *[ERC 2535: Diamond Proxies](https://eips.ethereum.org/EIPS/eip-2535)*
-
-### Functions 
-
-The Rule Processor Diamond contains one primary function, the fallback function. This will find the function selector being passed to the diamond by a calling contract. When a valid function selector is passed to the Rule Processor Diamond, the proxy will pass the call data to the relevant associated facet in order to execute a transaction. 
-
-```c
- /**
-    * @dev Function finds facet for function that is called and execute the function if a facet is found and return any value.
-*/
-    fallback() external payable {
-        RuleProcessorDiamondStorage storage ds;
-        bytes32 position = DiamondLib.DIAMOND_CUT_STORAGE;
-        assembly {
-            ds.slot := position
-        }
-        address facet = ds.facetAddressAndSelectorPosition[msg.sig].facetAddress;
-        if (facet == address(0)) {
-            revert FunctionNotFound(msg.sig);
-        }
-        assembly {
-            calldatacopy(0, 0, calldatasize())
-            let result := delegatecall(gas(), facet, 0, calldatasize(), 0, 0)
-            returndatacopy(0, 0, returndatasize())
-            switch result
-            case 0 {
-                revert(0, returndatasize())
-            }
-            default {
-                return(0, returndatasize())
-            }
-        }
-    }
-```
-
-### Constructor  
-
-The Rule Processor Diamond constructor is an essential part of the diamond pattern. The constructor calls the diamondCut function and stores the addresses and function selectors of all deployed facets passed to the constructor. 
-
-This function is run only once at deployment and connects the diamond proxy to the facets that are already deployed. New facets may be connected to the diamond post deployment. 
-
-```c
-constructor(FacetCut[] memory diamondCut, RuleProcessorDiamondArgs memory args) payable {
-        DiamondLib.diamondCut(diamondCut, args.init, args.initCalldata);
-    }
-```
-The diamond cut function also emits the event DiamondCut(_diamondCut, init, data). This event acts as a record of all function changes to the diamond. 
-
-### Data Structures 
-
-```c
-/**
- * This is used in diamond constructor
- * more arguments are added to this struct
- * this avoids stack too deep errors
- */
-struct RuleProcessorDiamondArgs {
-    address init;
-    bytes initCalldata;
-}
-```
-
-### Errors 
-The rule processor will revert with the following error if the function selector is not found in storage: 
-
-```
-error FunctionNotFound(bytes4 _functionSelector);
-```
-
-The selector for this error is `0xd6009a50`.
 
 
 ### Upgrading 

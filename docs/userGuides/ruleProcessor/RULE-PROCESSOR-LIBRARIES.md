@@ -11,75 +11,8 @@ Using these singular library contracts prevents data storage collision as functi
 
 ### Rule Processor Diamond Lib Functions 
 
-The function to store the facet addresses and function selectors within the Rule Processor Diamond Library: 
-```c
-/**
-* @dev Function for position of facets and their selectors. Every facet has its own storage.
-* @return ds Data storage for Rule Processor Facet Storage
-*/
-function s() internal pure returns (RuleProcessorDiamondStorage storage ds) {
-    bytes32 position = DIAMOND_CUT_STORAGE;
-    assembly {
-        ds.slot := position
-    }
-}
-```
-
-The function to store rules within the Rule Processor Diamond Library: 
-```c
-/**
-* @dev Function to store rules
-* @return ds Data Storage of Rule Data Storage
-*/
-function ruleDataStorage() internal pure returns (RuleDataStorage storage ds) {
-    bytes32 position = RULE_DATA_POSITION;
-    assembly {
-        ds.slot := position
-    }
-}
-```
-
-The function that is used for setting the facets and function selectors at construction and upgrading the diamond post deployment: 
-
-```c
-/**
-* @dev Remove Function from Diamond
-* @param _facetAddress Address of Facet
-* @param _functionSelectors Signature array of function selectors
-*/
-function removeFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
-    RuleProcessorDiamondStorage storage ds = s();
-    uint256 selectorCount = ds.selectors.length;
-    if (_facetAddress != address(0)) {
-        revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
-    }
-    for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; ) {
-        bytes4 selector = _functionSelectors[selectorIndex];
-        FacetAddressAndSelectorPosition memory oldFacetAddressAndSelectorPosition = ds.facetAddressAndSelectorPosition[selector];
-        if (oldFacetAddressAndSelectorPosition.facetAddress == address(0)) {
-            revert CannotRemoveFunctionThatDoesNotExist(selector);
-        }
-
-        /// can't remove immutable functions -- functions defined directly in the diamond
-        if (oldFacetAddressAndSelectorPosition.facetAddress == address(this)) {
-            revert CannotRemoveImmutableFunction(selector);
-        }
-        /// replace selector with last selector
-        selectorCount--;
-        if (oldFacetAddressAndSelectorPosition.selectorPosition != selectorCount) {
-            bytes4 lastSelector = ds.selectors[selectorCount];
-            ds.selectors[oldFacetAddressAndSelectorPosition.selectorPosition] = lastSelector;
-            ds.facetAddressAndSelectorPosition[lastSelector].selectorPosition = oldFacetAddressAndSelectorPosition.selectorPosition;
-        }
-        /// delete last selector
-        ds.selectors.pop();
-        delete ds.facetAddressAndSelectorPosition[selector];
-        unchecked {
-            ++selectorIndex;
-        }
-    }
-}
-```
+The Rule Processor Diamond Lib follows ERC 2535 standards for storage and functions. 
+#### *[ERC 2535: Diamond Proxies](https://eips.ethereum.org/EIPS/eip-2535)*
 
 ### Rule Processor Common Lib Functions  
 
