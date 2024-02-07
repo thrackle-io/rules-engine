@@ -76,9 +76,9 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
             );
             // _checkNonTaggedRules(action, _from, _to, _amount, _tokenId);
             callAnotherFacet(
-                0x61823478, 
+                0x9466093a, 
                 abi.encodeWithSignature(
-                    "checkNonTaggedRules(uint8,address,address,uint256,uint8)",
+                    "checkNonTaggedRules(uint8,address,address,uint256,uint256)",
                     action,
                     _from, 
                     _to, 

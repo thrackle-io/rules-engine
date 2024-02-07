@@ -36,12 +36,11 @@ contract ERC721TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
      */
     function _checkTaggedIndividualRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to,uint256 _amount, ActionTypes action) internal {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
-        mapping(ActionTypes => Rule) storage accountMinMaxTokenBalance = lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance;
         bytes32[] memory toTags;
-        bytes32[] memory fromTags;
-        
+        bytes32[] memory fromTags;        
         bool mustCheckBuyRules = action == ActionTypes.BUY && !IAppManager(handlerBaseStorage.appManager).isTradingRuleBypasser(_to);
         bool mustCheckSellRules = action == ActionTypes.SELL && !IAppManager(handlerBaseStorage.appManager).isTradingRuleBypasser(_from);
+        mapping(ActionTypes => Rule) storage accountMinMaxTokenBalance = lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance;
         if (accountMinMaxTokenBalance[action].active || mustCheckBuyRules|| mustCheckSellRules){
             // We get all tags for sender and recipient
             toTags = IAppManager(handlerBaseStorage.appManager).getAllTags(_to);

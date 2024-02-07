@@ -23,13 +23,10 @@ contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTok
      * @param _tokenId id of the NFT being transferred
      * @param action if selling or buying (of ActionTypes type)
      */
-    function checkNonTaggedRules(address _from, address _to, uint256 _tokenId, ActionTypes action) external {
+    function checkNonTaggedRules(ActionTypes action, address _from, address _to, uint256 _amount, uint256 _tokenId) external {
+        _from;
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         mapping(ActionTypes => Rule[]) storage accountAllowDenyOracle = lib.accountApproveDenyOracleStorage().accountAllowDenyOracle;
-        
-        if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) 
-            IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMinTxSize(lib.tokenMinTxSizeStorage().tokenMinTxSize[action].ruleId, _tokenId);
-
         for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[action].length; ) {
             if (accountAllowDenyOracle[action][accountApproveDenyOracleIndex].active) 
                 IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracle(accountAllowDenyOracle[action][accountApproveDenyOracleIndex].ruleId, _to);
@@ -37,6 +34,12 @@ contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTok
                 ++accountApproveDenyOracleIndex;
             }
         }
+        // if (tokenMaxDailyTrades[action].active) {
+        //     // get all the tags for this NFT
+        //     bytes32[] memory tags = appManager.getAllTags(erc721Address);
+        //     tradesInPeriod[tokenId] = ruleProcessor.checkTokenMaxDailyTrades(tokenMaxDailyTrades[action].ruleId, tradesInPeriod[tokenId], tags, lastTxDate[tokenId]);
+        //     lastTxDate[tokenId] = uint64(block.timestamp);
+        // }
         if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
             TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
             maxTradingVolume.transferVolume = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxTradingVolume(maxTradingVolume.tokenMaxTradingVolume[action].ruleId, maxTradingVolume.transferVolume, IToken(msg.sender).totalSupply(), _tokenId, maxTradingVolume.lastTransferTime);
