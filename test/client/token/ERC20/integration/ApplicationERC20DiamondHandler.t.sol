@@ -506,6 +506,52 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         TradingRuleFacet(address(handlerDiamond)).setTokenMaxSellVolumeId(ruleId);
     }
 
+        function testERC20_TradeRuleByPasserRule() public {
+        DummyAMM amm = _tradeRuleSetup();
+        applicationAppManager.approveAddressToTradingRuleWhitelist(user1, true);
+
+        /// SELL PERCENTAGE RULE
+        _setupTokenMaxSellVolumeRule();
+        vm.warp(Blocktime + 36 hours);
+        /// WHITELISTED USER
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, true);
+        /// NOT WHITELISTED USER
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationCoin.approve(address(amm), 10000 * ATTO);
+        applicationCoin2.approve(address(amm), 10000 * ATTO);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 40_000_000, 40_000_000, true);
+        vm.expectRevert(0x806a3391);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 20_000_000, 20_000_000, true);
+
+        //BUY PERCENTAGE RULE
+        _setupTokenMaxBuyVolumeRule();
+        /// WHITELISTED USER
+        vm.stopPrank();
+        vm.startPrank(user1);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, false);
+        /// NOT WHITELISTED USER
+        vm.stopPrank();
+        vm.startPrank(user2);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 30_000_000, 30_000_000, false);
+        vm.expectRevert(0x6a46d1f4);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 30_000_000, 30_000_000, false);
+
+        /// SELL RULE
+        _setupAccountMaxSellSize();
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// Approve transfer(1M)
+        applicationCoin.approve(address(amm), 50000);
+        applicationCoin2.approve(address(amm), 50000);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
+        amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
+    }
+
     function testERC20_TokenMaxSellVolumeRule() public {
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();

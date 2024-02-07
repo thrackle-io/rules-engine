@@ -42,32 +42,26 @@ contract TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
         
         bool mustCheckBuyRules = action == ActionTypes.BUY && !IAppManager(handlerBaseStorage.appManager).isTradingRuleBypasser(_to);
         bool mustCheckSellRules = action == ActionTypes.SELL && !IAppManager(handlerBaseStorage.appManager).isTradingRuleBypasser(_from);
-        if (accountMinMaxTokenBalance[action].active 
-            || mustCheckBuyRules
-            || mustCheckSellRules
-        )
-        {
+        if (accountMinMaxTokenBalance[action].active || mustCheckBuyRules|| mustCheckSellRules){
             // We get all tags for sender and recipient
             toTags = IAppManager(handlerBaseStorage.appManager).getAllTags(_to);
             fromTags = IAppManager(handlerBaseStorage.appManager).getAllTags(_from);
         }
         if (accountMinMaxTokenBalance[action].active) 
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinMaxTokenBalance(accountMinMaxTokenBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);
-        // if((mustCheckBuyRules && (accountMaxBuySizeActive || tokenMaxBuyVolumeActive)) || 
-        //     (mustCheckSellRules && (accountMaxSellSizeActive || tokenMaxSellVolumeActive))
-        // )
-        callAnotherFacet(
-            0xd874686f, 
-            abi.encodeWithSignature(
-                "checkTradingRules(address,address,bytes32[],bytes32[],uint256,uint8)",
-                _from, 
-                _to, 
-                fromTags, 
-                toTags, 
-                _amount, 
-                action
-            )
-        );
+        if(mustCheckBuyRules || mustCheckSellRules)
+            callAnotherFacet(
+                0xd874686f, 
+                abi.encodeWithSignature(
+                    "checkTradingRules(address,address,bytes32[],bytes32[],uint256,uint8)",
+                    _from, 
+                    _to, 
+                    fromTags, 
+                    toTags, 
+                    _amount, 
+                    action
+                )
+            );
             // TradingRuleFacet(address(this)).checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
     }
 }
