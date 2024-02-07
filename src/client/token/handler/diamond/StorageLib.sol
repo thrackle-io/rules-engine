@@ -19,7 +19,7 @@ library StorageLib {
     bytes32 constant FEES_HANDLER_POSITION = bytes32(uint256(keccak256("fees-position")) - 1);
     bytes32 constant ADMIN_MIN_TOKEN_BALANCE_HANDLER_POSITION = bytes32(uint256(keccak256("admin-min-token-balance-position")) - 1);
     bytes32 constant TOKEN_MAX_BUY_VOLUME_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-buy-volume-position")) - 1);
-
+    bytes32 constant TOKEN_MAX_SELL_VOLUME_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-sell-volume-position")) - 1);
 
     /**
      * @dev Function to store Handler Base
@@ -76,16 +76,16 @@ library StorageLib {
         }
     }
 
-    // /**
-    //  * @dev Function to store Account Max Sell Volume rules
-    //  * @return ds Data Storage of Account Max Sell Volume Rule
-    //  */
-    // function accountMaxSellVolumeStorage() internal pure returns (IRuleStorage.TokenMaxSellVolumeS storage ds) {
-    //     bytes32 position = ACCOUNT_MAX_SELL_VOLUME_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
+    /**
+     * @dev Function to store Account Max Sell Volume rules
+     * @return ds Data Storage of Account Max Sell Volume Rule
+     */
+    function tokenMaxSellVolumeStorage() internal pure returns (TokenMaxSellVolumeS storage ds) {
+        bytes32 position = TOKEN_MAX_SELL_VOLUME_HANDLER_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
 
     // /**
     //  * @dev Function to store Purchase Fee by Volume rules
