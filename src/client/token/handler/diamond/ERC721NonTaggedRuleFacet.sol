@@ -13,7 +13,7 @@ import "../ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
 import "../ruleContracts/HandlerTokenMaxTradingVolume.sol";
 import "../ruleContracts/HandlerTokenMinTxSize.sol";
 
-contract NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize{
+contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize{
 
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual  rule checks.

@@ -4,12 +4,12 @@ pragma solidity ^0.8.17;
 import "../common/HandlerUtils.sol";
 import "../ruleContracts/HandlerBase.sol";
 import "../ruleContracts/HandlerAdminMinTokenBalance.sol";
-import "./ERC20TaggedRuleFacet.sol";
-import "./ERC20NonTaggedRuleFacet.sol";
+import "./ERC721TaggedRuleFacet.sol";
+import "./ERC721NonTaggedRuleFacet.sol";
 import "../../../application/IAppManager.sol";
 import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
 
-contract HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents{
+contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents{
 
     /**
      * @dev Constructor sets params
