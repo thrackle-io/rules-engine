@@ -37,7 +37,7 @@ abstract contract TestCommonFoundry is TestCommon {
             "ApplicationRiskProcessorFacet",
             "ApplicationAccessLevelProcessorFacet",
             "ApplicationPauseProcessorFacet",
-            //TaggedRuleFacets:
+            //ERC20TaggedRuleFacets:
             "ERC20TaggedRuleProcessorFacet",
             "ERC721TaggedRuleProcessorFacet",
             "RuleApplicationValidationFacet",
@@ -103,9 +103,9 @@ abstract contract TestCommonFoundry is TestCommon {
             "ProtocolRawFacet",
             // Protocol facets.
             //rule processor facets
-            "HandlerMainFacet",
-            "TaggedRuleFacet",
-            "NonTaggedRuleFacet",
+            "ERC20HandlerMainFacet",
+            "ERC20TaggedRuleFacet",
+            "ERC20NonTaggedRuleFacet",
             "TradingRuleFacet",
             "FeesFacet"
         ];
@@ -534,7 +534,7 @@ abstract contract TestCommonFoundry is TestCommon {
         // create the ERC20 and connect it to its handler
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
         handlerDiamond = _createERC20HandlerDiamond();
-        HandlerMainFacet(address(handlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
+        ERC20HandlerMainFacet(address(handlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
         applicationCoin.connectHandlerToToken(address(handlerDiamond));
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));

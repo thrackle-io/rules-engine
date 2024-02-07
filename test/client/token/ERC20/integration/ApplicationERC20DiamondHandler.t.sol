@@ -45,7 +45,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         ActionTypes[] memory actionTypes = new ActionTypes[](2);
         actionTypes[0] = ActionTypes.P2P_TRANSFER;
         actionTypes[1] = ActionTypes.SELL;
-        TaggedRuleFacet(address(handlerDiamond)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
+        ERC20TaggedRuleFacet(address(handlerDiamond)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
         switchToAppAdministrator();
 
         ///Add Tag to account
@@ -102,7 +102,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         ActionTypes[] memory actionTypes = new ActionTypes[](2);
         actionTypes[0] = ActionTypes.P2P_TRANSFER;
         actionTypes[1] = ActionTypes.SELL;
-        TaggedRuleFacet(address(handlerDiamond)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
+        ERC20TaggedRuleFacet(address(handlerDiamond)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
         switchToAppAdministrator();
 
         ///perform transfer that checks rule
@@ -149,7 +149,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         actionTypes[0] = ActionTypes.P2P_TRANSFER;
         actionTypes[1] = ActionTypes.BURN;
         actionTypes[2] = ActionTypes.MINT;
-        NonTaggedRuleFacet(address(handlerDiamond)).setAccountApproveDenyOracleId(actionTypes, _index);
+        ERC20NonTaggedRuleFacet(address(handlerDiamond)).setAccountApproveDenyOracleId(actionTypes, _index);
         switchToAppAdministrator();
         // add a blocked address
         badBoys.push(address(69));
@@ -171,7 +171,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 _indexAllowed = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
-        NonTaggedRuleFacet(address(handlerDiamond)).setAccountApproveDenyOracleId(actionTypes, _indexAllowed);
+        ERC20NonTaggedRuleFacet(address(handlerDiamond)).setAccountApproveDenyOracleId(actionTypes, _indexAllowed);
         switchToAppAdministrator();
 
         // add approved addresses
@@ -194,7 +194,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
 
         /// test burning while oracle rule is active (allow list active)
-        NonTaggedRuleFacet(address(handlerDiamond)).setAccountApproveDenyOracleId(actionTypes, _indexAllowed);
+        ERC20NonTaggedRuleFacet(address(handlerDiamond)).setAccountApproveDenyOracleId(actionTypes, _indexAllowed);
         /// first mint to user
         switchToAppAdministrator();
         applicationCoin.transfer(user5, 10000);
@@ -205,7 +205,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoin.burn(5000);
         /// add address(0) to deny list and switch oracle rule to deny list
         switchToRuleAdmin();
-        NonTaggedRuleFacet(address(handlerDiamond)).setAccountApproveDenyOracleId(actionTypes, _index);
+        ERC20NonTaggedRuleFacet(address(handlerDiamond)).setAccountApproveDenyOracleId(actionTypes, _index);
         switchToAppAdministrator();
         badBoys.push(address(0));
         oracleDenied.addToDeniedList(badBoys);
@@ -402,7 +402,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
 
-        HandlerMainFacet(address(handlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC20HandlerMainFacet(address(handlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
@@ -602,7 +602,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         // load actions with mint and burn rather than P2P_Transfer
         actionTypes[0] = ActionTypes.BURN;
         actionTypes[1] = ActionTypes.MINT;
-        NonTaggedRuleFacet(address(handlerDiamond)).setTokenMaxSupplyVolatilityId(actionTypes, _index);
+        ERC20NonTaggedRuleFacet(address(handlerDiamond)).setTokenMaxSupplyVolatilityId(actionTypes, _index);
         switchToAppAdministrator();
         /// move within period
         vm.warp(Blocktime + 13 hours);
@@ -656,7 +656,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(rich_user), 100_000 * ATTO);
         /// apply the rule
         switchToRuleAdmin();
-        NonTaggedRuleFacet(address(handlerDiamond)).setTokenMaxTradingVolumeId(_createActionsArray(), _index);
+        ERC20NonTaggedRuleFacet(address(handlerDiamond)).setTokenMaxTradingVolumeId(_createActionsArray(), _index);
         vm.stopPrank();
         vm.startPrank(rich_user);
         /// make sure that transfer under the threshold works
@@ -697,7 +697,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
         /// we update the rule id in the token
-         NonTaggedRuleFacet(address(handlerDiamond)).setTokenMinTxSizeId(_createActionsArray(), ruleId);
+         ERC20NonTaggedRuleFacet(address(handlerDiamond)).setTokenMinTxSizeId(_createActionsArray(), ruleId);
         switchToAppAdministrator();
         /// now we perform the transfer
         applicationCoin.transfer(rich_user, 1000000);

@@ -10,7 +10,7 @@ import "../../../application/IAppManager.sol";
 import "../ruleContracts/HandlerAccountMinMaxTokenBalance.sol";
 import "./TradingRuleFacet.sol";
 
-contract ERC20TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
+contract TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
 
     /**
      * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
