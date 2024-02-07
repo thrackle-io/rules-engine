@@ -85,6 +85,13 @@ library RuleProcessorCommonLib {
         if (_tags.length == 1 && _tags[0] == bytes32("")) return true;
     }
 
+    /**
+     * @dev Retrieve the max size of the risk rule for the risk score provided. 
+     * @param _riskScore risk score of the account 
+     * @param _riskScores array of risk scores for the rule 
+     * @param _maxValues array of max values from the rule 
+     * @return maxValue uint256 max value for the risk score for rule validation
+     */
     function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskScores, uint48[] memory _maxValues) internal pure returns(uint256){
         uint256 maxValue;
         for (uint256 i = 1; i < _riskScores.length;) {

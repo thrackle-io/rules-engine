@@ -47,8 +47,8 @@ library RuleProcessorDiamondLib {
     bytes32 constant RULE_DATA_POSITION = keccak256("nontagged-ruless.rule-data.storage");
 
     /**
-     * @dev Function for position of rules. Every rule has its own storage.
-     * @return ds Data storage for Rule Processor Storage
+     * @dev Function for position of facets and their selectors. Every facet has its own storage.
+     * @return ds Data storage for Rule Processor Facet Storage
      */
     function s() internal pure returns (RuleProcessorDiamondStorage storage ds) {
         bytes32 position = DIAMOND_CUT_STORAGE;
