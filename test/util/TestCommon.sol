@@ -87,6 +87,8 @@ import {ActionTypes} from "src/common/ActionEnum.sol";
 abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     FacetCut[] _ruleProcessorFacetCuts;
     FacetCut[] _erc20HandlerFacetCuts;
+    FacetCut[] _erc721HandlerFacetCuts;
+    
 
     uint256 constant ATTO = 10 ** 18;
 
@@ -132,6 +134,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationERC20Handler public applicationCoinHandler2;
     ApplicationERC20Handler public applicationCoinHandlerSpecialOwner;
     HandlerDiamond public coinHandlerDiamond;
+    HandlerDiamond public nftHandlerDiamond;
     ApplicationERC20Pricing public erc20Pricer;
 
     ApplicationERC721 public applicationNFT;
