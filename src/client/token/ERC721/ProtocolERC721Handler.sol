@@ -35,8 +35,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
 
     /// Oracle rule mapping(allows multiple rules per action)
     mapping(ActionTypes => Rule[]) accountAllowDenyOracle;
-    /// RuleIds for implemented tagged rules of the ERC721
-    Rule[] private accountApproveDenyOracleRules;
 
     /// Simple Rule Mapping
     mapping(ActionTypes => TokenMinHoldTime) tokenMinHoldTime;

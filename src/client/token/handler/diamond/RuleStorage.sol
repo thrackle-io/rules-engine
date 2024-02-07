@@ -80,3 +80,14 @@ struct TokenMinTxSizeS{
     uint256 transferVolume;
     uint64 lastTransferTime;
  }
+
+struct TokenMinHoldTime{
+    uint32 ruleId;
+    bool active;
+    uint32 period; //hours
+}
+
+ struct TokenMinHoldTimeS {
+    mapping(ActionTypes => TokenMinHoldTime) tokenMinHoldTime;
+    mapping(uint256 => uint256) ownershipStart;
+ }

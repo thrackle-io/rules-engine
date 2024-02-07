@@ -23,6 +23,8 @@ library StorageLib {
     bytes32 constant TOKEN_MAX_SUPPLY_VOLATILITY_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-supply-volatility-position")) - 1);
     bytes32 constant TOKEN_MAX_TRADING_VOLUME_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-trading-volume-position")) - 1);
     bytes32 constant TOKEN_MIN_TX_SIZE_HANDLER_POSITION = bytes32(uint256(keccak256("token-min-tx-size-position")) - 1);
+    bytes32 constant TOKEN_MIN_HOLD_TIME_HANDLER_POSITION = bytes32(uint256(keccak256("token-min-hold-time-position")) - 1);
+    
     /**
      * @dev Function to store Handler Base
      * @return ds Data Storage of Handler Base
@@ -88,28 +90,6 @@ library StorageLib {
             ds.slot := position
         }
     }
-
-    // /**
-    //  * @dev Function to store Purchase Fee by Volume rules
-    //  * @return ds Data Storage of Purchase Fee by Volume Rule
-    //  */
-    // function purchaseFeeByVolumeStorage() internal pure returns (IRuleStorage.PurchaseFeeByVolRuleS storage ds) {
-    //     bytes32 position = BUY_FEE_BY_TOKEN_MAX_TRADING_VOLUME_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
-
-    // /**
-    //  * @dev Function to store Price Volitility rules
-    //  * @return ds Data Storage of Price Volitility Rule
-    //  */
-    // function tokenMaxPriceVolatilityStorage() internal pure returns (IRuleStorage.TokenMaxPriceVolatilityS storage ds) {
-    //     bytes32 position = TOKEN_MAX_PRICE_VOLATILITY_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
 
     /**
      * @dev Function to store Max Trading Volume rules
@@ -177,38 +157,17 @@ library StorageLib {
         }
     }
 
-    // /**
-    //  * @dev Function to store Account Max Value Access Level rules
-    //  * @return ds Data Storage of Account Max Value Access Level Rule
-    //  */
-    // function accountMaxValueByAccessLevelStorage() internal pure returns (IRuleStorage.AccountMaxValueByAccessLevelS storage ds) {
-    //     bytes32 position = ACC_MAX_VALUE_BY_ACCESS_LEVEL_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
+    /**
+     * @dev Function to store Token Min Hold Time
+     * @return ds Data Storage of Oracle Rule
+     */
+    function tokenMinHoldTimeStorage() internal pure returns (TokenMinHoldTimeS storage ds) {
+        bytes32 position = TOKEN_MIN_HOLD_TIME_HANDLER_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
 
-    // /**
-    //  * @dev Function to store Account Max Tx Value by Risk rules
-    //  * @return ds Data Storage of Account Max Tx Value by Risk Rule
-    //  */
-    // function accountMaxTxValueByRiskScoreStorage() internal pure returns (IRuleStorage.AccountMaxTxValueByRiskScoreS storage ds) {
-    //     bytes32 position = ACC_MAX_TX_VALUE_BY_RISK_SCORE_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
-
-    // /**
-    //  * @dev Function to store Account Max Value By Risk Score rules
-    //  * @return ds Data Storage of Account Max Value By Risk Score Rule
-    //  */
-    // function accountMaxValueByRiskScoreStorage() internal pure returns (IRuleStorage.AccountMaxValueByRiskScoreS storage ds) {
-    //     bytes32 position = ACCOUNT_MAX_VALUE_BY_RISK_SCORE_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
 
     // /**
     //  * @dev Function to store Token Max Daily Trades rules
@@ -232,14 +191,4 @@ library StorageLib {
     //     }
     // }
 
-    // /**
-    //  * @dev Function to store Account Max Value Out By Access Level rules
-    //  * @return ds Data Storage of Account Max Value Out By Access Level rule
-    //  */
-    // function accountMaxValueOutByAccessLevelStorage() internal pure returns (IRuleStorage.AccountMaxValueOutByAccessLevelS storage ds) {
-    //     bytes32 position = ACC_MAX_VALUE_OUT_ACCESS_LEVEL_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
 }

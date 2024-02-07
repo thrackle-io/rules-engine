@@ -48,59 +48,54 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
      * @param _from sender address
      * @param _to recipient address
      * @param _sender the address triggering the contract action
-     * @param _amount number of tokens transferred
+     * @param _tokenId id of the NFT being transferred
      * @return true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _amount)external returns (bool) {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external returns (bool) {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
+        
         bool isFromBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_from);
         bool isToBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_to);
         ActionTypes action = determineTransferAction(_from, _to, _sender);
-        // // // All transfers to treasury account are allowed
-        // if (!appManager.isTreasury(_to)) {
-        //     /// standard rules do not apply when either to or from is an admin
-            if (!isFromBypassAccount && !isToBypassAccount) {
-        //         /// appManager requires uint16 _nftValuationLimit and uin256 _tokenId for NFT pricing, 0 is passed for fungible token pricing
-        //         appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
-            //    _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action); => 36bd6ea7
-                // gas cost: 61926
-                callAnotherFacet(
-                    0x36bd6ea7, 
-                    abi.encodeWithSignature(
-                        "checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)",
-                        balanceFrom, 
-                        balanceTo, 
-                        _from, 
-                        _to, 
-                        _amount, 
-                        action
-                    )
-                );
-                // // another way (gas cost: 61447): (~1.4% cheaper)
-                // TaggedRuleFacet(address(this)).checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
-                callAnotherFacet(
-                    0x6f43d91d, 
-                    abi.encodeWithSignature(
-                        "checkNonTaggedRules(address,address,uint256,uint8)",
-                        _from, 
-                        _to, 
-                        _amount, 
-                        action
-                    )
-                );
-               // NonTaggedRuleFacet(address(this)).checkNonTaggedRules(_from, _to, _amount, action);
-            } else if (lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].active && isFromBypassAccount) {
-                IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].ruleId, balanceFrom, _amount);
+        uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
+        /// standard tagged and non-tagged rules do not apply when either to or from is an admin
+        if (!isFromBypassAccount && !isToBypassAccount) {
+            // appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
+            // _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
+            callAnotherFacet(
+                0x36bd6ea7, 
+                abi.encodeWithSignature(
+                    "checkTaggedAndTradingRules(uint256,uint256,address,address,uint256,uint8)",
+                    balanceFrom, 
+                    balanceTo, 
+                    _from, 
+                    _to, 
+                    _amount, 
+                    action
+                )
+            );
+            // _checkNonTaggedRules(action, _from, _to, _amount, _tokenId);
+            callAnotherFacet(
+                0x61823478, 
+                abi.encodeWithSignature(
+                    "checkNonTaggedRules(uint8,address,address,uint256,uint8)",
+                    action,
+                    _from, 
+                    _to, 
+                    _amount, 
+                    _tokenId
+                )
+            );
+            // _checkSimpleRules(action, _tokenId); // done in NonTaggedRules
+            /// set the ownership start time for the token if the Minimum Hold time rule is active or action is mint
+            if (lib.tokenMinHoldTimeStorage().tokenMinHoldTime[action].active || action == ActionTypes.MINT) 
+                lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
+        } else if (lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].active && isFromBypassAccount) {
+                IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].ruleId, balanceFrom, _tokenId);
                 emit RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
             }
-            
-       // }
         /// If all rule checks pass, return true
-       
         return true;
     }
-
-    
-
     
 }
