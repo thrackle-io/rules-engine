@@ -33,8 +33,6 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     mapping(ActionTypes => Rule) tokenMaxSupplyVolatility;
     /// Oracle rule mapping(allows multiple rules per action)
     mapping(ActionTypes => Rule[]) accountAllowDenyOracle;
-    /// RuleIds for implemented tagged rules of the ERC20
-    Rule[] private accountApproveDenyOracleRules;
 
     /**
      * @dev Constructor sets params

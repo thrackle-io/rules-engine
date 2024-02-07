@@ -7,10 +7,11 @@ import {Rule} from "../common/DataStructures.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 import "../../../application/IAppManager.sol";
 import "./RuleStorage.sol";
-
+import "../../ITokenInterface.sol";
 import "../ruleContracts/HandlerAccountApproveDenyOracle.sol";
+import "../ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
 
-contract NonTaggedRuleFacet is HandlerAccountApproveDenyOracle{
+contract NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility{
 
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual  rule checks.
@@ -19,7 +20,7 @@ contract NonTaggedRuleFacet is HandlerAccountApproveDenyOracle{
      * @param _amount number of tokens transferred
      * @param action if selling or buying (of ActionTypes type)
      */
-    function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external view {
+    function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         mapping(ActionTypes => Rule[]) storage accountAllowDenyOracle = lib.accountApproveDenyOracleStorage().accountAllowDenyOracle;
         //if (tokenMinTxSize[action].active) ruleProcessor.checkTokenMinTxSize(tokenMinTxSize[action].ruleId, _amount);
@@ -36,17 +37,18 @@ contract NonTaggedRuleFacet is HandlerAccountApproveDenyOracle{
         //     lastTransferTs = uint64(block.timestamp);
         // }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
-        // if (tokenMaxSupplyVolatility[action].active && (_from == address(0x00) || _to == address(0x00))) {
-        //     (volumeTotalForPeriod, totalSupplyForPeriod) = ruleProcessor.checkTokenMaxSupplyVolatility(
-        //         tokenMaxSupplyVolatility[action].ruleId,
-        //         volumeTotalForPeriod,
-        //         totalSupplyForPeriod,
-        //         IToken(msg.sender).totalSupply(),
-        //         _to == address(0x00) ? int(_amount) * -1 : int(_amount),
-        //         lastSupplyUpdateTime
-        //     );
-        //     lastSupplyUpdateTime = uint64(block.timestamp);
-        // }
+        if (lib.tokenMaxSupplyVolatilityStorage().tokenMaxSupplyVolatility[action].active && (_from == address(0x00) || _to == address(0x00))) {
+            TokenMaxSupplyVolatilityS storage maxSupplyVolatility = lib.tokenMaxSupplyVolatilityStorage();
+            (maxSupplyVolatility.volumeTotalForPeriod, maxSupplyVolatility.totalSupplyForPeriod) = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxSupplyVolatility(
+                maxSupplyVolatility.tokenMaxSupplyVolatility[action].ruleId,
+                maxSupplyVolatility.volumeTotalForPeriod,
+                maxSupplyVolatility.totalSupplyForPeriod,
+                IToken(msg.sender).totalSupply(),
+                _to == address(0x00) ? int(_amount) * -1 : int(_amount),
+                maxSupplyVolatility.lastSupplyUpdateTime
+            );
+            maxSupplyVolatility.lastSupplyUpdateTime = uint64(block.timestamp);
+        }
     }
 
 

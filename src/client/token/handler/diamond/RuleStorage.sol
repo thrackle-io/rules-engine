@@ -63,3 +63,10 @@ struct FeeS{
  struct AdminMinTokenBalanceS{
     mapping(ActionTypes => Rule) adminMinTokenBalance; 
  }
+
+ struct TokenMaxSupplyVolatilityS{
+    mapping(ActionTypes => Rule) tokenMaxSupplyVolatility;
+    uint64 lastSupplyUpdateTime;
+    int256 volumeTotalForPeriod;
+    uint256 totalSupplyForPeriod;
+ }
