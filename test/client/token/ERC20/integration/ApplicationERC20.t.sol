@@ -591,7 +591,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.burn(1 * ATTO);
     }
 
-    function testERC20_AdminMinTokenBalanceRule() public {
+    function testERC20_MaxValueOutByAccessLevel() public {
         /// load non admin user with application coin
         applicationCoin.transfer(user1, 1000 * ATTO);
         assertEq(applicationCoin.balanceOf(user1), 1000 * ATTO);

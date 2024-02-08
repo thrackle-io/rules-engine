@@ -112,6 +112,61 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoin.transfer(user2, 10091);
     }
 
+    function testERC20_AccountMinMaxTokenBalance2() public {
+        // Set up the rule conditions
+        vm.warp(Blocktime);
+        bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
+        uint256[] memory minAmounts = createUint256Array((1000 * ATTO), (2000 * ATTO), (3000 * ATTO));
+        uint256[] memory maxAmounts = createUint256Array(
+            999999000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000,
+            999990000000000000000000000000000000000000000000000000000000000000000000000
+        );
+        // 720 = one month 4380 = six months 17520 = two years
+        uint16[] memory periods = createUint16Array(720, 4380, 17520);
+        switchToRuleAdmin();
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, minAmounts, maxAmounts, periods, uint64(Blocktime));
+        assertEq(_index, 0);
+        ERC20TaggedRuleFacet(address(coinHandlerDiamond)).setAccountMinMaxTokenBalanceId(_createActionsArray(), _index);
+        switchToAppAdministrator();
+        /// load non admin users with application coin
+        applicationCoin.transfer(rich_user, 10000 * ATTO);
+        assertEq(applicationCoin.balanceOf(rich_user), 10000 * ATTO);
+        applicationCoin.transfer(user2, 10000 * ATTO);
+        assertEq(applicationCoin.balanceOf(user2), 10000 * ATTO);
+        applicationCoin.transfer(user3, 10000 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 10000 * ATTO);
+        /// tag the user
+        applicationAppManager.addTag(rich_user, "Oscar"); ///add tag
+        assertTrue(applicationAppManager.hasTag(rich_user, "Oscar"));
+        applicationAppManager.addTag(user2, "Tayler"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user2, "Tayler"));
+        applicationAppManager.addTag(user3, "Shane"); ///add tag
+        assertTrue(applicationAppManager.hasTag(user3, "Shane"));
+        /// switch to the user
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        /// attempt a transfer that violates the rule
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 9001 * ATTO);
+        /// make sure a transfer that is acceptable will still pass within the freeze window.
+        applicationCoin.transfer(user1, 9000 * ATTO);
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 1 * ATTO);
+        /// add enough time so that it should pass
+        vm.warp(Blocktime + (720 * 1 hours));
+        applicationCoin.transfer(user1, 1 * ATTO);
+
+        /// try tier 2
+        /// switch to the user
+        vm.stopPrank();
+        vm.startPrank(user2);
+        /// attempt a transfer that violates the rule
+        vm.expectRevert(0xa7fb7b4b);
+        applicationCoin.transfer(user1, 8001 * ATTO);
+    }
+
+
     function testERC20_AccountMinMaxTokenBalanceBlankTag() public {
         /// set up a non admin user with tokens
         applicationCoin.transfer(rich_user, 100000);
@@ -738,6 +793,281 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         vm.expectRevert(0x7a78c901);
         applicationCoin.transfer(user3, 5);
     }
+
+    function testERC20_AccountMaxValueByAccessLevel() public {
+        /// set up a non admin user with tokens
+        applicationCoin.transfer(user1, 100000 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 100000 * ATTO);
+
+        // add the rule.
+        uint48[] memory balanceAmounts = createUint48Array(0, 100, 500, 1000, 10000);
+        switchToRuleAdmin();
+        uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByAccessLevel(address(applicationAppManager), balanceAmounts);
+        uint256 balance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccountMaxValueByAccessLevel(_index, 2);
+        assertEq(balance, 500);
+
+        /// create secondary token, mint, and transfer to user
+        switchToSuperAdmin();
+        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
+        switchToAppAdministrator();
+        applicationCoinHandler2 = new ApplicationERC20Handler(address(ruleProcessor), address(applicationAppManager), address(draculaCoin), false);
+        draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
+        /// register the token
+        applicationAppManager.registerToken("DRAC", address(draculaCoin));
+        draculaCoin.mint(appAdministrator, 10000000000000000000000 * ATTO);
+        draculaCoin.transfer(user1, 100000 * ATTO);
+        assertEq(draculaCoin.balanceOf(user1), 100000 * ATTO);
+        erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * ATTO); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * ATTO);
+
+        /// connect the rule to this handler
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxValueByAccessLevelId(_index);
+
+        ///perform transfer that checks rule when account does not have AccessLevel(should fail)
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert(0xaee8b993);
+        applicationCoin.transfer(user2, 11 * ATTO);
+
+        /// Add access level to whale
+        address whale = address(99);
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(whale, 4);
+
+        /// perform transfer that checks user with AccessLevel and no balances
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// this one is over the limit and should fail
+        vm.expectRevert(0xaee8b993);
+        applicationCoin.transfer(whale, 10001 * ATTO);
+        /// this one is within the limit and should pass
+        applicationCoin.transfer(whale, 10000 * ATTO);
+
+        // set the access level for the user4
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user4, 3);
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        /// perform transfer that checks user with AccessLevel and existing balances(should fail regardless of other balance)
+        vm.expectRevert(0xaee8b993);
+        applicationCoin.transfer(user4, 1001 * ATTO);
+        /// perform transfer that checks user with AccessLevel and existing balances(should fail because of other balance)
+        draculaCoin.transfer(user4, 999 * ATTO);
+        vm.expectRevert(0xaee8b993);
+        applicationCoin.transfer(user4, 2 * ATTO);
+
+        /// perform transfer that checks user with AccessLevel and existing balances(should pass)
+        applicationCoin.transfer(user4, 1 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 1 * ATTO);
+
+        /// test burning is allowed while rule is active
+        applicationCoin.burn(1 * ATTO);
+        /// burn remaining balance to ensure rule limit is not checked on burns
+        applicationCoin.burn(89998000000000000000000);
+        /// test burn with account that has access level assign
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.burn(1 * ATTO);
+        /// test the user account balance is decreased from burn and can receive tokens
+        vm.stopPrank();
+        vm.startPrank(whale);
+        applicationCoin.transfer(user4, 1 * ATTO);
+        /// now whale account burns
+        applicationCoin.burn(1 * ATTO);
+    }
+
+    function testERC20_AccountMaxTransactionValueByRiskScore() public {
+        uint8[] memory riskScores = createUint8Array(10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48Array(1000000, 100000, 10000, 1000);
+        switchToRuleAdmin();
+        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
+        switchToAppAdministrator();
+        /// set up a non admin user with tokens
+        applicationCoin.transfer(user1, 10000000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user1), 10000000 * (10 ** 18));
+        applicationCoin.transfer(user2, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user2), 10000 * (10 ** 18));
+        applicationCoin.transfer(user3, 1500 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user3), 1500 * (10 ** 18));
+        applicationCoin.transfer(user4, 1000000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user4), 1000000 * (10 ** 18));
+        applicationCoin.transfer(user5, 10000 * (10 ** 18));
+        assertEq(applicationCoin.balanceOf(user5), 10000 * (10 ** 18));
+
+        ///Assign Risk scores to user1 and user 2
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user5, riskScores[3]);
+
+        ///Switch to app admin and set up ERC20Pricer and activate AccountMaxTxValueByRiskScore Rule
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxTxValueByRiskScoreId(index);
+        ///User2 sends User1 amount under transaction limit, expect passing
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationCoin.transfer(user1, 1 * (10 ** 18));
+
+        ///Transfer expected to fail
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert();
+        applicationCoin.transfer(user2, 1000001 * (10 ** 18));
+
+        switchToRiskAdmin();
+        ///Test in between Risk Score Values
+        applicationAppManager.addRiskScore(user3, 49);
+        applicationAppManager.addRiskScore(user4, 81);
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        vm.expectRevert();
+        applicationCoin.transfer(user4, 10001 * (10 ** 18));
+
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.transfer(user3, 10 * (10 ** 18));
+
+        //vm.expectRevert(0x9fe6aeac);
+        applicationCoin.transfer(user3, 1001 * (10 ** 18));
+
+        /// test burning tokens while rule is active
+        vm.stopPrank();
+        vm.startPrank(user5);
+        applicationCoin.burn(999 * (10 ** 18));
+        vm.expectRevert();
+        applicationCoin.burn(1001 * (10 ** 18));
+        applicationCoin.burn(1000 * (10 ** 18));
+    }
+
+    function testERC20_PauseRulesViaAppManager() public {
+        ///Test transfers without pause rule
+        /// set up a non admin user with tokens
+        applicationCoin.transfer(user1, 100000);
+        assertEq(applicationCoin.balanceOf(user1), 100000);
+        applicationCoin.transfer(ruleBypassAccount, 100000);
+        assertEq(applicationCoin.balanceOf(ruleBypassAccount), 100000);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.transfer(user2, 1000);
+
+        ///set pause rule and check check that the transaction reverts
+        switchToRuleAdmin();
+        applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1500);
+        vm.warp(Blocktime + 1001);
+
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert();
+        applicationCoin.transfer(user2, 1000);
+
+        ///Check that rule bypass accounts can still transfer within pausePeriod
+        switchToRuleBypassAccount();
+
+        applicationCoin.transfer(superAdmin, 1000);
+        ///move blocktime after pause to resume transfers
+        vm.warp(Blocktime + 1600);
+        ///transfer again to check
+        applicationCoin.transfer(user2, 1000);
+
+        ///Set multiple pause rules
+        switchToRuleAdmin();
+        applicationAppManager.addPauseRule(Blocktime + 1700, Blocktime + 2000);
+        applicationAppManager.addPauseRule(Blocktime + 2100, Blocktime + 2500);
+        applicationAppManager.addPauseRule(Blocktime + 3000, Blocktime + 3500);
+        switchToAppAdministrator();
+        ///warp between periods to test pause effect
+
+        ///Pause window 1
+        vm.warp(Blocktime + 1755);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert();
+        applicationCoin.transfer(user2, 1200);
+        ///Pause window 2
+        vm.warp(Blocktime + 2150);
+        vm.expectRevert();
+        applicationCoin.transfer(user2, 1300);
+        ///In between 2 and 3
+        vm.warp(Blocktime + 2675);
+        applicationCoin.transfer(user2, 1000);
+        ///Pause window 3
+        vm.warp(Blocktime + 3333);
+        vm.expectRevert();
+        applicationCoin.transfer(user2, 1400);
+        ///After pause window 3
+        vm.warp(Blocktime + 3775);
+        applicationCoin.transfer(user2, 1000);
+
+        assertEq(applicationCoin.balanceOf(user2), 4000);
+    }
+
+    /// test updating min transfer rule
+    function testERC20_PassesAccountDenyForNoAccessLevelRuleCoin() public {
+        /// load non admin user with application coin
+        applicationCoin.transfer(rich_user, 1000000 * ATTO);
+        assertEq(applicationCoin.balanceOf(rich_user), 1000000 * ATTO);
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        /// check transfer without access level but with the rule turned off
+        applicationCoin.transfer(user3, 5 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 5 * ATTO);
+        /// now turn the rule on so the transfer will fail
+        switchToRuleAdmin();
+        applicationHandler.activateAccountDenyForNoAccessLevelRule(true);
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        vm.expectRevert(0x3fac082d);
+        applicationCoin.transfer(user3, 5 * ATTO);
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        vm.expectRevert(0x3fac082d);
+        applicationCoin.transfer(rich_user, 5 * ATTO);
+
+        // set AccessLevel and try again
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(user3, 1);
+
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        vm.expectRevert(0x3fac082d); /// this fails because rich_user is still accessLevel0
+        applicationCoin.transfer(user3, 5 * ATTO);
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        vm.expectRevert(0x3fac082d); /// this fails because rich_user is still accessLevel0
+        applicationCoin.transfer(rich_user, 5 * ATTO);
+
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(rich_user, 1);
+
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        applicationCoin.transfer(user3, 5 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 10 * ATTO);
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        applicationCoin.transfer(rich_user, 5 * ATTO);
+
+        /// test that burn works when user has accessLevel above 0
+        applicationCoin.burn(5 * ATTO);
+        /// test burn fails when rule active and user has access level 0
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(rich_user, 0);
+
+        vm.stopPrank();
+        vm.startPrank(rich_user);
+        vm.expectRevert(0x3fac082d);
+        applicationCoin.burn(1 * ATTO);
+    }
+
 
     function initializeAMMAndUsers() public returns (DummyAMM amm){
         amm = new DummyAMM();
