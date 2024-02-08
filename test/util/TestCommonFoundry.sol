@@ -639,6 +639,7 @@ abstract contract TestCommonFoundry is TestCommon {
         // create the ERC20 and connect it to its handler
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
         coinHandlerDiamond = _createERC20HandlerDiamond();
+        VersionFacet(address(coinHandlerDiamond)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(coinHandlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
         applicationCoin.connectHandlerToToken(address(coinHandlerDiamond));
         /// register the token
