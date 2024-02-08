@@ -42,7 +42,7 @@ contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTok
         // }
         if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
             TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
-            maxTradingVolume.transferVolume = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxTradingVolume(maxTradingVolume.tokenMaxTradingVolume[action].ruleId, maxTradingVolume.transferVolume, IToken(msg.sender).totalSupply(), _tokenId, maxTradingVolume.lastTransferTime);
+            maxTradingVolume.transferVolume = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxTradingVolume(maxTradingVolume.tokenMaxTradingVolume[action].ruleId, maxTradingVolume.transferVolume, IToken(msg.sender).totalSupply(), _amount, maxTradingVolume.lastTransferTime);
             maxTradingVolume.lastTransferTime = uint64(block.timestamp);
         }
         /// rule requires ruleID and either to or from address be zero address (mint/burn)
@@ -53,7 +53,7 @@ contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTok
                 maxSupplyVolatility.volumeTotalForPeriod,
                 maxSupplyVolatility.totalSupplyForPeriod,
                 IToken(msg.sender).totalSupply(),
-                _to == address(0x00) ? int(_tokenId) * -1 : int(_tokenId),
+                _to == address(0x00) ? int(_amount) * -1 : int(_amount),
                 maxSupplyVolatility.lastSupplyUpdateTime
             );
             maxSupplyVolatility.lastSupplyUpdateTime = uint64(block.timestamp);

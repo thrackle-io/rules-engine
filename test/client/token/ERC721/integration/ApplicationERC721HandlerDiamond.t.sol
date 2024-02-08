@@ -897,7 +897,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         }
         /// create rule params
         // create rule params
-        uint16 volatilityLimit = 2000; /// 10%
+        uint16 volatilityLimit = 2000; /// 20%
         uint8 rulePeriod = 24; /// 24 hours
         uint64 startTime = Blocktime; /// default timestamp
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
