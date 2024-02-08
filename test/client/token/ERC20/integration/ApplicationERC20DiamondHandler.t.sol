@@ -24,6 +24,35 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
     }
 
+    function testERC20_ZeroAddressChecksERC20() public {
+        vm.expectRevert();
+        new ApplicationERC20("FRANK", "FRANK", address(0x0));
+        vm.expectRevert();
+        applicationCoin.connectHandlerToToken(address(0));
+    }
+
+    function testERC20_ERC20AndHandlerVersions() public {
+        string memory version = VersionFacet(address(coinHandlerDiamond)).version();
+        assertEq(version, "1.1.0");
+    }
+
+    function testERC20_Transfer() public {
+        applicationCoin.transfer(user, 10 * ATTO);
+        assertEq(applicationCoin.balanceOf(user), 10 * ATTO);
+        assertEq(applicationCoin.balanceOf(appAdministrator), 9999999999999999999990 * ATTO);
+    }
+
+    function testERC20_Mint() public {
+        applicationCoin.mint(superAdmin, 1000);
+        vm.stopPrank();
+        vm.startPrank(user1);
+    }
+
+    function testERC20_Balance() public {
+        console.logUint(applicationCoin.totalSupply());
+        assertEq(applicationCoin.balanceOf(appAdministrator), 10000000000000000000000 * ATTO);
+    }
+
     function testERC20_handlerDiamond() public {
         /// set up a non admin user with tokens
         applicationCoin.transfer(rich_user, 100000);
@@ -406,9 +435,9 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
-        applicationCoinHandler.activateAdminMinTokenBalance(_createActionsArray(), false);
+        ERC20HandlerMainFacet(address(coinHandlerDiamond)).activateAdminMinTokenBalance(_createActionsArray(), false);
         vm.expectRevert();
-        applicationCoinHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC20HandlerMainFacet(address(coinHandlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         switchToAppAdministrator();
         vm.warp(block.timestamp + secondsForward);
         switchToRuleBypassAccount();
@@ -419,8 +448,8 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToRuleAdmin();
         /// if last rule is expired, we should be able to turn off and update the rule
         if (secondsForward >= 365 days) {
-            applicationCoinHandler.activateAdminMinTokenBalance(_createActionsArray(), false);
-            applicationCoinHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+            ERC20HandlerMainFacet(address(coinHandlerDiamond)).activateAdminMinTokenBalance(_createActionsArray(), false);
+            ERC20HandlerMainFacet(address(coinHandlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         }
     }
 
