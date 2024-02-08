@@ -99,7 +99,7 @@ abstract contract TestCommonFoundry is TestCommon {
             "VersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
-            // Raw implementation facets.
+            // // Raw implementation facets.
             "ProtocolRawFacet",
             // Protocol facets.
             //rule processor facets
@@ -651,7 +651,9 @@ abstract contract TestCommonFoundry is TestCommon {
 
         /// create an ERC721
         applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
-        applicationNFTHandler = _createERC721Handler(ruleProcessor, applicationAppManager, applicationNFT);
+        nftHandlerDiamond = _createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(nftHandlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), false);
+        applicationNFT.connectHandlerToToken(address(nftHandlerDiamond));
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
         /// set up the pricer for erc20

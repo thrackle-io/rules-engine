@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "./HandlerRuleContractsCommonImports.sol";
 import {IAppManagerErrors } from "../../../../common/IErrors.sol";
 import {ITokenHandlerEvents } from "../../../../common/IEvents.sol";
-// import "../../IAdminMinTokenBalanceCapable.sol";
+import "../../IAdminMinTokenBalanceCapable.sol";
 
 /**
  * @title Handler Admin Min Token Balance 
@@ -14,7 +14,7 @@ import {ITokenHandlerEvents } from "../../../../common/IEvents.sol";
  */
 
 
-contract HandlerAdminMinTokenBalance is HandlerRuleContractsCommonImports, IAppManagerErrors, ITokenHandlerEvents, RuleAdministratorOnly {
+contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IAppManagerErrors, ITokenHandlerEvents, RuleAdministratorOnly, IAdminMinTokenBalanceCapable {
 
     /// This is used to set the max action for an efficient check of all actions in the enum
     uint8 constant LAST_POSSIBLE_ACTION = uint8(ActionTypes.P2P_TRANSFER);
@@ -48,7 +48,7 @@ contract HandlerAdminMinTokenBalance is HandlerRuleContractsCommonImports, IAppM
      * @dev This function is used by the app manager to determine if the AdminMinTokenBalance rule is active for any actions
      * @return Success equals true if all checks pass
      */
-    function isAdminMinTokenBalanceActiveAndApplicable() public view returns (bool) {
+    function isAdminMinTokenBalanceActiveAndApplicable() public view override returns (bool) {
         bool active;
         uint8 action = 0;
         mapping(ActionTypes => Rule) storage adminMinTokenBalance = lib.adminMinTokenBalanceStorage().adminMinTokenBalance;

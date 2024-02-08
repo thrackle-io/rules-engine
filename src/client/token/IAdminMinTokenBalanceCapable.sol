@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
  */
 
 abstract contract IAdminMinTokenBalanceCapable {
-    error AdminMinTokenBalanceisActive();
 
     /**
      * @dev This function is used by the app manager to determine if the Admin Min Token Balance rule is active for any of the actions

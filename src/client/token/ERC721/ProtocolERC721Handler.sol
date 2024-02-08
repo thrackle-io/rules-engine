@@ -504,9 +504,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      */
     function activateAdminMinTokenBalance(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired
-        if (!_on) {
-            if (isAdminMinTokenBalanceActiveAndApplicable()) revert AdminMinTokenBalanceisActive();
-        }
+        // if (!_on) {
+        //     if (isAdminMinTokenBalanceActiveAndApplicable()) revert AdminMinTokenBalanceisActive();
+        // }
         for (uint i; i < _actions.length; ) {
             adminMinTokenBalance[_actions[i]].active = _on;
             if (_on) {
