@@ -2,9 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "test/util/TestCommonFoundry.sol";
+import "test/util/RuleCreation.sol";
 import "../../TestTokenCommon.sol";
 
-contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
+contract ApplicationERC721Test is TestCommonFoundry, RuleCreation, DummyNFTAMM {
 
     uint256 erc721Liq = 10_000;
      uint256 erc20Liq = 100_000 * ATTO;
@@ -882,8 +883,8 @@ function testERC721_TokenMaxDailyTrades() public {
             applicationNFT.safeMint(ruleBypassAccount);
         }
         /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
-        switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 5, block.timestamp + 365 days);
+        uint64 periodForRule = uint64(block.timestamp + 365 days); 
+        createAdminMinTokenBalanceRule(5, periodForRule);
 
         /// Set the rule in the handler
         ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
@@ -893,7 +894,7 @@ function testERC721_TokenMaxDailyTrades() public {
         vm.expectRevert();
         ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
         vm.expectRevert();
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        applicationNFTHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
         switchToRuleBypassAccount();
         /// These transfers should pass
         applicationNFT.safeTransferFrom(ruleBypassAccount, user1, 0);

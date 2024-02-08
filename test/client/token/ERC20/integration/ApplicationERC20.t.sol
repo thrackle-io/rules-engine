@@ -2,9 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "test/util/TestCommonFoundry.sol";
+import "test/util/RuleCreation.sol";
 import "../../TestTokenCommon.sol";
 
-contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
+contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, RuleCreation {
 
     function setUp() public {
         vm.startPrank(superAdmin);
@@ -243,7 +244,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         switchToRuleAdmin();
         bytes4 selector = bytes4(keccak256("InvalidOracleType(uint8)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 2));
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
+        RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
 
         /// test burning while oracle rule is active (allow list active)
         ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setAccountApproveDenyOracleId(actionTypes, _indexAllowed);
@@ -321,14 +322,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 100000 * ATTO);
         assertEq(applicationCoin.balanceOf(user1), 100000 * ATTO);
-
-        // add the rule.
-        uint48[] memory balanceAmounts = createUint48Array(0, 100, 500, 1000, 10000);
-        switchToRuleAdmin();
-        uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByAccessLevel(address(applicationAppManager), balanceAmounts);
-        uint256 balance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccountMaxValueByAccessLevel(_index, 2);
-        assertEq(balance, 500);
-
         /// create secondary token, mint, and transfer to user
         switchToSuperAdmin();
         ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
@@ -343,11 +336,8 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(draculaCoin.balanceOf(user1), 100000 * ATTO);
         erc20Pricer.setSingleTokenPrice(address(draculaCoin), 1 * ATTO); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(draculaCoin)), 1 * ATTO);
-
-        /// connect the rule to this handler
-        switchToRuleAdmin();
-        applicationHandler.setAccountMaxValueByAccessLevelId(_index);
-
+        // add the rule.
+        createAccountMaxValueByAccessLevelRule(0, 100, 500, 1000, 10000);
         ///perform transfer that checks rule when account does not have AccessLevel(should fail)
         vm.stopPrank();
         vm.startPrank(user1);
@@ -465,10 +455,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
     }
 
     function testERC20_AccountMaxTransactionValueByRiskScore() public {
-        uint8[] memory riskScores = createUint8Array(10, 40, 80, 99);
-        uint48[] memory txnLimits = createUint48Array(1000000, 100000, 10000, 1000);
-        switchToRuleAdmin();
-        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
+        createAccountMaxTxValueByRiskRule(10, 40, 80, 99, 1000000, 100000, 10000, 1000);
         switchToAppAdministrator();
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 10000000 * (10 ** 18));
@@ -484,16 +471,15 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         ///Assign Risk scores to user1 and user 2
         switchToRiskAdmin();
-        applicationAppManager.addRiskScore(user1, riskScores[0]);
-        applicationAppManager.addRiskScore(user2, riskScores[1]);
-        applicationAppManager.addRiskScore(user5, riskScores[3]);
+        applicationAppManager.addRiskScore(user1, 10);
+        applicationAppManager.addRiskScore(user2, 40);
+        applicationAppManager.addRiskScore(user5, 99);
 
         ///Switch to app admin and set up ERC20Pricer and activate AccountMaxTxValueByRiskScore Rule
         switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
-        switchToRuleAdmin();
-        applicationHandler.setAccountMaxTxValueByRiskScoreId(index);
+
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
         vm.startPrank(user2);
@@ -1137,14 +1123,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
     }
 
     function testERC20_TokenMaxTradingVolumeWithSupplySet() public {
-        /// set the rule for 40% in 2 hours, starting at midnight
-        switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addTokenMaxTradingVolume(address(applicationAppManager), 4000, 2, Blocktime, 100_000 * ATTO);
-        assertEq(_index, 0);
-        NonTaggedRules.TokenMaxTradingVolume memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMaxTradingVolume(_index);
-        assertEq(rule.max, 4000);
-        assertEq(rule.period, 2);
-        assertEq(rule.startTime, Blocktime);
         switchToAppAdministrator();
         /// load non admin users with game coin
         applicationCoin.transfer(rich_user, 100_000 * ATTO);
@@ -1254,15 +1232,10 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
     function _setupAccountMaxSellSize() internal {
         vm.stopPrank();
         vm.startPrank(superAdmin);
-        ///Add tag to user
-        bytes32[] memory accs = new bytes32[](1);
-        uint192[] memory maxSizes = new uint192[](1);
-        uint16[] memory period = new uint16[](1);
-        accs[0] = bytes32("AccountMaxSellSize");
-        maxSizes[0] = uint192(600); ///Amount to trigger Sell freeze rules
-        period[0] = uint16(36); ///Hours
-
-        /// Set the rule data
+        bytes32 ruleTag = bytes32("AccountMaxSellSize");
+        createAccountMaxSellSizeRule(ruleTag, 600, 36);
+        switchToAppAdministrator();
+        /// add tags 
         applicationAppManager.addTag(user1, "AccountMaxSellSize");
         applicationAppManager.addTag(user2, "AccountMaxSellSize");
         /// add the rule.
@@ -1291,15 +1264,9 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
     }
 
     function _setupAccountMaxBuySizeRule() internal {
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
-        /// Add tag to user
-        bytes32[] memory accs = new bytes32[](1);
-        uint256[] memory amounts = new uint256[](1);
-        uint16[] memory period = new uint16[](1);
-        accs[0] = bytes32("MaxBuySize");
-        amounts[0] = uint256(600); /// Amount to trigger Purchase freeze rules
-        period[0] = uint16(36); /// Hours
+        switchToAppAdministrator();
+        bytes32 ruleTag = bytes32("MaxBuySize");
+        createAccountMaxBuySizeRule(ruleTag, 600, 36);
 
         /// Set the rule data
         applicationAppManager.addTag(user1, accs[0]);
