@@ -18,7 +18,6 @@
     1. _RuleProcessorAddress_ - The address noted from previous steps and set as an environment variable($RULE_PROCESSOR_DIAMOND).
     2. _App Manager Address_ - The address noted from previous steps and set as an environment variable($APPLICATION_APP_MANAGER).
     3. _assetAddress_ - The address of the controlling asset
-    4. _upgradeMode_ - The bool representing if this is an upgraded handler contract
 6. Run the command to create and deploy the contract. NOTE: The path includes source name and contract name.
     ````
     forge create src/example/deploy/FrankensteinERC721Handler.sol:FrankensteinERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC721_1 false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
