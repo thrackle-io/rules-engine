@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "src/client/token/data/Fees.sol";
 import "src/client/token/ProtocolHandlerCommon.sol";
-import {IZeroAddressError, IAssetHandlerErrors} from "src/common/IErrors.sol";
+import {IZeroAddressError, IAssetHandlerErrors, IAppManagerErrors} from "src/common/IErrors.sol";
 import "../ProtocolHandlerTradingRulesCommon.sol";
 
 /**
@@ -545,9 +545,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     function setAdminMinTokenBalanceId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateAdminMinTokenBalance(_ruleId);
         /// if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
-        if (isAdminMinTokenBalanceActiveForAnyAction()) {
-            if (isAdminMinTokenBalanceActiveAndApplicable()) revert AdminMinTokenBalanceisActive();
-        }
+        // if (isAdminMinTokenBalanceActiveForAnyAction()) {
+        //     if (isAdminMinTokenBalanceActiveAndApplicable()) revert AdminMinTokenBalanceisActive();
+        // }
         for (uint i; i < _actions.length; ) {
             /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
             adminMinTokenBalance[_actions[i]].ruleId = _ruleId;
@@ -604,9 +604,9 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      */
     function activateAdminMinTokenBalance(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         /// if the rule is currently active, we check that time for current ruleId is expired
-        if (!_on) {
-            if (isAdminMinTokenBalanceActiveAndApplicable()) revert AdminMinTokenBalanceisActive();
-        }
+        // if (!_on) {
+        //     if (isAdminMinTokenBalanceActiveAndApplicable()) revert AdminMinTokenBalanceisActive();
+        // }
         for (uint i; i < _actions.length; ) {
             adminMinTokenBalance[_actions[i]].active = _on;
             if (_on) {

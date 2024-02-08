@@ -8,6 +8,7 @@ import "./ERC20TaggedRuleFacet.sol";
 import "./ERC20NonTaggedRuleFacet.sol";
 import "../../../application/IAppManager.sol";
 import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
+import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
 
 contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents{
 
@@ -25,6 +26,8 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         data.appManager = _appManagerAddress;
         data.ruleProcessor = _ruleProcessorProxyAddress;
 
+        ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
+
         // transferOwnership(_assetAddress);
         // if (!_upgradeMode) {
         //     deployDataContract();
@@ -33,13 +36,6 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         //     emit HandlerDeployed(_appManagerAddress);
         // }
     }
-
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
-    // function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool) {
-    //     return interfaceId == type(IAdminMinTokenBalanceCapable).interfaceId || super.supportsInterface(interfaceId);
-    // }
 
     /**
      * @dev This function is the one called from the contract that implements this handler. It's the entry point.

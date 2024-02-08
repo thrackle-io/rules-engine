@@ -9,6 +9,7 @@ import "./ERC721TaggedRuleFacet.sol";
 import "./ERC721NonTaggedRuleFacet.sol";
 import "../../../application/IAppManager.sol";
 import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
+import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
 
 contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit{
 
@@ -26,6 +27,8 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
         data.appManager = _appManagerAddress;
         data.ruleProcessor = _ruleProcessorProxyAddress;
         lib.nftValuationLimitStorage().nftValuationLimit = 100;
+        ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
+
         // transferOwnership(_assetAddress);
         // if (!_upgradeMode) {
         //     deployDataContract();
