@@ -305,6 +305,7 @@ abstract contract TestCommonFoundry is TestCommon {
         nftHandlerDiamond = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(nftHandlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), false);
         applicationNFT.connectHandlerToToken(address(nftHandlerDiamond));
+        VersionFacet(address(nftHandlerDiamond)).updateVersion("1.1.0");
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
         /// set up the pricer for erc20

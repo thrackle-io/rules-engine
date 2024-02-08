@@ -24,7 +24,7 @@ library StorageLib {
     bytes32 constant TOKEN_MAX_TRADING_VOLUME_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-trading-volume-position")) - 1);
     bytes32 constant TOKEN_MIN_TX_SIZE_HANDLER_POSITION = bytes32(uint256(keccak256("token-min-tx-size-position")) - 1);
     bytes32 constant TOKEN_MIN_HOLD_TIME_HANDLER_POSITION = bytes32(uint256(keccak256("token-min-hold-time-position")) - 1);
-    
+    bytes32 constant NFT_VALUATION_LIMIT_POSITION = bytes32(uint256(keccak256("nft-valuation-position")) - 1);
     /**
      * @dev Function to store Handler Base
      * @return ds Data Storage of Handler Base
@@ -163,6 +163,17 @@ library StorageLib {
      */
     function tokenMinHoldTimeStorage() internal pure returns (TokenMinHoldTimeS storage ds) {
         bytes32 position = TOKEN_MIN_HOLD_TIME_HANDLER_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
+
+    /**
+     * @dev Function to store Token Min Hold Time
+     * @return ds Data Storage of Oracle Rule
+     */
+    function nftValuationLimitStorage() internal pure returns (NFTValuationLimitS storage ds) {
+        bytes32 position = NFT_VALUATION_LIMIT_POSITION;
         assembly {
             ds.slot := position
         }

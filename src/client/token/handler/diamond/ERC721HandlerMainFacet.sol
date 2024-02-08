@@ -4,12 +4,13 @@ pragma solidity ^0.8.17;
 import "../common/HandlerUtils.sol";
 import "../ruleContracts/HandlerBase.sol";
 import "../ruleContracts/HandlerAdminMinTokenBalance.sol";
+import "../ruleContracts/NFTValuationLimit.sol";
 import "./ERC721TaggedRuleFacet.sol";
 import "./ERC721NonTaggedRuleFacet.sol";
 import "../../../application/IAppManager.sol";
 import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
 
-contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents{
+contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit{
 
     /**
      * @dev Constructor sets params
@@ -24,7 +25,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
             revert ZeroAddress();
         data.appManager = _appManagerAddress;
         data.ruleProcessor = _ruleProcessorProxyAddress;
-
+        lib.nftValuationLimitStorage().nftValuationLimit = 100;
         // transferOwnership(_assetAddress);
         // if (!_upgradeMode) {
         //     deployDataContract();
@@ -60,7 +61,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
-            // appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
+            IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount, lib.nftValuationLimitStorage().nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
             // _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
             callAnotherFacet(
                 0x36bd6ea7, 

@@ -56,12 +56,12 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         bool isFromBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_from);
         bool isToBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_to);
         ActionTypes action = determineTransferAction(_from, _to, _sender);
-        // // // All transfers to treasury account are allowed
-        // if (!appManager.isTreasury(_to)) {
-        //     /// standard rules do not apply when either to or from is an admin
+        // // All transfers to treasury account are allowed
+        if (!IAppManager(handlerBaseStorage.appManager).isTreasury(_to)) {
+            /// standard rules do not apply when either to or from is an admin
             if (!isFromBypassAccount && !isToBypassAccount) {
-        //         /// appManager requires uint16 _nftValuationLimit and uin256 _tokenId for NFT pricing, 0 is passed for fungible token pricing
-        //         appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
+                /// appManager requires uint16 _nftValuationLimit and uin256 _tokenId for NFT pricing, 0 is passed for fungible token pricing
+                IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
             //    _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action); => 36bd6ea7
                 // gas cost: 61926
                 callAnotherFacet(
@@ -94,9 +94,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
                 emit RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
             }
             
-       // }
-        /// If all rule checks pass, return true
-       
+       }
         return true;
     }
 

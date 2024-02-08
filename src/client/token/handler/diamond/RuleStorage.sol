@@ -91,3 +91,7 @@ struct TokenMinHoldTime{
     mapping(ActionTypes => TokenMinHoldTime) tokenMinHoldTime;
     mapping(uint256 => uint256) ownershipStart;
  }
+
+ struct NFTValuationLimitS{
+    uint16 nftValuationLimit;
+ }
