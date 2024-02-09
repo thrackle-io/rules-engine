@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
 import {IZeroAddressError, IProtocolERC20Errors} from "src/common/IErrors.sol";
 import "../ProtocolTokenCommon.sol";
-import "src/client/token/ERC20/ProtocolERC20Handler.sol";
+import "src/client/token/handler/diamond/IHandlerDiamond.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 
 /**
@@ -20,7 +20,7 @@ import "src/protocol/economic/AppAdministratorOnly.sol";
  */
 contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, ProtocolTokenCommon, IProtocolERC20Errors {
     // address of the Handler
-    ProtocolERC20Handler handler;
+    IHandlerDiamond handler;
 
     /// Max supply should only be set once. Zero means infinite supply.
     uint256 MAX_SUPPLY;
@@ -64,7 +64,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {
         /// Rule Processor Module Check
-        require(handler.checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
+        require(IHandlerDiamond(handler).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);
     }
 
@@ -86,23 +86,22 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address owner = _msgSender();
         // if transfer fees/discounts are defined then process them first
-        if (handler.isFeeActive()) {
+        if (IHandlerDiamond(handler).isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees;
-            //TODO: Uncomment when we get this switched over to the Diamond
-            // (targetAccounts, feePercentages) = handler.getApplicableFees(owner, balanceOf(owner));
-            // for (uint i; i < feePercentages.length; ) {
-            //     if (feePercentages[i] > 0) {
-            //         // trim the fee and send it to the target treasury account
-            //         _transfer(owner, targetAccounts[i], (amount * uint24(feePercentages[i])) / 10000);
-            //         // accumulate all fees
-            //         fees += (amount * uint24(feePercentages[i])) / 10000;
-            //     }
-            //     unchecked {
-            //         ++i;
-            //     }
-            // }
+            (targetAccounts, feePercentages) = IHandlerDiamond(handler).getApplicableFees(owner, balanceOf(owner));
+            for (uint i; i < feePercentages.length; ) {
+                if (feePercentages[i] > 0) {
+                    // trim the fee and send it to the target treasury account
+                    _transfer(owner, targetAccounts[i], (amount * uint24(feePercentages[i])) / 10000);
+                    // accumulate all fees
+                    fees += (amount * uint24(feePercentages[i])) / 10000;
+                }
+                unchecked {
+                    ++i;
+                }
+            }
             // subtract the total fees from main transfer amount
             amount -= fees;
         }
@@ -130,26 +129,25 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
         // if transfer fees/discounts are defined then process them first
-        if (handler.isFeeActive()) {
+        if (IHandlerDiamond(handler).isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees;
-             //TODO: Uncomment when we get this switched over to the Diamond
-            // (targetAccounts, feePercentages) = handler.getApplicableFees(from, balanceOf(from));
-            // for (uint i; i < feePercentages.length; ) {
-            //     if (feePercentages[i] > 0) {
-            //         // trim the fee and send it to the target treasury account
-            //         uint fee = (amount * uint24(feePercentages[i])) / 10000;
-            //         if (fee > 0) {
-            //             _transfer(from, targetAccounts[i], fee);
-            //             // accumulate all fees
-            //             fees += fee;
-            //         }
-            //     }
-            //     unchecked {
-            //         ++i;
-            //     }
-            // }
+            (targetAccounts, feePercentages) = IHandlerDiamond(handler).getApplicableFees(from, balanceOf(from));
+            for (uint i; i < feePercentages.length; ) {
+                if (feePercentages[i] > 0) {
+                    // trim the fee and send it to the target treasury account
+                    uint fee = (amount * uint24(feePercentages[i])) / 10000;
+                    if (fee > 0) {
+                        _transfer(from, targetAccounts[i], fee);
+                        // accumulate all fees
+                        fees += fee;
+                    }
+                }
+                unchecked {
+                    ++i;
+                }
+            }
             // subtract the total fees from main transfer amount
             amount -= fees;
         }
@@ -195,7 +193,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function connectHandlerToToken(address _handlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
-        handler = ProtocolERC20Handler(_handlerAddress);
+        handler = IHandlerDiamond(_handlerAddress);
         emit HandlerConnected(_handlerAddress, address(this));
     }
 
