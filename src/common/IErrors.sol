@@ -13,6 +13,10 @@ interface IERC721Errors {
     error UnderHoldPeriod();
 }
 
+interface IHandlerDiamondErrors{
+    error AlreadyInitialized();
+}
+
 interface IRuleProcessorErrors {
     error RuleDoesNotExist();
 }
