@@ -16,7 +16,6 @@ import "../ruleContracts/HandlerTokenMinHoldTime.sol";
 import "../ruleContracts/HandlerTokenMaxDailyTrades.sol";
 
 contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize, HandlerTokenMinHoldTime, HandlerTokenMaxDailyTrades{
-    event Log(string _text, uint256 _number, address _address);
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual  rule checks.
      * @param _from address of the from account
@@ -38,7 +37,6 @@ contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTok
         if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) {
             // get all the tags for this NFT
             bytes32[] memory tags = IAppManager(handlerBaseStorage.appManager).getAllTags(handlerBaseStorage.assetAddress);
-            emit Log("tags[0]", tags.length, handlerBaseStorage.assetAddress);
             TokenMaxDailyTradesS storage maxDailyTrades = lib.tokenMaxDailyTradesStorage();
             maxDailyTrades.tradesInPeriod[_tokenId] = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxDailyTrades(maxDailyTrades.tokenMaxDailyTrades[action].ruleId, maxDailyTrades.tradesInPeriod[_tokenId], tags, maxDailyTrades.lastTxDate[_tokenId]);
             maxDailyTrades.lastTxDate[_tokenId] = uint64(block.timestamp);
