@@ -3,9 +3,9 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "src/example/application/ApplicationHandler.sol";
-import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
 import {ApplicationERC721AdminOrOwnerMint} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
+import "./DeployBase.s.sol";
 
 /**
  * @title Application Deploy 04 Application Non-Fungible Token  Script
@@ -24,8 +24,8 @@ import {ApplicationAppManager} from "src/example/application/ApplicationAppManag
  * forge script example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract ApplicationDeployNFTScript is Script {
-    ApplicationERC721Handler applicationNFTHandler;
+contract ApplicationDeployNFTScript is Script, DeployBase {
+    HandlerDiamond applicationNFTHandlerDiamond;
     uint256 privateKey;
     address ownerAddress;
 
@@ -40,8 +40,9 @@ contract ApplicationDeployNFTScript is Script {
 
         /// Create NFT
         ApplicationERC721AdminOrOwnerMint nft1 = new ApplicationERC721AdminOrOwnerMint("Clyde", "CLYDEPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
-        applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1), false);
-        nft1.connectHandlerToToken(address(applicationNFTHandler));
+        applicationNFTHandlerDiamond = createERC721HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1));
+        nft1.connectHandlerToToken(address(applicationNFTHandlerDiamond));
 
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("Clyde Picture", address(nft1));

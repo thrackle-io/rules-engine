@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "forge-std/Script.sol";
 import "src/example/ERC721/ApplicationERC721MintForAFee.sol";
 import "src/client/application/IAppManager.sol";
-import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
+import "../DeployBase.s.sol";
 
 /**
  * @title This is the deployment script for the Application NFT.
@@ -12,7 +12,7 @@ import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Hand
  * @dev This contract deploys the Application NFT ERC721. It will also register the token with the application's app manager
  */
 
-contract ApplicationERC721Script is Script {
+contract ApplicationERC721Script is Script, DeployBase {
     function setUp() public {}
 
     /**
@@ -22,8 +22,9 @@ contract ApplicationERC721Script is Script {
         vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
 
         ApplicationERC721MintForAFee nft1 = new ApplicationERC721MintForAFee("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), vm.envString("APPLICATION_ERC721_URI_1"), 10_000_000 gwei);
-        ApplicationERC721Handler applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), vm.envAddress("APPLICATION_APP_MANAGER"), address(nft1), false);
-        nft1.connectHandlerToToken(address(applicationNFTHandler));
+        HandlerDiamond applicationNFTHandlerDiamond = createERC721HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), vm.envAddress("APPLICATION_APP_MANAGER"), address(nft1));
+        nft1.connectHandlerToToken(address(applicationNFTHandlerDiamond));
         // Register the token with the application's app manager
         IAppManager(vm.envAddress("APPLICATION_APP_MANAGER")).registerToken("Frankenstein", address(this));
         vm.stopBroadcast();
