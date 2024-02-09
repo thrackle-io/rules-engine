@@ -71,7 +71,7 @@ else
 fi
 
 # Retrieve the ERC 20 Handler
-APPLICATION_ERC20_HANDLER_ADDRESS=$(parseContractAddress "ApplicationERC20Handler" $CHAIN_ID 0)
+APPLICATION_ERC20_HANDLER_ADDRESS=$(parseContractAddress "HandlerDiamond" $CHAIN_ID 0)
 echo APPLICATION_ERC20_HANDLER_ADDRESS=$APPLICATION_ERC20_HANDLER_ADDRESS
 echo
 
@@ -133,7 +133,7 @@ else
 fi
 
 # Retrieve the ERC 721 Handler
-APPLICATION_ERC721_HANDLER=$(parseContractAddress "ApplicationERC721Handler" $CHAIN_ID 0)
+APPLICATION_ERC721_HANDLER=$(parseContractAddress "HandlerDiamond" $CHAIN_ID 2)
 echo APPLICATION_ERC721_HANDLER=$APPLICATION_ERC721_HANDLER
 echo
 
@@ -181,7 +181,7 @@ else
 fi
 
 # Retrieve the ERC 20 Handler
-APPLICATION_ERC20_HANDLER_ADDRESS_2=$(parseContractAddress "ApplicationERC20Handler" $CHAIN_ID 1)
+APPLICATION_ERC20_HANDLER_ADDRESS_2=$(parseContractAddress "HandlerDiamond" $CHAIN_ID 1)
 echo APPLICATION_ERC20_HANDLER_ADDRESS_2=$APPLICATION_ERC20_HANDLER_ADDRESS_2
 echo
 
