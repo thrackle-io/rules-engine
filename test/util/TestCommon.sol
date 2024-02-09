@@ -42,10 +42,8 @@ import {HandlerDiamond, HandlerDiamondArgs} from "src/client/token/handler/diamo
 import "src/example/application/ApplicationAppManager.sol";
 
 import "src/example/ERC20/ApplicationERC20.sol";
-import "src/example/ERC20/ApplicationERC20Handler.sol";
 
 import { ApplicationERC721AdminOrOwnerMint as ApplicationERC721 } from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
-import "src/example/ERC721/ApplicationERC721Handler.sol";
 import "test/util/ApplicationERC721WithBatchMintBurn.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
@@ -53,7 +51,7 @@ import "test/util/ApplicationERC721UExtra.sol";
 import "test/util/ApplicationERC721UExtra2.sol";
 
 import "src/client/application/data/IPauseRules.sol";
-import "src/client/token/data/Fees.sol";
+// import "src/client/token/data/Fees.sol";
 import "src/client/application/data/Tags.sol";
 import "src/client/application/data/PauseRules.sol";
 import "src/client/application/data/AccessLevels.sol";
@@ -69,6 +67,8 @@ import "src/client/token/handler/diamond/TradingRuleFacet.sol";
 import {FeesFacet} from "src/client/token/handler/diamond/FeesFacet.sol";
 import {ERC20HandlerMainFacet} from "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
 import {ERC721HandlerMainFacet} from "src/client/token/handler/diamond/ERC721HandlerMainFacet.sol";
+import "src/client/token/handler/diamond/FeesFacet.sol";
+import "src/client/token/handler/diamond/RuleStorage.sol";
 /// common imports 
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
@@ -131,16 +131,12 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
 
     ApplicationERC20 public applicationCoin;
     ApplicationERC20 public applicationCoin2;
-    ApplicationERC20Handler public applicationCoinHandler;
-    ApplicationERC20Handler public applicationCoinHandler2;
-    ApplicationERC20Handler public applicationCoinHandlerSpecialOwner;
-    HandlerDiamond public coinHandlerDiamond;
-    HandlerDiamond public nftHandlerDiamond;
+    HandlerDiamond public applicationCoinHandler;
+    HandlerDiamond public applicationCoinHandler2;
+    HandlerDiamond public applicationNFTHandler;
     ApplicationERC20Pricing public erc20Pricer;
 
     ApplicationERC721 public applicationNFT;
-    ApplicationERC721Handler public applicationNFTHandler;
-    ApplicationERC721Handler public applicationNFTHandler2;
     ApplicationERC721HandlerMod public ERC721AssetHandler;
     ApplicationERC721Pricing public erc721Pricer;
 
@@ -154,9 +150,10 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     OracleDenied public oracleDenied; 
 
     ApplicationERC721 public boredWhaleNFT;
-    ApplicationERC721Handler public boredWhaleHandler;
+    HandlerDiamond public boredWhaleHandler;
     ApplicationERC721 public boredReptilianNFT;
-    ApplicationERC721Handler public boredReptileHandler;
+    HandlerDiamond public boredReptileHandler;
+
     ApplicationERC721Pricing public openOcean; 
 
     MintForAFeeERC721 public mintForAFeeNFT;
@@ -168,12 +165,13 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationERC721UProxy public mintForAFeeNFTUp;
     ApplicationERC721UProxy public whitelistMintNFTUp;
     ApplicationERC721UProxy public freeNFTUp;
-    ApplicationERC721Handler public MintForAFeeNFTHandler;
-    ApplicationERC721Handler public WhitelistNFTHandler;
-    ApplicationERC721Handler public FreeForAllnNFTHandler;
-    ApplicationERC721Handler public MintForAFeeNFTHandlerUp;
-    ApplicationERC721Handler public WhitelistNFTHandlerUp;
-    ApplicationERC721Handler public FreeForAllnNFTHandlerUp;
+
+    HandlerDiamond public MintForAFeeNFTHandler;
+    HandlerDiamond public WhitelistNFTHandler;
+    HandlerDiamond public FreeForAllnNFTHandler;
+    HandlerDiamond public MintForAFeeNFTHandlerUp;
+    HandlerDiamond public WhitelistNFTHandlerUp;
+    HandlerDiamond public FreeForAllnNFTHandlerUp;
 
     // common block time
     uint64 Blocktime = 1769924800;
@@ -222,33 +220,6 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
      */
     function _createERC20(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC20 _token) {
         return new ApplicationERC20(_name, _symbol, address(_appManager));
-    }
-
-    /**
-     * @dev Deploy and set up an ERC20Handler
-     * @param _ruleProcessor rule processor
-     * @param _appManager previously created appManager
-     * @param _token ERC20
-     * @return _handler ERC20 handler
-     */
-    function _createERC20Handler(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, ApplicationERC20 _token) public returns (ApplicationERC20Handler _handler) {
-        _handler = new ApplicationERC20Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
-        _token.connectHandlerToToken(address(_handler));
-        return _handler;
-    }
-
-    /**
-     * @dev Deploy and set up an ERC20Handler specialized for Handler Testing 
-     * @param _ruleProcessor rule processor
-     * @param _appManager previously created appManager
-     * @param _token ERC20
-     * @param _appAdmin App Admin Address 
-     * @return _handler ERC20 handler
-     */
-    function _createERC20HandlerSpecialized(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager,ApplicationERC20 _token, address _appAdmin) public returns (ApplicationERC20Handler _handler) {
-        _handler = new ApplicationERC20Handler(address(_ruleProcessor), address(_appManager), address(_appAdmin), false);
-        _token.connectHandlerToToken(address(_handler));
-        return _handler;
     }
 
     /**
@@ -344,71 +315,6 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     function _createERC721UpgradeableProxy(address _applicationNFTU, address _proxyOwner) public returns (ApplicationERC721UProxy _proxy) {
         return new ApplicationERC721UProxy(address(_applicationNFTU), _proxyOwner, "");
         
-    }
-
-    /**
-     * @dev Deploy and set up an ERC721Handler
-     * @param _ruleProcessor rule processor
-     * @param _appManager previously created appManager
-     * @param _token ERC721
-     * @return _handler ERC721 handler
-     */
-    function _createERC721Handler(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, ApplicationERC721 _token) public returns (ApplicationERC721Handler _handler) {
-        _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
-        _token.connectHandlerToToken(address(_handler));
-        return _handler;
-    }
-
-    /**
-     * @dev Deploy and set up an ERC721Handler Mint Fee 
-     * @param _ruleProcessor rule processor
-     * @param _appManager previously created appManager
-     * @param _token ERC721
-     * @return _handler ERC721 handler
-     */
-    function _createERC721HandlerMintFee(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, MintForAFeeERC721 _token) public returns (ApplicationERC721Handler _handler) {
-        _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
-        _token.connectHandlerToToken(address(_handler));
-        return _handler;
-    }
-
-    /**
-     * @dev Deploy and set up an ERC721Handler Allow List 
-     * @param _ruleProcessor rule processor
-     * @param _appManager previously created appManager
-     * @param _token ERC721
-     * @return _handler ERC721 handler
-     */
-    function _createERC721HandlerAllowList(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, WhitelistMintERC721 _token) public returns (ApplicationERC721Handler _handler) {
-        _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
-        _token.connectHandlerToToken(address(_handler));
-        return _handler;
-    }
-
-    /**
-     * @dev Deploy and set up an ERC721Handler Free Mint 
-     * @param _ruleProcessor rule processor
-     * @param _appManager previously created appManager
-     * @param _token ERC721
-     * @return _handler ERC721 handler
-     */
-    function _createERC721HandlerFreeMint(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, FreeForAllERC721 _token) public returns (ApplicationERC721Handler _handler) {
-        _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
-        _token.connectHandlerToToken(address(_handler));
-        return _handler;
-    }
-
-    /**
-     * @dev Deploy and set up an ERC721HandlerForProxy
-     * @param _ruleProcessor rule processor
-     * @param _appManager previously created appManager
-     * @param _token ERC721
-     * @return _handler ERC721 handler
-     */
-    function _createERC721HandlerForProxy(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager, ApplicationERC721UProxy _token) public returns (ApplicationERC721Handler _handler) {
-        _handler = new ApplicationERC721Handler(address(_ruleProcessor), address(_appManager), address(_token), false);
-        ApplicationERC721Upgradeable(address(_token)).connectHandlerToToken(address(_handler));
-        return _handler;
     }
 
     /**

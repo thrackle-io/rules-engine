@@ -126,7 +126,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user1), 1);
         switchToRuleAdmin();
         ///update ruleId in application NFT handler
-        applicationNFTHandler.setAccountMinMaxTokenBalanceId(_createActionsArray(), ruleId);
+        ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), ruleId);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
         vm.startPrank(user1);
@@ -186,7 +186,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
-        applicationNFTHandler.setAccountApproveDenyOracleId(_createActionsArray(), _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setAccountApproveDenyOracleId(_createActionsArray(), _index);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -203,7 +203,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
-        applicationNFTHandler.setAccountApproveDenyOracleId(_createActionsArray(), _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setAccountApproveDenyOracleId(_createActionsArray(), _index);
         // add an approved address
         switchToAppAdministrator();
         goodBoys.push(address(59));
@@ -252,88 +252,89 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user1, address(59), 2);
     }
 
+//TODO: Uncomment when the rule is added
     /**
      * @dev Test the TokenMaxDailyTrades rule
      */
-    function testERC721U_TokenMaxDailyTrades() public {
-        /// set up a non admin user an nft
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 1
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 2
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 3
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 4
+    // function testERC721U_TokenMaxDailyTrades() public {
+    //     /// set up a non admin user an nft
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 1
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 2
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 3
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 4
 
-        assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user1), 5);
+    //     assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user1), 5);
 
-        // add the rule.
-        bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
-        uint8[] memory tradesAllowed = createUint8Array(1, 5);
-        switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-        assertEq(_index, 0);
-        TaggedRules.TokenMaxDailyTrades memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(_index, nftTags[0]);
-        assertEq(rule.tradesAllowedPerDay, 1);
-        assertEq(rule.startTime, Blocktime);
-        // tag the NFT collection
-        switchToAppAdministrator();
-        applicationAppManager.addTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
-        // apply the rule to the ApplicationERC721Handler
-        switchToRuleAdmin();
-        applicationNFTHandler.setTokenMaxDailyTradesId(_createActionsArray(), _index);
+    //     // add the rule.
+    //     bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
+    //     uint8[] memory tradesAllowed = createUint8Array(1, 5);
+    //     switchToRuleAdmin();
+    //     uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+    //     assertEq(_index, 0);
+    //     TaggedRules.TokenMaxDailyTrades memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(_index, nftTags[0]);
+    //     assertEq(rule.tradesAllowedPerDay, 1);
+    //     assertEq(rule.startTime, Blocktime);
+    //     // tag the NFT collection
+    //     switchToAppAdministrator();
+    //     applicationAppManager.addTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
+    //     // apply the rule to the ApplicationERC721Handler
+    //     switchToRuleAdmin();
+    //     applicationNFTHandler.setTokenMaxDailyTradesId(_createActionsArray(), _index);
 
-        // ensure standard transfer works by transferring 1 to user2 and back(2 trades)
-        ///perform transfer that checks rule
-        vm.stopPrank();
-        vm.startPrank(user1);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user1, user2, 0);
-        assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user2), 1);
-        vm.stopPrank();
-        vm.startPrank(user2);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 0);
-        assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user2), 0);
+    //     // ensure standard transfer works by transferring 1 to user2 and back(2 trades)
+    //     ///perform transfer that checks rule
+    //     vm.stopPrank();
+    //     vm.startPrank(user1);
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user1, user2, 0);
+    //     assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user2), 1);
+    //     vm.stopPrank();
+    //     vm.startPrank(user2);
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 0);
+    //     assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user2), 0);
 
-        // set to a tag that only allows 1 transfer
-        switchToAppAdministrator();
-        applicationAppManager.removeTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
-        applicationAppManager.addTag(address(applicationNFTProxy), "BoredGrape"); ///add tag
-        // perform 1 transfer
-        vm.stopPrank();
-        vm.startPrank(user1);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user1, user2, 1);
-        assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user2), 1);
-        vm.stopPrank();
-        vm.startPrank(user2);
-        // this one should fail because it is more than 1 in 24 hours
-        vm.expectRevert(0x09a92f2d);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 1);
-        assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user2), 1);
-        // add a day to the time and it should pass
-        vm.warp(block.timestamp + 1 days);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 1);
-        assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user2), 0);
+    //     // set to a tag that only allows 1 transfer
+    //     switchToAppAdministrator();
+    //     applicationAppManager.removeTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
+    //     applicationAppManager.addTag(address(applicationNFTProxy), "BoredGrape"); ///add tag
+    //     // perform 1 transfer
+    //     vm.stopPrank();
+    //     vm.startPrank(user1);
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user1, user2, 1);
+    //     assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user2), 1);
+    //     vm.stopPrank();
+    //     vm.startPrank(user2);
+    //     // this one should fail because it is more than 1 in 24 hours
+    //     vm.expectRevert(0x09a92f2d);
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 1);
+    //     assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user2), 1);
+    //     // add a day to the time and it should pass
+    //     vm.warp(block.timestamp + 1 days);
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 1);
+    //     assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(user2), 0);
 
-        // add the other tag and check to make sure that it still only allows 1 trade
-        switchToAppAdministrator();
-        applicationAppManager.addTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
-        vm.stopPrank();
-        vm.startPrank(user1);
-        // first one should pass
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user1, user2, 2);
-        vm.stopPrank();
-        vm.startPrank(user2);
-        // this one should fail because it is more than 1 in 24 hours
-        vm.expectRevert(0x09a92f2d);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 2);
-        // upgrade the NFT and make sure it still fails
-        vm.stopPrank();
-        vm.startPrank(proxyOwner);
-        applicationNFT2 = new ApplicationERC721Upgradeable();
-        applicationNFTProxy.upgradeTo(address(applicationNFT2));
-        vm.stopPrank();
-        vm.startPrank(user2);
-        vm.expectRevert(0x09a92f2d);
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 2);
-    }
+    //     // add the other tag and check to make sure that it still only allows 1 trade
+    //     switchToAppAdministrator();
+    //     applicationAppManager.addTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag
+    //     vm.stopPrank();
+    //     vm.startPrank(user1);
+    //     // first one should pass
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user1, user2, 2);
+    //     vm.stopPrank();
+    //     vm.startPrank(user2);
+    //     // this one should fail because it is more than 1 in 24 hours
+    //     vm.expectRevert(0x09a92f2d);
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 2);
+    //     // upgrade the NFT and make sure it still fails
+    //     vm.stopPrank();
+    //     vm.startPrank(proxyOwner);
+    //     applicationNFT2 = new ApplicationERC721Upgradeable();
+    //     applicationNFTProxy.upgradeTo(address(applicationNFT2));
+    //     vm.stopPrank();
+    //     vm.startPrank(user2);
+    //     vm.expectRevert(0x09a92f2d);
+    //     ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 2);
+    // }
 
     function testERC721U_AccountMaxTransactionValueByRiskScore() public {
         ///Set transaction limit rule params
@@ -526,7 +527,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         assertTrue(applicationAppManager.hasTag(user3, "MIN3"));
         /// Set rule bool to active
         switchToRuleAdmin();
-        applicationNFTHandler.setAccountMinMaxTokenBalanceId(_createActionsArray(), _index);
+        ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), _index);
         /// Transfers passing (above min value limit)
         vm.stopPrank();
         vm.startPrank(user1);
@@ -605,14 +606,14 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// Set the rule in the handler
-        applicationNFTHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 5, block.timestamp + 365 days);
 
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
-        applicationNFTHandler.activateAdminMinTokenBalance(_createActionsArray(), false);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
         vm.expectRevert();
-        applicationNFTHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         switchToRuleBypassAccount();
         /// These transfers should pass
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 0);
@@ -636,8 +637,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         /// Transfers and updating rules should now pass
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(ruleBypassAccount, user1, 2);
         switchToRuleAdmin();
-        applicationNFTHandler.activateAdminMinTokenBalance(_createActionsArray(), false);
-        applicationNFTHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
     }
 
     function testERC721U_UpgradeAppManager721u() public {
@@ -895,7 +896,8 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationNFTExtra = new ApplicationERC721UExtra();
         applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFTExtra), proxyOwner, "");
         ApplicationERC721UExtra(address(applicationNFTProxy)).initialize("Extra", "DRAC", address(applicationAppManager), "dummy.uri.io");
-        applicationNFTHandler = new ApplicationERC721Handler(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy), false);
+        applicationNFTHandler = _createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy));
         ApplicationERC721UExtra(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
         /// register the token
         applicationAppManager.registerToken("DRAC", address(applicationNFTProxy));
