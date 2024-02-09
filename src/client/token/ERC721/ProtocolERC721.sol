@@ -8,9 +8,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "../ProtocolTokenCommon.sol";
-import "src/protocol/economic/AppAdministratorOnly.sol";
 import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
-import "../IProtocolTokenHandler.sol";
+import "src/client/token/handler/diamond/IHandlerDiamond.sol";
 
 /**
  * @title ERC721 Base Contract
@@ -21,7 +20,7 @@ import "../IProtocolTokenHandler.sol";
 contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly {
     using Counters for Counters.Counter;
     address public handlerAddress;
-    IProtocolTokenHandler handler;
+    IHandlerDiamond handler;
     Counters.Counter private _tokenIdCounter;
 
     /// Base Contract URI
@@ -108,7 +107,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      */
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) whenNotPaused {
         // Rule Processor Module Check
-        require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
+        require(IHandlerDiamond(handler).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
 
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
@@ -150,7 +149,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     function connectHandlerToToken(address _deployedHandlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
-        handler = IProtocolTokenHandler(_deployedHandlerAddress);
+        handler = IHandlerDiamond(_deployedHandlerAddress);
         emit HandlerConnected(_deployedHandlerAddress, address(this));
     }
 
