@@ -889,10 +889,11 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         applicationNFTExtra = new ApplicationERC721UExtra();
         applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFTExtra), proxyOwner, "");
         ApplicationERC721UExtra(address(applicationNFTProxy)).initialize("Extra", "DRAC", address(applicationAppManager), "dummy.uri.io");
+        
         applicationNFTHandler = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy));
-        ApplicationERC721UExtra(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
-        /// register the token
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
+        // register the token
         applicationAppManager.registerToken("DRAC", address(applicationNFTProxy));
 
         // Set the extra variables
