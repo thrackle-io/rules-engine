@@ -14,5 +14,8 @@ if test -f ./.git ; then
 fi
 
 if [ $WITH_DEPLOY = "--with-deploy" ]; then
-	make build deployAll deployAllApp
+	forge script script/DeployAllModules.s.sol --ffi --broadcast
+	bash script/ParseProtocolDeploy.sh
+	forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv --non-interactive
+	bash script/ParseApplicationDeploy.sh
 fi
