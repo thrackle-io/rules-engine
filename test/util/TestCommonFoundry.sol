@@ -151,6 +151,7 @@ abstract contract TestCommonFoundry is TestCommon {
      * @return diamond fully configured ERC721 Handler diamond
      */
     function _createERC721HandlerDiamond() public returns (HandlerDiamond diamond) {
+        delete _erc721HandlerFacetCuts;
         // Start by deploying the DiamonInit contract.
         DiamondInit diamondInit = new DiamondInit();
 
@@ -206,6 +207,7 @@ abstract contract TestCommonFoundry is TestCommon {
         return handlerInternal;
     }
 
+   
     /**
      * @dev Deploy and set up the main protocol contracts. 
      */
@@ -436,6 +438,7 @@ abstract contract TestCommonFoundry is TestCommon {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Dracula Prime", "DRAC", address(applicationAppManager), "dummy.uri.io");
         applicationNFTHandler = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy));
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
         /// register the token
         applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
