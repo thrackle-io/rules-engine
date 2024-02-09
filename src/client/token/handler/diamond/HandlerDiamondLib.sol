@@ -19,6 +19,7 @@ error CannotRemoveFunctionThatDoesNotExist(bytes4 _selector);
 error CannotRemoveImmutableFunction(bytes4 _selector);
 error InitializationFunctionReverted(address initializationContractAddress, bytes data);
 
+
 struct FacetAddressAndSelectorPosition {
     address facetAddress;
     uint16 selectorPosition;
