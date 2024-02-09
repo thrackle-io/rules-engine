@@ -27,7 +27,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
             revert ZeroAddress();
         data.appManager = _appManagerAddress;
         data.ruleProcessor = _ruleProcessorProxyAddress;
-
+        data.assetAddress = _assetAddress;
         ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
         initialized = true;
     }
