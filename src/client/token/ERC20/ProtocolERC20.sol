@@ -6,11 +6,12 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
-import "src/client/token/ProtocolTokenCommon.sol";
-import "src/client/token/ERC20/ProtocolERC20Handler.sol";
-import "src/protocol/economic/AppAdministratorOnly.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
 import {IZeroAddressError, IProtocolERC20Errors} from "src/common/IErrors.sol";
+import "../ProtocolTokenCommon.sol";
+import "src/client/token/IProtocolTokenHandler.sol";
+import "src/protocol/economic/AppAdministratorOnly.sol";
+import "../handler/diamond/FeesFacet.sol";
 
 /**
  * @title ERC20 Base Contract
@@ -19,8 +20,9 @@ import {IZeroAddressError, IProtocolERC20Errors} from "src/common/IErrors.sol";
  * @dev The only thing to recognize is that flash minting is added but not yet allowed. 
  */
 contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, ProtocolTokenCommon, IProtocolERC20Errors {
+    // address of the Handler
+    IProtocolTokenHandler handler;
 
-    ProtocolERC20Handler handler;
     /// Max supply should only be set once. Zero means infinite supply.
     uint256 MAX_SUPPLY;
 
@@ -83,7 +85,8 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address owner = _msgSender();
-        if (handler.isFeeActive()) {
+        // if transfer fees/discounts are defined then process them first
+        if (FeesFacet(address(handler)).isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees;
@@ -183,7 +186,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function connectHandlerToToken(address _handlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
-        handler = ProtocolERC20Handler(_handlerAddress);
+        handler = IProtocolTokenHandler(_handlerAddress);
         emit HandlerConnected(_handlerAddress, address(this));
     }
 

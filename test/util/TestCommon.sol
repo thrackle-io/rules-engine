@@ -53,7 +53,6 @@ import "test/util/ApplicationERC721UExtra.sol";
 import "test/util/ApplicationERC721UExtra2.sol";
 
 import "src/client/application/data/IPauseRules.sol";
-import "src/client/token/data/Fees.sol";
 import "src/client/application/data/Tags.sol";
 import "src/client/application/data/PauseRules.sol";
 import "src/client/application/data/AccessLevels.sol";
