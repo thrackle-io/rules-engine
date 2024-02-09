@@ -10,6 +10,14 @@ The purpose of this rule is to provide limits on the amount of funds that an acc
 - [x] ERC721
 - [x] AMM
 
+## Applies To Actions:
+
+- [ ] MINT
+- [x] BURN
+- [ ] BUY
+- [x] SELL
+- [x] TRANSFER(Peer to Peer)
+  
 ## Scope 
 
 This rule works at the application level which means that all tokens in the app will have no choice but to comply with this rule when active.

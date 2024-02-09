@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "test/util/TestCommonFoundry.sol";
 
 /**
- * @title Application Coin Handler Test
+ * @title Application Token Handler Test
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @dev this contract tests the ApplicationERC20 Handler. This handler is deployed specifically for its implementation
  *      contains all the rule checks for the particular ERC20.
@@ -21,7 +21,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
     }
 
-    ///Test Fee Data setting/getting
     function testFeeCreationAndSetting() public {
         bytes32 tag1 = "cheap";
         uint256 minBalance = 10 * 10 ** 18;
@@ -83,7 +82,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoinHandlerSpecialOwner.addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
     }
 
-    ///Test getting the fees and discounts that apply and how they apply
     function testGetApplicableFees() public {
         switchToRuleAdmin();
         bytes32 tag1 = "cheap";
@@ -145,7 +143,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         assertEq(feePercentages[0], 0);
     }
 
-    ///Test risk score max size of 99 when adding risk rules
+    /// Test risk score max size of 99 when adding risk rules
     function testAccountMaxTransactionValueByRiskScore() public {
         uint48[] memory _maxValue = createUint48Array(1000000, 10000, 10); 
         uint8[] memory _riskScore = createUint8Array(25, 50, 75);
@@ -171,7 +169,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByRiskScore(address(applicationAppManager), riskScores, balanceLimits);
     }
 
-    /// now disable since it won't work unless an ERC20 is using it
     function testAccountMinMaxTokenBalanceTaggedCheckPasses() public {
         bytes32[] memory _accountTypes = createBytes32Array("BALLER");
         uint256[] memory _min = createUint256Array(10);
@@ -198,7 +195,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoinHandlerSpecialOwner.checkAllRules(1000, 800, user1, user2, user1, 500);
     }
 
-    /// now disable since it won't work unless an ERC20 is using it
+    /// Test Account Approve Deny Oracle Rule 
     function testAccountApproveDenyOracleERC20Handler() public {
         // add the rule.
         switchToRuleAdmin();
@@ -244,7 +241,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
     }
 
-    /// now disable since it won't work unless an ERC20 is using it
     function testTurningOnOffRules() public {
         bytes32[] memory _accountTypes = createBytes32Array("BALLER");
         uint256[] memory _min = createUint256Array(10);
@@ -359,10 +355,6 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoinHandlerSpecialOwner.checkAllRules(20, 0, user1, address(68), user1, 10);
     }
 
-    ///---------------UPGRADEABILITY---------------
-    /**
-     * @dev This function ensures that a coin rule handler can be upgraded without losing its data
-     */
     function testUpgradeApplicationERC20Handler() public {
         /// put data in the old rule handler
         /// Fees

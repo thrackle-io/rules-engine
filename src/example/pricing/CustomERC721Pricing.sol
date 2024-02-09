@@ -30,7 +30,7 @@ contract CustomERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pric
     }
 
     /**
-     * @dev gets the price of an NFT. It will return the Token's specific price. This function is left here to preserve the function signature. NOTE: This is  * only the floor price at the contract level. As of create date, Chainlink does not have a tokenId based pricing solution.
+     * @dev Gets the price of an NFT. It will return the Token's specific price. This function is left here to preserve the function signature. NOTE: This is  * only the floor price at the contract level. As of create date, Chainlink does not have a tokenId based pricing solution.
      * @param nftContract is the address of the NFT contract
      * @return price of the Token in weis of dollars. 10^18 => $ 1.00 USD
      * @notice that the price is for the whole token and not of its atomic unit. This means that if
@@ -53,7 +53,7 @@ contract CustomERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pric
     }
 
     /**
-     * @dev gets the price of an NFT. It will return the Token's specific price. This function is left here to preserve the function signature. NOTE: This is  * only the floor price at the contract level. As of create date, Chainlink does not have a tokenId based pricing solution.
+     * @dev Gets the price of an NFT. It will return the Token's specific price. This function is left here to preserve the function signature. NOTE: This is  * only the floor price at the contract level. As of create date, Chainlink does not have a tokenId based pricing solution.
      * @param nftContract is the address of the NFT contract
      * @return price of the Token in weis of dollars. 10^18 => $ 1.00 USD
      * @notice Chainlink only provides floor price feeds, so this function mirrors getNFTPrice() in functionality.
@@ -76,7 +76,7 @@ contract CustomERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pric
     }
 
     /**
-     * @dev gets the Chainlink floor price feed for PudgyPenguins in USD. This is an example that works for any decimal denomination.
+     * @dev Gets the Chainlink floor price feed for PudgyPenguins in USD. This is an example that works for any decimal denomination.
      * @return floorPrice The floor price in USD for this collection according to Chainlink aggregation
      */
     function getChainlinkPudgyToUSDFeedPrice() public view returns (uint256) {
@@ -101,7 +101,7 @@ contract CustomERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pric
     }
 
     /**
-     * @dev gets the Chainlink floor price feed for Cryptopunks in USD. This is an example that works for any decimal denomination.
+     * @dev Gets the Chainlink floor price feed for Cryptopunks in USD. This is an example that works for any decimal denomination.
      * @return floorPrice The floor price in USD for this collection according to Chainlink aggregation
      */
     function getChainlinkCryptoToUSDFeedPrice() public view returns (uint256) {
@@ -126,7 +126,7 @@ contract CustomERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pric
     }
 
     /**
-     * @dev gets the Chainlink floor price feed for Azuki in USD. This is an example that works for any decimal denomination.
+     * @dev Gets the Chainlink floor price feed for Azuki in USD. This is an example that works for any decimal denomination.
      * @return floorPrice The floor price in USD for this collection according to Chainlink aggregation
      */
     function getChainlinkAzukiToUSDFeedPrice() public view returns (uint256) {

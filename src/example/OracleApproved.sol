@@ -4,10 +4,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import {IOracleEvents} from "src/common/IEvents.sol";
 
 /**
- * @title Example On-chain Allow-List Oracle
+ * @title Example On-chain Approve-List Oracle
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
- * @notice This is an example on-chain oracle that maintains an allow list.
- * @dev This is intended to be a model only. It stores the allow list internally and returns bool true if address is in list.
+ * @notice This is an example on-chain oracle that maintains an approve list.
+ * @dev This is intended to be a model only. It stores the approve list internally and returns bool true if address is in list.
  */
 contract OracleApproved is Ownable, IOracleEvents {
     mapping(address => bool) private approvedAddresses;
@@ -17,7 +17,7 @@ contract OracleApproved is Ownable, IOracleEvents {
      * @dev Constructor that only serves the purpose of notifying the indexer of its creation via event
      */
     constructor() {
-        emit AllowListOracleDeployed();
+        emit ApproveListOracleDeployed();
     }
 
     /**
@@ -29,58 +29,58 @@ contract OracleApproved is Ownable, IOracleEvents {
     }
 
     /**
-     * @dev Add addresses to the allow list. Restricted to owner.
-     * @param newAllows the addresses to add
+     * @dev Add addresses to the approve list. Restricted to owner.
+     * @param newApproves the addresses to add
      */
-    function addToApprovedList(address[] memory newAllows) public onlyOwner {
-        for (uint256 i = 0; i < newAllows.length; i++) {
-            approvedAddresses[newAllows[i]] = true;
+    function addToApprovedList(address[] memory newApproves) public onlyOwner {        
+        for (uint256 i = 0; i < newApproves.length; i++) {
+            approvedAddresses[newApproves[i]] = true;
         }
-        emit OracleListChanged(true, newAllows);
+        emit OracleListChanged(true, newApproves);
     }
 
     /**
-     * @dev Add single address to the allow list. Restricted to owner.
-     * @param newAllow the addresses to add
+     * @dev Add single address to the approve list. Restricted to owner.
+     * @param newApprove the addresses to add
      */
-    function addAddressToApprovedList(address newAllow) public onlyOwner {
-        approvedAddresses[newAllow] = true;
+    function addAddressToApprovedList(address newApprove) public onlyOwner {
+        approvedAddresses[newApprove] = true;
         address[] memory addresses = new address[](1);
-        addresses[0] =  newAllow;
+        addresses[0] =  newApprove;
         emit OracleListChanged(true,addresses);
     }
 
     /**
-     * @dev Remove addresses from the allow list. Restricted to owner.
-     * @param removeAllows the addresses to remove
+     * @dev Remove addresses from the approve list. Restricted to owner.
+     * @param removeApproves the addresses to remove
      */
-    function removeFromAprovededList(address[] memory removeAllows) public onlyOwner {
-        for (uint256 i = 0; i < removeAllows.length; i++) {
-            approvedAddresses[removeAllows[i]] = false;
+    function removeFromAprovededList(address[] memory removeApproves) public onlyOwner {
+        for (uint256 i = 0; i < removeApproves.length; i++) {
+            approvedAddresses[removeApproves[i]] = false;
         }
-        emit OracleListChanged(false, removeAllows);
+        emit OracleListChanged(false, removeApproves);
     }
 
     /**
-     * @dev Check to see if address is in allowed list
+     * @dev Check to see if address is in approved list
      * @param addr the address to check
-     * @return allowed returns true if in the allowed list, false if not.
+     * @return approved returns true if in the approved list, false if not.
      */
     function isApproved(address addr) public view returns (bool) {
         return approvedAddresses[addr];
     }
 
     /**
-     * @dev Check to see if address is in allowed list. Also emits events based on the results
+     * @dev Check to see if address is in approved list. Also emits events based on the results
      * @param addr the address to check
-     * @return allowed returns true if in the allowed list, false if not.
+     * @return approved returns true if in the approved list, false if not.
      */
     function isApprovedVerbose(address addr) public returns (bool) {
         if (isApproved(addr)) {
-            emit AllowedAddress(addr);
+            emit ApprovedAddress(addr);
             return true;
         } else {
-            emit NotAllowedAddress(addr);
+            emit NotApprovedAddress(addr);
             return false;
         }
     }

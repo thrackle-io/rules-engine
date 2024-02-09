@@ -50,7 +50,7 @@ contract ERC721PricingTest is TestCommonFoundry {
 
     /**
      * @dev Testing that the pricing contract checks effectively if the NFTcontract
-     * is actually an ERC721. If it is not, then it will revert with costum error.
+     * is actually an ERC721. If it is not, then it will revert with custom error.
      * @notice currently not supporting ERC1155.
      */
     function testSettingPriceFailingForInvalidContract() public {

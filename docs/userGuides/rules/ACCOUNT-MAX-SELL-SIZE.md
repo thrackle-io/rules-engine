@@ -10,6 +10,14 @@ The Account Max Sell Size is an account based measure which restricts an account
 - [x] ERC721
 - [ ] AMM
 
+## Applies To Actions:
+
+- [ ] MINT
+- [ ] BURN
+- [ ] BUY
+- [x] SELL
+- [ ] TRANSFER(Peer to Peer)
+  
 ## Scope 
 
 This rule works at the token level. It must be activated and configured for each token in the corresponding token handler.

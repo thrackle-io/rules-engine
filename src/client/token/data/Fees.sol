@@ -1,21 +1,24 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
+
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
 import {IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError} from "src/common/IErrors.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 
 /**
- * @title Fees
+ * @title Fees Data Contract 
  * @notice This contract serves as a storage for asset transfer fees
- * @dev This contract should not be accessed directly. All processing should go through its controlling asset(ProtocolERC20, ProtocolERC721, etc.)
+ * @dev This contract should not be accessed directly. All processing should go through its controlling asset (ProtocolERC20, ProtocolERC721, etc.). 
+ * Activation of fees is done through the asset (ProtocolERC20, ProtocolERC721, etc.) handler contract. 
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError, AppAdministratorOnly {
     string private constant VERSION = "1.1.0";
     mapping(bytes32 => Fee) feesByTag;
     uint256 feeTotal;
-    address newOwner; // This is used for data contract migration
+    /// Address used for data contract migration
+    address newOwner; 
     struct Fee {
         uint256 minBalance;
         uint256 maxBalance;
@@ -36,13 +39,10 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
         if (_feePercentage < -10000 || _feePercentage > 10000) revert ValueOutOfRange(uint24(_feePercentage));
         if (_feePercentage == 0) revert ZeroValueNotPermited();
         if (_targetAccount == address(0) && _feePercentage > 0) revert ZeroValueNotPermited();
-        // if the fee did not already exist, then increment total
         if (feesByTag[_tag].feePercentage == 0) {
             feeTotal += 1;
         }
-        // if necessary, default the max balance
         if (_maxBalance == 0) _maxBalance = type(uint256).max;
-        // add the fee to the mapping. If it already exists, it will replace the old one.
         feesByTag[_tag] = Fee(_minBalance, _maxBalance, _feePercentage, _targetAccount);
         emit FeeType(_tag, true, _minBalance, _maxBalance, _feePercentage, _targetAccount);
     }
@@ -52,17 +52,15 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
      * @param _tag meta data tag for fee
      */
     function removeFee(bytes32 _tag) external onlyOwner {
-        // feePercentage must always not be 0 so it can be used to check rule existence
         if (feesByTag[_tag].feePercentage != 0) {
             delete (feesByTag[_tag]);
             emit FeeType(_tag, false, 0, 0, 0, address(0));
-            // if the fee existed, then decrement total
             feeTotal -= 1;
         }
     }
 
     /**
-     * @dev returns the full mapping of fees
+     * @dev Returns the full mapping of fees
      * @param _tag meta data tag for fee
      * @return fee struct containing fee data
      */
@@ -71,7 +69,7 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
     }
 
     /**
-     * @dev returns the full mapping of fees
+     * @dev Returns the full mapping of fees
      * @return feeTotal total number of fees
      */
     function getFeeTotal() external view onlyOwner returns (uint256) {
@@ -79,7 +77,7 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
     }
 
     /**
-     * @dev gets the version of the contract
+     * @dev Gets the version of the contract
      * @return VERSION
      */
     function version() external pure returns (string memory) {
@@ -87,7 +85,7 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
     }
 
     /**
-     * @dev this function proposes a new owner that is put in storage to be confirmed in a separate process
+     * @dev This function proposes a new owner that is put in storage to be confirmed in a separate process
      * @param _newOwner the new address being proposed
      */
     function proposeOwner(address _newOwner) external onlyOwner {
@@ -96,7 +94,7 @@ contract Fees is Ownable, IApplicationEvents, IInputErrors, ITagInputErrors, IOw
     }
 
     /**
-     * @dev this function confirms a new asset handler address that was put in storage. It can only be confirmed by the proposed address
+     * @dev This function confirms a new asset handler address that was put in storage. It can only be confirmed by the proposed address
      */
     function confirmOwner() external {
         if (newOwner == address(0)) revert NoProposalHasBeenMade();

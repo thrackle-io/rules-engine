@@ -1,5 +1,6 @@
 version: "3.8"
-
+# Please note that this docker compose is using the deploy-check tron container
+# which is separate from the "real" container that's used to deploy tron.
 services:
   anvil:
     build:
@@ -16,6 +17,6 @@ services:
       - anvil
     build:
       context: .
-      dockerfile: Dockerfile.tron
+      dockerfile: Dockerfile.deploymentCheck
     environment:
       FOUNDRY_PROFILE: docker

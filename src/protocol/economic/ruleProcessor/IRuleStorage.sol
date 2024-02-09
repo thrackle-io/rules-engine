@@ -15,7 +15,8 @@ interface IRuleStorage {
      * accuracy of the method to determine when a transfer is part of a trade and what 
      * direction it is taking (buy or sell).
      */
-     /// ******** Account Max Buy Sizes ********
+    
+    /// ******** Account Max Buy Sizes ********
     struct AccountMaxBuySizeS {
         /// ruleIndex => userType => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.AccountMaxBuySize)) accountMaxBuySizeRules;
@@ -96,6 +97,7 @@ interface IRuleStorage {
     /*****************************************
     ************* AccessLevel Rules ***********
     /*****************************************/
+
     /// ******** Account Max Value by Access Level ********
     struct AccountMaxValueByAccessLevelS {
         mapping(uint32 => mapping(uint8 => uint48)) accountMaxValueByAccessLevelRules;
@@ -107,15 +109,18 @@ interface IRuleStorage {
         mapping(uint32 => mapping(uint8 => uint48)) accountMaxValueOutByAccessLevelRules;
         uint32 accountMaxValueOutByAccessLevelIndex;
     }
+    
     /*****************************************
     *************** NFT Rules ****************
     /*****************************************/
+
     /// ******** Token Max Daily Trades ********
     struct TokenMaxDailyTradesS {
         /// ruleIndex => taggedNFT => tradesAllowed
         mapping(uint32 => mapping(bytes32 => ITaggedRules.TokenMaxDailyTrades)) tokenMaxDailyTradesRules;
         uint32 tokenMaxDailyTradesIndex;
     }
+
     /*****************************************
     *************** Risk Rules ****************
     /*****************************************/

@@ -124,37 +124,31 @@ contract ApplicationDeployAllScript is Script {
     }
 
     function verifyAppManager() public view {
-        // Checking to make sure AppManager is deployed
-        if(address(applicationAppManager) == address(0)) {
-            revert("App Manager not properly deployed");
-        }
+        // Checking to make sure AppManager is deployed, if not calling a public function on it will revert.
+        applicationAppManager.version();
 
-        // Checking to make sure the AppManager has a handler
-        if(address(applicationHandler) == address(0)) {
-            revert("Application Handler not properly deployed");
-        }
+        // Checking to make sure the AppHandler has been deployed, if not calling a public function on it will revert.
+        applicationHandler.version();
 
         // Checking to make sure the handler is connected back to the AppManager
         if(applicationHandler.appManagerAddress() != address(applicationAppManager)) {
             revert("Application Handler not correctly connected to the App Manager");
         }
+
+        if(address(applicationAppManager.applicationHandler()) != address(applicationHandler)) {
+            revert("Application Handler not correctly connected to the App Manager");
+        }
     }
 
     function verifyERC721() public view {
-        // Make sure the ERC721 Contract has been deployed
-        if(address(nft1) == address(0)) {
-            revert("ERC721 not properly deployed");
-        }
+        // Make sure the ERC721 Contract has been deployed, if not calling a public function on it will revert.
+        nft1.getHandlerAddress();
 
-       // Make sure the ERC721 Handler Contract has been deployed
-        if(address(nft1) == address(0)) {
-            revert("ERC721 Handler not properly deployed");
-        }
+       // Make sure the ERC721 Handler Contract has been deployed, if not calling a public function on it will revert.
+       applicationNFTHandler.version();
 
-       // Make sure the ERC20 Pricing Module Contract has been deployed
-        if(address(openOcean) == address(0)) {
-            revert("ERC721 Pricing Module not properly deployed");
-        }
+       // Make sure the ERC20 Pricing Module Contract has been deployed, if not calling a public function on it will revert.
+       openOcean.version();
 
         // Checking to make sure ERC721 has a handler
         if(nft1.getHandlerAddress() != address(applicationNFTHandler)) {
@@ -187,20 +181,14 @@ contract ApplicationDeployAllScript is Script {
     }
 
     function verifyERC20(bool isCoin1) public view {
-       // Make sure the ERC20 Contract has been deployed
-        if(address(isCoin1 ? coin1 : coin2) == address(0)) {
-            revert("Frankenstein Coin not properly deployed");
-        }
+       // Make sure the ERC20 Contract has been deployed, if not calling a public function on it will revert.
+       isCoin1 ? coin1.getHandlerAddress() : coin2.getHandlerAddress();
 
-       // Make sure the ERC20 Handler Contract has been deployed
-        if(address(isCoin1 ? applicationCoinHandler : applicationCoinHandler2) == address(0)) {
-            revert("ERC20 Handler not properly deployed");
-        }
+       // Make sure the ERC20 Handler Contract has been deployed, if not calling a public function on it will revert.
+       isCoin1 ? applicationCoinHandler.version() : applicationCoinHandler2.version();
 
-       // Make sure the ERC20 Pricing Module Contract has been deployed
-        if(address(exchange) == address(0)) {
-            revert("ERC20 Pricing Module not properly deployed");
-        }
+       // Make sure the ERC20 Pricing Module Contract has been deployed, if not calling a public function on it will revert.
+        exchange.version();
 
         // Checking to make sure ERC20 has a handler
         if(isCoin1) {
@@ -209,13 +197,13 @@ contract ApplicationDeployAllScript is Script {
             }
         } else {
             if(coin2.getHandlerAddress() != address(applicationCoinHandler2)) {
-                revert("Frankenstein Coin not correctly connected to its handler");
+                revert("Dracula Coin not correctly connected to its handler");
             }
         }
 
         // Checking to make sure the handler is connected to the ERC20
         if((isCoin1 ? applicationCoinHandler.owner() : applicationCoinHandler2.owner()) != address(isCoin1 ? coin1 : coin2)) {
-            revert("ERC20 Handlers owner should be the Frankenstein Coin");
+            revert(isCoin1 ? "ERC20 Handlers owner should be the Frankenstein Coin" : "ERC20 Handlers owner should be the Dracula Coin");
         }
 
         // Checking to make sure the pricing modules are set within the ERC20's Handler

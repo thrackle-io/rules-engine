@@ -13,7 +13,7 @@ import "src/client/token/ERC721/upgradeable/ProtocolERC721U.sol";
 
 contract ApplicationERC721Upgradeable is ProtocolERC721U {
     /**
-     * @dev these storage slots are saved for future upgrades. Please be aware of common constraints for upgradeable contracts regarding storage slots,
+     * @dev These storage slots are saved for future upgrades. Please be aware of common constraints for upgradeable contracts regarding storage slots,
      * like maintaining the order of the variables to avoid mislabeling of storage slots, and to keep some reserved slots to avoid storage collisions.
      * @notice the length of this array must be shrunk by the same amount of new variables added in an upgrade. This is to keep track of the remaining
      * storage slots available for variables in future upgrades and avoid storage collisions.

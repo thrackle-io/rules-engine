@@ -10,6 +10,14 @@ The purpose of this rule is to provide balance limits for accounts at the applic
 - [x] ERC721
 - [x] AMM
 
+## Applies To Actions:
+
+- [x] MINT
+- [ ] BURN
+- [x] BUY
+- [ ] SELL
+- [x] TRANSFER(Peer to Peer)
+  
 ## Scope 
 
 This rule works at the application level which means that all tokens in the app will have no choice but to comply with this rule when active.

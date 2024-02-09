@@ -24,7 +24,7 @@ import {IAppLevelEvents} from "src/common/IEvents.sol";
 
 /**
  * @title App Manager Contract
- * @dev This uses AccessControlEnumerable to maintain user permissions, handles metadata storage, and checks application level rules via its handler.
+ * @dev This uses AccessControlEnumerable to maintain user permissions, handles metadata storage, and checks application level rules via the application handler.
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is the permissions contract
  */
@@ -46,7 +46,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     ITags tags;
     IPauseRules pauseRules;
 
-    // Data provider proposed addresses
+    /// Data provider proposed addresses
     address newAccessLevelsProviderAddress;
     address newAccountsProviderAddress;
     address newTagsProviderAddress;
@@ -59,7 +59,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     /// Application Handler Contract
     ProtocolApplicationHandler public applicationHandler;
     address applicationHandlerAddress;
-    bool applicationRulesActive;
 
     mapping(string => address) tokenToAddress;
     mapping(address => string) addressToToken;
@@ -76,14 +75,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     address[] treasuryList;
     mapping(address => uint) treasuryToIndex;
     mapping(address => bool) isTreasuryRegistered;
-    /// Whitelist for trading rule exceptions
-    address[] tradingRuleWhiteList;
-    mapping(address => bool) isTradingRuleWhitelisted;
-    mapping(address => uint) tradingRuleWhitelistAddressToIndex;
+    /// Allowlist for trading rule exceptions
+    address[] tradingRuleAllowList;
+    mapping(address => bool) isTradingRuleAllowlisted;
+    mapping(address => uint) tradingRuleAllowlistAddressToIndex;
 
     /**
-     * @dev This constructor sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.
-     * @param root address to set as the default admin and first app administrator
+     * @dev This constructor sets up the super admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.
+     * @param root address to set as the super admin and first app administrator
      * @param _appName Application Name String
      * @param upgradeMode specifies whether this is a fresh AppManager or an upgrade replacement.
      */
@@ -111,7 +110,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function overrides the parent's grantRole function. This disables its public nature to make it private.
      * @param role the role to grant to an acount.
      * @param account address being granted the role.
-     * @notice this is purposely going to fail every time it will be invoked in order to force users to only use the appropiate 
+     * @notice This is purposely going to fail every time it will be invoked in order to force users to only use the appropiate 
      * channels to grant roles, and therefore enforce the special rules in an app.
      */
      function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
@@ -146,7 +145,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         if(role == RULE_BYPASS_ACCOUNT) checkForAdminMinTokenBalanceCapable();
         AccessControl.revokeRole(role, account);
     }
-    // /// -------------ADMIN---------------
+
+    /// -------------SUPER ADMIN---------------
     /**
      * @dev This function is where the Super admin role is actually checked
      * @param account address to be checked
@@ -160,11 +160,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Propose a new super admin. Restricted to super admins.
+     * @notice We should only have 1 proposed superAdmin. If there is one already in this role, we should remove it to replace it.
      * @param account address to be added
      */
     function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROLE) {
         if(account == address(0)) revert ZeroAddress();
-        /// we should only have 1 proposed superAdmin. If there is one already in this role, we should remove it to replace it.
         if(getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE) > 0){
             revokeRole(PROPOSED_SUPER_ADMIN_ROLE, getRoleMember(PROPOSED_SUPER_ADMIN_ROLE, 0));
         }
@@ -177,15 +177,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function confirmSuperAdmin() external {
         address newSuperAdmin = getRoleMember(PROPOSED_SUPER_ADMIN_ROLE, 0);
-        /// We first check that only the proposed superAdmin can confirm
         if (_msgSender() != newSuperAdmin) revert ConfirmerDoesNotMatchProposedAddress();
-        /// then we transfer the role
         address oldSuperAdmin = getRoleMember(SUPER_ADMIN_ROLE, 0);
-
         super.grantRole(SUPER_ADMIN_ROLE, newSuperAdmin);
         super.revokeRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
         renounceRole(PROPOSED_SUPER_ADMIN_ROLE, _msgSender());
-        /// we emit the events
         emit SuperAdministrator(_msgSender(), true);
         emit SuperAdministrator(oldSuperAdmin, false);
     }
@@ -297,11 +293,11 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
 
     /**
      * @dev Add a list of accounts to the rule bypass account role. Restricted to app administrators.
-     * @param account address to be added as a rule bypass account
+     * @param _accounts addresses to be added as a rule bypass account
      */
-    function addMultipleRuleBypassAccounts(address[] memory account) external onlyRole(APP_ADMIN_ROLE) {
-        for (uint256 i; i < account.length; ) {
-            addRuleBypassAccount(account[i]);
+    function addMultipleRuleBypassAccounts(address[] memory _accounts) external onlyRole(APP_ADMIN_ROLE) {
+        for (uint256 i; i < _accounts.length; ) {
+            addRuleBypassAccount(_accounts[i]);
             unchecked {
                 ++i;
             }
@@ -456,12 +452,20 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev Get the AccessLevel Score for the specified account
+     * @dev Get the Access Level for the specified account
      * @param _account address of the user
      * @return
      */
     function getAccessLevel(address _account) external view returns (uint8) {
         return accessLevels.getAccessLevel(_account);
+    }
+
+    /**
+     * @dev Remove the Access Level for an account.
+     * @param _account address which the Access Level will be removed from
+     */
+    function removeAccessLevel(address _account) external onlyRole(ACCESS_LEVEL_ADMIN_ROLE) {
+        accessLevels.removeAccessLevel(_account);
     }
 
     /// -------------MAINTAIN RISK SCORES---------------
@@ -537,7 +541,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      */
     function removePauseRule(uint64 _pauseStart, uint64 _pauseStop) external onlyRole(RULE_ADMIN_ROLE) {
         pauseRules.removePauseRule(_pauseStart, _pauseStop);
-        /// if length is 0 no pause rules exist
         if (pauseRules.isPauseRulesEmpty()){
             /// set handler bool to false to save gas and prevent pause rule checks when non exist
             applicationHandler.activatePauseRule(false);
@@ -569,10 +572,10 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         pauseRules.cleanOutdatedRules();
     }
 
-    /// -------------MAINTAIN GENERAL TAGS---------------
+    /// -------------MAINTAIN TAGS---------------
 
     /**
-     * @dev Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.
+     * @dev Add a tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.
      * @param _account Address to be tagged
      * @param _tag Tag for the account. Can be any allowed string variant
      * @notice there is a hard limit of 10 tags per address.
@@ -582,7 +585,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.
+     * @dev Add a tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.
      * @param _accounts Address array to be tagged
      * @param _tag Tag for the account. Can be any allowed string variant
      * @notice there is a hard limit of 10 tags per address.
@@ -608,7 +611,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev Remove a general tag. Restricted to Application Administrators.
+     * @dev Remove a tag. Restricted to Application Administrators.
      * @param _account Address to have its tag removed
      * @param _tag The tag to remove
      */
@@ -617,7 +620,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev Check to see if an account has a specific general tag
+     * @dev Check to see if an account has a specific tag
      * @param _account Address to check
      * @param _tag Tag to be checked for
      * @return success true if account has the tag, false if it does not
@@ -653,7 +656,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev  First part of the 2 step process to set a new general tag provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
+     * @dev  First part of the 2 step process to set a new tag provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.
      * @param _newProvider Address of the new provider
      */
     function proposeTagsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE) {
@@ -662,7 +665,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev Get the address of the general tag provider
+     * @dev Get the address of the tag provider
      * @return provider Address of the provider
      */
     function getTagProvider() external view returns (address) {
@@ -914,22 +917,22 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     }
 
     /**
-     * @dev manage the whitelist for trading-rule bypasser accounts
+     * @dev manage the approve list for trading-rule bypasser accounts
      * @param _address account in the list to manage
      * @param isApproved set to true to indicate that _address can bypass trading rules.
      */
-    function approveAddressToTradingRuleWhitelist(address _address, bool isApproved) external onlyRole(APP_ADMIN_ROLE) {
+    function approveAddressToTradingRuleAllowlist(address _address, bool isApproved) external onlyRole(APP_ADMIN_ROLE) {
         if(!isApproved){
-            if( !isTradingRuleWhitelisted[_address])
+            if( !isTradingRuleAllowlisted[_address])
                 revert NoAddressToRemove();
-            _removeAddressWithMapping(tradingRuleWhiteList, tradingRuleWhitelistAddressToIndex, isTradingRuleWhitelisted, _address);
+            _removeAddressWithMapping(tradingRuleAllowList, tradingRuleAllowlistAddressToIndex, isTradingRuleAllowlisted, _address);
             
         }else{
-            if( isTradingRuleWhitelisted[_address])
+            if( isTradingRuleAllowlisted[_address])
                 revert AddressAlreadyRegistered();
-            _addAddressWithMapping(tradingRuleWhiteList, tradingRuleWhitelistAddressToIndex, isTradingRuleWhitelisted, _address);
+            _addAddressWithMapping(tradingRuleAllowList, tradingRuleAllowlistAddressToIndex, isTradingRuleAllowlisted, _address);
         }
-        emit TradingRuleAddressWhitelist(_address, isApproved);
+        emit TradingRuleAddressAllowlist(_address, isApproved);
     }
 
     /**
@@ -938,7 +941,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @return true if the address can bypass trading rules, or false otherwise.
      */
     function isTradingRuleBypasser(address _address) public view returns (bool) {
-        return isTradingRuleWhitelisted[_address];
+        return isTradingRuleAllowlisted[_address];
     }
 
     /**
@@ -1080,7 +1083,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _providerType the type of data provider
      */
     function confirmNewDataProvider(IDataModule.ProviderType _providerType) external {
-        if (_providerType == IDataModule.ProviderType.GENERAL_TAG) {
+        if (_providerType == IDataModule.ProviderType.TAG) {
             if (newTagsProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newTagsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             tags = ITags(newTagsProviderAddress);

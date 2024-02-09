@@ -36,14 +36,14 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_accountTypes.length != _maxSizes.length || _accountTypes.length != _periods.length) revert InputArraysMustHaveSameLength();
-        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        /// since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
         _accountTypes.areTagsValid();
         return _addAccountMaxBuySize(_accountTypes, _maxSizes, _periods, _startTime);
     }
 
     /**
-     * @dev internal Function to avoid stack too deep error
+     * @dev Internal Function to avoid stack too deep error
      * @param _accountTypes Types of Accounts
      * @param _maxSizes Allowed total buy sizes
      * @param _periods Amount of hours that define the periods
@@ -88,14 +88,14 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTypes.length != _maxSizes.length || _accountTypes.length != _period.length) revert InputArraysMustHaveSameLength();
-        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        /// since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
         _accountTypes.areTagsValid();
         return _addAccountMaxSellSize(_accountTypes, _maxSizes, _period, _startTime);
     }
 
     /**
-     * @dev internal Function to avoid stack too deep error
+     * @dev Internal Function to avoid stack too deep error
      * @param _accountTypes Types of Accounts
      * @param _maxSizes Allowed total sell limits
      * @param _period Period for sales
@@ -141,14 +141,14 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         if (_appManagerAddr == address(0)) revert ZeroAddress();
         if (_accountTypes.length != _min.length || _accountTypes.length != _max.length || (_periods.length > 0 && _accountTypes.length != _periods.length)) revert InputArraysMustHaveSameLength();
-        // since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+        /// since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
         _accountTypes.areTagsValid();
         return _addAccountMinMaxTokenBalance(_accountTypes, _min, _max, _periods, _startTime);
     }
 
     /**
-     * @dev internal Function to avoid stack too deep error
+     * @dev Internal Function to avoid stack too deep error
      * @param _accountTypes Types of Accounts
      * @param _min Minimum Balance allowed for tagged accounts
      * @param _max Maximum Balance allowed for tagged accounts
@@ -188,7 +188,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _appManagerAddr Address of App Manager
      * @param _amount Minimum amount of token to hold to
      * @param _endTime Date of release
-     * @return adminMinTokenBalanceRules position of new rule in array
+     * @return adminMinTokenBalance Rules position of new rule in array
      */
     function addAdminMinTokenBalance(address _appManagerAddr, uint256 _amount, uint256 _endTime) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         RuleS.AdminMinTokenBalanceS storage data = Storage.adminMinTokenBalanceStorage();
@@ -227,7 +227,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     }
 
     /**
-     * @dev internal Function to avoid stack too deep error
+     * @dev Internal Function to avoid stack too deep error
      * @param _nftTags Tags of NFTs
      * @param _tradesAllowed Maximum trades allowed within 24 hours
      * @param _startTime starting timestamp for the rule

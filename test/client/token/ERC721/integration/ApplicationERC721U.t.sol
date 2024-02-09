@@ -42,7 +42,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         vm.expectRevert(abi.encodeWithSignature("NotAppAdministrator()"));
         nft.safeMint(appAdministrator);
     }
-
+ 
     function testERC721U_TransferUpgradeable() public {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
         assertEq(ApplicationERC721Upgradeable(address(applicationNFTProxy)).balanceOf(appAdministrator), 1);
@@ -79,7 +79,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         switchToUser();
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).burn(0);
     }
-
+ 
     function testERC721U_AccountMinMaxTokenBalanceRuleUpgradeable() public {
         /// mint 6 NFTs to appAdministrator for transfer
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(appAdministrator);
@@ -160,9 +160,6 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user2, user1, 4);
     }
 
-    /**
-     * @dev Test the AccountApproveDenyOracle rule, both approve and deny types
-     */
     function testERC721U_AccountApproveDenyOracleUpgradeable() public {
         /// set up a non admin user an nft
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1);
@@ -252,9 +249,6 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).transferFrom(user1, address(59), 2);
     }
 
-    /**
-     * @dev Test the TokenMaxDailyTrades rule
-     */
     function testERC721U_TokenMaxDailyTrades() public {
         /// set up a non admin user an nft
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
@@ -439,10 +433,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeTransferFrom(user2, user3, 4);
     }
 
-    /**
-     * @dev Test the AccessLevel = 0 rule
-     */
-    function testERC721U_AccessLevel0InNFTUpgradeable() public {
+    function testERC721U_AccountDenyForNoAccessLevelInNFTUpgradeable() public {
         /// set up a non admin user an nft
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).safeMint(user1); // tokenId = 1
@@ -775,7 +766,7 @@ contract ApplicationERC721UTest is TestCommonFoundry {
         address testAddress = assetHandler.newTestFunction();
         console.log(assetHandler.newTestFunction(), testAddress);
     }
-
+ 
     function testERC721U_UpgradingHandlersPostUpgrades() public {
         // upgrade the NFT and make sure it still fails
         vm.stopPrank();

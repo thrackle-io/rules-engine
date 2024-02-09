@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 /**
  * @title Rule Processor Library
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev stores common functions used throughout the protocol rule checks
+ * @dev Stores common functions used throughout the protocol rule checks
  */
 library RuleProcessorCommonLib {
     error InvalidTimestamp(uint64 _timestamp);
@@ -14,7 +14,7 @@ library RuleProcessorCommonLib {
     uint8 constant MAX_TAGS = 10;
 
     /**
-     * @dev validate a user entered timestamp to ensure that it is valid. Validity depends on it being greater than UNIX epoch and not more than 1 year into the future. It reverts with custom error if invalid
+     * @dev Validate a user entered timestamp to ensure that it is valid. Validity depends on it being greater than UNIX epoch and not more than 1 year into the future. It reverts with custom error if invalid
      */
     function validateTimestamp(uint64 _startTime) internal view {
         if (_startTime == 0 || _startTime > (block.timestamp + (52 * 1 weeks))) {
@@ -23,7 +23,7 @@ library RuleProcessorCommonLib {
     }
 
     /**
-     * @dev generic function to check the existence of a rule
+     * @dev Generic function to check the existence of a rule
      * @param _ruleIndex index of the current rule
      * @param _ruleTotal total rules in existence for the rule type
      * @return _exists true if it exists, false if not
@@ -48,7 +48,7 @@ library RuleProcessorCommonLib {
     }
 
     /**
-     * @dev determine if transaction should be accumulated with the previous or it is a new period which requires reset of accumulators
+     * @dev Determine if transaction should be accumulated with the previous or it is a new period which requires reset of accumulators
      * @param _startTime the timestamp the rule was enabled
      * @param _period amount of hours in the rule period
      * @param _lastTransferTs the last transfer timestamp
@@ -59,7 +59,7 @@ library RuleProcessorCommonLib {
         if (_lastTransferTs == 0) {
             return false;
         }
-        // current timestamp subtracted by the remainder of seconds since the rule was active divided by period in seconds
+        /// current timestamp subtracted by the remainder of seconds since the rule was active divided by period in seconds
         uint256 currentPeriodStart = block.timestamp - ((block.timestamp - _startTime) % (_period * 1 hours));
         if (_lastTransferTs >= currentPeriodStart) {
             return true;
@@ -69,7 +69,7 @@ library RuleProcessorCommonLib {
     }
 
     /**
-     * @dev determine if the max tag number is reached
+     * @dev Determine if the max tag number is reached
      * @param _tags tags associated with the rule
      */
     function checkMaxTags(bytes32[] memory _tags) internal pure {
@@ -77,7 +77,7 @@ library RuleProcessorCommonLib {
     }
 
     /**
-     * @dev determine if the rule applies to all users
+     * @dev Determine if the rule applies to all users
      * @param _tags the timestamp the rule was enabled
      * @param _isAll true if applies to all users
      */
@@ -85,6 +85,13 @@ library RuleProcessorCommonLib {
         if (_tags.length == 1 && _tags[0] == bytes32("")) return true;
     }
 
+    /**
+     * @dev Retrieve the max size of the risk rule for the risk score provided. 
+     * @param _riskScore risk score of the account 
+     * @param _riskScores array of risk scores for the rule 
+     * @param _maxValues array of max values from the rule 
+     * @return maxValue uint256 max value for the risk score for rule validation
+     */
     function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskScores, uint48[] memory _maxValues) internal pure returns(uint256){
         uint256 maxValue;
         for (uint256 i = 1; i < _riskScores.length;) {
@@ -108,7 +115,7 @@ library RuleProcessorCommonLib {
      * @return _valid returns true if tag entry is valid
      */
     function areTagsValid(bytes32[] calldata _accountTags) internal pure returns (bool) {
-        // If more than one tag, none can be blank.
+        /// If more than one tag, none can be blank.
         if (_accountTags.length > 1){
             for (uint256 i; i < _accountTags.length; ) {
                 if (_accountTags[i] == bytes32("")) revert TagListMustBeSingleBlankOrValueList();

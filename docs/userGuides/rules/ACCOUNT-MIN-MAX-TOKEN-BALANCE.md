@@ -10,6 +10,14 @@ The account-min-max-token-balance rule enforces token balance thresholds for use
 - [x] ERC721
 - [x] AMM
 
+## Applies To Actions:
+
+- [x] MINT
+- [x] BURN
+- [x] BUY
+- [x] SELL
+- [x] TRANSFER(Peer to Peer)
+  
 ## Scope 
 
 This rule works at both the token level and AMM level. It must be activated and configured for each desired token in the corresponding token handler or each desired AMM supported token within the AMM Handler.

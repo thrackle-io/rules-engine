@@ -6,7 +6,7 @@ import "forge-std/Test.sol";
 import "src/client/token/ProtocolHandlerCommon.sol";
 
 /**
- * @title Application Coin Handler Test
+ * @title Application Token Handler Test
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @dev this contract tests the ApplicationERC20 Handler. This handler is deployed specifically for its implementation
  *      contains all the rule checks for the particular ERC20.

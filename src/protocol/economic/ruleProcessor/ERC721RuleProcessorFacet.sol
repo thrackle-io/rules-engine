@@ -4,10 +4,10 @@ pragma solidity ^0.8.17;
 import "./RuleProcessorDiamondImports.sol";
 
 /**
- * @title NFT Rule Processor Facet Contract
+ * @title NFT Rule Processor Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev facet in charge of the logic to check non-fungible token rules compliance
- * @notice Implements NFT Rule checks for rules
+ * @dev Facet in charge of the logic to check non-fungible token rules compliance
+ * @notice Implements NFT Rule checks
  */
 contract ERC721RuleProcessorFacet is IERC721Errors, IRuleProcessorErrors, IMaxTagLimitError {
     using RuleProcessorCommonLib for uint64;
