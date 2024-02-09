@@ -143,7 +143,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
         // apply admin withdrawal rule to an ERC20
-        ERC20HandlerMainFacet(address(coinHandlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC20HandlerMainFacet(address(applicationCoinHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         switchToRuleBypassAccount();
         // try to renounce ruleBypassAccount
         vm.expectRevert(0x4ba7941c);
@@ -157,11 +157,11 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         vm.expectRevert(0x4ba7941c);
-        ERC20HandlerMainFacet(address(coinHandlerDiamond)).activateAdminMinTokenBalance(_createActionsArray(), false);
+        ERC20HandlerMainFacet(address(applicationCoinHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
         // try to set the rule to a different one.
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 5_000_000 * (10 ** 18), block.timestamp + 365 days);
         vm.expectRevert(0x4ba7941c);
-        ERC20HandlerMainFacet(address(coinHandlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC20HandlerMainFacet(address(applicationCoinHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         // move a year into the future so that the rule is expired
         vm.warp(block.timestamp + (366 days));
         switchToRuleBypassAccount(); 
@@ -175,7 +175,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
         // apply admin withdrawal rule to an ERC721
-         ERC721HandlerMainFacet(address(nftHandlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
+         ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         switchToRuleBypassAccount();
         // try to renounce ruleBypassAccount
         vm.expectRevert(0x4ba7941c);
@@ -189,11 +189,11 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         vm.expectRevert(0x4ba7941c);
-        ERC721HandlerMainFacet(address(nftHandlerDiamond)).activateAdminMinTokenBalance(_createActionsArray(), false);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
         // try to set the rule to a different one.
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 5_000_000 * (10 ** 18), block.timestamp + 365 days);
         vm.expectRevert(0x4ba7941c);
-        ERC721HandlerMainFacet(address(nftHandlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         // move a year into the future so that the rule is expired
         vm.warp(block.timestamp + (366 days));
         switchToAppAdministrator(); // create a app administrator and make it the sender.
@@ -747,19 +747,23 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
 
     function testRegisterToken() public {
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
+        applicationCoinHandler = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin));
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
 
         ApplicationERC20 applicationCoinA = _createERC20("CoinA", "A", applicationAppManager);
-        ApplicationERC20Handler applicationCoinHandlerA = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoinA);
+        HandlerDiamond applicationCoinHandlerA = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandlerA)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoinA));
         applicationCoinA.connectHandlerToToken(address(applicationCoinHandlerA));
 
         ApplicationERC20 applicationCoinB = _createERC20("CoinB", "B", applicationAppManager);
-        ApplicationERC20Handler applicationCoinHandlerB = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoinB);
+        HandlerDiamond applicationCoinHandlerB = _createERC20HandlerDiamond();
+            ERC20HandlerMainFacet(address(applicationCoinHandlerB)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoinB));
         applicationCoinB.connectHandlerToToken(address(applicationCoinHandlerB));
 
         ApplicationERC20 applicationCoinC = _createERC20("coinC", "C", applicationAppManager);
-        ApplicationERC20Handler applicationCoinHandlerC = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoinC);
+        HandlerDiamond applicationCoinHandlerC = _createERC20HandlerDiamond();
+            ERC20HandlerMainFacet(address(applicationCoinHandlerC)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoinC));
         applicationCoinC.connectHandlerToToken(address(applicationCoinHandlerC));
 
         /// register the tokens

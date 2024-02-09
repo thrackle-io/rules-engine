@@ -24,7 +24,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
             user1 = vm.envAddress("KEVIN");
             user2 = vm.envAddress("SAM");
             applicationNFT = ApplicationERC721(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_ADDRESS_1"));
-            applicationNFTHandler = ApplicationERC721Handler(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER"));
+            applicationNFTHandler = HandlerDiamond(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER")));
             applicationCoin = ApplicationERC20(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS"));
             ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND")));
             ruleProcessorDiamondAddress = vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND");
@@ -36,7 +36,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         } else {
             vm.warp(Blocktime);
             vm.startPrank(appAdministrator);
-            setUpProtocolAndAppManagerAndTokens();
+            setUpProcotolAndCreateERC20AndDiamondHandler();
             switchToAppAdministrator();
             console.log("localProcessorDiamond", address(ruleProcessor));
             forkTest = false;
@@ -1049,7 +1049,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         actionTypes[0] = ActionTypes.P2P_TRANSFER;
         actionTypes[1] = ActionTypes.MINT;
         actionTypes[2] = ActionTypes.BURN;
-        applicationNFTHandler.setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
+        ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
         vm.startPrank(user1);
@@ -1111,7 +1111,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         actionTypes[0] = ActionTypes.P2P_TRANSFER;
         actionTypes[1] = ActionTypes.MINT;
         actionTypes[2] = ActionTypes.BURN;
-        applicationNFTHandler.setAccountApproveDenyOracleId(actionTypes, _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setAccountApproveDenyOracleId(actionTypes, _index);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -1128,7 +1128,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
-        applicationNFTHandler.setAccountApproveDenyOracleId(actionTypes, _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setAccountApproveDenyOracleId(actionTypes, _index);
         // add an allowed address
         switchToAppAdministrator();
         goodBoys.push(address(59));
@@ -1149,7 +1149,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
         /// set oracle back to allow and attempt to burn token
         _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
-        applicationNFTHandler.setAccountApproveDenyOracleId(actionTypes, _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setAccountApproveDenyOracleId(actionTypes, _index);
         /// swap to user and burn
         vm.stopPrank();
         vm.startPrank(user1);
@@ -1157,7 +1157,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         /// set oracle to deny and add address(0) to list to deny burns
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 0, address(oracleDenied));
-        applicationNFTHandler.setAccountApproveDenyOracleId(actionTypes, _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setAccountApproveDenyOracleId(actionTypes, _index);
         switchToAppAdministrator();
         badBoys.push(address(0));
         oracleDenied.addToDeniedList(badBoys);
@@ -1168,7 +1168,6 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         applicationNFT.burn(3);
     }
 
-    /// Test Token Max Daily Trades Rule NFT 
     function testTokenMaxDailyTradesRuleInNFT() public {
         vm.warp(Blocktime);
         vm.stopPrank();
@@ -1191,7 +1190,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRules.TokenMaxDailyTrades memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
         // apply the rule to the ApplicationERC721Handler
-        applicationNFTHandler.setTokenMaxDailyTradesId(_createActionsArray(), _index);
+        ERC721TaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxDailyTradesId(_createActionsArray(), _index);
         // tag the NFT collection
         switchToAppAdministrator();
         applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag

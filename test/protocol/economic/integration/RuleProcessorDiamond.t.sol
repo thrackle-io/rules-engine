@@ -8,7 +8,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
     function setUp() public {
         vm.startPrank(superAdmin);
-        setUpProtocolAndAppManagerAndTokens();
+        setUpProcotolAndCreateERC20AndDiamondHandler();
         vm.warp(Blocktime);
         switchToRuleAdmin();
     }

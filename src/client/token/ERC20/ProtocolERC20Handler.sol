@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "src/client/token/data/Fees.sol";
+// import "src/client/token/data/Fees.sol";
 import "src/client/token/ProtocolHandlerCommon.sol";
 import {IZeroAddressError, IAssetHandlerErrors, IAppManagerErrors} from "src/common/IErrors.sol";
 import "../ProtocolHandlerTradingRulesCommon.sol";
@@ -20,7 +20,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     using ERC165Checker for address;
 
     /// Data contracts
-    Fees fees;
+    // Fees fees;
     bool feeActive;
     
     /// Rule mappings
@@ -181,35 +181,35 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @param _feePercentage fee percentage to assess
      * @param _targetAccount target for the fee proceeds
      */
-    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external ruleAdministratorOnly(appManagerAddress) {
-        fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
-        feeActive = true;
-    }
+    // function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external ruleAdministratorOnly(appManagerAddress) {
+    //     fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
+    //     feeActive = true;
+    // }
 
     /**
      * @dev This function removes a fee to the token
      * @param _tag meta data tag for fee
      */
-    function removeFee(bytes32 _tag) external ruleAdministratorOnly(appManagerAddress) {
-        fees.removeFee(_tag);
-    }
+    // function removeFee(bytes32 _tag) external ruleAdministratorOnly(appManagerAddress) {
+    //     fees.removeFee(_tag);
+    // }
 
     /**
      * @dev Returns the full mapping of fees
      * @param _tag meta data tag for fee
      * @return fee struct containing fee data
      */
-    function getFee(bytes32 _tag) external view returns (Fees.Fee memory) {
-        return fees.getFee(_tag);
-    }
+    // function getFee(bytes32 _tag) external view returns (Fees.Fee memory) {
+    //     return fees.getFee(_tag);
+    // }
 
     /**
      * @dev Returns the total number of fees
      * @return feeTotal total number of fees
      */
-    function getFeeTotal() public view returns (uint256) {
-        return fees.getFeeTotal();
-    }
+    // function getFeeTotal() public view returns (uint256) {
+    //     return fees.getFeeTotal();
+    // }
 
     /**
      * @dev Turn fees on/off
@@ -752,31 +752,31 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @dev Deploy all the child data contracts. Only called internally from the constructor.
      */
     function deployDataContract() private {
-        fees = new Fees();
+        // fees = new Fees();
     }
 
     /**
      * @dev Getter for the fee rules data contract address
      * @return feesDataAddress
      */
-    function getFeesDataAddress() external view returns (address) {
-        return address(fees);
-    }
+    // function getFeesDataAddress() external view returns (address) {
+    //     return address(fees);
+    // }
 
     /**
      * @dev This function is used to propose the new owner for data contracts.
      * @param _newOwner address of the new AppManager
      */
-    function proposeDataContractMigration(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress) {
-        fees.proposeOwner(_newOwner);
-    }
+    // function proposeDataContractMigration(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress) {
+    //     fees.proposeOwner(_newOwner);
+    // }
 
     /**
      * @dev This function is used to confirm this contract as the new owner for data contracts.
      */
-    function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
-        ProtocolERC20Handler oldHandler = ProtocolERC20Handler(_oldHandlerAddress);
-        fees = Fees(oldHandler.getFeesDataAddress());
-        fees.confirmOwner();
-    }
+    // function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
+    //     ProtocolERC20Handler oldHandler = ProtocolERC20Handler(_oldHandlerAddress);
+    //     fees = Fees(oldHandler.getFeesDataAddress());
+    //     fees.confirmOwner();
+    // }
 }
