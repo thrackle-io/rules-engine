@@ -167,6 +167,10 @@ interface IAssetHandlerErrors {
     error AccountApproveDenyOraclesPerAssetLimitReached();
 }
 
+interface IFeesErrors {
+    error FeesAreGreaterThanTransactionAmount(address);
+}
+
 interface IOwnershipErrors {
     error ConfirmerDoesNotMatchProposedAddress();
     error NoProposalHasBeenMade();

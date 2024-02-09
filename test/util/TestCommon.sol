@@ -65,6 +65,7 @@ import "src/client/token/handler/diamond/ERC20NonTaggedRuleFacet.sol";
 import "src/client/token/handler/diamond/ERC721TaggedRuleFacet.sol";
 import "src/client/token/handler/diamond/ERC721NonTaggedRuleFacet.sol";
 import "src/client/token/handler/diamond/TradingRuleFacet.sol";
+import {FeesFacet} from "src/client/token/handler/diamond/FeesFacet.sol";
 import {ERC20HandlerMainFacet} from "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
 import {ERC721HandlerMainFacet} from "src/client/token/handler/diamond/ERC721HandlerMainFacet.sol";
 /// common imports 
