@@ -180,6 +180,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      */
     function checkAdminMinTokenBalance(uint32 ruleId, uint256 currentBalance, uint256 amount) external view {
         TaggedRules.AdminMinTokenBalance memory rule = getAdminMinTokenBalance(ruleId);
+        if(amount > currentBalance) revert("amount more tha current balance");
         if ((block.timestamp < rule.endTime) && (currentBalance - amount < rule.amount)) revert UnderMinBalance();
     }
 
