@@ -1164,4 +1164,330 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoin2.transfer(address(69), 1000 * ATTO);
     }
 
+    ///Test transferring coins with fees enabled
+    function testERC20_TransactionFeeTableCoinDiamond() public {
+        applicationCoin.transfer(user4, 100000 * ATTO);
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        address targetAccount2 = user10;
+        // create a fee
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).addFee("cheap", minBalance, maxBalance, feePercentage, targetAccount);
+        
+        Fee memory fee = FeesFacet(address(coinHandlerDiamond)).getFee("cheap");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, FeesFacet(address(coinHandlerDiamond)).getFeeTotal());
+        // make sure fees don't affect Application Administrators(even if tagged)
+        switchToAppAdministrator();
+        applicationAppManager.addTag(superAdmin, "cheap"); ///add tag
+        applicationCoin.transfer(user2, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user2), 100 * ATTO);
+
+        // now test the fee assessment
+        applicationAppManager.addTag(user4, "cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works
+        applicationCoin.transfer(user3, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99900 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 97 * ATTO);
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
+
+        // make sure when fees are active, that non qualifying users are not affected
+        switchToAppAdministrator();
+        applicationCoin.transfer(user5, 100 * ATTO);
+        vm.stopPrank();
+        vm.startPrank(user5);
+        applicationCoin.transfer(user6, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user6), 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
+
+        // make sure multiple fees work by adding additional rule and applying to user4
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
+        switchToAppAdministrator();
+        applicationAppManager.addTag(user4, "less cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.transfer(user7, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99800 * ATTO); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user7), 91 * ATTO); // to account gets amount - fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * ATTO); // treasury gets fees(added from previous)
+        assertEq(applicationCoin.balanceOf(targetAccount2), 6 * ATTO); // treasury gets fees
+
+        // make sure discounts work by adding a discount to user4
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).addFee("discount", minBalance, maxBalance, -200, address(0));
+        switchToAppAdministrator();
+        applicationAppManager.addTag(user4, "discount"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.transfer(user8, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99700 * ATTO); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user8), 93 * ATTO); // to account gets amount - fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 8 * ATTO); // treasury gets fees(added from previous...6 + 2)
+        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * ATTO); // treasury gets fees(added from previous...6 + 5)
+
+        // make sure deactivation works
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).setFeeActivation(false);
+        
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.transfer(user9, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99600 * ATTO); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user9), 100 * ATTO); // to account gets amount while ignoring fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 8 * ATTO); // treasury remains the same
+        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * ATTO); // treasury remains the same
+    }
+
+    ///Test transferring coins with fees enabled with blank tags
+    function testERC20_TransactionFeeTableCoinBlankTag() public {
+        applicationCoin.transfer(user4, 100000 * ATTO);
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        address targetAccount2 = user10;
+        // create a fee
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).addFee("", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        applicationAppManager.addTag(user4, "discount"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works
+        applicationCoin.transfer(user3, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99900 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 97 * ATTO);
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
+
+        /// Now add another fee and make sure it accumulates. 
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
+        switchToAppAdministrator();
+        applicationAppManager.addTag(user4, "less cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.transfer(user7, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99800 * ATTO); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user7), 91 * ATTO); // to account gets amount - fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * ATTO); // treasury gets fees(added from previous)
+        assertEq(applicationCoin.balanceOf(targetAccount2), 6 * ATTO); // treasury gets fees       
+    }
+
+    ///Test transferring coins with fees and discounts where the discounts are greater than the fees
+    function testERC20_TransactionFeeTableDiscountsCoin() public {
+        applicationCoin.transfer(user4, 100000 * ATTO);
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
+        int24 feePercentage = 100;
+        address targetAccount = rich_user;
+        // create a fee
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).addFee("fee1", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        Fee memory fee = FeesFacet(address(coinHandlerDiamond)).getFee("fee1");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        // create a discount
+        switchToRuleAdmin();
+        feePercentage = -9000;
+        FeesFacet(address(coinHandlerDiamond)).addFee("discount1", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        fee = FeesFacet(address(coinHandlerDiamond)).getFee("discount1");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        // create another discount that makes it more than the fee
+        switchToRuleAdmin();
+        feePercentage = -2000;
+        FeesFacet(address(coinHandlerDiamond)).addFee("discount2", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        fee = FeesFacet(address(coinHandlerDiamond)).getFee("discount2");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+
+        // now test the fee assessment
+        applicationAppManager.addTag(user4, "discount1"); ///add tag
+        applicationAppManager.addTag(user4, "discount2"); ///add tag
+        applicationAppManager.addTag(user4, "fee1"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // discounts are greater than fees so it should put fees to 0
+        applicationCoin.transfer(user3, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99900 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(targetAccount), 0 * ATTO);
+    }
+
+    ///Test transferring coins with fees enabled using transferFrom
+    function testERC20_TransactionFeeTableTransferFrom() public {
+        applicationCoin.transfer(user4, 100000 * ATTO);
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        address targetAccount2 = user10;
+        // create a fee
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).addFee("cheap", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        Fee memory fee = FeesFacet(address(coinHandlerDiamond)).getFee("cheap");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, FeesFacet(address(coinHandlerDiamond)).getFeeTotal());
+        // make sure fees don't affect Application Administrators(even if tagged)
+        applicationAppManager.addTag(appAdministrator, "cheap"); ///add tag
+        applicationCoin.approve(address(transferFromUser), 100 * ATTO);
+        vm.stopPrank();
+        vm.startPrank(transferFromUser);
+        applicationCoin.transferFrom(appAdministrator, user2, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user2), 100 * ATTO);
+
+        // now test the fee assessment
+        switchToAppAdministrator();
+        applicationAppManager.addTag(user4, "cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works
+        applicationCoin.approve(address(transferFromUser), 100 * ATTO);
+        vm.stopPrank();
+        vm.startPrank(transferFromUser);
+        applicationCoin.transferFrom(user4, user3, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99900 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 97 * ATTO);
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
+
+        // make sure when fees are active, that non qualifying users are not affected
+        vm.stopPrank();
+        vm.startPrank(appAdministrator);
+        applicationCoin.transfer(user5, 100 * ATTO);
+        vm.stopPrank();
+        vm.startPrank(user5);
+        applicationCoin.approve(address(transferFromUser), 100 * ATTO);
+        vm.stopPrank();
+        vm.startPrank(transferFromUser);
+        applicationCoin.transferFrom(user5, user6, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user6), 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
+
+        // make sure multiple fees work by adding additional rule and applying to user4
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
+        switchToAppAdministrator();
+        applicationAppManager.addTag(user4, "less cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.approve(address(transferFromUser), 100 * ATTO);
+        vm.stopPrank();
+        vm.startPrank(transferFromUser);
+        applicationCoin.transferFrom(user4, user7, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99800 * ATTO); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user7), 91 * ATTO); // to account gets amount - fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * ATTO); // treasury gets fees(added from previous)
+        assertEq(applicationCoin.balanceOf(targetAccount2), 6 * ATTO); // treasury gets fees
+
+        // make sure discounts work by adding a discount to user4
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).addFee("discount", minBalance, maxBalance, -200, address(0));
+        switchToAppAdministrator();
+        applicationAppManager.addTag(user4, "discount"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.approve(address(transferFromUser), 100 * ATTO);
+        vm.stopPrank();
+        vm.startPrank(transferFromUser);
+        applicationCoin.transferFrom(user4, user8, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99700 * ATTO); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user8), 93 * ATTO); // to account gets amount - fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 8 * ATTO); // treasury gets fees(added from previous...6 + 2)
+        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * ATTO); // treasury gets fees(added from previous...6 + 5)
+
+        // make sure deactivation works
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).setFeeActivation(false);
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.approve(address(transferFromUser), 100 * ATTO);
+        vm.stopPrank();
+        vm.startPrank(transferFromUser);
+        applicationCoin.transferFrom(user4, user9, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99600 * ATTO); //from account decrements properly
+        assertEq(applicationCoin.balanceOf(user9), 100 * ATTO); // to account gets amount while ignoring fees
+        assertEq(applicationCoin.balanceOf(targetAccount), 8 * ATTO); // treasury remains the same
+        assertEq(applicationCoin.balanceOf(targetAccount2), 11 * ATTO); // treasury remains the same
+    }
+
+    ///Test transferring coins with fees enabled
+    function testERC20_TransactionFeeTableCoinGt100() public {
+        applicationCoin.transfer(user4, 100000 * ATTO);
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        address targetAccount2 = user10;
+        // create a fee
+        switchToRuleAdmin();
+        FeesFacet(address(coinHandlerDiamond)).addFee("cheap", minBalance, maxBalance, feePercentage, targetAccount);
+        switchToAppAdministrator();
+        Fee memory fee = FeesFacet(address(coinHandlerDiamond)).getFee("cheap");
+        assertEq(fee.feePercentage, feePercentage);
+        assertEq(fee.minBalance, minBalance);
+        assertEq(fee.maxBalance, maxBalance);
+        assertEq(1, FeesFacet(address(coinHandlerDiamond)).getFeeTotal());
+
+        // now test the fee assessment
+        applicationAppManager.addTag(user4, "cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works
+        applicationCoin.transfer(user3, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99900 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 97 * ATTO);
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
+
+        // add a fee to bring it to 100 percent
+        switchToRuleAdmin();
+        feePercentage = 9700;
+        FeesFacet(address(coinHandlerDiamond)).addFee("less cheap", minBalance, maxBalance, feePercentage, targetAccount2);
+        switchToAppAdministrator();
+        // now test the fee assessment
+        applicationAppManager.addTag(user4, "less cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works(other fee will also be assessed)
+        applicationCoin.transfer(user3, 100 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 99800 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 97 * ATTO);
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * ATTO); // previous 3 + current 3
+        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * ATTO); // current 7
+
+        // add a fee to bring it over 100 percent
+        switchToRuleAdmin();
+        feePercentage = 10;
+        FeesFacet(address(coinHandlerDiamond)).addFee("super cheap", minBalance, maxBalance, feePercentage, targetAccount2);
+        switchToAppAdministrator();
+        // now test the fee assessment
+        applicationAppManager.addTag(user4, "super cheap"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(user4);
+        // make sure standard fee works(other fee will also be assessed)
+        bytes4 selector = bytes4(keccak256("FeesAreGreaterThanTransactionAmount(address)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, user4));
+        applicationCoin.transfer(user3, 200 * ATTO);
+        // make sure nothing changed
+        assertEq(applicationCoin.balanceOf(user4), 99800 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 97 * ATTO);
+        assertEq(applicationCoin.balanceOf(targetAccount), 6 * ATTO); // previous 3 + current 3
+        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * ATTO); // current 7
+    }
+
 }

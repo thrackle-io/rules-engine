@@ -86,8 +86,8 @@ abstract contract TestCommonFoundry is TestCommon {
 
 
     /**
-     * @dev Deploy and set up the Rules Processor Diamond
-     * @return diamond fully configured rules processor diamond
+     * @dev Deploy and set up the ERC20 Handler Diamond
+     * @return diamond fully configured ERC20 Handler diamond
      */
     function _createERC20HandlerDiamond() public returns (HandlerDiamond diamond) {
         // Start by deploying the DiamonInit contract.
@@ -101,8 +101,7 @@ abstract contract TestCommonFoundry is TestCommon {
             "ProtocolNativeFacet",
             // // Raw implementation facets.
             "ProtocolRawFacet",
-            // Protocol facets.
-            //rule processor facets
+            // ERC20 Handler Facets 
             "ERC20HandlerMainFacet",
             "ERC20TaggedRuleFacet",
             "ERC20NonTaggedRuleFacet",
@@ -148,8 +147,8 @@ abstract contract TestCommonFoundry is TestCommon {
     }
 
     /**
-     * @dev Deploy and set up the Rules Processor Diamond
-     * @return diamond fully configured rules processor diamond
+     * @dev Deploy and set up the ERC721 Handler Diamond
+     * @return diamond fully configured ERC721 Handler diamond
      */
     function _createERC721HandlerDiamond() public returns (HandlerDiamond diamond) {
         // Start by deploying the DiamonInit contract.
@@ -163,8 +162,7 @@ abstract contract TestCommonFoundry is TestCommon {
             "ProtocolNativeFacet",
             // Raw implementation facets.
             "ProtocolRawFacet",
-            // Protocol facets.
-            //rule processor facets
+            // ERC721 Handler Facets
             "ERC721HandlerMainFacet",
             "ERC721TaggedRuleFacet",
             "ERC721NonTaggedRuleFacet",
@@ -209,8 +207,7 @@ abstract contract TestCommonFoundry is TestCommon {
     }
 
     /**
-     * @dev Deploy and set up the main protocol contracts. This includes:
-     * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond
+     * @dev Deploy and set up the main protocol contracts. 
      */
     function setUpProtocol() public {
         switchToSuperAdmin();
@@ -221,7 +218,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
     /**
      * @dev Deploy and set up the main protocol contracts. This includes:
-     * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond, 4. AppManager
+     * 1. ProcessorDiamond 2. AppManager
      */
     function setUpProtocolAndAppManager() public {
         switchToSuperAdminWithSave();
@@ -236,7 +233,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
     /**
      * @dev Deploy and set up the main protocol contracts. This includes:
-     * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond, 4. AppManager with its handler connected, 5. ApplicationERC20 with its handler, and default price
+     * 1. ProcessorDiamond, 2. AppManager with its handler connected, 3. ApplicationERC20 with its handler, and default price
      */
     function setUpProtocolAndAppManagerAndTokens() public {
         switchToSuperAdminWithSave();
@@ -470,7 +467,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
     /**
      * @dev Deploy and set up the main protocol contracts. This includes:
-     * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond, 4. AppManager with its handler connected, 5. ApplicationERC20 with its handler, and default price
+     * 1. ProcessorDiamond, 2. AppManager with its handler connected, 3. ApplicationERC20 with its handler, and default price
      */
     function setUpProtocolAndAppManagerAndTokensUpgradeable() public {
         switchToSuperAdminWithSave();

@@ -17,7 +17,6 @@ import "../ruleContracts/Fees.sol";
  contract HandlerBase is IZeroAddressError, ITokenHandlerEvents, IOwnershipErrors, AppAdministratorOrOwnerOnlyDiamondVersion{
     
     uint16 constant MAX_ORACLE_RULES = 10;
-    bytes32 constant BLANK_TAG = bytes32("");
     
     /**
      * @dev this function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process
