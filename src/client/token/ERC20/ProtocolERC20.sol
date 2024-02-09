@@ -12,6 +12,7 @@ import "../ProtocolTokenCommon.sol";
 import "src/client/token/handler/diamond/IHandlerDiamond.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "../handler/diamond/FeesFacet.sol";
+import "../handler/diamond/ERC20HandlerMainFacet.sol";
 
 /**
  * @title ERC20 Base Contract
@@ -64,7 +65,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {
         /// Rule Processor Module Check
-        require(IHandlerDiamond(handler).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
+        require(ERC20HandlerMainFacet(address(handler)).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);
     }
 
@@ -90,7 +91,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees;
-            (targetAccounts, feePercentages) = IHandlerDiamond(handler).getApplicableFees(owner, balanceOf(owner));
+            (targetAccounts, feePercentages) = FeesFacet(address(handler)).getApplicableFees(owner, balanceOf(owner));
             for (uint i; i < feePercentages.length; ) {
                 if (feePercentages[i] > 0) {
                     // trim the fee and send it to the target treasury account
@@ -129,11 +130,11 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
         // if transfer fees/discounts are defined then process them first
-        if (IHandlerDiamond(handler).isFeeActive()) {
+        if (FeesFacet(address(handler)).isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees;
-            (targetAccounts, feePercentages) = IHandlerDiamond(handler).getApplicableFees(from, balanceOf(from));
+            (targetAccounts, feePercentages) = FeesFacet(address(handler)).getApplicableFees(from, balanceOf(from));
             for (uint i; i < feePercentages.length; ) {
                 if (feePercentages[i] > 0) {
                     // trim the fee and send it to the target treasury account
@@ -202,6 +203,6 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * @return handlerAddress
      */
     function getHandlerAddress() external view override returns (address) {
-        return address(handler);
+        return address(address(handler));
     }
 }
