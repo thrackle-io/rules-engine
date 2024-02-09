@@ -25,6 +25,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
             revert ZeroAddress();
         data.appManager = _appManagerAddress;
         data.ruleProcessor = _ruleProcessorProxyAddress;
+        data.assetAddress = _assetAddress;
         lib.nftValuationLimitStorage().nftValuationLimit = 100;
         ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
 

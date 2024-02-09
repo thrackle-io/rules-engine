@@ -11,7 +11,6 @@ import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
 import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
 
 contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents{
-
     /**
      * @dev Constructor sets params
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
@@ -24,7 +23,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
             revert ZeroAddress();
         data.appManager = _appManagerAddress;
         data.ruleProcessor = _ruleProcessorProxyAddress;
-
+        data.assetAddress = _assetAddress;
         ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
 
     }
