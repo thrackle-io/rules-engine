@@ -9,6 +9,7 @@ import "./ERC721TaggedRuleFacet.sol";
 import "./ERC721NonTaggedRuleFacet.sol";
 import "../../../application/IAppManager.sol";
 import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
+import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
 
 contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit{
 
@@ -17,22 +18,16 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
      * @param _appManagerAddress address of the application AppManager.
      * @param _assetAddress address of the controlling asset.
-     * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
-    function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress, bool _upgradeMode) external {
+    function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external {
         HandlerBaseS storage data = lib.handlerBaseStorage();
         if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) 
             revert ZeroAddress();
         data.appManager = _appManagerAddress;
         data.ruleProcessor = _ruleProcessorProxyAddress;
         lib.nftValuationLimitStorage().nftValuationLimit = 100;
-        // transferOwnership(_assetAddress);
-        // if (!_upgradeMode) {
-        //     deployDataContract();
-        //     emit HandlerDeployed(_appManagerAddress);
-        // } else {
-        //     emit HandlerDeployed(_appManagerAddress);
-        // }
+        ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
+
     }
 
     /**

@@ -8,6 +8,7 @@ import "./ERC20TaggedRuleFacet.sol";
 import "./ERC20NonTaggedRuleFacet.sol";
 import "../../../application/IAppManager.sol";
 import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
+import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
 
 contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents{
 
@@ -16,30 +17,17 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
      * @param _appManagerAddress address of the application AppManager.
      * @param _assetAddress address of the controlling asset.
-     * @param _upgradeMode specifies whether this is a fresh CoinHandler or an upgrade replacement.
      */
-    function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress, bool _upgradeMode) external {
+    function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external {
         HandlerBaseS storage data = lib.handlerBaseStorage();
         if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) 
             revert ZeroAddress();
         data.appManager = _appManagerAddress;
         data.ruleProcessor = _ruleProcessorProxyAddress;
 
-        // transferOwnership(_assetAddress);
-        // if (!_upgradeMode) {
-        //     deployDataContract();
-        //     emit HandlerDeployed(_appManagerAddress);
-        // } else {
-        //     emit HandlerDeployed(_appManagerAddress);
-        // }
-    }
+        ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
 
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
-    // function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool) {
-    //     return interfaceId == type(IAdminMinTokenBalanceCapable).interfaceId || super.supportsInterface(interfaceId);
-    // }
+    }
 
     /**
      * @dev This function is the one called from the contract that implements this handler. It's the entry point.

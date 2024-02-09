@@ -99,7 +99,7 @@ abstract contract TestCommonFoundry is TestCommon {
             "VersionFacet",
             // Native facets,
             "ProtocolNativeFacet",
-            // Raw implementation facets.
+            // // Raw implementation facets.
             "ProtocolRawFacet",
             // Protocol facets.
             //rule processor facets
@@ -303,7 +303,7 @@ abstract contract TestCommonFoundry is TestCommon {
         /// create an ERC721
         applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
         nftHandlerDiamond = _createERC721HandlerDiamond();
-        ERC721HandlerMainFacet(address(nftHandlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFT), false);
+        ERC721HandlerMainFacet(address(nftHandlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFT));
         applicationNFT.connectHandlerToToken(address(nftHandlerDiamond));
         VersionFacet(address(nftHandlerDiamond)).updateVersion("1.1.0");
         /// register the token
@@ -640,7 +640,7 @@ abstract contract TestCommonFoundry is TestCommon {
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
         coinHandlerDiamond = _createERC20HandlerDiamond();
         VersionFacet(address(coinHandlerDiamond)).updateVersion("1.1.0");
-        ERC20HandlerMainFacet(address(coinHandlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin), false);
+        ERC20HandlerMainFacet(address(coinHandlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin));
         applicationCoin.connectHandlerToToken(address(coinHandlerDiamond));
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
@@ -651,7 +651,9 @@ abstract contract TestCommonFoundry is TestCommon {
 
         /// create an ERC721
         applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
-        applicationNFTHandler = _createERC721Handler(ruleProcessor, applicationAppManager, applicationNFT);
+        nftHandlerDiamond = _createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(nftHandlerDiamond)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFT));
+        applicationNFT.connectHandlerToToken(address(nftHandlerDiamond));
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
         /// set up the pricer for erc20

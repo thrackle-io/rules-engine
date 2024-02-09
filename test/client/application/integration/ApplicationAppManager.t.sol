@@ -10,7 +10,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
 
     function setUp() public {
         vm.startPrank(superAdmin);
-        setUpProtocolAndAppManagerAndTokens();
+        setUpProcotolAndCreateERC20AndDiamondHandler();
         switchToAppAdministrator();
         vm.warp(Blocktime); // set block.timestamp
     }
@@ -153,7 +153,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
         // apply admin withdrawal rule to an ERC20
-        applicationCoinHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC20HandlerMainFacet(address(coinHandlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         switchToRuleBypassAccount();
         // try to renounce ruleBypassAccount
         vm.expectRevert(0x4ba7941c);
@@ -167,11 +167,11 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         vm.expectRevert(0x4ba7941c);
-        applicationCoinHandler.activateAdminMinTokenBalance(_createActionsArray(), false);
+        ERC20HandlerMainFacet(address(coinHandlerDiamond)).activateAdminMinTokenBalance(_createActionsArray(), false);
         // try to set the rule to a different one.
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 5_000_000 * (10 ** 18), block.timestamp + 365 days);
         vm.expectRevert(0x4ba7941c);
-        applicationCoinHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC20HandlerMainFacet(address(coinHandlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         // move a year into the future so that the rule is expired
         vm.warp(block.timestamp + (366 days));
         switchToRuleBypassAccount(); 
@@ -186,7 +186,7 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
         // apply admin withdrawal rule to an ERC721
-        applicationNFTHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+         ERC721HandlerMainFacet(address(nftHandlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         switchToRuleBypassAccount();
         // try to renounce ruleBypassAccount
         vm.expectRevert(0x4ba7941c);
@@ -200,11 +200,11 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
         vm.expectRevert(0x4ba7941c);
-        applicationNFTHandler.activateAdminMinTokenBalance(_createActionsArray(), false);
+        ERC721HandlerMainFacet(address(nftHandlerDiamond)).activateAdminMinTokenBalance(_createActionsArray(), false);
         // try to set the rule to a different one.
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 5_000_000 * (10 ** 18), block.timestamp + 365 days);
         vm.expectRevert(0x4ba7941c);
-        applicationNFTHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC721HandlerMainFacet(address(nftHandlerDiamond)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         // move a year into the future so that the rule is expired
         vm.warp(block.timestamp + (366 days));
         switchToAppAdministrator(); // create a app administrator and make it the sender.
