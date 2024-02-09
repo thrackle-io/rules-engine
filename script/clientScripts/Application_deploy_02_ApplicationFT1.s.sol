@@ -2,11 +2,16 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/ERC20/ApplicationERC20Handler.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
-
+import {HandlerDiamond, HandlerDiamondArgs} from "src/client/token/handler/diamond/HandlerDiamond.sol";
+import {ERC20HandlerMainFacet} from "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
+import {ERC721HandlerMainFacet} from "src/client/token/handler/diamond/ERC721HandlerMainFacet.sol";
+import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
+import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
+import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
+import "./DeployBase.s.sol";
 /**
  * @title Application Deploy 02 Application Fungible Token 1 Script
  * @dev This script will deploy an ERC20 fungible token and Handler.
@@ -24,8 +29,8 @@ import {ApplicationAppManager} from "src/example/application/ApplicationAppManag
  * forge script example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract ApplicationDeployFT1Script is Script {
-    ApplicationERC20Handler applicationCoinHandler;
+contract ApplicationDeployFT1Script is Script, DeployBase {
+    HandlerDiamond applicationCoinHandlerDiamond;
     uint256 privateKey;
     address ownerAddress;
 
@@ -40,8 +45,9 @@ contract ApplicationDeployFT1Script is Script {
 
         /// Create ERC20 token 1
         ApplicationERC20 coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
-        applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), false);
-        coin1.connectHandlerToToken(address(applicationCoinHandler));
+        applicationCoinHandlerDiamond = createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1));
+        coin1.connectHandlerToToken(address(applicationCoinHandlerDiamond));
 
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("Frankenstein Coin", address(coin1));
