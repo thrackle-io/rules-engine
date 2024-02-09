@@ -13,9 +13,9 @@ import "../ruleContracts/HandlerTokenMaxSupplyVolatility.sol";
 import "../ruleContracts/HandlerTokenMaxTradingVolume.sol";
 import "../ruleContracts/HandlerTokenMinTxSize.sol";
 import "../ruleContracts/HandlerTokenMinHoldTime.sol";
+import "../ruleContracts/HandlerTokenMaxDailyTrades.sol";
 
-contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize, HandlerTokenMinHoldTime{
-
+contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTokenMaxSupplyVolatility, HandlerTokenMaxTradingVolume, HandlerTokenMinTxSize, HandlerTokenMinHoldTime, HandlerTokenMaxDailyTrades{
     /**
      * @dev This function uses the protocol's ruleProcessorto perform the actual  rule checks.
      * @param _from address of the from account
@@ -34,12 +34,13 @@ contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTok
                 ++accountApproveDenyOracleIndex;
             }
         }
-        // if (tokenMaxDailyTrades[action].active) {
-        //     // get all the tags for this NFT
-        //     bytes32[] memory tags = appManager.getAllTags(erc721Address);
-        //     tradesInPeriod[tokenId] = ruleProcessor.checkTokenMaxDailyTrades(tokenMaxDailyTrades[action].ruleId, tradesInPeriod[tokenId], tags, lastTxDate[tokenId]);
-        //     lastTxDate[tokenId] = uint64(block.timestamp);
-        // }
+        if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) {
+            // get all the tags for this NFT
+            bytes32[] memory tags = IAppManager(handlerBaseStorage.appManager).getAllTags(handlerBaseStorage.assetAddress);
+            TokenMaxDailyTradesS storage maxDailyTrades = lib.tokenMaxDailyTradesStorage();
+            maxDailyTrades.tradesInPeriod[_tokenId] = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxDailyTrades(maxDailyTrades.tokenMaxDailyTrades[action].ruleId, maxDailyTrades.tradesInPeriod[_tokenId], tags, maxDailyTrades.lastTxDate[_tokenId]);
+            maxDailyTrades.lastTxDate[_tokenId] = uint64(block.timestamp);
+        }
         if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
             TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
             maxTradingVolume.transferVolume = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxTradingVolume(maxTradingVolume.tokenMaxTradingVolume[action].ruleId, maxTradingVolume.transferVolume, IToken(msg.sender).totalSupply(), _amount, maxTradingVolume.lastTransferTime);

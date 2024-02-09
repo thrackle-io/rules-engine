@@ -65,7 +65,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {
         /// Rule Processor Module Check
-        require(handler.checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
+        require(IHandlerDiamond(handler).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
         super._beforeTokenTransfer(from, to, amount);
     }
 
@@ -91,7 +91,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees;
-            (targetAccounts, feePercentages) = handler.getApplicableFees(owner, balanceOf(owner));
+            (targetAccounts, feePercentages) = IHandlerDiamond(handler).getApplicableFees(owner, balanceOf(owner));
             for (uint i; i < feePercentages.length; ) {
                 if (feePercentages[i] > 0) {
                     // trim the fee and send it to the target treasury account
@@ -130,11 +130,11 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
         // if transfer fees/discounts are defined then process them first
-        if (handler.isFeeActive()) {
+        if (IHandlerDiamond(handler).isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees;
-            (targetAccounts, feePercentages) = handler.getApplicableFees(from, balanceOf(from));
+            (targetAccounts, feePercentages) = IHandlerDiamond(handler).getApplicableFees(from, balanceOf(from));
             for (uint i; i < feePercentages.length; ) {
                 if (feePercentages[i] > 0) {
                     // trim the fee and send it to the target treasury account

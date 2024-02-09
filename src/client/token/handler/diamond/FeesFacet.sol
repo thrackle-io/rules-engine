@@ -2,10 +2,12 @@
 pragma solidity ^0.8.17;
 
 import "src/protocol/economic/RuleAdministratorOnly.sol";
+import "../../../application/IAppManager.sol";
 import "../ruleContracts/Fees.sol";
 
 contract FeesFacet is RuleAdministratorOnly, Fees {
     
+
     /**
      * @dev Turn fees on/off
      * @param on_off value for fee status
@@ -22,4 +24,5 @@ contract FeesFacet is RuleAdministratorOnly, Fees {
     function isFeeActive() external view returns (bool) {
         return lib.feeStorage().feeActive;
     }
+
 }

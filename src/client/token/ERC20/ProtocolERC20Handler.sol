@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "src/client/token/data/Fees.sol";
+// import "src/client/token/data/Fees.sol";
 import "src/client/token/ProtocolHandlerCommon.sol";
 import {IZeroAddressError, IAssetHandlerErrors, IAppManagerErrors} from "src/common/IErrors.sol";
 import "../ProtocolHandlerTradingRulesCommon.sol";
@@ -22,7 +22,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
     using ERC165Checker for address;
 
     /// Data contracts
-    Fees fees;
+    // Fees fees;
     bool feeActive;
     
     /// Rule mappings
@@ -183,35 +183,35 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @param _feePercentage fee percentage to assess
      * @param _targetAccount target for the fee proceeds
      */
-    function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external ruleAdministratorOnly(appManagerAddress) {
-        fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
-        feeActive = true;
-    }
+    // function addFee(bytes32 _tag, uint256 _minBalance, uint256 _maxBalance, int24 _feePercentage, address _targetAccount) external ruleAdministratorOnly(appManagerAddress) {
+    //     fees.addFee(_tag, _minBalance, _maxBalance, _feePercentage, _targetAccount);
+    //     feeActive = true;
+    // }
 
     /**
      * @dev This function removes a fee to the token
      * @param _tag meta data tag for fee
      */
-    function removeFee(bytes32 _tag) external ruleAdministratorOnly(appManagerAddress) {
-        fees.removeFee(_tag);
-    }
+    // function removeFee(bytes32 _tag) external ruleAdministratorOnly(appManagerAddress) {
+    //     fees.removeFee(_tag);
+    // }
 
     /**
      * @dev returns the full mapping of fees
      * @param _tag meta data tag for fee
      * @return fee struct containing fee data
      */
-    function getFee(bytes32 _tag) external view returns (Fees.Fee memory) {
-        return fees.getFee(_tag);
-    }
+    // function getFee(bytes32 _tag) external view returns (Fees.Fee memory) {
+    //     return fees.getFee(_tag);
+    // }
 
     /**
      * @dev returns the full mapping of fees
      * @return feeTotal total number of fees
      */
-    function getFeeTotal() public view returns (uint256) {
-        return fees.getFeeTotal();
-    }
+    // function getFeeTotal() public view returns (uint256) {
+    //     return fees.getFeeTotal();
+    // }
 
     /**
      * @dev Turn fees on/off
@@ -238,75 +238,75 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @return feeCollectorAccounts list of where the fees are sent
      * @return feePercentages list of all applicable fees/discounts
      */
-    function getApplicableFees(address _from, uint256 _balanceFrom) public view returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages) {
-        Fees.Fee memory fee;
-        bytes32[] memory fromTags = appManager.getAllTags(_from);
-        bytes32[] memory _fromTags;
-        int24 totalFeePercent;
-        uint24 discount;
-        /// To insure that default fees are checked when they're set, add a blank tag to the tag list. 
-        if(fees.getFee(BLANK_TAG).feePercentage > 0){
-            _fromTags = new bytes32[](fromTags.length+1);
-            for (uint i; i < fromTags.length; ) {
-                _fromTags[i] = fromTags[i];
-                unchecked {
-                    ++i;
-                }
-            }
-            _fromTags[_fromTags.length-1] = BLANK_TAG;
-        } else {
-            _fromTags = fromTags;
-        }
-        if (_fromTags.length != 0 && !appManager.isAppAdministrator(_from)) {
-            uint feeCount;
-            // size the dynamic arrays by maximum possible fees
-            feeCollectorAccounts = new address[](_fromTags.length);
-            feePercentages = new int24[](_fromTags.length);
-            /// loop through and accumulate the fee percentages based on tags
-            for (uint i; i < _fromTags.length; ) {
-                fee = fees.getFee(_fromTags[i]);
-                // fee must be active and the initiating account must have an acceptable balance
-                if (fee.feePercentage != 0 && _balanceFrom < fee.maxBalance && _balanceFrom > fee.minBalance) {
-                    // if it's a discount, accumulate it for distribution among all applicable fees
-                    if (fee.feePercentage < 0) {
-                        discount = uint24((fee.feePercentage * -1)) + discount; // convert to uint
-                    } else {
-                        feePercentages[feeCount] = fee.feePercentage;
-                        feeCollectorAccounts[feeCount] = fee.feeCollectorAccount;
-                        // add to the total fee percentage
-                        totalFeePercent += fee.feePercentage;
-                        unchecked {
-                            ++feeCount;
-                        }
-                    }
-                }
-                unchecked {
-                    ++i;
-                }
-            }
-            /// if an applicable discount(s) was found, then distribute it among all the fees
-            if (discount > 0 && feeCount != 0) {
-                // if there are fees to discount then do so
-                uint24 discountSlice = ((discount * 100) / (uint24(feeCount))) / 100;
-                for (uint i; i < feeCount; ) {
-                    // if discount is greater than fee, then set to zero
-                    if (int24(discountSlice) > feePercentages[i]) {
-                        feePercentages[i] = 0;
-                    } else {
-                        feePercentages[i] -= int24(discountSlice);
-                    }
-                    unchecked {
-                        ++i;
-                    }
-                }
-            }
-        }
-        // if the total fees - discounts is greater than 100 percent, revert
-        if (totalFeePercent - int24(discount) > 10000) {
-            revert FeesAreGreaterThanTransactionAmount(_from);
-        }
-        return (feeCollectorAccounts, feePercentages);
-    }
+    // function getApplicableFees(address _from, uint256 _balanceFrom) public view returns (address[] memory feeCollectorAccounts, int24[] memory feePercentages) {
+    //     Fees.Fee memory fee;
+    //     bytes32[] memory fromTags = appManager.getAllTags(_from);
+    //     bytes32[] memory _fromTags;
+    //     int24 totalFeePercent;
+    //     uint24 discount;
+    //     /// To insure that default fees are checked when they're set, add a blank tag to the tag list. 
+    //     if(fees.getFee(BLANK_TAG).feePercentage > 0){
+    //         _fromTags = new bytes32[](fromTags.length+1);
+    //         for (uint i; i < fromTags.length; ) {
+    //             _fromTags[i] = fromTags[i];
+    //             unchecked {
+    //                 ++i;
+    //             }
+    //         }
+    //         _fromTags[_fromTags.length-1] = BLANK_TAG;
+    //     } else {
+    //         _fromTags = fromTags;
+    //     }
+    //     if (_fromTags.length != 0 && !appManager.isAppAdministrator(_from)) {
+    //         uint feeCount;
+    //         // size the dynamic arrays by maximum possible fees
+    //         feeCollectorAccounts = new address[](_fromTags.length);
+    //         feePercentages = new int24[](_fromTags.length);
+    //         /// loop through and accumulate the fee percentages based on tags
+    //         for (uint i; i < _fromTags.length; ) {
+    //             fee = fees.getFee(_fromTags[i]);
+    //             // fee must be active and the initiating account must have an acceptable balance
+    //             if (fee.feePercentage != 0 && _balanceFrom < fee.maxBalance && _balanceFrom > fee.minBalance) {
+    //                 // if it's a discount, accumulate it for distribution among all applicable fees
+    //                 if (fee.feePercentage < 0) {
+    //                     discount = uint24((fee.feePercentage * -1)) + discount; // convert to uint
+    //                 } else {
+    //                     feePercentages[feeCount] = fee.feePercentage;
+    //                     feeCollectorAccounts[feeCount] = fee.feeCollectorAccount;
+    //                     // add to the total fee percentage
+    //                     totalFeePercent += fee.feePercentage;
+    //                     unchecked {
+    //                         ++feeCount;
+    //                     }
+    //                 }
+    //             }
+    //             unchecked {
+    //                 ++i;
+    //             }
+    //         }
+    //         /// if an applicable discount(s) was found, then distribute it among all the fees
+    //         if (discount > 0 && feeCount != 0) {
+    //             // if there are fees to discount then do so
+    //             uint24 discountSlice = ((discount * 100) / (uint24(feeCount))) / 100;
+    //             for (uint i; i < feeCount; ) {
+    //                 // if discount is greater than fee, then set to zero
+    //                 if (int24(discountSlice) > feePercentages[i]) {
+    //                     feePercentages[i] = 0;
+    //                 } else {
+    //                     feePercentages[i] -= int24(discountSlice);
+    //                 }
+    //                 unchecked {
+    //                     ++i;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     // if the total fees - discounts is greater than 100 percent, revert
+    //     if (totalFeePercent - int24(discount) > 10000) {
+    //         revert FeesAreGreaterThanTransactionAmount(_from);
+    //     }
+    //     return (feeCollectorAccounts, feePercentages);
+    // }
 
     /// Rule Setters and Getters
     /**
@@ -762,31 +762,31 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @dev Deploy all the child data contracts. Only called internally from the constructor.
      */
     function deployDataContract() private {
-        fees = new Fees();
+        // fees = new Fees();
     }
 
     /**
      * @dev Getter for the fee rules data contract address
      * @return feesDataAddress
      */
-    function getFeesDataAddress() external view returns (address) {
-        return address(fees);
-    }
+    // function getFeesDataAddress() external view returns (address) {
+    //     return address(fees);
+    // }
 
     /**
      * @dev This function is used to propose the new owner for data contracts.
      * @param _newOwner address of the new AppManager
      */
-    function proposeDataContractMigration(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress) {
-        fees.proposeOwner(_newOwner);
-    }
+    // function proposeDataContractMigration(address _newOwner) external appAdministratorOrOwnerOnly(appManagerAddress) {
+    //     fees.proposeOwner(_newOwner);
+    // }
 
     /**
      * @dev This function is used to confirm this contract as the new owner for data contracts.
      */
-    function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
-        ProtocolERC20Handler oldHandler = ProtocolERC20Handler(_oldHandlerAddress);
-        fees = Fees(oldHandler.getFeesDataAddress());
-        fees.confirmOwner();
-    }
+    // function confirmDataContractMigration(address _oldHandlerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
+    //     ProtocolERC20Handler oldHandler = ProtocolERC20Handler(_oldHandlerAddress);
+    //     fees = Fees(oldHandler.getFeesDataAddress());
+    //     fees.confirmOwner();
+    // }
 }

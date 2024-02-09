@@ -62,6 +62,7 @@ struct TokenMinTxSizeS{
     address newAppManagerAddress;
     address ruleProcessor;
     address appManager;
+    address assetAddress;
  }
 
  struct AdminMinTokenBalanceS{
@@ -79,6 +80,12 @@ struct TokenMinTxSizeS{
     mapping(ActionTypes => Rule) tokenMaxTradingVolume;
     uint256 transferVolume;
     uint64 lastTransferTime;
+ }
+
+ struct TokenMaxDailyTradesS{
+    mapping(ActionTypes => Rule) tokenMaxDailyTrades;
+    mapping(uint256 => uint256) tradesInPeriod;
+    mapping(uint256 => uint64) lastTxDate;
  }
 
 struct TokenMinHoldTime{
