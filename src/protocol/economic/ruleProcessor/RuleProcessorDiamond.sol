@@ -7,6 +7,7 @@ import {IRuleStorageDiamondEvents} from "../../../common/IEvents.sol";
 
 /// When no function exists for function called
 error FunctionNotFound(bytes4 _functionSelector);
+error FacetHasNoCodeOrHasBeenDestroyed();
 
 /**
  * This is used in diamond constructor
@@ -53,6 +54,8 @@ contract RuleProcessorDiamond is ERC173, IRuleStorageDiamondEvents{
         if (facet == address(0)) {
             revert FunctionNotFound(msg.sig);
         }
+
+        if (facet.code.length == 0) revert FacetHasNoCodeOrHasBeenDestroyed();
 
         // Execute external function from facet using delegatecall and return any value.
         assembly {
