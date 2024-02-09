@@ -112,6 +112,74 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoin.transfer(user2, 10091);
     }
 
+    function testERC20_AccountMaxTransactionValueByRiskScore2() public {
+        uint8[] memory riskScores = createUint8Array(10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48Array(1000000, 100000, 10000, 1000);
+        switchToRuleAdmin();
+        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
+        switchToAppAdministrator();
+        /// set up a non admin user with tokens
+        applicationCoin.transfer(user1, 10000000 * ATTO);
+        assertEq(applicationCoin.balanceOf(user1), 10000000 * ATTO);
+        applicationCoin.transfer(user2, 10000 * ATTO);
+        assertEq(applicationCoin.balanceOf(user2), 10000 * ATTO);
+        applicationCoin.transfer(user3, 1500 * ATTO);
+        assertEq(applicationCoin.balanceOf(user3), 1500 * ATTO);
+        applicationCoin.transfer(user4, 1000000 * ATTO);
+        assertEq(applicationCoin.balanceOf(user4), 1000000 * ATTO);
+        applicationCoin.transfer(user5, 10000 * ATTO);
+        assertEq(applicationCoin.balanceOf(user5), 10000 * ATTO);
+
+        ///Assign Risk scores to user1 and user 2
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user5, riskScores[3]);
+
+        ///Switch to app admin and set up ERC20Pricer and activate AccountMaxTxValueByRiskScore Rule
+        switchToAppAdministrator();
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxTxValueByRiskScoreId(index);
+
+        ///User2 sends User1 amount under transaction limit, expect passing
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationCoin.transfer(user1, 1 * ATTO);
+
+        ///Transfer expected to fail
+        vm.stopPrank();
+        vm.startPrank(user1);
+        vm.expectRevert();
+        applicationCoin.transfer(user2, 1000001 * ATTO);
+
+        switchToRiskAdmin();
+        ///Test in between Risk Score Values
+        applicationAppManager.addRiskScore(user3, 49);
+        applicationAppManager.addRiskScore(user4, 81);
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        vm.expectRevert();
+        applicationCoin.transfer(user4, 10001 * ATTO);
+
+        vm.stopPrank();
+        vm.startPrank(user4);
+        applicationCoin.transfer(user3, 10 * ATTO);
+
+        //vm.expectRevert(0x9fe6aeac);
+        applicationCoin.transfer(user3, 1001 * ATTO);
+
+        /// test burning tokens while rule is active
+        vm.stopPrank();
+        vm.startPrank(user5);
+        applicationCoin.burn(999 * ATTO);
+        vm.expectRevert();
+        applicationCoin.burn(1001 * ATTO);
+        applicationCoin.burn(1000 * ATTO);
+    }
+
     function testERC20_AccountMinMaxTokenBalance2() public {
         // Set up the rule conditions
         vm.warp(Blocktime);
@@ -482,6 +550,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
     function testERC20_AdminMinTokenBalanceFuzz(uint256 amount, uint32 secondsForward) public {
         /// we load the admin with tokens
         applicationCoin.mint(ruleBypassAccount, type(uint256).max / 2);
+        amount = amount % type(uint256).max / 2;
         /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
@@ -497,8 +566,8 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         vm.warp(block.timestamp + secondsForward);
         switchToRuleBypassAccount();
 
-        if (secondsForward < 365 days && type(uint256).max - amount < 1_000_000 * (10 ** 18)) vm.expectRevert();
-
+        if (secondsForward < 365 days && type(uint256).max / 2 - amount < 1_000_000 * (10 ** 18)) 
+            vm.expectRevert();
         applicationCoin.transfer(user1, amount);
         switchToRuleAdmin();
         /// if last rule is expired, we should be able to turn off and update the rule
