@@ -9,8 +9,10 @@ import "./ERC20NonTaggedRuleFacet.sol";
 import "../../../application/IAppManager.sol";
 import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
 import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
+import {IHandlerDiamondErrors} from "../../../../common/IErrors.sol";
 
-contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents{
+contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, IHandlerDiamondErrors {
+
     /**
      * @dev Constructor sets params
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
@@ -18,6 +20,8 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
      * @param _assetAddress address of the controlling asset.
      */
     function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external {
+        bool initialized = lib.initializedStorage().initialized;
+        if(initialized) revert AlreadyInitialized();
         HandlerBaseS storage data = lib.handlerBaseStorage();
         if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) 
             revert ZeroAddress();
@@ -25,7 +29,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         data.ruleProcessor = _ruleProcessorProxyAddress;
         data.assetAddress = _assetAddress;
         ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
-
+        initialized = true;
     }
 
     /**

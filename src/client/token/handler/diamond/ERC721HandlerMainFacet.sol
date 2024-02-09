@@ -10,8 +10,9 @@ import "./ERC721NonTaggedRuleFacet.sol";
 import "../../../application/IAppManager.sol";
 import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
 import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
+import {IHandlerDiamondErrors} from "../../../../common/IErrors.sol";
 
-contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit{
+contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit, IHandlerDiamondErrors {
 
     /**
      * @dev Constructor sets params
@@ -20,6 +21,8 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
      * @param _assetAddress address of the controlling asset.
      */
     function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external {
+        bool initialized = lib.initializedStorage().initialized;
+        if(initialized) revert AlreadyInitialized();
         HandlerBaseS storage data = lib.handlerBaseStorage();
         if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) 
             revert ZeroAddress();
@@ -28,7 +31,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
         data.assetAddress = _assetAddress;
         lib.nftValuationLimitStorage().nftValuationLimit = 100;
         ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
-
+        initialized = true;
     }
 
     /**

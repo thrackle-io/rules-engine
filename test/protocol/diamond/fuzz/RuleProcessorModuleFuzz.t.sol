@@ -7,7 +7,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
 
     function setUp() public {
         vm.startPrank(superAdmin);
-        setUpProtocolAndAppManagerAndTokens();
+        setUpProcotolAndCreateERC20AndDiamondHandler();
         vm.warp(Blocktime);
         switchToRuleAdmin();
     }
@@ -296,7 +296,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             if (min == 0) vm.expectRevert();
             RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), min);
             /// if we added the rule in the protocol, then we add it in the application
-            if (!(min == 0)) applicationCoinHandler.setTokenMinTxSizeId(_createActionsArray(), 0);
+            if (!(min == 0)) ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setTokenMinTxSizeId(_createActionsArray(), 0);
         }
 
         /// Prepearing for rule
@@ -317,7 +317,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             vm.startPrank(ruleAdmin);            
             TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), _accountTypes, _min, _max, empty, uint64(Blocktime));
             /// if we added the rule in the protocol, then we add it in the application
-            if (!(bMin == 0 || bMax == 0 || bMin > bMax)) applicationCoinHandler.setAccountMinMaxTokenBalanceId(_createActionsArray(),0);
+            if (!(bMin == 0 || bMax == 0 || bMin > bMax)) ERC20TaggedRuleFacet(address(applicationCoinHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(),0);
         }
 
         /// AccountApproveDenyOracle rules
@@ -327,8 +327,8 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
             /// adding the whitelisting oracle rule
             uint32 whitelistOracle = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
             /// to simulate randomness in the oracle rule to pick, we grab the transferAmount%2
-            if (transferAmount % 2 == 0) applicationCoinHandler.setAccountApproveDenyOracleId(_createActionsArray(), banOracle);
-            else applicationCoinHandler.setAccountApproveDenyOracleId(_createActionsArray(), whitelistOracle);
+            if (transferAmount % 2 == 0) ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setAccountApproveDenyOracleId(_createActionsArray(), banOracle);
+            else ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setAccountApproveDenyOracleId(_createActionsArray(), whitelistOracle);
         }
     }
 

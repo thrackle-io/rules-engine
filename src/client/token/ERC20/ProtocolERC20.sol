@@ -90,18 +90,19 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees;
-            (targetAccounts, feePercentages) = handler.getApplicableFees(owner, balanceOf(owner));
-            for (uint i; i < feePercentages.length; ) {
-                if (feePercentages[i] > 0) {
-                    // trim the fee and send it to the target treasury account
-                    _transfer(owner, targetAccounts[i], (amount * uint24(feePercentages[i])) / 10000);
-                    // accumulate all fees
-                    fees += (amount * uint24(feePercentages[i])) / 10000;
-                }
-                unchecked {
-                    ++i;
-                }
-            }
+            //TODO: Uncomment when we get this switched over to the Diamond
+            // (targetAccounts, feePercentages) = handler.getApplicableFees(owner, balanceOf(owner));
+            // for (uint i; i < feePercentages.length; ) {
+            //     if (feePercentages[i] > 0) {
+            //         // trim the fee and send it to the target treasury account
+            //         _transfer(owner, targetAccounts[i], (amount * uint24(feePercentages[i])) / 10000);
+            //         // accumulate all fees
+            //         fees += (amount * uint24(feePercentages[i])) / 10000;
+            //     }
+            //     unchecked {
+            //         ++i;
+            //     }
+            // }
             // subtract the total fees from main transfer amount
             amount -= fees;
         }
@@ -133,21 +134,22 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees;
-            (targetAccounts, feePercentages) = handler.getApplicableFees(from, balanceOf(from));
-            for (uint i; i < feePercentages.length; ) {
-                if (feePercentages[i] > 0) {
-                    // trim the fee and send it to the target treasury account
-                    uint fee = (amount * uint24(feePercentages[i])) / 10000;
-                    if (fee > 0) {
-                        _transfer(from, targetAccounts[i], fee);
-                        // accumulate all fees
-                        fees += fee;
-                    }
-                }
-                unchecked {
-                    ++i;
-                }
-            }
+             //TODO: Uncomment when we get this switched over to the Diamond
+            // (targetAccounts, feePercentages) = handler.getApplicableFees(from, balanceOf(from));
+            // for (uint i; i < feePercentages.length; ) {
+            //     if (feePercentages[i] > 0) {
+            //         // trim the fee and send it to the target treasury account
+            //         uint fee = (amount * uint24(feePercentages[i])) / 10000;
+            //         if (fee > 0) {
+            //             _transfer(from, targetAccounts[i], fee);
+            //             // accumulate all fees
+            //             fees += fee;
+            //         }
+            //     }
+            //     unchecked {
+            //         ++i;
+            //     }
+            // }
             // subtract the total fees from main transfer amount
             amount -= fees;
         }

@@ -13,6 +13,10 @@ interface IERC721Errors {
     error UnderHoldPeriod();
 }
 
+interface IHandlerDiamondErrors{
+    error AlreadyInitialized();
+}
+
 interface IRuleProcessorErrors {
     error RuleDoesNotExist();
 }
@@ -161,6 +165,10 @@ interface IAssetHandlerErrors {
     error BatchMintBurnNotSupported();
     error FeesAreGreaterThanTransactionAmount(address);
     error AccountApproveDenyOraclesPerAssetLimitReached();
+}
+
+interface IFeesErrors {
+    error FeesAreGreaterThanTransactionAmount(address);
 }
 
 interface IOwnershipErrors {
