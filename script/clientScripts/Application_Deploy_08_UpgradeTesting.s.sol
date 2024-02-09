@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/ERC20/ApplicationERC20Handler.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
+import "./DeployBase.s.sol";
 
 /**
  * @title Application Deploy 08 App Manager For Upgrade Script
@@ -24,9 +24,10 @@ import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol
  * forge script example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract ApplicationDeployAppManagerForUpgradeScript is Script {
+contract ApplicationDeployAppManagerForUpgradeScript is Script, DeployBase {
     uint256 privateKey;
     address ownerAddress;
+    HandlerDiamond applicationCoinHandlerDiamond;
 
     function setUp() public {}
 
@@ -37,7 +38,8 @@ contract ApplicationDeployAppManagerForUpgradeScript is Script {
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         /// This is a new app manager used for upgrade testing
         new ApplicationAppManager(vm.envAddress("DEPLOYMENT_OWNER"), "Castlevania", true);
-        new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), vm.envAddress("APPLICATION_ERC20_ADDRESS"), true);
+        applicationCoinHandlerDiamond = createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), vm.envAddress("APPLICATION_ERC20_ADDRESS"));
         vm.stopBroadcast();
     }
 }
