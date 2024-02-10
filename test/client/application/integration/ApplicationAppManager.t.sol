@@ -7,12 +7,40 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
 
     uint8[] RISKSCORES = [10, 20, 30, 40, 50, 60, 70, 80];
     uint8[] ACCESSLEVELS = [1, 1, 1, 2, 2, 2, 3, 4];
+    ApplicationERC20 frank;
+    ApplicationERC20 applicationCoinA;
+    ApplicationERC20 applicationCoinB;
+    ApplicationERC20 applicationCoinC;
+    HandlerDiamond frankCoinHandler;
+    HandlerDiamond applicationCoinHandlerA;
+    HandlerDiamond applicationCoinHandlerB;
+    HandlerDiamond applicationCoinHandlerC;
 
     function setUp() public {
         vm.startPrank(superAdmin);
         setUpProcotolAndCreateERC20AndDiamondHandler();
         switchToAppAdministrator();
         vm.warp(Blocktime); // set block.timestamp
+        frank = _createERC20("FRANK", "FRK", applicationAppManager);
+        frankCoinHandler = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(frankCoinHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(frank));
+        frank.connectHandlerToToken(address(frankCoinHandler));
+
+        applicationCoinA = _createERC20("CoinA", "A", applicationAppManager);
+        applicationCoinHandlerA = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandlerA)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoinA));
+        applicationCoinA.connectHandlerToToken(address(applicationCoinHandlerA));
+
+        applicationCoinB = _createERC20("CoinB", "B", applicationAppManager);
+        applicationCoinHandlerB = _createERC20HandlerDiamond();
+            ERC20HandlerMainFacet(address(applicationCoinHandlerB)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoinB));
+        applicationCoinB.connectHandlerToToken(address(applicationCoinHandlerB));
+
+        applicationCoinC = _createERC20("coinC", "C", applicationAppManager);
+        applicationCoinHandlerC = _createERC20HandlerDiamond();
+            ERC20HandlerMainFacet(address(applicationCoinHandlerC)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoinC));
+        applicationCoinC.connectHandlerToToken(address(applicationCoinHandlerC));
+
     }
 
     function testAppManagerAndHandlerVersions() public {
@@ -767,8 +795,8 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         applicationCoinC.connectHandlerToToken(address(applicationCoinHandlerC));
 
         /// register the tokens
-        applicationAppManager.registerToken("FRANK", address(applicationCoin));
-        assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANK"));
+        applicationAppManager.registerToken("FRANK", address(frank));
+        assertEq(address(frank), applicationAppManager.getTokenAddress("FRANK"));
 
         applicationAppManager.registerToken("CoinA", address(applicationCoinA));
         assertEq(address(applicationCoinA), applicationAppManager.getTokenAddress("CoinA"));
