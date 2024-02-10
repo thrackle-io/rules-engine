@@ -32,6 +32,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
         lib.nftValuationLimitStorage().nftValuationLimit = 100;
         ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
         initialized = true;
+        callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)",_assetAddress));
     }
 
     /**
