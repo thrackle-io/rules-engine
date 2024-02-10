@@ -90,6 +90,7 @@ abstract contract TestCommonFoundry is TestCommon {
      * @return diamond fully configured ERC20 Handler diamond
      */
     function _createERC20HandlerDiamond() public returns (HandlerDiamond diamond) {
+        delete _erc20HandlerFacetCuts;
         // Start by deploying the DiamonInit contract.
         DiamondInit diamondInit = new DiamondInit();
 
