@@ -4,16 +4,24 @@ pragma solidity ^0.8.17;
 import "test/util/TestCommonFoundry.sol";
 
 contract ApplicationERC20FuzzTest is TestCommonFoundry {
-    event Log(string eventString, uint256 number);
-
+    // event Log(string eventString, uint256 number);
+    ApplicationERC20 draculaCoin;
     function setUp() public {
         vm.warp(Blocktime);
         vm.startPrank(superAdmin);
         setUpProcotolAndCreateERC20AndDiamondHandler();
         switchToAppAdministrator();
+        draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
+        applicationCoinHandler2 = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(draculaCoin));
+        draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
+        /// register the token
+        applicationAppManager.registerToken("DRAC", address(draculaCoin));
+        
     }
 
-    function testBalance(uint256 _supply) public {
+    // Test balance
+    function testBalanceERC20Fuzz(uint256 _supply) public {
         applicationCoin.mint(appAdministrator, _supply);
         assertEq(applicationCoin.balanceOf(appAdministrator), _supply);
     }
@@ -49,7 +57,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
             ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setTokenMinTxSizeId(_createActionsArray(), ruleId);
             switchToAppAdministrator();
             /// now we perform the transfer
-            emit Log("transferAmount", _transferAmount);
+            // emit Log("transferAmount", _transferAmount);
             applicationCoin.transfer(_user1, _transferAmount + 1);
             assertEq(applicationCoin.balanceOf(_user1), _transferAmount + 1);
             vm.stopPrank();
@@ -438,15 +446,6 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         /// this one is within the limit and should pass
         applicationCoin.transfer(_user3, uint256(accessBalance4) * (10 ** 18));
 
-        /// create secondary token, mint, and transfer to user
-        switchToAppAdministrator();
-
-        ApplicationERC20 draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
-        applicationCoinHandler2 = _createERC20HandlerDiamond();
-        ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(draculaCoin));
-        draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
-        /// register the token
-        applicationAppManager.registerToken("DRAC", address(draculaCoin));
         switchToRuleBypassAccount();
         draculaCoin.mint(ruleBypassAccount, type(uint256).max);
 
@@ -557,16 +556,16 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         vm.startPrank(rich_user);
         /// attempt a transfer that violates the rule
         uint256 transferAmount = (applicationCoin.balanceOf(rich_user) - (minAmounts[0] - 1));
-        emit Log("balanceOf", applicationCoin.balanceOf(rich_user));
-        emit Log("minAmounts", minAmounts[0]);
-        emit Log("transferAmount", transferAmount);
+        // emit Log("balanceOf", applicationCoin.balanceOf(rich_user));
+        // emit Log("minAmounts", minAmounts[0]);
+        // emit Log("transferAmount", transferAmount);
         vm.expectRevert(0xa7fb7b4b);
         applicationCoin.transfer(user1, transferAmount);
         /// make sure a transfer that is acceptable will still pass within the freeze window.
         transferAmount = transferAmount - 1;
-        emit Log("balanceOf", applicationCoin.balanceOf(rich_user));
-        emit Log("transferAmount", transferAmount);
-        emit Log("minAmounts", minAmounts[0]);
+        // emit Log("balanceOf", applicationCoin.balanceOf(rich_user));
+        // emit Log("transferAmount", transferAmount);
+        // emit Log("minAmounts", minAmounts[0]);
         applicationCoin.transfer(user1, transferAmount);
         vm.expectRevert(0xa7fb7b4b);
         applicationCoin.transfer(user1, 1 * (10 ** 18));

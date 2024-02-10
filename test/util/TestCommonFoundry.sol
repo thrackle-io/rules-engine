@@ -90,7 +90,8 @@ abstract contract TestCommonFoundry is TestCommon {
      * @return diamond fully configured ERC20 Handler diamond
      */
     function _createERC20HandlerDiamond() public returns (HandlerDiamond diamond) {
-        delete _erc20HandlerFacetCuts;
+        
+        FacetCut[] memory _erc20HandlerFacetCuts = new FacetCut[](8);
         // Start by deploying the DiamonInit contract.
         DiamondInit diamondInit = new DiamondInit();
 
@@ -131,7 +132,7 @@ abstract contract TestCommonFoundry is TestCommon {
             bytes4[] memory selectors = abi.decode(res, (bytes4[]));
 
             // Create the FacetCut struct for this facet.
-            _erc20HandlerFacetCuts.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
+            _erc20HandlerFacetCuts[facetIndex] = FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors});
         }
 
         // Build the DiamondArgs.
@@ -152,7 +153,8 @@ abstract contract TestCommonFoundry is TestCommon {
      * @return diamond fully configured ERC721 Handler diamond
      */
     function _createERC721HandlerDiamond() public returns (HandlerDiamond diamond) {
-        delete _erc721HandlerFacetCuts;
+        
+        FacetCut[] memory _erc721HandlerFacetCuts = new FacetCut[](7);
         // Start by deploying the DiamonInit contract.
         DiamondInit diamondInit = new DiamondInit();
 
@@ -192,7 +194,7 @@ abstract contract TestCommonFoundry is TestCommon {
             bytes4[] memory selectors = abi.decode(res, (bytes4[]));
 
             // Create the FacetCut struct for this facet.
-            _erc721HandlerFacetCuts.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
+            _erc721HandlerFacetCuts[facetIndex] = FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors});
         }
 
         // Build the DiamondArgs.
