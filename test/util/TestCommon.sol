@@ -86,8 +86,6 @@ import {ActionTypes} from "src/common/ActionEnum.sol";
  */
 abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     FacetCut[] _ruleProcessorFacetCuts;
-    FacetCut[] _erc20HandlerFacetCuts;
-    FacetCut[] _erc721HandlerFacetCuts;
     
 
     uint256 constant ATTO = 10 ** 18;
