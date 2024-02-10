@@ -10,8 +10,9 @@ import "../../../application/IAppManager.sol";
 import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
 import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
 import {IHandlerDiamondErrors} from "../../../../common/IErrors.sol";
+import "diamond-std/implementations/ERC173/ERC173.sol";
 
-contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, IHandlerDiamondErrors {
+contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, IHandlerDiamondErrors, ERC173 {
 
     /**
      * @dev Constructor sets params
@@ -43,7 +44,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
      * @param _amount number of tokens transferred
      * @return true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _amount) external returns (bool) {
+    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _amount) external onlyOwner returns (bool) {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         bool isFromBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_from);
         bool isToBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_to);
