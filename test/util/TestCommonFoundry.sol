@@ -588,6 +588,13 @@ abstract contract TestCommonFoundry is TestCommon {
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
+
+        applicationCoin2 = _createERC20("application2", "GMC2", applicationAppManager);
+        applicationCoinHandler2 = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin2));
+        applicationCoin2.connectHandlerToToken(address(applicationCoinHandler2));
+        /// register the token
+        applicationAppManager.registerToken("application2", address(applicationCoin2));
         /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
 
