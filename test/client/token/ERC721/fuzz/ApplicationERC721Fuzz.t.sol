@@ -231,79 +231,79 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
     /**
      * @dev Test the TokenMaxDailyTrades rule
      */
-    // function testERC721_TokenMaxDailyTradesFuzz(uint8 _addressIndex) public {
-    //     address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
-    //     address _user1 = addressList[0];
-    //     address _user2 = addressList[1];
-    //     /// set up a non admin user an nft
-    //     applicationNFT.safeMint(_user1); // tokenId = 0
-    //     applicationNFT.safeMint(_user1); // tokenId = 1
-    //     applicationNFT.safeMint(_user1); // tokenId = 2
-    //     applicationNFT.safeMint(_user1); // tokenId = 3
-    //     applicationNFT.safeMint(_user1); // tokenId = 4
+    function testERC721_TokenMaxDailyTradesFuzz(uint8 _addressIndex) public {
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
+        address _user1 = addressList[0];
+        address _user2 = addressList[1];
+        /// set up a non admin user an nft
+        applicationNFT.safeMint(_user1); // tokenId = 0
+        applicationNFT.safeMint(_user1); // tokenId = 1
+        applicationNFT.safeMint(_user1); // tokenId = 2
+        applicationNFT.safeMint(_user1); // tokenId = 3
+        applicationNFT.safeMint(_user1); // tokenId = 4
 
-    //     assertEq(applicationNFT.balanceOf(_user1), 5);
+        assertEq(applicationNFT.balanceOf(_user1), 5);
 
-    //     // add the rule.
-    //     bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
-    //     uint8[] memory tradesAllowed = createUint8Array(1, 5);
-    //     switchToRuleAdmin();
-    //     uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-    //     assertEq(_index, 0);
-    //     TaggedRules.TokenMaxDailyTrades memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(_index, nftTags[0]);
-    //     assertEq(rule.tradesAllowedPerDay, 1);
-    //     assertEq(rule.startTime, Blocktime);
-    //     // tag the NFT collection
-    //     switchToAppAdministrator();
-    //     applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag
-    //     // apply the rule to the ApplicationERC721Handler
-    //     switchToRuleAdmin();
-    //     TradingRuleFacet(address(applicationNFTHandler)).setTokenMaxDailyTradesId(_createActionsArray(), _index);
+        // add the rule.
+        bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
+        uint8[] memory tradesAllowed = createUint8Array(1, 5);
+        switchToRuleAdmin();
+        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        assertEq(_index, 0);
+        TaggedRules.TokenMaxDailyTrades memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(_index, nftTags[0]);
+        assertEq(rule.tradesAllowedPerDay, 1);
+        assertEq(rule.startTime, Blocktime);
+        // tag the NFT collection
+        switchToAppAdministrator();
+        applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag
+        // apply the rule to the ApplicationERC721Handler
+        switchToRuleAdmin();
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxDailyTradesId(_createActionsArray(), _index);
 
-    //     // ensure standard transfer works by transferring 1 to user2 and back(2 trades)
-    //     ///perform transfer that checks rule
-    //     vm.stopPrank();
-    //     vm.startPrank(_user1);
-    //     applicationNFT.transferFrom(_user1, _user2, 0);
-    //     assertEq(applicationNFT.balanceOf(_user2), 1);
-    //     vm.stopPrank();
-    //     vm.startPrank(_user2);
-    //     applicationNFT.transferFrom(_user2, _user1, 0);
-    //     assertEq(applicationNFT.balanceOf(_user2), 0);
+        // ensure standard transfer works by transferring 1 to user2 and back(2 trades)
+        ///perform transfer that checks rule
+        vm.stopPrank();
+        vm.startPrank(_user1);
+        applicationNFT.transferFrom(_user1, _user2, 0);
+        assertEq(applicationNFT.balanceOf(_user2), 1);
+        vm.stopPrank();
+        vm.startPrank(_user2);
+        applicationNFT.transferFrom(_user2, _user1, 0);
+        assertEq(applicationNFT.balanceOf(_user2), 0);
 
-    //     // set to a tag that only allows 1 transfer
-    //     switchToAppAdministrator();
-    //     applicationAppManager.removeTag(address(applicationNFT), "DiscoPunk"); ///add tag
-    //     applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
-    //     // perform 1 transfer
-    //     vm.stopPrank();
-    //     vm.startPrank(_user1);
-    //     applicationNFT.transferFrom(_user1, _user2, 1);
-    //     assertEq(applicationNFT.balanceOf(_user2), 1);
-    //     vm.stopPrank();
-    //     vm.startPrank(_user2);
-    //     // this one should fail because it is more than 1 in 24 hours
-    //     vm.expectRevert(0x09a92f2d);
-    //     applicationNFT.transferFrom(_user2, _user1, 1);
-    //     assertEq(applicationNFT.balanceOf(_user2), 1);
-    //     // add a day to the time and it should pass
-    //     vm.warp(block.timestamp + 1 days);
-    //     applicationNFT.transferFrom(_user2, _user1, 1);
-    //     assertEq(applicationNFT.balanceOf(_user2), 0);
+        // set to a tag that only allows 1 transfer
+        switchToAppAdministrator();
+        applicationAppManager.removeTag(address(applicationNFT), "DiscoPunk"); ///add tag
+        applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
+        // perform 1 transfer
+        vm.stopPrank();
+        vm.startPrank(_user1);
+        applicationNFT.transferFrom(_user1, _user2, 1);
+        assertEq(applicationNFT.balanceOf(_user2), 1);
+        vm.stopPrank();
+        vm.startPrank(_user2);
+        // this one should fail because it is more than 1 in 24 hours
+        vm.expectRevert(0x09a92f2d);
+        applicationNFT.transferFrom(_user2, _user1, 1);
+        assertEq(applicationNFT.balanceOf(_user2), 1);
+        // add a day to the time and it should pass
+        vm.warp(block.timestamp + 1 days);
+        applicationNFT.transferFrom(_user2, _user1, 1);
+        assertEq(applicationNFT.balanceOf(_user2), 0);
 
-    //     // add the other tag and check to make sure that it still only allows 1 trade
-    //     switchToAppAdministrator();
-    //     applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag
-    //     vm.stopPrank();
-    //     vm.startPrank(_user1);
-    //     // first one should pass
-    //     applicationNFT.transferFrom(_user1, _user2, 2);
-    //     vm.stopPrank();
-    //     vm.startPrank(_user2);
-    //     // this one should fail because it is more than 1 in 24 hours
-    //     vm.expectRevert(0x09a92f2d);
-    //     applicationNFT.transferFrom(_user2, _user1, 2);
-    // }
+        // add the other tag and check to make sure that it still only allows 1 trade
+        switchToAppAdministrator();
+        applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag
+        vm.stopPrank();
+        vm.startPrank(_user1);
+        // first one should pass
+        applicationNFT.transferFrom(_user1, _user2, 2);
+        vm.stopPrank();
+        vm.startPrank(_user2);
+        // this one should fail because it is more than 1 in 24 hours
+        vm.expectRevert(0x09a92f2d);
+        applicationNFT.transferFrom(_user2, _user1, 2);
+    }
 
     /**
      * @dev Test the NFT AccountMaxTransactionValueByRiskScore
@@ -1116,15 +1116,15 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId);
         }
         //TODO: Uncomment when the rule has been added
-        // {
-        //     bytes32[] memory nftTags =createBytes32Array("BoredGrape");
-        //     uint8[] memory tradesAllowed = createUint8Array(3);
-        //     uint32 tradeRuleId = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-        //     switchToAppAdministrator();
-        //     applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
-        //     switchToRuleAdmin();
-        //     ERC721TaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxDailyTradesId(_createActionsArray(), tradeRuleId);
-        // }
+        {
+            bytes32[] memory nftTags =createBytes32Array("BoredGrape");
+            uint8[] memory tradesAllowed = createUint8Array(3);
+            uint32 tradeRuleId = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+            switchToAppAdministrator();
+            applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
+            switchToRuleAdmin();
+            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxDailyTradesId(_createActionsArray(), tradeRuleId);
+        }
         {
             uint48[] memory _maxSize = createUint48Array(7_500_000, 75_000, 750, 350, 10);
             uint8[] memory _riskScore = createUint8Array(0, 10, 40, 80, 99);
