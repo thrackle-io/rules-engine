@@ -245,7 +245,7 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToAppAdministrator();
     }
 
-    function setupApplicationNFTAndHandler(address ownerAddress) public {
+    function setupApplicationNFTAndHandler() public {
         switchToSuperAdminWithSave();
         applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
         applicationNFTHandler = _createERC721HandlerDiamond();
@@ -269,7 +269,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
         /// create an ERC721
         applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
-        setupApplicationNFTAndHandler(address(applicationNFT));
+        setupApplicationNFTAndHandler();
         VersionFacet(address(applicationNFTHandler)).updateVersion("1.1.0");
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
@@ -400,7 +400,7 @@ abstract contract TestCommonFoundry is TestCommon {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         /// create an ERC721
         applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
-        setupApplicationNFTAndHandler(address(applicationNFT));
+        setupApplicationNFTAndHandler();
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
         /// set up the pricer for erc20
@@ -488,7 +488,7 @@ abstract contract TestCommonFoundry is TestCommon {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         /// create an ERC721
         applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
-        setupApplicationNFTAndHandler(address(applicationNFT));
+        setupApplicationNFTAndHandler();
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
         /// set up the pricer for erc20
@@ -602,7 +602,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
         /// create an ERC721
         applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
-        setupApplicationNFTAndHandler(address(applicationNFT));
+        setupApplicationNFTAndHandler();
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
         /// set up the pricer for erc20
