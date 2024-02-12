@@ -1586,11 +1586,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
      function initializeAMMAndUsers() public returns (DummyAMM amm){
         amm = new DummyAMM();
-        applicationCoin2 = _createERC20("application2", "GMC2", applicationAppManager);
-        applicationCoinHandler2 = _createERC20HandlerDiamond();
-        ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin2));
-        /// register the token
-        applicationAppManager.registerToken("application2", address(applicationCoin2));
         applicationCoin2.mint(appAdministrator, 1_000_000_000_000 * ATTO);
         /// Approve the transfer of tokens into AMM
         applicationCoin.approve(address(amm), 1_000_000 * ATTO);
