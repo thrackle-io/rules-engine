@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of this rule is to provide a way to prevent the transfer of assets without application verification. For example, the application may decide users may not accumulate or transfer any assets without first performing specific onboarding activities. The application developer may set the account deny for no access level rule to active. As accounts are introduced to the ecosystem, they may not receive any assets until the application changes their access level to a higher value. 
+The purpose of this rule is to provide a way to prevent the transfer of assets for accounts that do not have an access level or whose access level has been set to 0. For example, the application may decide users may not accumulate or transfer any assets without first performing specific onboarding activities. The application developer may set the account deny for no access level rule to active. As accounts are introduced to the ecosystem, they may not receive any assets until the application changes their access level to a higher value. 
 
 ***NOTE: access levels are restricted from 0 to 4.***
 
@@ -50,7 +50,6 @@ The rule will be evaluated with the following logic:
 ## Evaluation Exceptions 
 - This rule doesn't apply when a **ruleBypassAccount** address is in either the *from* or the *to* side of the transaction. This doesn't necessarily mean that if an rule bypass account is the one executing the transaction it will bypass the rule, unless the aforementioned condition is true.
 - This rule doesn't apply when a **registeredAMM** address is in either the *from* or the *to* side of the transaction.
-- This rule doesn't apply when the *to* address is the zero address to allow for burning while rule is active. 
 - In the case of ERC20s, this rule doesn't apply when a **registered treasury** address is in the *to* side of the transaction.
 
 ### Revert Message
