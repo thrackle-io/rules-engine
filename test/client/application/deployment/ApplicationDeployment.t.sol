@@ -31,13 +31,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
 
             // Verify ERC20 Handler has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS") != address(0x0));
-            applicationCoinHandler = _createERC20HandlerDiamond();
-            emit LogAddress(address(applicationCoinHandler));
-            ERC20HandlerMainFacet(address(applicationCoinHandler)).initialize(
-                address(vm.envAddress("RULE_PROCESSOR_DIAMOND")), 
-                address(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER")), 
-                vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS")
-            );
+            applicationCoinHandler = HandlerDiamond(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS")));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS"), address(applicationCoinHandler));
 
             // Verify the second ERC20 has been deployed
@@ -47,13 +41,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
 
             // Verify the second ERC20 Handler has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS_2") != address(0x0));
-            applicationCoinHandler2 = _createERC20HandlerDiamond();
-            emit LogAddress(address(applicationCoinHandler2));
-            ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(
-                address(vm.envAddress("RULE_PROCESSOR_DIAMOND")), 
-                address(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER")), 
-                vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS")
-            );
+            applicationCoinHandler2 = HandlerDiamond(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS_2")));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS_2"), address(applicationCoinHandler2));
 
             // Verify the second ERC721 has been deployed
@@ -63,13 +51,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
 
             // Verify the ERC721 has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER") != address(0x0));
-            applicationNFTHandler = _createERC721HandlerDiamond();
-            emit LogAddress(address(applicationNFTHandler));
-            ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(
-                address(vm.envAddress("RULE_PROCESSOR_DIAMOND")), 
-                address(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER")), 
-                vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER")
-            );
+            applicationNFTHandler = HandlerDiamond(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER")));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER"), address(applicationNFTHandler));
 
             // Verify the ERC20 Pricing Contract has been deployed
