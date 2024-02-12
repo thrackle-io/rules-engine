@@ -239,6 +239,7 @@ abstract contract TestCommonFoundry is TestCommon {
     function setupApplicationCoinAndHandler(address ownerAddress) public {
         switchToSuperAdminWithSave();
         applicationCoinHandler = _createERC20HandlerDiamond();
+        VersionFacet(address(applicationCoinHandler)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(applicationCoinHandler)).initialize(address(ruleProcessor), address(applicationAppManager), ownerAddress);
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
         switchToAppAdministrator();
@@ -248,6 +249,7 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToSuperAdminWithSave();
         applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
         applicationNFTHandler = _createERC721HandlerDiamond();
+        VersionFacet(address(applicationNFTHandler)).updateVersion("1.1.0");
         ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFT));
         applicationNFT.connectHandlerToToken(address(applicationNFTHandler));
         switchToAppAdministrator();
@@ -506,14 +508,21 @@ abstract contract TestCommonFoundry is TestCommon {
         whitelistMintNFT = _createERC721Whitelist("MonkeysPlayingInBonsaiTrees", "MBT", applicationAppManager, 2);
         freeNFT = _createERC721Free("ParkinsonBarbers", "PKB", applicationAppManager);
 
+        switchToSuperAdminWithSave();
+
         MintForAFeeNFTHandler = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(MintForAFeeNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(mintForAFeeNFT));
+        mintForAFeeNFT.connectHandlerToToken(address(MintForAFeeNFTHandler));
 
         WhitelistNFTHandler = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(WhitelistNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(whitelistMintNFT));
+        whitelistMintNFT.connectHandlerToToken(address(WhitelistNFTHandler));
 
         FreeForAllnNFTHandler = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(FreeForAllnNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(freeNFT));
+        freeNFT.connectHandlerToToken(address(FreeForAllnNFTHandler));
+
+        switchToAppAdministrator();
 
         applicationAppManager.registerToken("BlindSailers", address(mintForAFeeNFT));
         applicationAppManager.registerToken("MonkeysPlayingInBonsaiTrees", address(whitelistMintNFT));
@@ -538,15 +547,21 @@ abstract contract TestCommonFoundry is TestCommon {
         );
         FreeForAllERC721Upgradeable(payable(address(freeNFTUp))).initialize("ParkinsonBarbersUp", "PKBU", address(applicationAppManager), "bloodinmyhands.com/bookyourcut");
 
+        switchToSuperAdminWithSave();
+
         MintForAFeeNFTHandlerUp = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(MintForAFeeNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(mintForAFeeNFTUp));
+        MintForAFeeERC721Upgradeable(payable(address(mintForAFeeNFTUp))).connectHandlerToToken(address(MintForAFeeNFTHandlerUp));
 
         WhitelistNFTHandlerUp = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(WhitelistNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(whitelistMintNFTUp));
+        WhitelistMintERC721Upgradeable(payable(address(whitelistMintNFTUp))).connectHandlerToToken(address(WhitelistNFTHandlerUp));
 
         FreeForAllnNFTHandlerUp = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(FreeForAllnNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(freeNFTUp));
+        FreeForAllERC721Upgradeable(payable(address(freeNFTUp))).connectHandlerToToken(address(FreeForAllnNFTHandlerUp));
 
+        switchToAppAdministrator();
 
         applicationAppManager.registerToken("BlindSailersUp", address(mintForAFeeNFTUp));
         applicationAppManager.registerToken("MonkeysPlayingInBonsaiTreesUp", address(whitelistMintNFTUp));
