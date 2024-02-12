@@ -295,16 +295,17 @@ abstract contract TestCommonFoundry is TestCommon {
     
     function setUpProtocolAndAppManagerAndPricingAndTokens() public {
         setUpProtocolAndAppManager();
-        
-        boredWhaleNFT = _createERC721("Bored Whale Island Club", "BWYC", applicationAppManager);
-        boredWhaleHandler = _createERC721HandlerDiamond();
-        ERC721HandlerMainFacet(address(boredWhaleHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(boredWhaleNFT));
-        boredWhaleNFT.connectHandlerToToken(address(boredWhaleHandler));
-        boredReptilianNFT = _createERC721("Board Reptilian Spaceship Club", "BRSC", applicationAppManager);
-        boredReptileHandler = _createERC721HandlerDiamond();
-        ERC721HandlerMainFacet(address(boredReptileHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(boredReptilianNFT));
-        boredReptilianNFT.connectHandlerToToken(address(boredReptileHandler));
-
+        switchToSuperAdminWithSave();
+        // boredWhaleNFT = _createERC721("Bored Whale Island Club", "BWYC", applicationAppManager);
+        // boredWhaleHandler = _createERC721HandlerDiamond();
+        // ERC721HandlerMainFacet(address(boredWhaleHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(boredWhaleNFT));
+        // boredWhaleNFT.connectHandlerToToken(address(boredWhaleHandler));
+        // boredReptilianNFT = _createERC721("Board Reptilian Spaceship Club", "BRSC", applicationAppManager);
+        // boredReptileHandler = _createERC721HandlerDiamond();
+        // ERC721HandlerMainFacet(address(boredReptileHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(boredReptilianNFT));
+        // boredReptilianNFT.connectHandlerToToken(address(boredReptileHandler));
+        (boredWhaleNFT, boredWhaleHandler) = deployAndSetupERC721("Bored Whale Island Club", "BWYC");
+        (boredReptilianNFT, boredReptileHandler) = deployAndSetupERC721("Board Reptilian Spaceship Club", "BRSC");
         /// Deploy the pricing contract
         openOcean = _createERC721Pricing();
     }
@@ -611,6 +612,15 @@ abstract contract TestCommonFoundry is TestCommon {
         /// reset the user to the original
         switchToOriginalUser();
 
+    }
+
+    function deployAndSetupERC721(string memory name, string memory symbol) internal returns(ApplicationERC721 erc721, HandlerDiamond handler) {
+        erc721 = _createERC721(name, symbol, applicationAppManager);
+        handler = _createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
+        erc721.connectHandlerToToken(address(handler));
+        /// register the token
+        applicationAppManager.registerToken(symbol, address(erc721));
     }
 
     
