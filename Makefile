@@ -35,13 +35,13 @@ deployRuleProcessor:; forge script script/RuleProcessorModule.s.sol --ffi --broa
 deployTokenRuleRouter:; forge script script/TokenRuleRouter.s.sol --ffi --broadcast -vvv
 deployTaggedRuleProcessor:; forge script script/TaggedRuleProcessor.s.sol --ffi --broadcast -vvv
 # Deploy contracts(full protocol)
-deployAll:;	forge script script/DeployAllModules.s.sol --ffi --broadcast -vvv
+deployAll:;	forge script script/DeployAllModules.s.sol --ffi --broadcast -vvv --non-interactive
 # Deploy Application Contracts(singles)
 deployApplicationAppManager:; forge script src/example/script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
 deployApplicationERC20Handler:; forge script src/example/script/ApplicationERC20Handler.s.sol --ffi --broadcast -vvv
 deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol --ffi --broadcast -vvv
 # Deploy Application Contracts(entire application implementation)
-deployAllApp:; forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv
+deployAllApp:; forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv --non-interactive
 deployNewApp:; forge script script/clientScripts/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvv
 # Using a different env ref for pipeline deploy command.
 # Note from RK -- Outside the scope of what I'm doing right now, but

@@ -99,10 +99,20 @@ interface ICommonApplicationHandlerEvents {
 }
 
 /**
+ *@title Rule Storage Diamond Events Interface
+ * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
+ * @dev This library for all events in the Rule Processor Module for the protocol. Each contract in the access module should inherit this library for emitting events.
+ * @notice Rule Processor Module Events Library
+ */
+interface IRuleProcessorDiamondEvents {
+    /// Initial deploy of the Rule Processor Diamond
+    event RuleProcessorDiamondDeployed();
+}
+
+/**
  * @dev This library is for all events in the Economic Module for the protocol.
  * @notice Economic Module Events Library
  */
-
 interface IEconomicEvents {
     /// Generic Rule Creation Event
     event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags);
@@ -118,7 +128,7 @@ interface ITokenHandlerEvents {
     ///Handler
     event HandlerDeployed(address indexed appManager);
     /// Rule applied
-    event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId);
+    event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
     event ApplicationHandlerSimpleActionApplied(bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1);
     /// Rule deactivated
     event ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes action);

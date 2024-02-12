@@ -1009,7 +1009,6 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
         if (_newApplicationHandler == address(0)) revert ZeroAddress();
         applicationHandler = ProtocolApplicationHandler(_newApplicationHandler);
         applicationHandlerAddress = _newApplicationHandler;
-        emit HandlerConnected(applicationHandlerAddress, address(this));
     }
 
     /**
