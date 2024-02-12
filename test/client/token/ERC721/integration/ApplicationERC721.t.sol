@@ -1087,7 +1087,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         ApplicationERC721 _applicationNFT2 = new ApplicationERC721("ToughTurtles", "THTR", address(applicationAppManager), "https://SampleApp.io");
         console.log("applicationNFT2", address(_applicationNFT2));
         HandlerDiamond _applicationNFTHandler2 = _createERC721HandlerDiamond();
-        ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFT2));
+        ERC721HandlerMainFacet(address(_applicationNFTHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(_applicationNFT2));
         _applicationNFT2.connectHandlerToToken(address(_applicationNFTHandler2));
         /// register the token
         applicationAppManager.registerToken("THTR", address(_applicationNFT2));
