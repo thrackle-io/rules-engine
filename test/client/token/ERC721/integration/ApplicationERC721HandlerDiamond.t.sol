@@ -16,7 +16,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         switchToAppAdministrator();
     }
 
-    function testERC721_HandlerVersions() public {
+    function testERC721_HandlerVersionsHandlerDiamomd() public {
         string memory version = VersionFacet(address(applicationNFTHandler)).version();
         assertEq(version, "1.1.0");
     }
