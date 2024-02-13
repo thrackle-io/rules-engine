@@ -22,8 +22,8 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
      * @param _assetAddress address of the controlling asset.
      */
     function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external onlyOwner{
-        bool initialized = lib.initializedStorage().initialized;
-        if(initialized) revert AlreadyInitialized();
+        InitializedS storage ini = lib.initializedStorage();
+        if(ini.initialized) revert AlreadyInitialized();
         HandlerBaseS storage data = lib.handlerBaseStorage();
         if (_appManagerAddress == address(0) || _ruleProcessorProxyAddress == address(0) || _assetAddress == address(0)) 
             revert ZeroAddress();
@@ -32,7 +32,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
         data.assetAddress = _assetAddress;
         lib.nftValuationLimitStorage().nftValuationLimit = 100;
         ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
-        initialized = true;
+        ini.initialized = true;
         callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)",_assetAddress));
     }
 

@@ -3,10 +3,6 @@ pragma solidity ^0.8.17;
 // import "./IRuleStorage.sol";
 import "./RuleStorage.sol";
 
-struct InitializedS{
-    bool initialized;
-}
-
 /**
  * @title Rules Storage Library
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -30,7 +26,7 @@ library StorageLib {
     bytes32 constant TOKEN_MIN_HOLD_TIME_HANDLER_POSITION = bytes32(uint256(keccak256("token-min-hold-time-position")) - 1);
     bytes32 constant TOKEN_MAX_DAILY_TRADES_HANDLER_POSITION = bytes32(uint256(keccak256("nft-max-daily-trades-position")) - 1);
     bytes32 constant NFT_VALUATION_LIMIT_POSITION = bytes32(uint256(keccak256("nft-valuation-position")) - 1);
-    bytes32 constant INITIALIZED_POSITION = bytes32(uint256(keccak256("nft-valuation-position")) - 1);
+    bytes32 constant INITIALIZED_POSITION = bytes32(uint256(keccak256("initialized-position")) - 1);
     
     /**
      * @dev Function to store the Initialized flag

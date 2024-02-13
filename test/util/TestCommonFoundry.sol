@@ -573,8 +573,11 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToAppAdministrator();
         // create the ERC20 and connect it to its handler
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        setupApplicationCoinAndHandler(address(applicationCoin));
+        // setupApplicationCoinAndHandler(address(applicationCoin));
+        applicationCoinHandler = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin));
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
+        // applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
 
@@ -590,7 +593,7 @@ abstract contract TestCommonFoundry is TestCommon {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
 
         /// create an ERC721
-        applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
+        // applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
         setupApplicationNFTAndHandler();
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
@@ -614,6 +617,7 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToSuperAdminWithSave();
         erc721 = _createERC721(name, symbol, applicationAppManager);
         handler = _createERC721HandlerDiamond();
+        VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
         erc721.connectHandlerToToken(address(handler));
         /// register the token
@@ -624,7 +628,8 @@ abstract contract TestCommonFoundry is TestCommon {
     function deployAndSetupERC20(string memory name, string memory symbol) internal returns(ApplicationERC20 erc20, HandlerDiamond handler) {
         switchToSuperAdminWithSave();
         erc20 = _createERC20(name, symbol, applicationAppManager);
-        handler = _createERC721HandlerDiamond();
+        handler = _createERC20HandlerDiamond();
+        VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
         erc20.connectHandlerToToken(address(handler));
         /// register the token
