@@ -19,6 +19,22 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(version, "1.1.0");
     }
 
+     function test_ERC20OnlyTokenCanCallCheckAllRules() public{
+        address handler = applicationCoin.getHandlerAddress();
+        assertEq(handler, address(applicationCoinHandler));
+        address owner = ERC173Facet(address(applicationCoinHandler)).owner();
+        assertEq(owner, address(applicationCoin));
+        vm.expectRevert("UNAUTHORIZED");
+        ERC20HandlerMainFacet(handler).checkAllRules(0, 0, user1, user2, user3, 0);
+    }
+
+    function testERC20_AlreadyInitialized() public{
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
+        vm.expectRevert(abi.encodeWithSignature("AlreadyInitialized()"));
+        ERC20HandlerMainFacet(address(applicationCoinHandler)).initialize(user1, user2, user3);
+    }
+
     /// Test balance
     function testERC20_Balance() public {
         console.logUint(applicationCoin.totalSupply());

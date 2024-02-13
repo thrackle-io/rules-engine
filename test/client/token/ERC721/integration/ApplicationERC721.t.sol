@@ -21,6 +21,22 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(version, "1.1.0");
     }
 
+    function testERC721_AlreadyInitialized() public{
+        vm.stopPrank();
+        vm.startPrank(address(applicationNFT));
+        vm.expectRevert(abi.encodeWithSignature("AlreadyInitialized()"));
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(user1, user2, user3);
+    }
+
+    function test_ERC721OnlyTokenCanCallCheckAllRules() public{
+        address handler = applicationNFT.getHandlerAddress();
+        assertEq(handler, address(applicationNFTHandler));
+        address owner = ERC173Facet(address(applicationNFTHandler)).owner();
+        assertEq(owner, address(applicationNFT));
+        vm.expectRevert("UNAUTHORIZED");
+        ERC20HandlerMainFacet(handler).checkAllRules(0, 0, user1, user2, user3, 0);
+    }
+
     function testERC721_Mint() public {
         /// Owner Mints new tokenId
         applicationNFT.safeMint(appAdministrator);

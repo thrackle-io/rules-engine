@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "test/util/TestCommonFoundry.sol";
 import "../../TestTokenCommon.sol";
 
+
 /**
  * @title Application Coin Handler Test
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -24,11 +25,27 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
     }
 
+    function test_ERC20OnlyTokenCanCallCheckAllRules() public{
+        address handler = applicationCoin.getHandlerAddress();
+        assertEq(handler, address(applicationCoinHandler));
+        address owner = ERC173Facet(address(applicationCoinHandler)).owner();
+        assertEq(owner, address(applicationCoin));
+        vm.expectRevert();
+        ERC20HandlerMainFacet(handler).checkAllRules(0, 0, user1, user2, user3, 0);
+    }
+
     function testERC20_ZeroAddressChecksERC20() public {
         vm.expectRevert();
         new ApplicationERC20("FRANK", "FRANK", address(0x0));
-        vm.expectRevert();
+        vm.expectRevert("UNAUTHORIZED");
         applicationCoin.connectHandlerToToken(address(0));
+    }
+
+    function testERC20_AlreadyInitialized() public{
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
+        vm.expectRevert(abi.encodeWithSignature("AlreadyInitialized()"));
+        ERC20HandlerMainFacet(address(applicationCoinHandler)).initialize(user1, user2, user3);
     }
 
     function testERC20_ERC20AndHandlerVersions() public {

@@ -20,7 +20,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
      * @param _appManagerAddress address of the application AppManager.
      * @param _assetAddress address of the controlling asset.
      */
-    function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external {
+    function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external onlyOwner {
         bool initialized = lib.initializedStorage().initialized;
         if(initialized) revert AlreadyInitialized();
         HandlerBaseS storage data = lib.handlerBaseStorage();
@@ -53,10 +53,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         if (!IAppManager(handlerBaseStorage.appManager).isTreasury(_to)) {
             /// standard rules do not apply when either to or from is an admin
             if (!isFromBypassAccount && !isToBypassAccount) {
-                /// appManager requires uint16 _nftValuationLimit and uin256 _tokenId for NFT pricing, 0 is passed for fungible token pricing
                 IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount,  0, 0, action, HandlerTypes.ERC20HANDLER); 
-            //    _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action); => 36bd6ea7
-                // gas cost: 61926
                 callAnotherFacet(
                     0x36bd6ea7, 
                     abi.encodeWithSignature(
@@ -69,8 +66,6 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
                         action
                     )
                 );
-                // // another way (gas cost: 61447): (~1.4% cheaper)
-                // TaggedRuleFacet(address(this)).checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
                 callAnotherFacet(
                     0x6f43d91d, 
                     abi.encodeWithSignature(
@@ -81,7 +76,6 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
                         action
                     )
                 );
-               // NonTaggedRuleFacet(address(this)).checkNonTaggedRules(_from, _to, _amount, action);
             } else if (lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].active && isFromBypassAccount) {
                 IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].ruleId, balanceFrom, _amount);
                 emit RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
