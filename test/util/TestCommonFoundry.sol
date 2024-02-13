@@ -620,12 +620,25 @@ abstract contract TestCommonFoundry is TestCommon {
     }
 
     function deployAndSetupERC721(string memory name, string memory symbol) internal returns(ApplicationERC721 erc721, HandlerDiamond handler) {
+        switchToSuperAdminWithSave();
         erc721 = _createERC721(name, symbol, applicationAppManager);
         handler = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
         erc721.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(symbol, address(erc721));
+        switchToOriginalUser();
+    }
+
+    function deployAndSetupERC20(string memory name, string memory symbol) internal returns(ApplicationERC20 erc20, HandlerDiamond handler) {
+        switchToSuperAdminWithSave();
+        erc20 = _createERC20(name, symbol, applicationAppManager);
+        handler = _createERC721HandlerDiamond();
+        ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
+        erc20.connectHandlerToToken(address(handler));
+        /// register the token
+        applicationAppManager.registerToken(symbol, address(erc20));
+        switchToOriginalUser();
     }
 
     

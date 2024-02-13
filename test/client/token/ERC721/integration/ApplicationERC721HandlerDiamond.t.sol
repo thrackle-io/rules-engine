@@ -1320,7 +1320,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
-    function testERC721_AccountMaxBuySizeRule() public {
+    function testERC721_AccountMaxBuySizeRuleDiamond() public {
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
