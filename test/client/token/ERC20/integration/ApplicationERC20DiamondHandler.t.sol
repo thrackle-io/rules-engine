@@ -37,7 +37,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
     function testERC20_ZeroAddressChecksERC20() public {
         vm.expectRevert();
         new ApplicationERC20("FRANK", "FRANK", address(0x0));
-        vm.expectRevert("UNAUTHORIZED");
+        vm.expectRevert(0xd92e233d);
         applicationCoin.connectHandlerToToken(address(0));
     }
 
