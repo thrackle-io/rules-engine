@@ -575,6 +575,7 @@ abstract contract TestCommonFoundry is TestCommon {
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
         // setupApplicationCoinAndHandler(address(applicationCoin));
         applicationCoinHandler = _createERC20HandlerDiamond();
+        VersionFacet(address(applicationCoinHandler)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(applicationCoinHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin));
         applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
         // applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
@@ -583,6 +584,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
         applicationCoin2 = _createERC20("application2", "GMC2", applicationAppManager);
         applicationCoinHandler2 = _createERC20HandlerDiamond();
+        VersionFacet(address(applicationCoinHandler2)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin2));
         applicationCoin2.connectHandlerToToken(address(applicationCoinHandler2));
         /// register the token
