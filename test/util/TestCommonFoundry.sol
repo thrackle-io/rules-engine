@@ -293,15 +293,6 @@ abstract contract TestCommonFoundry is TestCommon {
     
     function setUpProtocolAndAppManagerAndPricingAndTokens() public {
         setUpProtocolAndAppManager();
-        switchToSuperAdminWithSave();
-        // boredWhaleNFT = _createERC721("Bored Whale Island Club", "BWYC", applicationAppManager);
-        // boredWhaleHandler = _createERC721HandlerDiamond();
-        // ERC721HandlerMainFacet(address(boredWhaleHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(boredWhaleNFT));
-        // boredWhaleNFT.connectHandlerToToken(address(boredWhaleHandler));
-        // boredReptilianNFT = _createERC721("Board Reptilian Spaceship Club", "BRSC", applicationAppManager);
-        // boredReptileHandler = _createERC721HandlerDiamond();
-        // ERC721HandlerMainFacet(address(boredReptileHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(boredReptilianNFT));
-        // boredReptilianNFT.connectHandlerToToken(address(boredReptileHandler));
         (boredWhaleNFT, boredWhaleHandler) = deployAndSetupERC721("Bored Whale Island Club", "BWYC");
         (boredReptilianNFT, boredReptileHandler) = deployAndSetupERC721("Board Reptilian Spaceship Club", "BRSC");
         /// Deploy the pricing contract

@@ -21,7 +21,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
      * @param _appManagerAddress address of the application AppManager.
      * @param _assetAddress address of the controlling asset.
      */
-    function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external {
+    function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external onlyOwner{
         bool initialized = lib.initializedStorage().initialized;
         if(initialized) revert AlreadyInitialized();
         HandlerBaseS storage data = lib.handlerBaseStorage();
@@ -35,13 +35,6 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
         initialized = true;
         callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)",_assetAddress));
     }
-
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
-    // function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool) {
-    //     return interfaceId == type(IAdminMinTokenBalanceCapable).interfaceId || super.supportsInterface(interfaceId);
-    // }
 
     /**
      * @dev This function is the one called from the contract that implements this handler. It's the entry point.
@@ -63,7 +56,6 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
             IAppManager(handlerBaseStorage.appManager).checkApplicationRules(address(msg.sender), _from, _to, _amount, lib.nftValuationLimitStorage().nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
-            // _checkTaggedAndTradingRules(balanceFrom, balanceTo, _from, _to, _amount, action);
             callAnotherFacet(
                 0x36bd6ea7, 
                 abi.encodeWithSignature(
@@ -76,7 +68,6 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
                     action
                 )
             );
-            // _checkNonTaggedRules(action, _from, _to, _amount, _tokenId);
             callAnotherFacet(
                 0x9466093a, 
                 abi.encodeWithSignature(
@@ -88,15 +79,12 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
                     _tokenId
                 )
             );
-            // _checkSimpleRules(action, _tokenId); // done in NonTaggedRules
-            /// set the ownership start time for the token if the Minimum Hold time rule is active or action is mint
             if (lib.tokenMinHoldTimeStorage().tokenMinHoldTime[action].active || action == ActionTypes.MINT) 
                 lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
         } else if (lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].active && isFromBypassAccount) {
                 IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].ruleId, balanceFrom, _tokenId);
                 emit RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
             }
-        /// If all rule checks pass, return true
         return true;
     }
     

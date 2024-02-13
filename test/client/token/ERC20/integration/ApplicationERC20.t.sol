@@ -19,6 +19,23 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(version, "1.1.0");
     }
 
+     function test_ERC20OnlyTokenCanCallCheckAllRules() public{
+        address handler = applicationCoin.getHandlerAddress();
+        assertEq(handler, address(applicationCoinHandler));
+        address owner = ERC173Facet(address(applicationCoinHandler)).owner();
+        assertEq(owner, address(applicationCoin));
+        vm.expectRevert("UNAUTHORIZED");
+        ERC20HandlerMainFacet(handler).checkAllRules(0, 0, user1, user2, user3, 0);
+    }
+
+    function testERC20_AlreadyInitialized() public{
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
+        vm.expectRevert(abi.encodeWithSignature("AlreadyInitialized()"));
+        ERC20HandlerMainFacet(address(applicationCoinHandler)).initialize(user1, user2, user3);
+    }
+
+    /// Test balance
     function testERC20_Balance() public {
         console.logUint(applicationCoin.totalSupply());
         assertEq(applicationCoin.balanceOf(appAdministrator), 10000000000000000000000 * ATTO);
@@ -1286,13 +1303,8 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         /// add the rule.
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(address(applicationAppManager), accs, amounts, period, uint64(Blocktime));
-<<<<<<< HEAD
-        /// update ruleId in token handler
-        applicationCoinHandler.setAccountMaxBuySizeId(ruleId);
-=======
         ///update ruleId in token handler
         TradingRuleFacet(address(applicationCoinHandler)).setAccountMaxBuySizeId(ruleId);
->>>>>>> f7016391 (Refactored tests to use the diamond implementations instead of the old handlers.)
     }
 
     function _setupAccountMaxBuySizeRuleBlankTag() internal {
