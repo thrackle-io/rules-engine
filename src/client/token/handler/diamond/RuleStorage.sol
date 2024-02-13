@@ -102,3 +102,7 @@ struct TokenMinHoldTime{
  struct NFTValuationLimitS{
     uint16 nftValuationLimit;
  }
+
+struct InitializedS{
+    bool initialized;
+}
