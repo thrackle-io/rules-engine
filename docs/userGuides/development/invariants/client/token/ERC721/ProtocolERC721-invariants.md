@@ -5,6 +5,7 @@
 - Version will never be blank
 - Version will never change.
 - Any user can get the contract's version
+- Only app admins may connect a handler
 - A non-appAdmin can never pause the contract
 - A non-appAdmin can never unpause the contract
 - A non-appAdmin can never connect a handler to the contract
