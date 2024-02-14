@@ -24,10 +24,10 @@ This rule works at the token level. It must be activated and configured for each
 
 ## Data Structure
 
-As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection of rules, where all "sub-rules" are independent from each other, and where each "sub-rule" is indexed by its tag. An account-max-sell-size "sub-rule" is specified by 3 variables:
+As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection of rules, where all "sub-rules" are independent from each other, and where each "sub-rule" is indexed by its tag. An account-max-sell-size "sub-rule" is specified by 2 variables:
 
-- **Sell Amounts** (uint192): The maximum amount of tokens that may be sold during the *sell period*. 
-- **Sell Periods** (uint16): The length of each time period for which the rule will apply, in hours.
+- **Max Size** (uint256): The maximum amount of tokens that may be sold during the *sell period*. 
+- **Period** (uint16): The length of each time period for which the rule will apply, in hours.
 
 
 ```c
