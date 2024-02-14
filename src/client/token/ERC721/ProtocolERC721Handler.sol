@@ -210,11 +210,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         for (uint i; i < _actions.length; ) {
             accountMinMaxTokenBalance[_actions[i]].ruleId = _ruleId;
             accountMinMaxTokenBalance[_actions[i]].active = true;            
-            emit ApplicationHandlerActionApplied(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i], _ruleId);
             unchecked {
                         ++i;
             }
         }            
+        emit ApplicationHandlerActionApplied(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions, _ruleId);
     }
 
     /**
@@ -225,14 +225,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateAccountMinMaxTokenBalance(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             accountMinMaxTokenBalance[_actions[i]].active = _on;
-            if (_on) {
-                emit ApplicationHandlerActionActivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i]);
-            } else {
-                emit ApplicationHandlerActionDeactivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i]);
-            }
             unchecked {
                 ++i;
             }
+        }
+        if (_on) {
+            emit ApplicationHandlerActionActivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions);
+        } else {
+            emit ApplicationHandlerActionDeactivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions);
         }
     }
 
@@ -272,11 +272,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
             newEntity.ruleId = _ruleId;
             newEntity.active = true;
             accountApproveDenyOracle[_actions[i]].push(newEntity);
-            emit ApplicationHandlerActionApplied(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i], _ruleId);
             unchecked {
                         ++i;
             }
         }
+        emit ApplicationHandlerActionApplied(ACCOUNT_APPROVE_DENY_ORACLE, _actions, _ruleId);
     }
 
     /**
@@ -292,12 +292,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
             for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[_actions[i]].length; ) {
                 if (accountApproveDenyOracle[_actions[i]][accountApproveDenyOracleIndex].ruleId == ruleId) {
                     accountApproveDenyOracle[_actions[i]][accountApproveDenyOracleIndex].active = _on;
-
-                    if (_on) {
-                        emit ApplicationHandlerActionActivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i]);
-                    } else {
-                        emit ApplicationHandlerActionDeactivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i]);
-                    }
                 }
                 unchecked {
                     ++accountApproveDenyOracleIndex;
@@ -306,6 +300,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
             unchecked {
                     ++i;
             }
+        }
+        if (_on) {
+            emit ApplicationHandlerActionActivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions);
+        } else {
+            emit ApplicationHandlerActionDeactivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions);
         }
     }
 
@@ -383,11 +382,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         for (uint i; i < _actions.length; ) {
             tokenMaxDailyTrades[_actions[i]].ruleId = _ruleId;
             tokenMaxDailyTrades[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(TOKEN_MAX_DAILY_TRADES, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
         }
+        emit ApplicationHandlerActionApplied(TOKEN_MAX_DAILY_TRADES, _actions, _ruleId);
     }
 
     /**
@@ -398,14 +397,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateTokenMaxDailyTrades(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             tokenMaxDailyTrades[_actions[i]].active = _on;
-            if (_on) {
-                emit ApplicationHandlerActionActivated(TOKEN_MAX_DAILY_TRADES, _actions[i]);
-            } else {
-                emit ApplicationHandlerActionDeactivated(TOKEN_MAX_DAILY_TRADES, _actions[i]);
-            }
             unchecked {
                 ++i;
             }
+        }
+        if (_on) {
+            emit ApplicationHandlerActionActivated(TOKEN_MAX_DAILY_TRADES, _actions);
+        } else {
+            emit ApplicationHandlerActionDeactivated(TOKEN_MAX_DAILY_TRADES, _actions);
         }
     }
 
@@ -452,11 +451,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
             /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
             adminMinTokenBalance[_actions[i]].ruleId = _ruleId;
             adminMinTokenBalance[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(ADMIN_MIN_TOKEN_BALANCE, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
         }
+        emit ApplicationHandlerActionApplied(ADMIN_MIN_TOKEN_BALANCE, _actions, _ruleId);
     }
 
     /**
@@ -509,14 +508,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         }
         for (uint i; i < _actions.length; ) {
             adminMinTokenBalance[_actions[i]].active = _on;
-            if (_on) {
-                emit ApplicationHandlerActionActivated(ADMIN_MIN_TOKEN_BALANCE, _actions[i]);
-            } else {
-                emit ApplicationHandlerActionDeactivated(ADMIN_MIN_TOKEN_BALANCE, _actions[i]);
-            }
             unchecked {
                 ++i;
             }
+        }
+        if (_on) {
+            emit ApplicationHandlerActionActivated(ADMIN_MIN_TOKEN_BALANCE, _actions);
+        } else {
+            emit ApplicationHandlerActionDeactivated(ADMIN_MIN_TOKEN_BALANCE, _actions);
         }
     }
 
@@ -558,11 +557,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
             ruleProcessor.validateTokenMaxTradingVolume(_ruleId);
             tokenMaxTradingVolume[_actions[i]].ruleId = _ruleId;
             tokenMaxTradingVolume[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(TOKEN_MAX_TRADING_VOLUME, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
         }
+        emit ApplicationHandlerActionApplied(TOKEN_MAX_TRADING_VOLUME, _actions, _ruleId);
     }
 
     /**
@@ -573,14 +572,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateTokenMaxTradingVolume(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             tokenMaxTradingVolume[_actions[i]].active = _on;
-            if (_on) {
-                emit ApplicationHandlerActionActivated(TOKEN_MAX_TRADING_VOLUME, _actions[i]);
-            } else {
-                emit ApplicationHandlerActionDeactivated(TOKEN_MAX_TRADING_VOLUME, _actions[i]);
-            }
             unchecked {
                 ++i;
             }
+        }
+        if (_on) {
+            emit ApplicationHandlerActionActivated(TOKEN_MAX_TRADING_VOLUME, _actions);
+        } else {
+            emit ApplicationHandlerActionDeactivated(TOKEN_MAX_TRADING_VOLUME, _actions);
         }
     }
 
@@ -613,11 +612,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
             ruleProcessor.validateTokenMaxSupplyVolatility(_ruleId);
             tokenMaxSupplyVolatility[_actions[i]].ruleId = _ruleId;
             tokenMaxSupplyVolatility[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
         }
+        emit ApplicationHandlerActionApplied(TOKEN_MAX_SUPPLY_VOLATILITY, _actions, _ruleId);
     }
 
     /**
@@ -628,14 +627,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateTokenMaxSupplyVolatility(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             tokenMaxSupplyVolatility[_actions[i]].active = _on;
-            if (_on) {
-                emit ApplicationHandlerActionActivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i]);
-            } else {
-                emit ApplicationHandlerActionDeactivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i]);
-            }
             unchecked {
                 ++i;
             }
+        }
+        if (_on) {
+            emit ApplicationHandlerActionActivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions);
+        } else {
+            emit ApplicationHandlerActionDeactivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions);
         }
     }
 
@@ -657,14 +656,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateTokenMinHoldTime(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             tokenMinHoldTime[_actions[i]].active = _on;
-            if (_on) {
-                emit ApplicationHandlerActionActivated(TOKEN_MIN_HOLD_TIME, _actions[i]);
-            } else {
-                emit ApplicationHandlerActionDeactivated(TOKEN_MIN_HOLD_TIME, _actions[i]);
-            }
             unchecked {
                 ++i;
             }
+        }
+        if (_on) {
+            emit ApplicationHandlerActionActivated(TOKEN_MIN_HOLD_TIME, _actions);
+        } else {
+            emit ApplicationHandlerActionDeactivated(TOKEN_MIN_HOLD_TIME, _actions);
         }
     }
 

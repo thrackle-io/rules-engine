@@ -82,7 +82,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function setAccountMaxBuySizeId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         accountMaxBuySizeId = _ruleId;
         accountMaxBuySizeActive = true;
-        emit ApplicationHandlerActionApplied(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY, _ruleId);
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.BUY;
+        emit ApplicationHandlerActionApplied(ACCOUNT_MAX_BUY_SIZE, actionsArray, _ruleId);
     }
 
     /**
@@ -91,10 +93,12 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
      */
     function activateAccountMaxBuySize(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountMaxBuySizeActive = _on;
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.BUY;
         if (_on) {
-            emit ApplicationHandlerActionActivated(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY);
+            emit ApplicationHandlerActionActivated(ACCOUNT_MAX_BUY_SIZE, actionsArray);
         } else {
-            emit ApplicationHandlerActionDeactivated(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY);
+            emit ApplicationHandlerActionDeactivated(ACCOUNT_MAX_BUY_SIZE, actionsArray);
         }
     }
 
@@ -122,7 +126,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function setAccountMaxSellSizeId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         accountMaxSellSizeId = _ruleId;
         accountMaxSellSizeActive = true;
-        emit ApplicationHandlerActionApplied(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL, _ruleId);
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.SELL;
+        emit ApplicationHandlerActionApplied(ACCOUNT_MAX_SELL_SIZE, actionsArray, _ruleId);
     }
 
     /**
@@ -131,10 +137,12 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
      */
     function activateAccountMaxSellSize(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountMaxSellSizeActive = _on;
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.SELL;
         if (_on) {
-            emit ApplicationHandlerActionActivated(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL);
+            emit ApplicationHandlerActionActivated(ACCOUNT_MAX_SELL_SIZE, actionsArray);
         } else {
-            emit ApplicationHandlerActionDeactivated(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL);
+            emit ApplicationHandlerActionDeactivated(ACCOUNT_MAX_SELL_SIZE, actionsArray);
         }
     }
 
@@ -194,7 +202,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function setTokenMaxBuyVolumeId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         tokenMaxBuyVolumeId = _ruleId;
         tokenMaxBuyVolumeActive = true;
-        emit ApplicationHandlerActionApplied(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY, _ruleId);
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.BUY;
+        emit ApplicationHandlerActionApplied(TOKEN_MAX_BUY_VOLUME, actionsArray, _ruleId);
     }
 
     /**
@@ -203,10 +213,12 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
      */
     function activateTokenMaxBuyVolume(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         tokenMaxBuyVolumeActive = _on;
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.BUY;
         if (_on) {
-            emit ApplicationHandlerActionActivated(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY);
+            emit ApplicationHandlerActionActivated(TOKEN_MAX_BUY_VOLUME, actionsArray);
         } else {
-            emit ApplicationHandlerActionDeactivated(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY);
+            emit ApplicationHandlerActionDeactivated(TOKEN_MAX_BUY_VOLUME, actionsArray);
         }
     }
 
@@ -234,7 +246,9 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
     function setTokenMaxSellVolumeId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         tokenMaxSellVolumeId = _ruleId;
         tokenMaxSellVolumeActive = true;
-        emit ApplicationHandlerActionApplied(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL, _ruleId);
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.SELL;
+        emit ApplicationHandlerActionApplied(TOKEN_MAX_SELL_VOLUME, actionsArray, _ruleId);
     }
 
     /**
@@ -243,10 +257,12 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
      */
     function activateTokenMaxSellVolume(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         tokenMaxSellVolumeActive = _on;
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.SELL;
         if (_on) {
-            emit ApplicationHandlerActionActivated(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL);
+            emit ApplicationHandlerActionActivated(TOKEN_MAX_SELL_VOLUME, actionsArray);
         } else {
-            emit ApplicationHandlerActionDeactivated(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL);
+            emit ApplicationHandlerActionDeactivated(TOKEN_MAX_SELL_VOLUME, actionsArray);
         }
     }
 

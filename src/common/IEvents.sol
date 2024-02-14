@@ -128,12 +128,12 @@ interface ITokenHandlerEvents {
     ///Handler
     event HandlerDeployed(address indexed appManager);
     /// Rule applied
-    event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
+    event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes[] indexed action, uint32 indexed ruleId);
     event ApplicationHandlerSimpleActionApplied(bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1);
     /// Rule deactivated
-    event ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes action);
+    event ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes[] action);
     /// Rule activated
-    event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action);
+    event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes[] action);
     /// NFT Valuation Limit Updated
     event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
     event AppManagerAddressSet(address indexed _address);
