@@ -62,8 +62,8 @@ library StorageLib {
     }
 
     /**
-     * @dev Function to store Purchase rules
-     * @return ds Data Storage of Purchase Rule
+     * @dev Function to store Account Max Buy Size rules
+     * @return ds Data Storage of Account Max Buy Size Rule
      */
     function accountMaxBuySizeStorage() internal pure returns (AccountMaxBuySizeS storage ds) {
         bytes32 position = ACCOUNT_MAX_BUY_SIZE_HANDLER_POSITION;
@@ -73,8 +73,8 @@ library StorageLib {
     }
 
     /**
-     * @dev Function to store Sell rules
-     * @return ds Data Storage of Sell Rule
+     * @dev Function to store Max Sell Size rules
+     * @return ds Data Storage of Max Sell Size Rule
      */
     function accountMaxSellSizeStorage() internal pure returns (AccountMaxSellSizeS storage ds) {
         bytes32 position = ACCOUNT_MAX_SELL_SIZE_HANDLER_POSITION;
@@ -84,8 +84,8 @@ library StorageLib {
     }
 
     /**
-     * @dev Function to store Account Max Buy Volume rules
-     * @return ds Data Storage of Account Max Buy Volume Rule
+     * @dev Function to store Token Max Buy Volume rules
+     * @return ds Data Storage of Token Max Buy Volume Rule
      */
     function tokenMaxBuyVolumeStorage() internal pure returns (TokenMaxBuyVolumeS storage ds) {
         bytes32 position = TOKEN_MAX_BUY_VOLUME_HANDLER_POSITION;
@@ -95,8 +95,8 @@ library StorageLib {
     }
 
     /**
-     * @dev Function to store Account Max Sell Volume rules
-     * @return ds Data Storage of Account Max Sell Volume Rule
+     * @dev Function to store Token Max Sell Volume rules
+     * @return ds Data Storage of Token Max Sell Volume Rule
      */
     function tokenMaxSellVolumeStorage() internal pure returns (TokenMaxSellVolumeS storage ds) {
         bytes32 position = TOKEN_MAX_SELL_VOLUME_HANDLER_POSITION;
@@ -184,7 +184,7 @@ library StorageLib {
 
     /**
      * @dev Function to store Token Min Hold Time
-     * @return ds Data Storage of Oracle Rule
+     * @return ds Data Storage of Token Min Hold Time
      */
     function tokenMinHoldTimeStorage() internal pure returns (TokenMinHoldTimeS storage ds) {
         bytes32 position = TOKEN_MIN_HOLD_TIME_HANDLER_POSITION;
@@ -194,8 +194,8 @@ library StorageLib {
     }
 
     /**
-     * @dev Function to store Token Min Hold Time
-     * @return ds Data Storage of Oracle Rule
+     * @dev Function to store NFT Valuation Limit storage
+     * @return ds Data Storage of NFT Valuation Limit
      */
     function nftValuationLimitStorage() internal pure returns (NFTValuationLimitS storage ds) {
         bytes32 position = NFT_VALUATION_LIMIT_POSITION;
@@ -203,28 +203,5 @@ library StorageLib {
             ds.slot := position
         }
     }
-
-
-    // /**
-    //  * @dev Function to store Token Max Daily Trades rules
-    //  * @return ds Data Storage of Token Max Daily Trades rule
-    //  */
-    // function TokenMaxDailyTradesStorage() internal pure returns (IRuleStorage.TokenMaxDailyTradesS storage ds) {
-    //     bytes32 position = TOKEN_MAX_DAILY_TRADES_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
-
-    // /**
-    //  * @dev Function to store AMM Fee rules
-    //  * @return ds Data Storage of AMM Fee rule
-    //  */
-    // function ammFeeRuleStorage() internal pure returns (IRuleStorage.AMMFeeRuleS storage ds) {
-    //     bytes32 position = AMM_FEE_RULE_HANDLER_POS;
-    //     assembly {
-    //         ds.slot := position
-    //     }
-    // }
 
 }

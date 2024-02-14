@@ -16,7 +16,7 @@ import "diamond-std/implementations/ERC173/ERC173.sol";
 contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, NFTValuationLimit, IHandlerDiamondErrors, ERC173 {
 
     /**
-     * @dev Constructor sets params
+     * @dev Initializer params
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
      * @param _appManagerAddress address of the application AppManager.
      * @param _assetAddress address of the controlling asset.

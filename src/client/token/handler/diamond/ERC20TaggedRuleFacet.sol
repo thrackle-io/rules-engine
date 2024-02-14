@@ -62,6 +62,5 @@ contract ERC20TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
                     action
                 )
             );
-            // TradingRuleFacet(address(this)).checkTradingRules(_from, _to, fromTags, toTags, _amount, action);
     }
 }
