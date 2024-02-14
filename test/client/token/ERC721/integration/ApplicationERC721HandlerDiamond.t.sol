@@ -475,6 +475,132 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         assertEq(applicationNFT.balanceOf(user2), 0);
     }
 
+    function testERC721_AccountMaxTransactionValueByRiskScoreWithPeriod() public {
+        ///Set transaction limit rule params
+        uint8[] memory riskScores = createUint8Array(0, 10, 40, 80, 99);
+        uint48[] memory txnLimits = createUint48Array(17, 15, 12, 11, 10);
+        switchToRuleAdmin();
+        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, 24, uint64(block.timestamp));
+        switchToAppAdministrator();
+        ///Mint NFT's (user1,2,3)
+        applicationNFT.safeMint(user1); // tokenId = 0
+        applicationNFT.safeMint(user1); // tokenId = 1
+        applicationNFT.safeMint(user1); // tokenId = 2
+        applicationNFT.safeMint(user1); // tokenId = 3
+        applicationNFT.safeMint(user1); // tokenId = 4
+        assertEq(applicationNFT.balanceOf(user1), 5);
+
+        applicationNFT.safeMint(user2); // tokenId = 5
+        applicationNFT.safeMint(user2); // tokenId = 6
+        applicationNFT.safeMint(user2); // tokenId = 7
+        assertEq(applicationNFT.balanceOf(user2), 3);
+
+        ///Set Rule in NFTHandler
+        switchToRuleAdmin();
+        applicationHandler.setAccountMaxTxValueByRiskScoreId(index);
+        ///Set Risk Scores for users
+        switchToRiskAdmin();
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user3, 49);
+
+        ///Set Pricing for NFTs 0-7
+        switchToAppAdministrator();
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 0, 10 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 1, 11 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 2, 12 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, 13 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 15 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, 15 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 17 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 7, 20 * ATTO);
+
+        ///Transfer NFT's
+        ///Positive cases
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.safeTransferFrom(user1, user3, 0);
+
+        vm.warp(block.timestamp + 25 hours);
+        vm.stopPrank();
+        vm.startPrank(user3);
+        applicationNFT.safeTransferFrom(user3, user1, 0);
+
+        vm.warp(block.timestamp + 25 hours * 2);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.safeTransferFrom(user1, user2, 4);
+        vm.warp(block.timestamp + 25 hours * 3);
+        applicationNFT.safeTransferFrom(user1, user2, 1);
+
+        vm.warp(block.timestamp + 25 hours * 4);
+        ///Fail cases
+        vm.stopPrank();
+        vm.startPrank(user2);
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user2, user3, 7);
+
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user2, user3, 6);
+
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user2, user3, 5);
+
+        vm.stopPrank();
+        vm.startPrank(user2);
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user2, user3, 4);
+
+        ///simulate price changes
+        switchToAppAdministrator();
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 1050 * (ATTO / 100)); // in cents
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, 1550 * (ATTO / 100)); // in cents
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 11 * ATTO); // in dollars
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 7, 9 * ATTO); // in dollars
+
+        vm.warp(block.timestamp + 25 hours * 5);
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationNFT.safeTransferFrom(user2, user3, 7);
+        vm.warp(block.timestamp + 25 hours * 6);
+        applicationNFT.safeTransferFrom(user2, user3, 6);
+
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user2, user3, 5);
+
+        vm.warp(block.timestamp + 25 hours * 7);
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationNFT.safeTransferFrom(user2, user3, 4);
+
+        vm.warp(block.timestamp + 25 hours * 8);
+        /// set price of token 5 below limit of user 2
+        switchToAppAdministrator();
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, 14 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 17 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 25 * ATTO);
+        /// test burning with this rule active
+        /// transaction valuation must remain within risk limit for sender
+        vm.stopPrank();
+        vm.startPrank(user2);
+        applicationNFT.burn(5);
+
+        vm.stopPrank();
+        vm.startPrank(user3);
+        vm.expectRevert();
+        applicationNFT.burn(4);
+        vm.expectRevert();
+        applicationNFT.burn(6);
+
+        /// negative cases in multiple steps
+        vm.warp(block.timestamp + 25 hours * 9);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationNFT.safeTransferFrom(user1, user2, 0);
+        vm.expectRevert();
+        applicationNFT.safeTransferFrom(user1, user2, 1);
+    }
+
     function testERC721_AccountMaxTransactionValueByRiskScore() public {
         ///Set transaction limit rule params
         uint8[] memory riskScores = createUint8Array(0, 10, 40, 80, 99);
