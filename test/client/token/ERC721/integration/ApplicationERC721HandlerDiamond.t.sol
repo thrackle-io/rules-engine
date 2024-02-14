@@ -6,6 +6,7 @@ import "../../TestTokenCommon.sol";
 
 contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
+    event Log(string a);
     uint256 erc721Liq = 10_000;
      uint256 erc20Liq = 100_000 * ATTO;
 
@@ -632,14 +633,14 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
         ///Set Pricing for NFTs 0-7
         switchToAppAdministrator();
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 0, 10 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 1, 11 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 2, 12 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, 13 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 15 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, 15 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 17 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 7, 20 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 0, 10 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 1, 11 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 2, 12 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, 13 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 15 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, 15 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 17 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 7, 20 * ATTO);
 
         ///Transfer NFT's
         ///Positive cases
@@ -677,8 +678,8 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         switchToAppAdministrator();
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 1050 * (10 ** 16)); // in cents
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, 1550 * (10 ** 16)); // in cents
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 11 * (10 ** 18)); // in dollars
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 7, 9 * (10 ** 18)); // in dollars
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 11 * ATTO); // in dollars
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 7, 9 * ATTO); // in dollars
 
         vm.stopPrank();
         vm.startPrank(user2);
@@ -694,9 +695,9 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
         /// set price of token 5 below limit of user 2
         switchToAppAdministrator();
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, 14 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 17 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 25 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, 14 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 17 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 25 * ATTO);
         /// test burning with this rule active
         /// transaction valuation must remain within risk limit for sender
         vm.stopPrank();
@@ -1083,11 +1084,11 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         /// mint NFTs and set price to $1USD for each token
         for (uint i = 0; i < 10; i++) {
             applicationNFT.safeMint(user1);
-            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, 1 * (10 ** 18));
+            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, 1 * ATTO);
         }
         uint256 testPrice = erc721Pricer.getNFTPrice(address(applicationNFT), 1);
-        assertEq(testPrice, 1 * (10 ** 18));
-        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18));
+        assertEq(testPrice, 1 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * ATTO);
         /// set the nftHandler nftValuationLimit variable
         switchToRuleAdmin();
         switchToAppAdministrator();
@@ -1122,21 +1123,21 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
         switchToAppAdministrator();
 
-        for (uint i = 0; i < 40; i++) {
+        for (uint i; i < 40; i++) {
             applicationNFTv2.safeMint(appAdministrator);
             applicationNFTv2.transferFrom(appAdministrator, user1, i);
-            erc721Pricer.setSingleNFTPrice(address(applicationNFTv2), i, 1 * (10 ** 18));
+            erc721Pricer.setSingleNFTPrice(address(applicationNFTv2), i, 1 * ATTO);
         }
         uint256 testPrice2 = erc721Pricer.getNFTPrice(address(applicationNFTv2), 35);
-        assertEq(testPrice2, 1 * (10 ** 18));
+        assertEq(testPrice2, 1 * ATTO);
         /// set the nftHandler nftValuationLimit variable
         switchToAppAdministrator();
-        ERC721HandlerMainFacet(address(applicationNFTHandler2)).setNFTValuationLimit(20);
+        ERC721HandlerMainFacet(address(applicationNFTHandlerv2)).setNFTValuationLimit(20);
         /// set specific tokens in NFT 2 to higher prices. Expect this value to be ignored by rule check as it is checking collection price.
-        erc721Pricer.setSingleNFTPrice(address(applicationNFTv2), 36, 100 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFTv2), 37, 50 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFTv2), 40, 25 * (10 ** 18));
-        erc721Pricer.setNFTCollectionPrice(address(applicationNFTv2), 1 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTv2), 36, 100 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTv2), 37, 50 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFTv2), 40, 25 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFTv2), 1 * ATTO);
 
         ///reactivate rule 
         switchToRuleAdmin();
@@ -1148,7 +1149,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
         40 ToughTurtles 
         50 total * collection prices of $1 usd each 
         */
-
         /// retest rule to ensure proper valuation totals
         /// user 2 has access level 1 and can hold balance of 1
         vm.stopPrank();
@@ -1175,7 +1175,7 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM {
 
         /// adjust nft valuation limit to ensure we revert back to individual pricing
         switchToAppAdministrator();
-         ERC721HandlerMainFacet(address(applicationNFTHandler2)).setNFTValuationLimit(50);
+         ERC721HandlerMainFacet(address(applicationNFTHandler)).setNFTValuationLimit(50);
 
         vm.stopPrank();
         vm.startPrank(user1);
