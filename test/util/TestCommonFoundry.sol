@@ -602,12 +602,13 @@ abstract contract TestCommonFoundry is TestCommon {
         /// create an ERC721
         // applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
         setupApplicationNFTAndHandler();
+        applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
 
         /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
         (applicationNFTv2, applicationNFTHandler2) = deployAndSetupERC721("ToughTurtles", "THTR");
-
+        switchToAppAdministrator();
         /// register the token
-        applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
+        // a
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
