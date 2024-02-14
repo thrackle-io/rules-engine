@@ -814,29 +814,31 @@ contract ApplicationAppManagerTest is TestCommonFoundry {
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
         assertEq(address(applicationCoin), applicationAppManager.getTokenAddress("FRANK"));
 
+        address[] memory list = applicationAppManager.getTokenList();
+        uint len = list.length;
         // deregister the first coin
         applicationAppManager.deregisterToken("FRANK");
         assertEq(address(0), applicationAppManager.getTokenAddress("FRANK"));
-        address[] memory list = applicationAppManager.getTokenList();
-        assertEq(list.length, 6);
+        list = applicationAppManager.getTokenList();
+        assertEq(list.length, len - 1);
 
         // deregister coinB
         applicationAppManager.deregisterToken("CoinB");
         assertEq(address(0), applicationAppManager.getTokenAddress("CoinB"));
         list = applicationAppManager.getTokenList();
-        assertEq(list.length, 5);
+        assertEq(list.length, len - 2);
 
         // deregister CoinC
         applicationAppManager.deregisterToken("CoinC");
         assertEq(address(0), applicationAppManager.getTokenAddress("CoinC"));
         list = applicationAppManager.getTokenList();
-        assertEq(list.length, 4);
+        assertEq(list.length, len - 3);
 
         // deregister CoinA
         applicationAppManager.deregisterToken("CoinA");
         assertEq(address(0), applicationAppManager.getTokenAddress("CoinA"));
         list = applicationAppManager.getTokenList();
-        assertEq(list.length, 3);
+        assertEq(list.length, len - 4);
     }
 
     function testRegisterAMM() public {
