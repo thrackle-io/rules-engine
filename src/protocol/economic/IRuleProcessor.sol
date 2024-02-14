@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 /**
- * @title IRuleProcessor
+ * @title IRuleProcessor Interface
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev the light version of the Rule Processor for an efficient
  * import into the other contracts for calls to the checkAllRules function.
@@ -11,7 +11,7 @@ pragma solidity ^0.8.17;
 
 interface IRuleProcessor {
     /**
-     * @dev Check the AccountMinMaxTokenBalanc rule. This rule ensures that both the to and from accounts do not
+     * @dev Check the AccountMinMaxTokenBalance rule. This rule ensures that both the to and from accounts do not
      * exceed the max balance or go below the min balance.
      * @param ruleId Uint value of the ruleId storage pointer for applicable rule.
      * @param balanceFrom Token balance of the sender address
@@ -112,7 +112,7 @@ interface IRuleProcessor {
     function assessAMMFee(uint32 _ruleId, uint256 _collateralizedTokenAmount) external view returns (uint256);
 
     /**
-     * @dev checks that an admin won't hold less tokens than promised until a certain date
+     * @dev Checks that an admin won't hold less tokens than promised until a certain date
      * @param _ruleId Rule identifier for rule arguments
      * @param _currentBalance of tokens held by the admin
      * @param _amountToTransfer Number of tokens to be transferred
@@ -121,7 +121,7 @@ interface IRuleProcessor {
      */
     function checkAdminMinTokenBalance(uint32 _ruleId, uint256 _currentBalance, uint256 _amountToTransfer) external view;
 
-    // --------------------------- APPLICATION LEVEL --------------------------------
+    /// --------------------------- APPLICATION LEVEL --------------------------------
 
     /**
      * @dev This function checks if the requested action is valid according to the AccountMaxValueByRiskScore rule
@@ -143,7 +143,7 @@ interface IRuleProcessor {
     function checkAccountMaxValueByAccessLevel(uint32 _ruleId, uint8 _accessLevelTo, uint128 _totalValueTo, uint128 _amountToTransfer) external view;
 
     /**
-     * @dev rule that checks if the tx exceeds the limit size in USD for a specific risk profile
+     * @dev Rule that checks if the tx exceeds the limit size in USD for a specific risk profile
      * within a specified period of time.
      * @notice that these ranges are set by ranges.
      * @param ruleId to check against.
@@ -159,15 +159,14 @@ interface IRuleProcessor {
     function checkAccountMaxTxValueByRiskScore(uint32 ruleId, uint128 _valueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 riskScore) external view returns (uint128);
 
     /**
-     * @dev Ensure that Access Level = 0 rule passes. This seems like an easy rule to check but it is still
-     * abstracted to through the token rule router to allow for updates later(like special values)
+     * @dev Ensure that AccountDenyForNoAccessLevel passes.
      * @param _accessLevel account access level
      *
      */
     function checkAccountDenyForNoAccessLevel(uint8 _accessLevel) external view;
 
     /**
-     * @dev rule that checks if the value out exceeds the limit size in USD for a specific access level
+     * @dev Rule that checks if the value out exceeds the limit size in USD for a specific access level
      * @notice that these ranges are set by ranges.
      * @param _ruleId to check against.
      * @param _accessLevel access level of the sending account

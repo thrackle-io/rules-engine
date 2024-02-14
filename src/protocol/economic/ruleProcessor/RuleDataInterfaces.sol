@@ -9,6 +9,7 @@ pragma solidity ^0.8.17;
  */
 
 interface INonTaggedRules {
+
     /// ******** Token Min Tx Size Rules ********
     struct TokenMinTxSize {
         uint256 minSize;
@@ -39,25 +40,27 @@ interface INonTaggedRules {
     /// ******** Token Max Price Volatility ********
     struct TokenMaxPriceVolatility {
         uint16 max; /// from 0000 to 10000 => 0.00% to 100.00%.
-        uint16 period; // hours
-        uint16 hoursFrozen; // hours in the freeze period
-        uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
+        uint16 period; /// hours
+        uint16 hoursFrozen; /// hours in the freeze period
+        uint256 totalSupply; /// If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
     }
 
     /// ******** Token Max Trading Volume ********
     struct TokenMaxTradingVolume {
-        uint24 max; // this is a percentage with 2 decimals of precision(2500 = 25%)
-        uint16 period; // hours
-        uint64 startTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
-        uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
+        uint24 max; /// this is a percentage with 2 decimals of precision(2500 = 25%)
+        uint16 period; /// hours
+        uint64 startTime; /// UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
+        uint256 totalSupply; /// If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
     }
+
     /// ******** Supply Volatility ********
     struct TokenMaxSupplyVolatility {
         uint16 max; /// from 0000 to 10000 => 0.00% to 100.00%.
-        uint16 period; // hours
-        uint64 startTime; // UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
-        uint256 totalSupply; // If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
+        uint16 period; /// hours
+        uint64 startTime; /// UNIX date MUST be at a time with 0 minutes, 0 seconds. i.e: 20:00 on Jan 01 2024(basically 0-23)
+        uint256 totalSupply; /// If specified, this is the circulating supply value to use. If not specified, it defaults to ERC20 totalSupply.
     }
+
     /// ******** Account Approve/Deny Oracle ********
     struct AccountApproveDenyOracle {
         uint8 oracleType; /// enum value --> 0 = restricted; 1 = allowed
@@ -66,6 +69,7 @@ interface INonTaggedRules {
 }
 
 interface ITaggedRules {
+
     /// ******** Account Max Buy Volume ********
     struct AccountMaxBuySize {
         uint256 maxSize; /// token units
@@ -94,13 +98,13 @@ interface ITaggedRules {
     /// ******** TokenMaxDailyTrades ********
     struct TokenMaxDailyTrades {
         uint8 tradesAllowedPerDay;
-        uint64 startTime; // starting timestamp for the rule
+        uint64 startTime; /// starting timestamp for the rule
     }
 }
 
 interface IFeeRules {
     struct AMMFeeRule {
-        uint256 feePercentage; // intended to be 3 digits(true percentage = feePercentage/100)
+        uint256 feePercentage; /// intended to be 3 digits(true percentage = feePercentage/100)
     }
 }
 

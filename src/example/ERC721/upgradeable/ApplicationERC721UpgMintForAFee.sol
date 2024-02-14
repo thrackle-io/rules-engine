@@ -23,7 +23,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
     address payable private treasury;
 
     /**
-     * @dev these storage slots are saved for future upgrades. Please be aware of common constraints for upgradeable contracts regarding storage slots,
+     * @dev These storage slots are saved for future upgrades. Please be aware of common constraints for upgradeable contracts regarding storage slots,
      * like maintaining the order of the variables to avoid mislabeling of storage slots, and to keep some reserved slots to avoid storage collisions.
      * @notice the length of this array must be shrunk by the same amount of new variables added in an upgrade. This is to keep track of the remaining
      * storage slots available for variables in future upgrades and avoid storage collisions.
@@ -65,7 +65,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
         if (msg.value < mintPrice) revert MintFeeNotReached();
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        // withdrawMintFees(msg.value); // uncomment this is automatic withdrawal is desired. withdrawMintFees should be marked as private
+        // withdrawMintFees(msg.value); // uncomment this if automatic withdrawal is desired. withdrawMintFees should be marked as private
         _safeMint(to, tokenId);
     }
 
@@ -86,6 +86,9 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
         proposedTreasury = _treasury;
     }
 
+    /**
+     * @dev Function to confirm the Treasury address for Mint Fees to be sent upon withdrawal
+     */
     function confirmTreasuryAddress() external {
         if (_msgSender() != proposedTreasury) revert NotProposedTreasury(proposedTreasury);
         treasury = payable(proposedTreasury);
@@ -116,7 +119,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
     }
 
     /**
-     * @dev gets value of treasury
+     * @dev Gets address of treasury
      * @return address of trasury
      */
     function getTreasuryAddress() external view returns (address) {
@@ -124,7 +127,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
     }
 
     /**
-     * @dev gets value of proposedTreasury
+     * @dev Gets address of proposedTreasury
      * @return address of proposedTreasury
      */
     function getProposedTreasuryAddress() external view returns (address) {
@@ -134,7 +137,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
     /// Receive function for contract to receive chain native tokens in unordinary ways
     receive() external payable {}
 
-    /// function to handle wrong data sent to this contract
+    /// Function to handle wrong data sent to this contract
     fallback() external payable {
         revert FunctionDoesNotExist();
     }

@@ -4,9 +4,9 @@ pragma solidity ^0.8.17;
 import "./RuleProcessorDiamondImports.sol";
 
 /**
- * @title Risk Score Processor Facet Contract
+ * @title Risk Score Processor Facet
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev This contract implements rules to be checked by Handler.
+ * @dev This contract implements rules to be checked by an Application Handler.
  * @notice Risk Score Rules. All risk rules are measured in
  * in terms of USD with 18 decimals of precision.
  */
@@ -14,13 +14,14 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
     using RuleProcessorCommonLib for uint32;
     using RuleProcessorCommonLib for uint64;
     using RuleProcessorCommonLib for uint8; 
+
     /**
      * @dev Account Max Value By Risk Score
      * @param _ruleId Rule Identifier for rule arguments
      * @param _toAddress Address of the recipient
-     * @param _riskScore the Risk Score of the recepient account
-     * @param _totalValueTo recipient account's beginning balance in USD with 18 decimals of precision
-     * @param _amountToTransfer total dollar amount to be transferred in USD with 18 decimals of precision
+     * @param _riskScore The Risk Score of the recepient account
+     * @param _totalValueTo Recipient account's beginning balance in USD with 18 decimals of precision
+     * @param _amountToTransfer Total dollar amount to be transferred in USD with 18 decimals of precision
      * @notice _maxValue array size must be equal to _riskScore array size.
      * The positioning of the arrays is ascendant in terms of risk scores,
      * and descendant in the value array. (i.e. if highest risk score is 99, the last balanceLimit
@@ -36,12 +37,11 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
     function checkAccountMaxValueByRiskScore(uint32 _ruleId, address _toAddress, uint8 _riskScore, uint128 _totalValueTo, uint128 _amountToTransfer) external view {
         ApplicationRuleStorage.AccountMaxValueByRiskScore memory rule = getAccountMaxValueByRiskScore(_ruleId);
         uint256 ruleMaxSize;
-        uint256 total = _totalValueTo + _amountToTransfer;
         /// If recipient address being checked is zero address the rule passes (This allows for burning)
         if (_toAddress != address(0)) {
             if (_riskScore >= rule.riskScore[0]) {
                 ruleMaxSize = _riskScore.retrieveRiskScoreMaxSize(rule.riskScore, rule.maxValue);
-                if (total > ruleMaxSize) revert OverMaxAccValueByRiskScore();
+                if ((_totalValueTo + _amountToTransfer) > ruleMaxSize) revert OverMaxAccValueByRiskScore();
             }
         }
     }
@@ -68,9 +68,9 @@ contract ApplicationRiskProcessorFacet is IInputErrors, IRuleProcessorErrors, IR
     }    
 
     /**
-     * @dev rule that checks if the tx exceeds the limit size in USD for a specific risk profile
+     * @dev Rule that checks if the tx exceeds the limit size in USD for a specific risk profile
      * within a specified period of time.
-     * @notice that these ranges are set by ranges.
+     * @notice that these max value ranges are set by risk score ranges.
      * @param ruleId to check against.
      * @param _valueTransactedInPeriod the cumulative amount of tokens recorded in the last period.
      * @param txValue in USD of the current transaction with 18 decimals of precision.

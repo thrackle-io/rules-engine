@@ -39,12 +39,13 @@ _NOTE: These are the public examples. You still need to use a node provider like
         ````
         export APP_ADMIN_1_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80(substitute with your desired private key)
         ````
-
+5. Repeat steps 3 and 4 for each [admin role][admin-roles].
 
 <!-- These are the body links -->
 [alchemy-url]: https://www.alchemy.com
 [infura-url]: https://www.infura.io
 [deploymentDirectory-url]: ./DEPLOYMENT-DIRECTORY.md
+[admin-roles]: ../permissions/ADMIN-ROLES.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor

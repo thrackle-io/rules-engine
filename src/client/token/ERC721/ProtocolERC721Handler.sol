@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-/// TODO Create a wizard that creates custom versions of this contract for each implementation.
-
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
@@ -10,7 +8,7 @@ import "../ProtocolHandlerCommon.sol";
 import "../ProtocolHandlerTradingRulesCommon.sol";
 
 /**
- * @title Base NFT Handler Contract
+ * @title Protocol ERC721 Handler Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev This contract performs all rule checks related to the the ERC721 that implements it.
  *      Any rule handlers may be updated by modifying this contract, redeploying, and pointing the ERC721 to the new version.
@@ -38,7 +36,6 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
 
     /// Simple Rule Mapping
     mapping(ActionTypes => TokenMinHoldTime) tokenMinHoldTime;
-
 
     /// NFT Collection Valuation Limit
     uint16 private nftValuationLimit = 100;
@@ -84,7 +81,8 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev This function is the one called from the contract that implements this handler. It's the entry point to protocol.
+     * @dev This function is the one called from the token contract that implements this handler. It's the entry point to protocol.
+     * @notice Standard rules do not apply when either to or from address is a Rule Bypass Account.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _from sender address
@@ -99,11 +97,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
         bool isToBypassAccount = appManager.isRuleBypassAccount(_to);
         ActionTypes action = determineTransferAction(_from, _to, _sender);
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
-        /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
             appManager.checkApplicationRules(address(msg.sender), _from, _to, _amount, nftValuationLimit, _tokenId, action, HandlerTypes.ERC721HANDLER);
             _checkTaggedAndTradingRules(_balanceFrom, _balanceTo, _from, _to, _amount, action);
-
             _checkNonTaggedRules(action, _from, _to, _amount, _tokenId);
             _checkSimpleRules(action, _tokenId);
             /// set the ownership start time for the token if the Minimum Hold time rule is active or action is mint
@@ -112,12 +108,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
             ruleProcessor.checkAdminMinTokenBalance(adminMinTokenBalance[action].ruleId, _balanceFrom, _amount);
             emit RulesBypassedViaRuleBypassAccount(address(msg.sender), appManagerAddress);
         }
-        /// If all rule checks pass, return true
         return true;
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the actual rule checks.
+     * @dev This function performs the checks for NonTagged rules.
      * @param action current action
      * @param _from address of the from account
      * @param _to address of the to account
@@ -126,15 +121,13 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      */
     function _checkNonTaggedRules(ActionTypes action, address _from, address _to, uint256 _amount, uint256 tokenId) internal {
         _from;
-        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[action].length; ) {
-            if (accountAllowDenyOracle[action][accountApproveDenyOracleIndex].active) ruleProcessor.checkAccountApproveDenyOracle(accountAllowDenyOracle[action][accountApproveDenyOracleIndex].ruleId, _to);
+        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[action].length; ) {
+            if (accountApproveDenyOracle[action][accountApproveDenyOracleIndex].active) ruleProcessor.checkAccountApproveDenyOracle(accountApproveDenyOracle[action][accountApproveDenyOracleIndex].ruleId, _to);
             unchecked {
                 ++accountApproveDenyOracleIndex;
             }
         }
-
         if (tokenMaxDailyTrades[action].active) {
-            // get all the tags for this NFT
             bytes32[] memory tags = appManager.getAllTags(erc721Address);
             tradesInPeriod[tokenId] = ruleProcessor.checkTokenMaxDailyTrades(tokenMaxDailyTrades[action].ruleId, tradesInPeriod[tokenId], tags, lastTxDate[tokenId]);
             lastTxDate[tokenId] = uint64(block.timestamp);
@@ -158,7 +151,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
+     * @dev This function performs the tagged and trading rule checks.
      * @param _balanceFrom token balance of sender address
      * @param _balanceTo token balance of recipient address
      * @param _from address of the from account
@@ -172,7 +165,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the actual tagged rule checks.
+     * @dev This function consolidates all the tagged rules that utilize account tags plus all trading rules.
      * @param _from address of the from account
      * @param _to address of the to account
      * @param _balanceFrom token balance of sender address
@@ -196,7 +189,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks.(Ones that have simple parameters and so are not stored in the rule storage diamond)
+     * @dev This function uses the protocol's ruleProcessor to perform the simple rule checks (Ones that have simple parameters and are not stored in the rule storage diamond).
      * @param _action action to be checked
      * @param _tokenId the specific token in question
      */
@@ -205,7 +198,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
      /**
-     * @dev Set the accountMinMaxTokenBalanceRuleId. Restricted to rule administrators only.
+     * @dev Set the accountMinMaxTokenBalance Rule Id. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions the action types
      * @param _ruleId Rule Id to set
@@ -242,7 +235,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * Get the accountMinMaxTokenBalanceRuleId.
+     * @dev Get the accountMinMaxTokenBalance Rule Id.
      * @param _action the action type
      * @return accountMinMaxTokenBalance rule id.
      */
@@ -269,14 +262,14 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function setAccountApproveDenyOracleId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         ruleProcessor.validateAccountApproveDenyOracle(_ruleId);
         for (uint i; i < _actions.length; ) {
-            if (accountAllowDenyOracle[_actions[i]].length >= MAX_ORACLE_RULES) {
+            if (accountApproveDenyOracle[_actions[i]].length >= MAX_ORACLE_RULES) {
                 revert AccountApproveDenyOraclesPerAssetLimitReached();
             }
 
             Rule memory newEntity;
             newEntity.ruleId = _ruleId;
             newEntity.active = true;
-            accountAllowDenyOracle[_actions[i]].push(newEntity);
+            accountApproveDenyOracle[_actions[i]].push(newEntity);
             emit ApplicationHandlerActionApplied(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i], _ruleId);
             unchecked {
                         ++i;
@@ -294,9 +287,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     function activateAccountApproveDenyOracle(ActionTypes[] calldata _actions, bool _on, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
             
-            for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[_actions[i]].length; ) {
-                if (accountAllowDenyOracle[_actions[i]][accountApproveDenyOracleIndex].ruleId == ruleId) {
-                    accountAllowDenyOracle[_actions[i]][accountApproveDenyOracleIndex].active = _on;
+            for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[_actions[i]].length; ) {
+                if (accountApproveDenyOracle[_actions[i]][accountApproveDenyOracleIndex].ruleId == ruleId) {
+                    accountApproveDenyOracle[_actions[i]][accountApproveDenyOracleIndex].active = _on;
 
                     if (_on) {
                         emit ApplicationHandlerActionActivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i]);
@@ -320,9 +313,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @return oracleRuleId
      */
     function getAccountApproveDenyOracleIds(ActionTypes _action) external view returns (uint32[] memory ) {
-        uint32[] memory ruleIds = new uint32[](accountAllowDenyOracle[_action].length);
-        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[_action].length; ) {
-            ruleIds[accountApproveDenyOracleIndex] = accountAllowDenyOracle[_action][accountApproveDenyOracleIndex].ruleId;
+        uint32[] memory ruleIds = new uint32[](accountApproveDenyOracle[_action].length);
+        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[_action].length; ) {
+            ruleIds[accountApproveDenyOracleIndex] = accountApproveDenyOracle[_action][accountApproveDenyOracleIndex].ruleId;
             unchecked {
                 ++accountApproveDenyOracleIndex;
             }
@@ -337,9 +330,9 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      * @return boolean representing if the rule is active
      */
     function isAccountApproveDenyOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool) {
-        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[_action].length; ) {
-            if (accountAllowDenyOracle[_action][accountApproveDenyOracleIndex].ruleId == ruleId) {
-                return accountAllowDenyOracle[_action][accountApproveDenyOracleIndex].active;
+        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[_action].length; ) {
+            if (accountApproveDenyOracle[_action][accountApproveDenyOracleIndex].ruleId == ruleId) {
+                return accountApproveDenyOracle[_action][accountApproveDenyOracleIndex].active;
             }
             unchecked {
                 ++accountApproveDenyOracleIndex;
@@ -355,11 +348,11 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
      */
     function removeAccountApproveDenyOracle(ActionTypes[] calldata _actions, uint32 ruleId) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
-            Rule memory lastId = accountAllowDenyOracle[_actions[i]][accountAllowDenyOracle[_actions[i]].length -1];
+            Rule memory lastId = accountApproveDenyOracle[_actions[i]][accountApproveDenyOracle[_actions[i]].length -1];
             if(ruleId != lastId.ruleId){
                 uint index = 0;
-                for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[_actions[i]].length; ) {
-                    if (accountAllowDenyOracle[_actions[i]][accountApproveDenyOracleIndex].ruleId == ruleId) {
+                for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[_actions[i]].length; ) {
+                    if (accountApproveDenyOracle[_actions[i]][accountApproveDenyOracleIndex].ruleId == ruleId) {
                         index = accountApproveDenyOracleIndex; 
                         break;
                     }
@@ -367,10 +360,10 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
                         ++accountApproveDenyOracleIndex;
                     }
                 }
-                accountAllowDenyOracle[_actions[i]][index] = lastId;
+                accountApproveDenyOracle[_actions[i]][index] = lastId;
             }
 
-            accountAllowDenyOracle[_actions[i]].pop();
+            accountApproveDenyOracle[_actions[i]].pop();
             unchecked {
                         ++i;
             }
@@ -378,7 +371,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev Set the tokenMaxDailyTradesRuleId. Restricted to rule administrators only.
+     * @dev Set the tokenMaxDailyTrades Rule Id. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions the action types
      * @param _ruleId Rule Id to set
@@ -424,7 +417,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev Tells you if the tokenMaxDailyTradesRule is active or not.
+     * @dev Tells you if the tokenMaxDailyTrades Rule is active or not.
      * @param _action the action type
      * @return boolean representing if the rule is active
      */
@@ -443,7 +436,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
      /**
-     * @dev Set the AdminMinTokenBalance. Restricted to rule administrators only.
+     * @dev Set the AdminMinTokenBalance Rule Id. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions the action type
      * @param _ruleId Rule Id to set
@@ -554,7 +547,7 @@ contract ProtocolERC721Handler is Ownable, ProtocolHandlerCommon, ProtocolHandle
     }
 
     /**
-     * @dev Set the tokenMaxTradingVolumeRuleId. Restricted to rule admins only.
+     * @dev Set the tokenMaxTradingVolume Rule Id. Restricted to rule admins only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions the action type
      * @param _ruleId Rule Id to set

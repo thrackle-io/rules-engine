@@ -41,7 +41,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(applicationCoin.balanceOf(appAdministrator), 10000000000000000000000 * ATTO);
     }
 
-    /// Test Mint
     function testERC20_Mint() public {
         applicationCoin.mint(superAdmin, 1000);
         vm.stopPrank();
@@ -62,7 +61,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.connectHandlerToToken(address(0));
     }
 
-    /// test updating min transfer rule
     function testERC20_testTokenMinTransactionSize() public {
         /// We add the empty rule at index 0
         switchToRuleAdmin();
@@ -123,26 +121,23 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(applicationCoin.balanceOf(user1), 990);
 
         // make sure the minimum rules fail results in revert
-        //vm.expectRevert("Balance Will Drop Below Minimum");
         vm.expectRevert(0x3e237976);
         applicationCoin.transfer(user3, 989);
         // see if approving for another user bypasses rule
         applicationCoin.approve(address(888), 989);
         vm.stopPrank();
         vm.startPrank(address(888));
-        //vm.expectRevert("Balance Will Drop Below Minimum");
         vm.expectRevert(0x3e237976);
         applicationCoin.transferFrom(user1, user3, 989);
 
         /// make sure the maximum rule fail results in revert
         vm.stopPrank();
         vm.startPrank(rich_user);
-        // vm.expectRevert("Balance Will Exceed Maximum");
         vm.expectRevert(0x1da56a44);
         applicationCoin.transfer(user2, 10091);
     }
 
-    function testERC20_AccountMinMaxTokenBalanceBlankTag() public {
+    function testERC20_AccountMinMaxTokenBalanceBlankTag3() public {
         /// set up a non admin user with tokens
         applicationCoin.transfer(rich_user, 100000);
         assertEq(applicationCoin.balanceOf(rich_user), 100000);
@@ -158,7 +153,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
         ///update ruleId in coin rule handler
         // create the default actions array
-        ActionTypes[] memory actionTypes = new ActionTypes[](2);
+        ActionTypes[] memory actionTypes = new ActionTypes[](3);
         actionTypes[0] = ActionTypes.P2P_TRANSFER;
         actionTypes[1] = ActionTypes.SELL;
         ERC20TaggedRuleFacet(address(applicationCoinHandler)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
@@ -172,28 +167,22 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(applicationCoin.balanceOf(user1), 990);
 
         // make sure the minimum rules fail results in revert
-        //vm.expectRevert("Balance Will Drop Below Minimum");
         vm.expectRevert(0x3e237976);
         applicationCoin.transfer(user3, 989);
         // see if approving for another user bypasses rule
         applicationCoin.approve(address(888), 989);
         vm.stopPrank();
         vm.startPrank(address(888));
-        //vm.expectRevert("Balance Will Drop Below Minimum");
         vm.expectRevert(0x3e237976);
         applicationCoin.transferFrom(user1, user3, 989);
 
         /// make sure the maximum rule fail results in revert
         vm.stopPrank();
         vm.startPrank(rich_user);
-        // vm.expectRevert("Balance Will Exceed Maximum");
         vm.expectRevert(0x1da56a44);
         applicationCoin.transfer(user2, 10091);
     }
 
-    /**
-     * @dev Test the oracle rule, both approve and deny types
-     */
     function testERC20_AccountApproveDenyOracle() public {
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 100000);
@@ -278,9 +267,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.burn(5000);
     }
 
-    /**
-     * @dev Test the oracle rule, both allow and deny types
-     */
     function testERC20_AccountApproveDenyOracleAddSingleAddress() public {
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 100000);
@@ -330,9 +316,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(applicationCoin.balanceOf(address(60)), 0);
     }
 
-    /**
-     * @dev Test the Max Balance By AccessLevel rule
-     */
     function testERC20_AccountMaxValueByAccessLevel() public {
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 100000 * ATTO);
@@ -417,7 +400,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         /// now whale account burns
         applicationCoin.burn(1 * ATTO);
     }
-
+ 
     function testERC20_PauseRulesViaAppManager() public {
         ///Test transfers without pause rule
         /// set up a non admin user with tokens
@@ -547,7 +530,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.burn(1000 * (10 ** 18));
     }
 
-    /// test updating min transfer rule
     function testERC20_PassesAccountDenyForNoAccessLevelRuleCoin() public {
         /// load non admin user with application coin
         applicationCoin.transfer(rich_user, 1000000 * ATTO);
@@ -671,7 +653,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user3, 10 * ATTO);
     }
 
-    /// test account min max balance rule for blank tags
     function testERC20_AccountMinMaxTokenBalance2() public {
         // Set up the rule conditions
         vm.warp(Blocktime);
@@ -726,7 +707,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user1, 8001 * ATTO);
     }
 
-    /// test account min max balance rule for blank tags
     function testERC20_AccountMinMaxTokenBalanceBlankTag2() public {
         // Set up the rule conditions
         vm.warp(Blocktime);
@@ -763,7 +743,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user1, 1 * (10 ** 18));
     }
 
-    ///Test transferring coins with fees enabled
     function testERC20_TransactionFeeTableCoin() public {
         applicationCoin.transfer(user4, 100000 * ATTO);
         uint256 minBalance = 10 * ATTO;
@@ -843,7 +822,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * ATTO); // treasury remains the same
     }
 
-    ///Test transferring coins with fees enabled with blank tags
     function testERC20_TransactionFeeTableCoinBlankTag() public {
         applicationCoin.transfer(user4, 100000 * ATTO);
         uint256 minBalance = 10 * ATTO;
@@ -878,7 +856,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(applicationCoin.balanceOf(targetAccount2), 6 * ATTO); // treasury gets fees       
     }
 
-    ///Test transferring coins with fees and discounts where the discounts are greater than the fees
     function testERC20_TransactionFeeTableDiscountsCoin() public {
         applicationCoin.transfer(user4, 100000 * ATTO);
         uint256 minBalance = 10 * ATTO;
@@ -925,7 +902,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(applicationCoin.balanceOf(targetAccount), 0 * ATTO);
     }
 
-    ///Test transferring coins with fees enabled using transferFrom
     function testERC20_TransactionFeeTableTransferFrom() public {
         applicationCoin.transfer(user4, 100000 * ATTO);
         uint256 minBalance = 10 * ATTO;
@@ -1024,7 +1000,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(applicationCoin.balanceOf(targetAccount2), 11 * ATTO); // treasury remains the same
     }
 
-    ///Test transferring coins with fees enabled
     function testERC20_TransactionFeeTableCoinGt100() public {
         applicationCoin.transfer(user4, 100000 * ATTO);
         uint256 minBalance = 10 * ATTO;
@@ -1160,7 +1135,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         applicationCoin.transfer(user6, 1000002 / 2 * ATTO);
     }
 
-    /// test the token max trading volume rule in erc20 when they give a total supply instead of relying on ERC20
     function testERC20_TokenMaxTradingVolumeWithSupplySet() public {
         /// set the rule for 40% in 2 hours, starting at midnight
         switchToRuleAdmin();
@@ -1207,7 +1181,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         assertEq(applicationCoin.balanceOf(user1), 79_999 * ATTO);
     }
 
-    /// test supply volatility rule
     function testERC20_TokenMaxSupplyVolatility() public {
         /// burn tokens to specific supply
         applicationCoin.burn(10_000_000_000_000_000_000_000 * ATTO);
@@ -1319,13 +1292,13 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
     function _setupAccountMaxBuySizeRule() internal {
         vm.stopPrank();
         vm.startPrank(superAdmin);
-        ///Add tag to user
+        /// Add tag to user
         bytes32[] memory accs = new bytes32[](1);
         uint256[] memory amounts = new uint256[](1);
         uint16[] memory period = new uint16[](1);
         accs[0] = bytes32("MaxBuySize");
-        amounts[0] = uint256(600); ///Amount to trigger Purchase freeze rules
-        period[0] = uint16(36); ///Hours
+        amounts[0] = uint256(600); /// Amount to trigger Purchase freeze rules
+        period[0] = uint16(36); /// Hours
 
         /// Set the rule data
         applicationAppManager.addTag(user1, accs[0]);
@@ -1340,13 +1313,13 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
     function _setupAccountMaxBuySizeRuleBlankTag() internal {
         vm.stopPrank();
         vm.startPrank(superAdmin);
-        ///Add tag to user
+        /// Add tag to user
         bytes32[] memory accs = new bytes32[](1);
         uint256[] memory amounts = new uint256[](1);
         uint16[] memory period = new uint16[](1);
         accs[0] = bytes32("");
-        amounts[0] = uint256(600); ///Amount to trigger Purchase freeze rules
-        period[0] = uint16(36); ///Hours
+        amounts[0] = uint256(600); /// Amount to trigger Purchase freeze rules
+        period[0] = uint16(36); /// Hours
 
         /// add the rule.
         switchToRuleAdmin();
@@ -1467,7 +1440,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         TradingRuleFacet(address(applicationCoinHandler)).setTokenMaxBuyVolumeId(ruleId);
     }
 
-
     function testERC20_TokenMaxBuyVolumeRule() public {
         /// initialize AMM and give two users more app tokens and "chain native" tokens
         DummyAMM amm = _tradeRuleSetup();
@@ -1514,7 +1486,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         vm.expectRevert(0x6a46d1f4);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 9, 9, false);
     }
-    
+
     function _setupTokenMaxSellVolumeRule() internal {
         uint16 tokenPercentage = 5000; /// 50%
         uint16 period = 24; /// 24 hour periods
@@ -1559,18 +1531,18 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
     function testERC20_TradeRuleByPasserRule() public {
         DummyAMM amm = _tradeRuleSetup();
-        applicationAppManager.approveAddressToTradingRuleWhitelist(user1, true);
+        applicationAppManager.approveAddressToTradingRuleAllowlist(user1, true);
 
         /// SELL PERCENTAGE RULE
         _setupTokenMaxSellVolumeRule();
         vm.warp(Blocktime + 36 hours);
-        /// WHITELISTED USER
+        /// ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user1);
         applicationCoin.approve(address(amm), 10000 * ATTO);
         applicationCoin2.approve(address(amm), 10000 * ATTO);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, true);
-        /// NOT WHITELISTED USER
+        /// NOT ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user2);
         applicationCoin.approve(address(amm), 10000 * ATTO);
@@ -1581,11 +1553,11 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
 
         //BUY PERCENTAGE RULE
         _setupTokenMaxBuyVolumeRule();
-        /// WHITELISTED USER
+        /// ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user1);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 60_000_000, 60_000_000, false);
-        /// NOT WHITELISTED USER
+        /// NOT ALLOWLISTED USER
         vm.stopPrank();
         vm.startPrank(user2);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 30_000_000, 30_000_000, false);
@@ -1602,7 +1574,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM {
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
     }
-
+ 
      function initializeAMMAndUsers() public returns (DummyAMM amm){
         amm = new DummyAMM();
         applicationCoin2.mint(appAdministrator, 1_000_000_000_000 * ATTO);

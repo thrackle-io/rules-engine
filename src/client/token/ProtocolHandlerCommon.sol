@@ -43,14 +43,14 @@ abstract contract ProtocolHandlerCommon is
         bool active;
     }
     /// This is used to set the max action for an efficient check of all actions in the enum
-    uint8 constant LAST_POSSIBLE_ACTION = uint8(ActionTypes.P2P_TRANSFER);
+    uint8 constant LAST_POSSIBLE_ACTION = uint8(ActionTypes.BURN);
     uint16 constant MAX_ORACLE_RULES = 10;
     bytes32 constant BLANK_TAG = bytes32("");
     
 
 
     /**
-     * @dev this function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process
+     * @dev This function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process
      * @param _newAppManagerAddress the new address being proposed
      */
     function proposeAppManagerAddress(address _newAppManagerAddress) external appAdministratorOrOwnerOnly(appManagerAddress) {
@@ -60,7 +60,7 @@ abstract contract ProtocolHandlerCommon is
     }
 
     /**
-     * @dev this function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address
+     * @dev This function confirms a new appManagerAddress that was put in storage. It can only be confirmed by the proposed address
      */
     function confirmAppManagerAddress() external {
         if (newAppManagerAddress == address(0)) revert NoProposalHasBeenMade();
@@ -73,11 +73,12 @@ abstract contract ProtocolHandlerCommon is
 
     /**
      * @dev determines if a transfer is:
+     *          p2p transfer 
+     *          buy
+     *          sell
      *          mint
      *          burn
-     *          sell
-     *          purchase
-     *          p2p transfer 
+     * @notice p2p transfer is position 0 and will be default unless other conditions are met. 
      * @param _from the address where the tokens are being moved from
      * @param _to the address where the tokens are going to
      * @param _sender the address triggering the transaction
@@ -94,21 +95,20 @@ abstract contract ProtocolHandlerCommon is
             action = ActionTypes.BUY;
         }
     }  
+
     /**
      * @dev Check if the addresss is a contract
+     * @notice This method relies on extcodesize/address.code.length, which returns 0 or contracts in construction,
+     * since the code is only stored at the end of the constructor execution.
      * @param account address to check
      * @return contract yes/no
      */
     function isContract(address account) internal view returns (bool) {
-        // This method relies on extcodesize/address.code.length, which returns 0
-        // for contracts in construction, since the code is only stored at the end
-        // of the constructor execution.
-
         return account.code.length > 0;
     }
 
     /**
-     * @dev gets the version of the contract
+     * @dev Gets the version of the contract
      * @return VERSION
      */
     function version() external pure returns (string memory) {

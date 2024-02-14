@@ -5,9 +5,9 @@ import {IAppManager} from "src/client/application/IAppManager.sol";
 import "../../client/token/handler/common/RBACModifiersCommonImports.sol";
 
 /**
- * @title Application Administrators Only Modifier Contract
+ * @title Rule Administrators Only Modifier Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
- * @dev appAdministratorOnly modifier encapsulated for easy imports.
+ * @dev ruleAdministratorOnly modifier encapsulated for easy imports.
  */
 contract RuleAdministratorOnly is RBACModifiersCommonImports {
     /**

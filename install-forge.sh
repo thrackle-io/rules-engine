@@ -9,8 +9,13 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 
-git submodule update --init --recursive   
+if test -f ./.git ; then
+	git submodule update --init --recursive   
+fi
 
 if [ $WITH_DEPLOY = "--with-deploy" ]; then
-	make build deployAll deployAllApp
+	forge script script/DeployAllModules.s.sol --ffi --broadcast
+	bash script/ParseProtocolDeploy.sh
+	forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv --non-interactive
+	bash script/ParseApplicationDeploy.sh
 fi

@@ -11,7 +11,7 @@ import {AppManager} from "src/client/application/AppManager.sol";
  */
 contract ApplicationAppManager is AppManager {
     /**
-     * @dev constructor sets the owner address, application name, and upgrade mode at deployment
+     * @dev Constructor sets the owner address, application name, and upgrade mode at deployment
      * @param _ownerAddress Address of deployer wallet
      * @param _appName Application Name String
      * @param upgradeMode specifies whether this is a fresh AppManager or an upgrade replacement.

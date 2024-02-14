@@ -13,7 +13,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         switchToRuleAdmin();
     }
 
-    /// Test to make sure that the Diamond will upgrade
+    /// Test Diamond upgrade
     function testUpgradeRuleProcessor() public {
         // must be the owner for upgrade
         vm.stopPrank();
@@ -64,6 +64,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq("good", SampleFacet(address(ruleProcessor)).sampleFunction());
     }
 
+    /// Test Adding Token Min Transaction Size Rule 
     function testTokenMinTransactionSizeAdd() public {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
@@ -71,6 +72,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMinTxSize(index).minSize, 1000);
     }
 
+    /// Test Diamond Versioning 
     function testRuleProcessorVersion() public {
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -95,12 +97,14 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(version, "1.1.0");
     }
 
+    /// Test Adding Token Min Transaction Size Rule by Non admin 
     function testFailAddTokenMinTransactionSizeRuleByNonAdmin() public {
         vm.stopPrank();
         vm.startPrank(address(0xDEADfff));
         RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 1000);
     }
 
+    /// Test Adding Token Min Transaction Size 
     function testPassingTokenMinTransactionSize() public {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
@@ -109,6 +113,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         ERC20RuleProcessorFacet(address(ruleProcessor)).checkTokenMinTxSize(index, 2222);
     }
 
+    /// Test Adding Token Min Transaction Size Not Passing 
     function testTokenMinTransactionSizeNotPassing() public {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
@@ -117,6 +122,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         ERC20RuleProcessorFacet(address(ruleProcessor)).checkTokenMinTxSize(index, 400);
     }
 
+    /// Test Account Min Max Token Balance 
     function testAccountMinMaxTokenBalanceCheck() public {
         applicationCoin.mint(superAdmin, totalSupply);
         vm.stopPrank();
@@ -140,9 +146,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
         ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMinTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
-    /**
-     * Test to make sure the blank tag processing works
-     */
+
+    /// Test Account Min Max Token Balance Rule with Blank Tags 
     function testAccountMinMaxTokenBalanceBlankTagProcessCheck() public {
         applicationCoin.mint(superAdmin, totalSupply);
         vm.stopPrank();
@@ -168,9 +173,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMinTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
 
-    /**
-     * Test to make sure the blank tag creation works
-     */
+    /// Test Account Min Max Token Balance Rule with Blank Tags negative case 
     function testAccountMinMaxTokenBalanceBlankTagCreationCheckNegative() public {
         applicationCoin.mint(superAdmin, totalSupply);
         vm.stopPrank();
@@ -184,9 +187,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
     }
 
-    /**
-     * Test to make sure the blank tag creation works
-     */
+    /// Test Adding Account Min Max Token Balance Rule with Blank Tags 
     function testAccountMinMaxTokenBalanceBlankTagCreationCheck() public {
         applicationCoin.mint(superAdmin, totalSupply);
         vm.stopPrank();
@@ -198,6 +199,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
     }
 
+    /// Test Account Min Max Token Balance Rule Max Tag Enforcement 
     function testAccountMinMaxTokenBalanceMaxTagEnforcement() public {
         applicationCoin.mint(superAdmin, totalSupply);
         vm.stopPrank();
@@ -229,6 +231,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMinTokenBalance(totalSupply, tags, amount, ruleId);
     }
 
+    /// Test Account Min Max Token Balance Rule Fail Scenario 
     function testFailsAccountMinMaxTokenBalanceCheck() public {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
@@ -253,7 +256,8 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMinTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
 
-    function testMaxAccountBalanceCheck() public {
+    /// Test Account Min Max Token Balance 
+    function testAccountMinMaxBalanceCheck() public {
         applicationCoin.mint(superAdmin, totalSupply);
         
         // add rule at ruleId 0
@@ -273,9 +277,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(superAdmin), totalSupply);
         bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
 
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).ceckAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
 
+    /// Test Account Min Max Balance Rule With Blank Tags 
     function testAccountMinMaxTokenBalanceBlankTagProcessChecks() public {
         applicationCoin.mint(superAdmin, totalSupply);
         
@@ -297,9 +302,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(superAdmin), totalSupply);
         bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
 
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).ceckAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
 
+    /// Test Account Min Max Balance Check Fail Scenario 
     function testFailsAccountMinMaxTokenBalanceChecks() public {
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
@@ -321,9 +327,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
 
         //vm.expectRevert(0x1da56a44);
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).ceckAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMaxTokenBalance(applicationCoin.balanceOf(superAdmin), tags, amount, ruleId);
     }
 
+    /// Test Account Min Max Balance Rule With Blank Tag Negative Case 
     function tesAccountMinMaxTokenBalanceBlankTagCheckNegative() public {
         applicationCoin.mint(superAdmin, totalSupply);
         vm.stopPrank();
@@ -347,7 +354,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         bytes32[] memory tags = applicationAppManager.getAllTags(superAdmin);
         uint256 balance = applicationCoin.balanceOf(superAdmin);
         vm.expectRevert(0x1da56a44);
-        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).ceckAccountMaxTokenBalance(balance, tags, amount, ruleId);
+        ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).checkAccountMaxTokenBalance(balance, tags, amount, ruleId);
     }
 
     /***************** Test Setters and Getters Rule Storage *****************/
@@ -370,7 +377,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(address(0), accs, pAmounts, pPeriods, sTime);
     }
 
-    /// testing only appAdministrators can add AccountMaxBuySize Rule
+    /// Test only ruleAdministrators can add AccountMaxBuySize Rule
     function testAccountMaxBuySizeSettingRuleWithoutAppAdministratorAccount() public {
         vm.warp(Blocktime);
         vm.stopPrank(); //stop interacting as the super admin
@@ -394,7 +401,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 0);
     }
 
-    /// testing check on input arrays with different sizes
+    /// Test mismatched arrays sizes
     function testAccountMaxBuySizeSettingWithArraySizeMismatch() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -409,7 +416,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(address(applicationAppManager), accs, pAmounts, pPeriods, sTime);
     }
 
-    /// test total rules
+    /// Test total rules
     function testAccountMaxBuySizeTotalRules() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -457,7 +464,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxSellSize(address(0), accs, sAmounts, sPeriod, sTime);
     }
 
-    /// testing only appAdministrators can add Purchase Rule
+    /// Test only ruleAdministrators can add AccountMaxSellSize Rule
     function testAccountMaxSellSizeSettingWithoutAppAdministratorAccount() public {
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
@@ -479,7 +486,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 0);
     }
 
-    /// testing check on input arrays with different sizes
+    /// Test mismatched arrays sizes
     function testAccountMaxSellSizeSettingWithArraySizeMismatch() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -493,7 +500,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxSellSize(address(applicationAppManager), accs, sAmounts, sPeriod, sTime);
     }
 
-    /// test total rules
+    /// Test total rules
     function testAccountMaxSellSizeTotalRules() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -531,7 +538,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         // assertEq(rule.rateIncreased, 200);
     }
 
-    /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
+    /// Test only ruleAdministrators can add Purchase Fee By Volume Percentage Rule
     function testPurchaseFeeByVolumeRuleSettingWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
@@ -551,7 +558,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 1);
     }
 
-    /// testing total rules
+    /// Test total rules
     function testPurchaseFeeByVolumeRuleTotalRules() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -586,7 +593,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         RuleDataFacet(address(ruleProcessor)).addTokenMaxPriceVolatility(address(0), 666, 100, 16, totalSupply);
     }
 
-    /// testing only appAdministrators can add TokenMaxPriceVolatility Rule
+    /// Test only ruleAdministrators can add TokenMaxPriceVolatility Rule
     function testTokenMaxPriceVolatilitySettingRuleWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
@@ -606,7 +613,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 1);
     }
 
-    /// testing total rules
+    /// Test total rules
     function testTokenMaxPriceVolatilityTotalRules() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -618,9 +625,9 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(RuleDataFacet(address(ruleProcessor)).getTotalTokenMaxPriceVolatility(), _indexes.length);
     }
 
-    /*********************** TransferVolumeRule ************************/
+    /*********************** Token Max Trading Volume Rule ************************/
     /// Simple setting and getting
-    function testTransferVolumeRuleSetting() public {
+    function testTokenMaxTradingVolumeRuleSetting() public {
         // set user to the rule admin
         vm.stopPrank();
         vm.startPrank(ruleAdmin);
@@ -640,7 +647,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         RuleDataFacet(address(ruleProcessor)).addTokenMaxTradingVolume(address(0), 2000, 1, 12, 1_000_000_000_000_000 * 10 ** 18);
     }
 
-    /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
+    /// Test only ruleAdministrators can add Token Max Trading Volume Rule
     function testTransferVolumeRuleSettingWithoutappAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
@@ -660,7 +667,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 1);
     }
 
-    /// testing total rules
+    /// Test total rules
     function testTransferVolumeRuleTotalRules() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -689,7 +696,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(rule.minSize, 300000000000000);
     }
 
-    /// testing only appAdministrators can add TokenMinTransactionSize Rule
+    /// Test only ruleAdministrators can add TokenMinTransactionSize Rule
     function testTokenMinTransactionSizeSettingRuleWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
@@ -708,7 +715,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 1);
     }
 
-    /// testing total rules
+    /// Test total rules
     function testTokenMinTransactionSizeTotalRules() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -756,7 +763,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(0), accs, min, max, empty, uint64(Blocktime));
     }
 
-    /// testing only appAdministrators can add Balance Limit Rule
+    /// Test only ruleAdministrators can add Account Min Max Balance Rule
     function testAccountMinMaxTokenBalanceSettingWithoutAppAdministratorAccount() public {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(1000, 2000, 3000);
@@ -783,7 +790,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 1);
     }
 
-    /// testing check on input arrays with different sizes
+    /// Test mismatched array sizes
     function testAccountMinMaxTokenBalanceSettingWithArraySizeMismatch() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -800,7 +807,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
     }
 
-    /// testing inverted limits
+    /// Test inverted limits
     function testAccountMinMaxTokenBalanceAddWithInvertedLimits() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -813,7 +820,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
     }
 
-    /// testing mixing Periodic and Non-Periodic cases
+    /// Test mixing Periodic and Non-Periodic cases
     function testAccountMinMaxTokenBalanceAddMixedPeriodicAndNonPeriodic() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -829,7 +836,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, min, max, periods, uint64(Blocktime));
     }
 
-    /// test total rules
+    /// Test total rules
     function testAccountMinMaxTokenBalanceTotal() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -847,7 +854,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
 
     /// With Hold Periods
 
-        /// Simple setting and getting
+    /// Simple setting and getting
     function testAccountMinMaxTokenBalanceSetting2() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -883,6 +890,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(rule.period, 2);
     }
 
+    /// Test AccountMinMaxTokenBalance setting while not admin 
     function testAccountMinMaxTokenBalanceSettingNotAdmin() public {
         vm.warp(Blocktime);
         vm.stopPrank();
@@ -899,7 +907,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, minAmounts, maxAmounts, periods, uint64(Blocktime));
     }
 
-    // /// Test for proper array size mismatch error
+    /// Test for array size mismatch error
     function testAccountMinMaxTokenBalanceSettingSizeMismatch() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -934,7 +942,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(rule.startTime, Blocktime);
     }
 
-    /// testing only appAdministrators can add Purchase Fee By Volume Percentage Rule
+    /// Test only ruleAdministrators can add Token Max Supply Volatility Rule
     function testTokenMaxSupplyVolatilitySettingWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
@@ -953,7 +961,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 1);
     }
 
-    /// testing total rules
+    /// Test total rules
     function testTokenMaxSupplyVolatilityTotalRules() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -982,7 +990,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(rule.oracleType, 1);
     }
 
-    /// testing only appAdministrators can add Oracle Rule
+    /// Test only ruleAdministrators can add AccountApproveDenyOracle Rule
     function testAccountApproveDenyOracleSettingWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
@@ -1002,7 +1010,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 1);
     }
 
-    /// testing total rules
+    /// Test total rules
     function testAccountApproveDenyOracleTotalRules() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -1030,7 +1038,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(rule.tradesAllowedPerDay, 5);
     }
 
-    /// Simple setting and getting
+    /// Test Token Max Daily Trades Rule with Blank Tags
     function testTokenMaxDailyTradesRulesBlankTag() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -1043,6 +1051,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(rule.tradesAllowedPerDay, 1);
     }
 
+    /// Test Token Max Daily Trades Rule with negative case
     function testTokenMaxDailyTradesRulesBlankTagNegative() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -1053,7 +1062,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
     }
 
-    /// testing only appAdministrators can add TokenMaxDailyTrades Rule
+    /// testing only ruleAdministrators can add TokenMaxDailyTrades Rule
     function testTokenMaxDailyTradesSettingRuleWithoutAppAdministratorAccount() public {
         bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
         uint8[] memory tradesAllowed = createUint8Array(1, 5);
@@ -1075,7 +1084,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 1);
     }
 
-    /// testing total rules
+    /// Test total rules
     function testTokenMaxDailyTradesTotalRules() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -1103,6 +1112,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(testBalance, 500);
     }
 
+    /// Test Account Max Value By Access Level add while not admin 
     function testAccountMaxValueByAccessLevelAddRulenotAdmin() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -1114,7 +1124,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByAccessLevel(address(applicationAppManager), balanceAmounts);
     }
 
-    ///Get Total AccountMaxValueByAccessLevel Rules
+    /// Test Get Total AccountMaxValueByAccessLevel Rules
     function testAccountMaxValueByAccessLevelTotalRules() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -1145,6 +1155,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(rule.endTime, block.timestamp + 10000);
     }
 
+    /// Test Admin Min Token Balance adding while not admin 
     function testFailAdminMinTokenBalanceAddNotAdmin() public {
         // set user to the rule admin
         vm.stopPrank();
@@ -1152,7 +1163,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRuleDataFacet(superAdmin).addAdminMinTokenBalance(address(applicationAppManager), 6500, 1669748600);
     }
 
-    ///Get Total AdminMinTokenBalance Rules
+    /// Test Get Total AdminMinTokenBalance Rules
     function testAdminMinTokenBalanceTotal() public {
         // set user to the rule admin
         vm.stopPrank();

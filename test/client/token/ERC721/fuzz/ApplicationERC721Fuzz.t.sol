@@ -39,7 +39,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(randomUser), 0);
         assertEq(applicationNFT.balanceOf(randomUser2), 1);
     }
-
+    
     function testERC721_BurnFuzz(uint8 _addressIndex) public {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address randomUser = addressList[0];
@@ -157,9 +157,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFT.transferFrom(_user2, _user1, 3);
     }
 
-    /**
-     * @dev Test the AccountApproveDenyOracle rule, both approve and deny types
-     */
     function testERC721_AccountApproveDenyOracleFuzz(uint8 _addressIndex) public {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         address randomUser = addressList[0];
@@ -226,11 +223,14 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
     }
 
+<<<<<<< HEAD
 
     //TODO: Uncomment when the rule has been added
     /**
      * @dev Test the TokenMaxDailyTrades rule
      */
+=======
+>>>>>>> external
     function testERC721_TokenMaxDailyTradesFuzz(uint8 _addressIndex) public {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address _user1 = addressList[0];
@@ -305,9 +305,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFT.transferFrom(_user2, _user1, 2);
     }
 
-    /**
-     * @dev Test the NFT AccountMaxTransactionValueByRiskScore
-     */
     function testERC721_AccountMaxTransactionValueByRiskScoreRuleNFT(uint8 _addressIndex, uint8 _risk) public {
         for (uint i; i < 30; ) {
             applicationNFT.safeMint(appAdministrator);
@@ -371,9 +368,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFT.safeTransferFrom(_user3, _user4, 19); // a 200-dollar NFT
     }
 
-    /**
-     * @dev Test the AccountMaxValueByAccessLevel rule
-     */
     function testERC721_AccountMaxValueByAccessLevelFuzz(uint8 _addressIndex, uint8 _amountSeed) public {
         for (uint i; i < 30; ) {
             applicationNFT.safeMint(appAdministrator);
@@ -557,6 +551,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFT.transferFrom(_user1, _user4, 2);
     }
 
+    /// Test Account Max Value By Access Level Rule 
     function testERC721_AccountMaxValueByAccessLevelFuzz(uint8 _addressIndex, uint16 _valuationLimit) public {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
         address _user1 = addressList[0];
@@ -1046,6 +1041,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         }
     }
 
+    /// Test Whole Protocol with Non Fungible Token 
     function testERC721_TheWholeProtocolThroughNFT(uint32 priceA, uint32 priceB, uint16 priceC, uint8 riskScore, bytes32 tag1) public {
         vm.assume(priceA > 0 && priceB > 0 && priceC > 0);
         vm.assume(tag1 != "");
@@ -1326,7 +1322,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         }
     }
 
-    /// test the TokenMaxTradingVolume rule in erc721
     function testERC721_TokenMaxTradingVolumeFuzzNFT(uint8 _addressIndex, uint8 _period, uint16 _maxPercent) public {
         if (_period == 0) _period = 1;
         //since NFT's take so long to mint, don't test for below 10% because the test pool will only be 10 NFT's
@@ -1380,7 +1375,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         }
     }
 
-    /// test the TokenMinHoldTime rule in erc721
     function testERC721_TokenMinHoldTimeFuzz(uint8 _addressIndex, uint32 _hours) public {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address _user1 = addressList[0];

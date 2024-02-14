@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import {IRuleProcessorDiamondEvents} from "src/common/IEvents.sol";
 import {RuleProcessorDiamondLib as DiamondLib, RuleProcessorDiamondStorage, RuleDataStorage, FacetCut} from "./RuleProcessorDiamondLib.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
 import {IRuleStorageDiamondEvents} from "../../../common/IEvents.sol";
@@ -26,7 +27,7 @@ struct RuleProcessorDiamondArgs {
  * on rules compliance.
  * @notice Contract checks the rules for success
  */
-contract RuleProcessorDiamond is ERC173, IRuleStorageDiamondEvents{
+contract RuleProcessorDiamond is ERC173, IRuleProcessorDiamondEvents {
 
     /**
      * @dev constructor creates facets for the diamond at deployment
@@ -35,7 +36,7 @@ contract RuleProcessorDiamond is ERC173, IRuleStorageDiamondEvents{
      */
     constructor(FacetCut[] memory diamondCut, RuleProcessorDiamondArgs memory args) payable {
         DiamondLib.diamondCut(diamondCut, args.init, args.initCalldata);
-        emit RuleProtocolDiamondDeployed();
+        emit RuleProcessorDiamondDeployed();
     }
 
     /**

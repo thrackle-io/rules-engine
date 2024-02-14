@@ -10,6 +10,14 @@ The purpose of this rule is to provide balance limits for accounts at the applic
 - [x] ERC721
 - [x] AMM
 
+## Applies To Actions:
+
+- [x] MINT
+- [ ] BURN
+- [x] BUY
+- [ ] SELL
+- [x] TRANSFER(Peer to Peer)
+  
 ## Scope 
 
 This rule works at the application level which means that all tokens in the app will have no choice but to comply with this rule when active.
@@ -166,7 +174,7 @@ This rule doesn't require of any data to be recorded.
         - extraTags: empty array.
 
 - **event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
-    - Emitted when: rule has been applied in an application manager handler.
+    - Emitted when: rule has been applied in an application handler.
     - Parameters: 
         - ruleType: "ACC_MAX_VALUE_BY_ACCESS_LEVEL".
         - ruleId: the ruleId set for this rule in the handler.

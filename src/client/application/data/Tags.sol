@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
+
 import "./DataModule.sol";
 import "./ITags.sol";
 import { INoAddressToRemove } from "src/common/IErrors.sol";
 
 /**
- * @title Tag Data Contract
+ * @title Tags Data Contract
  * @notice Stores tag data for accounts
  * @dev Tags are stored as an internal mapping
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -30,7 +31,7 @@ contract Tags is DataModule, ITags, INoAddressToRemove {
      * @dev Add the tag. Restricted to owner.
      * @param _address user address
      * @param _tag metadata tag to be added
-     * @notice there is a hard limit of MAX_TAGS tags per address. This limit is also enforced by the
+     * @notice There is a hard limit of MAX_TAGS tags per address. This limit is also enforced by the
      * protocol, so keeping this limit here prevents transfers to unexpectedly revert.
      */
     function addTag(address _address, bytes32 _tag) public virtual onlyOwner {
@@ -51,7 +52,7 @@ contract Tags is DataModule, ITags, INoAddressToRemove {
      * @dev Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.
      * @param _accounts Address array to be tagged
      * @param _tag Tag for the account. Can be any allowed string variant
-     * @notice there is a hard limit of MAX_TAGS tags per address. This limit is also enforced by the
+     * @notice There is a hard limit of MAX_TAGS tags per address. This limit is also enforced by the
      * protocol, so keeping this limit here prevents transfers to unexpectedly revert.
      */
     function addTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external virtual onlyOwner {

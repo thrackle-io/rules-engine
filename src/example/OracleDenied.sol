@@ -7,7 +7,7 @@ import {IOracleEvents} from "src/common/IEvents.sol";
  * @title Example On-chain Denied-List Oracle
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This is an example on-chain oracle that maintains a denied list.
- * @dev This is intended to be a model only. It stores the allow list internally and returns bool true if address is in list.
+ * @dev This is intended to be a model only. It stores the Denied list internally and returns bool true if address is in list.
  */
 contract OracleDenied is Ownable, IOracleEvents {
     mapping(address => bool) private deniedAddresses;
@@ -40,7 +40,7 @@ contract OracleDenied is Ownable, IOracleEvents {
     }
 
     /**
-     * @dev Add single address to the allow list. Restricted to owner.
+     * @dev Add single address to the denied list. Restricted to owner.
      * @param newDeniedAddr the addresses to add
      */
     function addAddressToDeniedList(address newDeniedAddr) public onlyOwner {

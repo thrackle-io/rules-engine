@@ -15,7 +15,6 @@ import {IAppManager} from "src/client/application/IAppManager.sol";
  */
 abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAddressError {
     string private constant VERSION="1.1.0";
-    ///Data Module
     address public dataModuleAppManagerAddress;
     address newOwner; // This is used for data contract migration
     address newDataProviderOwner; // this is used for single new data provider
@@ -40,7 +39,7 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
     }
 
     /**
-     * @dev this function proposes a new owner that is put in storage to be confirmed in a separate process
+     * @dev This function proposes a new owner that is put in storage to be confirmed in a separate process
      * @param _newOwner the new address being proposed
      */
     function proposeOwner(address _newOwner) external appAdministratorOrOwnerOnly {
@@ -49,7 +48,7 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
     }
 
     /**
-     * @dev this function confirms a new appManagerAddress that was put in storage. It can only be confirmed by the proposed address
+     * @dev This function confirms a new appManagerAddress that was put in storage. It can only be confirmed by the proposed address
      */
     function confirmOwner() external {
         if (newOwner == address(0)) revert NoProposalHasBeenMade();
@@ -66,7 +65,7 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
     }
 
     /**
-     * @dev gets the version of the contract
+     * @dev Get the version of the contract
      * @return VERSION
      */
     function version() external pure returns (string memory) {

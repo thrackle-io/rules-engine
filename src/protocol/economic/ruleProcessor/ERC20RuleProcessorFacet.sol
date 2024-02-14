@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "./RuleProcessorDiamondImports.sol";
-import "./IOracle.sol";
+import "src/common/IOracle.sol";
 
 /**
- * @title ERC20 Handler Facet Contract
+ * @title ERC20 Handler Facet 
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev Facet in charge of the logic to check token rules compliance
  * @notice Implements Token Fee Rules on Accounts.
@@ -64,7 +64,6 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
                 if (IOracle(oracleAddress).isDenied(_address)) {
                     revert AddressIsDenied();
                 }
-                /// Invalid oracle type
             } else {
                 revert OracleTypeInvalid();
             }
@@ -92,6 +91,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
 
     /**
      * @dev Rule checks if the Token Max Trading Volume rule will be violated.
+     * @notice If the totalSupply value is set in the rule, it is set as the circulating supply. Otherwise, this function uses the ERC20 totalSupply sent from handler.
      * @param _ruleId Rule identifier for rule arguments
      * @param _volume token's trading volume thus far
      * @param _amount Number of tokens to be transferred from this account
@@ -103,7 +103,6 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         NonTaggedRules.TokenMaxTradingVolume memory rule = getTokenMaxTradingVolume(_ruleId);
         if (rule.startTime.isRuleActive()) {
             _volume = rule.startTime.isWithinPeriod(rule.period, _lastTransferTime) ? _volume + _amount : _amount;
-            /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
             if (rule.totalSupply != 0) {
                 _supply = rule.totalSupply;
             }
@@ -136,6 +135,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
 
     /**
      * @dev Rule checks if the Token Max Supply Volatility rule will be violated.
+     * @notice If the totalSupply value is set in the rule, it is set as the circulating supply. Otherwise, this function uses the ERC20 totalSupply sent from handler.
      * @param _ruleId Rule identifier for rule arguments
      * @param _volumeTotalForPeriod token's trading volume for the period
      * @param _tokenTotalSupply the total supply from token tallies
@@ -156,20 +156,18 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
         int256 volatility;
         NonTaggedRules.TokenMaxSupplyVolatility memory rule = getTokenMaxSupplyVolatility(_ruleId);
         if (rule.startTime.isRuleActive()) {
-            /// check if totalSupply is specified in rule params
             if (rule.totalSupply != 0) {
                 _supply = rule.totalSupply;
             }
             /// Account for the very first period
             if (_tokenTotalSupply == 0) _tokenTotalSupply = _supply;
-            /// check if current transaction is inside rule period
             if (rule.startTime.isWithinPeriod(rule.period, _lastSupplyUpdateTime)) {
-                /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
                 _volumeTotalForPeriod += _amount;
-                /// the _tokenTotalSupply is not modified during the rule period. It needs to stay the same value as what it was at the beginning of the period to keep consistent results since mints/burns change totalSupply in the token
+                /// The _tokenTotalSupply is not modified during the rule period. 
+                /// It needs to stay the same value as what it was at the beginning of the period to keep consistent results since mints/burns change totalSupply in the token.
             } else {
                 _volumeTotalForPeriod = _amount;
-                /// update total supply of token when outside of rule period
+                /// Update total supply of token when outside of rule period
                 _tokenTotalSupply = _supply;
             }
             volatility = (_volumeTotalForPeriod * 100000000) / int(_tokenTotalSupply);
@@ -194,7 +192,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
 
     /**
      * @dev Function to get total Token Max Supply Volatility rules
-     * @return tokenMaxSupplyVolatilityRules total length of array
+     * @return tokenMaxSupplyVolatility Rules total length of array
      */
     function getTotalTokenMaxSupplyVolatility() public view returns (uint32) {
         RuleS.TokenMaxSupplyVolatilityS storage data = Storage.tokenMaxSupplyVolatilityStorage();
@@ -246,7 +244,7 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
     }
 
     /**
-     *
+     * @dev Function receives a rule id, retrieves the rule data and checks if the Token Max Sell Volume Rule passes
      * @param ruleId id of the rule to be checked
      * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
      * @param amountToTransfer total number of tokens to be transferred in transaction.
@@ -269,7 +267,6 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
      * @return tokenMaxSellVolumeRules rule at index position
      */
     function getTokenMaxSellVolume(uint32 _index) public view returns (NonTaggedRules.TokenMaxSellVolume memory) {
-        // check one of the required non zero values to check for existence, if not, revert
         _index.checkRuleExistence(getTotalTokenMaxSellVolume());
         RuleS.TokenMaxSellVolumeS storage data = Storage.accountMaxSellVolumeStorage();
         return data.tokenMaxSellVolumeRules[_index];

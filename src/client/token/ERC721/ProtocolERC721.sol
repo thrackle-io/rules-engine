@@ -12,7 +12,7 @@ import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
 import "src/client/token/handler/diamond/IHandlerDiamond.sol";
 
 /**
- * @title ERC721 Base Contract
+ * @title Protocol ERC721 Base Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This is the base contract for all protocol ERC721s
  */
@@ -27,7 +27,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     string public baseUri;
 
     /**
-     * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
+     * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager Address
      * @param _name Name of NFT
      * @param _symbol Symbol for the NFT
      * @param _appManagerAddress Address of App Manager
@@ -71,7 +71,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     /*************** END setters and getters ************/
     /**
      * @dev AppAdministratorOnly function takes appManagerAddress as parameter
-     * Function puases contract and prevents functions with whenNotPaused modifier
+     * Function pauses contract and prevents functions with whenNotPaused modifier
      */
     function pause() public virtual appAdministratorOnly(appManagerAddress) {
         _pause();
@@ -154,7 +154,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
     }
 
     /**
-     * @dev this function returns the handler address
+     * @dev This function returns the handler address
      * @return handlerAddress
      */
     function getHandlerAddress() external view override returns (address) {

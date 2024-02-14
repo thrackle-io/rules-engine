@@ -18,7 +18,7 @@ import {IEconomicEvents} from "src/common/IEvents.sol";
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev This abstract contract exists to centralize the imports needed across the Rule Processor Facets.
  * @notice This contract should be used by all facet contracts in the rule processor module. 
+ * import "./RuleProcessorDiamondImports.sol";
  */
 
 abstract contract RuleProcessorDiamondImports {}
-//  import "./RuleProcessorDiamondImports.sol";
