@@ -24,12 +24,11 @@ This rule works at both the token level and AMM level. It must be activated and 
 
 ## Data Structure
 
-As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection of rules, where all "sub-rules" are independent from each other, and where each "sub-rule" is indexed by its tag. A account-min-max-token-balance "sub-rule" is specified by 2 variables:
+As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collection of rules, where all "sub-rules" are independent from each other, and where each "sub-rule" is indexed by its tag. A account-min-max-token-balance "sub-rule" is specified by 3 variables:
 
-- **Minimum** (uint256): The minimum amount of tokens to be held by the account.
-- **Maximum** (uint256): The maximum amount of tokens to be held by the account.
-- **Hold period** (uint16): The amount of hours the minimum/maximum limit will be in effect.
-- **Starting timestamp** (uint64): The timestamp of the date when the *period* starts counting.
+- **Min** (uint256): The minimum amount of tokens to be held by the account.
+- **Max** (uint256): The maximum amount of tokens to be held by the account.
+- **Period** (uint16): The amount of hours the minimum/maximum limit will be in effect.
 
 
 ```c
@@ -40,7 +39,7 @@ As this is a [tag](../GLOSSARY.md)-based rule, you can think of it as a collecti
         uint16 period; /// hours
     }
 ```
-###### *see [RuleDataInterfaces](../../../src/economic/ruleStorage/RuleDataInterfaces.sol)*
+###### *see [RuleDataInterfaces](../../../src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)*
 
 If a single blank `tag` is specified, the rule is applicable to all users.
 
