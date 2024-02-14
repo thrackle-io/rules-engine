@@ -129,11 +129,11 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         applicationCoin.transfer(user2, 10091);
     }
 
-    function testERC20_AccountMaxTransactionValueByRiskScore2() public {
+    function testERC20_AccountMaxTransactionValueByRiskScoreWithPeriod() public {
         uint8[] memory riskScores = createUint8Array(10, 40, 80, 99);
         uint48[] memory txnLimits = createUint48Array(1000000, 100000, 10000, 1000);
         switchToRuleAdmin();
-        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
+        uint32 index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, 24, uint64(block.timestamp));
         switchToAppAdministrator();
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 10000000 * ATTO);
@@ -160,12 +160,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToRuleAdmin();
         applicationHandler.setAccountMaxTxValueByRiskScoreId(index);
 
-        ///User2 sends User1 amount under transaction limit, expect passing
-        vm.stopPrank();
-        vm.startPrank(user2);
-        applicationCoin.transfer(user1, 1 * ATTO);
-
-        ///Transfer expected to fail
+        ///Transfer expected to fail in one large transaction
         vm.stopPrank();
         vm.startPrank(user1);
         vm.expectRevert();
@@ -195,6 +190,14 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         vm.expectRevert();
         applicationCoin.burn(1001 * ATTO);
         applicationCoin.burn(1000 * ATTO);
+
+        /// let's test in a new period with a couple small txs:
+        vm.warp(block.timestamp + 48 hours);
+        vm.stopPrank();
+        vm.startPrank(user1);
+        applicationCoin.transfer(user6, 1000002 / 2 * ATTO);
+        vm.expectRevert();
+        applicationCoin.transfer(user6, 1000002 / 2 * ATTO);
     }
 
     function testERC20_AccountMinMaxTokenBalance2() public {

@@ -18,8 +18,6 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
     
     bytes32 constant BLANK_TAG = bytes32("");
  
-
-
     /**
      * @dev This function adds a fee to the token. Blank tags are allowed
      * @param _tag meta data tag for fee
