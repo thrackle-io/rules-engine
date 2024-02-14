@@ -22,8 +22,8 @@ import "../handler/diamond/ERC20HandlerMainFacet.sol";
  */
 contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, ProtocolTokenCommon, IProtocolERC20Errors {
     // address of the Handler
-    IHandlerDiamond handler;
-
+    IProtocolTokenHandler handler;
+    
     /// Max supply should only be set once. Zero means infinite supply.
     uint256 MAX_SUPPLY;
 

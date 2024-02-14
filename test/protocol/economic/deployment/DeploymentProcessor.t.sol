@@ -1190,7 +1190,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         TaggedRules.TokenMaxDailyTrades memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(_index, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, 1);
         // apply the rule to the ApplicationERC721Handler
-        ERC721TaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxDailyTradesId(_createActionsArray(), _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxDailyTradesId(_createActionsArray(), _index);
         // tag the NFT collection
         switchToAppAdministrator();
         applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag

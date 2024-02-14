@@ -24,14 +24,14 @@ contract ERC20NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerToke
      */
     function checkNonTaggedRules(address _from, address _to, uint256 _amount, ActionTypes action) external {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
-        mapping(ActionTypes => Rule[]) storage accountAllowDenyOracle = lib.accountApproveDenyOracleStorage().accountAllowDenyOracle;
+        mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
         
         if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) 
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMinTxSize(lib.tokenMinTxSizeStorage().tokenMinTxSize[action].ruleId, _amount);
 
-        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[action].length; ) {
-            if (accountAllowDenyOracle[action][accountApproveDenyOracleIndex].active) 
-                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracle(accountAllowDenyOracle[action][accountApproveDenyOracleIndex].ruleId, _to);
+        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[action].length; ) {
+            if (accountApproveDenyOracle[action][accountApproveDenyOracleIndex].active) 
+                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracle(accountApproveDenyOracle[action][accountApproveDenyOracleIndex].ruleId, _to);
             unchecked {
                 ++accountApproveDenyOracleIndex;
             }

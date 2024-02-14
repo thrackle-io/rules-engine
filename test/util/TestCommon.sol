@@ -28,15 +28,15 @@ import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataF
 import {ApplicationERC721MintForAFee as MintForAFeeERC721} from "src/example/ERC721/ApplicationERC721MintForAFee.sol";
 import {ApplicationERC721WhitelistMint as WhitelistMintERC721} from "src/example/ERC721/ApplicationERC721WhitelistMint.sol";
 import {ApplicationERC721FreeMint as FreeForAllERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
-import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
+// import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import {ApplicationERC721Upgradeable as MintForAFeeERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgMintForAFee.sol";
 import {ApplicationERC721Upgradeable as WhitelistMintERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
 import {ApplicationERC721Upgradeable as FreeForAllERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol";
-import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
+// import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 
 /// Client Contract imports 
-import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
-import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
+// import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
+// import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import {HandlerDiamond, HandlerDiamondArgs} from "src/client/token/handler/diamond/HandlerDiamond.sol";
 import "src/example/application/ApplicationAppManager.sol";
@@ -124,17 +124,20 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationHandler public applicationHandler;
     ApplicationAppManager public applicationAppManager2;
     ApplicationHandler public applicationHandler2;
-    ApplicationAssetHandlerMod public newAssetHandler;
+    // ApplicationAssetHandlerMod public newAssetHandler;
 
     ApplicationERC20 public applicationCoin;
     ApplicationERC20 public applicationCoin2;
     HandlerDiamond public applicationCoinHandler;
     HandlerDiamond public applicationCoinHandler2;
     HandlerDiamond public applicationNFTHandler;
+    HandlerDiamond public applicationNFTHandler2;
     ApplicationERC20Pricing public erc20Pricer;
+    HandlerDiamond public applicationCoinHandlerSpecialOwner;
 
     ApplicationERC721 public applicationNFT;
-    ApplicationERC721HandlerMod public ERC721AssetHandler;
+    ApplicationERC721 public applicationNFTv2;
+    // ApplicationERC721HandlerMod public ERC721AssetHandler;
     ApplicationERC721Pricing public erc721Pricer;
 
     ApplicationERC721Upgradeable public applicationNFTU;

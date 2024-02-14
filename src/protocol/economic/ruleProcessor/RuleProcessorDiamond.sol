@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import {IRuleProcessorDiamondEvents} from "src/common/IEvents.sol";
 import {RuleProcessorDiamondLib as DiamondLib, RuleProcessorDiamondStorage, RuleDataStorage, FacetCut} from "./RuleProcessorDiamondLib.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
-import {IRuleStorageDiamondEvents} from "../../../common/IEvents.sol";
+import {IRuleProcessorDiamondEvents} from "../../../common/IEvents.sol";
 
 /// When no function exists for function called
 error FunctionNotFound(bytes4 _functionSelector);

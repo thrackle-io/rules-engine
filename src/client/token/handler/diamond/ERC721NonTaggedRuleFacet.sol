@@ -26,10 +26,10 @@ contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTok
     function checkNonTaggedRules(ActionTypes action, address _from, address _to, uint256 _amount, uint256 _tokenId) external {
         _from;
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
-        mapping(ActionTypes => Rule[]) storage accountAllowDenyOracle = lib.accountApproveDenyOracleStorage().accountAllowDenyOracle;
-        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountAllowDenyOracle[action].length; ) {
-            if (accountAllowDenyOracle[action][accountApproveDenyOracleIndex].active) 
-                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracle(accountAllowDenyOracle[action][accountApproveDenyOracleIndex].ruleId, _to);
+        mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
+        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[action].length; ) {
+            if (accountApproveDenyOracle[action][accountApproveDenyOracleIndex].active) 
+                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracle(accountApproveDenyOracle[action][accountApproveDenyOracleIndex].ruleId, _to);
             unchecked {
                 ++accountApproveDenyOracleIndex;
             }

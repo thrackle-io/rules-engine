@@ -380,7 +380,12 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToAppAdministrator();
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
         // create the ERC20 and connect it to its handler
-        setupApplicationCoinAndHandler(address(appAdministrator));
+        applicationCoinHandlerSpecialOwner = _createERC20HandlerDiamond();
+        VersionFacet(address(applicationCoinHandler2)).updateVersion("1.1.0");
+        ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin2));
+        applicationCoin2.connectHandlerToToken(address(applicationCoinHandler2));
+        /// register the token
+        applicationAppManager.registerToken("application2", address(applicationCoin2));
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
         /// set up the pricer for erc20
@@ -597,6 +602,10 @@ abstract contract TestCommonFoundry is TestCommon {
         /// create an ERC721
         // applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
         setupApplicationNFTAndHandler();
+
+        /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
+        (applicationNFTv2, applicationNFTHandler2) = deployAndSetupERC721("ToughTurtles", "THTR");
+
         /// register the token
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
         /// set up the pricer for erc20
@@ -639,7 +648,20 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToOriginalUser();
     }
 
-    
+    /**
+     * @dev Deploy and set up an ERC20Handler specialized for Handler Testing 
+     * @param _ruleProcessor rule processor
+     * @param _appManager previously created appManager
+     * @param _token ERC20
+     * @param _appAdmin App Admin Address 
+     * @return handler ERC20 handler
+     */
+    function _createERC20HandlerSpecialized(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager,ApplicationERC20 _token, address _appAdmin) public returns (HandlerDiamond handler) {
+        handler = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(handler)).initialize(address(_ruleProcessor), address(_appManager), address(_appAdmin));
+        _token.connectHandlerToToken(address(handler));
+        return handler;
+    }
 
     ///---------------USER SWITCHING--------------------
     function switchToAppAdministrator() public {

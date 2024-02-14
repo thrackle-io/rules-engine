@@ -23,7 +23,7 @@ struct TokenMinTxSizeS{
 }
 
  struct AccountApproveDenyOracleS{
-    mapping(ActionTypes => Rule[]) accountAllowDenyOracle;
+    mapping(ActionTypes => Rule[]) accountApproveDenyOracle;
  }
 
  struct AccountMaxBuySizeS{
