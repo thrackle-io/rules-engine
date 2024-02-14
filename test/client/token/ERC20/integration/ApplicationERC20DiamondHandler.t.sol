@@ -681,7 +681,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
 
         function testERC20_TradeRuleByPasserRule() public {
         DummyAMM amm = _tradeRuleSetup();
-        applicationAppManager.approveAddressToTradingRuleWhitelist(user1, true);
+        applicationAppManager.approveAddressToTradingRuleAllowlist(user1, true);
 
         /// SELL PERCENTAGE RULE
         _setupTokenMaxSellVolumeRule();

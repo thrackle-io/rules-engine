@@ -223,14 +223,11 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
     }
 
-<<<<<<< HEAD
 
     //TODO: Uncomment when the rule has been added
     /**
      * @dev Test the TokenMaxDailyTrades rule
      */
-=======
->>>>>>> external
     function testERC721_TokenMaxDailyTradesFuzz(uint8 _addressIndex) public {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address _user1 = addressList[0];
@@ -1112,15 +1109,15 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId);
         }
         //TODO: Uncomment when the rule has been added
-        {
-            bytes32[] memory nftTags =createBytes32Array("BoredGrape");
-            uint8[] memory tradesAllowed = createUint8Array(3);
-            uint32 tradeRuleId = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
-            switchToAppAdministrator();
-            applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
-            switchToRuleAdmin();
-            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxDailyTradesId(_createActionsArray(), tradeRuleId);
-        }
+        // {
+        //     bytes32[] memory nftTags =createBytes32Array("BoredGrape");
+        //     uint8[] memory tradesAllowed = createUint8Array(3);
+        //     uint32 tradeRuleId = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
+        //     switchToAppAdministrator();
+        //     applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
+        //     switchToRuleAdmin();
+        //     ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxDailyTradesId(_createActionsArray(), tradeRuleId);
+        // }
         {
             uint48[] memory _maxSize = createUint48Array(7_500_000, 75_000, 750, 350, 10);
             uint8[] memory _riskScore = createUint8Array(0, 10, 40, 80, 99);
