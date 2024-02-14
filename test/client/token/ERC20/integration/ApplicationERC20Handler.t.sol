@@ -182,7 +182,8 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), _accountTypes, _min, _max, empty, uint64(Blocktime));
         /// connect the rule to this handler
         ERC20TaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).setAccountMinMaxTokenBalanceId(_createActionsArray(), ruleId);
-        switchToAppAdministrator();
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
         /// execute a passing check for the minimum
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, user2, user1, 10);
         /// execute a passing check for the maximum
@@ -214,6 +215,8 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         switchToAppAdministrator();
         // test that the oracle works
         // This one should pass
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, user2, user1, 10);
         // This one should fail
         vm.expectRevert(0x2767bda4);
@@ -228,6 +231,9 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         // add an approved address
         goodBoys.push(address(59));
         oracleApproved.addToApprovedList(goodBoys);
+
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
         // This one should pass
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(59), user1, 10);
         // This one should fail
@@ -255,7 +261,8 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), _accountTypes, _min, _max, empty, uint64(Blocktime));
         /// connect the rule to this handler
         ERC20TaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).setAccountMinMaxTokenBalanceId(_createActionsArray(), ruleId);
-        switchToAppAdministrator();
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
         /// execute a passing check for the minimum
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, user2, user1, 10);
         /// execute a passing check for the maximum
@@ -269,14 +276,16 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         /// turning rules off
         switchToRuleAdmin();
         ERC20TaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).activateAccountMinMaxTokenBalance(_createActionsArray(), false);
-        switchToAppAdministrator();
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
         /// now we can "break" the rules
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 1000, user1, user2, user1, 15);
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(1000, 800, user1, user2, user1, 500);
         /// turning rules back on
         switchToRuleAdmin();
         ERC20TaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).activateAccountMinMaxTokenBalance(_createActionsArray(), true);
-        switchToAppAdministrator();
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
         /// now we cannot break the rules again
         vm.expectRevert(0x3e237976);
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 1000, user1, user2, user1, 15);
@@ -297,7 +306,8 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         /// connect the rule to this handler
         switchToRuleAdmin();
         ERC20NonTaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).setAccountApproveDenyOracleId(_createActionsArray(), _index);
-        switchToAppAdministrator();
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
         // test that the oracle works
         // This one should pass
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, user2, user1, 10);
@@ -325,6 +335,8 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         goodBoys.push(address(59));
         goodBoys.push(address(68));
         oracleApproved.addToApprovedList(goodBoys);
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
         // This one should pass
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(59), user1, 10);
         // This one should fail
@@ -334,7 +346,8 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         // let's turn the allowed list rule off
         switchToRuleAdmin();
         ERC20NonTaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).activateAccountApproveDenyOracle(_createActionsArray(), false, _indexTwo);
-        switchToAppAdministrator();
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(88), user1, 10);
 
         // let's verify that the denied list rule is still active
@@ -344,14 +357,16 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry {
         // let's turn it back on
         switchToRuleAdmin();
         ERC20NonTaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).activateAccountApproveDenyOracle(_createActionsArray(), true, _indexTwo);
-        switchToAppAdministrator();
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
         vm.expectRevert(0xcafd3316);
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(88), user1, 10);
 
         // Remove the denied list rule and verify it no longer fails.
         switchToRuleAdmin();
         ERC20NonTaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).removeAccountApproveDenyOracle(_createActionsArray(), _index);
-        switchToAppAdministrator();
+        vm.stopPrank();
+        vm.startPrank(address(applicationCoin));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(68), user1, 10);
     }
 
