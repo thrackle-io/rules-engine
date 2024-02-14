@@ -15,7 +15,7 @@ import "diamond-std/implementations/ERC173/ERC173.sol";
 contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, HandlerUtils, ICommonApplicationHandlerEvents, IHandlerDiamondErrors, ERC173 {
 
     /**
-     * @dev Constructor sets params
+     * @dev Initializer params
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
      * @param _appManagerAddress address of the application AppManager.
      * @param _assetAddress address of the controlling asset.
@@ -49,7 +49,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         bool isFromBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_from);
         bool isToBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_to);
         ActionTypes action = determineTransferAction(_from, _to, _sender);
-        // // All transfers to treasury account are allowed
+        // All transfers to treasury account are allowed
         if (!IAppManager(handlerBaseStorage.appManager).isTreasury(_to)) {
             /// standard rules do not apply when either to or from is an admin
             if (!isFromBypassAccount && !isToBypassAccount) {

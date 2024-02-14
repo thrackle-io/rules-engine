@@ -6,17 +6,18 @@ import {ActionTypes} from "src/common/ActionEnum.sol";
 contract HandlerUtils{
 
     /**
-     * @dev determines if a transfer is:
-     *          mint
-     *          burn
-     *          sell
-     *          purchase
-     *          p2p transfer 
-     * @param _from the address where the tokens are being moved from
-     * @param _to the address where the tokens are going to
-     * @param _sender the address triggering the transaction
-     * @return action intended in the transfer
-     */
+    * @dev determines if a transfer is:
+    * p2p transfer
+    * buy
+    * sell
+    * mint
+    * burn
+    * @notice p2p transfer is position 0 and will be default unless other conditions are met.
+    * @param _from the address where the tokens are being moved from
+    * @param _to the address where the tokens are going to
+    * @param _sender the address triggering the transaction
+    * @return action intended in the transfer
+    */
     function determineTransferAction(address _from, address _to, address _sender) internal view returns (ActionTypes action){
         if(_from == address(0)){
             action = ActionTypes.MINT;

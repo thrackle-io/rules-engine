@@ -41,7 +41,7 @@ if [ "$LOCAL" = "y" ]; then
     echo Starting anvil
     echo "################################################################"
     echo 
-    anvil --gas-limit 80000000 --code-size-limit 30000 &> ./anvil_output.txt &
+    anvil --gas-limit 80000000 &> ./anvil_output.txt &
     sleep 8
 
     # Parsing anvil output to grab an adress and its private key
