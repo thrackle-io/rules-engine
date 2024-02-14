@@ -132,6 +132,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     HandlerDiamond public applicationCoinHandler2;
     HandlerDiamond public applicationNFTHandler;
     HandlerDiamond public applicationNFTHandler2;
+    HandlerDiamond public applicationNFTHandlerv2;
     ApplicationERC20Pricing public erc20Pricer;
     HandlerDiamond public applicationCoinHandlerSpecialOwner;
 

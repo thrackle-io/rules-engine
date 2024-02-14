@@ -262,6 +262,7 @@ abstract contract TestCommonFoundry is TestCommon {
         setupApplicationCoinAndHandler(address(applicationCoin));
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
         /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
 
@@ -605,7 +606,15 @@ abstract contract TestCommonFoundry is TestCommon {
         applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
 
         /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
-        (applicationNFTv2, applicationNFTHandler2) = deployAndSetupERC721("ToughTurtles", "THTR");
+        //(applicationNFTv2, applicationNFTHandler2) = deployAndSetupERC721("ToughTurtles", "THTR");
+        applicationNFTv2 = _createERC721("ToughTurtles", "THTR", applicationAppManager);
+        applicationNFTHandlerv2 = _createERC721HandlerDiamond();
+        VersionFacet(address(applicationNFTHandlerv2)).updateVersion("1.1.0");
+        ERC721HandlerMainFacet(address(applicationNFTHandlerv2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFTv2));
+        applicationNFTv2.connectHandlerToToken(address(applicationNFTHandlerv2));
+        /// register the token
+        applicationAppManager.registerToken("THTR", address(applicationNFTv2));
+
         switchToAppAdministrator();
         /// register the token
         // a
