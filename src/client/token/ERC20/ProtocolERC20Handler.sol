@@ -370,9 +370,12 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      */
     function setTokenMinTxSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
         /*
-        for (ActionTypes i = ActionTypes.P2P_TRANSFER; i <= ActionTypes.BURN; ActionTypes(uint(i) + 1)) {
+        for (ActionTypes i = ActionTypes.P2P_TRANSFER; i <= ActionTypes.BURN; ) {
             if (tokenMinTxSize[i].ruleId == _ruleId) {
                 delete tokenMinTxSize[i];
+            }
+            unchecked {
+                i = ActionTypes(uint(i) + 1)
             }
         }
         */
