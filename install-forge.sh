@@ -4,7 +4,7 @@ set -e
 WITH_DEPLOY=$1
 
 source ~/.bashrc
-foundryup --version nightly-09fe3e041369a816365a020f715ad6f94dbce9f2
+foundryup --version nightly-446bba8893e8673ee373f86af01b14234861baf1
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt
