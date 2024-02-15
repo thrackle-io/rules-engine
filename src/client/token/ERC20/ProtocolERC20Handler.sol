@@ -441,7 +441,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
             newEntity.active = true;
             accountApproveDenyOracle[_actions[i]].push(newEntity);
             unchecked {
-                        ++i;
+                ++i;
             }
         }
         emit ApplicationHandlerActionApplied(ACCOUNT_APPROVE_DENY_ORACLE, _actions, _ruleId);
