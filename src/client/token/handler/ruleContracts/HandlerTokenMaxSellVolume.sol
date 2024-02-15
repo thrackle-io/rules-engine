@@ -5,7 +5,7 @@ import "./HandlerRuleContractsCommonImports.sol";
 
 
 /**
- * @title Handler Account Max Buy Size 
+ * @title Handler Token Max Sell Volume 
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev Setters and getters for the rule in the handler. Meant to be inherited by a handler
  * facet to easily support the rule.
@@ -42,15 +42,15 @@ contract HandlerTokenMaxSellVolume is RuleAdministratorOnly, ITokenHandlerEvents
     }
 
     /**
-     * @dev Retrieve the Account Max Buy Size Rule Id
-     * @return accountMaxBuySizeId
+     * @dev Retrieve the Account Max Sell Size Rule Id
+     * @return accountMaxSellSizeId
      */
     function getTokenMaxSellVolumeId() external view returns (uint32) {
         return lib.tokenMaxSellVolumeStorage().id;
     }
 
     /**
-     * @dev Tells you if the Account Max Buy Size Rule is active or not.
+     * @dev Tells you if the Account Max Sell Size Rule is active or not.
      * @return boolean representing if the rule is active
      */
     function isTokenMaxSellVolumeActive() external view returns (bool) {

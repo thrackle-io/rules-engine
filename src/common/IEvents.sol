@@ -155,7 +155,7 @@ interface ITokenHandlerEvents is IAppManagerAddressSet{
 
 interface IApplicationEvents is IAppManagerAddressSet{
     /// Application Handler
-    event HandlerConnected(address indexed handlerAddress, address indexed assetAddress); // ...in favor of this one since regular deploy and upgrade now looks the same?
+    event HandlerConnected(address indexed handlerAddress, address indexed assetAddress); 
     ///ProtocolERC20
     event NewTokenDeployed(address indexed applicationCoin, address indexed appManagerAddress);
     ///ProtocolERC721 & ERC721A

@@ -8,7 +8,7 @@ import "../ruleContracts/Fees.sol";
 
 
 /**
- * @title Protocol Handler Common
+ * @title Protocol Handler Base Common
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract contains common variables and functions for all Protocol Asset Handlers
  */
