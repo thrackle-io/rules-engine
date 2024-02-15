@@ -13,4 +13,4 @@ ENV CHAIN_ID 31337
 
 RUN pip install -r requirements.txt
 
-ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID --code-size-limit 30000
+ENTRYPOINT anvil --host 0.0.0.0 --chain-id $CHAIN_ID --code-size-limit 50000
