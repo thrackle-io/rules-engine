@@ -6,7 +6,6 @@ import "../ruleContracts/HandlerBase.sol";
 import "../ruleContracts/HandlerAdminMinTokenBalance.sol";
 import "./ERC20TaggedRuleFacet.sol";
 import "./ERC20NonTaggedRuleFacet.sol";
-import "../../../application/IAppManager.sol";
 import {ICommonApplicationHandlerEvents} from "../../../../common/IEvents.sol";
 import {ERC165Lib} from "diamond-std/implementations/ERC165/ERC165Lib.sol";
 import {IHandlerDiamondErrors} from "../../../../common/IErrors.sol";
