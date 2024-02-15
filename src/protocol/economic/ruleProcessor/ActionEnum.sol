@@ -11,5 +11,11 @@ enum ActionTypes {
     BUY,
     SELL,   
     MINT,
-    BURN
+    BURN,
+    NULLTYPE
 }
+
+// NOTE -- "NULLTYPE" is just a temporary solution to a problem centering around how
+// we can iterate over these enum values. Having the NULLTYPE entry in the list makes it
+// possible to break out of the for loop easily, to demonstrate the concept I'm going
+// for here, but if we can figure out a better way to do this I'm all about it. 
