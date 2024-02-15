@@ -374,7 +374,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
                 delete tokenMinTxSize[i];
             }
             unchecked {
-                i = ActionTypes(uint(i) + 1)
+                i = ActionTypes(uint(i) + 1);
             }
         }
 
