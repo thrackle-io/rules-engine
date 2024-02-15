@@ -22,7 +22,7 @@ contract ApplicationERC721Script is Script, DeployBase {
         vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
 
         ApplicationERC721FreeMint nft1 = new ApplicationERC721FreeMint("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), vm.envString("APPLICATION_ERC721_URI_1"));
-        HandlerDiamond applicationNFTHandlerDiamond = createERC721HandlerDiamond();
+        HandlerDiamond applicationNFTHandlerDiamond = createERC721HandlerDiamond("Frankenstein");
         ERC20HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), vm.envAddress("APPLICATION_APP_MANAGER"), address(nft1));
         nft1.connectHandlerToToken(address(applicationNFTHandlerDiamond));
         // Register the token with the application's app manager

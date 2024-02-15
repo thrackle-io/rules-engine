@@ -49,7 +49,7 @@ contract ApplicationDeployAllScript is Script, DeployBase {
         applicationAppManager.addRuleAdministrator(vm.envAddress("QUORRA"));
         /// create ERC20 token 1
         coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
-        applicationCoinHandlerDiamond = createERC20HandlerDiamond();
+        applicationCoinHandlerDiamond = createERC20HandlerDiamond("Frankenstein Coin");
         ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1));
         coin1.connectHandlerToToken(address(applicationCoinHandlerDiamond));
 
@@ -58,7 +58,7 @@ contract ApplicationDeployAllScript is Script, DeployBase {
         /// create ERC20 token 2
         coin2 = new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager));
         
-        applicationCoinHandlerDiamond2 = createERC20HandlerDiamond();
+        applicationCoinHandlerDiamond2 = createERC20HandlerDiamond("Dracula Coin");
         ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond2)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2));
         coin2.connectHandlerToToken(address(applicationCoinHandlerDiamond2));
 
@@ -68,7 +68,7 @@ contract ApplicationDeployAllScript is Script, DeployBase {
         
         /// create NFT
         nft1 = new ApplicationERC721AdminOrOwnerMint("Frankenstein", "FRANKPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
-        applicationNFTHandlerDiamond = createERC721HandlerDiamond();
+        applicationNFTHandlerDiamond = createERC721HandlerDiamond("Frankenstein");
         ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1));
         nft1.connectHandlerToToken(address(applicationNFTHandlerDiamond));
 
@@ -95,7 +95,7 @@ contract ApplicationDeployAllScript is Script, DeployBase {
         
         /// This is a new app manager used for upgrade testing
         new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", true);
-        HandlerDiamond newApplicationNFTHandlerDiamond = createERC721HandlerDiamond();
+        HandlerDiamond newApplicationNFTHandlerDiamond = createERC721HandlerDiamond("Frankenstein");
         ERC721HandlerMainFacet(address(newApplicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1));
         
         vm.stopBroadcast();

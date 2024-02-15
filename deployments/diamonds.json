@@ -1,0 +1,38 @@
+{
+    "31337": {
+        "ProtocolProcessorDiamond": {
+            "2024-02-22": {
+                "VersionFacet": "0x36b58F5C1969B7b6591D752ea6F5486D069010AB",
+                "ProtocolNativeFacet": "0x8198f5d8F8CfFE8f9C413d98a0A55aEB8ab9FbB7",
+                "ProtocolRawFacet": "0x0355B7B8cb128fA5692729Ab3AAa199C1753f726",
+                "ERC20RuleProcessorFacet": "0x202CCe504e04bEd6fC0521238dDf04Bc9E8E15aB",
+                "ERC721RuleProcessorFacet": "0x367761085BF3C12e5DA2Df99AC6E1a824612b8fb",
+                "diamond": "0x172076E0166D1F9Cc711C77Adf8488051744980C",
+                "FeeRuleProcessorFacet": "0x4EE6eCAD1c2Dae9f525404De8555724e3c35d07B",
+                "ApplicationRiskProcessorFacet": "0xBEc49fA140aCaA83533fB00A2BB19bDdd0290f25",
+                "ApplicationAccessLevelProcessorFacet": "0xD84379CEae14AA33C123Af12424A37803F885889",
+                "ApplicationPauseProcessorFacet": "0x2B0d36FACD61B71CC05ab8F3D2355ec3631C0dd5",
+                "ERC20TaggedRuleProcessorFacet": "0xfbC22278A96299D91d41C453234d97b4F5Eb9B2d",
+                "ERC721TaggedRuleProcessorFacet": "0x46b142DD1E924FAb83eCc3c08e4D46E82f005e0E",
+                "RuleApplicationValidationFacet": "0x04C89607413713Ec9775E14b954286519d836FEf",
+                "RuleDataFacet": "0x4C4a2f8c81640e47606d3fd77B353E87Ba015584",
+                "TaggedRuleDataFacet": "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
+                "AppRuleDataFacet": "0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2",
+                "FeeRuleDataFacet": "0xD8a5a9b31c3C0232E196d518E89Fd8bF83AcAd43"
+            }
+        },
+        "ERC20HandlerDiamond": {
+            "2024-02-22": {
+                "VersionFacet": "0xA4899D35897033b927acFCf422bc745916139776",
+                "ProtocolNativeFacet": "0xf953b3A269d80e3eB0F2947630Da976B896A8C5b",
+                "ProtocolRawFacet": "0xAA292E8611aDF267e563f334Ee42320aC96D0463",
+                "ERC20HandlerMainFacet": "0x5c74c94173F05dA1720953407cbb920F3DF9f887",
+                "ERC20TaggedRuleFacet": "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3",
+                "ERC20NonTaggedRuleFacet": "0xe8D2A1E88c91DCd5433208d4152Cc4F399a7e91d",
+                "TradingRuleFacet": "0x5067457698Fd6Fa1C6964e416b3f42713513B3dD",
+                "FeesFacet": "0x18E317A7D70d8fBf8e6E893616b52390EbBdb629",
+                "diamond": "0x4b6aB5F819A515382B0dEB6935D793817bB4af28"
+            }
+        }
+    }
+}

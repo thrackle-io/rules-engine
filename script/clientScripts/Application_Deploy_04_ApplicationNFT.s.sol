@@ -40,7 +40,7 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
 
         /// Create NFT
         ApplicationERC721AdminOrOwnerMint nft1 = new ApplicationERC721AdminOrOwnerMint("Clyde", "CLYDEPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
-        applicationNFTHandlerDiamond = createERC721HandlerDiamond();
+        applicationNFTHandlerDiamond = createERC721HandlerDiamond("Clyde");
         ERC20HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1));
         nft1.connectHandlerToToken(address(applicationNFTHandlerDiamond));
 

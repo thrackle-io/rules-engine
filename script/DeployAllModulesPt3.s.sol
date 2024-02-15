@@ -10,6 +10,7 @@ import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
+import {ScriptUtil} from "./ScriptUtil.sol";
 
 /**
  * @title The final deployment script for the Protocol. It deploys the final set of facets.
@@ -18,7 +19,7 @@ import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.s
  * @dev This script will set contract addresses needed by protocol interaction in connectAndSetUpAll()
  */
 
-contract DeployAllModulesPt3Script is Script {
+contract DeployAllModulesPt3Script is Script, ScriptUtil {
     /// Store the FacetCut struct for each facet that is being deployed.
     /// NOTE: using storage array to easily "push" new FacetCut as we
     /// process the facets.
@@ -26,6 +27,7 @@ contract DeployAllModulesPt3Script is Script {
     /// address and private key used to for deployment
     uint256 privateKey;
     address ownerAddress;
+    bool recordAllChains;
 
     /**
      * @dev This is the main function that gets called by the Makefile or CLI
@@ -33,6 +35,7 @@ contract DeployAllModulesPt3Script is Script {
     function run() external {
         privateKey = vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY");
         ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
+        recordAllChains = vm.envBool("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS");
         vm.startBroadcast(privateKey);
 
         deployFacets();
@@ -54,9 +57,9 @@ contract DeployAllModulesPt3Script is Script {
             "FeeRuleDataFacet"
         ];
 
-        string[] memory inputs = new string[](3);
-        inputs[0] = "python3";
-        inputs[1] = "script/python/get_selectors.py";
+        string[] memory getSelectorsInput = new string[](3);
+        getSelectorsInput[0] = "python3";
+        getSelectorsInput[1] = "script/python/get_selectors.py";
 
         /// Loop on each facet, deploy them and create the FacetCut.
         for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
@@ -70,16 +73,19 @@ contract DeployAllModulesPt3Script is Script {
             }
 
             /// Get the facet selectors.
-            inputs[2] = facet;
-            bytes memory res = vm.ffi(inputs);
+            getSelectorsInput[2] = facet;
+            bytes memory res = vm.ffi(getSelectorsInput);
             bytes4[] memory selectors = abi.decode(res, (bytes4[]));
 
             /// Create the FacetCut struct for this facet.
             _facetCutsRuleProcessor.push(FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors}));
+            recordFacet("ProtocolProcessorDiamond", facet, facetAddress, recordAllChains);
         }
 
         address ruleProcessorAddress = vm.envAddress("RULE_PROCESSOR_DIAMOND");
 
         IDiamondCut(ruleProcessorAddress).diamondCut(_facetCutsRuleProcessor, address(0x0), "");
+
+        setENVVariable("RECORD_DEPLOYMENTS_FOR_ALL_CHAINS", "false");
     }
 }

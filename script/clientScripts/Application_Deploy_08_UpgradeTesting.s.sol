@@ -38,7 +38,7 @@ contract ApplicationDeployAppManagerForUpgradeScript is Script, DeployBase {
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         /// This is a new app manager used for upgrade testing
         new ApplicationAppManager(vm.envAddress("DEPLOYMENT_OWNER"), "Castlevania", true);
-        applicationCoinHandlerDiamond = createERC20HandlerDiamond();
+        applicationCoinHandlerDiamond = createERC20HandlerDiamond("Castlevania");
         ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), vm.envAddress("APPLICATION_ERC20_ADDRESS"));
         vm.stopBroadcast();
     }
