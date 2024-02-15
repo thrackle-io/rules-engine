@@ -5,7 +5,7 @@ import "./HandlerRuleContractsCommonImports.sol";
 
 
 /**
- * @title Handler Account Max Buy Size 
+ * @title Handler Account Max Sell Size 
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev Setters and getters for the rule in the handler. Meant to be inherited by a handler
  * facet to easily support the rule.
@@ -16,7 +16,7 @@ contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents
 
     /// Rule Setters and Getters
     /**
-     * @dev Set the AccountMaxBuySizeRuleId. Restricted to rule administrators only.
+     * @dev Set the AccountMaxSellSizeRuleId. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
@@ -42,15 +42,15 @@ contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents
     }
 
     /**
-     * @dev Retrieve the Account Max Buy Size Rule Id
-     * @return accountMaxBuySizeId
+     * @dev Retrieve the Account Max Sell Size Rule Id
+     * @return accountMaxSellSizeId
      */
     function getAccountMaxSellSizeId() external view returns (uint32) {
         return lib.accountMaxSellSizeStorage().id;
     }
 
     /**
-     * @dev Tells you if the Account Max Buy Size Rule is active or not.
+     * @dev Tells you if the Account Max Sell Size Rule is active or not.
      * @return boolean representing if the rule is active
      */
     function isAccountMaxSellSizeActive() external view returns (bool) {

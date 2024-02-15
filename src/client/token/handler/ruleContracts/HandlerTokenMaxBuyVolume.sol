@@ -5,7 +5,7 @@ import "./HandlerRuleContractsCommonImports.sol";
 
 
 /**
- * @title Handler Account Max Buy Size 
+ * @title Handler Token Max Buy Volume 
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev Setters and getters for the rule in the handler. Meant to be inherited by a handler
  * facet to easily support the rule.

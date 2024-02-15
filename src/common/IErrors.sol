@@ -19,6 +19,7 @@ interface IHandlerDiamondErrors{
 
 interface IRuleProcessorErrors {
     error RuleDoesNotExist();
+    error NotEnoughBalance();
 }
 
 interface IAccessLevelErrors {
