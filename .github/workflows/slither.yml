@@ -3,7 +3,7 @@ name: Slither Analysis
 on:
   push:
     branches:
-      - external
+      - main
   workflow_dispatch:
     inputs:
       CONFIG:
@@ -57,7 +57,7 @@ jobs:
         id: slither-pull
         with:
           fail-on: none
-          slither-args: --checklist --checklist-limit 100 --markdown-root ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/
+          slither-args: --checklist --checklist-limit 50 --markdown-root ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/
 
       - name: Create/update checklist as PR comment
         uses: actions/github-script@v7
