@@ -2,30 +2,43 @@
 
 ## Purpose
 
-The App Handler
-
+The App Handler supports the App Manager by storing the application level rules data and functions. Procotol supported asset handler contracts call check application level rules via the App Manager. The App Manager then checks the associated App Handler where application level rule data is stored. The App Handler contract also serves as the App Manager's connection to the protocol rule processor diamond for the application level rules.
 
 
 ### Application Level Rules
 
-The App Handler
+The App Handler facilitates the rule checks for each application level rule. The first function called by the App Manager is: 
 
-### Associated Contracts
+```c
+requireApplicationRulesChecked
+```
 
-The App Handler
+```c
+checkAppRules
+
+```
+
+```c
+RiskRules 
+```
+
+```c
+AccessLevelRules
+```
+
+```c
+PauseRules
+```
+
+### Rule Functions 
+
+The App Handler is responsible for setting each application level rule to active or inactive accordingly. 
 
 ### Upgrading The Contract
 
-When upgrading to a new App Manager contract a two step process is provided to migrate the data contracts.
+When upgrading to a new App Handler contract the following function must be called on the App Manager:
 
-First the following function must be called on the original App Manager:
 ```c
-function proposeDataContractMigration(address _newOwner) external onlyRole(APP_ADMIN_ROLE) 
-```
-The provided address should be the address of the new App Manager contract. This function can only be called by the App Admin.
-
-In order to finalize the process the following function must be called in the new App Manager:
-```c
-function confirmDataContractMigration(address _oldAppManagerAddress) external onlyRole(APP_ADMIN_ROLE)
+function setNewApplicationHandlerAddress(address _newApplicationHandler) external onlyRole(APP_ADMIN_ROLE)
 ```
 This function can only be called by the App Admin.
