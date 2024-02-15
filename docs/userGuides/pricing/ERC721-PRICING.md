@@ -82,3 +82,30 @@ Notice that only accounts with the appAdministrator role can invoke this functio
 - **ERC721PricingAddressSet(address indexed _address);**
     - Parameters:
         - _address: the address of the pricing contract.
+
+
+## NFT Valuation Limit
+
+There are certain rules in the protocol which assess cumulative account balances based on ERC20 and ERC721 ownership and valuations. It is possible that an account might own many thousands of NFT's which could cause an "out of gas" error while processing. To mitigate this possible issue, ProtocolERC721Handler contains a variable, **nftValuationLimit**, which is defaulted to 100. This means that any account that owns more than 100 different NFT's will use the NFT Collection price for each type of NFT collection owned as opposed to getting the unique price per tokenId. This reduces gas impacts for the balance based rule checks. This variable may be set to suit the specific needs of each application and/or token and may only be set by an **Application Administrator**.
+
+### ProtocolERC721Handler nftValuationLimit variable definition
+
+```c
+function setNFTValuationLimit(uint16 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(appManagerAddress);
+```
+
+#### Parameters:
+
+- **_newNFTValuationLimit (uint16)**: Total number of NFT's before collection price is used.
+  
+### ProtocolERC721Handler Setter Function
+
+```c
+function setNFTValuationLimit(uint16 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(appManagerAddress);
+```
+
+### ProtocolERC721Handler Getter Function
+
+```c
+function getNFTValuationLimit() external view returns (uint256);
+```
