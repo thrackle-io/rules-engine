@@ -472,6 +472,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
                     ++i;
             }
         }
+        // NOTE -- This is most likely not the right way to deal with the event emission for this rule...
+        // In order to unblock myself I had to update the event signatures to emit an array of action types
+        // instead of just one, but since this rule has a different storage mapping that can hold a list of 
+        // rule structs per action type, I think we'll need to consider a little more carefully how these
+        // emits should actually work. 
         if (_on) {
             emit ApplicationHandlerActionActivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions);
         } else {
