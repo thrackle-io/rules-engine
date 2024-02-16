@@ -189,7 +189,7 @@ contract ApplicationDeployAllScript is Script, DeployBase {
 
     function verifyERC20(bool isCoin1) public view {
        // Make sure the ERC20 Contract has been deployed, if not calling a public function on it will revert.
-       isCoin1 ? ERC20HandlerMainFacet(address(coin1)).getHandlerAddress() : ERC20HandlerMainFacet(address(coin2)).getHandlerAddress();
+       isCoin1 ? coin1.getHandlerAddress() : coin2.getHandlerAddress();
 
        // Make sure the ERC20 Handler Contract has been deployed, if not calling a public function on it will revert.
        isCoin1 ? VersionFacet(address(applicationCoinHandlerDiamond)).version() :  VersionFacet(address(applicationCoinHandlerDiamond2)).version();
@@ -199,11 +199,11 @@ contract ApplicationDeployAllScript is Script, DeployBase {
 
         // Checking to make sure ERC20 has a handler
         if(isCoin1) {
-            if( ERC20HandlerMainFacet(address(coin1)).getHandlerAddress() != address(applicationCoinHandlerDiamond)) {
+            if( coin1.getHandlerAddress() != address(applicationCoinHandlerDiamond)) {
                 revert("Frankenstein Coin not correctly connected to its handler");
             }
         } else {
-            if( ERC20HandlerMainFacet(address(coin2)).getHandlerAddress() != address(applicationCoinHandlerDiamond2)) {
+            if( coin2.getHandlerAddress() != address(applicationCoinHandlerDiamond2)) {
                 revert("Dracula Coin not correctly connected to its handler");
             }
         }
@@ -219,7 +219,7 @@ contract ApplicationDeployAllScript is Script, DeployBase {
         }
 
         // Checking to make sure the ERC20 is registered with the AppManager
-        if( ERC20HandlerMainFacet(address(coin1)).getAppManagerAddress() != address(applicationAppManager)) {
+        if( coin1.getAppManagerAddress() != address(applicationAppManager)) {
             revert("ERC20 not properly registered with the App Manager");
         }
         if(keccak256(abi.encodePacked(applicationAppManager.getTokenID(address(isCoin1 ? coin1 : coin2)))) != keccak256(abi.encodePacked(isCoin1 ? "Frankenstein Coin" : "Dracula Coin"))) {
