@@ -577,39 +577,9 @@ abstract contract TestCommonFoundry is TestCommon {
         /// requires a token be attached and registered for permissions in appManager
         // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
         switchToAppAdministrator();
-        // create the ERC20 and connect it to its handler
-        // applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        // // setupApplicationCoinAndHandler(address(applicationCoin));
-        // applicationCoinHandler = _createERC20HandlerDiamond();
-        // VersionFacet(address(applicationCoinHandler)).updateVersion("1.1.0");
-        // ERC20HandlerMainFacet(address(applicationCoinHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin));
-        // applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
-        // // / register the token
-        // applicationAppManager.registerToken("FRANK", address(applicationCoin));
-
-        ///
-        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        applicationCoinHandler = _createERC20HandlerDiamond();
-        VersionFacet(address(applicationCoinHandler)).updateVersion("1.1.0");
-        ERC20HandlerMainFacet(address(applicationCoinHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin));
-        assertTrue(applicationAppManager.isAppAdministrator(address(0xDEAD)));
-        assertTrue(applicationAppManager.isAppAdministrator(address(0xDABEEF)));
-        address recordedAppManager = applicationCoin.getAppManagerAddress();
-        assertEq(recordedAppManager, address(0xDEAD));
-        assertEq(recordedAppManager, address(0xDABEEF));
-        applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
-        /// register the token
-        applicationAppManager.registerToken("FRK", address(applicationCoin));
-
-        // (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
-
-        applicationCoin2 = _createERC20("application2", "GMC2", applicationAppManager);
-        applicationCoinHandler2 = _createERC20HandlerDiamond();
-        VersionFacet(address(applicationCoinHandler2)).updateVersion("1.1.0");
-        ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin2));
-        applicationCoin2.connectHandlerToToken(address(applicationCoinHandler2));
-        /// register the token
-        applicationAppManager.registerToken("application2", address(applicationCoin2));
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
+        (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
+        
         /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
 
@@ -632,7 +602,6 @@ abstract contract TestCommonFoundry is TestCommon {
 
         switchToAppAdministrator();
         /// register the token
-        // a
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
@@ -661,8 +630,8 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToOriginalUser();
     }
 
-    function deployAndSetupERC20(string memory name, string memory symbol) internal returns(ApplicationERC20 erc20, HandlerDiamond handler) {
-        
+    function deployAndSetupERC20(string memory name, string memory symbol) internal returns(ApplicationERC20 erc20, HandlerDiamond handler){
+        switchToSuperAdminWithSave();
         erc20 = _createERC20(name, symbol, applicationAppManager);
         handler = _createERC20HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
