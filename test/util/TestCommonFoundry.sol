@@ -557,21 +557,10 @@ abstract contract TestCommonFoundry is TestCommon {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
 
         /// create an ERC721
-        // applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
         (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
         (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
 
-        /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
-        //(applicationNFTv2, applicationNFTHandler2) = deployAndSetupERC721("ToughTurtles", "THTR");
-        // applicationNFTHandlerv2 = _createERC721HandlerDiamond();
-        // VersionFacet(address(applicationNFTHandlerv2)).updateVersion("1.1.0");
-        // ERC721HandlerMainFacet(address(applicationNFTHandlerv2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFTv2));
-        // applicationNFTv2.connectHandlerToToken(address(applicationNFTHandlerv2));
-        // /// register the token
-        // applicationAppManager.registerToken("THTR", address(applicationNFTv2));
-
         switchToAppAdministrator();
-        /// register the token
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
@@ -583,7 +572,6 @@ abstract contract TestCommonFoundry is TestCommon {
 
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
-        /// reset the user to the original
         switchToOriginalUser();
 
     }
