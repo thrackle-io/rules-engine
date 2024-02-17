@@ -11,8 +11,7 @@ enum ActionTypes {
     BUY,
     SELL,   
     MINT,
-    BURN,
-    NULLTYPE
+    BURN
 }
 
 // NOTE -- "NULLTYPE" is just a temporary solution to a problem centering around how

@@ -369,12 +369,12 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @param _ruleId rule Id to set
      */
     function setTokenMinTxSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        for (ActionTypes i = ActionTypes.P2P_TRANSFER; i <= ActionTypes.BURN; ) {
+        for (uint i; i < uint(type(ActionTypes).max)+1; ) {
             if (tokenMinTxSize[i].ruleId == _ruleId) {
                 delete tokenMinTxSize[i];
             }
             unchecked {
-                i = ActionTypes(uint8(i) + 1);
+                ++i;
             }
         }
 
@@ -395,16 +395,40 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateMinTransactionSizeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        for (uint i; i < _actions.length; ) {
+        // This will be fun to incorporate into the docs, but this new approach to activate/deactivate 
+        // actually introduces a distinction to our concepts of "active" and "inactive" rules. Here in Tron,
+        // There is really no difference between deactivating each (ActionType, ruleId) tuple vs the
+        // entire ruleType being deactivated, but in DOOM this difference matters. So here's the new approach
+        //
+        // When DOOM wants to deactivate a whole ruleType, it sends an empty _actions array and _on = false
+        // When DOOM wants to reactivate a whole ruleType and restore it to its previous state of configuration,
+        // it sends the list of specific _actions to turn back on. 
+        // A potential gotcha here is -- if someone sends activate([0,1,2,3,4], true), if any of those action
+        // types were never previously assigned a ruleId, then the call will end up activating ruleId 0 for each
+        // of those actions. 
+        int8 numberOfActions = _actions.length == 0 ? 5 : _actions.length
+        for (uint i; i < numberOfActions; ) {
             tokenMinTxSize[_actions[i]].active = _on;
             unchecked {
                 ++i;
             }
         }
+
+        /// I dunno if there's a better way to do this... maybe we just have one pair of activate/deactivate
+        /// events and there's an optional third parameter on it for "whole rule type" vs "specific action/rule 
+        /// pair", so we dont' have to have this ugly nested if/else thing going on. 
         if (_on) {
-            emit ApplicationHandlerActionActivated(TOKEN_MIN_TX_SIZE, _actions);
+            if(_actions.length == 0) {
+                emit ApplicationHandlerRuleTypeActivated(TOKEN_MIN_TX_SIZE);
+            } else {
+                emit ApplicationHandlerActionActivated(TOKEN_MIN_TX_SIZE, _actions);
+            }
         } else {
-            emit ApplicationHandlerActionDeactivated(TOKEN_MIN_TX_SIZE, _actions);
+            if(_actions.length == 0) {
+                emit ApplicationHandlerRuleTypeDeactivated(TOKEN_MIN_TX_SIZE);
+            } else {
+                emit ApplicationHandlerActionDeactivated(TOKEN_MIN_TX_SIZE, _actions);
+            }
         }
     }
 

@@ -130,10 +130,14 @@ interface ITokenHandlerEvents {
     /// Rule applied
     event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes[] action, uint32 indexed ruleId);
     event ApplicationHandlerSimpleActionApplied(bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1);
-    /// Rule deactivated
+    /// Rule deactivated -- This deactivates a specific (ActionType, ruleId) tuple. 
     event ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes[] action);
-    /// Rule activated
+    /// Rule activated -- This activates a specific (ActionType, ruleId) tuple.
     event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes[] action);
+    /// RuleType deactivated -- This deactivates *all* (ActionType, ruleId) tuples for a given ruleType.
+    event ApplicationHandlerRuleTypeDeactivated(bytes32 indexed ruleType);
+    /// RuleType activated -- This activates *all* (ActionType, ruleId) tuples for a given ruleType.
+    event ApplicationHandlerRuleTypeActivated(bytes32 indexed ruleType);
     /// NFT Valuation Limit Updated
     event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
     event AppManagerAddressSet(address indexed _address);
