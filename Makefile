@@ -50,9 +50,9 @@ deployNewApp:; forge script script/clientScripts/ApplicationUIDeploy.s.sol --ffi
 # defines its own value for eth-rpc-url, similarly to how the docker profile is set up now,
 # and then having the deploy pipeline set FOUNDRY_PROFILE=pipeline in the build environment
 deployAllPipeline:; forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast -vvv --non-interactive --rpc-url ${PIPELINE_ETH_RPC_URL} 
-					bash script/ParseProtocolDeploy.sh
-					forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast -vvv --non-interactive --rpc-url ${PIPELINE_ETH_RPC_URL}
-					forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast -vvv --non-interactive --rpc-url ${PIPELINE_ETH_RPC_URL}
+		bash script/ParseProtocolDeploy.sh
+		forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast -vvv --non-interactive --rpc-url ${PIPELINE_ETH_RPC_URL}
+		forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast -vvv --non-interactive --rpc-url ${PIPELINE_ETH_RPC_URL}
 
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>    TERMINAL TESTS    <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 # Testing is in modules: Access, Rule, AMM and Staking   
