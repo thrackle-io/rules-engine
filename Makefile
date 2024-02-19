@@ -43,7 +43,17 @@ deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol 
 # Deploy Application Contracts(entire application implementation)
 deployAllApp:; forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv --non-interactive
 deployNewApp:; forge script script/clientScripts/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvv
-			
+
+# Using a different env ref for pipeline deploy command.
+# Note from RK -- Outside the scope of what I'm doing right now, but
+# This could also be accomplished by creating a "pipeline" profile in foundry.toml which
+# defines its own value for eth-rpc-url, similarly to how the docker profile is set up now,
+# and then having the deploy pipeline set FOUNDRY_PROFILE=pipeline in the build environment
+deployAllPipeline:; forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast -vvv --non-interactive --rpc-url ${PIPELINE_ETH_RPC_URL} 
+					bash script/ParseProtocolDeploy.sh
+					forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast -vvv --non-interactive --rpc-url ${PIPELINE_ETH_RPC_URL}
+					forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast -vvv --non-interactive --rpc-url ${PIPELINE_ETH_RPC_URL}
+
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>    TERMINAL TESTS    <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 # Testing is in modules: Access, Rule, AMM and Staking   
 # Command names should be unique for each test and not reused in this file. command_test.txt can reuse command names for running the full test at once. 
