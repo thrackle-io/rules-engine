@@ -104,12 +104,12 @@ sed -i '' 's/LOCAL_DEPLOYMENT_OWNER=.*/LOCAL_DEPLOYMENT_OWNER='$APP_ADMIN_1'/g' 
 sed -i '' 's/LOCAL_DEPLOYMENT_OWNER_KEY=.*/LOCAL_DEPLOYMENT_OWNER_KEY='$APP_ADMIN_1_KEY'/g' $ENV_FILE
 
 if [ "$ALREADY_DEPLOYED" = "y" ]; then
-    echo "Protocol already deployed skipping DeployAllModules.s.sol"
+    echo "Protocol already deployed skipping Protocol Deployment Scripts"
 else
 
     # Deploying the protocol
     echo "################################################################"
-    echo Running DeployAllModules.s.sol
+    echo Running Deploy Protocol scripts
     echo $ETH_RPC_URL
     echo "################################################################"
     echo
@@ -276,7 +276,7 @@ echo  Deploying "$APP_NAME"ERC721
 echo "################################################################"
 echo
 
-OUTPUT=$(forge create ./src/example/$APP_NAME/$ERC721_FILE_NAME:"$APP_NAME"ERC721 --constructor-args "Frankenstein" "FRANKPIC" $APPLICATION_APP_MANAGER "baseURI" --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
+OUTPUT=$(forge create ./src/example/$APP_NAME/$ERC721_FILE_NAME:"$APP_NAME"ERC721FreeMint --constructor-args "Frankenstein" "FRANKPIC" $APPLICATION_APP_MANAGER "baseURI" --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
 
 INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
 
@@ -429,9 +429,10 @@ echo "################################################################"
 echo
 
 # Comment the following line out to see the oracle rule fail
-cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
-cast send $ORACLE_2_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_2 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+
+cast send $ORACLE_2_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
 echo  Create Account Min/Max Token Balance Rule

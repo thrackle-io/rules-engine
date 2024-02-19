@@ -14,8 +14,10 @@ if test -f ./.git ; then
 fi
 
 if [ $WITH_DEPLOY = "--with-deploy" ]; then
-	forge script script/DeployAllModules.s.sol --ffi --broadcast
+	forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast
 	bash script/ParseProtocolDeploy.sh
+	forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast
+	forge script script/DeployAllModulesPt3.s.sol --ffi --broadcast
 	forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv --non-interactive
 	bash script/ParseApplicationDeploy.sh
 fi

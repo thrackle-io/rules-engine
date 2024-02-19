@@ -35,7 +35,7 @@ deployRuleProcessor:; forge script script/RuleProcessorModule.s.sol --ffi --broa
 deployTokenRuleRouter:; forge script script/TokenRuleRouter.s.sol --ffi --broadcast -vvv
 deployTaggedRuleProcessor:; forge script script/TaggedRuleProcessor.s.sol --ffi --broadcast -vvv
 # Deploy contracts(full protocol)
-deployAll:;	forge script script/DeployAllModules.s.sol --ffi --broadcast -vvv --non-interactive
+deployAll:;	bash script/deploy/DeployProtocol.sh
 # Deploy Application Contracts(singles)
 deployApplicationAppManager:; forge script src/example/script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
 deployApplicationERC20Handler:; forge script src/example/script/ApplicationERC20Handler.s.sol --ffi --broadcast -vvv
@@ -43,14 +43,6 @@ deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol 
 # Deploy Application Contracts(entire application implementation)
 deployAllApp:; forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv --non-interactive
 deployNewApp:; forge script script/clientScripts/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvv
-# Using a different env ref for pipeline deploy command.
-# Note from RK -- Outside the scope of what I'm doing right now, but
-# This could also be accomplished by creating a "pipeline" profile in foundry.toml which
-# defines its own value for eth-rpc-url, similarly to how the docker profile is set up now,
-# and then having the deploy pipeline set FOUNDRY_PROFILE=pipeline in the build environment
-deployAllPipeline:; forge script script/DeployAllModules.s.sol --ffi --rpc-url ${PIPELINE_ETH_RPC_URL} --broadcast --verify -vvvv
-deployAllPipelineResume:; forge script script/DeployAllModules.s.sol --ffi --rpc-url ${PIPELINE_ETH_RPC_URL} --broadcast --verify -vvvv --resume
-
 			
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>    TERMINAL TESTS    <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 # Testing is in modules: Access, Rule, AMM and Staking   
