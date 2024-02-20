@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
 import {IZeroAddressError, IProtocolERC20Errors} from "src/common/IErrors.sol";
 import "../ProtocolTokenCommon.sol";
-import "src/client/token/handler/diamond/IHandlerDiamond.sol";
+import "src/client/token/IProtocolTokenHandler.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
 import "../handler/diamond/FeesFacet.sol";
 import "../handler/diamond/ERC20HandlerMainFacet.sol";
@@ -87,7 +87,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address owner = _msgSender();
         // if transfer fees/discounts are defined then process them first
-        if (IHandlerDiamond(handler).isFeeActive()) {
+        if (FeesFacet(address(address(handler))).isFeeActive()) {
             address[] memory targetAccounts;
             int24[] memory feePercentages;
             uint256 fees;
@@ -194,7 +194,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      */
     function connectHandlerToToken(address _handlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
-        handler = IHandlerDiamond(_handlerAddress);
+        handler = IProtocolTokenHandler(_handlerAddress);
         emit HandlerConnected(_handlerAddress, address(this));
     }
 

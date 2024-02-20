@@ -17,7 +17,7 @@ import "../../IAdminMinTokenBalanceCapable.sol";
 contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IAppManagerErrors, ITokenHandlerEvents, RuleAdministratorOnly, IAdminMinTokenBalanceCapable {
 
     /// This is used to set the max action for an efficient check of all actions in the enum
-    uint8 constant LAST_POSSIBLE_ACTION = uint8(ActionTypes.P2P_TRANSFER);
+    uint8 constant LAST_POSSIBLE_ACTION = uint8(ActionTypes.BURN);
 
     /// Rule Setters and Getters
     /**
