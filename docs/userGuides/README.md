@@ -84,8 +84,8 @@ coming soon...
 
 #### Deploy The Protocol
 
-`scripts/DeployAllModules.s.sol`
-This script is responsible for deploying the whole protocol contracts. Take into account that no game-specific contracts are deployed here.
+`scripts/deploy/DeployProtocol.sh`
+This script is responsible for deploying all the protocol contracts. Take into account that no application-specific contracts are deployed here.
 
 #### Deploy Some Test Game Tokens
 

@@ -44,10 +44,10 @@ is an overview of this deployment process:
    ```
 6. In the same terminal as above, navigate to the cloned repo directory and run the build script
    ````
-   forge script script/DeployAllModules.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL
+	bash script/deploy/DeployProtocol.sh
    ````
 
-7. Take note of the output and locate the following addresses(from terminal output or broadcast/DeployAllModules.s.sol/<YOUR_CHAIN_ID>/run-latest.json). Example:
+7. Take note of the output and locate the following addresses(from terminal output or broadcast/DeployAllModulesPt1.s.sol/<YOUR_CHAIN_ID>/run-latest.json). Example:
    ```
    "hash": "0x1902f5f3c6f2ed24ae3a64c8ddb41e72fb71b57c3404278c965dee920aa6f40f",
    "transactionType": "CREATE",
