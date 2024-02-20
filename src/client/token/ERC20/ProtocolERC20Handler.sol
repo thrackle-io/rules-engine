@@ -406,7 +406,7 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
         // A potential gotcha here is -- if someone sends activate([0,1,2,3,4], true), if any of those action
         // types were never previously assigned a ruleId, then the call will end up activating ruleId 0 for each
         // of those actions. 
-        int8 numberOfActions = _actions.length == 0 ? 5 : _actions.length
+        int8 numberOfActions = _actions.length == 0 ? 5 : _actions.length;
         for (uint i; i < numberOfActions; ) {
             tokenMinTxSize[_actions[i]].active = _on;
             unchecked {
