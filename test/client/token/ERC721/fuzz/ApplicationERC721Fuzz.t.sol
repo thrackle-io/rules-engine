@@ -300,7 +300,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         vm.expectRevert(0x09a92f2d);
         applicationNFT.transferFrom(_user2, _user1, 2);
     }
-    
+
     function testERC721_AccountMaxTransactionValueByRiskScoreRuleNFT(uint8 _addressIndex, uint8 _risk) public {
         for (uint i; i < 30; ) {
             applicationNFT.safeMint(appAdministrator);
