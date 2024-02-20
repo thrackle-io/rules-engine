@@ -17,7 +17,7 @@ import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.s
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract deploys All Contracts for the Protocol
  * @dev This script will only deploy the processor diamond and all of its facets and set the storage diamond address
- * note This script should be used to break up facet cuts if necessary for testnet deployments (Not DeployAllModules.s.sol as that is for local testing)
+ * note This script should be used to break up facet cuts if necessary for testnet deployments (Not DeployAllModulesPt1.s.sol, DeployAllModulesPt2.s.sol, DeployAllModulesPt3.s.sol as they are for local testing)
  */
 contract DeployAllModulesScript is Script {
     /// Store the FacetCut struct for each facet that is being deployed.

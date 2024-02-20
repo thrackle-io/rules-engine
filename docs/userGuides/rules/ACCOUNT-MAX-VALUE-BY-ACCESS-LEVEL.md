@@ -174,7 +174,7 @@ This rule doesn't require of any data to be recorded.
         - extraTags: empty array.
 
 - **event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
-    - Emitted when: rule has been applied in an application manager handler.
+    - Emitted when: rule has been applied in an application handler.
     - Parameters: 
         - ruleType: "ACC_MAX_VALUE_BY_ACCESS_LEVEL".
         - ruleId: the ruleId set for this rule in the handler.

@@ -371,9 +371,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccountDenyForNoAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         AccountDenyForNoAccessLevelRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ACCESS_LEVEL_0);
+            emit ApplicationHandlerActivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL);
         } else {
-            emit ApplicationHandlerDeactivated(ACCESS_LEVEL_0);
+            emit ApplicationHandlerDeactivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL);
         }
     }
 
