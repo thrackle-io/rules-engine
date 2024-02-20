@@ -408,7 +408,11 @@ contract ProtocolERC20Handler is Ownable, ProtocolHandlerCommon, ProtocolHandler
         // of those actions. 
         uint numberOfActions = _actions.length == 0 ? 5 : _actions.length;
         for (uint i; i < numberOfActions; ) {
-            tokenMinTxSize[_actions[i]].active = _on;
+            if(_actions.length > 0) {
+                tokenMinTxSize[_actions[i]].active = _on;
+            } else {
+                tokenMinTxSize[ActionTypes(i)].active = _on;
+            }
             unchecked {
                 ++i;
             }
