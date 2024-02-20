@@ -62,7 +62,7 @@ function isRuleActive(uint64 _startTs) internal view returns (bool);
 
 
 ```solidity
-function isWithinPeriod(uint64 _startTime, uint32 _period, uint64 _lastTransferTs) internal view returns (bool);
+function isWithinPeriod(uint64 _startTime, uint32 _period, uint64 _lastTransferTime) internal view returns (bool);
 ```
 **Parameters**
 
@@ -70,7 +70,7 @@ function isWithinPeriod(uint64 _startTime, uint32 _period, uint64 _lastTransferT
 |----|----|-----------|
 |`_startTime`|`uint64`|the timestamp the rule was enabled|
 |`_period`|`uint32`|amount of hours in the rule period|
-|`_lastTransferTs`|`uint64`|the last transfer timestamp|
+|`_lastTransferTime`|`uint64`|the last transfer timestamp|
 
 **Returns**
 

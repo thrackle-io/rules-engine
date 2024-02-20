@@ -96,13 +96,14 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
      * @param _volume token's trading volume thus far
      * @param _amount Number of tokens to be transferred from this account
      * @param _supply Number of tokens in supply
-     * @param _lastTransferTs the time of the last transfer
+     * @param _lastTransferTime the time of the last transfer
      * @return _volume new accumulated volume
      */
-    function checkTokenMaxTradingVolume(uint32 _ruleId, uint256 _volume, uint256 _supply, uint256 _amount, uint64 _lastTransferTs) external view returns (uint256) {
+    function checkTokenMaxTradingVolume(uint32 _ruleId, uint256 _volume, uint256 _supply, uint256 _amount, uint64 _lastTransferTime) external view returns (uint256) {
         NonTaggedRules.TokenMaxTradingVolume memory rule = getTokenMaxTradingVolume(_ruleId);
         if (rule.startTime.isRuleActive()) {
-            _volume = rule.startTime.isWithinPeriod(rule.period, _lastTransferTs) ? _volume + _amount : _amount;
+            _volume = rule.startTime.isWithinPeriod(rule.period, _lastTransferTime) ? _volume + _amount : _amount;
+            /// if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
             if (rule.totalSupply != 0) {
                 _supply = rule.totalSupply;
             }

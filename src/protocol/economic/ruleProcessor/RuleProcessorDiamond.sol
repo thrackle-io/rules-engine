@@ -4,9 +4,11 @@ pragma solidity ^0.8.17;
 import {IRuleProcessorDiamondEvents} from "src/common/IEvents.sol";
 import {RuleProcessorDiamondLib as DiamondLib, RuleProcessorDiamondStorage, RuleDataStorage, FacetCut} from "./RuleProcessorDiamondLib.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
+import {IRuleProcessorDiamondEvents} from "../../../common/IEvents.sol";
 
 /// When no function exists for function called
 error FunctionNotFound(bytes4 _functionSelector);
+error FacetHasNoCodeOrHasBeenDestroyed();
 
 /**
  * This is used in diamond constructor
@@ -53,6 +55,8 @@ contract RuleProcessorDiamond is ERC173, IRuleProcessorDiamondEvents {
         if (facet == address(0)) {
             revert FunctionNotFound(msg.sig);
         }
+
+        if (facet.code.length == 0) revert FacetHasNoCodeOrHasBeenDestroyed();
 
         // Execute external function from facet using delegatecall and return any value.
         assembly {

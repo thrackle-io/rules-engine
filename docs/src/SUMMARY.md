@@ -74,7 +74,7 @@
     - [IOracleEvents](src/common/IEvents.sol/interface.IOracleEvents.md)
     - [IApplicationHandlerEvents](src/common/IEvents.sol/interface.IApplicationHandlerEvents.md)
     - [ICommonApplicationHandlerEvents](src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md)
-    - [IRuleStorageDiamondEvents](src/common/IEvents.sol/interface.IRuleStorageDiamondEvents.md)
+    - [IRuleProcessorDiamondEvents](src/common/IEvents.sol/interface.IRuleProcessorDiamondEvents.md)
     - [IEconomicEvents](src/common/IEvents.sol/interface.IEconomicEvents.md)
     - [ITokenHandlerEvents](src/common/IEvents.sol/interface.ITokenHandlerEvents.md)
     - [IApplicationEvents](src/common/IEvents.sol/interface.IApplicationEvents.md)

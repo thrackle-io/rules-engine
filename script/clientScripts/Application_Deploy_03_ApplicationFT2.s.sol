@@ -2,10 +2,11 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/ERC20/ApplicationERC20Handler.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
+import "./Application_Deploy_02_ApplicationFT1.s.sol";
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
+import "./DeployBase.s.sol";
 
 /**
  * @title Application Deploy 03 Application Fungible Token 2 Script
@@ -24,8 +25,8 @@ import {ApplicationAppManager} from "src/example/application/ApplicationAppManag
  * forge script example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract ApplicationDeployFT2Script is Script {
-    ApplicationERC20Handler applicationCoinHandler2;
+contract ApplicationDeployFT2Script is Script, DeployBase {
+    HandlerDiamond applicationCoinHandlerDiamond2;
     uint256 privateKey;
     address ownerAddress;
 
@@ -40,8 +41,9 @@ contract ApplicationDeployFT2Script is Script {
 
         /// Create ERC20 token 2
         ApplicationERC20 coin2 = new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2), false);
-        coin2.connectHandlerToToken(address(applicationCoinHandler2));
+        applicationCoinHandlerDiamond2 = createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond2)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2));
+        coin2.connectHandlerToToken(address(applicationCoinHandlerDiamond2));
 
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("Dracula Coin", address(coin2));

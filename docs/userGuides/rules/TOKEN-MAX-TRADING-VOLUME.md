@@ -163,7 +163,7 @@ The following validation will be carried out by the create function in order to 
                     uint256 _volume,
                     uint256 _supply, 
                     uint256 _amount, 
-                    uint64 _lastTransferTs
+                    uint64 _lastTransferTime
                 ) 
                 external 
                 view;
@@ -204,7 +204,7 @@ This rule requires recording of the following information in the asset handler:
 - **Last Transfer Time** (uint64): the Unix timestamp of the last update in the Last-Transfer-Time variable
 
 ```c
-uint64 private lastTransferTs;
+uint64 private lastTransferTime;
 uint256 private transferVolume;
 ```
 

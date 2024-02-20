@@ -30,7 +30,7 @@
 - [IOracleEvents](IEvents.sol/interface.IOracleEvents.md)
 - [IApplicationHandlerEvents](IEvents.sol/interface.IApplicationHandlerEvents.md)
 - [ICommonApplicationHandlerEvents](IEvents.sol/interface.ICommonApplicationHandlerEvents.md)
-- [IRuleStorageDiamondEvents](IEvents.sol/interface.IRuleStorageDiamondEvents.md)
+- [IRuleProcessorDiamondEvents](IEvents.sol/interface.IRuleProcessorDiamondEvents.md)
 - [IEconomicEvents](IEvents.sol/interface.IEconomicEvents.md)
 - [ITokenHandlerEvents](IEvents.sol/interface.ITokenHandlerEvents.md)
 - [IApplicationEvents](IEvents.sol/interface.IApplicationEvents.md)

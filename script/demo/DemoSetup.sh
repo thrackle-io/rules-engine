@@ -41,7 +41,7 @@ if [ "$LOCAL" = "y" ]; then
     echo Starting anvil
     echo "################################################################"
     echo 
-    anvil --gas-limit 80000000 --code-size-limit 30000 &> ./anvil_output.txt &
+    anvil --gas-limit 80000000 &> ./anvil_output.txt &
     sleep 8
 
     # Parsing anvil output to grab an adress and its private key
@@ -187,17 +187,17 @@ cp ./src/example/ERC721/ApplicationERC721FreeMint.sol ./src/example/$APP_NAME/$E
 
 sed -i '' 's/ApplicationERC721/'$APP_NAME'ERC721/g' ./src/example/$APP_NAME/$ERC721_FILE_NAME
 
-cp ./src/example/ERC721/ApplicationERC721Handler.sol ./src/example/$APP_NAME/$ERC721_HANDLER_FILE_NAME
+# cp ./src/example/ERC721/ApplicationERC721Handler.sol ./src/example/$APP_NAME/$ERC721_HANDLER_FILE_NAME
 
-sed -i '' 's/ApplicationERC721Handler/'$APP_NAME'ERC721Handler/g' ./src/example/$APP_NAME/$ERC721_HANDLER_FILE_NAME
+# sed -i '' 's/ApplicationERC721Handler/'$APP_NAME'ERC721Handler/g' ./src/example/$APP_NAME/$ERC721_HANDLER_FILE_NAME
 
 cp ./src/example/ERC20/ApplicationERC20.sol ./src/example/$APP_NAME/$ERC20_FILE_NAME
 
 sed -i '' 's/ApplicationERC20/'$APP_NAME'ERC20/g' ./src/example/$APP_NAME/$ERC20_FILE_NAME
 
-cp ./src/example/ERC20/ApplicationERC20Handler.sol ./src/example/$APP_NAME/$ERC20_HANDLER_FILE_NAME
+# cp ./src/example/ERC20/ApplicationERC20Handler.sol ./src/example/$APP_NAME/$ERC20_HANDLER_FILE_NAME
 
-sed -i '' 's/ApplicationERC20Handler/'$APP_NAME'ERC20Handler/g' ./src/example/$APP_NAME/$ERC20_HANDLER_FILE_NAME
+# sed -i '' 's/ApplicationERC20Handler/'$APP_NAME'ERC20Handler/g' ./src/example/$APP_NAME/$ERC20_HANDLER_FILE_NAME
 
 # Oracle
 
@@ -308,13 +308,26 @@ echo  Deploying "$APP_NAME"ERC20Handler
 echo "################################################################"
 echo
 
-OUTPUT=$(forge create ./src/example/$APP_NAME/$ERC20_HANDLER_FILE_NAME:"$APP_NAME"ERC20Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC20_1 false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
+    forge script script/clientScripts/DeployERC20Handler.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
-INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
+    # Retreive the Rule Processor Diamond Address
+    if [ "$LOCAL" = "y" ]; then
+        APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select(.contractName=="HandlerDiamond") | .contractAddress' broadcast/DeployERC20Handler.s.sol/31337/run-latest.json)
+    else
+        APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select(.contractName=="HandlerDiamond") | .contractAddress' broadcast/DeployERC20Handler.s.sol/80001/run-latest.json)
+    fi
+    APPLICATION_ERC20_1_HANDLER="${APPLICATION_ERC20_1_HANDLER_UNCUT//\"}"
 
-OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-APPLICATION_ERC20_1_HANDLER="${outputarray[4]}"
+    echo $APPLICATION_ERC20_1_HANDLER
+    echo 
+
+# OUTPUT=$(forge create ./src/example/$APP_NAME/$ERC20_HANDLER_FILE_NAME:"$APP_NAME"ERC20Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC20_1 false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
+
+# INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
+
+# OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
+# IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
+# APPLICATION_ERC20_1_HANDLER="${outputarray[4]}"
 
 echo export APPLICATION_ERC20_1_HANDLER=$APPLICATION_ERC20_1_HANDLER | tee -a $OUTPUTFILE
 echo
@@ -324,13 +337,26 @@ echo  Deploying "$APP_NAME"ERC721Handler
 echo "################################################################"
 echo
 
-OUTPUT=$(forge create ./src/example/$APP_NAME/$ERC721_HANDLER_FILE_NAME:"$APP_NAME"ERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC721_1 false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
+    forge script script/clientScripts/DeployERC721Handler.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
-INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
+    # Retreive the Rule Processor Diamond Address
+    if [ "$LOCAL" = "y" ]; then
+        APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select(.contractName=="HandlerDiamond") | .contractAddress' broadcast/DeployERC721Handler.s.sol/31337/run-latest.json)
+    else
+        APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select(.contractName=="HandlerDiamond") | .contractAddress' broadcast/DeployERC721Handler.s.sol/80001/run-latest.json)
+    fi
+    APPLICATION_ERC721_1_HANDLER="${APPLICATION_ERC721_1_HANDLER_UNCUT//\"}"
 
-OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-APPLICATION_ERC721_1_HANDLER="${outputarray[4]}"
+    echo $APPLICATION_ERC721_1_HANDLER
+    echo 
+
+# OUTPUT=$(forge create ./src/example/$APP_NAME/$ERC721_HANDLER_FILE_NAME:"$APP_NAME"ERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC721_1 false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
+
+# INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
+
+# OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
+# IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
+# APPLICATION_ERC721_1_HANDLER="${outputarray[4]}"
 
 echo export APPLICATION_ERC721_1_HANDLER=$APPLICATION_ERC721_1_HANDLER | tee -a $OUTPUTFILE
 echo
@@ -379,6 +405,8 @@ echo  Connect handler to ERC721
 echo "################################################################"
 echo
 
+cast send $APPLICATION_ERC721_1_HANDLER "initialize(address, address, address)" $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC721_1 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL 
+
 cast send $APPLICATION_ERC721_1 "connectHandlerToToken(address)" $APPLICATION_ERC721_1_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL 
 
 echo "################################################################"
@@ -392,6 +420,8 @@ echo "################################################################"
 echo  Connect handler to ERC20
 echo "################################################################"
 echo
+
+cast send $APPLICATION_ERC20_1_HANDLER "initialize(address, address, address)" $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC20_1 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL 
 
 cast send $APPLICATION_ERC20_1 "connectHandlerToToken(address)" $APPLICATION_ERC20_1_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL 
 
@@ -407,7 +437,7 @@ echo  Mint a billion coins
 echo "################################################################"
 echo
 
-cast send $APPLICATION_ERC20_1 "mint(address,uint256)" $APP_ADMIN_1 10000000000000000000000000000000 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1
+cast send $APPLICATION_ERC20_1 "mint(address,uint256)" $APP_ADMIN_1 10000000000000000000000000000000 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
 echo  Set Price of ERC721 collection

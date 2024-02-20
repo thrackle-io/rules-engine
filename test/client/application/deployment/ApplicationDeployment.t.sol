@@ -10,6 +10,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
 
     address appManagerAddress;
     bool forkTest;
+    event LogAddress(address _address);
 
     function setUp() public {
         if(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER") != address(0x0)) {
@@ -30,7 +31,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
 
             // Verify ERC20 Handler has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS") != address(0x0));
-            applicationCoinHandler = ApplicationERC20Handler(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS"));
+            applicationCoinHandler = HandlerDiamond(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS")));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS"), address(applicationCoinHandler));
 
             // Verify the second ERC20 has been deployed
@@ -40,7 +41,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
 
             // Verify the second ERC20 Handler has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS_2") != address(0x0));
-            applicationCoinHandler2 = ApplicationERC20Handler(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS_2"));
+            applicationCoinHandler2 = HandlerDiamond(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS_2")));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_HANDLER_ADDRESS_2"), address(applicationCoinHandler2));
 
             // Verify the second ERC721 has been deployed
@@ -50,7 +51,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
 
             // Verify the ERC721 has been deployed
             assertTrue(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER") != address(0x0));
-            applicationNFTHandler = ApplicationERC721Handler(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER"));
+            applicationNFTHandler = HandlerDiamond(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER")));
             assertEq(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER"), address(applicationNFTHandler));
 
             // Verify the ERC20 Pricing Contract has been deployed
@@ -67,11 +68,13 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         } else {
             vm.warp(Blocktime);
             vm.startPrank(appAdministrator);
-            setUpProtocolAndAppManagerAndTokens();
+            setUpProcotolAndCreateERC20AndDiamondHandler();
             switchToAppAdministrator();
 
             applicationCoin2 = _createERC20("DRACULA", "DRK", applicationAppManager);
-            applicationCoinHandler2 = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin2);
+            applicationCoinHandler2 = _createERC20HandlerDiamond();
+            ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin2));
+            applicationCoin2.connectHandlerToToken(address(applicationCoinHandler2));
             /// register the token
             applicationAppManager.registerToken("Dracula Coin", address(applicationCoin2));
             applicationAppManager.registerTreasury(vm.envAddress("FEE_TREASURY"));
@@ -96,8 +99,8 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         vm.startPrank(superAdmin);
         assertEq(applicationCoin.getHandlerAddress(), address(applicationCoinHandler));
         assertEq(applicationCoin2.getHandlerAddress(), address(applicationCoinHandler2));
-        assertEq(applicationCoinHandler.owner(), address(applicationCoin));
-        assertEq(applicationCoinHandler2.owner(), address(applicationCoin2));
+        assertEq(ERC173Facet(address(applicationCoinHandler)).owner(), address(applicationCoin));
+        assertEq(ERC173Facet(address(applicationCoinHandler2)).owner(), address(applicationCoin2));
         assertEq(applicationCoin.getAppManagerAddress(), address(applicationAppManager));
         assertEq(applicationCoin2.getAppManagerAddress(), address(applicationAppManager));
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationCoinHandler)));

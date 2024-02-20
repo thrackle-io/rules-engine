@@ -9,7 +9,7 @@ import "./ProtocolHandlerCommon.sol";
  * @notice This contract contains common variables and functions for all Protocol Asset Handlers
  * regarding trading rules (Purchase Limit, Purchase Percentage, Sell Limit, Sell Percentage).
  */
-contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdministratorOnly{
+contract ProtocolHandlerTradingRulesCommon is RuleAdministratorOnly, ProtocolHandlerCommon{
 
     /// RuleIds
     uint32 internal accountMaxBuySizeId;
@@ -36,7 +36,7 @@ contract ProtocolHandlerTradingRulesCommon is ProtocolHandlerCommon, RuleAdminis
 
      /// token level accumulators
     uint256 internal transferVolume;
-    uint64 internal lastTransferTs;
+    uint64 internal lastTransferTime;
     uint64 internal lastSupplyUpdateTime;
     int256 internal volumeTotalForPeriod;
     uint256 internal totalSupplyForPeriod;

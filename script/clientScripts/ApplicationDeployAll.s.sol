@@ -2,8 +2,6 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
-import "src/example/ERC20/ApplicationERC20Handler.sol";
-import {ApplicationERC721Handler} from "src/example/ERC721/ApplicationERC721Handler.sol";
 import "src/example/ERC20/ApplicationERC20.sol";
 import {ApplicationERC721AdminOrOwnerMint} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import {ApplicationAppManager} from "src/example/application/ApplicationAppManager.sol";
@@ -12,18 +10,21 @@ import "src/example/OracleDenied.sol";
 import "src/example/OracleApproved.sol";
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
+import "./DeployBase.s.sol";
+import {VersionFacet} from "src/protocol/diamond/VersionFacet.sol";
+import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 
 /**
  * @title Application Deploy All Script
  * @dev This script will deploy all application contracts needed to test the protocol interactions.
  * @notice Deploys the application App Manager, AppManager, ERC20, ERC721, and associated handlers, pricing and oracle contracts.
  */
-contract ApplicationDeployAllScript is Script {
+contract ApplicationDeployAllScript is Script, DeployBase {
     ApplicationAppManager applicationAppManager;
     ApplicationHandler applicationHandler;
-    ApplicationERC20Handler applicationCoinHandler;
-    ApplicationERC20Handler applicationCoinHandler2;
-    ApplicationERC721Handler applicationNFTHandler;
+    HandlerDiamond applicationCoinHandlerDiamond;
+    HandlerDiamond applicationCoinHandlerDiamond2;
+    HandlerDiamond applicationNFTHandlerDiamond;
     ApplicationERC20 coin1;
     ApplicationERC20 coin2;
     ApplicationERC721AdminOrOwnerMint nft1;
@@ -48,23 +49,28 @@ contract ApplicationDeployAllScript is Script {
         applicationAppManager.addRuleAdministrator(vm.envAddress("QUORRA"));
         /// create ERC20 token 1
         coin1 = new ApplicationERC20("Frankenstein Coin", "FRANK", address(applicationAppManager));
-        applicationCoinHandler = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), false);
-        coin1.connectHandlerToToken(address(applicationCoinHandler));
+        applicationCoinHandlerDiamond = createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1));
+        coin1.connectHandlerToToken(address(applicationCoinHandlerDiamond));
+
+    
         
         /// create ERC20 token 2
         coin2 = new ApplicationERC20("Dracula Coin", "DRAC", address(applicationAppManager));
-        applicationCoinHandler2 = new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2), false);
-        coin2.connectHandlerToToken(address(applicationCoinHandler2));
         
+        applicationCoinHandlerDiamond2 = createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(applicationCoinHandlerDiamond2)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin2));
+        coin2.connectHandlerToToken(address(applicationCoinHandlerDiamond2));
+
         /// oracle
         new OracleApproved();
         new OracleDenied();
         
         /// create NFT
         nft1 = new ApplicationERC721AdminOrOwnerMint("Frankenstein", "FRANKPIC", address(applicationAppManager), vm.envString("APPLICATION_ERC721_URI_1"));
-        applicationNFTHandler = new ApplicationERC721Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1), false);
-        nft1.connectHandlerToToken(address(applicationNFTHandler));
-        
+        applicationNFTHandlerDiamond = createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1));
+        nft1.connectHandlerToToken(address(applicationNFTHandlerDiamond));
 
         /// Register the tokens with the application's app manager
         applicationAppManager.registerToken("Frankenstein Coin", address(coin1));
@@ -89,7 +95,8 @@ contract ApplicationDeployAllScript is Script {
         
         /// This is a new app manager used for upgrade testing
         new ApplicationAppManager(vm.envAddress("QUORRA"), "Castlevania", true);
-        new ApplicationERC20Handler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(coin1), true);
+        HandlerDiamond newApplicationNFTHandlerDiamond = createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(newApplicationNFTHandlerDiamond)).initialize(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager), address(nft1));
         
         vm.stopBroadcast();
         vm.startBroadcast(vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY"));
@@ -145,18 +152,18 @@ contract ApplicationDeployAllScript is Script {
         nft1.getHandlerAddress();
 
        // Make sure the ERC721 Handler Contract has been deployed, if not calling a public function on it will revert.
-       applicationNFTHandler.version();
+       VersionFacet(address(applicationNFTHandlerDiamond)).version();
 
        // Make sure the ERC20 Pricing Module Contract has been deployed, if not calling a public function on it will revert.
        openOcean.version();
 
         // Checking to make sure ERC721 has a handler
-        if(nft1.getHandlerAddress() != address(applicationNFTHandler)) {
+        if(nft1.getHandlerAddress() != address(applicationNFTHandlerDiamond)) {
             revert("ERC721 not correctly connected to its handler");
         }
 
         // Checking to make sure the handler is connected to the ERC721
-        if(applicationNFTHandler.owner() != address(nft1)) {
+        if(ERC173Facet(address(applicationNFTHandlerDiamond)).owner() != address(nft1)) {
             revert("Handler is not connected properly to the ERC721");
         }
 
@@ -175,7 +182,7 @@ contract ApplicationDeployAllScript is Script {
         }
 
         // Checking to make sure the ERC721's Handler is registered with the AppManager
-        if(!applicationAppManager.isRegisteredHandler(address(applicationNFTHandler))) {
+        if(!applicationAppManager.isRegisteredHandler(address(applicationNFTHandlerDiamond))) {
             revert("ERC721 Handler not properly registered with the AppManager");
         }
     }
@@ -185,24 +192,24 @@ contract ApplicationDeployAllScript is Script {
        isCoin1 ? coin1.getHandlerAddress() : coin2.getHandlerAddress();
 
        // Make sure the ERC20 Handler Contract has been deployed, if not calling a public function on it will revert.
-       isCoin1 ? applicationCoinHandler.version() : applicationCoinHandler2.version();
+       isCoin1 ? VersionFacet(address(applicationCoinHandlerDiamond)).version() :  VersionFacet(address(applicationCoinHandlerDiamond2)).version();
 
        // Make sure the ERC20 Pricing Module Contract has been deployed, if not calling a public function on it will revert.
-        exchange.version();
+        VersionFacet(address(exchange)).version();
 
         // Checking to make sure ERC20 has a handler
         if(isCoin1) {
-            if(coin1.getHandlerAddress() != address(applicationCoinHandler)) {
+            if( coin1.getHandlerAddress() != address(applicationCoinHandlerDiamond)) {
                 revert("Frankenstein Coin not correctly connected to its handler");
             }
         } else {
-            if(coin2.getHandlerAddress() != address(applicationCoinHandler2)) {
+            if( coin2.getHandlerAddress() != address(applicationCoinHandlerDiamond2)) {
                 revert("Dracula Coin not correctly connected to its handler");
             }
         }
 
         // Checking to make sure the handler is connected to the ERC20
-        if((isCoin1 ? applicationCoinHandler.owner() : applicationCoinHandler2.owner()) != address(isCoin1 ? coin1 : coin2)) {
+        if((isCoin1 ? ERC173Facet(address(applicationCoinHandlerDiamond)).owner() : ERC173Facet(address(applicationCoinHandlerDiamond2)).owner()) != address(isCoin1 ? coin1 : coin2)) {
             revert(isCoin1 ? "ERC20 Handlers owner should be the Frankenstein Coin" : "ERC20 Handlers owner should be the Dracula Coin");
         }
 
@@ -212,7 +219,7 @@ contract ApplicationDeployAllScript is Script {
         }
 
         // Checking to make sure the ERC20 is registered with the AppManager
-        if(coin1.getAppManagerAddress() != address(applicationAppManager)) {
+        if( coin1.getAppManagerAddress() != address(applicationAppManager)) {
             revert("ERC20 not properly registered with the App Manager");
         }
         if(keccak256(abi.encodePacked(applicationAppManager.getTokenID(address(isCoin1 ? coin1 : coin2)))) != keccak256(abi.encodePacked(isCoin1 ? "Frankenstein Coin" : "Dracula Coin"))) {
@@ -220,7 +227,7 @@ contract ApplicationDeployAllScript is Script {
         }
 
         // Checking to make sure the ERC20's Handler is registered with the AppManager
-        if(!applicationAppManager.isRegisteredHandler(address(isCoin1 ? applicationCoinHandler : applicationCoinHandler2))) {
+        if(!applicationAppManager.isRegisteredHandler(address(isCoin1 ? applicationCoinHandlerDiamond : applicationCoinHandlerDiamond2))) {
             revert("ERC20 Handler not registered with the App Manager");
         }
     }

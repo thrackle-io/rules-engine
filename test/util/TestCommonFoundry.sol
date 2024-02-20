@@ -37,7 +37,7 @@ abstract contract TestCommonFoundry is TestCommon {
             "ApplicationRiskProcessorFacet",
             "ApplicationAccessLevelProcessorFacet",
             "ApplicationPauseProcessorFacet",
-            //TaggedRuleFacets:
+            //ERC20TaggedRuleFacets:
             "ERC20TaggedRuleProcessorFacet",
             "ERC721TaggedRuleProcessorFacet",
             "RuleApplicationValidationFacet",
@@ -84,9 +84,135 @@ abstract contract TestCommonFoundry is TestCommon {
         return ruleProcessorInternal;
     }
 
+
     /**
-     * @dev Deploy and set up the main protocol contracts. This includes:
-     * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond
+     * @dev Deploy and set up the ERC20 Handler Diamond
+     * @return diamond fully configured ERC20 Handler diamond
+     */
+    function _createERC20HandlerDiamond() public returns (HandlerDiamond diamond) {
+        
+        FacetCut[] memory _erc20HandlerFacetCuts = new FacetCut[](8);
+        // Start by deploying the DiamonInit contract.
+        DiamondInit diamondInit = new DiamondInit();
+
+        // Register all facets.
+        string[8] memory facets = [
+            // diamond version
+            "VersionFacet",
+            // Native facets,
+            "ProtocolNativeFacet",
+            // // Raw implementation facets.
+            "ProtocolRawFacet",
+            // ERC20 Handler Facets 
+            "ERC20HandlerMainFacet",
+            "ERC20TaggedRuleFacet",
+            "ERC20NonTaggedRuleFacet",
+            "TradingRuleFacet",
+            "FeesFacet"
+        ];
+
+        string[] memory inputs = new string[](3);
+        inputs[0] = "python3";
+        inputs[1] = "script/python/get_selectors.py";
+
+        // Loop on each facet, deploy them and create the FacetCut.
+        for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
+            string memory facet = facets[facetIndex];
+
+            // Deploy the facet.
+            bytes memory bytecode = vm.getCode(string.concat(facet, ".sol"));
+            address facetAddress;
+            assembly {
+                facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
+            }
+
+            // Get the facet selectors.
+            inputs[2] = facet;
+            bytes memory res = vm.ffi(inputs);
+            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
+
+            // Create the FacetCut struct for this facet.
+            _erc20HandlerFacetCuts[facetIndex] = FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors});
+        }
+
+        // Build the DiamondArgs.
+        HandlerDiamondArgs memory diamondArgs = HandlerDiamondArgs({
+            init: address(diamondInit),
+            // NOTE: "interfaceId" can be used since "init" is the only function in IDiamondInit.
+            initCalldata: abi.encode(type(IDiamondInit).interfaceId)
+        });
+        /// Build the diamond
+        HandlerDiamond handlerInternal = new HandlerDiamond(_erc20HandlerFacetCuts, diamondArgs);
+
+        // Deploy the diamond.
+        return handlerInternal;
+    }
+
+    /**
+     * @dev Deploy and set up the ERC721 Handler Diamond
+     * @return diamond fully configured ERC721 Handler diamond
+     */
+    function _createERC721HandlerDiamond() public returns (HandlerDiamond diamond) {
+        
+        FacetCut[] memory _erc721HandlerFacetCuts = new FacetCut[](7);
+        // Start by deploying the DiamonInit contract.
+        DiamondInit diamondInit = new DiamondInit();
+
+        // Register all facets.
+        string[7] memory facets = [
+            // diamond version
+            "VersionFacet",
+            // Native facets,
+            "ProtocolNativeFacet",
+            // Raw implementation facets.
+            "ProtocolRawFacet",
+            // ERC721 Handler Facets
+            "ERC721HandlerMainFacet",
+            "ERC721TaggedRuleFacet",
+            "ERC721NonTaggedRuleFacet",
+            "TradingRuleFacet"
+        ];
+
+        string[] memory inputs = new string[](3);
+        inputs[0] = "python3";
+        inputs[1] = "script/python/get_selectors.py";
+
+        // Loop on each facet, deploy them and create the FacetCut.
+        for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
+            string memory facet = facets[facetIndex];
+
+            // Deploy the facet.
+            bytes memory bytecode = vm.getCode(string.concat(facet, ".sol"));
+            address facetAddress;
+            assembly {
+                facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
+            }
+
+            // Get the facet selectors.
+            inputs[2] = facet;
+            bytes memory res = vm.ffi(inputs);
+            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
+
+            // Create the FacetCut struct for this facet.
+            _erc721HandlerFacetCuts[facetIndex] = FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors});
+        }
+
+        // Build the DiamondArgs.
+        HandlerDiamondArgs memory diamondArgs = HandlerDiamondArgs({
+            init: address(diamondInit),
+            // NOTE: "interfaceId" can be used since "init" is the only function in IDiamondInit.
+            initCalldata: abi.encode(type(IDiamondInit).interfaceId)
+        });
+        /// Build the diamond
+        HandlerDiamond handlerInternal = new HandlerDiamond(_erc721HandlerFacetCuts, diamondArgs);
+
+        // Deploy the diamond.
+        return handlerInternal;
+    }
+
+   
+    /**
+     * @dev Deploy and set up the main protocol contracts. 
      */
     function setUpProtocol() public {
         switchToSuperAdmin();
@@ -97,7 +223,7 @@ abstract contract TestCommonFoundry is TestCommon {
 
     /**
      * @dev Deploy and set up the main protocol contracts. This includes:
-     * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond, 4. AppManager
+     * 1. ProcessorDiamond 2. AppManager
      */
     function setUpProtocolAndAppManager() public {
         switchToSuperAdminWithSave();
@@ -110,36 +236,19 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToOriginalUser();
     }
 
-    /**
-     * @dev Deploy and set up the main protocol contracts. This includes:
-     * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond, 4. AppManager with its handler connected, 5. ApplicationERC20 with its handler, and default price
-     */
-    function setUpProtocolAndAppManagerAndTokens() public {
-        switchToSuperAdminWithSave();
-        // create the rule processor diamond
-        ruleProcessor = _createRulesProcessorDiamond();
-        // create the app manager
-        applicationAppManager = _createAppManager();
-        switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
-        // create the app handler and connect it to the appManager
-        applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
-        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
-
-        // create the ERC20 and connect it to its handler
-        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
-        /// register the token
-        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+    function setUpProtocolAndAppManagerAndTokensWithERC721HandlerDiamond() public {
+        setUpProtocolAndAppManager();
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
+        (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
+        switchToAppAdministrator();
         /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
 
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
 
         /// create an ERC721
-        applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
-        applicationNFTHandler = _createERC721Handler(ruleProcessor, applicationAppManager, applicationNFT);
-        /// register the token
-        applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
+        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
+        switchToAppAdministrator();
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
@@ -161,23 +270,9 @@ abstract contract TestCommonFoundry is TestCommon {
      */
     
     function setUpProtocolAndAppManagerAndPricingAndTokens() public {
-        switchToSuperAdminWithSave();
-        // create the rule processor diamond
-        ruleProcessor = _createRulesProcessorDiamond();
-        // create the app manager
-        applicationAppManager = _createAppManager();
-        switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
-        // create the app handler and connect it to the appManager
-        applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
-        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
-        
-        boredWhaleNFT = _createERC721("Bored Whale Island Club", "BWYC", applicationAppManager);
-        boredWhaleHandler = _createERC721Handler(ruleProcessor, applicationAppManager, boredWhaleNFT);
-        boredWhaleNFT.connectHandlerToToken(address(boredWhaleHandler));
-        boredReptilianNFT = _createERC721("Board Reptilian Spaceship Club", "BRSC", applicationAppManager);
-        boredReptileHandler = _createERC721Handler(ruleProcessor, applicationAppManager, boredReptilianNFT);
-        boredReptilianNFT.connectHandlerToToken(address(boredReptileHandler));
-
+        setUpProtocolAndAppManager();
+        (boredWhaleNFT, boredWhaleHandler) = deployAndSetupERC721("Bored Whale Island Club", "BWYC");
+        (boredReptilianNFT, boredReptileHandler) = deployAndSetupERC721("Board Reptilian Spaceship Club", "BRSC");
         /// Deploy the pricing contract
         openOcean = _createERC721Pricing();
     }
@@ -255,35 +350,30 @@ abstract contract TestCommonFoundry is TestCommon {
      * @dev Deploy and set up Specialized ERC20 token and handler 
      */
     function setUpProcotolAndCreateERC20AndHandlerSpecialOwner() public {
-        switchToSuperAdminWithSave();
-        // create the rule processor diamond
-        ruleProcessor = _createRulesProcessorDiamond();
-        // create the app manager
-        applicationAppManager = _createAppManager();
-        switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
-        // create the app handler and connect it to the appManager
-        applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
-        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
+        setUpProtocolAndAppManager();
 
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
         // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
         switchToAppAdministrator();
-        // create the ERC20 and connect it to its handler
         applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        applicationCoinHandlerSpecialOwner = _createERC20HandlerSpecialized(ruleProcessor, applicationAppManager, applicationCoin, address(appAdministrator));
+        // create the ERC20 and connect it to its handler
+        applicationCoinHandlerSpecialOwner = _createERC20HandlerDiamond();
+        VersionFacet(address(applicationCoinHandlerSpecialOwner)).updateVersion("1.1.0");
+        ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin));
+        applicationCoin.connectHandlerToToken(address(applicationCoinHandlerSpecialOwner));
+        /// register the token
+        applicationAppManager.registerToken("application2", address(applicationCoin));
         /// register the token
         applicationAppManager.registerToken("FRANK", address(applicationCoin));
         /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
 
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
-
         /// create an ERC721
         applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
-        applicationNFTHandler = _createERC721Handler(ruleProcessor, applicationAppManager, applicationNFT);
-        /// register the token
-        applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
+        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
+        switchToAppAdministrator();
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
@@ -302,36 +392,29 @@ abstract contract TestCommonFoundry is TestCommon {
 
     /**
      * @dev Deploy and set up the main protocol contracts. This includes:
-     * 1. StorageDiamond, 2. ProcessorDiamond, 3. configuring the ProcessorDiamond to point to the StorageDiamond, 4. AppManager with its handler connected, 5. ApplicationERC20 with its handler, and default price
+     * 1. ProcessorDiamond, 2. AppManager with its handler connected, 3. ApplicationERC20 with its handler, and default price
      */
     function setUpProtocolAndAppManagerAndTokensUpgradeable() public {
-        switchToSuperAdminWithSave();
-        // create the rule processor diamond
-        ruleProcessor = _createRulesProcessorDiamond();
-        // create the app manager
-        applicationAppManager = _createAppManager();
-        switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
-        // create the app handler and connect it to the appManager
-        applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
-        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
+        setUpProtocolAndAppManager();
 
         // create the ERC20 and connect it to its handler
-        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
-        /// register the token
-        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
+        switchToAppAdministrator();
         /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         
         /// create ERC721 
-        applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
+        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
+        switchToAppAdministrator();
 
         /// create an ERC721U
         applicationNFTU = _createERC721Upgradeable();
         applicationNFTProxy = _createERC721UpgradeableProxy(address(applicationNFTU), address(proxyOwner));
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Dracula Prime", "DRAC", address(applicationAppManager), "dummy.uri.io");
-        applicationNFTHandler = _createERC721HandlerForProxy(ruleProcessor, applicationAppManager, applicationNFTProxy);
+        applicationNFTHandler = _createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy));
+        ApplicationERC721Upgradeable(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
         /// register the token
         applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
@@ -362,31 +445,18 @@ abstract contract TestCommonFoundry is TestCommon {
      * This function sets up the ERC721Examples.t.sol test
      */
     function setUpProtocolAndAppManagerAndTokensForExampleTest() public {
-        switchToSuperAdminWithSave();
-        // create the rule processor diamond
-        ruleProcessor = _createRulesProcessorDiamond();
-        // create the app manager
-        applicationAppManager = _createAppManager();
-        switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
-        // create the app handler and connect it to the appManager
-        applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
-        applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
+        setUpProtocolAndAppManager();
 
         // create the ERC20 and connect it to its handler
-        applicationCoin = _createERC20("FRANK", "FRK", applicationAppManager);
-        applicationCoinHandler = _createERC20Handler(ruleProcessor, applicationAppManager, applicationCoin);
-        /// register the token
-        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
+        switchToAppAdministrator();
         /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
 
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
-
         /// create an ERC721
-        applicationNFT = _createERC721("FRANKENSTEIN", "FRK", applicationAppManager);
-        applicationNFTHandler = _createERC721Handler(ruleProcessor, applicationAppManager, applicationNFT);
-        /// register the token
-        applicationAppManager.registerToken("FRANKENSTEIN", address(applicationNFT));
+        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
+        switchToAppAdministrator();
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
@@ -405,11 +475,21 @@ abstract contract TestCommonFoundry is TestCommon {
         whitelistMintNFT = _createERC721Whitelist("MonkeysPlayingInBonsaiTrees", "MBT", applicationAppManager, 2);
         freeNFT = _createERC721Free("ParkinsonBarbers", "PKB", applicationAppManager);
 
-        MintForAFeeNFTHandler = _createERC721HandlerMintFee(ruleProcessor, applicationAppManager, mintForAFeeNFT);
+        switchToSuperAdminWithSave();
 
-        WhitelistNFTHandler = _createERC721HandlerAllowList(ruleProcessor, applicationAppManager, whitelistMintNFT);
+        MintForAFeeNFTHandler = _createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(MintForAFeeNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(mintForAFeeNFT));
+        mintForAFeeNFT.connectHandlerToToken(address(MintForAFeeNFTHandler));
 
-        FreeForAllnNFTHandler = _createERC721HandlerFreeMint(ruleProcessor, applicationAppManager, freeNFT);
+        WhitelistNFTHandler = _createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(WhitelistNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(whitelistMintNFT));
+        whitelistMintNFT.connectHandlerToToken(address(WhitelistNFTHandler));
+
+        FreeForAllnNFTHandler = _createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(FreeForAllnNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(freeNFT));
+        freeNFT.connectHandlerToToken(address(FreeForAllnNFTHandler));
+
+        switchToAppAdministrator();
 
         applicationAppManager.registerToken("BlindSailers", address(mintForAFeeNFT));
         applicationAppManager.registerToken("MonkeysPlayingInBonsaiTrees", address(whitelistMintNFT));
@@ -434,12 +514,21 @@ abstract contract TestCommonFoundry is TestCommon {
         );
         FreeForAllERC721Upgradeable(payable(address(freeNFTUp))).initialize("ParkinsonBarbersUp", "PKBU", address(applicationAppManager), "bloodinmyhands.com/bookyourcut");
 
-        MintForAFeeNFTHandlerUp = _createERC721HandlerForProxy(ruleProcessor, applicationAppManager, mintForAFeeNFTUp);
+        switchToSuperAdminWithSave();
 
-        WhitelistNFTHandlerUp = _createERC721HandlerForProxy(ruleProcessor, applicationAppManager, whitelistMintNFTUp);
+        MintForAFeeNFTHandlerUp = _createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(MintForAFeeNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(mintForAFeeNFTUp));
+        MintForAFeeERC721Upgradeable(payable(address(mintForAFeeNFTUp))).connectHandlerToToken(address(MintForAFeeNFTHandlerUp));
 
-        FreeForAllnNFTHandlerUp = _createERC721HandlerForProxy(ruleProcessor, applicationAppManager, freeNFTUp);
+        WhitelistNFTHandlerUp = _createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(WhitelistNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(whitelistMintNFTUp));
+        WhitelistMintERC721Upgradeable(payable(address(whitelistMintNFTUp))).connectHandlerToToken(address(WhitelistNFTHandlerUp));
 
+        FreeForAllnNFTHandlerUp = _createERC721HandlerDiamond();
+        ERC721HandlerMainFacet(address(FreeForAllnNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(freeNFTUp));
+        FreeForAllERC721Upgradeable(payable(address(freeNFTUp))).connectHandlerToToken(address(FreeForAllnNFTHandlerUp));
+
+        switchToAppAdministrator();
 
         applicationAppManager.registerToken("BlindSailersUp", address(mintForAFeeNFTUp));
         applicationAppManager.registerToken("MonkeysPlayingInBonsaiTreesUp", address(whitelistMintNFTUp));
@@ -448,6 +537,82 @@ abstract contract TestCommonFoundry is TestCommon {
 
         /// reset the user to the original
         switchToOriginalUser();
+    }
+
+    /**
+     * @dev Deploy and set up ERC20 token with DIAMOND handler 
+     */
+    function setUpProcotolAndCreateERC20AndDiamondHandler() public {
+        setUpProtocolAndAppManager();
+        /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
+        /// requires a token be attached and registered for permissions in appManager
+        // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
+        (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
+        
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc20Pricer = _createERC20Pricing();
+
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
+
+        /// create an ERC721
+        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
+        (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
+
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc721Pricer = _createERC721Pricing();
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
+        switchToRuleAdmin(); 
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
+
+        switchToAppAdministrator();
+
+        oracleApproved = _createOracleApproved();
+        oracleDenied = _createOracleDenied();
+        switchToOriginalUser();
+
+    }
+
+    function deployAndSetupERC721(string memory name, string memory symbol) internal returns(ApplicationERC721 erc721, HandlerDiamond handler) {
+        switchToSuperAdminWithSave();
+        erc721 = _createERC721(name, symbol, applicationAppManager);
+        handler = _createERC721HandlerDiamond();
+        VersionFacet(address(handler)).updateVersion("1.1.0");
+        ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
+        erc721.connectHandlerToToken(address(handler));
+        /// register the token
+        applicationAppManager.registerToken(name, address(erc721));
+        switchToOriginalUser();
+    }
+
+    function deployAndSetupERC20(string memory name, string memory symbol) internal returns(ApplicationERC20 erc20, HandlerDiamond handler){
+        switchToSuperAdminWithSave();
+        erc20 = _createERC20(name, symbol, applicationAppManager);
+        handler = _createERC20HandlerDiamond();
+        VersionFacet(address(handler)).updateVersion("1.1.0");
+        ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
+        erc20.connectHandlerToToken(address(handler));
+        /// register the token
+        applicationAppManager.registerToken(name, address(erc20));
+        switchToOriginalUser();
+    }
+
+    /**
+     * @dev Deploy and set up an ERC20Handler specialized for Handler Testing 
+     * @param _ruleProcessor rule processor
+     * @param _appManager previously created appManager
+     * @param _token ERC20
+     * @param _appAdmin App Admin Address 
+     * @return handler ERC20 handler
+     */
+    function _createERC20HandlerSpecialized(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager,ApplicationERC20 _token, address _appAdmin) public returns (HandlerDiamond handler) {
+        handler = _createERC20HandlerDiamond();
+        ERC20HandlerMainFacet(address(handler)).initialize(address(_ruleProcessor), address(_appManager), address(_appAdmin));
+        _token.connectHandlerToToken(address(handler));
+        return handler;
     }
 
     ///---------------USER SWITCHING--------------------

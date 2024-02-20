@@ -43,7 +43,7 @@ contract ApplicationERC721ExampleTest is TestCommonFoundry {
     }
 
     function testERC721AndHandlerVersions() public {
-        string memory version = applicationNFTHandler.version();
+        string memory version = VersionFacet(address(applicationNFTHandler)).version();
         assertEq(version, "1.1.0");
     }
 

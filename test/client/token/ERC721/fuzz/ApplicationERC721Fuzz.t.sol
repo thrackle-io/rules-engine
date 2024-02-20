@@ -10,7 +10,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
     function setUp() public {
         vm.warp(Blocktime);
         vm.startPrank(appAdministrator);
-        setUpProtocolAndAppManagerAndTokens();
+        setUpProcotolAndCreateERC20AndDiamondHandler();
         switchToAppAdministrator();
 
         applicationCoin.mint(appAdministrator, type(uint256).max);
@@ -132,7 +132,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         assertEq(applicationNFT.balanceOf(_user1), 1);
         switchToRuleAdmin();
         ///update ruleId in application NFT handler
-        applicationNFTHandler.setAccountMinMaxTokenBalanceId(_createActionsArray(), ruleId);
+        ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), ruleId);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -186,7 +186,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         oracleDenied.addToDeniedList(badBoys);
         /// connect the rule to this handler
         switchToRuleAdmin();
-        applicationNFTHandler.setAccountApproveDenyOracleId(_createActionsArray(), _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setAccountApproveDenyOracleId(_createActionsArray(), _index);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -203,7 +203,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         switchToRuleAdmin();
         _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
         /// connect the rule to this handler
-        applicationNFTHandler.setAccountApproveDenyOracleId(_createActionsArray(), _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setAccountApproveDenyOracleId(_createActionsArray(), _index);
         switchToAppAdministrator();
         // add an allowed address
         goodBoys.push(randomUser);
@@ -223,6 +223,10 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 2, address(oracleApproved));
     }
 
+
+    /**
+     * @dev Test the TokenMaxDailyTrades rule
+     */
     function testERC721_TokenMaxDailyTradesFuzz(uint8 _addressIndex) public {
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
         address _user1 = addressList[0];
@@ -250,7 +254,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationAppManager.addTag(address(applicationNFT), "DiscoPunk"); ///add tag
         // apply the rule to the ApplicationERC721Handler
         switchToRuleAdmin();
-        applicationNFTHandler.setTokenMaxDailyTradesId(_createActionsArray(), _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxDailyTradesId(_createActionsArray(), _index);
 
         // ensure standard transfer works by transferring 1 to user2 and back(2 trades)
         ///perform transfer that checks rule
@@ -300,8 +304,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
     function testERC721_AccountMaxTransactionValueByRiskScoreRuleNFT(uint8 _addressIndex, uint8 _risk) public {
         for (uint i; i < 30; ) {
             applicationNFT.safeMint(appAdministrator);
-            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * (10 ** 18)); //setting at $10 * (ID + 1)
-            assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * (10 ** 18));
+            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * ATTO); //setting at $10 * (ID + 1)
+            assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * ATTO);
             unchecked {
                 ++i;
             }
@@ -363,8 +367,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
     function testERC721_AccountMaxValueByAccessLevelFuzz(uint8 _addressIndex, uint8 _amountSeed) public {
         for (uint i; i < 30; ) {
             applicationNFT.safeMint(appAdministrator);
-            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * (10 ** 18)); //setting at $10 * (ID + 1)
-            assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * (10 ** 18));
+            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * ATTO); //setting at $10 * (ID + 1)
+            assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * ATTO);
             unchecked {
                 ++i;
             }
@@ -452,8 +456,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         switchToAppAdministrator();
         applicationCoin.transfer(_user1, type(uint256).max);
         assertEq(applicationCoin.balanceOf(_user1), type(uint256).max);
-        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
-        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
         // set the access level for the user4
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(_user4, 4);
@@ -467,10 +471,10 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         vm.startPrank(_user1);
         /// let's send 150-dollar worth of dracs to user4. If accessBalance4 allows less than
         /// 300 (150 in NFTs and 150 in erc20s) it should fail when trying to send NFT
-        applicationCoin.transfer(_user4, 150 * (10 ** 18));
+        applicationCoin.transfer(_user4, 150 * ATTO);
         if (accessBalance4 < 300) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user1, _user4, 14);
-        if (accessBalance3 >= 300) assertEq(applicationCoin.balanceOf(_user4), 150 * (10 ** 18));
+        if (accessBalance3 >= 300) assertEq(applicationCoin.balanceOf(_user4), 150 * ATTO);
         bytes4 erc20Id = type(IERC20).interfaceId;
         console.log(uint32(erc20Id));
         console.log(applicationCoin.supportsInterface(0x36372b07));
@@ -489,8 +493,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         /// mint and load user 1 with 10-255 NFTs
         for (uint i; i < mintAmount; ) {
             applicationNFT.safeMint(appAdministrator);
-            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, 1 * (10 ** 18)); //setting at $1
-            assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), 1 * (10 ** 18));
+            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, 1 * ATTO); //setting at $1
+            assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), 1 * ATTO);
             applicationNFT.transferFrom(appAdministrator, _user1, i);
             unchecked {
                 ++i;
@@ -504,11 +508,11 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationHandler.setAccountMaxValueByAccessLevelId(_index);
         switchToAppAdministrator();
         /// set the nftHandler nftValuationLimit variable
-        applicationNFTHandler.setNFTValuationLimit(20);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setNFTValuationLimit(20);
         /// set 2 tokens above the $1 USD amount of other tokens (tokens 0-9 will always be minted)
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 2, 50 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, 25 * (10 ** 18));
-        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 2, 50 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, 25 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * ATTO);
         /// set access levels for user 1 and user 2
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(_user1, 2);
@@ -554,8 +558,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         /// mint and load user 1 with 50 NFTs
         for (uint i; i < 50; ) {
             applicationNFT.safeMint(appAdministrator);
-            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, 1 * (10 ** 18)); //setting at $1
-            assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), 1 * (10 ** 18));
+            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, 1 * ATTO); //setting at $1
+            assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), 1 * ATTO);
             applicationNFT.transferFrom(appAdministrator, _user1, i);
             unchecked {
                 ++i;
@@ -569,11 +573,11 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationHandler.setAccountMaxValueByAccessLevelId(_index);
         switchToAppAdministrator();
         /// set the nftHandler nftValuationLimit variable
-        applicationNFTHandler.setNFTValuationLimit(_valuationLimit);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setNFTValuationLimit(_valuationLimit);
         /// set 2 tokens above the $1 USD amount of other tokens (tokens 0-9 will always be minted)
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 2, 50 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, 25 * (10 ** 18));
-        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 2, 50 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, 25 * ATTO);
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * ATTO);
         /// set access levels for user 1 and user 2
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(_user1, 2);
@@ -637,7 +641,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, minAmounts, maxAmounts, periods, uint64(Blocktime));
         assertEq(_index, 0);
         /// Set rule
-        applicationNFTHandler.setAccountMinMaxTokenBalanceId(_createActionsArray(), _index);
+        ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), _index);
         switchToAppAdministrator();
         /// Tag accounts
         applicationAppManager.addTag(_user1, tag1); ///add tag
@@ -691,19 +695,19 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         /// we mint some NFTs for user 1 and give them a price
         for (uint i; i < 6; i++) applicationNFT.safeMint(_user1);
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 0, 1);
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 1, 1 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 2, 10_000 * (10 ** 18) - 1);
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, 100_000_000 * (10 ** 18) - 10_000 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 1_000_000_000_000 * (10 ** 18) - 100_000_000 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, 1 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 1, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 2, 10_000 * ATTO - 1);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 3, 100_000_000 * ATTO - 10_000 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 4, 1_000_000_000_000 * ATTO - 100_000_000 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 5, 1 * ATTO);
         /// we mint some NFTs for user 1 and give them a price
         for (uint i; i < 6; i++) applicationNFT.safeMint(_user2);
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 1 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 7, 1 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 8, 90_000 * (10 ** 18) - 1);
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 9, 900_000_000 * (10 ** 18) - 90_000 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 10, 9_000_000_000_000 * (10 ** 18) - 900_000_000 * (10 ** 18));
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 11, 1 * (10 ** 18));
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 6, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 7, 1 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 8, 90_000 * ATTO - 1);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 9, 900_000_000 * ATTO - 90_000 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 10, 9_000_000_000_000 * ATTO - 900_000_000 * ATTO);
+        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 11, 1 * ATTO);
 
         /// we register the rule in the protocol
         switchToRuleAdmin();
@@ -855,13 +859,13 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
 
         vm.stopPrank();
         vm.startPrank(_user1);
-        if (priceA >= uint112(maxValueForUser2) * (10 ** 18)) vm.expectRevert();
+        if (priceA >= uint112(maxValueForUser2) * ATTO) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user1, _user2, 0);
-        if (priceA <= uint112(maxValueForUser2) * (10 ** 18)) {
-            if (uint64(priceA) + uint64(priceB) >= uint112(maxValueForUser2) * (10 ** 18)) vm.expectRevert();
+        if (priceA <= uint112(maxValueForUser2) * ATTO) {
+            if (uint64(priceA) + uint64(priceB) >= uint112(maxValueForUser2) * ATTO) vm.expectRevert();
             applicationNFT.safeTransferFrom(_user1, _user2, 1);
-            if (uint64(priceA) + uint64(priceB) < uint112(maxValueForUser2) * (10 ** 18)) {
-                if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(maxValueForUser2) * (10 ** 18)) vm.expectRevert();
+            if (uint64(priceA) + uint64(priceB) < uint112(maxValueForUser2) * ATTO) {
+                if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(maxValueForUser2) * ATTO) vm.expectRevert();
                 applicationNFT.safeTransferFrom(_user1, _user2, 2);
             }
         }
@@ -881,8 +885,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
     function testERC721_AccountMaxValueOutByAccessLevelFuzz(uint8 _addressIndex, uint8 accessLevel) public {
         for (uint i; i < 30; ) {
             applicationNFT.safeMint(appAdministrator);
-            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * (10 ** 18)); //setting at $10 * (ID + 1)
-            assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * (10 ** 18));
+            erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * ATTO); //setting at $10 * (ID + 1)
+            assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * ATTO);
             unchecked {
                 ++i;
             }
@@ -921,16 +925,16 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         /// set token pricing
         switchToAppAdministrator();
         /// ERC20 tokens priced $1 USD
-        applicationCoin.transfer(_user1, 1000 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(_user1), 1000 * (10 ** 18));
-        applicationCoin.transfer(_user2, 25 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(_user2), 25 * (10 ** 18));
-        applicationCoin.transfer(_user3, 10 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(_user3), 10 * (10 ** 18));
-        applicationCoin.transfer(_user4, 50 * (10 ** 18));
-        assertEq(applicationCoin.balanceOf(_user4), 50 * (10 ** 18));
-        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
-        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
+        applicationCoin.transfer(_user1, 1000 * ATTO);
+        assertEq(applicationCoin.balanceOf(_user1), 1000 * ATTO);
+        applicationCoin.transfer(_user2, 25 * ATTO);
+        assertEq(applicationCoin.balanceOf(_user2), 25 * ATTO);
+        applicationCoin.transfer(_user3, 10 * ATTO);
+        assertEq(applicationCoin.balanceOf(_user3), 10 * ATTO);
+        applicationCoin.transfer(_user4, 50 * ATTO);
+        assertEq(applicationCoin.balanceOf(_user4), 50 * ATTO);
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
+        assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
 
         ///perform transfers
         vm.stopPrank();
@@ -952,7 +956,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(_user4);
         if (accessLevel < 4) vm.expectRevert();
-        applicationCoin.transfer(_user2, 50 * (10 ** 18));
+        applicationCoin.transfer(_user2, 50 * ATTO);
 
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(_user2, accessLevel);
@@ -965,7 +969,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(_user2);
         if (accessLevel < 2) vm.expectRevert();
-        applicationCoin.transfer(_user4, 25 * (10 ** 18));
+        applicationCoin.transfer(_user4, 25 * ATTO);
     }
 
     function testERC721_TokenMaxSupplyVolatilityFuzz(uint8 _addressIndex, uint16 volLimit) public {
@@ -989,7 +993,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         ActionTypes[] memory actionTypes = new ActionTypes[](2);
         actionTypes[0] = ActionTypes.MINT;
         actionTypes[1] = ActionTypes.BURN;
-        applicationNFTHandler.setTokenMaxSupplyVolatilityId(actionTypes, _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxSupplyVolatilityId(actionTypes, _index);
 
         /// determine the maximum burn/mint amount for inital test
         uint256 maxVol = uint256(volLimit) / 1000;
@@ -1066,7 +1070,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                 oracleDenied.addToDeniedList(badBoys);
                 switchToRuleAdmin();
                 uint32 _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 0, address(oracleDenied));
-                applicationNFTHandler.setAccountApproveDenyOracleId(_createActionsArray(), _index);
+                ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setAccountApproveDenyOracleId(_createActionsArray(), _index);
             } else {
                 goodBoys.push(_user1);
                 goodBoys.push(_user2);
@@ -1075,7 +1079,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                 oracleApproved.addToApprovedList(goodBoys);
                 switchToRuleAdmin();
                 uint32 _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
-                applicationNFTHandler.setAccountApproveDenyOracleId(_createActionsArray(), _index);
+                ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setAccountApproveDenyOracleId(_createActionsArray(), _index);
             }
             switchToAppAdministrator();
             uint8[] memory riskScores = createUint8Array(0, 10, 40, 80, 99);
@@ -1101,8 +1105,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             uint256[] memory max = createUint256Array(3);
             uint16[] memory empty;
             uint32 balanceLimitId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
-            applicationNFTHandler.setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId);
+            ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId);
         }
+        //TODO: Uncomment when the rule has been added
         {
             bytes32[] memory nftTags =createBytes32Array("BoredGrape");
             uint8[] memory tradesAllowed = createUint8Array(3);
@@ -1110,7 +1115,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             switchToAppAdministrator();
             applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
             switchToRuleAdmin();
-            applicationNFTHandler.setTokenMaxDailyTradesId(_createActionsArray(), tradeRuleId);
+            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxDailyTradesId(_createActionsArray(), tradeRuleId);
         }
         {
             uint48[] memory _maxSize = createUint48Array(7_500_000, 75_000, 750, 350, 10);
@@ -1131,18 +1136,18 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFT.safeTransferFrom(_user1, _user4, 7);
 
         /// test risk rules
-        if (priceA > uint112(maxValueForUser2) * (10 ** 18)) vm.expectRevert();
+        if (priceA > uint112(maxValueForUser2) * ATTO) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user1, _user2, 0);
 
-        if (priceA <= (uint112(maxValueForUser2) * 3 * (10 ** 18)) / 4 && priceA <= uint112(maxValueForUser2) * (10 ** 18)) {
-            if (uint64(priceA) + uint64(priceB) > uint112(maxValueForUser2) * (10 ** 18) || priceB > (uint112(maxValueForUser2) * 3 * (10 ** 18)) / 4) vm.expectRevert();
+        if (priceA <= (uint112(maxValueForUser2) * 3 * ATTO) / 4 && priceA <= uint112(maxValueForUser2) * ATTO) {
+            if (uint64(priceA) + uint64(priceB) > uint112(maxValueForUser2) * ATTO || priceB > (uint112(maxValueForUser2) * 3 * ATTO) / 4) vm.expectRevert();
             applicationNFT.safeTransferFrom(_user1, _user2, 1);
 
-            if (uint64(priceA) + uint64(priceB) <= uint112(maxValueForUser2) * (10 ** 18) && priceB <= (uint112(maxValueForUser2) * 3 * (10 ** 18)) / 4) {
-                if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(maxValueForUser2) * (10 ** 18) || priceC > (uint112(maxValueForUser2) * 3 * (10 ** 18)) / 4) vm.expectRevert();
+            if (uint64(priceA) + uint64(priceB) <= uint112(maxValueForUser2) * ATTO && priceB <= (uint112(maxValueForUser2) * 3 * ATTO) / 4) {
+                if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(maxValueForUser2) * ATTO || priceC > (uint112(maxValueForUser2) * 3 * ATTO) / 4) vm.expectRevert();
                 applicationNFT.safeTransferFrom(_user1, _user2, 2);
 
-                if (uint64(priceA) + uint64(priceB) + uint64(priceC) <= uint112(maxValueForUser2) * (10 ** 18) && priceC <= (uint112(maxValueForUser2) * 3 * (10 ** 18)) / 4) {
+                if (uint64(priceA) + uint64(priceB) + uint64(priceC) <= uint112(maxValueForUser2) * ATTO && priceC <= (uint112(maxValueForUser2) * 3 * ATTO) / 4) {
                     /// balanceLimit rule should fail since _user2 now would have 4
                     vm.expectRevert(0x1da56a44);
                     applicationNFT.safeTransferFrom(_user1, _user2, 3);
@@ -1168,7 +1173,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                     uint16[] memory empty1;
                     switchToRuleAdmin();
                     uint32 balanceLimitId1 = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs1, min1, max1, empty1, uint64(Blocktime));
-                    applicationNFTHandler.setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId1);
+                    ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId1);
                     assertEq(balanceLimitId1, 1);
                     console.log("balanceLimitId", balanceLimitId1);
                     vm.stopPrank();
@@ -1189,7 +1194,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                 uint16[] memory empty2;
                 switchToRuleAdmin();
                 uint32 balanceLimitId2 = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs2, min2, max2, empty2, uint64(Blocktime));
-                applicationNFTHandler.setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId2);
+                ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId2);
                 vm.stopPrank();
                 vm.startPrank(_user2);
                 applicationNFT.safeTransferFrom(_user2, _user1, 1);
@@ -1200,7 +1205,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             uint16[] memory empty3;
             switchToRuleAdmin();
             uint32 balanceLimitId3 = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs3, min3, max3, empty3, uint64(Blocktime));
-            applicationNFTHandler.setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId3);
+            ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId3);
             vm.stopPrank();
             vm.startPrank(_user2);
             applicationNFT.safeTransferFrom(_user2, _user1, 0);
@@ -1212,7 +1217,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
             uint16[] memory empty4;
             switchToRuleAdmin();
             uint32 balanceLimitId4 = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs4, min4, max4, empty4, uint64(Blocktime));
-            applicationNFTHandler.setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId4);
+            ERC721TaggedRuleFacet(address(applicationNFTHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), balanceLimitId4);
         }
         {
             /// now let's try to give it to _user3, but this time it should fail since this would be more
@@ -1258,18 +1263,18 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
                 /// test access level rules
                 vm.stopPrank();
                 vm.startPrank(_user1);
-                if (priceA > uint(balanceAmounts[accessLevel]) * (10 ** 18)) vm.expectRevert();
+                if (priceA > uint(balanceAmounts[accessLevel]) * ATTO) vm.expectRevert();
                 applicationNFT.safeTransferFrom(_user1, _user2, 0);
 
-                if (priceA <= uint120(balanceAmounts[accessLevel]) * (10 ** 18)) {
-                    if (uint64(priceA) + uint64(priceB) > uint120(balanceAmounts[accessLevel]) * (10 ** 18)) vm.expectRevert();
+                if (priceA <= uint120(balanceAmounts[accessLevel]) * ATTO) {
+                    if (uint64(priceA) + uint64(priceB) > uint120(balanceAmounts[accessLevel]) * ATTO) vm.expectRevert();
                     applicationNFT.safeTransferFrom(_user1, _user2, 1);
 
-                    if (uint64(priceA) + uint64(priceB) <= uint112(balanceAmounts[accessLevel]) * (10 ** 18)) {
-                        if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(balanceAmounts[accessLevel]) * (10 ** 18)) vm.expectRevert();
+                    if (uint64(priceA) + uint64(priceB) <= uint112(balanceAmounts[accessLevel]) * ATTO) {
+                        if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(balanceAmounts[accessLevel]) * ATTO) vm.expectRevert();
                         applicationNFT.safeTransferFrom(_user1, _user2, 2);
 
-                        if (uint(priceA) + uint(priceB) + uint(priceC) <= uint112(balanceAmounts[accessLevel]) * (10 ** 18)) {
+                        if (uint(priceA) + uint(priceB) + uint(priceC) <= uint112(balanceAmounts[accessLevel]) * ATTO) {
                             /// balanceLimit rule should fail since _user2 now would have 4
                         }
                     }
@@ -1287,13 +1292,13 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         switchToRuleAdmin();
         uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 5, block.timestamp + 365 days);
         /// Set the rule in the handler
-        applicationNFTHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 5, block.timestamp + 365 days);
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
-        applicationNFTHandler.activateAdminMinTokenBalance(_createActionsArray(), false);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
         vm.expectRevert();
-        applicationNFTHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+        ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
 
         switchToRuleBypassAccount();
         /// These transfers should pass
@@ -1308,8 +1313,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 2);
         switchToRuleAdmin();
         if (daysForward >= 365 days) {
-            applicationNFTHandler.activateAdminMinTokenBalance(_createActionsArray(), false);
-            applicationNFTHandler.setAdminMinTokenBalanceId(_createActionsArray(), _index);
+            ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
+            ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
         }
     }
 
@@ -1336,7 +1341,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         }
         // apply the rule
         switchToRuleAdmin();
-        applicationNFTHandler.setTokenMaxTradingVolumeId(_createActionsArray(), _index);
+        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMaxTradingVolumeId(_createActionsArray(), _index);
         /// determine the maximum transfer amount
         uint256 maxSize = uint256(_maxPercent) / 1000;
         console.logUint(maxSize);
@@ -1374,11 +1379,11 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry {
         // hold time range must be between 1 hour and 5 years
         if (_hours == 0 || _hours > 43830) {
             vm.expectRevert();
-            applicationNFTHandler.setTokenMinHoldTime(_createActionsArray(), _hours);
+            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(_createActionsArray(), _hours);
         } else {
             /// set the rule for x hours
-            applicationNFTHandler.setTokenMinHoldTime(_createActionsArray(), _hours);
-            assertEq(applicationNFTHandler.getTokenMinHoldTimePeriod(ActionTypes.P2P_TRANSFER), _hours);
+            ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(_createActionsArray(), _hours);
+            assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.P2P_TRANSFER), _hours);
             // mint 1 nft to non admin user(this should set their ownership start time)
             switchToAppAdministrator();
             applicationNFT.safeMint(_user1);

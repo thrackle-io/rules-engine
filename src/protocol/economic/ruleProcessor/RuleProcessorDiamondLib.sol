@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "diamond-std/core/DiamondCut/FacetCut.sol";
-import {ActionTypes} from "./ActionEnum.sol";
+import {ActionTypes} from "src/common/ActionEnum.sol";
 
 error NoSelectorsGivenToAdd();
 error NotContractOwner(address _user, address _contractOwner);
