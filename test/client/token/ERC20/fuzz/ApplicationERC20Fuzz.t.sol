@@ -2,8 +2,9 @@
 pragma solidity ^0.8.17;
 
 import "test/util/TestCommonFoundry.sol";
+import "test/util/RuleCreation.sol";
 
-contract ApplicationERC20FuzzTest is TestCommonFoundry {
+contract ApplicationERC20FuzzTest is TestCommonFoundry, RuleCreation {
     // event Log(string eventString, uint256 number);
     ApplicationERC20 draculaCoin;
     function setUp() public {
@@ -52,9 +53,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
             vm.expectRevert(0x454f1bd4);
             ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), _transferAmount);
         } else {
-            ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), _transferAmount);
-            /// we update the rule id in the token
-            ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setTokenMinTxSizeId(_createActionsArray(), ruleId);
+            createTokenMinimumTransactionRule(_transferAmount);
             switchToAppAdministrator();
             /// now we perform the transfer
             // emit Log("transferAmount", _transferAmount);
@@ -101,17 +100,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
                 assertEq(applicationCoin.balanceOf(_richUser), maxAmount);
                 applicationCoin.transfer(_user1, maxAmount);
                 assertEq(applicationCoin.balanceOf(_user1), maxAmount);
-
-                bytes32[] memory accs = createBytes32Array(_tag);
-                uint256[] memory min = createUint256Array(minAmount);
-                uint256[] memory max = createUint256Array(maxAmount);
-                uint16[] memory empty;
-                // add the rule
-                switchToRuleAdmin();
-                uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, min, max, empty, uint64(Blocktime));
-
-                ///update ruleId in coin rule handler
-                ERC20TaggedRuleFacet(address(applicationCoinHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), ruleId);
+                createAccountMinMaxTokenBalanceRuleRule(_tag, minAmount, maxAmount, address(applicationCoinHandler), 1);
                 switchToAppAdministrator();
             }
             {
@@ -160,18 +149,11 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
 
         // add the rule.
         switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 0, address(oracleDenied));
-        assertEq(_index, 0);
-        NonTaggedRules.AccountApproveDenyOracle memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(_index);
-        assertEq(rule.oracleType, 0);
-        assertEq(rule.oracleAddress, address(oracleDenied));
+        createAccountApproveDenyOracleRule(0, address(applicationCoinHandler), 0);
         switchToAppAdministrator();
         // add a blocked address
         badBoys.push(_user3);
         oracleDenied.addToDeniedList(badBoys);
-        /// connect the rule to this handler
-        switchToRuleAdmin();
-        ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setAccountApproveDenyOracleId(_createActionsArray(), _index);
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -186,9 +168,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(_user3), 0);
         // check the approved list type
         switchToRuleAdmin();
-        _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 1, address(oracleApproved));
-        /// connect the rule to this handler
-        ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setAccountApproveDenyOracleId(_createActionsArray(), _index);
+        createAccountApproveDenyOracleRule(1, address(applicationCoinHandler), 0);
         switchToAppAdministrator();
         // add an approved address
         goodBoys.push(_user4);
@@ -205,7 +185,6 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
     function testERC20_MaxTxSizePerPeriodByRiskRuleERC20(uint8 _risk, uint8 _period) public {
         vm.warp(Blocktime);
         /// we create the rule
-        uint48[] memory _maxValue = createUint48Array(100_000_000, 10_000, 1);
         uint8[] memory _riskScore = createUint8Array(25, 50, 75);
         uint8 period = _period > 6 ? _period / 6 + 1 : 1;
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
@@ -213,10 +192,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         applicationCoin.mint(user1, 10_000_000_000_000 * (10 ** 18));
 
         /// we register the rule in the protocol
-        switchToRuleAdmin();
-        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), _maxValue, _riskScore, period, Blocktime);
-        /// now we set the rule in the applicationHandler for the applicationCoin only
-        applicationHandler.setAccountMaxTxValueByRiskScoreId(ruleId);
+        createAccountMaxTxValueByRiskRule(25, 50, 75, 100_000_000, 10_000, 1, period);
         /// we set a risk score for user1
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, risk);
@@ -261,14 +237,6 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         /// let's go to the future in the middle of the period
         vm.warp(block.timestamp + (9 * (uint256(period) * 1 hours)) / 2);
 
-        /// TEST RULE ON RECIPIENT
-        _maxValue[0] = 900_000_000;
-        _maxValue[1] = 90_000;
-        _maxValue[2] = 1;
-        _riskScore[0] = 10;
-        _riskScore[1] = 40;
-        _riskScore[2] = 90;
-
         switchToRuleAdmin();
         /// let's deactivate the rule before minting to avoid triggering the rule
         applicationHandler.activateAccountMaxTxValueByRiskScore(false);
@@ -276,12 +244,11 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         /// let get some trillions to user2 to spend
         applicationCoin.mint(user2, 90_000_000_000_000 * (10 ** 18));
 
+        _riskScore[0] = 10;
+        _riskScore[1] = 40;
+        _riskScore[2] = 90;
         /// we register the rule in the protocol
-        switchToRuleAdmin();
-        ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), _maxValue, _riskScore, period, Blocktime);
-        assertEq(ruleId, 1);
-        /// now we set the rule in the applicationHandler for the applicationCoin only
-        applicationHandler.setAccountMaxTxValueByRiskScoreId(ruleId);
+        createAccountMaxTxValueByRiskRule(10, 40, 90, 900_000_000, 90_000, 1, period);
         /// we start making transfers
         vm.stopPrank();
         vm.startPrank(user2);
@@ -315,19 +282,14 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
     }
 
     function testERC20_TransactionLimitByRiskScoreFuzz(uint8 _risk) public {
-        uint48[] memory _maxValue = createUint48Array(100_000_000, 10_000, 1);
-        uint8[] memory _riskScore = createUint8Array(25, 50, 75);
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
 
         ///Give tokens to user1 and user2
         applicationCoin.mint(user1, 100000000 * (10 ** 18));
         applicationCoin.mint(user2, 100000000 * (10 ** 18));
 
-        ///Register rule with ERC20Handler
-        switchToRuleAdmin();
-        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), _maxValue, _riskScore, 0, uint64(block.timestamp));
         ///Activate rule
-        applicationHandler.setAccountMaxTxValueByRiskScoreId(ruleId);
+        createAccountMaxTxValueByRiskRule(25, 50, 75, 100_000_000, 10_000, 1);
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, risk);
@@ -336,9 +298,6 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         ///Execute transfers
         vm.stopPrank();
         vm.startPrank(user1);
-
-        if (risk >= _riskScore[2]) vm.expectRevert();
-        applicationCoin.transfer(user2, 11 * (10 ** 18));
 
         if (risk >= 75) vm.expectRevert();
         applicationCoin.transfer(user2, 11 * (10 ** 18));
@@ -370,13 +329,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         uint48 riskBalance4 = _amountSeed;
         // add the rule.
         uint8[] memory _riskScore = createUint8Array(25, 50, 75, 90);
-        uint48[] memory balanceAmounts = createUint48Array(riskBalance1, riskBalance2, riskBalance3, 1);
-
-        ///Register rule with application handler
-        switchToRuleAdmin();
-        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByRiskScore(address(applicationAppManager), _riskScore, balanceAmounts);
-        ///Activate rule
-        applicationHandler.setAccountMaxValueByRiskScoreId(ruleId);
+        createAccountMaxValueByRiskRule(25, 50, 75, 90, riskBalance1, riskBalance2, riskBalance3, 1);
         /// we set a risk score for user2, user3 and user4
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(_user2, _riskScore[3]);
@@ -421,12 +374,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         uint48 accessBalance3 = _amountSeed + 500;
         uint48 accessBalance4 = _amountSeed + 1000;
         // add the rule.
-        uint48[] memory balanceAmounts = createUint48Array(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
-
-        switchToRuleAdmin();
-        uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByAccessLevel(address(applicationAppManager), balanceAmounts);
-        /// connect the rule to this handler
-        applicationHandler.setAccountMaxValueByAccessLevelId(_index);
+        createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         ///perform transfer that checks rule when account does not have AccessLevel(should fail)
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -474,14 +422,11 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
     }
 
     function testERC20_AdminMinTokenBalanceFuzz(uint256 amount, uint32 secondsForward) public {
+        uint32 _index = 0;
         /// we load the admin with tokens
         applicationCoin.mint(ruleBypassAccount, type(uint256).max);
         /// we create a rule that sets the minimum amount to 1 million tokens to be released in 1 year
-        switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
-
-        ERC20HandlerMainFacet(address(applicationCoinHandler)).setAdminMinTokenBalanceId(_createActionsArray(), _index);
-        _index = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 1_000_000 * (10 ** 18), block.timestamp + 365 days);
+        createAdminMinTokenBalanceRule(1_000_000 * (10 ** 18), uint64(block.timestamp + 365 days), address(applicationCoinHandler), 0);
         /// check that we cannot change the rule or turn it off while the current rule is still active
         vm.expectRevert();
         ERC20HandlerMainFacet(address(applicationCoinHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
@@ -527,12 +472,9 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
             999990000000000000000000000000000000000000000000000000000000000000000000000,
             999990000000000000000000000000000000000000000000000000000000000000000000000
         );
-
         /// 720 = 1 month, 4380 = 6 months, 17520 = 2 years 
         uint16[] memory periods = createUint16Array(720, 4380, 17520); 
-        switchToRuleAdmin();
-        uint32 _index = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, minAmounts, maxAmounts, periods, uint64(Blocktime));
-        assertEq(_index, 0);
+
         switchToAppAdministrator();
         /// load non admin users with application coin
         applicationCoin.transfer(rich_user, (_amountSeed * 10) * (10 ** 18));
@@ -541,8 +483,8 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         assertEq(applicationCoin.balanceOf(user2), (_amountSeed * 10000) * (10 ** 18));
         applicationCoin.transfer(user3, (_amountSeed * 10000000) * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), (_amountSeed * 10000000) * (10 ** 18));
-        switchToRuleAdmin();
-        ERC20TaggedRuleFacet(address(applicationCoinHandler)).setAccountMinMaxTokenBalanceId(_createActionsArray(), _index);
+
+        createAccountMinMaxTokenBalanceRuleRule(accs, minAmounts, maxAmounts, periods, address(applicationCoinHandler), 0);
         switchToAppAdministrator();
         /// tag the user
         applicationAppManager.addTag(rich_user, tag1); ///add tag
@@ -719,20 +661,13 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         if (_maxPercent > 99999) _maxPercent = 99999;
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
         rich_user = addressList[0];
-        switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addTokenMaxTradingVolume(address(applicationAppManager), _maxPercent, _period, Blocktime, 100_000);
-        assertEq(_index, 0);
-        NonTaggedRules.TokenMaxTradingVolume memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMaxTradingVolume(_index);
-        assertEq(rule.max, _maxPercent);
-        assertEq(rule.period, _period);
-        assertEq(rule.startTime, Blocktime);
+
         switchToAppAdministrator();
         /// load non admin users with game coin
         applicationCoin.mint(rich_user, 1000000);
         assertEq(applicationCoin.balanceOf(rich_user), 1000000);
         /// apply the rule
-        switchToRuleAdmin();
-        ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setTokenMaxTradingVolumeId(_createActionsArray(), _index);
+        createTokenMaxTradingVolumeRule(_maxPercent, _period, Blocktime, 100_000, address(applicationCoinHandler), 0);
         vm.stopPrank();
         vm.startPrank(rich_user);
         /// determine the maximum transfer amount
@@ -771,13 +706,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         applicationCoin.mint(appAdministrator, initialSupply); 
         applicationAppManager.addRuleBypassAccount(appAdministrator);
         /// create and activate rule
-        switchToRuleAdmin();
-        uint32 _index = RuleDataFacet(address(ruleProcessor)).addTokenMaxSupplyVolatility(address(applicationAppManager), volLimit, rulePeriod, startTime, tokenSupply);
-        ActionTypes[] memory actionTypes = new ActionTypes[](12);
-        // add actions mint and burn rather in addition to P2P_Transfer
-        actionTypes[0] = ActionTypes.BURN;
-        actionTypes[1] = ActionTypes.MINT;
-        ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setTokenMaxSupplyVolatilityId(actionTypes, _index);
+        createTokenMaxSupplyVolatilityRuleRule(volLimit, rulePeriod, startTime, tokenSupply, address(applicationCoinHandler), 0);
         /// test mint
         vm.stopPrank();
         vm.startPrank(user1);
@@ -818,9 +747,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         console.logUint(applicationCoin.totalSupply());
         vm.warp(Blocktime + 96 hours);
         uint16 volatilityLimit = 1; /// 0.01%
-        switchToRuleAdmin();
-        uint32 _ruleIndex = RuleDataFacet(address(ruleProcessor)).addTokenMaxSupplyVolatility(address(applicationAppManager), volatilityLimit, rulePeriod, startTime, tokenSupply);
-        ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setTokenMaxSupplyVolatilityId(actionTypes, _ruleIndex);
+        createTokenMaxSupplyVolatilityRuleRule(volatilityLimit, rulePeriod, startTime, tokenSupply, address(applicationCoinHandler), 0);
         vm.stopPrank();
         vm.startPrank(user1);
         applicationCoin.mint(user1, 5 * (10 ** 18));
@@ -837,9 +764,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry {
         console.logUint(applicationCoin.totalSupply());
         vm.warp(Blocktime + 120 hours);
         uint16 newVolatilityLimit = 50000; /// 500%
-        switchToRuleAdmin();
-        uint32 _newRuleIndex = RuleDataFacet(address(ruleProcessor)).addTokenMaxSupplyVolatility(address(applicationAppManager), newVolatilityLimit, rulePeriod, startTime, tokenSupply);
-        ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setTokenMaxSupplyVolatilityId(actionTypes, _newRuleIndex);
+        createTokenMaxSupplyVolatilityRuleRule(newVolatilityLimit, rulePeriod, startTime, tokenSupply, address(applicationCoinHandler), 0);
         vm.stopPrank();
         vm.startPrank(user1);
         applicationCoin.mint(user1, 450000 * (10 ** 18));

@@ -2,9 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "test/util/TestCommonFoundry.sol";
+import "test/util/RuleCreation.sol";
 
 
-contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
+contract RuleProcessorDiamondTest is Test, TestCommonFoundry, RuleCreation {
 
     function setUp() public {
         vm.startPrank(superAdmin);
