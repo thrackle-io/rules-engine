@@ -7,20 +7,19 @@ These contracts contain logic used by the facets in the Asset Handler Diamond.
 
 ## Rule Contract Location: 
  
-- [HandlerAccountMaxBuySize.sol]() 
-- [HandlerAccountMaxSellSize.sol]() 
-- [HandlerAccountMinMaxTokenBalance.sol]() 
-- [HandlerAdminMinTokenBalance.sol]() 
-- [HandlerBase.sol]() 
-- [HandlerRuleContractsCommonImports.sol]() 
-- [HandlerTokenMaxBuyVolume.sol]() 
-- [HandlerTokenMaxDailyTrades.sol]() 
-- [HandlerTokenMaxSellVolume.sol]() 
-- [HandlerTokenMaxSupplyVolatility.sol]() 
-- [HandlerTokenMaxTradingVolume.sol]() 
-- [HandlerTokenMinHoldTime.sol]() 
-- [HandlerTokenMinTxSize.sol]() 
-- [NFTValuationLimit.sol]() 
+- [HandlerAccountApproveDenyOracle.sol](../../../../../src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol)
+- [HandlerAccountMaxBuySize.sol](../../../../../src/client/token/handler/ruleContracts/HandlerAccountMaxBuySize.sol) 
+- [HandlerAccountMaxSellSize.sol](../../../../../src/client/token/handler/ruleContracts/HandlerAccountMaxSellSize.sol) 
+- [HandlerAccountMinMaxTokenBalance.sol](../../../../../src/client/token/handler/ruleContracts/HandlerAccountMinMaxTokenBalance.sol)
+- [HandlerRuleContractsCommonImports.sol](../../../../../src/client/token/handler/ruleContracts/HandlerRuleContractsCommonImports.sol) 
+- [HandlerTokenMaxBuyVolume.sol](../../../../../src/client/token/handler/ruleContracts/HandlerTokenMaxBuyVolume.sol) 
+- [HandlerTokenMaxDailyTrades.sol](../../../../../src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol) 
+- [HandlerTokenMaxSellVolume.sol](../../../../../src/client/token/handler/ruleContracts/HandlerTokenMaxSellVolume.sol) 
+- [HandlerTokenMaxSupplyVolatility.sol](../../../../../src/client/token/handler/ruleContracts/HandlerTokenMaxSupplyVolatility.sol) 
+- [HandlerTokenMaxTradingVolume.sol](../../../../../src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol) 
+- [HandlerTokenMinHoldTime.sol](../../../../../src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol) 
+- [HandlerTokenMinTxSize.sol](../../../../../src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol) 
+- [NFTValuationLimit.sol](../../../../../src/client/token/handler/ruleContracts/NFTValuationLimit.sol) 
 	
 
 <!-- These are the header links -->

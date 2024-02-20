@@ -21,13 +21,13 @@ The diamond pattern allows the handler to upgrade, add new features and improvem
 ### Common Contracts 
 
 Each asset handler diamond will inherit from the following contracts: 
-- [HandlerBase.sol]()
-- [HandlerAdminMinTokenBalance.sol]() 
-- [HandlerUtils.sol]()
-- [HandlerDiamondLib.sol]() 
-- [RuleStorage.sol]()
-- [StorageLib.sol]()
-- [TradingRulesFacet.sol]()
+- [HandlerBase.sol](../../../../../src/client/token/handler/ruleContracts/HandlerBase.sol)
+- [HandlerAdminMinTokenBalance.sol](../../../../../src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol) 
+- [HandlerUtils.sol](../../../../../src/client/token/handler/common/HandlerUtils.sol)
+- [HandlerDiamondLib.sol](../../../../../src/client/token/handler/diamond/HandlerDiamondLib.sol) 
+- [RuleStorage.sol](../../../../../src/client/token/handler/diamond/RuleStorage.sol)
+- [StorageLib.sol](../../../../../src/client/token/handler/diamond/StorageLib.sol)
+- [TradingRulesFacet.sol](../../../../../src/client/token/handler/diamond/TradingRuleFacet.sol)
 
 #### Handler Base 
 The Handler Base contract contains functions to propose and confirm a new App Manager address. 
