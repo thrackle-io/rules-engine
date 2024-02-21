@@ -1,8 +1,8 @@
-# ApplicationManager
+# Application Manager
 
 ## Purpose
 
-The ApplicationManager acts as a central hub for managing the application it is associated with. 
+The Application Manager acts as a central hub for managing the application it is associated with. 
 
 It provides the ability to manage metadata for accounts associated with the application including:
 - Roles
@@ -10,13 +10,13 @@ It provides the ability to manage metadata for accounts associated with the appl
 - Risk Scores
 - Access Levels
 
-The ApplicationManager also provides the ability to check application level rules via its associated Application Handler.
+The Application Manager also provides the ability to check application level rules via its associated Application Handler.
 
 ### Metadata
 
 #### Roles
 
-The ApplicationManager can be utilized for both updating and checking an account's role in relation to the application. These capabilites are provided for the following roles:
+The Application Manager can be utilized for both updating and checking an account's role in relation to the application. These capabilites are provided for the following roles:
 
 - Super Admin
 - App Admin
@@ -71,7 +71,7 @@ In order to manage these, the following functions have been provided for each (w
 ```c
 function addRiskScore(address _account, uint8 _score) public onlyRole(RISK_ADMIN_ROLE)
 ```
-Applies the provided risk score to the provided address (of note that the ApplicationManager deploys the storage contracts for the Risk Scores, Access Levels and Tags associated with the application on its creation, these can be updated to point to external providers which we'll cover in the next section). This can only be called by a Risk Admin.
+Applies the provided risk score to the provided address (of note that the Application Manager deploys the storage contracts for the Risk Scores, Access Levels and Tags associated with the application on its creation, these can be updated to point to external providers which we'll cover in the next section). This can only be called by a Risk Admin.
 
 ```c
 function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyRole(RISK_ADMIN_ROLE)

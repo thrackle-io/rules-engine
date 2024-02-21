@@ -2,17 +2,17 @@
 
 ## Purpose
 
-The Application Handler supports the ApplicationManager by storing the application level rules data and functions. Procotol supported asset handler contracts call the `check-application-level-rules function` via the ApplicationManager. The ApplicationManager then checks the associated Application Handler where application level rule data is stored. The Application Handler contract also serves as the ApplicationManager's connection to the protocol rule processor diamond for the application level rules.
+The Application Handler supports the Application Manager by storing the application level rules data and functions. Procotol supported asset handler contracts call the `check-application-level-rules function` via the Application Manager. The Application Manager then checks the associated Application Handler where application level rule data is stored. The Application Handler contract also serves as the Application Manager's connection to the protocol rule processor diamond for the application level rules.
 
 
 ### Application Level Rules
 
-[Application level rules](./APPLICATION-RULES-LIST.md) apply to all assets associated to the Application Manager and handler when set to active. The Application Handler facilitates the rule checks for each application level rule. The first function called by the ApplicationManager is: 
+[Application level rules](./APPLICATION-RULES-LIST.md) apply to all assets associated to the Application Manager and handler when set to active. The Application Handler facilitates the rule checks for each application level rule. The first function called by the Application Manager is: 
 
 ```c
 function requireApplicationRulesChecked() public view returns (bool)
 ```
-This function allows the ApplicationManager to know if any application level rules are active and if the call should continue to the handler to check the active rules. 
+This function allows the Application Manager to know if any application level rules are active and if the call should continue to the handler to check the active rules. 
 
 The Application Manager then calls the function: 
 ```c
