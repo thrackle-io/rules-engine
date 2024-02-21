@@ -2,9 +2,6 @@
 
 ## FeesFacet Invariants
 
-- Version will never be blank
-- Version will never change.
-- Any user can get the contract's version
 - Only a ruleAdmin can activate a set fee activation
 - Any account can retrieve the fee activation
 - Only the owning handler can add a fee

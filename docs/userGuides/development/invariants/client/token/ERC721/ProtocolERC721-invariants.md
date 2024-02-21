@@ -10,7 +10,7 @@
 - A non-appAdmin can never unpause the contract
 - A non-appAdmin can never connect a handler to the contract
 - Any account can retrieve handler address
-- Handler address can never be zero address
+- Once the handler address is set to a non zero address, Handler address can never be zero address
 - New deployment will always emit NewTokenDeployed event
 - When paused, mint reverts with "Pausable: paused"
 - When paused, burn reverts with "Pausable: paused"

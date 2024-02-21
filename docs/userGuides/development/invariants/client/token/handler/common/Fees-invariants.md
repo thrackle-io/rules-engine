@@ -4,7 +4,7 @@
 
 - Version will never be blank
 - Version will never change.
-- When mint, deterineTransferAction always returns ActionTypes.MINT 
+- When mint, determineTransferAction always returns ActionTypes.MINT 
 - When burn, deterineTransferAction always returns ActionTypes.BURN 
 - When sell, deterineTransferAction always returns ActionTypes.SELL 
 - When buy, deterineTransferAction always returns ActionTypes.BUY 

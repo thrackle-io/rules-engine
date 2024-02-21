@@ -10,7 +10,7 @@
 - A non-appAdmin can never unpause the contract
 - A non-appAdmin can never connect a handler to the contract
 - Any account can retrieve handler address
-- Handler address can never be zero address
+- Once set to a non zero address, a Handler address can never be set to zero address
 - New deployment will always emit NewTokenDeployed event
 - When paused, mint reverts with "Pausable: paused"
 - When paused, burn reverts with "Pausable: paused"
@@ -25,7 +25,7 @@
 ## Base ERC20 Invariants
 - Total supply should be constant for non-mintable and non-burnable tokens.
 - No user balance should be greater than the token's total supply.
-- The sum of users balances should not be greater than the token's total supply.
+- The sum of all user balances should equal the token's total supply.
 - Token balance for address zero should be zero.
 - transfers to zero address should not be allowed.
 - transferFroms to zero address should not be allowed.
