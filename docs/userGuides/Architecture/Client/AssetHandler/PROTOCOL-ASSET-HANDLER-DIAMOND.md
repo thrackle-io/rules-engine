@@ -2,19 +2,19 @@
 
 ## Purpose
 
-The Protocol Asset Handler Diamond serves as the access point  to the protocol for a protocol supported asset. The protocol supported asset accepts the Handler Diamond proxy address and calls the check all rules function. The Handler Diamond stores all asset level rule data, rule activation status', and connects the token to the App Manager for role based access control. 
+The Protocol Asset Handler Diamond serves as the access point to the protocol for a protocol supported asset. The protocol supported asset stores the Handler Diamond proxy address and uses it to call the `check all rules function`. The Handler Diamond stores all asset level rule data, rule activation status', and connects the token to the App Manager for role based access control. 
 
-Asset level rules are set by [Rule administrators](../permissions/ADMIN-ROLES.md). The protocol supplied rule id for each [Rule](../../../rules/README.md) is stored with an active status boolean inside a struct. These structs are stored in a mapping with the [action type](../../../rules/ACTION-TYPES.md) as the pointer. When setting a rule to active in the handler, the status is applied per applicable [action type](../../../rules/ACTION-TYPES.md). The Handler Diamond then stores each action type and rule mapping into a struct within the [Rule Storage Facet](./PROTOCOL-ASSET-HANDLER-DIAMOND-FACET-LIST.md). 
+Asset level rules are set by [Rule administrators](../permissions/ADMIN-ROLES.md). When setting a rule status in the Handler the protocol supplied rule id for each [Rule](../../../rules/README.md) and the [action type](../../../rules/ACTION-TYPES.md) are required for the `set-rule function`. The Handler Diamond stores each action type and rule together within the [Rule Storage Facet](./PROTOCOL-ASSET-HANDLER-DIAMOND-FACET-LIST.md). 
 
-Each Protocol supported asset type (ERC20, ERC721, etc) will need a handler diamond deployed and connected to the asset. The Handler diamond architecture will remain the same for each asset type. The proxy contract, libraries and storage facets may be the same for different asset handler diamonds. Each asset type will have unique facets to support the asset type:
-[Protocol Fungible Handler](./PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md) 
-[Protocol NonFungible Handler](./PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md) 
+Each Protocol supported asset type (ERC20, ERC721, etc) will need one handler diamond deployed and connected to the asset. The Handler diamond architecture will remain the same for each asset type. The asset handler diamond will consist of a proxy contract, libraries, storage facets and unique facets for that type. The unique facets for the asset type are found here:
+- [Protocol Fungible Handler](./PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md) 
+- [Protocol NonFungible Handler](./PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md) 
 
 #### *[see diamond diagram](INSERT LINK AFTER REBASE)*
 
 ### Diamond Pattern
 
-The diamond pattern allows the handler to upgrade, add new features and improvements through the use of a proxy contract. New facet contracts can be deployed and connected to the diamond via a specialized function called diamondCut. New facets and functions allow the handler to grow while maintaining address immutability with the proxy contract. Calling contracts will only need to set the address of the diamond proxy at deployment, without having to worry about that address changing overtime. The Handler Diamond follows ERC 2535 standards for storage and functions. 
+The diamond pattern allows the handler to upgrade, add new features and improvements through the use of a proxy contract. New facet contracts can be deployed and connected to the diamond via a specialized function called diamondCut. New facets and functions allow the handler to grow while maintaining address immutability with the proxy contract. Calling contracts will only need to set the address of the diamond proxy at deployment, without having to worry about that address changing over time. The Handler Diamond follows ERC 2535 standards for storage and functions. 
 #### *[ERC 2535: Diamond Proxies](https://eips.ethereum.org/EIPS/eip-2535)*
 
 

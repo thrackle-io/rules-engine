@@ -45,7 +45,7 @@ function checkNonTaggedRules(ActionTypes action, address _from, address _to, uin
         - data: A function call, including function selector and arguments calldata is executed with delegatecall on "init"
 
 ## Upgrading
-- The new facet that is to be added to the diamond should first be deployed to the network the Asset Handler Diamond is deployed to. 
+- The new facet that is to be added to the diamond should first be deployed to the same network the Asset Handler Diamond is deployed to. 
 
 - The new facet address and function selectors are used as parameters for the DiamondCut function. 
 
