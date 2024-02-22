@@ -8,6 +8,16 @@ The Rule Processor Diamond Facets are where rule adding and rule check functions
 
 
 ## Upgrading
+
+### Through The Script
+
+- see [Upgrade a Rule Processor Facet](RULE-PROCESSOR-DIAMOND-UPGRADE.md).
+- If an upgrade needs to be reverted, see [Revert a Diamond Upgrade](../common/DIAMOND-UPGRADE-REVERSION.md).
+
+### Manually
+
+*Note: it is not encourage to upgrade a facet manually. Instead, try the upgrade scripts as explained in the previous section. If a manual upgrade is preferred, make sure to record the deployment in the `deployment/diamonds.json` directory.*
+
 - The new facet that is to be added to the diamond should first be deployed to the network the Rule Processor Diamond is deployed to. 
 
 - The new facet address and function selectors are used as parameters for the DiamondCut function. 
@@ -48,6 +58,7 @@ function diamondCut(FacetCut[] memory _diamondCut, address init, bytes memory da
 
 - The diamondCut function will add the new selectors to storage and are then able to be called through the proxy address.
 
+- Record the deployment in the `deployment/diamonds.json`
 ## Events 
 
 - **event DiamondCut(_diamondCut, init, data)**: 

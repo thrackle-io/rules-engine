@@ -81,7 +81,13 @@ function checkTradingRules(address _from, address _to, bytes32[] memory fromTags
 
 
 ### Upgrading 
-Facets may be added or removed over time. Each handler type contains the process for upgrading facets in the Diamond: 
+
+Facets may be added, replaced or removed over time: 
+
+- [Upgrade an Asset Handler](./PROTOCOL-ASSET-HANDLER-DIAMOND-UPGRADE.md)
+- If an upgrade needs to be reverted, see [Revert a Diamond Upgrade](../../common/DIAMOND-UPGRADE-REVERSION.md).
+
+### Token Type Handlers
 
 - [Protocol Fungible Handler](./PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md) 
 - [Protocol NonFungible Handler](./PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md) 
