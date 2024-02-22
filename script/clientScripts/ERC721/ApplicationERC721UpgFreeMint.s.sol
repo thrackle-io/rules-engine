@@ -24,7 +24,7 @@ contract ApplicationERC721UScript is Script, DeployBase {
         ApplicationERC721Upgradeable applicationNFT = new ApplicationERC721Upgradeable();
         ApplicationERC721UProxy applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFT), vm.envAddress("APPLICATIONERC721U_PROXY_OWNER_ADDRESS"), "");
         ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), "dummy.uri.io");
-        HandlerDiamond applicationNFTHandlerDiamond = createERC721HandlerDiamond();
+        HandlerDiamond applicationNFTHandlerDiamond = createERC721HandlerDiamond("Frankenstein");
         ERC20HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(
             vm.envAddress("RULE_PROCESSOR_DIAMOND"), 
             vm.envAddress("APPLICATION_APP_MANAGER"), 
