@@ -11,7 +11,7 @@ import {ERC721HandlerMainFacet} from "src/client/token/handler/diamond/ERC721Han
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
 import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
-import {ScriptUtil} from "../ScriptUtil.sol";
+import {DiamondScriptUtil} from "../DiamondScriptUtil.sol";
 /**
  * @title Application Deploy 02 Application Fungible Token 1 Script
  * @dev This script will deploy an ERC20 fungible token and Handler.
@@ -29,7 +29,7 @@ import {ScriptUtil} from "../ScriptUtil.sol";
  * forge script example/script/Application_Deploy_08_UpgradeTesting.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  */
 
-contract DeployBase is Script, ScriptUtil {
+contract DeployBase is Script, DiamondScriptUtil {
 
     
 

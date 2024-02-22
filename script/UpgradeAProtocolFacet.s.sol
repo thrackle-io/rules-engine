@@ -11,7 +11,7 @@ import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import {ScriptUtil} from "./ScriptUtil.sol";
+import {DiamondScriptUtil} from "./DiamondScriptUtil.sol";
 
 /**
  * @title The initial deployment script for the Protocol. It deploys the rule processor diamond and the initial set of facets.
@@ -20,7 +20,7 @@ import {ScriptUtil} from "./ScriptUtil.sol";
  * @dev This script will set contract addresses needed by protocol interaction in connectAndSetUpAll()
  */
 
-contract UpgradeAProtocolFacet is Script, ScriptUtil {
+contract UpgradeAProtocolFacet is Script, DiamondScriptUtil {
 
 
     /// NOTE these values must be configured in the local env file

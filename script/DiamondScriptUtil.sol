@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/utils/math/SignedMath.sol";
  * @dev String operations. Copied from Openzeppelin library but converted into a contract to be able to
  * use it in a script
  */
-contract ScriptUtil is Script {
+contract DiamondScriptUtil is Script {
     
     function validateFacetToUpgrade(string memory _facetToUpgrade) internal pure {
         if(bytes(_facetToUpgrade).length == 0)

@@ -10,7 +10,7 @@ import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
-import {ScriptUtil} from "./ScriptUtil.sol";
+import {DiamondScriptUtil} from "./DiamondScriptUtil.sol";
 
 /**
  * @title The initial deployment script for the Protocol. It deploys the rule processor diamond and the initial set of facets.
@@ -19,7 +19,7 @@ import {ScriptUtil} from "./ScriptUtil.sol";
  * @dev This script will set contract addresses needed by protocol interaction in connectAndSetUpAll()
  */
 
-contract DeployAllModulesPt1Script is Script, ScriptUtil {
+contract DeployAllModulesPt1Script is Script, DiamondScriptUtil {
     /// Store the FacetCut struct for each facet that is being deployed.
     /// NOTE: using storage array to easily "push" new FacetCut as we
     /// process the facets.

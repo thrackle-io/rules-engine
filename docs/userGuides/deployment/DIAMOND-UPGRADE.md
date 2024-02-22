@@ -1,10 +1,10 @@
 # DIAMOND UPGRADE REVERSION PLAN
 
-In the event that a diamond upgrade is wished to be reverted, the next steps must be followed:
+If a diamond upgrade reversion is required, the next steps must be followed:
 
 1. Determine if the upgraded facet has changed at all (logic, function signatures, etc.). If not, skip next step and continue to step 3.
-2. If the contract has changed, then use the version control system to go back to the desired state of the contract and build the entire repo to make sure that the `out` directory has the disired abi.
-3. Checkout the `deployments/diamonds.json` file and find the facet that is wished to be reverted to a previous state. Make sure that the address of the facet recorded there is not the latest one. You can do this by looking at the historical version of this file through the version control system.
+2. If the contract has changed, then use the version control system to go back to the desired state of the contract and build the entire repo to make sure that the `out` directory has the desired abi.
+3. Checkout the `deployments/diamonds.json` file and find the facet to revert to its previous state. Make sure that the address of the facet recorded there is not the latest one. You can do this by looking at the historical version of this file through the version control system.
 4. Configure the environment variables to carry out the reversion. Specifically set the following variables in the root `.env` file:
     ```
     DEPLOYMENT_OWNER_KEY=<YOUR_DEPLOYMENT_OWNER_KEY>
@@ -18,14 +18,14 @@ In the event that a diamond upgrade is wished to be reverted, the next steps mus
     forge script --ffi script/clientScripts/RevertAFacetUpgrade.s.sol --broadcast --rpc-url <YOUR_RPC_URL>
     ```
 
-Notice that the environment variables are automatically cleaned by the script. This is to prevent accidental faulty upgrades. Also, the script makes sure that the reversion was successful by checking that the old selectors are first removed, and that the new ones are in the diamond pointing to the correct facet address.
+Notice that the environment variables are automatically cleaned by the script. This is to prevent accidental faulty upgrades. Also, the script makes sure that the reversion was successful by checking that the old selectors are first removed, the new ones are in the diamond, and that they are configured to point to the correct facet address.
 
 
 # UPGRADING A PROTOCOL FACET
 
-Upgrading a protocol facet must be done following the next steps:
+To upgrade a protocol facet, follow these steps:
 
-1. Set the environment variables in the `.env` file for the upgrade. Specifically set the variables:
+1. Set the environment variables in the `.env` file for the upgrade. Specifically set these variables:
 
     ```
     DEPLOYMENT_OWNER_KEY=<YOUR_DEPLOYMENT_OWNER_KEY>
