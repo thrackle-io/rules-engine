@@ -15,4 +15,8 @@ The diamond pattern allows the protocol to upgrade, add new features and improve
 
 
 ### Upgrading 
-Facets may be added or removed over time. [Rule Processor Facets](./RULE-PROCESSOR-FACETS.md) contains the process for upgrading facets in the Diamond. 
+
+Facets may be added or removed over time:
+
+- [Upgrade a Rule Processor Facet](RULE-PROCESSOR-DIAMOND-UPGRADE.md).
+- If an upgrade needs to be reverted, see [Revert a Diamond Upgrade](../common/DIAMOND-UPGRADE-REVERSION.md).

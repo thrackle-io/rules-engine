@@ -308,6 +308,8 @@ echo  Deploying "$APP_NAME"ERC20Handler
 echo "################################################################"
 echo
 
+    sed -i '' 's/HANDLER_DIAMOND_TO_DEPLOY=.*/HANDLER_DIAMOND_TO_DEPLOY="Frank"/g' $ENV_FILE
+
     forge script script/clientScripts/DeployERC20Handler.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
     # Retreive the Rule Processor Diamond Address
@@ -336,6 +338,8 @@ echo "################################################################"
 echo  Deploying "$APP_NAME"ERC721Handler
 echo "################################################################"
 echo
+
+    sed -i '' 's/HANDLER_DIAMOND_TO_DEPLOY=.*/HANDLER_DIAMOND_TO_DEPLOY="Dracula"/g' $ENV_FILE
 
     forge script script/clientScripts/DeployERC721Handler.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
