@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The Rule Processor Diamond Facets are where rule adding and rule check functions are stored in the protocol. Storage facets store the add rule functions for each [rule type](../rules/RULE-GUIDE.md). Processor facets store the rule check functions and are called by an application's handler contracts. Facets can be added or removed by the diamond to allow for upgrades to functionality of the diamond. Application contracts never call the facets directly and will only ever interact with the [Rule Processor Proxy](./RULE-PROCESSOR-DIAMOND.md).
+The Rule Processor Diamond Facets are where rule adding and rule check functions are stored in the protocol. Storage facets store the add rule functions for each [rule type](../../rules/RULE-GUIDE.md). Processor facets store the rule check functions and are called by an application's handler contracts. Facets can be added or removed by the diamond to allow for upgrades to functionality of the diamond. Application contracts never call the facets directly and will only ever interact with the [Rule Processor Proxy](./RULE-PROCESSOR-DIAMOND.md).
 
 #### *[see facet list](./RULE-PROCESSOR-FACET-LIST.md)*
 

@@ -1,8 +1,8 @@
-# App Manager
+# Application Manager
 
 ## Purpose
 
-The App Manager acts as a central hub for managing the application it is associated with. 
+The Application Manager acts as a central hub for managing the application it is associated with. 
 
 It provides the ability to manage metadata for accounts associated with the application including:
 - Roles
@@ -10,13 +10,13 @@ It provides the ability to manage metadata for accounts associated with the appl
 - Risk Scores
 - Access Levels
 
-The App Manager also provides the ability to check application level rules via its associated Application Handler.
+The Application Manager also provides the ability to check application level rules via its associated Application Handler.
 
 ### Metadata
 
 #### Roles
 
-The App Manager can be utilized for both updating and checking an account's role in relation to the application. These capabilites are provided for the following roles:
+The Application Manager can be utilized for both updating and checking an account's role in relation to the application. These capabilites are provided for the following roles:
 
 - Super Admin
 - App Admin
@@ -71,7 +71,7 @@ In order to manage these, the following functions have been provided for each (w
 ```c
 function addRiskScore(address _account, uint8 _score) public onlyRole(RISK_ADMIN_ROLE)
 ```
-Applies the provided risk score to the provided address (of note that the App Manager deploys the storage contracts for the Risk Scores, Access Levels and Tags associated with the application on its creation, these can be updated to point to external providers which we'll cover in the next section). This can only be called by a Risk Admin.
+Applies the provided risk score to the provided address (of note that the Application Manager deploys the storage contracts for the Risk Scores, Access Levels and Tags associated with the application on its creation, these can be updated to point to external providers which we'll cover in the next section). This can only be called by a Risk Admin.
 
 ```c
 function addRiskScoreToMultipleAccounts(address[] memory _accounts, uint8 _score) external onlyRole(RISK_ADMIN_ROLE)
@@ -114,7 +114,7 @@ This function only succeeds if the msg sender is the proposed provider address. 
 
 ### Application Level Rules
 
-The App Manager provides a function that can be called from registered Token Handlers to check the Application Level Rules for a transaction.
+The Application Manager provides a function that can be called from registered Token Handlers to check the Application Level Rules for a transaction.
 
 ```c
 function checkApplicationRules(address _tokenAddress, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId, ActionTypes _action, HandlerTypes _handlerType) external onlyHandler
@@ -123,7 +123,7 @@ The function actually calls to the registered Application Handler to check the r
 
 ### Associated Contracts
 
-The App Manager also contains the functionality to register, deregister and check various related contracts, including:
+The Application Manager also contains the functionality to register, deregister and check various related contracts, including:
 - The Application Handler
 - Protocol Compliant Tokens
 - Treasury
@@ -133,12 +133,12 @@ We'll use the treasury functions to demonstrate the API:
 ```c
 function registerTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE)
 ```
-Registers the treasury address with the App Manager. It can only be called by the App Admin.
+Registers the treasury address with the Application Manager. It can only be called by the Application Admin.
 
 ```c
 function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMIN_ROLE)
 ```
-Deregisters the treasury address with the App Manager. It can only be called by the App Admin.
+Deregisters the treasury address with the Application Manager. It can only be called by the App Admin.
 
 ```c
 function isTreasury(address _treasuryAddress) public view returns (bool)
@@ -147,15 +147,15 @@ Checks if the provided address is the registered treasury.
 
 ### Upgrading The Contract
 
-When upgrading to a new App Manager contract a two step process is provided to migrate the data contracts.
+When upgrading to a new Application Manager contract a two step process is provided to migrate the data contracts.
 
-First the following function must be called on the original App Manager:
+First the following function must be called on the original Application Manager:
 ```c
 function proposeDataContractMigration(address _newOwner) external onlyRole(APP_ADMIN_ROLE) 
 ```
-The provided address should be the address of the new App Manager contract. This function can only be called by the App Admin.
+The provided address should be the address of the new Application Manager contract. This function can only be called by the Application Admin.
 
-In order to finalize the process the following function must be called in the new App Manager:
+In order to finalize the process the following function must be called in the new Application Manager:
 ```c
 function confirmDataContractMigration(address _oldAppManagerAddress) external onlyRole(APP_ADMIN_ROLE)
 ```
