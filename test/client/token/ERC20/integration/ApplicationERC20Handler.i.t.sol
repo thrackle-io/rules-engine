@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
-import "src/client/token/ProtocolHandlerCommon.sol";
+import "src/client/token/handler/common/HandlerUtils.sol";
 
 /**
  * @title Application Token Handler Test
@@ -12,7 +12,7 @@ import "src/client/token/ProtocolHandlerCommon.sol";
  *      contains all the rule checks for the particular ERC20.
  * @notice It simulates the input from a token contract
  */
-contract ApplicationERC20HandlerTest is Test, ProtocolHandlerCommon {
+contract ApplicationERC20HandlerTest is Test, HandlerUtils {
    
     function testDetermineTransferAction() public {
         address from;

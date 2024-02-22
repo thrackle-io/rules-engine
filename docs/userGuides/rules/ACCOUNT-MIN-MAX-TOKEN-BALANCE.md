@@ -262,5 +262,4 @@ This rule doesn't require any data to be recorded.
 
 ## Dependencies
 
-- **Tags**: This rule relies on accounts having [tags](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md), and they should match at least one of the tags in the rule for it to have any effect.
-
+- **Tags**: This rule relies on accounts having a matching [tag](../GLOSSARY.md) registered in their [AppManager](../GLOSSARY.md) or the rule being configured with a blank [tag](../GLOSSARY.md).
