@@ -9,10 +9,10 @@
 
 ## Fees Invariants
 
-- A non-owner can never add a fee
-- A non-owner can never remove a fee
-- A non-owner can never retrieve a fee
-- A non-owner can never propose a new owner
+- A non Rule Admin can never add a fee
+- A non Rule Admin can never remove a fee
+- A non Rule Admin can never propose a new owner
+- Any user can getApplicableFees.
 - When adding a fee, minimum balance can never be more than maximum balance
 - When adding a fee, fee percentage can never be greater than 10000 or less than -10000
 - When adding a fee, fee percentage can never be 0
