@@ -157,7 +157,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
                 applicationAppManager.addAccessLevel(random, 1);
                 assertEq(applicationAppManager.getAccessLevel(random), 1);
             } else {
-                vm.expectRevert();
+                vm.expectRevert(abi.encodeWithSelector(bytes4(keccak256("AccessLevelIsNotValid(uint8)")), level));
                 applicationAppManager.addAccessLevel(random, level);
                 assertEq(applicationAppManager.getAccessLevel(random), 0);
             }
@@ -172,8 +172,8 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
                 applicationAppManager.addRiskScore(random, riskScore);
                 assertEq(applicationAppManager.getRiskScore(random), riskScore);
                 /// testing update
-                applicationAppManager.addRiskScore(random, 1);
-                assertEq(applicationAppManager.getRiskScore(random), 1);
+                applicationAppManager.addRiskScore(random, 2 % riskScore);
+                assertEq(applicationAppManager.getRiskScore(random), 2 % riskScore);
             } else {
                 vm.expectRevert();
                 applicationAppManager.addRiskScore(random, riskScore);
