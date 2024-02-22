@@ -303,7 +303,12 @@ abstract contract TestCommonFoundry is TestCommon {
                 } while (0 == 0);
             }
         }
-        return _addressList;
+        // only return the list with no zero addresses
+        address[] memory _addressList2 = new address[](_number);
+        for (uint i = 0; i < _addressList2.length; i++) {
+            _addressList2[i] = _addressList[i];
+        }
+        return _addressList2;
     }
 
     // Check if an address exists in the list

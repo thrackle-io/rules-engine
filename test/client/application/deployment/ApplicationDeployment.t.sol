@@ -82,20 +82,16 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
             applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
             applicationCoin2.connectHandlerToToken(address(applicationCoinHandler2));
             forkTest = false;
-            vm.stopPrank();
         }
     }
 
     function testApplicationHandlerConnected() public {
-            vm.stopPrank();
             vm.startPrank(superAdmin);
             assertEq(applicationAppManager.getHandlerAddress(), address(applicationHandler));
             assertEq(applicationHandler.appManagerAddress(), address(applicationAppManager));
-            vm.stopPrank();
     }
 
     function testERC20HandlerConnections() public {
-        vm.stopPrank();
         vm.startPrank(superAdmin);
         assertEq(applicationCoin.getHandlerAddress(), address(applicationCoinHandler));
         assertEq(applicationCoin2.getHandlerAddress(), address(applicationCoinHandler2));
@@ -105,16 +101,13 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         assertEq(applicationCoin2.getAppManagerAddress(), address(applicationAppManager));
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationCoinHandler)));
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationCoinHandler2)));
-        vm.stopPrank();
     }
 
     function testERC721HandlerConnections() public {
-        vm.stopPrank();
         vm.startPrank(superAdmin);
         assertEq(applicationNFT.getAppManagerAddress(), address(applicationAppManager));
         assertEq(applicationNFT.getHandlerAddress(), address(applicationNFTHandler));
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationNFTHandler)));
-        vm.stopPrank();
     }
 
     function testVerifyTokensRegistered() public {
