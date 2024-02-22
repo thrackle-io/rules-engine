@@ -10,7 +10,7 @@
 - A non-owner can never retrieve a fee
 - A non-owner can never propose a new owner
 - When adding a fee, minimum balance can never be more than maximum balance
-- When adding a fee, fee percentage can never be greater than 10000 or less than -10000
+- When adding a fee, fee percentage can never be greater than 10000(100%) or less than -10000(-100%)
 - When adding a fee, fee percentage can never be 0
 - When adding a fee, target account can never be a zero address when the feePercentage is positive
 - When adding a fee, maxBalance will be max uint256 when maxBalance is sent in as 0

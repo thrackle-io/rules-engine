@@ -2,8 +2,6 @@
 
 ## HandlerUtils Invariants
 
-- Version will never be blank
-- Version will never change.
 - When mint, determineTransferAction always returns ActionTypes.MINT 
 - When burn, determineTransferAction always returns ActionTypes.BURN 
 - When sell, determineTransferAction always returns ActionTypes.SELL 
