@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import {HandlerDiamondLib as DiamondLib, HandlerDiamondStorage, FacetCut} from "./HandlerDiamondLib.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
+import {IHandlerDiamondEvents} from "../../../../common/IEvents.sol";
 
 /// When no function exists for function called
 error FunctionNotFound(bytes4 _functionSelector);
@@ -34,6 +35,7 @@ contract HandlerDiamond is ERC173{
      */
     constructor(FacetCut[] memory diamondCut, HandlerDiamondArgs memory args) payable {
         DiamondLib.diamondCut(diamondCut, args.init, args.initCalldata);
+        emit HandlerDeployed();
     }
 
     /**
