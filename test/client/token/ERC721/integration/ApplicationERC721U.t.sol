@@ -125,7 +125,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, RuleCreation {
         ///make sure the maximum rule fail results in revert
         switchToAppAdministrator();
         // user1 mints to 6 total (limit)
-        for(uint i=0;i < 6;i++){
+        for(uint i=0;i < 5;i++){
             ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user1); /// Id 6
         }
 
@@ -145,6 +145,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, RuleCreation {
         // transfer should still fail
         vm.expectRevert(0x1da56a44);
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).transferFrom(user2, user1, 4);
+    
     }
 
     function testERC721U_AccountApproveDenyOracleUpgradeable() public {
