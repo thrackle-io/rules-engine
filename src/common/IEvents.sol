@@ -126,12 +126,18 @@ interface IEconomicEvents {
 }
 
 /**
+ * @dev This library is for all events in the Handler Diamond.
+ * @notice Diamond Handler Events Library
+ */
+interface IHandlerDiamondEvents {
+    event HandlerDeployed();
+}
+
+/**
  * @dev This library is for all Token Handler Events.
  * @notice Token Handler Events Library
  */
 interface ITokenHandlerEvents is IAppManagerAddressSet{
-    ///Handler
-    event HandlerDeployed(address indexed appManager);
     /// Rule applied
     event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
     event ApplicationHandlerSimpleActionApplied(bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1);
