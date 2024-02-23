@@ -1,58 +1,20 @@
-# AppManager Deployment
+# Application Manager Deployment
 [![Project Version][version-image]][version-url]
 
 ---
 
-1. Ensure the [environment variables][environment-url] are set correctly.
-2. Copy the template from `src/example/application/ApplicationAppManager.sol` to your desired location.
-3. Change the name of the contract to suit your naming standards.
-   - Do not change the import or parent contract.
-4. Compile the contract:
-   ````
-   forge build --use solc:0.8.17
-   ````
-5. Deploy the contract sending in the following parameters:
-    1. **Owner Address** - This is the account that is to be the first Application Administrator and Super Admin. This address **must** be used throughout the whole deployment process.
-    2. **appName** - The Name for your Application. 
-    3. **ruleProcessorAddress** - The address of the RuleProcessorDiamond contract set in Step 1.
-    4. **upgradeMode** - This is a boolean value for if this is an upgraded AppManager being deployed. NOTE: Passing in a `true` boolean value will not deploy new data contracts. 
-    5. Run the command to create and deploy the contract: 
-
-        *NOTE: The path includes source name and contract name.*
-    
-        ````
-        forge create src/example/deploy/CastlevaniaAppManager.sol:CastlevaniaAppManager --constructor-args $APP_ADMIN_1 "Castlevania" false --private-key $SUPER_ADMIN_KEY --rpc-url $ETH_RPC_URL
-        ````
-
-        The AppManager contract deployed in this step will automatically grant SuperAdmin and AppAdmin roles to the _Owner Address_ at construction time, and --if `_upgradeMode_ == false`-- new data contracts will be automatically deployed and connected to the AppManager.
-
-    6. Now, locate the address from the output, example:
-        ````
-        0x0116686E2291dbd5e317F47faDBFb43B599786Ef
-        ````
-    7. Set the environment variable:
-        ````
-        export APPLICATION_APP_MANAGER=address from output
-        ````
-6. Deploy the applicationHandler contract with the following parameters:
-    1. **rule processor diamond address** - The address of the RuleProcessorDiamond contract set in Step 1.
-    2. **application app manager address** - The address of the app manager deployed in previous step.
-    3. Run the command to create and deploy the contract. 
-
-        *NOTE: The path includes source name and contract name.*
-        ````
-        forge create src/example/deploy/ApplicationHandler.sol:CastlevaniaHandler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER --private-key $SUPER_ADMIN_KEY --rpc-url $ETH_RPC_URL
-        ````
-    4. Locate the address from the output, example:
-        ````
-        0x0C25Bc46542acb274F055D7368F9Bec7fB23aE74
-        ````
-    5. Set the environment variable:
-        ````
-        export APPLICATION_APPLICATION_HANDLER=address from output
-        ````
+1. Ensure the [environment variables][environment-url] are set correctly. The `RULE_PROCESSOR_DIAMOND` is used by the deployment script.
+2. Use the following script to deploy the Application Manager and Application Handler: 
+    ```bash
+    forge script script/clientScripts/Application_Deploy_01_AppManger.s.sol --ffi --broadcast
+    ```
+3. Use the output from the deployment to set an environment variables:
+    ```bash
+    bash script/ParseApplicationDeploy.sh 1
+    ```
+4. The deployer of the Application Manager is granted the [super admin role](../permissions/ADMIN-ROLES.md). 
 7. [Create additional administrators][createAdminRole-url] (Optional)
-   
+
 
 
 <!-- These are the body links -->

@@ -32,7 +32,7 @@ Once the this rule is created, it can then be applied like any other rule. The p
 
 - 1. Deploy the external oracle.
 - 2. Create the rule specifying the _oracleAddress and _oracleType. See [Account Approve Deny Oracle Rule](../rules/ACCOUNT-APPROVE-DENY-ORACLE.md) for details. 
-- 3. Apply the rule to the desired token's handler. ee [Account Approve Deny Oracle Rule](../rules/ACCOUNT-APPROVE-DENY-ORACLE.md) for details. 
+- 3. Apply the rule to the desired token's handler. See [Account Approve Deny Oracle Rule](../rules/ACCOUNT-APPROVE-DENY-ORACLE.md) for details. 
     
 
 <!-- These are the header links -->
