@@ -4,7 +4,6 @@ pragma solidity ^0.8.17;
 import {HandlerDiamondLib as DiamondLib, HandlerDiamondStorage, FacetCut} from "./HandlerDiamondLib.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";
 import {IHandlerDiamondEvents} from "../../../../common/IEvents.sol";
-import {IHandlerDiamond} from "./IHandlerDiamond.sol";
 
 /// When no function exists for function called
 error FunctionNotFound(bytes4 _functionSelector);
@@ -27,7 +26,7 @@ struct HandlerDiamondArgs {
  * the token rule configuration and communication with the application and protocol.
  * @notice The diamond inherits ERC173 for ownership management.
  */
-contract HandlerDiamond is ERC173, IHandlerDiamond {
+contract HandlerDiamond is ERC173, IHandlerDiamondEvents {
 
     /**
      * @dev constructor creates facets for the diamond at deployment
