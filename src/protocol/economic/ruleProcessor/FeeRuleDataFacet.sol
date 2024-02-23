@@ -32,8 +32,7 @@ contract FeeRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         Fee.AMMFeeRule memory rule = Fee.AMMFeeRule(_feePercentage);
         uint32 ruleId = data.ammFeeRuleIndex;
         data.ammFeeRules[ruleId] = rule;
-        bytes32[] memory empty;
-        emit ProtocolRuleCreated(AMM_FEE, ruleId, empty);
+        emit ProtocolRuleCreated(AMM_FEE, ruleId, new bytes32[](0));
         ++data.ammFeeRuleIndex;
         return ruleId;
     }

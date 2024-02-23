@@ -11,7 +11,7 @@ import "src/client/token/ERC721/upgradeable/ProtocolERC721U.sol";
  * must be performed
  */
 
-contract ApplicationERC721Upgradeable is ProtocolERC721U {
+contract ApplicationERC721UpgAdminMint is ProtocolERC721U {
     /**
      * @dev These storage slots are saved for future upgrades. Please be aware of common constraints for upgradeable contracts regarding storage slots,
      * like maintaining the order of the variables to avoid mislabeling of storage slots, and to keep some reserved slots to avoid storage collisions.

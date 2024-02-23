@@ -134,7 +134,7 @@ contract ApplicationERC721ExampleTest is TestCommonFoundry {
     }
 
     function testMintForAFeeUpgradeable() public {
-        MintForAFeeERC721Upgradeable nft = MintForAFeeERC721Upgradeable(payable(address(mintForAFeeNFTUp)));
+        ApplicationERC721UpgMintForAFee nft = ApplicationERC721UpgMintForAFee(payable(address(mintForAFeeNFTUp)));
         //nft.setMintPrice(1 ether);
         switchToUser();
         /// let's give user some mills to spend on NFTs
@@ -279,7 +279,7 @@ contract ApplicationERC721ExampleTest is TestCommonFoundry {
     }
 
     function testWhitelistMintUpgradeable() public {
-        WhitelistMintERC721Upgradeable nft = WhitelistMintERC721Upgradeable(payable(address(whitelistMintNFTUp)));
+        ApplicationERC721UpgWhitelistMint nft = ApplicationERC721UpgWhitelistMint(payable(address(whitelistMintNFTUp)));
         //nft.updateMintsAmount(2);
         /// let's add some addresses to the whitelist
         nft.addAddressToWhitelist(user1);
@@ -353,7 +353,7 @@ contract ApplicationERC721ExampleTest is TestCommonFoundry {
     }
 
     function testFreeForAllMintUpgradeable() public {
-        FreeForAllERC721Upgradeable nft = FreeForAllERC721Upgradeable(payable(address(freeNFTUp)));
+        ApplicationERC721UpgFreeMint nft = ApplicationERC721UpgFreeMint(payable(address(freeNFTUp)));
         /// let's test that we can mint as many as we want for anybody
         vm.stopPrank();
         vm.startPrank(user1);

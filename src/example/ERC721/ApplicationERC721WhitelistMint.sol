@@ -13,7 +13,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ApplicationERC721WhitelistMint is ProtocolERC721 {
     using Counters for Counters.Counter;
-    Counters.Counter private _tokenIdCounter;
 
     mapping(address => uint8) public mintsAvailable;
     uint8 mintsAllowed;
@@ -28,6 +27,7 @@ contract ApplicationERC721WhitelistMint is ProtocolERC721 {
      * @param _baseUri URI for the base token
      * @param _mintsAllowed the amount of mints per whitelisted address
      */
+     // slither-disable-next-line shadowing-local
     constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri, uint8 _mintsAllowed) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {
         mintsAllowed = _mintsAllowed;
     }

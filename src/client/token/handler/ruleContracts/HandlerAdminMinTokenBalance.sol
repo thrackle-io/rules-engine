@@ -48,21 +48,22 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
      * @dev This function is used by the app manager to determine if the AdminMinTokenBalance rule is active for any actions
      * @return Success equals true if all checks pass
      */
+     // Disabling this finding, the necessary data for the checks lives in two different facets so the external calls to another
+     // facet inside of a loop are required here.
+     // slither-disable-next-line calls-loop
     function isAdminMinTokenBalanceActiveAndApplicable() public view override returns (bool) {
-        bool active;
         uint8 action = 0;
         mapping(ActionTypes => Rule) storage adminMinTokenBalance = lib.adminMinTokenBalanceStorage().adminMinTokenBalance;
         /// if the rule is active for any actions, set it as active and applicable.
         while (action <= LAST_POSSIBLE_ACTION) { 
             if (adminMinTokenBalance[ActionTypes(action)].active) {
                 try IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(adminMinTokenBalance[ActionTypes(action)].ruleId, 1, 1) {} catch {
-                    active = true;
-                    break;
+                    return true;
                 }
             }
             action++;
         }
-        return active;
+        return false;
     }
 
     /**
@@ -70,18 +71,16 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
      * @return Success equals true if all checks pass
      */
     function isAdminMinTokenBalanceActiveForAnyAction() internal view returns (bool) {
-        bool active;
         uint8 action = 0;
         mapping(ActionTypes => Rule) storage adminMinTokenBalance = lib.adminMinTokenBalanceStorage().adminMinTokenBalance;
         /// if the rule is active for any actions, set it as active and applicable.
         while (action <= LAST_POSSIBLE_ACTION) { 
             if (adminMinTokenBalance[ActionTypes(action)].active) {
-                active = true;
-                break;
+                return true;
             }
             action++;
         }
-        return active;
+        return false;
     }
 
     /**

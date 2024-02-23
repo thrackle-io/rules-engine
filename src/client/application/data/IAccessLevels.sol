@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "./IDataModule.sol";
-import {IAccessLevelErrors} from "src/common/IErrors.sol";
+import {IAccessLevelErrors, IInputErrors} from "src/common/IErrors.sol";
 
 /**
  * @title Access Levels interface
@@ -10,7 +10,7 @@ import {IAccessLevelErrors} from "src/common/IErrors.sol";
  * @dev Access Level storage and retrieval functions are defined here
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-interface IAccessLevels is IDataModule, IAccessLevelErrors {
+interface IAccessLevels is IDataModule, IAccessLevelErrors, IInputErrors {
     /**
      * @dev Add the Access Level to the account. Restricted to the owner
      * @param _address address of the account
@@ -18,6 +18,13 @@ interface IAccessLevels is IDataModule, IAccessLevelErrors {
      */
     function addLevel(address _address, uint8 _level) external;
     
+    /**
+     * @dev Add the Access Level(0-4) to the list of account. Restricted to the owner.
+     * @param _accounts address array upon which to apply the Access Level
+     * @param _level Access Level array to add
+     */
+    function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external;
+
     /**
      * @dev Get the Access Level for the account.
      * @param _account address of the account

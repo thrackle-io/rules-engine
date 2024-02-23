@@ -24,8 +24,8 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
      */
     function setTokenMinTxSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         TokenMinTxSizeS storage data = lib.tokenMinTxSizeStorage();
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_ruleId);
         for (uint i; i < _actions.length; ) {
-            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_ruleId);
             data.tokenMinTxSize[_actions[i]].ruleId = _ruleId;
             data.tokenMinTxSize[_actions[i]].active = true;
             emit ApplicationHandlerActionApplied(TOKEN_MIN_TX_SIZE, _actions[i], _ruleId);

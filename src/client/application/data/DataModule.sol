@@ -15,8 +15,9 @@ import {IAppManager} from "src/client/application/IAppManager.sol";
  */
 abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAddressError {
     string private constant VERSION="1.1.0";
-    address public dataModuleAppManagerAddress;
+    address public immutable dataModuleAppManagerAddress;
     address newOwner; // This is used for data contract migration
+    // slither-disable-next-line constable-states
     address newDataProviderOwner; // this is used for single new data provider
 
     /**
