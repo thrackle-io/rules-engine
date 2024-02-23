@@ -24,20 +24,8 @@ import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRul
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-/// ERC721 Example test imports 
-import {ApplicationERC721MintForAFee as MintForAFeeERC721} from "src/example/ERC721/ApplicationERC721MintForAFee.sol";
-import {ApplicationERC721WhitelistMint as WhitelistMintERC721} from "src/example/ERC721/ApplicationERC721WhitelistMint.sol";
-import {ApplicationERC721FreeMint as FreeForAllERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
-// import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
-import "src/example/ERC721/upgradeable/ApplicationERC721UpgMintForAFee.sol";
-import "src/example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
-import "src/example/ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol";
-// import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
-
 
 /// Client Contract imports 
-// import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
-// import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import {HandlerDiamond, HandlerDiamondArgs} from "src/client/token/handler/diamond/HandlerDiamond.sol";
 import "src/example/application/ApplicationAppManager.sol";
@@ -158,23 +146,6 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
 
     ApplicationERC721Pricing public openOcean; 
 
-    MintForAFeeERC721 public mintForAFeeNFT;
-    WhitelistMintERC721 public whitelistMintNFT;
-    FreeForAllERC721 public freeNFT;
-    ApplicationERC721UpgMintForAFee public mintForAFeeNFTUpImplementation;
-    ApplicationERC721UpgWhitelistMint public whitelistMintNFTUpImplementation;
-    ApplicationERC721UpgFreeMint public freeNFTUpImplementation;
-    ApplicationERC721UProxy public mintForAFeeNFTUp;
-    ApplicationERC721UProxy public whitelistMintNFTUp;
-    ApplicationERC721UProxy public freeNFTUp;
-
-    HandlerDiamond public MintForAFeeNFTHandler;
-    HandlerDiamond public WhitelistNFTHandler;
-    HandlerDiamond public FreeForAllnNFTHandler;
-    HandlerDiamond public MintForAFeeNFTHandlerUp;
-    HandlerDiamond public WhitelistNFTHandlerUp;
-    HandlerDiamond public FreeForAllnNFTHandlerUp;
-
     // common block time
     uint64 Blocktime = 1769924800;
 
@@ -244,68 +215,11 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     }
 
     /**
-     * @dev Deploy and set up an ERC721 Mint Fee 
-     * @param _name token name
-     * @param _symbol token symbol
-     * @param _appManager previously created appManager
-     * @return _token token
-     */
-    function _createERC721MintFee(string memory _name, string memory _symbol, ApplicationAppManager _appManager, uint256 price) public returns (MintForAFeeERC721 _token) {
-        return new MintForAFeeERC721(_name, _symbol, address(_appManager), "blindsailers.com/iseeyou", price);
-    }
-
-    /**
-     * @dev Deploy and set up an ERC721 free for all 
-     * @param _name token name
-     * @param _symbol token symbol
-     * @param _appManager previously created appManager
-     * @return _token token
-     */
-    function _createERC721Free(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (FreeForAllERC721 _token) {
-        return new FreeForAllERC721(_name, _symbol, address(_appManager), "bloodinmyhands.com/bookyourcut");
-    
-    }
-    /**
-     * @dev Deploy and set up an ERC721 allowList 
-     * @param _name token name
-     * @param _symbol token symbol
-     * @param _appManager previously created appManager
-     * @return _token token
-     */
-    function _createERC721Whitelist(string memory _name, string memory _symbol, ApplicationAppManager _appManager, uint8 _mintsAllowed) public returns (WhitelistMintERC721 _token) {
-        return new WhitelistMintERC721(_name, _symbol, address(_appManager), "monkeysdontknowwhattodo.com/havingfun", _mintsAllowed);
-    }
-
-    /**
      * @dev Deploy and set up an ERC721 Upgradeable
      * @return _token token
      */
     function _createERC721Upgradeable() public returns (ApplicationERC721UpgAdminMint _token) {
         return new ApplicationERC721UpgAdminMint();
-    }
-
-    /**
-     * @dev Deploy and set up an ERC721 Upgradeable Fee Mint 
-     * @return _token token
-     */
-    function _createERC721UpgradeableFeeMint() public returns (ApplicationERC721UpgMintForAFee _token) {
-        return new ApplicationERC721UpgMintForAFee();
-    }
-
-    /**
-     * @dev Deploy and set up an ERC721 Upgradeable AllowList
-     * @return _token token
-     */
-    function _createERC721UpgradeableAllowList() public returns (ApplicationERC721UpgWhitelistMint _token) {
-        return new ApplicationERC721UpgWhitelistMint();
-    }
-
-    /**
-     * @dev Deploy and set up an ERC721 Upgradeable Free For All 
-     * @return _token token
-     */
-    function _createERC721UpgradeableFreeForAll() public returns (ApplicationERC721UpgFreeMint _token) {
-        return new ApplicationERC721UpgFreeMint();
     }
 
     /**
