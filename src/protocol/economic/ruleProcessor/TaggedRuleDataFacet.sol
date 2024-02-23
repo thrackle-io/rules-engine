@@ -38,7 +38,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         if (_accountTypes.length != _maxSizes.length || _accountTypes.length != _periods.length) revert InputArraysMustHaveSameLength();
         /// since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
-        _accountTypes.areTagsValid();
+        _accountTypes.validateTags();
         return _addAccountMaxBuySize(_accountTypes, _maxSizes, _periods, _startTime);
     }
 
@@ -90,7 +90,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         if (_accountTypes.length != _maxSizes.length || _accountTypes.length != _period.length) revert InputArraysMustHaveSameLength();
         /// since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
-        _accountTypes.areTagsValid();
+        _accountTypes.validateTags();
         return _addAccountMaxSellSize(_accountTypes, _maxSizes, _period, _startTime);
     }
 
@@ -143,7 +143,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         if (_accountTypes.length != _min.length || _accountTypes.length != _max.length || (_periods.length > 0 && _accountTypes.length != _periods.length)) revert InputArraysMustHaveSameLength();
         /// since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
-        _accountTypes.areTagsValid();
+        _accountTypes.validateTags();
         return _addAccountMinMaxTokenBalance(_accountTypes, _min, _max, _periods, _startTime);
     }
 
@@ -165,6 +165,9 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     ) internal returns (uint32) {
         RuleS.AccountMinMaxTokenBalanceS storage data = Storage.accountMinMaxTokenBalanceStorage();
         uint32 index = data.accountMinMaxTokenBalanceIndex;
+        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+        // slither-disable-next-line timestamp
         if (_startTime == 0) _startTime = uint64(block.timestamp);
         for (uint256 i; i < _accountTypes.length; ) {
             if (_min[i] == 0 || _max[i] == 0) revert ZeroValueNotPermited();
@@ -193,12 +196,14 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     function addAdminMinTokenBalance(address _appManagerAddr, uint256 _amount, uint256 _endTime) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
         RuleS.AdminMinTokenBalanceS storage data = Storage.adminMinTokenBalanceStorage();
         if (_amount == 0) revert ZeroValueNotPermited();
+        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+        // slither-disable-next-line timestamp
         if (_endTime <= block.timestamp) revert DateInThePast(_endTime);
         uint32 index = data.adminMinTokenBalanceIndex;
         TaggedRules.AdminMinTokenBalance memory rule = TaggedRules.AdminMinTokenBalance(_amount, _endTime);
         data.adminMinTokenBalanceRules[index] = rule;
-        bytes32[] memory empty;
-        emit ProtocolRuleCreated(ADMIN_MIN_TOKEN_BALANCE, index, empty);
+        emit ProtocolRuleCreated(ADMIN_MIN_TOKEN_BALANCE, index, new bytes32[](0));
         ++data.adminMinTokenBalanceIndex;
         return index;
     }
@@ -222,7 +227,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         if (_nftTags.length == 0 || _startTime == 0) revert ZeroValueNotPermited();
         if (_nftTags.length != _tradesAllowed.length) revert InputArraysMustHaveSameLength();
         _startTime.validateTimestamp();
-        _nftTags.areTagsValid();
+        _nftTags.validateTags();
         return _addTokenMaxDailyTrades(_nftTags, _tradesAllowed, _startTime);
     }
 
@@ -243,8 +248,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
                 ++i;
             }
         }
-        bytes32[] memory empty;
-        emit ProtocolRuleCreated(TOKEN_MAX_DAILY_TRADES, index, empty);
+        emit ProtocolRuleCreated(TOKEN_MAX_DAILY_TRADES, index, new bytes32[](0));
         ++data.tokenMaxDailyTradesIndex;
         return index;
     }

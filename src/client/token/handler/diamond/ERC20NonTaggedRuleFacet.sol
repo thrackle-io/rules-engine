@@ -25,13 +25,8 @@ contract ERC20NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerToke
         if (lib.tokenMinTxSizeStorage().tokenMinTxSize[action].active) 
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMinTxSize(lib.tokenMinTxSizeStorage().tokenMinTxSize[action].ruleId, _amount);
 
-        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[action].length; ) {
-            if (accountApproveDenyOracle[action][accountApproveDenyOracleIndex].active) 
-                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracle(accountApproveDenyOracle[action][accountApproveDenyOracleIndex].ruleId, _to);
-            unchecked {
-                ++accountApproveDenyOracleIndex;
-            }
-        }
+        IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+
         if (lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[action].active) {
             TokenMaxTradingVolumeS storage maxTradingVolume = lib.tokenMaxTradingVolumeStorage();
             maxTradingVolume.transferVolume = IRuleProcessor(handlerBaseStorage.ruleProcessor).checkTokenMaxTradingVolume(maxTradingVolume.tokenMaxTradingVolume[action].ruleId, maxTradingVolume.transferVolume, IToken(msg.sender).totalSupply(), _amount, maxTradingVolume.lastTransferTime);

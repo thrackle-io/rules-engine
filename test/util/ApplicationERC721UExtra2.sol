@@ -13,8 +13,6 @@ import "./ProtocolERC721UExtra.sol";
 
 contract ApplicationERC721UExtra2 is ProtocolERC721UExtra {
     /// Optional Function Variables and Errors. Uncomment these if using option functions:
-    using CountersUpgradeable for CountersUpgradeable.Counter;
-    CountersUpgradeable.Counter private _tokenIdCounter;
     error OnlyOwnerCanMint();
     uint256 testVariable1;
     string testVariable2;

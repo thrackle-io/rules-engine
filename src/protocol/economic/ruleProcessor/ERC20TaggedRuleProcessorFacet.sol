@@ -75,11 +75,16 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
             toTags[0] = BLANK_TAG;
         }
         uint64 startTime = getAccountMinMaxTokenBalanceStart(ruleId);
+        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+        // slither-disable-next-line timestamp
         if (startTime <= block.timestamp){
             for (uint i; i < toTags.length; ) {
                 TaggedRules.AccountMinMaxTokenBalance memory rule = getAccountMinMaxTokenBalance(ruleId, toTags[i]);
                 /// check if period is 0, 0 means a period hasn't been applied to this rule
                 if(rule.period != 0) {
+
+                    // slither-disable-next-line timestamp
                     if ((block.timestamp - (uint256(rule.period) * 1 hours)) < startTime) {
                         if (rule.max > 0 && balanceTo + amount > rule.max) revert TxnInFreezeWindow();
                     }
@@ -114,6 +119,9 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
                 fromTags[0] = BLANK_TAG;
             }
             uint64 startTime = getAccountMinMaxTokenBalanceStart(ruleId);
+            // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+            // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+            // slither-disable-next-line timestamp
             if (startTime <= block.timestamp){
                 for (uint i = 0; i < fromTags.length; ) {
                     TaggedRules.AccountMinMaxTokenBalance memory rule = getAccountMinMaxTokenBalance(ruleId, fromTags[i]);
@@ -181,6 +189,9 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     function checkAdminMinTokenBalance(uint32 ruleId, uint256 currentBalance, uint256 amount) external view {
         TaggedRules.AdminMinTokenBalance memory rule = getAdminMinTokenBalance(ruleId);
         if(amount > currentBalance) revert NotEnoughBalance();
+        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+        // slither-disable-next-line timestamp
         if ((block.timestamp < rule.endTime) && (currentBalance - amount < rule.amount)) revert UnderMinBalance();
     }
 
@@ -220,7 +231,10 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     function checkAccountMaxBuySize(uint32 ruleId, uint256 boughtInPeriod, uint256 amount, bytes32[] memory toTags, uint64 lastUpdateTime) external view returns (uint256) {
         toTags.checkMaxTags();
         uint64 startTime = getAccountMaxBuySizeStart(ruleId);
-        uint256 cumulativeTotal;
+        uint256 cumulativeTotal = 0;
+        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+        // slither-disable-next-line timestamp
         if (startTime <= block.timestamp){
             if(getAccountMaxBuySize(ruleId, BLANK_TAG).period > 0){
                 toTags = new bytes32[](1);
@@ -285,7 +299,10 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     function checkAccountMaxSellSize(uint32 ruleId, uint256 salesInPeriod, uint256 amount, bytes32[] memory fromTags, uint64 lastUpdateTime) external view returns (uint256) {
         fromTags.checkMaxTags();
         uint64 startTime = getAccountMaxSellSizeStartByIndex(ruleId);
-        uint256 cumulativeSales;
+        uint256 cumulativeSales = 0;
+        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+        // slither-disable-next-line timestamp
         if (startTime <= block.timestamp){
             if(getAccountMaxSellSizeByIndex(ruleId, BLANK_TAG).period > 0){
                 fromTags = new bytes32[](1);

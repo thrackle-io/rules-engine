@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../../IProtocolTokenHandler.sol";
 import "../../ProtocolTokenCommonU.sol";
 
@@ -27,26 +28,33 @@ contract ProtocolERC721U is
     OwnableUpgradeable,
     UUPSUpgradeable,
     ProtocolTokenCommonU,
-    PausableUpgradeable
+    PausableUpgradeable,
+    ReentrancyGuard
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     address public handlerAddress;
     IProtocolTokenHandler handler;
-    CountersUpgradeable.Counter private _tokenIdCounter;
+    CountersUpgradeable.Counter internal _tokenIdCounter;
 
     /// Base Contract URI
     string public baseUri;
     /// memory placeholders to allow variable addition without affecting client upgradeability
+    // slither-disable-next-line shadowing-local
     uint256[49] __gap;
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
 
     /**
      * @dev Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
-     * @param _name Name of NFT
-     * @param _symbol Symbol for the NFT
+     * @param _nameProto Name of NFT
+     * @param _symbolProto Symbol for the NFT
      * @param _appManagerAddress Address of App Manager
      */
-    function initialize(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) public virtual appAdministratorOnly(_appManagerAddress) initializer {
-        __ERC721_init(_name, _symbol);
+    function initialize(string memory _nameProto, string memory _symbolProto, address _appManagerAddress, string memory _baseUri) public virtual appAdministratorOnly(_appManagerAddress) initializer {
+        __ERC721_init(_nameProto, _symbolProto);
         __ERC721Enumerable_init();
         __ERC721URIStorage_init();
         __Ownable_init();
@@ -134,9 +142,12 @@ contract ProtocolERC721U is
      * @param batchSize the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will
      * represent the first id to start the batch.
      */
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
         /// Rule Processor Module Check
         require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to,  _msgSender(), tokenId));
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+        // applied to this function
+        // slither-disable-next-line reentrancy-benign
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
@@ -145,6 +156,9 @@ contract ProtocolERC721U is
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      */
     function withdraw() public payable virtual appAdministratorOnly(appManagerAddress) {
+        // Disabling this finding as a false positive. The address is not arbitrary, the funciton modifier guarantees 
+        // it is a App Admin.
+        // slither-disable-next-line arbitrary-send-eth
         (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(success);
     }

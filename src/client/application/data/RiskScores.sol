@@ -35,6 +35,21 @@ contract RiskScores is IRiskScores, DataModule {
     }
 
     /**
+     * @dev  Add the Risk Score at index to Account at index in array. Restricted to Risk Admins.
+     * @param _accounts address array upon which to apply the Risk Score
+     * @param _scores Risk Score array (0-100)
+     */
+    function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyOwner {
+        if (_scores.length != _accounts.length) revert InputArraysMustHaveSameLength();
+        for (uint256 i; i < _accounts.length; ) {
+            addScore(_accounts[i], _scores[i]);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
      * @dev  Add the Risk Score to each address in array. Restricted to Risk Admins.
      * @param _accounts address array upon which to apply the Risk Score
      * @param _score Risk Score(0-100)

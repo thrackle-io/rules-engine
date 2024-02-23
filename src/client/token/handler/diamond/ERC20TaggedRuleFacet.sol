@@ -42,6 +42,9 @@ contract ERC20TaggedRuleFacet is HandlerAccountMinMaxTokenBalance, FacetUtils{
             // We get all tags for sender and recipient
             toTags = IAppManager(handlerBaseStorage.appManager).getAllTags(_to);
             fromTags = IAppManager(handlerBaseStorage.appManager).getAllTags(_from);
+        } else {
+            toTags = new bytes32[](0);
+            fromTags = new bytes32[](0);
         }
         if (accountMinMaxTokenBalance[action].active) 
             IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountMinMaxTokenBalance(accountMinMaxTokenBalance[action].ruleId, _balanceFrom, _balanceTo, _amount, toTags, fromTags);

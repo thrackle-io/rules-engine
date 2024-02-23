@@ -12,7 +12,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ApplicationERC721MintForAFee is ProtocolERC721 {
     using Counters for Counters.Counter;
-    Counters.Counter private _tokenIdCounter;
 
     /// Mint Fee
     uint256 public mintPrice;
@@ -41,6 +40,7 @@ contract ApplicationERC721MintForAFee is ProtocolERC721 {
      * @param _baseUri URI for the base token
      * @param _price minting price in WEIs
      */
+     // slither-disable-next-line shadowing-local
     constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri, uint256 _price) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {
         if (_price == 0) revert ZeroValueNotPermited();
         mintPrice = _price;
@@ -104,6 +104,11 @@ contract ApplicationERC721MintForAFee is ProtocolERC721 {
     function withdrawAll() external appAdministratorOnly(appManagerAddress) {
         if (treasury == address(0x00)) revert TreasuryAddressNotSet();
         uint balance = address(this).balance;
+        
+        // disabling this finding, this rule is intended for situations where a bad actor can push
+        // a value just beyond the comparison value. balance is a uint so it cannot be negative and any value above 
+        // 0 means the withdraw is viable. 
+        // slither-disable-next-line incorrect-equality
         if (balance == 0) revert CannotWithdrawZero();
         (bool sent, bytes memory data) = treasury.call{value: balance}("");
         if (!sent) revert TrasferFailed(data);

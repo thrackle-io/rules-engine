@@ -21,16 +21,16 @@ contract ApplicationERC721UScript is Script, DeployBase {
      */
     function run() public {
         vm.startBroadcast(vm.envUint("DEPLOYMENT_OWNER_KEY"));
-        ApplicationERC721Upgradeable applicationNFT = new ApplicationERC721Upgradeable();
+        ApplicationERC721UpgAdminMint applicationNFT = new ApplicationERC721UpgAdminMint();
         ApplicationERC721UProxy applicationNFTProxy = new ApplicationERC721UProxy(address(applicationNFT), vm.envAddress("APPLICATIONERC721U_PROXY_OWNER_ADDRESS"), "");
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), "dummy.uri.io");
+        ApplicationERC721UpgAdminMint(payable(address(applicationNFTProxy))).initialize("Frankenstein", "FRANK", vm.envAddress("APPLICATION_APP_MANAGER"), "dummy.uri.io");
         HandlerDiamond applicationNFTHandlerDiamond = createERC721HandlerDiamond("Frankenstein");
         ERC20HandlerMainFacet(address(applicationNFTHandlerDiamond)).initialize(
             vm.envAddress("RULE_PROCESSOR_DIAMOND"), 
             vm.envAddress("APPLICATION_APP_MANAGER"), 
             address(applicationNFT)
         );
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandlerDiamond));
+        ApplicationERC721UpgAdminMint(payable(address(applicationNFTProxy))).connectHandlerToToken(address(applicationNFTHandlerDiamond));
         // Register the token with the application's app manager
         IAppManager(vm.envAddress("APPLICATION_APP_MANAGER")).registerToken("Frankenstein", address(applicationNFTProxy));
         vm.stopBroadcast();

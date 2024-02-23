@@ -13,9 +13,10 @@ contract ApplicationERC20 is ProtocolERC20 {
     /**
      * @dev Constructor sets params
      * @param _name Name of the token
-     * @param _symbol  Symbol of the token
+     * @param _symbol Symbol of the token
      * @param _appManagerAddress App Manager address
      */
+     // slither-disable-next-line shadowing-local
     constructor(string memory _name, string memory _symbol, address _appManagerAddress) ProtocolERC20(_name, _symbol, _appManagerAddress) {}
 
     /**

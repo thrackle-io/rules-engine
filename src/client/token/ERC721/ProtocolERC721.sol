@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../ProtocolTokenCommon.sol";
 import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
 import "src/client/token/handler/diamond/IHandlerDiamond.sol";
@@ -17,23 +18,23 @@ import "src/client/token/handler/diamond/IHandlerDiamond.sol";
  * @notice This is the base contract for all protocol ERC721s
  */
 
-contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly {
+contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly, ReentrancyGuard {
     using Counters for Counters.Counter;
     address public handlerAddress;
     IHandlerDiamond handler;
-    Counters.Counter private _tokenIdCounter;
+    Counters.Counter internal _tokenIdCounter;
 
     /// Base Contract URI
     string public baseUri;
 
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager Address
-     * @param _name Name of NFT
-     * @param _symbol Symbol for the NFT
+     * @param _nameProto Name of NFT
+     * @param _symbolProto Symbol for the NFT
      * @param _appManagerAddress Address of App Manager
      * @param _baseUri URI for the base token
      */
-    constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ERC721(_name, _symbol) {
+    constructor(string memory _nameProto, string memory _symbolProto, address _appManagerAddress, string memory _baseUri) ERC721(_nameProto, _symbolProto) {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
@@ -105,10 +106,12 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @param batchSize the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will
      * represent the first id to start the batch.
      */
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) whenNotPaused {
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant override(ERC721, ERC721Enumerable) whenNotPaused {
         // Rule Processor Module Check
         require(IHandlerDiamond(handler).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
-
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+        // applied to this function
+        // slither-disable-next-line reentrancy-benign
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
@@ -126,6 +129,9 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @dev AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.
      */
     function withdraw() public payable virtual appAdministratorOnly(appManagerAddress) {
+        // Disabling this finding as a false positive. The address is not arbitrary, the funciton modifier guarantees 
+        // it is a App Admin.
+        // slither-disable-next-line arbitrary-send-eth
         (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(success);
     }

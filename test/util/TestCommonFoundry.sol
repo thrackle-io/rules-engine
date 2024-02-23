@@ -411,10 +411,12 @@ abstract contract TestCommonFoundry is TestCommon {
         /// create an ERC721U
         applicationNFTU = _createERC721Upgradeable();
         applicationNFTProxy = _createERC721UpgradeableProxy(address(applicationNFTU), address(proxyOwner));
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).initialize("Dracula Prime", "DRAC", address(applicationAppManager), "dummy.uri.io");
+
+        ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).initialize("Dracula Prime", "DRAC", address(applicationAppManager), "dummy.uri.io");
         applicationNFTHandler = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy));
-        ApplicationERC721Upgradeable(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
+        ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
+
         /// register the token
         applicationAppManager.registerToken("THRK", address(applicationNFTProxy));
 
@@ -504,29 +506,29 @@ abstract contract TestCommonFoundry is TestCommon {
         whitelistMintNFTUp = _createERC721UpgradeableProxy(address(whitelistMintNFTUpImplementation), address(proxyOwner));
         freeNFTUp = _createERC721UpgradeableProxy(address(freeNFTUpImplementation), address(proxyOwner));
 
-        MintForAFeeERC721Upgradeable(payable(address(mintForAFeeNFTUp))).initialize("BlindSailersUp", "BSLU", address(applicationAppManager), "blindsailers.com/iseeyou", 1 ether);
-        WhitelistMintERC721Upgradeable(payable(address(whitelistMintNFTUp))).initialize(
+        ApplicationERC721UpgMintForAFee(payable(address(mintForAFeeNFTUp))).initialize("BlindSailersUp", "BSLU", address(applicationAppManager), "blindsailers.com/iseeyou", 1 ether);
+        ApplicationERC721UpgWhitelistMint(payable(address(whitelistMintNFTUp))).initialize(
             "MonkeysPlayingInBonsaiTreesUp",
             "MBTU",
             address(applicationAppManager),
             "monkeysdontknowwhattodo.com/havingfun",
             2
         );
-        FreeForAllERC721Upgradeable(payable(address(freeNFTUp))).initialize("ParkinsonBarbersUp", "PKBU", address(applicationAppManager), "bloodinmyhands.com/bookyourcut");
+        ApplicationERC721UpgFreeMint(payable(address(freeNFTUp))).initialize("ParkinsonBarbersUp", "PKBU", address(applicationAppManager), "bloodinmyhands.com/bookyourcut");
 
         switchToSuperAdminWithSave();
 
         MintForAFeeNFTHandlerUp = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(MintForAFeeNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(mintForAFeeNFTUp));
-        MintForAFeeERC721Upgradeable(payable(address(mintForAFeeNFTUp))).connectHandlerToToken(address(MintForAFeeNFTHandlerUp));
+        ApplicationERC721UpgMintForAFee(payable(address(mintForAFeeNFTUp))).connectHandlerToToken(address(MintForAFeeNFTHandlerUp));
 
         WhitelistNFTHandlerUp = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(WhitelistNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(whitelistMintNFTUp));
-        WhitelistMintERC721Upgradeable(payable(address(whitelistMintNFTUp))).connectHandlerToToken(address(WhitelistNFTHandlerUp));
+        ApplicationERC721UpgWhitelistMint(payable(address(whitelistMintNFTUp))).connectHandlerToToken(address(WhitelistNFTHandlerUp));
 
         FreeForAllnNFTHandlerUp = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(FreeForAllnNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(freeNFTUp));
-        FreeForAllERC721Upgradeable(payable(address(freeNFTUp))).connectHandlerToToken(address(FreeForAllnNFTHandlerUp));
+        ApplicationERC721UpgFreeMint(payable(address(freeNFTUp))).connectHandlerToToken(address(FreeForAllnNFTHandlerUp));
 
         switchToAppAdministrator();
 

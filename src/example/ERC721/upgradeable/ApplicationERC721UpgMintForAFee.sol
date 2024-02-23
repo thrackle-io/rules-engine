@@ -11,9 +11,8 @@ import "src/client/token/ERC721/upgradeable/ProtocolERC721U.sol";
  * Any special or additional initializations can be done by overriding initialize but all initializations performed in ProtocolERC721U must be performed.
  */
 
-contract ApplicationERC721Upgradeable is ProtocolERC721U {
+contract ApplicationERC721UpgMintForAFee is ProtocolERC721U {
     using CountersUpgradeable for CountersUpgradeable.Counter;
-    CountersUpgradeable.Counter private _tokenIdCounter;
 
     /// Mint Fee
     uint256 public mintPrice;
@@ -50,6 +49,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
      * @param _baseUri URI for the base token
      * @param _mintPrice price for minting the NFTs in WEIs
      */
+     // slither-disable-next-line shadowing-local
     function initialize(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri, uint256 _mintPrice) external appAdministratorOnly(_appManagerAddress) {
         mintPrice = _mintPrice;
         super.initialize(_name, _symbol, _appManagerAddress, _baseUri);
@@ -113,6 +113,11 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
     function withdrawAll() external appAdministratorOnly(appManagerAddress) {
         if (treasury == address(0x00)) revert TreasuryAddressNotSet();
         uint balance = address(this).balance;
+        
+        // disabling this finding, this rule is intended for situations where a bad actor can push
+        // a value just beyond the comparison value. balance is a uint so it cannot be negative and any value above 
+        // 0 means the withdraw is viable. 
+        // slither-disable-next-line incorrect-equality
         if (balance == 0) revert CannotWithdrawZero();
         (bool sent, bytes memory data) = treasury.call{value: balance}("");
         if (!sent) revert TrasferFailed(data);

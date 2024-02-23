@@ -32,8 +32,8 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ITokenHandlerEve
      */
     function setTokenMaxTradingVolumeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         TokenMaxTradingVolumeS storage data = lib.tokenMaxTradingVolumeStorage();
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxTradingVolume(_ruleId);
         for (uint i; i < _actions.length; ) {
-            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxTradingVolume(_ruleId);
             data.tokenMaxTradingVolume[_actions[i]].ruleId = _ruleId;
             data.tokenMaxTradingVolume[_actions[i]].active = true;
             emit ApplicationHandlerActionApplied(TOKEN_MAX_TRADING_VOLUME, _actions[i], _ruleId);

@@ -5,13 +5,15 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
 import "src/common/IProtocolERC20Pricing.sol";
 import "src/protocol/economic/AppAdministratorOnly.sol";
+import "src/example/pricing/AggregatorV3Interface.sol";
+import {IZeroAddressError} from "src/common/IErrors.sol";
 
 /**
  * @title CustomERC20 Pricing example contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is an example of how one could implement a custom pricing solution. It uses a Chainlink Price Feed to get the token price
  */
-contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricing, AppAdministratorOnly {
+contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricing, AppAdministratorOnly, IZeroAddressError {
     address private aave = 0xD6DF932A45C0f255f85145f286eA0b292B21C90B;
     address private aaveFeed = 0x72484B12719E23115761D5DA1646945632979bB6;
 
@@ -21,11 +23,12 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
     address private doge = 0xD9d32b18Fd437F5de774e926CFFdad8F514EeED0;
     address private dogeFeed = 0xbaf9327b6564454F4a3364C33eFeEf032b4b4444;
 
-    address private appManagerAddress;
+    address private immutable appManagerAddress;
 
     error NoPriceFeed(address tokenAddress);
 
     constructor(address _appManagerAddress) {
+        if(_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
     }
 
@@ -37,18 +40,16 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
      * an ERC20 with 18 decimals has a price of 2 dollars, then its atomic unit would be 2/10^18 USD.
      * 999_999_999_999_999_999 = 0xDE0B6B3A763FFFF, 1_000_000_000_000_000_000 = DE0B6B3A7640000
      */
-    function getTokenPrice(address tokenContract) external view returns (uint256 price) {
-        uint256 feedPrice;
+    function getTokenPrice(address tokenContract) external view returns (uint256) {
         if (tokenContract == aave) {
-            feedPrice = getChainlinkAAVEtoUSDFeedPrice();
+            return getChainlinkAAVEtoUSDFeedPrice();
         } else if (tokenContract == algo) {
-            feedPrice = getChainlinkALGOtoUSDFeedPrice();
+            return getChainlinkALGOtoUSDFeedPrice();
         } else if (tokenContract == doge) {
-            feedPrice = getChainlinkALGOtoUSDFeedPrice();
+            return getChainlinkALGOtoUSDFeedPrice();
         } else {
             revert NoPriceFeed(tokenContract);
         }
-        return feedPrice;
     }
 
     /**
@@ -59,6 +60,9 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
         AggregatorV3Interface priceFeed = AggregatorV3Interface(dogeFeed);
         uint8 decimals = priceFeed.decimals();
         // prettier-ignore
+        // Disabling this finding, the other return values are not needed and needlessly creating variables to 
+        // hold them is it's own finding (and just overall inefficient)
+        // slither-disable-next-line unused-return
         (/* uint80 roundID */,
             int price,
             /*uint startedAt*/,
@@ -68,6 +72,9 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
         if (decimals < 18) {
             price = price * int(10 ** (18 - decimals));
         } else if (decimals > 18) {
+            // disabling this finding, the multiplication referenced takes place in a 
+            // separate calling function (two calls removed).
+            // slither-disable-next-line divide-before-multiply
             price = price / int(10 ** (decimals - 18));
         }
 
@@ -83,6 +90,9 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
         AggregatorV3Interface priceFeed = AggregatorV3Interface(aaveFeed);
 
         // prettier-ignore
+        // Disabling this finding, the other return values are not needed and needlessly creating variables to 
+        // hold them is it's own finding (and just overall inefficient)
+        // slither-disable-next-line unused-return
         (/* uint80 roundID */,
             int price,
             /*uint startedAt*/,
@@ -101,6 +111,9 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
         AggregatorV3Interface priceFeed = AggregatorV3Interface(algoFeed);
 
         // prettier-ignore
+        // Disabling this finding, the other return values are not needed and needlessly creating variables to 
+        // hold them is it's own finding (and just overall inefficient)
+        // slither-disable-next-line unused-return
         (/* uint80 roundID */,
             int price,
             /*uint startedAt*/,
@@ -114,6 +127,7 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
      * @dev This function allows appAdminstrators to set the token address
      */
     function setAAVEAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+        if(_address == address(0)) revert ZeroAddress();
         aave = _address;
     }
 
@@ -121,6 +135,7 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
      * @dev This function allows appAdminstrators to set the Chainlink price feed address
      */
     function setAAVEFeedAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+        if(_address == address(0)) revert ZeroAddress();
         aaveFeed = _address;
     }
 
@@ -128,6 +143,7 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
      * @dev This function allows appAdminstrators to set the token address
      */
     function setALGOAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+        if(_address == address(0)) revert ZeroAddress();
         algo = _address;
     }
 
@@ -135,6 +151,7 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
      * @dev This function allows appAdminstrators to set the Chainlink price feed address
      */
     function setALGOFeedAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+        if(_address == address(0)) revert ZeroAddress();
         algoFeed = _address;
     }
 
@@ -142,6 +159,7 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
      * @dev This function allows appAdminstrators to set the token address
      */
     function setDOGEAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+        if(_address == address(0)) revert ZeroAddress();
         doge = _address;
     }
 
@@ -149,19 +167,7 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
      * @dev This function allows appAdminstrators to set the Chainlink price feed address
      */
     function setDOGEFeedAddress(address _address) external appAdministratorOnly(appManagerAddress) {
+        if(_address == address(0)) revert ZeroAddress();
         dogeFeed = _address;
     }
-}
-
-/// This is the standard Chainlink feed interface
-interface AggregatorV3Interface {
-    function decimals() external view returns (uint8);
-
-    function description() external view returns (string memory);
-
-    function version() external view returns (uint256);
-
-    function getRoundData(uint80 _roundId) external view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);
-
-    function latestRoundData() external view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);
 }

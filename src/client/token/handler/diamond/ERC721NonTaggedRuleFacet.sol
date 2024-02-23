@@ -27,13 +27,8 @@ contract ERC721NonTaggedRuleFacet is HandlerAccountApproveDenyOracle, HandlerTok
         _from;
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
-        for (uint256 accountApproveDenyOracleIndex; accountApproveDenyOracleIndex < accountApproveDenyOracle[action].length; ) {
-            if (accountApproveDenyOracle[action][accountApproveDenyOracleIndex].active) 
-                IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracle(accountApproveDenyOracle[action][accountApproveDenyOracleIndex].ruleId, _to);
-            unchecked {
-                ++accountApproveDenyOracleIndex;
-            }
-        }
+        IRuleProcessor(handlerBaseStorage.ruleProcessor).checkAccountApproveDenyOracles(accountApproveDenyOracle[action], _to);
+        
         if (lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[action].active) {
             // get all the tags for this NFT
             bytes32[] memory tags = IAppManager(handlerBaseStorage.appManager).getAllTags(handlerBaseStorage.assetAddress);
