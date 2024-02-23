@@ -31,6 +31,9 @@ contract PauseRules is IPauseRules, DataModule {
         if (pauseRules.length >= MAX_RULES) revert MaxPauseRulesReached();
 
         cleanOutdatedRules();
+        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+        // slither-disable-next-line timestamp
         if (_pauseStop <= _pauseStart || _pauseStart <= block.timestamp) {
             revert InvalidDateWindow(_pauseStart, _pauseStop);
         }
@@ -79,6 +82,9 @@ contract PauseRules is IPauseRules, DataModule {
     function cleanOutdatedRules() public virtual {
         uint256 i;
         while (i < pauseRules.length) {
+            // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+            // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+            // slither-disable-next-line timestamp
             while (pauseRules.length > 0 && i < pauseRules.length && pauseRules[i].pauseStop <= block.timestamp) {
                 emit PauseRuleEvent(pauseRules[i].pauseStart, pauseRules[i].pauseStop, false);
                 _removePauseRule(uint8(i));

@@ -90,8 +90,8 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
         Fee memory fee;
         bytes32[] memory fromTags = IAppManager(handlerBaseStorage.appManager).getAllTags(_from);
         bytes32[] memory _fromTags;
-        int24 totalFeePercent;
-        uint24 discount;
+        int24 totalFeePercent = 0;
+        uint24 discount = 0;
         /// To insure that default fees are checked when they're set, add a blank tag to the tag list. 
         if(getFee(BLANK_TAG).feePercentage > 0){
             _fromTags = new bytes32[](fromTags.length+1);
@@ -106,7 +106,7 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
             _fromTags = fromTags;
         }
         if (_fromTags.length != 0 && !IAppManager(handlerBaseStorage.appManager).isAppAdministrator(_from)) {
-            uint feeCount;
+            uint feeCount = 0;
             // size the dynamic arrays by maximum possible fees
             feeCollectorAccounts = new address[](_fromTags.length);
             feePercentages = new int24[](_fromTags.length);

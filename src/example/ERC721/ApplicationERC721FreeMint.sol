@@ -12,7 +12,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ApplicationERC721FreeMint is ProtocolERC721 {
     using Counters for Counters.Counter;
-    Counters.Counter private _tokenIdCounter;
 
     /**
      * @dev Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address
@@ -21,6 +20,7 @@ contract ApplicationERC721FreeMint is ProtocolERC721 {
      * @param _appManagerAddress Address of App Manager
      * @param _baseUri URI for the base token
      */
+     // slither-disable-next-line shadowing-local
     constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {}
 
     /**

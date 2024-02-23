@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "./IDataModule.sol";
-import {ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError} from "src/common/IErrors.sol";
+import {ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError, IInputErrors} from "src/common/IErrors.sol";
 
 /**
  * @title Tag interface Contract
@@ -10,7 +10,7 @@ import {ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError} from "src/comm
  * @dev Tags storage retrieval functions are defined here
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-interface ITags is IDataModule, ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError {
+interface ITags is IDataModule, ITagInputErrors, IRuleProcessorErrors, IMaxTagLimitError, IInputErrors {
     /**
      * @dev Add the tag. Restricted to owner.
      * @param _address user address
@@ -48,4 +48,12 @@ interface ITags is IDataModule, ITagInputErrors, IRuleProcessorErrors, IMaxTagLi
 protocol, so keeping this limit here prevents transfers to unexpectedly revert
      */
     function addTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external;
+
+    /**
+     * @dev Add a general tag to an account at index in array. Restricted to Application Administrators. Loops through existing tags on accounts and will emit  an event if tag is already applied.
+     * @param _accounts Address array to be tagged
+     * @param _tags Tag array for the account at index. Can be any allowed string variant
+     * @notice there is a hard limit of 10 tags per address.
+     */
+    function addMultipleTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tags) external;
 }

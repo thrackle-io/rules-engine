@@ -32,8 +32,8 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ITokenHandler
      */
     function setTokenMaxSupplyVolatilityId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         TokenMaxSupplyVolatilityS storage data = lib.tokenMaxSupplyVolatilityStorage();
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxSupplyVolatility(_ruleId);
         for (uint i; i < _actions.length; ) {
-            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxSupplyVolatility(_ruleId);
             data.tokenMaxSupplyVolatility[_actions[i]].ruleId = _ruleId;
             data.tokenMaxSupplyVolatility[_actions[i]].active = true;
             emit ApplicationHandlerActionApplied(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i], _ruleId);

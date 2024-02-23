@@ -29,10 +29,11 @@ import {ApplicationERC721MintForAFee as MintForAFeeERC721} from "src/example/ERC
 import {ApplicationERC721WhitelistMint as WhitelistMintERC721} from "src/example/ERC721/ApplicationERC721WhitelistMint.sol";
 import {ApplicationERC721FreeMint as FreeForAllERC721} from "src/example/ERC721/ApplicationERC721FreeMint.sol";
 // import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
-import {ApplicationERC721Upgradeable as MintForAFeeERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgMintForAFee.sol";
-import {ApplicationERC721Upgradeable as WhitelistMintERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
-import {ApplicationERC721Upgradeable as FreeForAllERC721Upgradeable} from "src/example/ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol";
+import "src/example/ERC721/upgradeable/ApplicationERC721UpgMintForAFee.sol";
+import "src/example/ERC721/upgradeable/ApplicationERC721UpgWhitelistMint.sol";
+import "src/example/ERC721/upgradeable/ApplicationERC721UpgFreeMint.sol";
 // import {ApplicationERC721HandlerMod} from "test/util/ApplicationERC721HandlerMod.sol";
+
 
 /// Client Contract imports 
 // import {ApplicationAssetHandlerMod} from "test/util/ApplicationAssetHandlerMod.sol";
@@ -141,8 +142,8 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     // ApplicationERC721HandlerMod public ERC721AssetHandler;
     ApplicationERC721Pricing public erc721Pricer;
 
-    ApplicationERC721Upgradeable public applicationNFTU;
-    ApplicationERC721Upgradeable public applicationNFT2;
+    ApplicationERC721UpgAdminMint public applicationNFTU;
+    ApplicationERC721UpgAdminMint public applicationNFT2;
     ApplicationERC721UExtra public applicationNFTExtra;
     ApplicationERC721UExtra2 public applicationNFTExtra2;
     ApplicationERC721UProxy public applicationNFTProxy;
@@ -160,9 +161,9 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     MintForAFeeERC721 public mintForAFeeNFT;
     WhitelistMintERC721 public whitelistMintNFT;
     FreeForAllERC721 public freeNFT;
-    MintForAFeeERC721Upgradeable public mintForAFeeNFTUpImplementation;
-    WhitelistMintERC721Upgradeable public whitelistMintNFTUpImplementation;
-    FreeForAllERC721Upgradeable public freeNFTUpImplementation;
+    ApplicationERC721UpgMintForAFee public mintForAFeeNFTUpImplementation;
+    ApplicationERC721UpgWhitelistMint public whitelistMintNFTUpImplementation;
+    ApplicationERC721UpgFreeMint public freeNFTUpImplementation;
     ApplicationERC721UProxy public mintForAFeeNFTUp;
     ApplicationERC721UProxy public whitelistMintNFTUp;
     ApplicationERC721UProxy public freeNFTUp;
@@ -279,32 +280,32 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
      * @dev Deploy and set up an ERC721 Upgradeable
      * @return _token token
      */
-    function _createERC721Upgradeable() public returns (ApplicationERC721Upgradeable _token) {
-        return new ApplicationERC721Upgradeable();
+    function _createERC721Upgradeable() public returns (ApplicationERC721UpgAdminMint _token) {
+        return new ApplicationERC721UpgAdminMint();
     }
 
     /**
      * @dev Deploy and set up an ERC721 Upgradeable Fee Mint 
      * @return _token token
      */
-    function _createERC721UpgradeableFeeMint() public returns (MintForAFeeERC721Upgradeable _token) {
-        return new MintForAFeeERC721Upgradeable();
+    function _createERC721UpgradeableFeeMint() public returns (ApplicationERC721UpgMintForAFee _token) {
+        return new ApplicationERC721UpgMintForAFee();
     }
 
     /**
      * @dev Deploy and set up an ERC721 Upgradeable AllowList
      * @return _token token
      */
-    function _createERC721UpgradeableAllowList() public returns (WhitelistMintERC721Upgradeable _token) {
-        return new WhitelistMintERC721Upgradeable();
+    function _createERC721UpgradeableAllowList() public returns (ApplicationERC721UpgWhitelistMint _token) {
+        return new ApplicationERC721UpgWhitelistMint();
     }
 
     /**
      * @dev Deploy and set up an ERC721 Upgradeable Free For All 
      * @return _token token
      */
-    function _createERC721UpgradeableFreeForAll() public returns (FreeForAllERC721Upgradeable _token) {
-        return new FreeForAllERC721Upgradeable();
+    function _createERC721UpgradeableFreeForAll() public returns (ApplicationERC721UpgFreeMint _token) {
+        return new ApplicationERC721UpgFreeMint();
     }
 
     /**

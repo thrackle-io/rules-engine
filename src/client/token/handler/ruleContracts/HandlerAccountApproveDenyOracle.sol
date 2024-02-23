@@ -32,9 +32,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
                 revert AccountApproveDenyOraclesPerAssetLimitReached();
             }
 
-            Rule memory newOracleRule;
-            newOracleRule.ruleId = _ruleId;
-            newOracleRule.active = true;
+            Rule memory newOracleRule = Rule(_ruleId, true);
             accountApproveDenyOracle[_actions[i]].push(newOracleRule);
             emit ApplicationHandlerActionApplied(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i], _ruleId);
             unchecked {

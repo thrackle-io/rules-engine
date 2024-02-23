@@ -107,7 +107,7 @@ contract ERC721TaggedRuleProcessorFacet is IInputErrors, IERC721Errors, IRulePro
      */
     function checkTokenMaxDailyTrades(uint32 ruleId, uint256 transfersWithinPeriod, bytes32[] memory nftTags, uint64 lastTransferTime) public view returns (uint256) {
         nftTags.checkMaxTags();
-        uint256 cumulativeTotal;
+        uint256 cumulativeTotal = 0;
         if(getTokenMaxDailyTrades(ruleId, BLANK_TAG).startTime > 0){
             nftTags = new bytes32[](1);
             nftTags[0] = BLANK_TAG;

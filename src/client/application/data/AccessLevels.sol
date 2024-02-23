@@ -34,6 +34,21 @@ contract AccessLevels is IAccessLevels, DataModule {
     }
 
     /**
+     * @dev Add the Access Level(0-4) to the list of account. Restricted to the owner.
+     * @param _accounts address array upon which to apply the Access Level
+     * @param _level Access Level array to add
+     */
+    function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyOwner() {
+        if (_level.length != _accounts.length) revert InputArraysMustHaveSameLength();
+        for (uint256 i; i < _accounts.length; ) {
+            addLevel(_accounts[i], _level[i]);
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
      * @dev Add the Access Level(0-4) to multiple accounts. Restricted to the owner.
      * @param _accounts addresses upon which to apply the Access Level
      * @param _level Access Level to add

@@ -11,9 +11,8 @@ import "src/client/token/ERC721/upgradeable/ProtocolERC721U.sol";
  * must be performed
  */
 
-contract ApplicationERC721Upgradeable is ProtocolERC721U {
+contract ApplicationERC721UpgWhitelistMint is ProtocolERC721U {
     using CountersUpgradeable for CountersUpgradeable.Counter;
-    CountersUpgradeable.Counter private _tokenIdCounter;
 
     mapping(address => uint8) public mintsAvailable;
     uint8 mintsAllowed;
@@ -36,6 +35,7 @@ contract ApplicationERC721Upgradeable is ProtocolERC721U {
      * @param _baseUri URI for the base token
      * @param _mintsAllowed the amount of mints per whitelisted address
      */
+     // slither-disable-next-line shadowing-local
     function initialize(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri, uint8 _mintsAllowed) external appAdministratorOnly(_appManagerAddress) {
         mintsAllowed = _mintsAllowed;
         super.initialize(_name, _symbol, _appManagerAddress, _baseUri);

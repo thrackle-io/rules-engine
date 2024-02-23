@@ -11,9 +11,8 @@ import "src/client/token/ERC721/upgradeable/ProtocolERC721U.sol";
  * must be performed
  */
 
-contract ApplicationERC721Upgradeable is ProtocolERC721U {
+contract ApplicationERC721UpgFreeMint is ProtocolERC721U {
     using CountersUpgradeable for CountersUpgradeable.Counter;
-    CountersUpgradeable.Counter private _tokenIdCounter;
 
     /**
      * @dev These storage slots are saved for future upgrades. Please be aware of common constraints for upgradeable contracts regarding storage slots,

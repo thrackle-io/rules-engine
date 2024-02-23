@@ -9,6 +9,8 @@ pragma solidity ^0.8.17;
  * This is only used internally by the protocol.
  */
 
+import {Rule} from "src/client/token/handler/common/DataStructures.sol";
+
 interface IRuleProcessor {
     /**
      * @dev Check the AccountMinMaxTokenBalance rule. This rule ensures that both the to and from accounts do not
@@ -41,11 +43,11 @@ interface IRuleProcessor {
     function checkMinMaxAccountBalanceERC721(uint32 ruleId, uint256 balanceFrom, uint256 balanceTo, bytes32[] memory toTags, bytes32[] memory fromTags) external view;
 
     /**
-     * @dev This function receives a rule id, which it uses to get the oracle details, then calls the oracle to determine permissions.
-     * @param _ruleId Rule Id
+     * @dev This function receives an array of rule ids, which it uses to get the oracle details, then calls the oracle to determine permissions.
+     * @param _rules Rule Id Array
      * @param _address user address to be checked
      */
-    function checkAccountApproveDenyOracle(uint32 _ruleId, address _address) external view;
+    function checkAccountApproveDenyOracles(Rule[] memory _rules, address _address) external view;
 
     /**
      * @dev Check if transaction passes Balance by AccessLevel rule.
