@@ -38,6 +38,8 @@ import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
 import "test/util/ApplicationERC721UExtra.sol";
 import "test/util/ApplicationERC721UExtra2.sol";
+import "test/util/MinimalERC20.sol";
+import "test/util/MinimalERC721.sol";
 
 import "src/client/application/data/IPauseRules.sol";
 import "src/client/application/data/Tags.sol";
@@ -115,6 +117,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
     ApplicationHandler public applicationHandler2;
     // ApplicationAssetHandlerMod public newAssetHandler;
 
+    MinimalERC20 public minimalCoin;
     ApplicationERC20 public applicationCoin;
     ApplicationERC20 public applicationCoin2;
     HandlerDiamond public applicationCoinHandler;
@@ -127,6 +130,7 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
 
     ApplicationERC721 public applicationNFT;
     ApplicationERC721 public applicationNFTv2;
+    MinimalERC721 public minimalNFT;
     // ApplicationERC721HandlerMod public ERC721AssetHandler;
     ApplicationERC721Pricing public erc721Pricer;
 
@@ -188,11 +192,22 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
      * @dev Deploy and set up an ERC20
      * @param _name token name
      * @param _symbol token symbol
-     * @param _appManager previously created appManager
+     * @param _appManager previously created appManager 
      * @return _token token
      */
     function _createERC20(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC20 _token) {
         return new ApplicationERC20(_name, _symbol, address(_appManager));
+    }
+
+    /**
+     * @dev Deploy and set up a minimal protocol ERC20
+     * @param _name token name
+     * @param _symbol token symbol
+     * @param _appManager previously created appManager 
+     * @return _token token
+     */
+    function _createERC20Min(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (MinimalERC20 _token) {
+        return new MinimalERC20(_name, _symbol, address(_appManager));
     }
 
     /**
@@ -212,6 +227,17 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
      */
     function _createERC721(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC721 _token) {
         return new ApplicationERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
+    }
+
+    /**
+     * @dev Deploy and set up a Minimal ERC721
+     * @param _name token name
+     * @param _symbol token symbol
+     * @param _appManager previously created appManager
+     * @return _token token
+     */
+    function _createERC721Min(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (MinimalERC721 _token) {
+        return new MinimalERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
     }
 
     /**

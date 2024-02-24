@@ -264,6 +264,7 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToOriginalUser();
     }
 
+
     /**
      * @dev Deploy and set up the protocol with app manager and 2 supported ERC721 tokens with pricing contract 
      * ERC721 tokens and Pricing contract are named for Pricing.t.sol 
@@ -478,6 +479,80 @@ abstract contract TestCommonFoundry is TestCommon {
 
     }
 
+    /**
+     * @dev Deploy and set up ERC20 token with DIAMOND handler 
+     */
+    function setUpProcotolAndCreateERC721MinAndDiamondHandler() public {
+        setUpProtocolAndAppManager();
+        /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
+        /// requires a token be attached and registered for permissions in appManager
+        // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
+        (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
+        
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc20Pricer = _createERC20Pricing();
+
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
+
+        /// create an ERC721
+        (minimalNFT, applicationNFTHandler) = deployAndSetupERC721Min("FRANKENSTEIN", "FRK");
+        (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
+
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc721Pricer = _createERC721Pricing();
+        erc721Pricer.setNFTCollectionPrice(address(minimalNFT), 1 * (10 ** 18)); //setting at $1
+        switchToRuleAdmin(); 
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
+
+        switchToAppAdministrator();
+
+        oracleApproved = _createOracleApproved();
+        oracleDenied = _createOracleDenied();
+        switchToOriginalUser();
+
+    }
+
+    /**
+     * @dev Deploy and set up ERC20 token with DIAMOND handler 
+     */
+    function setUpProcotolAndCreateERC20MinAndDiamondHandler() public {
+        setUpProtocolAndAppManager();
+        /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
+        /// requires a token be attached and registered for permissions in appManager
+        // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
+        (minimalCoin, applicationCoinHandler) = deployAndSetupERC20Min("FRANK", "FRK");
+        (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
+
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc20Pricer = _createERC20Pricing();
+
+        erc20Pricer.setSingleTokenPrice(address(minimalCoin), 1 * (10 ** 18)); //setting at $1
+
+        /// create an ERC721
+        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
+        (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
+
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc721Pricer = _createERC721Pricing();
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
+        switchToRuleAdmin(); 
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
+
+        switchToAppAdministrator();
+
+        oracleApproved = _createOracleApproved();
+        oracleDenied = _createOracleDenied();
+        switchToOriginalUser();
+
+    }
+
     function deployAndSetupERC721(string memory name, string memory symbol) internal returns(ApplicationERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdminWithSave();
         erc721 = _createERC721(name, symbol, applicationAppManager);
@@ -490,9 +565,33 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToOriginalUser();
     }
 
+    function deployAndSetupERC721Min(string memory name, string memory symbol) internal returns(MinimalERC721 erc721, HandlerDiamond handler) {
+        switchToSuperAdminWithSave();
+        erc721 = _createERC721Min(name, symbol, applicationAppManager);
+        handler = _createERC721HandlerDiamond();
+        VersionFacet(address(handler)).updateVersion("1.1.0");
+        ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
+        erc721.connectHandlerToToken(address(handler));
+        /// register the token
+        applicationAppManager.registerToken(name, address(erc721));
+        switchToOriginalUser();
+    }
+
     function deployAndSetupERC20(string memory name, string memory symbol) internal returns(ApplicationERC20 erc20, HandlerDiamond handler){
         switchToSuperAdminWithSave();
         erc20 = _createERC20(name, symbol, applicationAppManager);
+        handler = _createERC20HandlerDiamond();
+        VersionFacet(address(handler)).updateVersion("1.1.0");
+        ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
+        erc20.connectHandlerToToken(address(handler));
+        /// register the token
+        applicationAppManager.registerToken(name, address(erc20));
+        switchToOriginalUser();
+    }
+
+    function deployAndSetupERC20Min(string memory name, string memory symbol) internal returns(MinimalERC20 erc20, HandlerDiamond handler){
+        switchToSuperAdminWithSave();
+        erc20 = _createERC20Min(name, symbol, applicationAppManager);
         handler = _createERC20HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
