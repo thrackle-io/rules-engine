@@ -13,7 +13,7 @@ NOTE: NFT Batch minting and burning is not supported in this release.
         ````
         forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast
         ````
-4. Use the output from the deployment to set an environment variables:
+4. Use the output from the deployment to set relevant environment variables:
         ````
         bash script/ParseApplicationDeploy.sh 3
         ````
@@ -22,8 +22,7 @@ NOTE: NFT Batch minting and burning is not supported in this release.
 
 <!-- These are the body links -->
 [ERC721-url]: https://eips.ethereum.org/EIPS/eip-721
-[ERC721Handler-url]: ./DEPLOY-NFTHANDLER.md
-[environment-url]: ./SETENVIRONMENT.md
+[environment-url]: ../SET-ENVIRONMENT.md
 
 
 <!-- These are the header links -->

@@ -8,7 +8,7 @@
     ```bash
     forge script script/clientScripts/Application_Deploy_01_AppManger.s.sol --ffi --broadcast
     ```
-3. Use the output from the deployment to set an environment variables:
+3. Use the output from the deployment to set relevant environment variables:
     ```bash
     bash script/ParseApplicationDeploy.sh 1
     ```
