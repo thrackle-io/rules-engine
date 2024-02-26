@@ -101,7 +101,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
                 assertEq(applicationCoin.balanceOf(_richUser), maxAmount);
                 applicationCoin.transfer(_user1, maxAmount);
                 assertEq(applicationCoin.balanceOf(_user1), maxAmount);
-                uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule(_tag, minAmount, maxAmount);
+                uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(_tag), createUint256Array(minAmount), createUint256Array(maxAmount));
                 setAccountMinMaxTokenBalanceRule(address(applicationCoinHandler), ruleId);
                 switchToAppAdministrator();
             }
@@ -196,7 +196,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.mint(user1, 10_000_000_000_000 * (10 ** 18));
 
         /// we register the rule in the protocol
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(25, 50, 75, 100_000_000, 10_000, 1, period);
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(25, 50, 75), createUint48Array(100_000_000, 10_000, 1), period);
         setAccountMaxTxValueByRiskRule(ruleId);
         /// we set a risk score for user1
         switchToRiskAdmin();
@@ -249,11 +249,8 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         /// let get some trillions to user2 to spend
         applicationCoin.mint(user2, 90_000_000_000_000 * (10 ** 18));
 
-        _riskScore[0] = 10;
-        _riskScore[1] = 40;
-        _riskScore[2] = 90;
         /// we register the rule in the protocol
-        ruleId = createAccountMaxTxValueByRiskRule(10, 40, 90, 900_000_000, 90_000, 1, period);
+        ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(10, 40, 90), createUint48Array(900_000_000, 90_000, 1), period);
         setAccountMaxTxValueByRiskRule(ruleId); 
         /// we start making transfers
         vm.stopPrank();
@@ -263,21 +260,21 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.transfer(user1, 1 * (10 ** 18));
         /// 1
         /// now, if the user's risk profile is in the highest range, this transfer should revert
-        if (risk >= _riskScore[2]) vm.expectRevert();
+        if (risk >= 90) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user1, 1 * (10 ** 18));
         /// 2
         /// if the user's risk profile is in the second to the highest range, this transfer should revert
-        if (risk >= _riskScore[1]) vm.expectRevert();
+        if (risk >= 40) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user1, 90_000 * (10 ** 18) - 1);
         /// 90_001
         /// if the user's risk profile is in the second to the lowest range, this transfer should revert
-        if (risk >= _riskScore[0]) vm.expectRevert();
+        if (risk >= 10) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user1, 900_000_000 * (10 ** 18) - 90_000 * (10 ** 18));
         /// 900_000_000 - 90_000 + 90_001 = 900_000_000 + 1 = 900_000_001
-        if (risk >= _riskScore[0]) vm.expectRevert();
+        if (risk >= 10) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user1, 9_000_000_000_000 * (10 ** 18) - 900_000_000 * (10 ** 18));
         /// if passed: 9_000_000_000_000 - 900_000_000 + 900_000_001  = 9_000_000_000_000 + 1 = 9_000_000_000_001
@@ -295,7 +292,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.mint(user2, 100000000 * (10 ** 18));
 
         ///Activate rule
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(25, 50, 75, 100_000_000, 10_000, 1);
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(25, 50, 75), createUint48Array(100_000_000, 10_000, 1));
         setAccountMaxTxValueByRiskRule(ruleId); 
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
@@ -336,7 +333,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         uint48 riskBalance4 = _amountSeed;
         // add the rule.
         uint8[] memory _riskScore = createUint8Array(25, 50, 75, 90);
-        uint32 ruleId = createAccountMaxValueByRiskRule(25, 50, 75, 90, riskBalance1, riskBalance2, riskBalance3, 1);
+        uint32 ruleId = createAccountMaxValueByRiskRule(createUint8Array(25, 50, 75, 90), createUint48Array(riskBalance1, riskBalance2, riskBalance3, 1));
         setAccountMaxValueByRiskRule(ruleId);
         /// we set a risk score for user2, user3 and user4
         switchToRiskAdmin();
@@ -493,7 +490,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.transfer(user3, (_amountSeed * 10000000) * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user3), (_amountSeed * 10000000) * (10 ** 18));
 
-        uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule(accs, minAmounts, maxAmounts, periods);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(accs, minAmounts, maxAmounts, periods);
         setAccountMinMaxTokenBalanceRule(address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
         /// tag the user
@@ -717,7 +714,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.mint(appAdministrator, initialSupply); 
         applicationAppManager.addRuleBypassAccount(appAdministrator);
         /// create and activate rule
-        uint32 ruleId = createTokenMaxSupplyVolatilityRuleRule(volLimit, rulePeriod, startTime, tokenSupply);
+        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
@@ -759,7 +756,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         console.logUint(applicationCoin.totalSupply());
         vm.warp(Blocktime + 96 hours);
         uint16 volatilityLimit = 1; /// 0.01%
-        ruleId = createTokenMaxSupplyVolatilityRuleRule(volatilityLimit, rulePeriod, startTime, tokenSupply);
+        ruleId = createTokenMaxSupplyVolatilityRule(volatilityLimit, rulePeriod, startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         vm.stopPrank();
         vm.startPrank(user1);
@@ -777,7 +774,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         console.logUint(applicationCoin.totalSupply());
         vm.warp(Blocktime + 120 hours);
         uint16 newVolatilityLimit = 50000; /// 500%
-        ruleId = createTokenMaxSupplyVolatilityRuleRule(newVolatilityLimit, rulePeriod, startTime, tokenSupply);
+        ruleId = createTokenMaxSupplyVolatilityRule(newVolatilityLimit, rulePeriod, startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         vm.stopPrank();
         vm.startPrank(user1);

@@ -115,7 +115,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(user2), 1);
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(user1), 1);
 
-        uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule("Oscar", 1, 6);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(6));
         setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleId);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
@@ -309,7 +309,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user2); // tokenId = 7
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(user2), 3);
 
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(0, 10, 40, 80, 17, 15, 12, 11);
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(0, 10, 40, 80), createUint48Array(17, 15, 12, 11));
         setAccountMaxTxValueByRiskRule(ruleId);
         ///Set Risk Scores for users
         switchToRiskAdmin();
@@ -455,7 +455,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         );
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory periods = createUint16Array(720, 4380, 17520);
-        uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule(accs, minAmounts, maxAmounts, periods);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(accs, minAmounts, maxAmounts, periods);
         setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleId);
         /// Add Tags to users
         switchToAppAdministrator();

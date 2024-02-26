@@ -93,57 +93,20 @@ abstract contract RuleCreation is TestCommonFoundry {
         return ruleId;
     }
 
-    function createAccountMaxTxValueByRiskRule(uint8 riskScores1, uint8 riskScores2, uint8 riskScores3, uint48 txnLimits1, uint48 txnLimits2, uint48 txnLimits3) public returns(uint32) {
+    function createAccountMaxTxValueByRiskRule(uint8[] memory riskScores, uint48[] memory txnLimits, uint8 period) public returns(uint32) {
         switchToRuleAdmin();
-        uint8[] memory riskScores = createUint8Array(riskScores1, riskScores2, riskScores3);
-        uint48[] memory txnLimits = createUint48Array(txnLimits1, txnLimits2, txnLimits3);
-        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
-        AppRules.AccountMaxTxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(ruleId); 
-        assertEq(rule.maxValue[0], txnLimits1);
-        switchToOriginalUser();
-        return ruleId; 
-    }
-
-    function createAccountMaxTxValueByRiskRule(uint8 riskScores1, uint8 riskScores2, uint8 riskScores3, uint8 riskScores4, uint48 txnLimits1, uint48 txnLimits2, uint48 txnLimits3, uint48 txnLimits4) public returns(uint32) {
-        switchToRuleAdmin();
-        uint8[] memory riskScores = createUint8Array(riskScores1, riskScores2, riskScores3, riskScores4);
-        uint48[] memory txnLimits = createUint48Array(txnLimits1, txnLimits2, txnLimits3, txnLimits4);
-        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
-        AppRules.AccountMaxTxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(ruleId); 
-        assertEq(rule.maxValue[0], txnLimits1);
-        switchToOriginalUser();
-        return ruleId;
-    }
-
-    function createAccountMaxTxValueByRiskRule(uint8 riskScores1, uint8 riskScores2, uint8 riskScores3, uint8 riskScores4, uint8 riskScores5, uint48 txnLimits1, uint48 txnLimits2, uint48 txnLimits3, uint48 txnLimits4, uint48 txnLimits5) public returns(uint32) {
-        switchToRuleAdmin();
-        uint8[] memory riskScores = createUint8Array(riskScores1, riskScores2, riskScores3, riskScores4, riskScores5);
-        uint48[] memory txnLimits = createUint48Array(txnLimits1, txnLimits2, txnLimits3, txnLimits4, txnLimits5);
-        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
-        AppRules.AccountMaxTxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(ruleId); 
-        assertEq(rule.maxValue[0], txnLimits1);
-        switchToOriginalUser();
-        return ruleId;
-    }
-
-    function createAccountMaxTxValueByRiskRule(uint8 riskScores1, uint8 riskScores2, uint8 riskScores3, uint48 txnLimits1, uint48 txnLimits2, uint48 txnLimits3, uint8 period) public returns(uint32) {
-        switchToRuleAdmin();
-        uint8[] memory riskScores = createUint8Array(riskScores1, riskScores2, riskScores3);
-        uint48[] memory txnLimits = createUint48Array(txnLimits1, txnLimits2, txnLimits3);
         uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, period, uint64(block.timestamp));
         AppRules.AccountMaxTxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(ruleId); 
-        assertEq(rule.maxValue[0], txnLimits1);
+        assertEq(rule.maxValue[0], txnLimits[0]);
         switchToOriginalUser();
         return ruleId;
     }
-    
-    function createAccountMaxTxValueByRiskRule(uint8 riskScores1, uint8 riskScores2, uint8 riskScores3, uint8 riskScores4, uint48 txnLimits1, uint48 txnLimits2, uint48 txnLimits3, uint48 txnLimits4, uint8 period ) public returns(uint32) {
+
+    function createAccountMaxTxValueByRiskRule(uint8[] memory riskScores, uint48[] memory txnLimits) public returns(uint32) {
         switchToRuleAdmin();
-        uint8[] memory riskScores = createUint8Array(riskScores1, riskScores2, riskScores3, riskScores4);
-        uint48[] memory txnLimits = createUint48Array(txnLimits1, txnLimits2, txnLimits3, txnLimits4);
-        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, period, uint64(block.timestamp));
+        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
         AppRules.AccountMaxTxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(ruleId); 
-        assertEq(rule.maxValue[0], txnLimits1);
+        assertEq(rule.maxValue[0], txnLimits[0]);
         switchToOriginalUser();
         return ruleId;
     }
@@ -158,35 +121,11 @@ abstract contract RuleCreation is TestCommonFoundry {
         return ruleId; 
     }
 
-    function createAccountMaxValueByRiskRule(uint8 riskScores1, uint8 riskScores2, uint8 riskScores3, uint48 maxSize1, uint48 maxSize2, uint48 maxSize3) public returns(uint32) {
+    function createAccountMaxValueByRiskRule(uint8[] memory riskScores, uint48[] memory txnLimits) public returns(uint32) {
         switchToRuleAdmin();
-        uint8[] memory riskScores = createUint8Array(riskScores1, riskScores2, riskScores3);
-        uint48[] memory txnLimits = createUint48Array(maxSize1, maxSize2, maxSize3);
         uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         AppRules.AccountMaxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxValueByRiskScore(ruleId); 
-        assertEq(rule.maxValue[0], maxSize1);
-        switchToOriginalUser();
-        return ruleId;
-    }
-
-    function createAccountMaxValueByRiskRule(uint8 riskScores1, uint8 riskScores2, uint8 riskScores3, uint8 riskScores4, uint48 maxSize1, uint48 maxSize2, uint48 maxSize3, uint48 maxSize4) public returns(uint32) {
-        switchToRuleAdmin();
-        uint8[] memory riskScores = createUint8Array(riskScores1, riskScores2, riskScores3, riskScores4);
-        uint48[] memory txnLimits = createUint48Array(maxSize1, maxSize2, maxSize3, maxSize4);
-        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByRiskScore(address(applicationAppManager), riskScores, txnLimits);
-        AppRules.AccountMaxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxValueByRiskScore(ruleId); 
-        assertEq(rule.maxValue[0], maxSize1);
-        switchToOriginalUser();
-        return ruleId;
-    }
-
-    function createAccountMaxValueByRiskRule(uint8 riskScores1, uint8 riskScores2, uint8 riskScores3, uint8 riskScores4, uint8 riskScores5, uint48 maxSize1, uint48 maxSize2, uint48 maxSize3, uint48 maxSize4, uint48 maxSize5) public returns(uint32) {
-        switchToRuleAdmin();
-        uint8[] memory riskScores = createUint8Array(riskScores1, riskScores2, riskScores3, riskScores4, riskScores5);
-        uint48[] memory txnLimits = createUint48Array(maxSize1, maxSize2, maxSize3, maxSize4, maxSize5);
-        uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByRiskScore(address(applicationAppManager), riskScores, txnLimits);
-        AppRules.AccountMaxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxValueByRiskScore(ruleId); 
-        assertEq(rule.maxValue[0], maxSize1);
+        assertEq(rule.maxValue[0], txnLimits[0]);
         switchToOriginalUser();
         return ruleId;
     }
@@ -202,35 +141,21 @@ abstract contract RuleCreation is TestCommonFoundry {
         return ruleId;
     }
 
-    function createAccountMinMaxTokenBalanceRuleRule(bytes32 ruleTag, uint256 minAmounts, uint256 maxAmounts) public returns(uint32) {
+    function createAccountMinMaxTokenBalanceRule(
+        bytes32[] memory ruleTags, 
+        uint256[] memory minAmounts, 
+        uint256[] memory maxAmounts
+        ) public returns(uint32) {
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32Array(ruleTag);
-        uint256[] memory min = createUint256Array(minAmounts);
-        uint256[] memory max = createUint256Array(maxAmounts);
-        uint16[] memory period;
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, min, max, period, uint64(Blocktime));
-        TaggedRules.AccountMinMaxTokenBalance memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMinMaxTokenBalance(ruleId, ruleTag);
-        assertEq(rule.min, minAmounts);
-        assertEq(rule.max, maxAmounts);
+        uint16[] memory periods;
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), ruleTags, minAmounts, maxAmounts, periods, uint64(Blocktime));
+        TaggedRules.AccountMinMaxTokenBalance memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMinMaxTokenBalance(ruleId, ruleTags[0]);
+        assertEq(rule.max, maxAmounts[0]);
         switchToOriginalUser();
         return ruleId;
     }
 
-    function createAccountMinMaxTokenBalanceRuleRule(bytes32 ruleTag, uint256 minAmounts, uint256 maxAmounts, uint16 period) public returns(uint32) {
-        switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32Array(ruleTag);
-        uint256[] memory min = createUint256Array(minAmounts);
-        uint256[] memory max = createUint256Array(maxAmounts);
-        uint16[] memory rulePeriod = createUint16Array(period);
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), accs, min, max, rulePeriod, uint64(Blocktime));
-        TaggedRules.AccountMinMaxTokenBalance memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMinMaxTokenBalance(ruleId, ruleTag);
-        assertEq(rule.min, minAmounts);
-        assertEq(rule.max, maxAmounts);
-        switchToOriginalUser();
-        return ruleId;
-    }
-
-    function createAccountMinMaxTokenBalanceRuleRule(
+    function createAccountMinMaxTokenBalanceRule(
         bytes32[] memory ruleTags, 
         uint256[] memory minAmounts, 
         uint256[] memory maxAmounts,
@@ -238,8 +163,8 @@ abstract contract RuleCreation is TestCommonFoundry {
         ) public returns(uint32) {
         switchToRuleAdmin();
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), ruleTags, minAmounts, maxAmounts, periods, uint64(Blocktime));
-        uint32 ruleTotal = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAccountMinMaxTokenBalances();
-        assertEq(ruleTotal, 1);
+        TaggedRules.AccountMinMaxTokenBalance memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMinMaxTokenBalance(ruleId, ruleTags[0]);
+        assertEq(rule.max, maxAmounts[0]);
         switchToOriginalUser();
         return ruleId;
     }
@@ -293,7 +218,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         return ruleId;
     }
 
-    function createTokenMaxSupplyVolatilityRuleRule(uint16 volatilityLimit, uint8 rulePeriod, uint64 startTime, uint256 tokenSupply) public returns(uint32) {
+    function createTokenMaxSupplyVolatilityRule(uint16 volatilityLimit, uint8 rulePeriod, uint64 startTime, uint256 tokenSupply) public returns(uint32) {
         switchToRuleAdmin();
         uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxSupplyVolatility(address(applicationAppManager), volatilityLimit, rulePeriod, startTime, tokenSupply);
         NonTaggedRules.TokenMaxSupplyVolatility memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMaxSupplyVolatility(ruleId);

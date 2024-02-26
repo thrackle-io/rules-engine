@@ -125,7 +125,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         assertEq(applicationNFT.balanceOf(_user1), 1);
         switchToRuleAdmin();
         /// Apply Rule 
-        uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule("Oscar", 1, 6);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(6));
         setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleId);
         /// make sure the minimum rules fail results in revert
         vm.stopPrank();
@@ -305,7 +305,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
         ///Create rule 
 
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(20, 40, 60, 80, 99, 70, 50, 40, 30, 20);
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 99), createUint48Array(70, 50, 40, 30, 20));
         setAccountMaxTxValueByRiskRule(ruleId);
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
@@ -601,7 +601,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory periods = createUint16Array(720, 4380, 17520);
 
-        uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule(accs, minAmounts, maxAmounts, periods);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(accs, minAmounts, maxAmounts, periods);
         setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleId);
         switchToAppAdministrator();
         /// Tag accounts
@@ -670,7 +670,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 10, 9_000_000_000_000 * ATTO - 900_000_000 * ATTO);
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 11, 1 * ATTO);
 
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(25, 50, 75, 100_000_000, 10_000, 1, period);
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(25, 50, 75), createUint48Array(100_000_000, 10_000, 1), period);
         setAccountMaxTxValueByRiskRule(ruleId);
         /// we set a risk score for user1
         switchToRiskAdmin();
@@ -729,7 +729,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         /// let's deactivate the rule before minting to avoid triggering the rule
         applicationHandler.activateAccountMaxTxValueByRiskScore(false);
         
-        ruleId = createAccountMaxTxValueByRiskRule(1, 40, 90, 900_000_000, 90_000, 1, period);
+        ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(1, 40, 90), createUint48Array(900_000_000, 90_000, 1), period);
         setAccountMaxTxValueByRiskRule(ruleId);
         /// we start making transfers
         vm.stopPrank();
@@ -807,7 +807,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
         }
 
-        uint32 ruleId = createAccountMaxValueByRiskRule(0, 10, 40, 80, 99, 10_000_000, 100_000, 1_000, 500, 10);
+        uint32 ruleId = createAccountMaxValueByRiskRule(createUint8Array(0, 10, 40, 80, 99), createUint48Array(10_000_000, 100_000, 1_000, 500, 10));
         setAccountMaxValueByRiskRule(ruleId);
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -935,7 +935,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         }
         applicationNFT.safeTransferFrom(appAdministrator, _rich_user, 9);
         /// create and activate rule
-        uint32 ruleId = createTokenMaxSupplyVolatilityRuleRule(volLimit, 24, Blocktime, 0);
+        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, 24, Blocktime, 0);
         setTokenMaxSupplyVolatilityRule(address(applicationNFTHandler), ruleId);
         /// determine the maximum burn/mint amount for inital test
         uint256 maxVol = uint256(volLimit) / 1000;
@@ -1035,11 +1035,11 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
                     ++i;
                 }
             }
-            uint32 ruleIdRisk = createAccountMaxValueByRiskRule(0, 10, 40, 80, 99, 10_000_000, 100_000, 1_000, 500, 10);
+            uint32 ruleIdRisk = createAccountMaxValueByRiskRule(createUint8Array(0, 10, 40, 80, 99), createUint48Array(10_000_000, 100_000, 1_000, 500, 10));
             setAccountMaxValueByRiskRule(ruleIdRisk);
         }
         {
-            uint32 ruleIdMinMax = createAccountMinMaxTokenBalanceRuleRule("Oscar", 1, 3);
+            uint32 ruleIdMinMax = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(3));
             setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleIdMinMax);
         }
         
@@ -1050,7 +1050,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             setTokenMaxDailyTradesRule(address(applicationNFTHandler), ruleIdDailyTrades);
         }
         {
-            uint32 ruleIdMaxTxRisk = createAccountMaxTxValueByRiskRule(0, 10, 40, 80, 99, 7_500_000, 75_000, 750, 350, 10);
+            uint32 ruleIdMaxTxRisk = createAccountMaxTxValueByRiskRule(createUint8Array(0, 10, 40, 80, 99), createUint48Array(7_500_000, 75_000, 750, 350, 10));
             setAccountMaxTxValueByRiskRule(ruleIdMaxTxRisk);
         }
 
@@ -1096,7 +1096,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
                     /// let's give back the NFTs to _user1
                     /// we update the min max balance rule so it's not a problem testing our AccessLevel
-                    uint32 minMaxRuleId = createAccountMinMaxTokenBalanceRuleRule("Oscar", 1, 5);
+                    uint32 minMaxRuleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(5));
                     setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), minMaxRuleId);
                     vm.stopPrank();
                     vm.startPrank(_user3);
@@ -1108,20 +1108,20 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
                     vm.startPrank(_user2);
                     applicationNFT.safeTransferFrom(_user2, _user1, 2);
                 }
-                uint32 _index = createAccountMinMaxTokenBalanceRuleRule("Oscar", 1, 8);
+                uint32 _index = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(8));
                 setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), _index);
                 vm.stopPrank();
                 vm.startPrank(_user2);
                 applicationNFT.safeTransferFrom(_user2, _user1, 1);
             }
-            uint32 index = createAccountMinMaxTokenBalanceRuleRule("Oscar", 1, 8);
+            uint32 index = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(8));
             setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), index);
             vm.stopPrank();
             vm.startPrank(_user2);
             applicationNFT.safeTransferFrom(_user2, _user1, 0);
         }
         {
-            uint32 indexTwo = createAccountMinMaxTokenBalanceRuleRule("Oscar", 1, 8);
+            uint32 indexTwo = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(8));
             setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), indexTwo);
         }
         {

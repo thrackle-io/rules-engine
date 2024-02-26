@@ -148,7 +148,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
     function testAccountMaxTransactionValueByRiskScore() public { 
         switchToRuleAdmin();
         ///Activate rule
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(25, 50, 75, 1000000, 10000, 10);
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(25, 50, 75), createUint48Array(1000000, 10000, 10));
         setAccountMaxTxValueByRiskRule(ruleId); 
         AppRules.AccountMaxTxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(0); 
         assertEq(rule.maxValue[0], 1000000);
@@ -168,7 +168,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         applicationAppManager.addTag(user1, "BALLER");
         applicationAppManager.addTag(user2, "BALLER");
         switchToRuleAdmin();
-        uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule("BALLER", 10, 1000);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("BALLER"), createUint256Array(10), createUint256Array(1000));
         setAccountMinMaxTokenBalanceRule(address(applicationCoinHandlerSpecialOwner), ruleId);
         vm.stopPrank();
         vm.startPrank(address(applicationCoin));
@@ -232,7 +232,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         applicationAppManager.addTag(user2, "BALLER");
         // add the rule.
         switchToRuleAdmin();
-       uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule("BALLER", 10, 1000);
+       uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("BALLER"), createUint256Array(10), createUint256Array(1000));
         setAccountMinMaxTokenBalanceRule(address(applicationCoinHandlerSpecialOwner), ruleId);
         vm.stopPrank();
         vm.startPrank(address(applicationCoin));

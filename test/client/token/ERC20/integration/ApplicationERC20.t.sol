@@ -83,7 +83,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
         assertEq(applicationCoin.balanceOf(rich_user), 100000);
         applicationCoin.transfer(user1, 1000);
         assertEq(applicationCoin.balanceOf(user1), 1000);
-        uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule("Oscar", 10, 1000); 
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(10), createUint256Array(1000)); 
         setAccountMinMaxTokenBalanceRule(address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
         ///Add Tag to account
@@ -124,7 +124,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
         assertEq(applicationCoin.balanceOf(rich_user), 100000);
         applicationCoin.transfer(user1, 1000);
         assertEq(applicationCoin.balanceOf(user1), 1000);
-        uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule("", 10, 1000);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(""), createUint256Array(10), createUint256Array(1000));
         setAccountMinMaxTokenBalanceRule(address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
 
@@ -432,7 +432,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
 
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(10, 40, 80, 99, 1000000, 100000, 10000, 1000);
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(10, 40, 80, 99), createUint48Array(1000000, 100000, 10000, 1000));
         setAccountMaxTxValueByRiskRule(ruleId);
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
@@ -459,7 +459,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
         vm.startPrank(user4);
         applicationCoin.transfer(user3, 10 * (10 ** 18));
 
-        //vm.expectRevert(0x9fe6aeac);
         applicationCoin.transfer(user3, 1001 * (10 ** 18));
 
         /// test burning tokens while rule is active
@@ -604,7 +603,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
         );
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory periods = createUint16Array(720, 4380, 17520);
-        uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule(accs, minAmounts, maxAmounts, periods);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(accs, minAmounts, maxAmounts, periods);
         setAccountMinMaxTokenBalanceRule(address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
         /// load non admin users with application coin
@@ -654,7 +653,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
         );
         // 720 = one month 4380 = six months 17520 = two years
         uint16[] memory periods = createUint16Array(720);
-        uint32 ruleId = createAccountMinMaxTokenBalanceRuleRule(accs, minAmounts, maxAmounts, periods);
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(accs, minAmounts, maxAmounts, periods);
         setAccountMinMaxTokenBalanceRule(address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
         /// load non admin users with application coin
@@ -1023,7 +1022,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
         uint8 period = 24; 
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(10, 40, 80, 99, 1000000, 100000, 10000, 1000, period); 
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(10, 40, 80, 99), createUint48Array(1000000, 100000, 10000, 1000), period); 
         setAccountMaxTxValueByRiskRule(ruleId);
         ///Transfer expected to fail in one large transaction
         vm.stopPrank();
@@ -1109,7 +1108,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
         applicationCoin.transfer(user1, 5000 * ATTO);
 
         /// create rule
-        uint32 ruleId = createTokenMaxSupplyVolatilityRuleRule(1000, 24, Blocktime, 0);
+        uint32 ruleId = createTokenMaxSupplyVolatilityRule(1000, 24, Blocktime, 0);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
         /// move within period
