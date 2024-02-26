@@ -11,8 +11,7 @@ promptForInput() {
 }
 
 # Get the environment variables
-source .env.deployTest
-source .env.deployTest
+source .env
 # Set the colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -29,49 +28,49 @@ else
 fi
 
 ##### VALIDATE and RETRIEVE Entry variables
-
+echo $RPC_URL
 # prompt for rpc-url if it's blank
-if test -z "$RPC_URL"; then
-while true; do
-  promptForInput "RPC_URL"
+if [[ -z $RPC_URL ]]; then
+  while true; do
+    promptForInput "RPC_URL"
 
-  if test -z "$var1"
-  then    
-    printf "RPC_URL cannot be blank\n"
-  else
-    RPC_URL="$var1"
-    printf "RPC_URL= %s\n" "$RPC_URL"
-    break
-  fi
-done
+    if test -z "$var1"
+    then    
+      printf "RPC_URL cannot be blank\n"
+    else
+      RPC_URL="$var1"
+      printf "RPC_URL= %s\n" "$RPC_URL"
+      break
+    fi
+  done
 fi
 
-# prompt for APP_ERC721 address if it's blank
-if test -z "$APP_ERC721"; then
-while true; do
-  promptForInput "APP_ERC721"
+# prompt for APPLICATION_ERC721_ADDRESS_1 address if it's blank
+if [[ -z "$APPLICATION_ERC721_ADDRESS_1" ]]; then
+  while true; do
+    promptForInput "APPLICATION_ERC721_ADDRESS_1"
 
-  if test -z "$var1"
-  then    
-    printf "APP_ERC721 cannot be blank\n"
-  else
-    APP_ERC721="$var1"
-    break
-  fi
-done
+    if test -z "$var1"
+    then    
+      printf "APPLICATION_ERC721_ADDRESS_1 cannot be blank\n"
+    else
+      APPLICATION_ERC721_ADDRESS_1="$var1"
+      break
+    fi
+  done
 fi
 
 ###########################################################
 echo "...Checking to make sure it is deployed..."
 if [ $RPC_URL == "local" ]; then
-  cast call $APP_ERC721 "getHandlerAddress()(address)" 1> /dev/null
+  cast call $APPLICATION_ERC721_ADDRESS_1 "getHandlerAddress()(address)" 1> /dev/null
 else
-  cast call $APP_ERC721 "getHandlerAddress()(address)" --rpc-url $RPC_URL 1> /dev/null
+  cast call $APPLICATION_ERC721_ADDRESS_1 "getHandlerAddress()(address)" --rpc-url $RPC_URL 1> /dev/null
 fi
 ret_code=$?
 if [ $ret_code == 1 ]; then
     echo -e "$RED                 FAIL $NC"
-    TEXT="$RED ERROR!!!$NC - ERC721:""$APP_ERC721"" not deployed to ""$RPC_URL"
+    TEXT="$RED ERROR!!!$NC - ERC721:""$APPLICATION_ERC721_ADDRESS_1"" not deployed to ""$RPC_URL"
     echo -e $TEXT
     exit 1
 else
@@ -80,13 +79,13 @@ fi
 
 echo "...Checking to make sure ERC721 has a handler..."
 if [ $RPC_URL == "local" ]; then
-  HANDLER=$(cast call $APP_ERC721 'getHandlerAddress()(address)')  
+  HANDLER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getHandlerAddress()(address)')  
 else
-  HANDLER=$(cast call $APP_ERC721 'getHandlerAddress()(address)' --rpc-url $RPC_URL) 
+  HANDLER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getHandlerAddress()(address)' --rpc-url $RPC_URL) 
 fi
 if test -z "$HANDLER"; then
     echo -e "$RED                 FAIL $NC"
-    TEXT="$RED ERROR!!!$NC - No handler set in ERC721: ""$APP_ERC721"
+    TEXT="$RED ERROR!!!$NC - No handler set in ERC721: ""$APPLICATION_ERC721_ADDRESS_1"
     echo -e $TEXT
     exit 1
 else
@@ -99,9 +98,9 @@ if [ $RPC_URL == "local" ]; then
 else
   HANDLER_ERC721=$(cast call $HANDLER 'owner()(address)' --rpc-url $RPC_URL) 
 fi
-if [ "$HANDLER_ERC721" != "$APP_ERC721" ]; then
+if [ "$HANDLER_ERC721" != "$APPLICATION_ERC721_ADDRESS_1" ]; then
     echo -e "$RED                 FAIL $NC"
-    TEXT="$RED ERROR!!!$NC - The Handler is not connected to the correct ERC721. Create a new handler and connect it to ERC721: ""$APP_ERC721"
+    TEXT="$RED ERROR!!!$NC - The Handler is not connected to the correct ERC721. Create a new handler and connect it to ERC721: ""$APPLICATION_ERC721_ADDRESS_1"
     echo -e $TEXT
     exit 1
 else
@@ -110,12 +109,16 @@ fi
 
 echo "...Checking to make sure the pricing modules are set within the ERC721's Handler..."
 if [ $RPC_URL == "local" ]; then
-  HANDLER_PRICER=$(cast call $HANDLER 'nftPricingAddress()(address)')  
+  APP_MANAGER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getAppManagerAddress()(address)')  
+  APP_HANDLER=$(cast call $APP_MANAGER 'getHandlerAddress()(address)')
+  HANDLER_PRICER=$(cast call $APP_HANDLER 'nftPricingAddress()(address)')  
 else
-  HANDLER_PRICER=$(cast call $HANDLER 'nftPricingAddress()(address)' --rpc-url $RPC_URL) 
+  APP_MANAGER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
+  APP_HANDLER=$(cast call $APP_MANAGER 'getHandlerAddress()(address)' --rpc-url $RPC_URL)
+  HANDLER_PRICER=$(cast call $APP_HANDLER 'nftPricingAddress()(address)' --rpc-url $RPC_URL) 
 fi
 if test -z "$HANDLER_PRICER"; then
-    TEXT="$RED ERROR!!!$NC - The Handler does not have a ProtocolERC721Pricing module set. Set it in ERC721: ""$APP_ERC721"" with function, setNFTPricingAddress(address)"
+    TEXT="$RED ERROR!!!$NC - The Handler does not have a ProtocolERC721Pricing module set. Set it in ERC721: ""$APPLICATION_ERC721_ADDRESS_1"" with function, setNFTPricingAddress(address)"
     echo -e $TEXT
     exit 1
 else
@@ -124,10 +127,10 @@ fi
 
 echo "...Checking to make sure the ERC721 is registered with the AppManager..."
 if [ $RPC_URL == "local" ]; then
-  APP_MANAGER=$(cast call $APP_ERC721 'getAppManagerAddress()(address)')  
-  REGISTERED=$(cast call $APP_MANAGER 'getTokenID(address)(string)' $APP_ERC721)  
+  APP_MANAGER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getAppManagerAddress()(address)')  
+  REGISTERED=$(cast call $APP_MANAGER 'getTokenID(address)(string)' $APPLICATION_ERC721_ADDRESS_1)  
 else
-  APP_MANAGER=$(cast call $APP_ERC721 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
+  APP_MANAGER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
   REGISTERED=$(cast call $APP_MANAGER 'isRegisteredHandler(address)(bool)' $HANDLER --rpc-url $RPC_URL) 
 fi
 if test -z "$REGISTERED"; then
@@ -143,7 +146,7 @@ echo "...Checking to make sure the ERC721's Handler is registered with the AppMa
 if [ $RPC_URL == "local" ]; then
   REGISTERED=$(cast call $APP_MANAGER 'isRegisteredHandler(address)(bool)' $HANDLER)  
 else
-  APP_MANAGER=$(cast call $APP_ERC721 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
+  APP_MANAGER=$(cast call $APPLICATION_ERC721_ADDRESS_1 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
 fi
 if [ "$REGISTERED" != "true" ]; then
     echo -e "$RED                 FAIL $NC"
