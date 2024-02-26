@@ -6,7 +6,7 @@
 1. Ensure the [environment variables][environment-url] are set correctly. The `RULE_PROCESSOR_DIAMOND` is used by the deployment script.
 2. Use the following script to deploy the Application Manager and Application Handler: 
     ```bash
-    forge script script/clientScripts/Application_Deploy_01_AppManger.s.sol --ffi --broadcast
+    forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast
     ```
 3. Use the output from the deployment to set relevant environment variables:
     ```bash
