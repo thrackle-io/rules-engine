@@ -13,7 +13,7 @@
     bash script/ParseApplicationDeploy.sh 1
     ```
 4. The deployer of the Application Manager is granted the [super admin role](../permissions/ADMIN-ROLES.md). 
-7. [Create additional administrators][createAdminRole-url] (Optional)
+5. [Create additional administrators][createAdminRole-url] (Optional)
 
 
 
