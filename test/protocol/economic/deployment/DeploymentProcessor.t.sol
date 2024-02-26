@@ -20,7 +20,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
             vm.warp(Blocktime);
             superAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
             appAdministrator = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
-            ruleAdmin = vm.envAddress("QUORRA");
+            ruleAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
             user1 = vm.envAddress("KEVIN");
             user2 = vm.envAddress("SAM");
             applicationNFT = ApplicationERC721(vm.envAddress("APPLICATION_ERC721_ADDRESS_1"));
@@ -119,7 +119,11 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(version, "1.1.0");
         // test that no other than the owner can update the version
         vm.stopPrank();
-        vm.startPrank(user1);
+        if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
+            vm.startPrank(user1);
+        } else {
+            vm.startPrank(appAdministrator);
+        }
         vm.expectRevert("UNAUTHORIZED");
         VersionFacet(address(ruleProcessor)).updateVersion("6,6,6"); // this is done to avoid upgrade_version-script replace this version
         version = VersionFacet(address(ruleProcessor)).version();
@@ -175,7 +179,12 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         uint64 sTime = 16;
         // set user to the super admin
         vm.stopPrank();
-        vm.startPrank(user1);
+        
+        if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
+            vm.startPrank(user1);
+        } else {
+            vm.startPrank(superAdmin);
+        }
         vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(address(applicationAppManager), accs, pAmounts, pPeriods, sTime);
         vm.stopPrank(); //stop interacting as the super admin
@@ -187,7 +196,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 0);
     }
 
-    /// Test mismatched arrays sizes
+    /// Test mismatched arrays sizgites
     function testAccountMaxBuySizeSettingWithArraySizeMismatch() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);

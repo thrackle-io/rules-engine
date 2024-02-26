@@ -30,10 +30,14 @@ jobs:
         run: |
           git config user.email "cloudops@thrackle.io"
           git config user.name "CloudOps Thrackle"
-          make install
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip3 install eth_abi
+          forge install dapphub/ds-test 
+          forge install OpenZeppelin/openzeppelin-contracts
       - name: Build
         run: |
-          make build
+          forge clean && forge build --optimize
       - name: Test
         run: |
-          make testAll
+          forge test -vv --ffi
