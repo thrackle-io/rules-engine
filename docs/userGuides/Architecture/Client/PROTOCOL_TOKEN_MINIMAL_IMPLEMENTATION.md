@@ -20,9 +20,9 @@ function connectHandlerToToken(address _handlerAddress) external appAdministrato
 function getHandlerAddress() external view override returns (address)
 ```
 
-## CheckAllRules Hook
+## checkAllRules Hook
 
-The token must also override the _beforeTokenTransfer function and add a call to the CheckAllRules hook defined in the IProtocolTokenHandler interface (using the handler address set in the above functions).
+The token must also override the _beforeTokenTransfer function and add a call to the checkAllRules hook defined in the IProtocolTokenHandler interface (using the handler address set in the above functions).
 Example:
 
 ```c
