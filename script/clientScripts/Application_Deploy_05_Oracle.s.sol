@@ -17,7 +17,7 @@ import "src/example/pricing/ApplicationERC721Pricing.sol";
  * @notice Deploys the oracle contracts.
  * ** Requires .env variables to be set with correct addresses and Protocol Diamond addresses **
  * Deploy Scripts:
- * forge script example/script/Application_Deploy_01_AppMangerAndAssets.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
+ * forge script example/script/Application_Deploy_01_AppManagerAndAssets.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  * forge script example/script/Application_Deploy_02_OracleAndPricing.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  * forge script example/script/Application_Deploy_03_ApplicationAdminRoles.s.sol --ffi --rpc-url $RPC_URL --broadcast -vvvv
  * <<<OPTIONAL>>>
@@ -31,8 +31,8 @@ contract ApplicationDeployOracleScript is Script {
     function setUp() public {}
 
     function run() public {
-        privateKey = vm.envUint("DEPLOYMENT_OWNER_KEY");
-        ownerAddress = vm.envAddress("DEPLOYMENT_OWNER");
+        privateKey = vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY");
+        ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
         vm.startBroadcast(privateKey);
 
         /// Deploy Oracle Contracts

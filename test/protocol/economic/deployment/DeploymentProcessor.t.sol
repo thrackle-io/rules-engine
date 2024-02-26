@@ -21,19 +21,19 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
             /// grab the deployed diamond addresses and set superAdmin and forkTest bool
             vm.warp(Blocktime);
             superAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
-            appAdministrator = vm.envAddress("DEPLOYMENT_OWNER");
+            appAdministrator = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
             ruleAdmin = vm.envAddress("QUORRA");
             user1 = vm.envAddress("KEVIN");
             user2 = vm.envAddress("SAM");
-            applicationNFT = ApplicationERC721(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_ADDRESS_1"));
-            applicationNFTHandler = HandlerDiamond(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC721_HANDLER")));
-            applicationCoin = ApplicationERC20(vm.envAddress("TEST_DEPLOY_APPLICATION_ERC20_ADDRESS"));
+            applicationNFT = ApplicationERC721(vm.envAddress("APPLICATION_ERC721_ADDRESS_1"));
+            applicationNFTHandler = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721_HANDLER")));
+            applicationCoin = ApplicationERC20(vm.envAddress("APPLICATION_ERC20_ADDRESS"));
             ruleProcessor = RuleProcessorDiamond(payable(vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND")));
             ruleProcessorDiamondAddress = vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND");
-            oracleApproved = OracleApproved(vm.envAddress("TEST_DEPLOY_APPLICATION_ORACLE_ALLOWED_ADDRESS"));
-            oracleDenied = OracleDenied(vm.envAddress("TEST_DEPLOY_APPLICATION_ORACLE_DENIED_ADDRESS"));
+            oracleApproved = OracleApproved(vm.envAddress("APPLICATION_ORACLE_ALLOWED_ADDRESS"));
+            oracleDenied = OracleDenied(vm.envAddress("APPLICATION_ORACLE_DENIED_ADDRESS"));
             assertEq(ruleProcessorDiamondAddress, vm.envAddress("DEPLOYMENT_RULE_PROCESSOR_DIAMOND"));
-            applicationAppManager = ApplicationAppManager(payable(vm.envAddress("TEST_DEPLOY_APPLICATION_APP_MANAGER")));
+            applicationAppManager = ApplicationAppManager(payable(vm.envAddress("APPLICATION_APP_MANAGER")));
             forkTest = true;
         } else {
             vm.warp(Blocktime);
@@ -121,7 +121,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
         assertEq(version, "1.1.0");
         // test that no other than the owner can update the version
         vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        vm.startPrank(user1);
         vm.expectRevert("UNAUTHORIZED");
         VersionFacet(address(ruleProcessor)).updateVersion("6,6,6"); // this is done to avoid upgrade_version-script replace this version
         version = VersionFacet(address(ruleProcessor)).version();
@@ -177,7 +177,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
         uint64 sTime = 16;
         // set user to the super admin
         vm.stopPrank();
-        vm.startPrank(superAdmin);
+        vm.startPrank(user1);
         vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(address(applicationAppManager), accs, pAmounts, pPeriods, sTime);
         vm.stopPrank(); //stop interacting as the super admin

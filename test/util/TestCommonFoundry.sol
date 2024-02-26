@@ -264,6 +264,7 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToOriginalUser();
     }
 
+
     /**
      * @dev Deploy and set up the protocol with app manager and 2 supported ERC721 tokens with pricing contract 
      * ERC721 tokens and Pricing contract are named for Pricing.t.sol 
@@ -441,106 +442,6 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToOriginalUser();
     }
 
-
-    /**
-     * @dev Deploy and set up the main protocol contracts. This includes:
-     * This function sets up the ERC721Examples.t.sol test
-     */
-    function setUpProtocolAndAppManagerAndTokensForExampleTest() public {
-        setUpProtocolAndAppManager();
-
-        // create the ERC20 and connect it to its handler
-        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
-        switchToAppAdministrator();
-        /// set up the pricer for erc20
-        erc20Pricer = _createERC20Pricing();
-
-        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
-        /// create an ERC721
-        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
-        switchToAppAdministrator();
-        /// set up the pricer for erc20
-        erc721Pricer = _createERC721Pricing();
-        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
-        /// connect pricing contracts to handler 
-        switchToRuleAdmin(); 
-        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
-        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
-
-        switchToAppAdministrator();
-
-        oracleApproved = _createOracleApproved();
-        oracleDenied = _createOracleDenied();
-
-        /// create ERC721 examples
-        mintForAFeeNFT = _createERC721MintFee("BlindSailers", "BSL", applicationAppManager, 1 ether);
-        whitelistMintNFT = _createERC721Whitelist("MonkeysPlayingInBonsaiTrees", "MBT", applicationAppManager, 2);
-        freeNFT = _createERC721Free("ParkinsonBarbers", "PKB", applicationAppManager);
-
-        switchToSuperAdminWithSave();
-
-        MintForAFeeNFTHandler = _createERC721HandlerDiamond();
-        ERC721HandlerMainFacet(address(MintForAFeeNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(mintForAFeeNFT));
-        mintForAFeeNFT.connectHandlerToToken(address(MintForAFeeNFTHandler));
-
-        WhitelistNFTHandler = _createERC721HandlerDiamond();
-        ERC721HandlerMainFacet(address(WhitelistNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(whitelistMintNFT));
-        whitelistMintNFT.connectHandlerToToken(address(WhitelistNFTHandler));
-
-        FreeForAllnNFTHandler = _createERC721HandlerDiamond();
-        ERC721HandlerMainFacet(address(FreeForAllnNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(freeNFT));
-        freeNFT.connectHandlerToToken(address(FreeForAllnNFTHandler));
-
-        switchToAppAdministrator();
-
-        applicationAppManager.registerToken("BlindSailers", address(mintForAFeeNFT));
-        applicationAppManager.registerToken("MonkeysPlayingInBonsaiTrees", address(whitelistMintNFT));
-        applicationAppManager.registerToken("ParkinsonBarbers", address(freeNFT));
-
-        /// create ERC721 examples upgradeable
-        mintForAFeeNFTUpImplementation = _createERC721UpgradeableFeeMint();
-        whitelistMintNFTUpImplementation = _createERC721UpgradeableAllowList();
-        freeNFTUpImplementation = _createERC721UpgradeableFreeForAll();
-
-        mintForAFeeNFTUp = _createERC721UpgradeableProxy(address(mintForAFeeNFTUpImplementation), address(proxyOwner));
-        whitelistMintNFTUp = _createERC721UpgradeableProxy(address(whitelistMintNFTUpImplementation), address(proxyOwner));
-        freeNFTUp = _createERC721UpgradeableProxy(address(freeNFTUpImplementation), address(proxyOwner));
-
-        ApplicationERC721UpgMintForAFee(payable(address(mintForAFeeNFTUp))).initialize("BlindSailersUp", "BSLU", address(applicationAppManager), "blindsailers.com/iseeyou", 1 ether);
-        ApplicationERC721UpgWhitelistMint(payable(address(whitelistMintNFTUp))).initialize(
-            "MonkeysPlayingInBonsaiTreesUp",
-            "MBTU",
-            address(applicationAppManager),
-            "monkeysdontknowwhattodo.com/havingfun",
-            2
-        );
-        ApplicationERC721UpgFreeMint(payable(address(freeNFTUp))).initialize("ParkinsonBarbersUp", "PKBU", address(applicationAppManager), "bloodinmyhands.com/bookyourcut");
-
-        switchToSuperAdminWithSave();
-
-        MintForAFeeNFTHandlerUp = _createERC721HandlerDiamond();
-        ERC721HandlerMainFacet(address(MintForAFeeNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(mintForAFeeNFTUp));
-        ApplicationERC721UpgMintForAFee(payable(address(mintForAFeeNFTUp))).connectHandlerToToken(address(MintForAFeeNFTHandlerUp));
-
-        WhitelistNFTHandlerUp = _createERC721HandlerDiamond();
-        ERC721HandlerMainFacet(address(WhitelistNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(whitelistMintNFTUp));
-        ApplicationERC721UpgWhitelistMint(payable(address(whitelistMintNFTUp))).connectHandlerToToken(address(WhitelistNFTHandlerUp));
-
-        FreeForAllnNFTHandlerUp = _createERC721HandlerDiamond();
-        ERC721HandlerMainFacet(address(FreeForAllnNFTHandlerUp)).initialize(address(ruleProcessor), address(applicationAppManager), address(freeNFTUp));
-        ApplicationERC721UpgFreeMint(payable(address(freeNFTUp))).connectHandlerToToken(address(FreeForAllnNFTHandlerUp));
-
-        switchToAppAdministrator();
-
-        applicationAppManager.registerToken("BlindSailersUp", address(mintForAFeeNFTUp));
-        applicationAppManager.registerToken("MonkeysPlayingInBonsaiTreesUp", address(whitelistMintNFTUp));
-        applicationAppManager.registerToken("ParkinsonBarbersUp", address(freeNFTUp));
-
-
-        /// reset the user to the original
-        switchToOriginalUser();
-    }
-
     /**
      * @dev Deploy and set up ERC20 token with DIAMOND handler 
      */
@@ -578,6 +479,80 @@ abstract contract TestCommonFoundry is TestCommon {
 
     }
 
+    /**
+     * @dev Deploy and set up ERC20 token with DIAMOND handler 
+     */
+    function setUpProcotolAndCreateERC721MinAndDiamondHandler() public {
+        setUpProtocolAndAppManager();
+        /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
+        /// requires a token be attached and registered for permissions in appManager
+        // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
+        (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
+        
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc20Pricer = _createERC20Pricing();
+
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
+
+        /// create an ERC721
+        (minimalNFT, applicationNFTHandler) = deployAndSetupERC721Min("FRANKENSTEIN", "FRK");
+        (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
+
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc721Pricer = _createERC721Pricing();
+        erc721Pricer.setNFTCollectionPrice(address(minimalNFT), 1 * (10 ** 18)); //setting at $1
+        switchToRuleAdmin(); 
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
+
+        switchToAppAdministrator();
+
+        oracleApproved = _createOracleApproved();
+        oracleDenied = _createOracleDenied();
+        switchToOriginalUser();
+
+    }
+
+    /**
+     * @dev Deploy and set up ERC20 token with DIAMOND handler 
+     */
+    function setUpProcotolAndCreateERC20MinAndDiamondHandler() public {
+        setUpProtocolAndAppManager();
+        /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
+        /// requires a token be attached and registered for permissions in appManager
+        // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
+        (minimalCoin, applicationCoinHandler) = deployAndSetupERC20Min("FRANK", "FRK");
+        (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
+
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc20Pricer = _createERC20Pricing();
+
+        erc20Pricer.setSingleTokenPrice(address(minimalCoin), 1 * (10 ** 18)); //setting at $1
+
+        /// create an ERC721
+        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
+        (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
+
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc721Pricer = _createERC721Pricing();
+        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
+        switchToRuleAdmin(); 
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
+
+        switchToAppAdministrator();
+
+        oracleApproved = _createOracleApproved();
+        oracleDenied = _createOracleDenied();
+        switchToOriginalUser();
+
+    }
+
     function deployAndSetupERC721(string memory name, string memory symbol) internal returns(ApplicationERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdminWithSave();
         erc721 = _createERC721(name, symbol, applicationAppManager);
@@ -590,9 +565,33 @@ abstract contract TestCommonFoundry is TestCommon {
         switchToOriginalUser();
     }
 
+    function deployAndSetupERC721Min(string memory name, string memory symbol) internal returns(MinimalERC721 erc721, HandlerDiamond handler) {
+        switchToSuperAdminWithSave();
+        erc721 = _createERC721Min(name, symbol, applicationAppManager);
+        handler = _createERC721HandlerDiamond();
+        VersionFacet(address(handler)).updateVersion("1.1.0");
+        ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
+        erc721.connectHandlerToToken(address(handler));
+        /// register the token
+        applicationAppManager.registerToken(name, address(erc721));
+        switchToOriginalUser();
+    }
+
     function deployAndSetupERC20(string memory name, string memory symbol) internal returns(ApplicationERC20 erc20, HandlerDiamond handler){
         switchToSuperAdminWithSave();
         erc20 = _createERC20(name, symbol, applicationAppManager);
+        handler = _createERC20HandlerDiamond();
+        VersionFacet(address(handler)).updateVersion("1.1.0");
+        ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
+        erc20.connectHandlerToToken(address(handler));
+        /// register the token
+        applicationAppManager.registerToken(name, address(erc20));
+        switchToOriginalUser();
+    }
+
+    function deployAndSetupERC20Min(string memory name, string memory symbol) internal returns(MinimalERC20 erc20, HandlerDiamond handler){
+        switchToSuperAdminWithSave();
+        erc20 = _createERC20Min(name, symbol, applicationAppManager);
         handler = _createERC20HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));

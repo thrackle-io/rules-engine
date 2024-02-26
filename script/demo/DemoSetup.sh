@@ -140,306 +140,139 @@ else
 
 fi
 
-# Asking the user for the name of the application
-echo Enter the name of your application
-read APP_NAME
+forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
-echo "################################################################"
-echo Creating/Compiling 
-echo "1. ApplicationAppManager.sol" 
-echo "2. ApplicationHandler.sol"
-echo "3. ApplicationERC721Pricing"
-echo for $APP_NAME
-echo "################################################################"
-echo
+if [ "$LOCAL" = "y" ]; then
+    APPLICATION_APP_MANAGER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationAppManager")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/31337/run-latest.json)
+else
+    APPLICATION_APP_MANAGER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationAppManager")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/80001/run-latest.json)
+fi
+APPLICATION_APP_MANAGER="${APPLICATION_APP_MANAGER_UNCUT//\"}"
 
-# Creating a directory with the application name, copying the relevant solidity files into that directory,
-# renaming the files (and updating their contents) based on the applicaiton name, and compiling the solidity
-mkdir ./src/example/$APP_NAME
-FILE_NAME=$APP_NAME"AppManager.sol"
-HANDLER_FILE_NAME=$APP_NAME"Handler.sol"
-PRICING_FILE_NAME=$APP_NAME"ERC721Pricing.sol"
-ERC20_PRICING_FILE_NAME=$APP_NAME"ERC20Pricing.sol"
-ERC721_FILE_NAME=$APP_NAME"ERC721.sol"
-ERC721_HANDLER_FILE_NAME=$APP_NAME"ERC721Handler.sol"
-ERC20_FILE_NAME=$APP_NAME"ERC20.sol"
-ERC20_HANDLER_FILE_NAME=$APP_NAME"ERC20Handler.sol"
-ORACLE_FILE_NAME=$APP_NAME"Allowed.sol"
+echo $APPLICATION_APP_MANAGER
+echo 
 
-echo $FILE_NAME
-cp ./src/example/application/ApplicationAppManager.sol ./src/example/$APP_NAME/$FILE_NAME
+if [ "$LOCAL" = "y" ]; then
+    APPLICATION_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationHandler")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/31337/run-latest.json)
+else
+    APPLICATION_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationHandler")) | .contractAddress' broadcast/Application_Deploy_01_AppManager.s.sol/80001/run-latest.json)
+fi
+APPLICATION_HANDLER="${APPLICATION_APP_MANAGER_UNCUT//\"}"
 
-sed -i '' 's/ApplicationAppManager/'$APP_NAME'AppManager/g' ./src/example/$APP_NAME/$FILE_NAME
+echo $APPLICATION_HANDLER
+echo 
 
-cp ./src/example/application/ApplicationHandler.sol ./src/example/$APP_NAME/$HANDLER_FILE_NAME
+bash script/ParseApplicationDeploy.sh 1
 
-sed -i '' 's/ ApplicationHandler/ '$APP_NAME'Handler/g' ./src/example/$APP_NAME/$HANDLER_FILE_NAME
+forge script script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
-cp ./src/example/pricing/ApplicationERC721Pricing.sol ./src/example/$APP_NAME/$PRICING_FILE_NAME
+if [ "$LOCAL" = "y" ]; then 
+    APPLICATION_ERC20_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/31337/run-latest.json)
+else
+    APPLICATION_ERC20_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80001/run-latest.json)
+fi
+APPLICATION_ERC20_1="${APPLICATION_ERC20_1_UNCUT//\"}"
 
-sed -i '' 's/ApplicationERC721Pricing/'$APP_NAME'ERC721Pricing/g' ./src/example/$APP_NAME/$PRICING_FILE_NAME
+echo $APPLICATION_ERC20_1
+echo 
 
-cp ./src/example/pricing/ApplicationERC20Pricing.sol ./src/example/$APP_NAME/$ERC20_PRICING_FILE_NAME
+if [ "$LOCAL" = "y" ]; then
+    APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/31337/run-latest.json)
+else
+    APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80001/run-latest.json)
+fi
+APPLICATION_ERC20_1_HANDLER="${APPLICATION_ERC20_1_HANDLER_UNCUT//\"}"
 
-sed -i '' 's/ApplicationERC20Pricing/'$APP_NAME'ERC20Pricing/g' ./src/example/$APP_NAME/$ERC20_PRICING_FILE_NAME
+echo $APPLICATION_ERC20_1_HANDLER
+echo 
 
-cp ./src/example/ERC721/ApplicationERC721FreeMint.sol ./src/example/$APP_NAME/$ERC721_FILE_NAME
+bash script/ParseApplicationDeploy.sh 2
 
-sed -i '' 's/ApplicationERC721/'$APP_NAME'ERC721/g' ./src/example/$APP_NAME/$ERC721_FILE_NAME
+forge script script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
-# cp ./src/example/ERC721/ApplicationERC721Handler.sol ./src/example/$APP_NAME/$ERC721_HANDLER_FILE_NAME
+if [ "$LOCAL" = "y" ]; then
+    APPLICATION_ERC721_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721AdminOrOwnerMint")) | .contractAddress' broadcast/Application_Deploy_04_ApplicationNFT.s.sol/31337/run-latest.json)
+else
+    APPLICATION_ERC721_1_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721AdminOrOwnerMint")) | .contractAddress' broadcast/Application_Deploy_04_ApplicationNFT.s.sol/80001/run-latest.json)
+fi
+APPLICATION_ERC721_1="${APPLICATION_ERC721_1_UNCUT//\"}"
 
-# sed -i '' 's/ApplicationERC721Handler/'$APP_NAME'ERC721Handler/g' ./src/example/$APP_NAME/$ERC721_HANDLER_FILE_NAME
+echo $APPLICATION_ERC721_1
+echo 
 
-cp ./src/example/ERC20/ApplicationERC20.sol ./src/example/$APP_NAME/$ERC20_FILE_NAME
+if [ "$LOCAL" = "y" ]; then
+    APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/31337/run-latest.json)
+else
+    APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="HandlerDiamond")) | .contractAddress' broadcast/Application_Deploy_02_ApplicationFT1.s.sol/80001/run-latest.json)
+fi
+APPLICATION_ERC721_1_HANDLER="${APPLICATION_ERC721_1_HANDLER_UNCUT//\"}"
 
-sed -i '' 's/ApplicationERC20/'$APP_NAME'ERC20/g' ./src/example/$APP_NAME/$ERC20_FILE_NAME
+echo $APPLICATION_ERC721_1_HANDLER
+echo 
 
-# cp ./src/example/ERC20/ApplicationERC20Handler.sol ./src/example/$APP_NAME/$ERC20_HANDLER_FILE_NAME
+bash script/ParseApplicationDeploy.sh 3
 
-# sed -i '' 's/ApplicationERC20Handler/'$APP_NAME'ERC20Handler/g' ./src/example/$APP_NAME/$ERC20_HANDLER_FILE_NAME
+forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
 
-# Oracle
+if [ "$LOCAL" = "y" ]; then
+    ORACLE_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json)
+else
+    ORACLE_1_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleApproved")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/80001/run-latest.json)
+fi
+ORACLE_1_HANDLER="${ORACLE_1_HANDLER_UNCUT//\"}"
 
-cp ./src/example/OracleApproved.sol ./src/example/$APP_NAME/$ORACLE_FILE_NAME
+echo $ORACLE_1_HANDLER
+echo 
 
-sed -i '' 's/OracleApproved/'$APP_NAME'Allowed/g' ./src/example/$APP_NAME/$ORACLE_FILE_NAME
+if [ "$LOCAL" = "y" ]; then
+    ORACLE_2_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/31337/run-latest.json)
+else
+    ORACLE_2_HANDLER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="OracleDenied")) | .contractAddress' broadcast/Application_Deploy_05_Oracle.s.sol/80001/run-latest.json)
+fi
+ORACLE_2_HANDLER="${ORACLE_2_HANDLER_UNCUT//\"}"
+
+echo $ORACLE_2_HANDLER
+echo 
+
+bash script/ParseApplicationDeploy.sh 4
+
+forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
+
+if [ "$LOCAL" = "y" ]; then
+    APPLICATION_ERC20_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/31337/run-latest.json)
+else
+    APPLICATION_ERC20_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC20Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/80001/run-latest.json)
+fi
+APPLICATION_ERC20_PRICER="${APPLICATION_ERC20_PRICER_UNCUT//\"}"
+
+echo $APPLICATION_ERC20_PRICER
+echo 
+
+if [ "$LOCAL" = "y" ]; then
+    APPLICATION_ERC721_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/31337/run-latest.json)
+else
+    APPLICATION_ERC721_PRICER_UNCUT=$(jq '.transactions[] | select((.transactionType=="CREATE") and (.contractName=="ApplicationERC721Pricing")) | .contractAddress' broadcast/Application_Deploy_06_Pricing.s.sol/80001/run-latest.json)
+fi
+APPLICATION_ERC721_PRICER="${APPLICATION_ERC721_PRICER_UNCUT//\"}"
+
+echo $APPLICATION_ERC721_PRICER
+echo 
+
+bash script/ParseApplicationDeploy.sh 5
+
+echo $APPLICATION_ERC20_1
+echo 
 
 forge build 
-
-# Deploying the App specific contracts
-echo "################################################################"
-echo  Deploying "$APP_NAME"AppManager
-echo "################################################################"
-echo
-
-OUTPUT=$(forge create ./src/example/$APP_NAME/$FILE_NAME:"$APP_NAME"AppManager --constructor-args $APP_ADMIN_1 $APP_NAME false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT) 
-INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
-
-OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-
-APPLICATION_APP_MANAGER="${outputarray[4]}"
-echo export APPLICATION_APP_MANAGER=$APPLICATION_APP_MANAGER | tee -a $OUTPUTFILE
-echo
-
-echo "################################################################"
-echo  Deploying "$APP_NAME"Handler
-echo "################################################################"
-echo
-
-OUTPUT=$(forge create ./src/example/$APP_NAME/$HANDLER_FILE_NAME:"$APP_NAME"Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
-
-INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
-
-OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-
-APPLICATION_HANDLER="${outputarray[4]}"
-echo export APPLICATION_HANDLER=$APPLICATION_HANDLER | tee -a $OUTPUTFILE
-echo
-
-echo "################################################################"
-echo  Deploying "$APP_NAME"ERC721Pricing
-echo "################################################################"
-echo
-
-OUTPUT=$(forge create ./src/example/$APP_NAME/$PRICING_FILE_NAME:"$APP_NAME"ERC721Pricing --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1 $GAS_ARGUMENT)
-
-INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
-
-OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-APPLICATION_ERC721_PRICER="${outputarray[4]}"
-
-echo export APPLICATION_ERC721_PRICER=$APPLICATION_ERC721_PRICER | tee -a $OUTPUTFILE
-echo
-
-echo "################################################################"
-echo  Deploying "$APP_NAME"ERC20 Pricing
-echo "################################################################"
-echo
-
-OUTPUT=$(forge create ./src/example/$APP_NAME/$ERC20_PRICING_FILE_NAME:"$APP_NAME"ERC20Pricing --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL --from $APP_ADMIN_1 $GAS_ARGUMENT)
-
-INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
-
-OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-APPLICATION_ERC20_PRICER="${outputarray[4]}"
-
-echo export APPLICATION_ERC20_PRICER=$APPLICATION_ERC20_PRICER | tee -a $OUTPUTFILE
-echo
-
-echo "################################################################"
-echo  Deploying "$APP_NAME"ERC721
-echo "################################################################"
-echo
-
-OUTPUT=$(forge create ./src/example/$APP_NAME/$ERC721_FILE_NAME:"$APP_NAME"ERC721FreeMint --constructor-args "Frankenstein" "FRANKPIC" $APPLICATION_APP_MANAGER "baseURI" --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
-
-INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
-
-OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-APPLICATION_ERC721_1="${outputarray[4]}"
-
-echo export APPLICATION_ERC721_1=$APPLICATION_ERC721_1 | tee -a $OUTPUTFILE
-echo
-
-echo "################################################################"
-echo  Deploying "$APP_NAME"ERC20
-echo "################################################################"
-echo
-
-OUTPUT=$(forge create ./src/example/$APP_NAME/$ERC20_FILE_NAME:"$APP_NAME"ERC20 --constructor-args "FTA" "ufta" $APPLICATION_APP_MANAGER --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
-
-INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
-
-OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-APPLICATION_ERC20_1="${outputarray[4]}"
-
-echo export APPLICATION_ERC20_1=$APPLICATION_ERC20_1 | tee -a $OUTPUTFILE
-echo
-
-echo "################################################################"
-echo  Deploying "$APP_NAME"ERC20Handler
-echo "################################################################"
-echo
-
-    sed -i '' 's/HANDLER_DIAMOND_TO_DEPLOY=.*/HANDLER_DIAMOND_TO_DEPLOY="Frank"/g' $ENV_FILE
-
-    forge script script/clientScripts/DeployERC20Handler.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
-
-    # Retreive the Rule Processor Diamond Address
-    if [ "$LOCAL" = "y" ]; then
-        APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select(.contractName=="HandlerDiamond") | .contractAddress' broadcast/DeployERC20Handler.s.sol/31337/run-latest.json)
-    else
-        APPLICATION_ERC20_1_HANDLER_UNCUT=$(jq '.transactions[] | select(.contractName=="HandlerDiamond") | .contractAddress' broadcast/DeployERC20Handler.s.sol/80001/run-latest.json)
-    fi
-    APPLICATION_ERC20_1_HANDLER="${APPLICATION_ERC20_1_HANDLER_UNCUT//\"}"
-
-    echo $APPLICATION_ERC20_1_HANDLER
-    echo 
-
-# OUTPUT=$(forge create ./src/example/$APP_NAME/$ERC20_HANDLER_FILE_NAME:"$APP_NAME"ERC20Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC20_1 false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
-
-# INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
-
-# OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-# IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-# APPLICATION_ERC20_1_HANDLER="${outputarray[4]}"
-
-echo export APPLICATION_ERC20_1_HANDLER=$APPLICATION_ERC20_1_HANDLER | tee -a $OUTPUTFILE
-echo
-
-echo "################################################################"
-echo  Deploying "$APP_NAME"ERC721Handler
-echo "################################################################"
-echo
-
-    sed -i '' 's/HANDLER_DIAMOND_TO_DEPLOY=.*/HANDLER_DIAMOND_TO_DEPLOY="Dracula"/g' $ENV_FILE
-
-    forge script script/clientScripts/DeployERC721Handler.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT
-
-    # Retreive the Rule Processor Diamond Address
-    if [ "$LOCAL" = "y" ]; then
-        APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select(.contractName=="HandlerDiamond") | .contractAddress' broadcast/DeployERC721Handler.s.sol/31337/run-latest.json)
-    else
-        APPLICATION_ERC721_1_HANDLER_UNCUT=$(jq '.transactions[] | select(.contractName=="HandlerDiamond") | .contractAddress' broadcast/DeployERC721Handler.s.sol/80001/run-latest.json)
-    fi
-    APPLICATION_ERC721_1_HANDLER="${APPLICATION_ERC721_1_HANDLER_UNCUT//\"}"
-
-    echo $APPLICATION_ERC721_1_HANDLER
-    echo 
-
-# OUTPUT=$(forge create ./src/example/$APP_NAME/$ERC721_HANDLER_FILE_NAME:"$APP_NAME"ERC721Handler --constructor-args $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC721_1 false --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
-
-# INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
-
-# OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-# IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-# APPLICATION_ERC721_1_HANDLER="${outputarray[4]}"
-
-echo export APPLICATION_ERC721_1_HANDLER=$APPLICATION_ERC721_1_HANDLER | tee -a $OUTPUTFILE
-echo
-
-echo "################################################################"
-echo  Deploying first "$APP_NAME"Allowed contract
-echo "################################################################"
-echo
-
-OUTPUT=$(forge create ./src/example/$APP_NAME/$ORACLE_FILE_NAME:"$APP_NAME"Allowed --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
-
-INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
-
-OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-ORACLE_1_HANDLER="${outputarray[4]}"
-
-echo export ORACLE_1_HANDLER=$ORACLE_1_HANDLER | tee -a $OUTPUTFILE
-echo
-
-echo "################################################################"
-echo  Deploying second "$APP_NAME"Allowed contract
-echo "################################################################"
-echo
-
-OUTPUT=$(forge create ./src/example/$APP_NAME/$ORACLE_FILE_NAME:"$APP_NAME"Allowed --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL $GAS_ARGUMENT)
-
-INBETWEEN=$(echo $OUTPUT | sed 's/^.*Deployer/Deployer/')
-
-OUTPUTARRAY=$(echo $INBETWEEN | tr '\n' ' ')
-IFS=': ' read -r -a outputarray <<< "$OUTPUTARRAY"
-ORACLE_2_HANDLER="${outputarray[4]}"
-
-echo export ORACLE_2_HANDLER=$ORACLE_2_HANDLER | tee -a $OUTPUTFILE
-echo
-
-echo "################################################################"
-echo  Connect ApplicationHandler to ApplicationManager
-echo "################################################################"
-echo
-
-cast send $APPLICATION_APP_MANAGER "setNewApplicationHandlerAddress(address)" $APPLICATION_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL
-
-echo "################################################################"
-echo  Connect handler to ERC721
-echo "################################################################"
-echo
-
-cast send $APPLICATION_ERC721_1_HANDLER "initialize(address, address, address)" $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC721_1 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL 
-
-cast send $APPLICATION_ERC721_1 "connectHandlerToToken(address)" $APPLICATION_ERC721_1_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL 
-
-echo "################################################################"
-echo  Register ERC721 with App Manager
-echo "################################################################"
-echo
-
-cast send $APPLICATION_APP_MANAGER "registerToken(string,address)" "FRANKPIC" $APPLICATION_ERC721_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL 
-
-echo "################################################################"
-echo  Connect handler to ERC20
-echo "################################################################"
-echo
-
-cast send $APPLICATION_ERC20_1_HANDLER "initialize(address, address, address)" $RULE_PROCESSOR_DIAMOND $APPLICATION_APP_MANAGER $APPLICATION_ERC20_1 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL 
-
-cast send $APPLICATION_ERC20_1 "connectHandlerToToken(address)" $APPLICATION_ERC20_1_HANDLER --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL 
-
-echo "################################################################"
-echo  Register ERC20 with App Manager
-echo "################################################################"
-echo
-
-cast send $APPLICATION_APP_MANAGER "registerToken(string,address)" "ufta" $APPLICATION_ERC20_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL 
 
 echo "################################################################"
 echo  Mint a billion coins
 echo "################################################################"
 echo
+
+echo $APP_ADMIN_1
+echo $APP_ADMIN_1_KEY
+echo $APPLICATION_ERC20_1
 
 cast send $APPLICATION_ERC20_1 "mint(address,uint256)" $APP_ADMIN_1 10000000000000000000000000000000 --private-key $APP_ADMIN_1_KEY --from $APP_ADMIN_1 --rpc-url $ETH_RPC_URL
 
@@ -465,8 +298,6 @@ echo
 # Comment the following line out to see the oracle rule fail
 
 cast send $ORACLE_1_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
-
-cast send $ORACLE_2_HANDLER "addAddressToApprovedList(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
 echo  Create Account Min/Max Token Balance Rule

@@ -89,8 +89,13 @@ This script is responsible for deploying all the protocol contracts. Take into a
 
 #### Deploy Some Test Game Tokens
 
-`src/example/script/ApplicationDeployAll.s.sol`
-This script deploys the contracts that are specific for games, emulating the steps that a application dev would follow. This script deploys 2 ERC20s and 2 ERC721 tokens, among the other setup contracts.
+`script/clientScripts/Application_Deploy_01_AppManager.s.sol`
+`script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol`
+`script/clientScripts/Application_Deploy_03_ApplicationFT2.s.sol`
+`script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol`
+`script/clientScripts/Application_Deploy_05_Oracle.s.sol`
+`script/clientScripts/Application_Deploy_06_Pricing.s.sol`
+These scripts deploy the contracts that are specific for games, emulating the steps that a application dev would follow. They will deploy 2 ERC20s and 2 ERC721 tokens, among the other setup contracts.
 
 If anvil is not listening to the commands in the scripts, make sure you have exported the local foundry profile `export FOUNDRY_PROFILE=local`.
 
@@ -127,9 +132,6 @@ ACTION_MINT=3
 ACTION_BURN=4
 ...
 ```
-
-`command_test.txt`
-has some list of commands that are intended to be used with Anvil after using the `make deployAll` command which will execute the `script/ApplicationDeployAll.s.sol` file. These commands are meant to save time when testing live in the Anvil local blockchain. It has tests for positivie and negative cases (where reverts are expected). The above command can be combined with`make gameDeployAll` comand which will execute the `src/example/script/ApplicationDeployAll.s.sol` and deploy a couple ERC20 tokens and a couple NFT contracts with their respective protocol-integration contracts.Take into account that a whole new Anvil blockchain should be deployed between tests since the state of the blockchain changes with every transaction in a test, making other tests fail because the initial conditions are different to the ones expected.
 
 ---
 ## Prettier Formatter
