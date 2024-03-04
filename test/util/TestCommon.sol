@@ -13,12 +13,18 @@ import {DiamondInit} from "diamond-std/initializers/DiamondInit.sol";
 import {FacetCut, FacetCutAction} from "diamond-std/core/DiamondCut/DiamondCutLib.sol";
 import {SampleFacet} from "diamond-std/core/test/SampleFacet.sol";
 import {SampleUpgradeFacet} from "src/protocol/diamond/SampleUpgradeFacet.sol";
+import "src/protocol/diamond/ProtocolNativeFacet.sol";
+import "src/protocol/diamond/ProtocolRawFacet.sol";
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 import {VersionFacet} from "src/protocol/diamond/VersionFacet.sol";
 /// Protocol Diamond imports 
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
+import {ERC721RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol";
+import {RuleApplicationValidationFacet} from "src/protocol/economic/ruleProcessor/RuleApplicationValidationFacet.sol";
+import {ApplicationRiskProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol";
+import {ApplicationPauseProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol";
 import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
@@ -65,6 +71,7 @@ import "src/example/pricing/ApplicationERC721Pricing.sol";
 import "src/example/OracleDenied.sol";
 import "src/example/OracleApproved.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
+import "./CommonAddresses.sol";
 
 
 /**
@@ -75,38 +82,10 @@ import {ActionTypes} from "src/common/ActionEnum.sol";
  * create = set to proper user, deploy contracts, reset user, return the contract
  * _create = deploy contract, return the contract
  */
-abstract contract TestCommon is Test, GenerateSelectors, TestArrays {
+abstract contract TestCommon is Test, GenerateSelectors, TestArrays, CommonAddresses {
     FacetCut[] _ruleProcessorFacetCuts;
-    
 
     uint256 constant ATTO = 10 ** 18;
-
-    // common addresses
-    address superAdmin = address(0xDaBEEF);
-    address appAdministrator = address(0xDEAD);
-    address ruleBypassAccount = address(0xAAA);
-    address ruleAdmin = address(0xACDC);
-    address accessLevelAdmin = address(0xBBB);
-    address riskAdmin = address(0xCCC);
-    address user = address(0xDDD);
-    address bob = address(0xB0B);
-    address user1 = address(11);
-    address user2 = address(22);
-    address user3 = address(33);
-    address user4 = address(44);
-    address user5 = address(55);
-    address user6 = address(66);
-    address user7 = address(77);
-    address user8 = address(88);
-    address user9 = address(99);
-    address user10 = address(100);
-    address transferFromUser = address(110);
-    address accessLevel = address(3);
-    address rich_user = address(45);
-    address proxyOwner = address(787);
-    address priorAddress;
-    address[] badBoys;
-    address[] goodBoys;
 
     // shared objects
     RuleProcessorDiamond public ruleProcessor;

@@ -84,7 +84,11 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         return true;
     }
 
-    
-
-    
+    /**
+     * @dev This function returns the configured application manager's address.
+     * @return appManagerAddress address of the connected application manager
+     */
+    function getAppManagerAddress() external view returns(address){
+        return address(lib.handlerBaseStorage().appManager);
+    }
 }
