@@ -2,22 +2,38 @@
 
 ## General Invariants
 
+### All Rules - Storage
+
 - The total amount of rules will never decrease.
 - There can be only a total of 2**32 of each rule type.
 - The next ruleId created in a specific rule type will always be the same as the previous ruleId + 1.
 - The biggest ruleId in a rule type will always be the same as the total amount of rules registered in the protocol for that rule type - 1.
 - Rules can never be erased from the blockchain.
 - Rules can never be modified.
-- There is a total of 5 possible access levels that can be applied to an account which are positive integers from 0 to 4.
-- There is a total of 100 possible risk scores that can be applied to an account which are positive integers from 0 to 99. *We have to check this. The logic actually allows only until 98*
-- An account can have a maximum of 10 tags registered in the application.
+
+### All Rules - Processing and Application
+
 - Rules that depend on a period of time, depend on a non-rolling period. This means that each period starts and ends at a fixed time, and it has no memory of past periods.
 - Rules can be applied independently which means that a token, AMM or application can have none, some or all possible rules activated.
 - The usage of rules is totally open which means that they can be used by any token, applicationManager and/or AMM respectively (or other external type of contract).
-- Only accounts with the role of RuleAdministrator in a protocol-compliant AppManager contract can create rules in the protocol.
 - Rules can be shared by multiple applications and/or assets.
 - Deactivating a rule in one token, AMM or Application does not affect its application in others.
 - Rules at the application level apply to all registered tokens.
+  
+### AppManager
+
+- Only accounts with the role of RuleAdministrator in a protocol-compliant AppManager contract can create rules in the protocol.
+
+### Access Levels
+- There is a total of 5 possible access levels that can be applied to an account which are positive integers from 0 to 4.
+
+### Risk Scores
+- There is a total of 100 possible risk scores that can be applied to an account which are positive integers from 0 to 99. *We have to check this. The logic actually allows only until 98*
+
+### Tags
+
+- An account can have a maximum of 10 tags registered in the application.
+- 
 
 
 ## AppAdministratorOnly and AppAdministratorOnlyU Modifiers
