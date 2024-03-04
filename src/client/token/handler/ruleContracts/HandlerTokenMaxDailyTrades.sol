@@ -24,8 +24,8 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ITokenHandlerEvent
      */
     function setTokenMaxDailyTradesId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {       
         TokenMaxDailyTradesS storage data = lib.tokenMaxDailyTradesStorage();
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxDailyTrades(_ruleId);
         for (uint i; i < _actions.length; ) {
-            IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxDailyTrades(_ruleId);
             data.tokenMaxDailyTrades[_actions[i]].ruleId = _ruleId;
             data.tokenMaxDailyTrades[_actions[i]].active = true;
             emit ApplicationHandlerActionApplied(TOKEN_MAX_DAILY_TRADES, _actions[i], _ruleId);

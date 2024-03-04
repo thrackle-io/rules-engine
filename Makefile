@@ -29,7 +29,6 @@ testAll:; forge test -vv --ffi
 
 # Deploy contracts(singles)
 deployApplicationHandler:; 	forge script script/ApplicationHandlerModule.s.sol --ffi --broadcast -vvv
-deployApplicationManager:;	forge script script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
 deployRuleStorageDiamond:; forge script script/RuleStorageModule.s.sol --ffi --broadcast -vvv
 deployRuleProcessor:; forge script script/RuleProcessorModule.s.sol --ffi --broadcast -vvv
 deployTokenRuleRouter:; forge script script/TokenRuleRouter.s.sol --ffi --broadcast -vvv
@@ -37,11 +36,9 @@ deployTaggedRuleProcessor:; forge script script/TaggedRuleProcessor.s.sol --ffi 
 # Deploy contracts(full protocol)
 deployAll:;	bash script/deploy/DeployProtocol.sh
 # Deploy Application Contracts(singles)
-deployApplicationAppManager:; forge script src/example/script/ApplicationAppManager.s.sol --ffi --broadcast -vvv
 deployApplicationERC20Handler:; forge script src/example/script/ApplicationERC20Handler.s.sol --ffi --broadcast -vvv
 deployApplicationERC20:; forge script src/example/script/ApplicationERC20.s.sol --ffi --broadcast -vvv
 # Deploy Application Contracts(entire application implementation)
-deployAllApp:; forge script script/clientScripts/ApplicationDeployAll.s.sol --ffi  --broadcast -vvv --non-interactive
 deployNewApp:; forge script script/clientScripts/ApplicationUIDeploy.s.sol --ffi  --broadcast -vvv
 
 # Using a different env ref for pipeline deploy command.
@@ -413,8 +410,7 @@ connectDataContractsToNewCoinHandler:;  cast send ${APPLICATION_ERC20_HANDLER_AD
 tokenFee_checkTokenFeeRuleUpgrade2:; cast call ${APPLICATION_ERC20_HANDLER_ADDRESS_2} "getFeeTotal()(uint256)" --private-key ${QUORRA_PRIVATE_KEY} --from ${QUORRA}
 
 #			<><><><><><><><><><><><><><><> Narrative <><><><><><><><><><><><><><><>
-# Deploy the Application App Manager
-applicationDeployAppManager:;	forge script src/example/script/ApplicationAppManager.s.sol --ffi --fork-url http://localhost:8545  --broadcast --verify -vvvv			
+# Deploy the Application App Manager		
 applicationAddAppAdministrator:; cast send ${APPLICATION_APP_MANAGER} "addAppAdministrator(address)" ${CLU}  --private-key ${QUORRA_PRIVATE_KEY}
 applicationCheckAppAdministrator:; cast call ${APPLICATION_APP_MANAGER} "isAppAdministrator(address)(bool)" ${CLU}  --private-key ${QUORRA_PRIVATE_KEY}
 

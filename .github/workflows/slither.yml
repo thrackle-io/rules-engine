@@ -40,7 +40,7 @@ jobs:
         id: slither
         with:
           slither-config: ${{ inputs.CONFIG }}
-          fail-on: none
+          fail-on: low
           sarif: results.sarif
 
       - name: Upload SARIF file

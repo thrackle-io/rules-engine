@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "./IDataModule.sol";
-import {IRiskInputErrors} from "src/common/IErrors.sol";
+import {IRiskInputErrors, IInputErrors} from "src/common/IErrors.sol";
 
 /**
  * @title Risk Scores interface Contract
@@ -10,7 +10,7 @@ import {IRiskInputErrors} from "src/common/IErrors.sol";
  * @dev This interface contains storage and retrieval function definitions
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-interface IRiskScores is IDataModule, IRiskInputErrors {
+interface IRiskScores is IDataModule, IRiskInputErrors, IInputErrors {
     /**
      * @dev Add the risk score to the account. Restricted to the owner
      * @param _address address of the account
@@ -29,6 +29,13 @@ interface IRiskScores is IDataModule, IRiskInputErrors {
      * @param _account address of the account
      */
     function getRiskScore(address _account) external view returns (uint8);
+
+    /**
+     * @dev  Add the Risk Score at index to Account at index in array. Restricted to Risk Admins.
+     * @param _accounts address array upon which to apply the Risk Score
+     * @param _scores Risk Score array (0-100)
+     */
+    function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external;
 
     /**
      * @dev  Add the Risk Score to each address in array. Restricted to Risk Admins.

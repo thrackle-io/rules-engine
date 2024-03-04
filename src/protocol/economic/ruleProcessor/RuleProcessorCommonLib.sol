@@ -17,6 +17,9 @@ library RuleProcessorCommonLib {
      * @dev Validate a user entered timestamp to ensure that it is valid. Validity depends on it being greater than UNIX epoch and not more than 1 year into the future. It reverts with custom error if invalid
      */
     function validateTimestamp(uint64 _startTime) internal view {
+        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+        // slither-disable-next-line timestamp
         if (_startTime == 0 || _startTime > (block.timestamp + (52 * 1 weeks))) {
             revert InvalidTimestamp(_startTime);
         }
@@ -26,20 +29,20 @@ library RuleProcessorCommonLib {
      * @dev Generic function to check the existence of a rule
      * @param _ruleIndex index of the current rule
      * @param _ruleTotal total rules in existence for the rule type
-     * @return _exists true if it exists, false if not
      */
-    function checkRuleExistence(uint32 _ruleIndex, uint32 _ruleTotal) internal pure returns (bool) {
+    function checkRuleExistence(uint32 _ruleIndex, uint32 _ruleTotal) internal pure {
         if (_ruleTotal <= _ruleIndex) {
             revert RuleDoesNotExist();
-        } else {
-            return true;
-        }
+        } 
     }
     
     /**
      * @dev Determine is the rule is active. This is only for use in rules that are stored with activation timestamps.
      */
     function isRuleActive(uint64 _startTime) internal view returns (bool) {
+        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+        // slither-disable-next-line timestamp
         if (_startTime <= block.timestamp) {
             return true;
         } else {
@@ -54,13 +57,18 @@ library RuleProcessorCommonLib {
      * @param _lastTransferTime the last transfer timestamp
      * @return _withinPeriod returns true if current block time is within the rules period, else false.
      */
+     //slither-disable-next-line weak-prng
     function isWithinPeriod(uint64 _startTime, uint32 _period, uint64 _lastTransferTime) internal view returns (bool) {
         /// if no transactions have happened in the past, it's new
         if (_lastTransferTime == 0) {
             return false;
         }
         /// current timestamp subtracted by the remainder of seconds since the rule was active divided by period in seconds
+        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+        // slither-disable-next-line timestamp
         uint256 currentPeriodStart = block.timestamp - ((block.timestamp - _startTime) % (_period * 1 hours));
+        // slither-disable-next-line timestamp
         if (_lastTransferTime >= currentPeriodStart) {
             return true;
         } else {
@@ -93,28 +101,25 @@ library RuleProcessorCommonLib {
      * @return maxValue uint256 max value for the risk score for rule validation
      */
     function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskScores, uint48[] memory _maxValues) internal pure returns(uint256){
-        uint256 maxValue;
         for (uint256 i = 1; i < _riskScores.length;) {
             if (_riskScore < _riskScores[i]) {
-                maxValue = uint(_maxValues[i - 1]) * (10 ** 18); 
-                return maxValue;
+                return uint(_maxValues[i - 1]) * (10 ** 18); 
             } 
             unchecked {
                 ++i;
             }
         }
         if (_riskScore >= _riskScores[_riskScores.length - 1]) {
-            maxValue = uint(_maxValues[_maxValues.length - 1]) * (10 ** 18);
+            return uint(_maxValues[_maxValues.length - 1]) * (10 ** 18);
         }
-        return maxValue; 
+        return 0; 
     }
 
      /**
      * @dev validate tags to ensure only a blank or valid tags were submitted.
      * @param _accountTags the timestamp the rule was enabled
-     * @return _valid returns true if tag entry is valid
      */
-    function areTagsValid(bytes32[] calldata _accountTags) internal pure returns (bool) {
+    function validateTags(bytes32[] calldata _accountTags) internal pure {
         /// If more than one tag, none can be blank.
         if (_accountTags.length > 1){
             for (uint256 i; i < _accountTags.length; ) {
@@ -124,6 +129,5 @@ library RuleProcessorCommonLib {
                 }
             }
         }
-        return true;
     } 
 }

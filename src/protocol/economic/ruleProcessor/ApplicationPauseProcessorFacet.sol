@@ -21,6 +21,9 @@ contract ApplicationPauseProcessorFacet is ERC173, IPauseRuleErrors {
         PauseRule[] memory pauseRules = IAppManager(_appManagerAddress).getPauseRules();
         for (uint256 i; i < pauseRules.length; ) {
             PauseRule memory rule = pauseRules[i];
+            // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
+            // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
+            // slither-disable-next-line timestamp
             if (block.timestamp >= rule.pauseStart && block.timestamp < rule.pauseStop) {
                 revert ApplicationPaused(rule.pauseStart, rule.pauseStop);
             }

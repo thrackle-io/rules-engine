@@ -44,11 +44,10 @@ contract ApplicationERC721UProxy is ERC1967Proxy {
      * @dev Modifier used internally that will delegate the call to the implementation unless the sender is the admin.
      */
     modifier ifAdmin() {
-        if (msg.sender == _getAdmin()) {
-            _;
-        } else {
-            _fallback();
-        }
+        if (msg.sender != _getAdmin()) {
+            revert("Not Authorized.");
+        } 
+        _;
     }
 
     /**

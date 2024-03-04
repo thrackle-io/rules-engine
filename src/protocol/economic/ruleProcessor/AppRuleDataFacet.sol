@@ -47,8 +47,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
             }
         }
         ++data.accountMaxValueByAccessLevelIndex;
-        bytes32[] memory empty;
-        emit ProtocolRuleCreated(ACC_MAX_VALUE_BY_ACCESS_LEVEL, index, empty);
+        emit ProtocolRuleCreated(ACC_MAX_VALUE_BY_ACCESS_LEVEL, index, new bytes32[](0));
         return index;
     }
 
@@ -78,8 +77,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
             }
         }
         ++data.accountMaxValueOutByAccessLevelIndex;
-        bytes32[] memory empty;
-        emit ProtocolRuleCreated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, index, empty);
+        emit ProtocolRuleCreated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, index, new bytes32[](0));
         return index;
     }
 
@@ -138,8 +136,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         ApplicationRuleStorage.AccountMaxTxValueByRiskScore memory rule = ApplicationRuleStorage.AccountMaxTxValueByRiskScore(_maxValue, _riskScore, _period, _startTime);
         data.accountMaxTxValueByRiskScoreRules[ruleId] = rule;
         ++data.accountMaxTxValueByRiskScoreIndex;
-        bytes32[] memory empty;
-        emit ProtocolRuleCreated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, ruleId, empty);
+        emit ProtocolRuleCreated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, ruleId, new bytes32[](0));
         return ruleId;
     }
 
@@ -195,9 +192,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         ApplicationRuleStorage.AccountMaxValueByRiskScore memory rule = ApplicationRuleStorage.AccountMaxValueByRiskScore(_riskScores, _maxValue);
         data.accountMaxValueByRiskScoreRules[ruleId] = rule;
         ++data.accountMaxValueByRiskScoreIndex;
-        bytes32[] memory empty;
-        emit ProtocolRuleCreated(BALANCE_BY_RISK, ruleId, empty);
+        emit ProtocolRuleCreated(BALANCE_BY_RISK, ruleId, new bytes32[](0));
         return ruleId;
     }
-
 }

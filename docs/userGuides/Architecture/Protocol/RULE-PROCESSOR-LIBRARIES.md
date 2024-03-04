@@ -150,7 +150,7 @@ Tag validation:
 * @param _accountTags the timestamp the rule was enabled
 * @return _valid returns true if tag entry is valid
 */
-function areTagsValid(bytes32[] calldata _accountTags) internal pure returns (bool) {
+function validateTags(bytes32[] calldata _accountTags) internal pure returns (bool) {
     /// If more than one tag, none can be blank.
     if (_accountTags.length > 1){
         for (uint256 i; i < _accountTags.length; ) {

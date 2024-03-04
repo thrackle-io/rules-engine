@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 import "src/client/application/data/Accounts.sol";
 import "src/client/application/data/IAccounts.sol";
@@ -28,7 +29,7 @@ import {IAppLevelEvents} from "src/common/IEvents.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is the permissions contract
  */
-contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
+contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, ReentrancyGuard {
     string private constant VERSION = "1.1.0";
     using ERC165Checker for address;
     bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
@@ -139,10 +140,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param role the role to revoke.
      * @param account address of revoked role.
      */
-    function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
+    function revokeRole(bytes32 role, address account) public virtual nonReentrant override(AccessControl, IAccessControl) {
         /// enforcing the min-1-admin requirement.
         if(role == SUPER_ADMIN_ROLE) revert BelowMinAdminThreshold();
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+        // applied to this function
+        // slither-disable-next-line reentrancy-benign
         if(role == RULE_BYPASS_ACCOUNT) checkForAdminMinTokenBalanceCapable();
+        // slither-disable-next-line reentrancy-events
         AccessControl.revokeRole(role, account);
     }
 
@@ -166,9 +171,22 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
     function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROLE) {
         if(account == address(0)) revert ZeroAddress();
         if(getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE) > 0){
-            revokeRole(PROPOSED_SUPER_ADMIN_ROLE, getRoleMember(PROPOSED_SUPER_ADMIN_ROLE, 0));
+            updateProposedRole(account);
+        } else {
+            super.grantRole(PROPOSED_SUPER_ADMIN_ROLE, account);
         }
-        super.grantRole(PROPOSED_SUPER_ADMIN_ROLE, account);
+        
+    }
+
+    /**
+     * A function used specifically for moving the proposed super admin from one account
+     * to another. Allows revoke and grant to be called in the same function without the possibility 
+     * of re-entrancy. 
+     * @param newAddress the new Proposed Super Admin account.
+     */
+    function updateProposedRole(address newAddress) private onlyRole(SUPER_ADMIN_ROLE) {
+        AccessControl.revokeRole(PROPOSED_SUPER_ADMIN_ROLE, getRoleMember(PROPOSED_SUPER_ADMIN_ROLE, 0));
+        super.grantRole(PROPOSED_SUPER_ADMIN_ROLE, newAddress);
     }
 
     /**
@@ -308,10 +326,14 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev Remove oneself from the rule bypass account role.
      * @notice This function checks for the AdminMinTokenBalance status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active. 
      */
-    function renounceRuleBypassAccount() external {
+    function renounceRuleBypassAccount() external nonReentrant {
         /// If the AdminMinTokenBalanceCapable rule is active, Rule Bypass Accounts are not allowed to renounce their role to prevent manipulation of the rule
         checkForAdminMinTokenBalanceCapable();
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+        // applied to this function
+        // slither-disable-next-line reentrancy-benign
         renounceRole(RULE_BYPASS_ACCOUNT, _msgSender());
+        // slither-disable-next-line reentrancy-events
         emit RuleBypassAccount(_msgSender(), false);
     }
 
@@ -320,7 +342,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev ruleBypassAccount is the only RBAC Role subjected to this rule as this role bypasses all other rules. 
      */
     function checkForAdminMinTokenBalanceCapable() internal {
-        for (uint256 i; i < tokenList.length; ) {
+        uint256 length = tokenList.length;
+        for (uint256 i; i < length; ) {
             // check to see if supports the rule first
             if (ProtocolTokenCommon(tokenList[i]).getHandlerAddress().supportsInterface(type(IAdminMinTokenBalanceCapable).interfaceId)) {
                 if (IAdminMinTokenBalanceCapable(ProtocolTokenCommon(tokenList[i]).getHandlerAddress()).isAdminMinTokenBalanceActiveAndApplicable()) {
@@ -442,13 +465,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _level Access Level array to add
      */
     function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyRole(ACCESS_LEVEL_ADMIN_ROLE) {
-        if (_level.length != _accounts.length) revert InputArraysMustHaveSameLength();
-        for (uint256 i; i < _accounts.length; ) {
-            accessLevels.addLevel(_accounts[i], _level[i]);
-            unchecked {
-                ++i;
-            }
-        }
+        accessLevels.addMultipleAccessLevels(_accounts, _level);
     }
 
     /**
@@ -494,13 +511,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @param _scores Risk Score array (0-100)
      */
     function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyRole(RISK_ADMIN_ROLE) {
-        if (_scores.length != _accounts.length) revert InputArraysMustHaveSameLength();
-        for (uint256 i; i < _accounts.length; ) {
-            riskScores.addScore(_accounts[i], _scores[i]);
-            unchecked {
-                ++i;
-            }
-        }
+        riskScores.addMultipleRiskScores(_accounts, _scores);
     }
 
     /**
@@ -600,13 +611,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @notice there is a hard limit of 10 tags per address.
      */
     function addMultipleTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tags) external onlyRole(APP_ADMIN_ROLE) {
-        if (_accounts.length != _tags.length) revert InputArraysMustHaveSameLength();
-        for (uint256 i; i < _accounts.length; ) {
-            tags.addTag(_accounts[i], _tags[i]);
-            unchecked {
-                ++i;
-            }
-        }
+        tags.addMultipleTagToMultipleAccounts(_accounts, _tags);
     }
 
     /**
@@ -1050,33 +1055,40 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents {
      * @dev This function is used to propose the new owner for data contracts.
      * @param _newOwner address of the new AppManager
      */
-    function proposeDataContractMigration(address _newOwner) external onlyRole(APP_ADMIN_ROLE) {
+    function proposeDataContractMigration(address _newOwner) external nonReentrant() onlyRole(APP_ADMIN_ROLE) {
         accounts.proposeOwner(_newOwner);
         accessLevels.proposeOwner(_newOwner);
         riskScores.proposeOwner(_newOwner);
         tags.proposeOwner(_newOwner);
         pauseRules.proposeOwner(_newOwner);
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+        // applied to this function
+        // slither-disable-next-line reentrancy-events
         emit AppManagerDataUpgradeProposed(_newOwner, address(this));
     }
 
     /**
      * @dev This function is used to confirm this contract as the new owner for data contracts.
      */
-    function confirmDataContractMigration(address _oldAppManagerAddress) external onlyRole(APP_ADMIN_ROLE) {
+    function confirmDataContractMigration(address _oldAppManagerAddress) external nonReentrant onlyRole(APP_ADMIN_ROLE) {
         AppManager oldAppManager = AppManager(_oldAppManagerAddress);
         accounts = Accounts(oldAppManager.getAccountDataAddress());
-        accounts.confirmOwner();
         accessLevels = IAccessLevels(oldAppManager.getAccessLevelDataAddress());
-        accessLevels.confirmOwner();
         riskScores = RiskScores(oldAppManager.getRiskDataAddress());
-        riskScores.confirmOwner();
         tags = Tags(oldAppManager.getTagsDataAddress());
-        tags.confirmOwner();
         pauseRules = PauseRules(oldAppManager.getPauseRulesDataAddress());
+        accounts.confirmOwner();
+        accessLevels.confirmOwner();
+        riskScores.confirmOwner();
+        tags.confirmOwner();
         pauseRules.confirmOwner();
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+        // applied to this function
+        // slither-disable-next-line reentrancy-events
         emit DataContractsMigrated(address(this));
     }
 
+    
     /**
      * @dev Part of the two step process to set a new Data Provider within a Protocol AppManager. Final confirmation called by new provider
      * @param _providerType the type of data provider
