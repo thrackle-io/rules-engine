@@ -46,3 +46,14 @@ For the full interface, see [IProtocolERC721Pricing](../../../src/common/IProtoc
 For the full interface, see [IProtocolERC20Pricing](../../../src/common/IProtocolERC20Pricing.sol).
 
 Developers may choose to implement and deploy an adapter contract per token standard (one for ERC20 and another for ERC721), or to implement both in a single contract to deploy. No matter the route taken, the appManager Handler must have **both** pricer addresses set in order to properly work.
+
+### Upgrading: 
+
+To upgrade the pricing contract, ensure your new pricing contract is deployed to the same network your [Application Handler](../Architecture/Client/Application/APPLICATION-HANDLER.md) is deployed to. Next, you will call the function `setERC20Pricing` from the Application Handler contract. 
+
+
+```c
+function setERC20PricingAddress(address _address) external ruleAdministratorOnly(appManagerAddress)
+```
+
+The set functions requires the caller to be a [rule administrator](../permissions/ADMIN-ROLES.md). Each pricing contract must conform to the [IProtocolERC20Pricing](../../../src/common/IProtocolERC20Pricing.sol).

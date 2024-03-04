@@ -10,7 +10,7 @@ Each Protocol supported asset type (ERC20, ERC721, etc) will need one handler di
 - [Protocol Fungible Handler](./PROTOCOL-FUNGIBLE-TOKEN-HANDLER.md) 
 - [Protocol NonFungible Handler](./PROTOCOL-NONFUNGIBLE-TOKEN-HANDLER.md) 
 
-#### *[see diamond diagram](INSERT LINK AFTER REBASE)*
+#### *[see diamond diagram](../../../images/ApplicationDeployment.png)*
 
 ### Diamond Pattern
 
