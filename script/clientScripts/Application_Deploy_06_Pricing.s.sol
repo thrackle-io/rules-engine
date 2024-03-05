@@ -33,6 +33,7 @@ contract ApplicationDeployPricingScript is Script {
     address ownerAddress;
     uint256 appAdminKey;
     address appAdminAddress;
+    uint256 ruleAdminKey;
 
     function setUp() public {}
 
@@ -48,24 +49,24 @@ contract ApplicationDeployPricingScript is Script {
         ApplicationERC721Pricing openOcean = new ApplicationERC721Pricing();
         ApplicationERC20Pricing exchange = new ApplicationERC20Pricing();
 
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY_01");
-        appAdminAddress = vm.envAddress("APP_ADMIN_01");
-        vm.stopBroadcast();
-        vm.startBroadcast(appAdminKey);
-
         exchange.setSingleTokenPrice(vm.envAddress("APPLICATION_ERC20_ADDRESS"), 1 * (10 ** 18));
         // exchange.setSingleTokenPrice(vm.envAddress("APPLICATION_ERC20_ADDRESS_2"), 1 * (10 ** 18));
         openOcean.setNFTCollectionPrice(vm.envAddress("APPLICATION_ERC721_ADDRESS_1"), 5 * (10 ** 18));
 
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY_01");
+        appAdminAddress = vm.envAddress("APP_ADMIN_01");
+        vm.stopBroadcast();
+        vm.startBroadcast(appAdminKey);
         applicationAppManager.addRuleAdministrator(vm.envAddress("LOCAL_RULE_ADMIN"));
-
+        /// register the coin treasury
+        applicationAppManager.registerTreasury(vm.envAddress("FEE_TREASURY"));
+        
+        ruleAdminKey = vm.envUint("LOCAL_RULE_ADMIN_KEY");
+        vm.stopBroadcast();
+        vm.startBroadcast(ruleAdminKey);
         /// Link the pricing module to the Asset Handlers
         applicationHandler.setERC20PricingAddress(address(exchange));
         applicationHandler.setNFTPricingAddress(address(openOcean));
-
-
-        /// register the coin treasury
-        applicationAppManager.registerTreasury(vm.envAddress("FEE_TREASURY"));
 
         vm.stopBroadcast();
     }
