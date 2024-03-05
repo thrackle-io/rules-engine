@@ -44,26 +44,15 @@ abstract contract TestCommonFoundry is TestCommon {
         ProtocolNativeFacet protocolNativeFacet = new ProtocolNativeFacet();
         ProtocolRawFacet protocolRawFacet = new ProtocolRawFacet();
         VersionFacet versionFacet = new VersionFacet();
-        string[] memory inputs = _createCommandArray();
 
         // Native
-        // Get the facet selectors.
-        inputs[2] = "ProtocolNativeFacet";
-        bytes memory res = vm.ffi(inputs);
-        bytes4[] memory selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(protocolNativeFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(protocolNativeFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ProtocolNativeFacet")}));
 
         // Raw
-        inputs[2] = "ProtocolRawFacet";
-        res = vm.ffi(inputs);
-        selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(protocolRawFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(protocolRawFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ProtocolRawFacet")}));
 
         // Version
-        inputs[2] = "VersionFacet";
-        res = vm.ffi(inputs);
-        selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(versionFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(versionFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("VersionFacet")}));
 
     }
 
@@ -78,51 +67,24 @@ abstract contract TestCommonFoundry is TestCommon {
         ERC721TaggedRuleProcessorFacet erc721TaggedRuleProcessorFacet = new ERC721TaggedRuleProcessorFacet();
         ERC20TaggedRuleProcessorFacet erc20TaggedRuleProcessorFacet = new ERC20TaggedRuleProcessorFacet();
 
-        string[] memory inputs = _createCommandArray();
-
         // Standard
-        // Get the facet selectors.
-        inputs[2] = "ERC20RuleProcessorFacet";
-        bytes memory res = vm.ffi(inputs);
-        bytes4[] memory selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(erc20RuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(erc20RuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ERC20RuleProcessorFacet")}));
 
-        inputs[2] = "ERC721RuleProcessorFacet";
-        res = vm.ffi(inputs);
-        selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(erc721RuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(erc721RuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ERC721RuleProcessorFacet")}));
 
-        inputs[2] = "ApplicationRiskProcessorFacet";
-        res = vm.ffi(inputs);
-        selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(applicationRiskProcessorFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(applicationRiskProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ApplicationRiskProcessorFacet")}));
 
-        inputs[2] = "ApplicationAccessLevelProcessorFacet";
-        res = vm.ffi(inputs);
-        selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(applicationAccessLevelProcessorFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(applicationAccessLevelProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ApplicationAccessLevelProcessorFacet")}));
 
-        inputs[2] = "ApplicationPauseProcessorFacet";
-        res = vm.ffi(inputs);
-        selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(applicationPauseProcessorFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(applicationPauseProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ApplicationPauseProcessorFacet")}));
 
         // Tagged 
-        inputs[2] = "ERC20TaggedRuleProcessorFacet";
-        res = vm.ffi(inputs);
-        selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(erc20TaggedRuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(erc20TaggedRuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ERC20TaggedRuleProcessorFacet")}));
 
-        inputs[2] = "ERC721TaggedRuleProcessorFacet";
-        res = vm.ffi(inputs);
-        selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(erc721TaggedRuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(erc721TaggedRuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ERC721TaggedRuleProcessorFacet")}));
 
         // Validation
-        inputs[2] = "RuleApplicationValidationFacet";
-        res = vm.ffi(inputs);
-        selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(ruleApplicationValidationFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(ruleApplicationValidationFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("RuleApplicationValidationFacet")}));
     }
 
 function _addStorageFacetsToFacetCut() public {
@@ -130,35 +92,26 @@ function _addStorageFacetsToFacetCut() public {
         RuleDataFacet ruleDataFacet = new RuleDataFacet();
         TaggedRuleDataFacet taggedRuleDataFacet = new TaggedRuleDataFacet();
         AppRuleDataFacet appRuleDataFacet = new AppRuleDataFacet();
-        string[] memory inputs = _createCommandArray();
 
         // Standard
-        // Get the facet selectors.
-        inputs[2] = "RuleDataFacet";
-        bytes memory res = vm.ffi(inputs);
-        bytes4[] memory selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(ruleDataFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(ruleDataFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("RuleDataFacet")}));
 
-        inputs[2] = "AppRuleDataFacet";
-        res = vm.ffi(inputs);
-        selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(appRuleDataFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(appRuleDataFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("AppRuleDataFacet")}));
     
-        inputs[2] = "TaggedRuleDataFacet";
-        res = vm.ffi(inputs);
-        selectors = abi.decode(res, (bytes4[]));
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(taggedRuleDataFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
+        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(taggedRuleDataFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("TaggedRuleDataFacet")}));
    
     }
     /**
-     * @dev Create the command array for calling python inspection script
-     * @return _inputs loaded command array
+     * @dev Create the selector array for the facet
+     * @return _selectors loaded selector array
      */
-    function _createCommandArray() public returns(string[] memory _inputs){
-        _inputs = new string[](3);
+    function _createSelectorArray(string memory _facet) public returns(bytes4[] memory _selectors){
+        string[] memory _inputs = new string[](3);
         _inputs[0] = "python3";
         _inputs[1] = "script/python/get_selectors.py";
-        return _inputs;
+        _inputs[2] = _facet;
+        bytes memory res = vm.ffi(_inputs);
+        return abi.decode(res, (bytes4[]));
     }
 
     /**
@@ -187,7 +140,6 @@ function _addStorageFacetsToFacetCut() public {
             "FeesFacet"
         ];
 
-        string[] memory inputs = _createCommandArray();
 
         // Loop on each facet, deploy them and create the FacetCut.
         for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
@@ -200,13 +152,8 @@ function _addStorageFacetsToFacetCut() public {
                 facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
             }
 
-            // Get the facet selectors.
-            inputs[2] = facet;
-            bytes memory res = vm.ffi(inputs);
-            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
-
             // Create the FacetCut struct for this facet.
-            _erc20HandlerFacetCuts[facetIndex] = FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors});
+            _erc20HandlerFacetCuts[facetIndex] = FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: _createSelectorArray(facet)});
         }
 
         // Build the DiamondArgs.
@@ -247,7 +194,6 @@ function _addStorageFacetsToFacetCut() public {
             "TradingRuleFacet"
         ];
 
-        string[] memory inputs = _createCommandArray();
 
         // Loop on each facet, deploy them and create the FacetCut.
         for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
@@ -260,13 +206,8 @@ function _addStorageFacetsToFacetCut() public {
                 facetAddress := create(0, add(bytecode, 0x20), mload(bytecode))
             }
 
-            // Get the facet selectors.
-            inputs[2] = facet;
-            bytes memory res = vm.ffi(inputs);
-            bytes4[] memory selectors = abi.decode(res, (bytes4[]));
-
             // Create the FacetCut struct for this facet.
-            _erc721HandlerFacetCuts[facetIndex] = FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: selectors});
+            _erc721HandlerFacetCuts[facetIndex] = FacetCut({facetAddress: facetAddress, action: FacetCutAction.Add, functionSelectors: _createSelectorArray(facet)});
         }
 
         // Build the DiamondArgs.
