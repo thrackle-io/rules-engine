@@ -122,7 +122,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
             vm.startPrank(user1);
         } else {
-            vm.startPrank(appAdministrator);
+            switchToAppAdministrator();
         }
         vm.expectRevert("UNAUTHORIZED");
         VersionFacet(address(ruleProcessor)).updateVersion("6,6,6"); // this is done to avoid upgrade_version-script replace this version
@@ -183,7 +183,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
             vm.startPrank(user1);
         } else {
-            vm.startPrank(superAdmin);
+            switchToSuperAdmin();
         }
         vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(address(applicationAppManager), accs, pAmounts, pPeriods, sTime);
@@ -196,7 +196,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
         assertEq(_index, 0);
     }
 
-    /// Test mismatched arrays sizgites
+    /// Test mismatched arrays sizes
     function testAccountMaxBuySizeSettingWithArraySizeMismatch() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
