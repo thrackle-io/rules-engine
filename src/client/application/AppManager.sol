@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {ActionTypes} from "src/common/ActionEnum.sol";
 import "src/client/application/data/Accounts.sol";
 import "src/client/application/data/IAccounts.sol";
 import "src/client/application/data/IAccessLevels.sol";
@@ -22,6 +21,7 @@ import "src/client/token/IAdminMinTokenBalanceCapable.sol";
 import "src/client/token/ProtocolTokenCommon.sol";
 import "src/client/token/HandlerTypeEnum.sol";
 import {IAppLevelEvents} from "src/common/IEvents.sol";
+import {ActionTypes} from "src/common/ActionEnum.sol";
 
 /**
  * @title App Manager Contract
@@ -88,9 +88,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
      * @param upgradeMode specifies whether this is a fresh AppManager or an upgrade replacement.
      */
     constructor(address root, string memory _appName, bool upgradeMode) {
-        // deployer is set as both an AppAdmin and the Super Admin
+        // deployer is set as the Super Admin
         _grantRole(SUPER_ADMIN_ROLE, root);
-        _grantRole(APP_ADMIN_ROLE, root);
         _setRoleAdmin(APP_ADMIN_ROLE, SUPER_ADMIN_ROLE);
         _setRoleAdmin(ACCESS_LEVEL_ADMIN_ROLE, APP_ADMIN_ROLE);
         _setRoleAdmin(RISK_ADMIN_ROLE, APP_ADMIN_ROLE);

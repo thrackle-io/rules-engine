@@ -1057,26 +1057,25 @@ function testERC721_TokenMaxDailyTrades() public {
     
 
     function testERC721_UpgradeAppManager721() public {
-        address newAdmin = address(75);
         /// create a new app manager
         ApplicationAppManager _applicationAppManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
         /// propose a new AppManager
         applicationNFT.proposeAppManagerAddress(address(_applicationAppManager2));
+        /// give new admin app administator role 
+        switchToNewAdmin();
+        _applicationAppManager2.addAppAdministrator(address(appAdministrator));
         /// confirm the app manager
-        vm.stopPrank();
-        vm.startPrank(newAdmin);
+        switchToAppAdministrator();
         _applicationAppManager2.confirmAppManager(address(applicationNFT));
         /// test to ensure it still works
         applicationNFT.safeMint(appAdministrator);
-        vm.stopPrank();
-        vm.startPrank(appAdministrator);
+
         applicationNFT.transferFrom(appAdministrator, user, 0);
         assertEq(applicationNFT.balanceOf(appAdministrator), 0);
         assertEq(applicationNFT.balanceOf(user), 1);
 
         /// Test fail scenarios
-        vm.stopPrank();
-        vm.startPrank(newAdmin);
+        switchToAppAdministrator();
         // zero address
         vm.expectRevert(0xd92e233d);
         applicationNFT.proposeAppManagerAddress(address(0));
@@ -1086,6 +1085,9 @@ function testERC721_TokenMaxDailyTrades() public {
         // non proposer tries to confirm
         applicationNFT.proposeAppManagerAddress(address(_applicationAppManager2));
         ApplicationAppManager applicationAppManager3 = new ApplicationAppManager(newAdmin, "Castlevania3", false);
+        switchToNewAdmin();
+        applicationAppManager3.addAppAdministrator(address(appAdministrator));
+        switchToAppAdministrator();
         vm.expectRevert(0x41284967);
         applicationAppManager3.confirmAppManager(address(applicationNFT));
     }

@@ -1162,8 +1162,6 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     function _setupAccountMaxSellSize() internal {
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
         ///Add tag to user
         applicationAppManager.addTag(user1, "AccountMaxSellSize");
         applicationAppManager.addTag(user2, "AccountMaxSellSize");

@@ -711,22 +711,22 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         /// mint initial supply
         uint256 initialSupply = 100_000 * (10 ** 18);
         uint256 volume = uint256(volLimit) * 10;
-        applicationCoin.mint(appAdministrator, initialSupply); 
-        applicationAppManager.addRuleBypassAccount(appAdministrator);
+        applicationCoin.mint(ruleBypassAccount, initialSupply); 
+        switchToRuleBypassAccount();
         /// create and activate rule
         uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
         vm.startPrank(user1);
-        if (user1 != appAdministrator) {
+        if (user1 != ruleBypassAccount) {
             if (amount > initialSupply - volume) {
                 vm.expectRevert(0xc406d470);
                 applicationCoin.mint(user1, amount);
             }
         }
         // /// test burn
-        if (user1 != appAdministrator) {
+        if (user1 != ruleBypassAccount) {
             if (amount > uint(applicationCoin.totalSupply()) - volume) {
                 vm.expectRevert(0xc406d470);
                 applicationCoin.burn(amount);
@@ -735,9 +735,9 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
 
         /// reset the total supply
         {
-            switchToAppAdministrator();
+            switchToRuleBypassAccount();
             applicationCoin.burn(applicationCoin.totalSupply());
-            applicationCoin.mint(appAdministrator, initialSupply);
+            applicationCoin.mint(ruleBypassAccount, initialSupply);
             vm.warp(Blocktime + 36 hours);
 
             vm.stopPrank();
@@ -747,12 +747,12 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
             vm.expectRevert();
             applicationCoin.mint(user1, transferAmount);
 
-            applicationCoin.transfer(appAdministrator, applicationCoin.balanceOf(user1));
+            applicationCoin.transfer(ruleBypassAccount, applicationCoin.balanceOf(user1));
         }
         /// test minimum volatility limits
-        switchToAppAdministrator();
-        applicationCoin.burn(applicationCoin.balanceOf(appAdministrator));
-        applicationCoin.mint(appAdministrator, initialSupply);
+        switchToRuleBypassAccount();
+        applicationCoin.burn(applicationCoin.balanceOf(ruleBypassAccount));
+        applicationCoin.mint(ruleBypassAccount, initialSupply);
         console.logUint(applicationCoin.totalSupply());
         vm.warp(Blocktime + 96 hours);
         uint16 volatilityLimit = 1; /// 0.01%
@@ -767,10 +767,10 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.mint(user1, 1_000_000_000_000_000); /// 0.0001 tokens
 
         /// test above 100% volatility limits
-        applicationCoin.transfer(appAdministrator, applicationCoin.balanceOf(user1));
-        switchToAppAdministrator();
-        applicationCoin.burn(applicationCoin.balanceOf(appAdministrator));
-        applicationCoin.mint(appAdministrator, initialSupply);
+        applicationCoin.transfer(ruleBypassAccount, applicationCoin.balanceOf(user1));
+        switchToRuleBypassAccount();
+        applicationCoin.burn(applicationCoin.balanceOf(ruleBypassAccount));
+        applicationCoin.mint(ruleBypassAccount, initialSupply);
         console.logUint(applicationCoin.totalSupply());
         vm.warp(Blocktime + 120 hours);
         uint16 newVolatilityLimit = 50000; /// 500%

@@ -18,7 +18,7 @@ contract AppManagerBaseTest is TestCommonFoundry {
     }
 
     function testIsAppAdministrator() public {
-        assertEq(applicationAppManager.isAppAdministrator(superAdmin), true);
+        assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
     }
 
     function testMigratingSuperAdmin() public {
@@ -175,7 +175,6 @@ contract AppManagerBaseTest is TestCommonFoundry {
 
     function testAddaccessLevelAdmin() public {
         switchToAppAdministrator(); // create an app administrator and make it the sender.
-        switchToSuperAdmin(); // create an app administrator and make it the sender.
 
         applicationAppManager.addAccessLevelAdmin(accessLevelAdmin); //add AccessLevel admin
         assertEq(applicationAppManager.isAccessLevelAdmin(accessLevelAdmin), true);

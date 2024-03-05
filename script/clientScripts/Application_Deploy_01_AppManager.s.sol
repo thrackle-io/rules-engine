@@ -25,6 +25,8 @@ import {ApplicationAppManager} from "src/example/application/ApplicationAppManag
 contract ApplicationDeployAppManagerAndAssetsScript is Script {
     uint256 privateKey;
     address ownerAddress;
+    uint256 appAdminKey;
+    address appAdminAddress;
 
     function setUp() public {}
 
@@ -34,6 +36,11 @@ contract ApplicationDeployAppManagerAndAssetsScript is Script {
         vm.startBroadcast(privateKey);
         ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("LOCAL_DEPLOYMENT_OWNER"), "Castlevania", false);
         ApplicationHandler applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
+        applicationAppManager.addAppAdministrator(vm.envAddress("APP_ADMIN_01"));
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY_01");
+        appAdminAddress = vm.envAddress("APP_ADMIN_01");
+        vm.stopBroadcast();
+        vm.startBroadcast(appAdminKey);
         applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
         vm.stopBroadcast();
     }

@@ -31,6 +31,8 @@ import "src/example/pricing/ApplicationERC721Pricing.sol";
 contract ApplicationDeployPricingScript is Script {
     uint256 privateKey;
     address ownerAddress;
+    uint256 appAdminKey;
+    address appAdminAddress;
 
     function setUp() public {}
 
@@ -45,11 +47,17 @@ contract ApplicationDeployPricingScript is Script {
         /// Set the token's prices
         ApplicationERC721Pricing openOcean = new ApplicationERC721Pricing();
         ApplicationERC20Pricing exchange = new ApplicationERC20Pricing();
+
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY_01");
+        appAdminAddress = vm.envAddress("APP_ADMIN_01");
+        vm.stopBroadcast();
+        vm.startBroadcast(appAdminKey);
+
         exchange.setSingleTokenPrice(vm.envAddress("APPLICATION_ERC20_ADDRESS"), 1 * (10 ** 18));
         // exchange.setSingleTokenPrice(vm.envAddress("APPLICATION_ERC20_ADDRESS_2"), 1 * (10 ** 18));
         openOcean.setNFTCollectionPrice(vm.envAddress("APPLICATION_ERC721_ADDRESS_1"), 5 * (10 ** 18));
 
-        applicationAppManager.addRuleAdministrator(vm.envAddress("LOCAL_DEPLOYMENT_OWNER"));
+        applicationAppManager.addRuleAdministrator(vm.envAddress("LOCAL_RULE_ADMIN"));
 
         /// Link the pricing module to the Asset Handlers
         applicationHandler.setERC20PricingAddress(address(exchange));
