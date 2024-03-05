@@ -6,8 +6,8 @@
    1. start the local chain
       1. “anvil”
    2. deploy code locally
-      1. “make deployAll”
-      2. “make deployAllGame”
+      1. “sh script/clientScripts/deploy/DeployProtocol.sh”
+      2. “sh script/clientScripts/deploy/DeployExampleApplicaiton.sh”
 3. Run a couple of the more involved forge test scripts found in command_test.txt. They should be at the token or AMM level. Examples:
    1. test Staking process
    2. test Oracle Rule
