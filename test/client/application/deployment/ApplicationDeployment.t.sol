@@ -132,7 +132,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
 
     function testVerifyRuleAdmin() public {
         if(vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
-            assertTrue(applicationAppManager.isRuleAdministrator(vm.envAddress("LOCAL_DEPLOYMENT_OWNER")));
+            assertTrue(applicationAppManager.isRuleAdministrator(vm.envAddress("LOCAL_RULE_ADMIN")));
         } else {
             assertTrue(applicationAppManager.isRuleAdministrator(vm.envAddress("QUORRA")));
         }
