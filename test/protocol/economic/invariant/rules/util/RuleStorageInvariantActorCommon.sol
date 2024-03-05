@@ -5,11 +5,11 @@ import {RuleProcessorDiamond} from "src/protocol/economic/ruleProcessor/RuleProc
 import "src/example/application/ApplicationAppManager.sol";
 
 /**
- * @title RuleStorageInvariantHandlerCommon
+ * @title RuleStorageInvariantActorCommon
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55
  * @dev Stores common variables/imports used for rule storage invariant handlers
  */
-abstract contract RuleStorageInvariantHandlerCommon {
+abstract contract RuleStorageInvariantActorCommon {
     uint256 public totalRules;
     RuleProcessorDiamond processor;
     ApplicationAppManager appManager;
