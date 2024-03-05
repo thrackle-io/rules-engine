@@ -44,9 +44,7 @@ abstract contract TestCommonFoundry is TestCommon {
         ProtocolNativeFacet protocolNativeFacet = new ProtocolNativeFacet();
         ProtocolRawFacet protocolRawFacet = new ProtocolRawFacet();
         VersionFacet versionFacet = new VersionFacet();
-        string[] memory inputs = new string[](3);
-        inputs[0] = "python3";
-        inputs[1] = "script/python/get_selectors.py";
+        string[] memory inputs = _createCommandArray();
 
         // Native
         // Get the facet selectors.
@@ -80,9 +78,7 @@ abstract contract TestCommonFoundry is TestCommon {
         ERC721TaggedRuleProcessorFacet erc721TaggedRuleProcessorFacet = new ERC721TaggedRuleProcessorFacet();
         ERC20TaggedRuleProcessorFacet erc20TaggedRuleProcessorFacet = new ERC20TaggedRuleProcessorFacet();
 
-        string[] memory inputs = new string[](3);
-        inputs[0] = "python3";
-        inputs[1] = "script/python/get_selectors.py";
+        string[] memory inputs = _createCommandArray();
 
         // Standard
         // Get the facet selectors.
@@ -134,9 +130,7 @@ function _addStorageFacetsToFacetCut() public {
         RuleDataFacet ruleDataFacet = new RuleDataFacet();
         TaggedRuleDataFacet taggedRuleDataFacet = new TaggedRuleDataFacet();
         AppRuleDataFacet appRuleDataFacet = new AppRuleDataFacet();
-        string[] memory inputs = new string[](3);
-        inputs[0] = "python3";
-        inputs[1] = "script/python/get_selectors.py";
+        string[] memory inputs = _createCommandArray();
 
         // Standard
         // Get the facet selectors.
@@ -155,6 +149,16 @@ function _addStorageFacetsToFacetCut() public {
         selectors = abi.decode(res, (bytes4[]));
         _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(taggedRuleDataFacet), action: FacetCutAction.Add, functionSelectors: selectors}));
    
+    }
+    /**
+     * @dev Create the command array for calling python inspection script
+     * @return _inputs loaded command array
+     */
+    function _createCommandArray() public returns(string[] memory _inputs){
+        _inputs = new string[](3);
+        _inputs[0] = "python3";
+        _inputs[1] = "script/python/get_selectors.py";
+        return _inputs;
     }
 
     /**
@@ -183,9 +187,7 @@ function _addStorageFacetsToFacetCut() public {
             "FeesFacet"
         ];
 
-        string[] memory inputs = new string[](3);
-        inputs[0] = "python3";
-        inputs[1] = "script/python/get_selectors.py";
+        string[] memory inputs = _createCommandArray();
 
         // Loop on each facet, deploy them and create the FacetCut.
         for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
@@ -245,9 +247,7 @@ function _addStorageFacetsToFacetCut() public {
             "TradingRuleFacet"
         ];
 
-        string[] memory inputs = new string[](3);
-        inputs[0] = "python3";
-        inputs[1] = "script/python/get_selectors.py";
+        string[] memory inputs = _createCommandArray();
 
         // Loop on each facet, deploy them and create the FacetCut.
         for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {

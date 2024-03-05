@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "test/protocol/economic/invariant/rules/util/RuleStorageInvariantCommon.sol";
-import {RuleStorageTokenMinTxSizeHandler} from "./RuleStorageTokenMinTxSizeHandler.sol";
+import {RuleStorageTokenMinTxSizeActor} from "./RuleStorageTokenMinTxSizeActor.sol";
 import "./RuleStorageTokenMinTxSizeActorManager.sol";
 
 /**
@@ -13,16 +13,16 @@ import "./RuleStorageTokenMinTxSizeActorManager.sol";
 contract RuleStorageTokenMinTxSizeMultiTest is RuleStorageInvariantCommon {
     
     RuleStorageTokenMinTxSizeActorManager actorManager;
-    RuleStorageTokenMinTxSizeHandler[] handlers;
+    RuleStorageTokenMinTxSizeActor[] actors;
     NonTaggedRules.TokenMinTxSize ruleBefore;
 
     function setUp() public {
         prepRuleStorageInvariant();
-        // Load 10 Handlers
+        // Load 10 actors
         for(uint i; i < 10; i++){
-            handlers.push(new RuleStorageTokenMinTxSizeHandler(ruleProcessor, applicationAppManager));
+            actors.push(new RuleStorageTokenMinTxSizeActor(ruleProcessor, applicationAppManager));
         }
-        actorManager = new RuleStorageTokenMinTxSizeActorManager(handlers);
+        actorManager = new RuleStorageTokenMinTxSizeActorManager(actors);
         switchToRuleAdmin();
         index = RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 1);
         ruleBefore = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMinTxSize(index);
@@ -32,8 +32,8 @@ contract RuleStorageTokenMinTxSizeMultiTest is RuleStorageInvariantCommon {
     // The total amount of rules will never decrease.
     function invariant_rulesTotalMinTxSizeNeverDecreases() public {
         uint256 total;
-        for(uint i; i < handlers.length; i++){
-            total += handlers[i].totalRules();
+        for(uint i; i < actors.length; i++){
+            total += actors[i].totalRules();
         }
         // index must be incremented by one to account for 0 based array
         assertLe(index+1, ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTokenMinTxSize());
@@ -42,8 +42,8 @@ contract RuleStorageTokenMinTxSizeMultiTest is RuleStorageInvariantCommon {
     // The biggest ruleId in a rule type will always be the same as the total amount of rules registered in the protocol for that rule type - 1.
     function invariant_rulesTotalMinTxSizeEqualsAppBalances() public {
         uint256 total;
-        for(uint i; i < handlers.length; i++){
-            total += handlers[i].totalRules();
+        for(uint i; i < actors.length; i++){
+            total += actors[i].totalRules();
         }
         console.log(total);
         console.log(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTokenMinTxSize());
@@ -60,7 +60,7 @@ contract RuleStorageTokenMinTxSizeMultiTest is RuleStorageInvariantCommon {
     function invariant_rulesTotalMinTxSizeIncrementsByOne() public {
         uint256 previousTotal = ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalTokenMinTxSize();
         // not incrementing previousTotal by one due to zero based ruleId
-        assertLe(previousTotal, RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 1));
+        assertEq(previousTotal, RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 1));
     }
     // Rules can never be modified.
     function invariant_MinTxSizeImmutable() public {
