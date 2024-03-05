@@ -22,6 +22,7 @@ contract MinimalERC721 is ERC721, IProtocolTokenMin, ProtocolTokenCommon, ERC721
     IHandlerDiamond _handler;
 
     constructor(string memory _nameProto, string memory _symbolProto, address _appManagerAddress, string memory _baseUri) ERC721(_nameProto, _symbolProto) {
+        _baseUri;
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
