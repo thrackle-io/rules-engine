@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import {HandlerDiamondLib as DiamondLib, HandlerDiamondStorage, FacetCut} from "./HandlerDiamondLib.sol";
 import {ERC173} from "diamond-std/implementations/ERC173/ERC173.sol";

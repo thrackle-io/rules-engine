@@ -8,11 +8,12 @@ from eth_abi import encode
 
 def get_selectors(args):
     contract = args.contract
-
-    res = subprocess.run(
-        ["forge", "inspect", contract, "mi"], capture_output=True)
-    res = res.stdout.decode()
-    res = json.loads(res)
+    line = ""
+    while line == "":
+        res = subprocess.run(
+            ["forge", "inspect", contract, "mi"], capture_output=True )
+        line = res.stdout.decode()
+    res = json.loads(line)
 
     selectors = []
     for signature in res:

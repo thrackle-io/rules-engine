@@ -41,7 +41,7 @@ To use the package simply import the files you are interested in. Here is an exa
 
 ```c
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import "@thrackle-io/rules-protocol-client/token/ERC20/ProtocolERC20.sol";
 
