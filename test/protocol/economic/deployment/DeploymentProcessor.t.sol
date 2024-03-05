@@ -48,7 +48,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Diamond upgrade
-    function testUpgradeRuleProcessor() public {
+    function testProtocol_DeploymentProcessor_UpgradeRuleProcessor() public {
         // must be the owner for upgrade
         vm.stopPrank();
         vm.startPrank(superAdmin);
@@ -99,14 +99,14 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Add Min TransactionSize Rule 
-    function testAddMinTransactionSizeRule() public {
+    function testProtocol_DeploymentProcessor_AddMinTransactionSizeRule() public {
         switchToRuleAdmin();
         uint32 index = RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 1000);
         assertEq(ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMinTxSize(index).minSize, 1000);
     }
 
     /// Test Diamond Versioning 
-    function testRuleProcessorVersion() public {
+    function testProtocol_DeploymentProcessor_RuleProcessorVersion() public {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         // update version
@@ -138,7 +138,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
 
     /*********************** AccountMaxBuySize *******************/
     /// Simple setting and getting
-    function testAccountMaxBuySizeSettingStorage() public {
+    function testProtocol_DeploymentProcessor_AccountMaxBuySizeSettingStorage() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
@@ -172,7 +172,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test only ruleAdministrators can add AccountMaxBuySize Rule
-    function testAccountMaxBuySizeSettingRuleWithoutAppAdministratorAccount() public {
+    function testProtocol_DeploymentProcessor_AccountMaxBuySizeSettingRuleWithoutAppAdministratorAccount() public {
         vm.warp(Blocktime);
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
@@ -199,7 +199,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test mismatched arrays sizes
-    function testAccountMaxBuySizeSettingWithArraySizeMismatch() public {
+    function testProtocol_DeploymentProcessor_AccountMaxBuySizeSettingWithArraySizeMismatch() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
@@ -211,7 +211,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test total rules
-    function testAccountMaxBuySizeTotalRules() public {
+    function testProtocol_DeploymentProcessor_AccountMaxBuySizeTotalRules() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
         uint256[101] memory _indexes;
@@ -228,7 +228,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
 
     /************************ AccountMaxSellSize *************************/
     /// Simple setting and getting
-    function testAccountMaxSellSizeSetting() public {
+    function testProtocol_DeploymentProcessor_AccountMaxSellSizeSetting() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
@@ -255,7 +255,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test only ruleAdministrators can add AccountMaxSellSize Rule
-    function testAccountMaxSellSizeSettingWithoutAppAdministratorAccount() public {
+    function testProtocol_DeploymentProcessor_AccountMaxSellSizeSettingWithoutAppAdministratorAccount() public {
         vm.warp(Blocktime);
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");   
@@ -276,7 +276,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test mismatched arrays sizes
-    function testAccountMaxSellSizeSettingWithArraySizeMismatch() public {
+    function testProtocol_DeploymentProcessor_AccountMaxSellSizeSettingWithArraySizeMismatch() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler");   
@@ -288,7 +288,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test total rules
-    function testAccountMaxSellSizeTotalRules() public {
+    function testProtocol_DeploymentProcessor_AccountMaxSellSizeTotalRules() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
         uint256[101] memory _indexes;
@@ -305,7 +305,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
 
     /************************ PurchaseFeeByVolumeRule **********************/
     /// Simple setting and getting
-    function testPurchaseFeeByVolumeRuleSetting() public {
+    function testProtocol_DeploymentProcessor_PurchaseFeeByVolumeRuleSetting() public {
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addPurchaseFeeByVolumeRule(address(applicationAppManager), 5000000000000000000000000000000000, 100);
         assertEq(_index, 0);
@@ -321,7 +321,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test only ruleAdministrators can add PurchaseFeeByVolumeRule
-    function testPurchaseFeeByVolumeRuleSettingRuleWithoutAppAdministratorAccount() public {
+    function testProtocol_DeploymentProcessor_PurchaseFeeByVolumeRuleSettingRuleWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -339,7 +339,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test total rules
-    function testTotalRulesOnPurchaseFeeByVolume() public {
+    function testProtocol_DeploymentProcessor_TotalRulesOnPurchaseFeeByVolume() public {
         switchToRuleAdmin();
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
@@ -350,7 +350,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
 
     /*********************** TokenMaxPriceVolatility ************************/
     /// Simple setting and getting
-    function testTokenMaxPriceVolatilitySetting() public {
+    function testProtocol_DeploymentProcessor_TokenMaxPriceVolatilitySetting() public {
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addTokenMaxPriceVolatility(address(applicationAppManager), 5000, 60, 12, totalSupply);
         assertEq(_index, 0);
@@ -368,7 +368,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test only ruleAdministrators can add TokenMaxPriceVolatility Rule
-    function testTokenMaxPriceVolatilitySettingWithoutAppAdministratorAccount() public {
+    function testProtocol_DeploymentProcessor_TokenMaxPriceVolatilitySettingWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -386,7 +386,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test total rules
-    function testTokenMaxPriceVolatilityTotalRules() public {
+    function testProtocol_DeploymentProcessor_TokenMaxPriceVolatilityTotalRules() public {
         switchToRuleAdmin();
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
@@ -397,7 +397,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
 
     /*********************** MaxTradingVolume Rule ************************/
     /// Simple setting and getting
-    function testTokenMaxTradingVolumeRuleSetting() public {
+    function testProtocol_DeploymentProcessor_TokenMaxTradingVolumeRuleSetting() public {
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addTokenMaxTradingVolume(address(applicationAppManager), 1000, 2, Blocktime, 0);
         assertEq(_index, 0);
@@ -416,7 +416,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test only ruleAdministrators can add Max Trading Volume Rule 
-    function testTokenMaxTradingVolumeRuleSettingWithoutappAdministratorAccount() public {
+    function testProtocol_DeploymentProcessor_TokenMaxTradingVolumeRuleSettingWithoutappAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -434,7 +434,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test total rules
-    function testTokenMaxTradingVolumeRuleTotalRules() public {
+    function testProtocol_DeploymentProcessor_TokenMaxTradingVolumeRuleTotalRules() public {
         switchToRuleAdmin();
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
@@ -445,7 +445,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
 
     /*********************** TokenMinTransactionSize ************************/
     /// Simple setting and getting
-    function testTokenMinTransactionSizeSetting() public {
+    function testProtocol_DeploymentProcessor_TokenMinTransactionSizeSetting() public {
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 500000000000000);
         assertEq(_index, 0);
@@ -459,7 +459,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test only ruleAdministrators can add TokenMinTransactionSize Rule
-    function testTokenMinTransactionSizeSettingRuleWithoutAppAdministratorAccount() public {
+    function testProtocol_DeploymentProcessor_TokenMinTransactionSizeSettingRuleWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -476,7 +476,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test total rules
-    function testTokenMinTransactionSizeTotalRules() public {
+    function testProtocol_DeploymentProcessor_TokenMinTransactionSizeTotalRules() public {
         switchToRuleAdmin();
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
@@ -487,7 +487,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
 
     /*********************** AccountMinMaxTokenBalance *******************/
     /// Simple setting and getting
-    function testAccountMinMaxTokenBalanceSetting() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceSetting() public {
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(1000, 2000, 3000);
@@ -521,7 +521,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test only ruleAdministrators can add Min Max Token Balance Rule
-    function testAccountMinMaxTokenBalanceSettingWithoutAppAdministratorAccount() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceSettingWithoutAppAdministratorAccount() public {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(1000, 2000, 3000);
         uint256[] memory max = createUint256Array(
@@ -546,7 +546,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test mismatched arrays sizes
-    function testAccountMinMaxTokenBalanceSettingWithArraySizeMismatch() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceSettingWithArraySizeMismatch() public {
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(1000, 2000);
@@ -561,7 +561,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test inverted limits
-    function testAccountMinMaxTokenBalanceAddWithInvertedLimits() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceAddWithInvertedLimits() public {
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array("Oscar");
         uint256[] memory min = createUint256Array(999999000000000000000000000000000000000000000000000000000000000000000000000);
@@ -572,7 +572,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test total rules
-    function testAccountMinMaxTokenBalanceTotalRules() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceTotalRules() public {
         switchToRuleAdmin();
         uint256[101] memory _indexes;
         bytes32[] memory accs = createBytes32Array("Oscar");
@@ -588,7 +588,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     /// With Hold Periods
 
     /// Simple setting and getting
-    function testAccountMinMaxTokenBalanceSettingWithPeriod() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceSettingWithPeriod() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
@@ -621,7 +621,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Account Min Max Token Balance while not admin 
-    function testAccountMinMaxTokenBalanceSettingNotAdmin() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceSettingNotAdmin() public {
         vm.warp(Blocktime);
         vm.stopPrank();
         vm.startPrank(address(0xDEAD));
@@ -638,7 +638,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     // Test for proper array size mismatch error
-    function testAccountMinMaxTokenBalanceSettingSizeMismatch() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceSettingSizeMismatch() public {
         switchToRuleAdmin();
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
@@ -655,7 +655,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
 
     /*********************** TokenMaxSupplyVolatility ************************/
     /// Simple setting and getting
-    function testTokenMaxSupplyVolatilitySetting() public {
+    function testProtocol_DeploymentProcessor_TokenMaxSupplyVolatilitySetting() public {
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addTokenMaxSupplyVolatility(address(applicationAppManager), 6500, 24, Blocktime, totalSupply);
         assertEq(_index, 0);
@@ -669,7 +669,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test only ruleAdministrators can add TokenMaxSupplyVolatility Rule
-    function testTokenMaxSupplyVolatilitySettingRuleWithoutAppAdministratorAccount() public {
+    function testProtocol_DeploymentProcessor_TokenMaxSupplyVolatilitySettingRuleWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -686,7 +686,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test total rules
-    function testTokenMaxSupplyVolatilityTotalRules() public {
+    function testProtocol_DeploymentProcessor_TokenMaxSupplyVolatilityTotalRules() public {
         switchToRuleAdmin();
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
@@ -697,7 +697,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
 
     /*********************** AccountApproveDenyOracle ************************/
     /// Simple setting and getting
-    function testAccountApproveDenyOracle() public {
+    function testProtocol_DeploymentProcessor_AccountApproveDenyOracle() public {
         switchToRuleAdmin();
         uint32 _index = RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 0, address(69));
         assertEq(_index, 0);
@@ -711,7 +711,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test only ruleAdministrators can add AccountApproveDenyOracle Rule
-    function testAccountApproveDenyOracleSettingWithoutAppAdministratorAccount() public {
+    function testProtocol_DeploymentProcessor_AccountApproveDenyOracleSettingWithoutAppAdministratorAccount() public {
         vm.stopPrank(); //stop interacting as the super admin
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
@@ -729,7 +729,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test total rules
-    function testAccountApproveDenyOracleTotalRules() public {
+    function testProtocol_DeploymentProcessor_AccountApproveDenyOracleTotalRules() public {
         switchToRuleAdmin();
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < 101; i++) {
@@ -739,7 +739,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /*********************** TokenMaxDailyTrades ************************/
-    function testTokenMaxDailyTrades() public {
+    function testProtocol_DeploymentProcessor_TokenMaxDailyTrades() public {
         switchToRuleAdmin();
         bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
         uint8[] memory tradesAllowed = createUint8Array(1, 5);
@@ -752,7 +752,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test only ruleAdministrators can add TokenMaxDailyTrades Rule
-    function testTokenMaxDailyTradesSettingRuleWithoutAppAdministratorAccount() public {
+    function testProtocol_DeploymentProcessor_TokenMaxDailyTradesSettingRuleWithoutAppAdministratorAccount() public {
         bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
         uint8[] memory tradesAllowed = createUint8Array(1, 5);
         vm.stopPrank(); //stop interacting as the super admin
@@ -772,7 +772,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test total rules
-    function testTokenMaxDailyTradesTotalRules() public {
+    function testProtocol_DeploymentProcessor_TokenMaxDailyTradesTotalRules() public {
         switchToRuleAdmin();
         bytes32[] memory nftTags = createBytes32Array("BoredGrape", "DiscoPunk"); 
         uint8[] memory tradesAllowed = createUint8Array(1, 5);
@@ -786,7 +786,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     /**************** Account Max Value by Access Level Rule  ****************/
 
     /// Test Adding AccountMaxValueByAccessLevel
-    function testAccountMaxValueByAccessLevelRuleAdd() public {
+    function testProtocol_DeploymentProcessor_AccountMaxValueByAccessLevelRuleAdd() public {
         switchToRuleAdmin();
         uint48[] memory balanceAmounts = createUint48Array(10, 100, 500, 1000, 1000);
         uint32 _index = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByAccessLevel(address(applicationAppManager), balanceAmounts);
@@ -801,7 +801,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Adding AccountMaxValueByAccessLevel while not admin 
-    function testAccountMaxValueByAccessLevelAddNotAdmin() public {
+    function testProtocol_DeploymentProcessor_AccountMaxValueByAccessLevelAddNotAdmin() public {
         switchToRuleAdmin();
         uint48[] memory balanceAmounts;
         vm.stopPrank(); //stop interacting as the super admin
@@ -811,7 +811,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test AccountMaxValueByAccessLevel total Rules
-    function testAccountMaxValueByAccessLevelTotalRules() public {
+    function testProtocol_DeploymentProcessor_AccountMaxValueByAccessLevelTotalRules() public {
         switchToRuleAdmin();
         uint256[101] memory _indexes;
         uint48[] memory balanceAmounts = createUint48Array(10, 100, 500, 1000, 1000);
@@ -827,7 +827,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     /**************** AdminMinTokenBalance Rule Testing  ****************/
 
     /// Test Adding AdminMinTokenBalance Rule endTime: block.timestamp + 10000
-    function testAddAdminMinTokenBalanceStorage() public {
+    function testProtocol_DeploymentProcessor_AddAdminMinTokenBalanceStorage() public {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         applicationAppManager.addAppAdministrator(address(22));
@@ -840,14 +840,14 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Adding AdminMinTokenBalance Rule while not admin 
-    function testAdminMinTokenBalanceNotPassingNaotAdmin() public {
+    function testProtocol_DeploymentProcessor_AdminMinTokenBalanceNotPassingNaotAdmin() public {
         switchToUser();
         vm.expectRevert(0xd66c3008);
         TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), 6500, 1669748600);
     }
 
     /// Test Get Total Admin Withdrawal Rules
-    function testAdminMinTokenBalanceTotal() public {
+    function testProtocol_DeploymentProcessor_AdminMinTokenBalanceTotal() public {
         switchToRuleAdmin();
         uint256[101] memory _indexes;
         uint256 amount = 1000;
@@ -863,14 +863,14 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     /***************** RULE PROCESSING *****************/
 
     /// Test Token Min Transaction Size while not admin 
-    function testTokenMinTransactionSizeNotPassingByNonAdmin() public {
+    function testProtocol_DeploymentProcessor_TokenMinTransactionSizeNotPassingByNonAdmin() public {
         switchToUser();
         vm.expectRevert(0xd66c3008);
         RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 1000);
     }
 
     /// Test Token Min Transaction Size
-    function testTokenMinTransactionSize() public {
+    function testProtocol_DeploymentProcessor_TokenMinTransactionSize() public {
         switchToRuleAdmin();
         uint32 index = RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 2222);
         switchToUser();
@@ -878,7 +878,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Token Min Transaction Size fail scenario
-    function testTokenMinTransactionSizeNotPassing() public {
+    function testProtocol_DeploymentProcessor_TokenMinTransactionSizeNotPassing() public {
         switchToRuleAdmin();
         uint32 index = RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 420);
         vm.expectRevert(0x7a78c901);
@@ -886,7 +886,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Account Min Max Token Balance Rule 
-    function testAccountMinMaxTokenBalanceCheck() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceCheck() public {
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(10, 20, 30);
@@ -908,7 +908,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Max Tag Enforcement Through Account Min Max Token Balance Rule 
-    function testMaxTagEnforcementThroughAccountMinMaxTokenBalance() public {
+    function testProtocol_DeploymentProcessor_MaxTagEnforcementThroughAccountMinMaxTokenBalance() public {
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(10, 20, 30);
@@ -937,7 +937,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Account Min Max Token Balance fail scenario
-    function testAccountMinMaxTokenBalanceNotPassingCheck() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceNotPassingCheck() public {
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(10, 20, 30);
         uint256[] memory max = createUint256Array(10000000000000000000000000, 10000000000000000000000000000, 1000000000000000000000000000000);
@@ -962,7 +962,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Account Min Max Token Balance 
-    function testAccountMinMaxTokenBalanceChecks() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceChecks() public {
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(10, 20, 30);
@@ -983,7 +983,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Account Min Max Token Balance Fail scenario 
-    function testAccountMinMaxTokenBalanceNotPassingCheck2() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceNotPassingCheck2() public {
         switchToRuleAdmin();
         bytes32[] memory accs = createBytes32Array("Oscar","Tayler","Shane");
         uint256[] memory min = createUint256Array(10, 20, 30);
@@ -1008,7 +1008,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Account Min Max Token Balance Rule NFT 
-    function testAccountMinMaxTokenBalanceRuleNFT() public {
+    function testProtocol_DeploymentProcessor_AccountMinMaxTokenBalanceRuleNFT() public {
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         /// mint 6 NFTs to appAdministrator for transfer
@@ -1093,7 +1093,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
     }
 
     /// Test Account Approve Deny Oracle NFT 
-    function testAccountApproveDenyOracleNFT() public {
+    function testProtocol_DeploymentProcessor_AccountApproveDenyOracleNFT() public {
         vm.stopPrank();
         vm.startPrank(appAdministrator);
         /// set up a non admin user an nft
@@ -1179,7 +1179,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
         applicationNFT.burn(3);
     }
 
-    function testTokenMaxDailyTradesRuleInNFT() public {
+    function testProtocol_DeploymentProcessor_TokenMaxDailyTradesRuleInNFT() public {
         vm.warp(Blocktime);
         vm.stopPrank();
         vm.startPrank(appAdministrator);

@@ -47,7 +47,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x7a08a22d | CannotRemoveFunctionThatDoesNotExist(bytes4)                     |
 | 0x6fafeb08 | CannotRemoveImmutableFunction(bytes4)                            |
 | 0x192105d7 | InitializationFunctionReverted(address,bytes)                    |
-| 0x1da56a44 | OverMaxBalance()                                             |
+| 0x1da56a44 | OverMaxBalance()                                                 |
 | 0x3e237976 | UnderMinBalance()                                                |
 | 0x4bdf3b46 | RuleDoesNotExist()                                               |
 | 0x7a78c901 | UnderMinTxSize()                                                 |

@@ -11,7 +11,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         vm.warp(Blocktime); // set block.timestamp
     }
 
-    function testRenounceAppAdmin(uint8 addressIndex) public {
+    function testApplication_ApplicationAppManagerFuzz_RenounceAppAdmin(uint8 addressIndex) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
@@ -20,7 +20,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     }
 
 
-    function testAddAppAdministrator(uint8 addressIndexA, uint8 addressIndexB) public {
+    function testApplication_ApplicationAppManagerFuzz_AddAppAdministrator(uint8 addressIndexA, uint8 addressIndexB) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -33,7 +33,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testAddMultipleAppAdministrator(uint8 addressIndexA) public {
+    function testApplication_ApplicationAppManagerFuzz_AddMultipleAppAdministrator(uint8 addressIndexA) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         vm.startPrank(sender);
@@ -45,7 +45,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testRevokeAppAdministrator(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    function testApplication_ApplicationAppManagerFuzz_RevokeAppAdministrator(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -64,7 +64,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testRenounceAppAdministrator(uint8 addressIndexA, uint8 addressIndexB) public {
+    function testApplication_ApplicationAppManagerFuzz_RenounceAppAdministrator(uint8 addressIndexA, uint8 addressIndexB) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -82,7 +82,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     }
 
     ///---------------Risk ADMIN--------------------
-    function testAddRiskAdmin(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    function testApplication_ApplicationAppManagerFuzz_AddRiskAdmin(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -103,7 +103,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testAddMultipleRiskAdmins(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    function testApplication_ApplicationAppManagerFuzz_AddMultipleRiskAdmins(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -123,7 +123,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testRenounceRiskAdmin(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    function testApplication_ApplicationAppManagerFuzz_RenounceRiskAdmin(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -145,7 +145,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testRevokeRiskAdmin(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    function testApplication_ApplicationAppManagerFuzz_RevokeRiskAdmin(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -168,7 +168,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     }
 
     ///---------------ACCESS LEVEL--------------------
-    function testAddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    function testApplication_ApplicationAppManagerFuzz_AddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -189,7 +189,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testMultipleAddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    function testApplication_ApplicationAppManagerFuzz_MultipleAddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -209,7 +209,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testRenounceAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    function testApplication_ApplicationAppManagerFuzz_RenounceAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -231,7 +231,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testRevokeAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
+    function testApplication_ApplicationAppManagerFuzz_RevokeAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -254,7 +254,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     }
 
     ///---------------AccessLevel MAINTENANCE--------------------
-    function testAddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint8 AccessLevel) public {
+    function testApplication_ApplicationAppManagerFuzz_AddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint8 AccessLevel) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -278,7 +278,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     }
 
     ///---------------RISK SCORE MAINTENANCE--------------------
-    function testAddRiskScore(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint8 riskScore) public {
+    function testApplication_ApplicationAppManagerFuzz_AddRiskScore(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint8 riskScore) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
@@ -302,7 +302,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     }
 
     ///---------------TAGS--------------------
-    function testAddTag(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, bytes32 Tag1, bytes32 Tag2) public {
+    function testApplication_ApplicationAppManagerFuzz_AddTag(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, bytes32 Tag1, bytes32 Tag2) public {
         vm.assume(Tag1 != Tag2 && Tag2 != Tag1);
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
@@ -325,7 +325,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testAddMultipleGenTagsToMulitpleAccounts(uint8 addressIndexA, uint8 addressIndexB, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3, bytes32 Tag4) public {
+    function testApplication_ApplicationAppManagerFuzz_AddMultipleGenTagsToMulitpleAccounts(uint8 addressIndexA, uint8 addressIndexB, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3, bytes32 Tag4) public {
         vm.assume(Tag1 != Tag2 && Tag2 != Tag3 && Tag3 != Tag4 && Tag4 != Tag1 && Tag4 != Tag2 && Tag3 != Tag1);
         vm.assume(Tag1 != "" && Tag2 != "" && Tag3 != "" && Tag4 != "");
         vm.stopPrank();
@@ -350,7 +350,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    function testRemoveTag(uint8 addressIndexA, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3, bytes32 Tag4) public {
+    function testApplication_ApplicationAppManagerFuzz_RemoveTag(uint8 addressIndexA, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3, bytes32 Tag4) public {
         vm.assume(Tag1 != Tag2 && Tag2 != Tag3 && Tag3 != Tag4 && Tag4 != Tag1 && Tag4 != Tag2 && Tag3 != Tag1);
 
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
@@ -393,7 +393,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     }
 
     ///---------------PAUSE RULES----------------
-    function testAddPauseRuleFuzz(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint64 start, uint64 end) public {
+    function testApplication_ApplicationAppManagerFuzz_AddPauseRuleFuzz(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint64 start, uint64 end) public {
         vm.stopPrank();
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];

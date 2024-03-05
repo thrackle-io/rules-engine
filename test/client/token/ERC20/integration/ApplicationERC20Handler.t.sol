@@ -22,7 +22,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
 
     }
 
-    function testFeeCreationAndSetting() public {
+    function testERC20_ApplicationERC20Handler_FeeCreationAndSetting() public {
         bytes32 tag1 = "cheap";
         uint256 minBalance = 10 * 10 ** 18;
         uint256 maxBalance = 1000 * 10 ** 18;
@@ -83,7 +83,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
     }
 
-    function testGetApplicableFees() public {
+    function testERC20_ApplicationERC20Handler_GetApplicableFees() public {
         switchToRuleAdmin();
         bytes32 tag1 = "cheap";
         uint256 minBalance = 10 * 10 ** 18;
@@ -145,7 +145,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
     }
 
     /// Test risk score max size of 99 when adding risk rules
-    function testAccountMaxTransactionValueByRiskScore() public { 
+    function testERC20_ApplicationERC20Handler_AccountMaxTransactionValueByRiskScore() public { 
         switchToRuleAdmin();
         ///Activate rule
         uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(25, 50, 75), createUint48Array(1000000, 10000, 10));
@@ -155,7 +155,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
     }
 
     /// Test risk score max size of 100 when adding risk rules
-    function testAccountMaxTransactionValueByRiskScoreNegative() public { 
+    function testERC20_ApplicationERC20Handler_AccountMaxTransactionValueByRiskScore_Negative() public { 
         switchToRuleAdmin();
         ///add txnLimit failing (risk score 100)
         uint48[] memory maxValue = createUint48Array(1000000, 10000, 10);
@@ -164,7 +164,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), maxValue, riskScore, 0, uint64(block.timestamp));
     }
 
-    function testAccountMinMaxTokenBalanceTaggedCheckPasses() public {
+    function testERC20_ApplicationERC20Handler_AccountMinMaxTokenBalanceTaggedCheckPasses() public {
         applicationAppManager.addTag(user1, "BALLER");
         applicationAppManager.addTag(user2, "BALLER");
         switchToRuleAdmin();
@@ -185,7 +185,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
     }
 
     /// Test Account Approve Deny Oracle Rule 
-    function testAccountApproveDenyOracleERC20Handler() public {
+    function testERC20_ApplicationERC20Handler_AccountApproveDenyOracleERC20Handler() public {
         switchToAppAdministrator();
         // add a denied address
         badBoys.push(address(69));
@@ -226,7 +226,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         createAccountApproveDenyOracleRule(2);
     }
 
-    function testTurningOnOffRules() public {
+    function testERC20_ApplicationERC20Handler_TurningOnOffRules() public {
         /// Set the min/max rule data
         applicationAppManager.addTag(user1, "BALLER");
         applicationAppManager.addTag(user2, "BALLER");
@@ -341,7 +341,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(68), user1, 10);
     }
 
-    function testUpgradeApplicationERC20Handler() public {
+    function testERC20_ApplicationERC20Handler_UpgradeApplicationERC20Handler() public {
         /// put data in the old rule handler
         /// Fees
         bytes32 tag1 = "cheap";
@@ -360,7 +360,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         switchToAppAdministrator();
        }
 
-    function testZeroAddressErrors() public {
+    function testERC20_ApplicationERC20Handler_ZeroAddressErrors() public {
         /// test both address checks in constructor
         HandlerDiamond handler = _createERC20HandlerDiamond();
         vm.expectRevert();

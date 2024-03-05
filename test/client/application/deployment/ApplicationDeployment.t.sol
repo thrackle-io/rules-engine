@@ -86,7 +86,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         }
     }
 
-    function testApplicationHandlerConnected() public {
+    function testApplication_ApplicationDeployment_ApplicationHandlerConnected() public {
             vm.stopPrank();
             vm.startPrank(superAdmin);
             assertEq(applicationAppManager.getHandlerAddress(), address(applicationHandler));
@@ -94,7 +94,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
             vm.stopPrank();
     }
 
-    function testERC20HandlerConnections() public {
+    function testApplication_ApplicationDeployment_ERC20HandlerConnections() public {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         assertEq(applicationCoin.getHandlerAddress(), address(applicationCoinHandler));
@@ -104,7 +104,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         vm.stopPrank();
     }
 
-    function testERC721HandlerConnections() public {
+    function testApplication_ApplicationDeployment_ERC721HandlerConnections() public {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         assertEq(applicationNFT.getAppManagerAddress(), address(applicationAppManager));
@@ -113,7 +113,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         vm.stopPrank();
     }
 
-    function testVerifyTokensRegistered() public {
+    function testApplication_ApplicationDeployment_VerifyTokensRegistered() public {
         if(vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
             assertEq(applicationAppManager.getTokenID(address(applicationCoin)), "Frankenstein Coin");
             assertEq(applicationAppManager.getTokenID(address(applicationNFT)), "Clyde Picture");
@@ -125,12 +125,12 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         console.log(applicationHandler.erc20PricingAddress());
     }
 
-    function testVerifyPricingContractsConnectedToHandler() public {
+    function testApplication_ApplicationDeployment_VerifyPricingContractsConnectedToHandler() public {
         assertEq(applicationHandler.erc20PricingAddress(), address(erc20Pricer));
         assertEq(applicationHandler.nftPricingAddress(), address(erc721Pricer));
     }
 
-    function testVerifyRuleAdmin() public {
+    function testApplication_ApplicationDeployment_VerifyRuleAdmin() public {
         if(vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
             assertTrue(applicationAppManager.isRuleAdministrator(vm.envAddress("LOCAL_RULE_ADMIN")));
         } else {
@@ -138,7 +138,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         }
     }
 
-    function testVerifyTreasury() public {
+    function testApplication_ApplicationDeployment_VerifyTreasury() public {
         assertTrue(applicationAppManager.isTreasury(vm.envAddress("FEE_TREASURY")));
     }
 }
