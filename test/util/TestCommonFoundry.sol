@@ -375,6 +375,7 @@ function _addStorageFacetsToFacetCut() public {
         applicationCoinHandlerSpecialOwner = _createERC20HandlerDiamond();
         VersionFacet(address(applicationCoinHandlerSpecialOwner)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin));
+        switchToAppAdministrator();
         applicationCoin.connectHandlerToToken(address(applicationCoinHandlerSpecialOwner));
         /// register the token
         applicationAppManager.registerToken("application2", address(applicationCoin));
@@ -429,6 +430,7 @@ function _addStorageFacetsToFacetCut() public {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).initialize("Dracula Prime", "DRAC", address(applicationAppManager), "dummy.uri.io");
         applicationNFTHandler = _createERC721HandlerDiamond();
         ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationNFTProxy));
+        switchToAppAdministrator();
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).connectHandlerToToken(address(applicationNFTHandler));
 
         /// register the token
@@ -572,6 +574,7 @@ function _addStorageFacetsToFacetCut() public {
         handler = _createERC721HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
+        switchToAppAdministrator();
         erc721.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc721));
@@ -584,6 +587,7 @@ function _addStorageFacetsToFacetCut() public {
         handler = _createERC721HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
+        switchToAppAdministrator();
         erc721.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc721));
@@ -596,6 +600,7 @@ function _addStorageFacetsToFacetCut() public {
         handler = _createERC20HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
+        switchToAppAdministrator();
         erc20.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc20));
@@ -608,6 +613,7 @@ function _addStorageFacetsToFacetCut() public {
         handler = _createERC20HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
+        switchToAppAdministrator();
         erc20.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc20));
@@ -625,6 +631,7 @@ function _addStorageFacetsToFacetCut() public {
     function _createERC20HandlerSpecialized(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager,ApplicationERC20 _token, address _appAdmin) public returns (HandlerDiamond handler) {
         handler = _createERC20HandlerDiamond();
         ERC20HandlerMainFacet(address(handler)).initialize(address(_ruleProcessor), address(_appManager), address(_appAdmin));
+        switchToAppAdministrator();
         _token.connectHandlerToToken(address(handler));
         return handler;
     }
@@ -634,43 +641,34 @@ function _addStorageFacetsToFacetCut() public {
         vm.stopPrank();
         vm.startPrank(superAdmin);
         applicationAppManager.addAppAdministrator(appAdministrator); //set a app administrator
-
         vm.stopPrank(); //stop interacting as the app admin
         vm.startPrank(appAdministrator); //interact as the created app administrator
     }
 
     function switchToAccessLevelAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-
         applicationAppManager.addAccessLevelAdmin(accessLevelAdmin); //add AccessLevel admin
-
         vm.stopPrank(); //stop interacting as the access level admin
         vm.startPrank(accessLevelAdmin); //interact as the created AccessLevel admin
     }
 
     function switchToRuleBypassAccount() public {
         switchToAppAdministrator(); 
-
         applicationAppManager.addRuleBypassAccount(ruleBypassAccount);
-
         vm.stopPrank();
         vm.startPrank(ruleBypassAccount);
     }
 
     function switchToRiskAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-
         applicationAppManager.addRiskAdmin(riskAdmin); //add Risk admin
-
         vm.stopPrank(); //stop interacting as the risk admin
         vm.startPrank(riskAdmin); //interact as the created Risk admin
     }
 
     function switchToRuleAdmin() public {
         switchToAppAdministrator(); // create a app administrator and make it the sender.
-
         applicationAppManager.addRuleAdministrator(ruleAdmin); //add Rule admin
-
         vm.stopPrank(); //stop interacting as the rule admin
         vm.startPrank(ruleAdmin); //interact as the created Rule admin
     }
@@ -707,5 +705,10 @@ function _addStorageFacetsToFacetCut() public {
         vm.stopPrank();
         vm.startPrank(priorAddress);
         priorAddress = address(0);
+    }
+
+    function switchToNewAdmin() public {
+        vm.stopPrank();
+        vm.startPrank(newAdmin);
     }
 }

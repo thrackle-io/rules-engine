@@ -56,7 +56,7 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @notice this is called in the constructor and can be called to update URI metadata pointer
      * @param _baseUri URI to the metadata file(s) for the contract
      */
-    function setBaseURI(string memory _baseUri) public virtual appAdministratorOnly(appManagerAddress) {
+    function setBaseURI(string memory _baseUri) public virtual appAdministratorOrOwnerOnly(appManagerAddress) {
         baseUri = _baseUri;
     }
 

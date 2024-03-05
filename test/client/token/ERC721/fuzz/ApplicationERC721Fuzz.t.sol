@@ -339,22 +339,24 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_AccountMaxValueByAccessLevelFuzz(uint8 _addressIndex, uint8 _amountSeed) public {
         for (uint i; i < 30; ) {
-            applicationNFT.safeMint(appAdministrator);
+            applicationNFT.safeMint(ruleBypassAccount);
             erc721Pricer.setSingleNFTPrice(address(applicationNFT), i, (i + 1) * 10 * ATTO); //setting at $10 * (ID + 1)
             assertEq(erc721Pricer.getNFTPrice(address(applicationNFT), i), (i + 1) * 10 * ATTO);
             unchecked {
                 ++i;
             }
         }
+        applicationCoin.transfer(ruleBypassAccount, type(uint256).max);
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
         address _user1 = addressList[0];
         address _user2 = addressList[1];
         address _user3 = addressList[2];
         address _user4 = addressList[3];
         /// set up a non admin user with tokens
-        applicationNFT.safeTransferFrom(appAdministrator, _user1, 0); // a 10-dollar NFT
+        switchToRuleBypassAccount();
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 0); // a 10-dollar NFT
         assertEq(applicationNFT.balanceOf(_user1), 1);
-        applicationNFT.safeTransferFrom(appAdministrator, _user3, 19); // an 200-dollar NFT
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user3, 19); // an 200-dollar NFT
         assertEq(applicationNFT.balanceOf(_user3), 1);
         // we make sure that _amountSeed is between 10 and 255
         if (_amountSeed < 245) _amountSeed += 10;
@@ -365,8 +367,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         // add the rule.
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRule(ruleId);
-        switchToAppAdministrator();
-        applicationAppManager.addRuleBypassAccount(appAdministrator);
+        switchToRuleBypassAccount();
         ///perform transfer that checks rule when account does not have AccessLevel fails
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -404,8 +405,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         }
 
         /// let's give user2 a 100-dollar NFT
-        switchToAppAdministrator();
-        applicationNFT.safeTransferFrom(appAdministrator, _user2, 9); // a 100-dollar NFT
+        switchToRuleBypassAccount();
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user2, 9); // a 100-dollar NFT
         assertEq(applicationNFT.balanceOf(_user2), 1);
         /// now let's assign him access=2 and let's check the rule again
         switchToAccessLevelAdmin();
@@ -422,9 +423,10 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         }
 
         /// create erc20 token, mint, and transfer to user
-        switchToAppAdministrator();
+        switchToRuleBypassAccount();
         applicationCoin.transfer(_user1, type(uint256).max);
         assertEq(applicationCoin.balanceOf(_user1), type(uint256).max);
+        switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
         // set the access level for the user4
@@ -432,8 +434,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         applicationAppManager.addAccessLevel(_user4, 4);
 
         /// let's give user1 a 150-dollar NFT
-        switchToAppAdministrator();
-        applicationNFT.safeTransferFrom(appAdministrator, _user1, 14); // a 150-dollar NFT
+        switchToRuleBypassAccount();
+        applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 14); // a 150-dollar NFT
         assertEq(applicationNFT.balanceOf(_user1), 2);
 
         vm.stopPrank();
@@ -859,22 +861,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         applicationNFT.safeTransferFrom(appAdministrator, _user4, 19); // a 200-dollar NFT
         assertEq(applicationNFT.balanceOf(_user4), 2);
 
-        /// ensure access level is between 0-4
-        if (accessLevel > 4) {
-            accessLevel = 4;
-        }
-        /// create rule params
-        uint32 ruleId = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 250);
-        setAccountMaxValueOutByAccessLevelRule(ruleId);
-        switchToAppAdministrator();
-        applicationAppManager.addRuleBypassAccount(appAdministrator);
-        /// assign accessLevels to users
-        switchToAccessLevelAdmin();
-        applicationAppManager.addAccessLevel(_user1, accessLevel);
-        applicationAppManager.addAccessLevel(_user3, accessLevel);
-        applicationAppManager.addAccessLevel(_user4, accessLevel);
-        /// set token pricing
-        switchToAppAdministrator();
         /// ERC20 tokens priced $1 USD
         applicationCoin.transfer(_user1, 1000 * ATTO);
         assertEq(applicationCoin.balanceOf(_user1), 1000 * ATTO);
@@ -886,6 +872,21 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         assertEq(applicationCoin.balanceOf(_user4), 50 * ATTO);
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
+
+        /// ensure access level is between 0-4
+        if (accessLevel > 4) {
+            accessLevel = 4;
+        }
+        /// create rule params
+        uint32 ruleId = createAccountMaxValueOutByAccessLevelRule(0, 10, 20, 50, 250);
+        setAccountMaxValueOutByAccessLevelRule(ruleId);
+        switchToRuleBypassAccount();
+        /// assign accessLevels to users
+        switchToAccessLevelAdmin();
+        applicationAppManager.addAccessLevel(_user1, accessLevel);
+        applicationAppManager.addAccessLevel(_user3, accessLevel);
+        applicationAppManager.addAccessLevel(_user4, accessLevel);
+        /// set token pricing
 
         ///perform transfers
         vm.stopPrank();
