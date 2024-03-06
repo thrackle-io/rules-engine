@@ -106,20 +106,8 @@ Besides the deployment of the whole ecosystem, you can also deploy specific part
 ---
 ## Command Tools
 
-`Makefile`
-This file contains various commands that can be used to ease build, testing, and deployment. Its intended use is only for testnet testing, but especially the local foundry chain(Anvil). If using all the default foundry stuff, "make deployAll" can be used **as long as the anvil server was started in default state and no addresses have been created yet.** It always uses the same ones so you can easily deploy and test whenever needed.
-
-- make build
-    - cleans and builds all contracts with optimization
-- make testAll
-    - runs all test scripts with the correct parameters. NOTE: it is verbose. To run without all the extra info, remove -vvvvv or reduce number of "v"s to your like, ie -vv
-- make deployAll
-    - deploys the entire Tron project to localhost:8545
-- make deployAllApp
-    - deploys the application examples to localhost:8545
-
 `.env`
-This contains the basic variables needed for Makefile to work properly. These are the default values for anvil so it is ok for them to be exposed. They are as follows:
+This contains the basic variables needed for the deploy scripts to work properly. These are the default values for anvil so it is ok for them to be exposed. They are as follows:
 
 ```ADDRESS_01=0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 PRIVATE_KEY_01=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
