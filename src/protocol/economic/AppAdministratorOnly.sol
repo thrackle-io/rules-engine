@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import {IAppManager} from "src/client/application/IAppManager.sol";
 import "../../client/token/handler/common/RBACModifiersCommonImports.sol";

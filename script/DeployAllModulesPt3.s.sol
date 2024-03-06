@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import "forge-std/Script.sol";
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
@@ -49,12 +49,11 @@ contract DeployAllModulesPt3Script is Script, DiamondScriptUtil {
     function deployFacets() internal {
 
         /// Register all facets.
-        string[5] memory facets = [
+        string[4] memory facets = [
             "RuleApplicationValidationFacet",
             "RuleDataFacet",
             "TaggedRuleDataFacet",
-            "AppRuleDataFacet",
-            "FeeRuleDataFacet"
+            "AppRuleDataFacet"
         ];
 
         string[] memory getSelectorsInput = new string[](3);

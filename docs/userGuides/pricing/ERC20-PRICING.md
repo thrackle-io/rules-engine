@@ -65,3 +65,19 @@ Notice that only accounts with the appAdministrator role can invoke this functio
 - **event ERC20PricingAddressSet(address indexed _address);**
     - Parameters:
         - _address: the address of the pricing contract.
+
+### Upgrading: 
+
+To upgrade the pricing contracts, ensure your new pricing contract is deployed to the same network your [Application Handler](../Architecture/Client/Application/APPLICATION-HANDLER.md) is deployed to. Next, you will call the appropriate function `setERC20Pricing` or `setNFTPricing` from the Application Handler contract. 
+
+
+```c
+function setERC20PricingAddress(address _address) external ruleAdministratorOnly(appManagerAddress)
+```
+
+```c
+function setNFTPricingAddress(address _address) external ruleAdministratorOnly(appManagerAddress)
+```
+
+
+Each set function requires the caller to be a [rule administrator](../permissions/ADMIN-ROLES.md). Each pricing contract must conform to either the [IProtocolERC721Pricing](../../../src/common/IProtocolERC721Pricing.sol) or [IProtocolERC20Pricing](../../../src/common/IProtocolERC20Pricing.sol).

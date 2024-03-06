@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
@@ -22,6 +22,7 @@ contract MinimalERC721 is ERC721, IProtocolTokenMin, ProtocolTokenCommon, ERC721
     IHandlerDiamond _handler;
 
     constructor(string memory _nameProto, string memory _symbolProto, address _appManagerAddress, string memory _baseUri) ERC721(_nameProto, _symbolProto) {
+        _baseUri;
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);

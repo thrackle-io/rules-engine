@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import "../common/HandlerUtils.sol";
 import "../ruleContracts/HandlerBase.sol";
@@ -84,7 +84,11 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         return true;
     }
 
-    
-
-    
+    /**
+     * @dev This function returns the configured application manager's address.
+     * @return appManagerAddress address of the connected application manager
+     */
+    function getAppManagerAddress() external view returns(address){
+        return address(lib.handlerBaseStorage().appManager);
+    }
 }

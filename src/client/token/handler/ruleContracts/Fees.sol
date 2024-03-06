@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import {IApplicationEvents, ICommonApplicationHandlerEvents, ITokenHandlerEvents} from "src/common/IEvents.sol";
 import {IInputErrors, ITagInputErrors, IOwnershipErrors, IZeroAddressError, IFeesErrors} from "src/common/IErrors.sol";

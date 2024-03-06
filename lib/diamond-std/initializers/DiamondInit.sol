@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import {IERC165} from "diamond-std/implementations/ERC165/IERC165.sol";
 import {IERC173} from "diamond-std/implementations/ERC173/IERC173.sol";

@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import "forge-std/console.sol";
 import "./RuleProcessorDiamondImports.sol";
 import "src/client/application/data/PauseRule.sol";
 import "src/client/application/IAppManager.sol";
-import {FeeRuleDataFacet} from "./FeeRuleDataFacet.sol";
 import {TaggedRuleDataFacet} from "./TaggedRuleDataFacet.sol";
 import {RuleDataFacet} from "./RuleDataFacet.sol";
 import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
@@ -20,22 +19,6 @@ import {AppRuleDataFacet} from "./AppRuleDataFacet.sol";
 contract RuleApplicationValidationFacet {
     using RuleProcessorCommonLib for uint32;
 
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
-    function validateAMMFee(uint32 _ruleId) external view {
-        _ruleId.checkRuleExistence(getAllAMMFeeRules());
-    }
-
-    /**
-     * @dev Function get all AMM Fee rules for validation
-     * @return total ammFeeRules array length
-     */
-    function getAllAMMFeeRules() internal view returns (uint32) {
-        RuleS.AMMFeeRuleS storage data = Storage.ammFeeRuleStorage();
-        return data.ammFeeRuleIndex;
-    }
 
     /**
      * @dev Validate the existence of the rule

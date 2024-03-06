@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import {IRuleProcessorDiamondEvents} from "src/common/IEvents.sol";
 import {RuleProcessorDiamondLib as DiamondLib, RuleProcessorDiamondStorage, RuleDataStorage, FacetCut} from "./RuleProcessorDiamondLib.sol";

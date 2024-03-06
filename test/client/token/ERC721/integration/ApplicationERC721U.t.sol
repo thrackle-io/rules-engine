@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import "test/util/TestCommonFoundry.sol";
 import "test/client/token/ERC721/util/ERC721Util.sol";

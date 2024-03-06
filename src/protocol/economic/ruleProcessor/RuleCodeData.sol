@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 // Rule Code Constants
 bytes32 constant AMM_FEE = "AMM_FEE";

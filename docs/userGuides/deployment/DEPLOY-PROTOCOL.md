@@ -35,13 +35,6 @@ is an overview of this deployment process:
    foundryUp
    ````
 
-   #### *Troubleshooting*
-
-   *if deployment fails (following the next steps), it might be caused by a faulty current version of Foundry. Try installing this specific version instead:*
-
-   ```bash
-   foundryup --version nightly-09fe3e041369a816365a020f715ad6f94dbce9f2
-   ```
 6. In the same terminal as above, navigate to the cloned repo directory and run the build script
    ````
 	bash script/deploy/DeployProtocol.sh
