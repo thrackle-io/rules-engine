@@ -409,6 +409,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_AccountMaxTransactionValueByRiskScore() public {
         switchToAppAdministrator();
+        uint8[] memory riskScores = createUint8Array(10, 40, 80, 99);
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 10000000 * (10 ** 18));
         assertEq(applicationCoin.balanceOf(user1), 10000000 * (10 ** 18));
@@ -423,16 +424,16 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
 
         ///Assign Risk scores to user1 and user 2
         switchToRiskAdmin();
-        applicationAppManager.addRiskScore(user1, 10);
-        applicationAppManager.addRiskScore(user2, 40);
-        applicationAppManager.addRiskScore(user5, 99);
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user5, riskScores[3]);
 
         ///Switch to app admin and set up ERC20Pricer and activate AccountMaxTxValueByRiskScore Rule
         switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * (10 ** 18));
 
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(10, 40, 80, 99), createUint48Array(1000000, 100000, 10000, 1000));
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, createUint48Array(1000000, 100000, 10000, 1000));
         setAccountMaxTxValueByRiskRule(ruleId);
         ///User2 sends User1 amount under transaction limit, expect passing
         vm.stopPrank();
@@ -999,6 +1000,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
 
     /// test the token AccountMaxTransactionValueByRiskScore in erc20
     function testERC20_AccountMaxTransactionValueByRiskScoreWithPeriod() public {
+        uint8[] memory riskScores = createUint8Array(10, 40, 80, 99);
         /// set up a non admin user with tokens
         applicationCoin.transfer(user1, 10000000 * ATTO);
         assertEq(applicationCoin.balanceOf(user1), 10000000 * ATTO);
@@ -1013,16 +1015,16 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
 
         ///Assign Risk scores to user1 and user 2
         switchToRiskAdmin();
-        applicationAppManager.addRiskScore(user1, 10);
-        applicationAppManager.addRiskScore(user2, 40);
-        applicationAppManager.addRiskScore(user5, 99);
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user5, riskScores[3]);
 
         ///Switch to app admin and set up ERC20Pricer and activate AccountMaxTxValueByRiskScore Rule
         switchToAppAdministrator();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * ATTO); //setting at $1
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 1 * ATTO);
         uint8 period = 24; 
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(10, 40, 80, 99), createUint48Array(1000000, 100000, 10000, 1000), period); 
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, createUint48Array(1000000, 100000, 10000, 1000), period); 
         setAccountMaxTxValueByRiskRule(ruleId);
         ///Transfer expected to fail in one large transaction
         vm.stopPrank();

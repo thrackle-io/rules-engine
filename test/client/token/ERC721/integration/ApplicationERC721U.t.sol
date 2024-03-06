@@ -296,6 +296,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
 
     function testERC721U_AccountMaxTransactionValueByRiskScore() public {
         switchToAppAdministrator();
+        uint8[] memory riskScores = createUint8Array(0, 10, 40, 80);
         ///Mint NFT's (user1,2,3)
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user1); // tokenId = 1
@@ -309,13 +310,13 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user2); // tokenId = 7
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(user2), 3);
 
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(0, 10, 40, 80), createUint48Array(17, 15, 12, 11));
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, createUint48Array(17, 15, 12, 11));
         setAccountMaxTxValueByRiskRule(ruleId);
         ///Set Risk Scores for users
         switchToRiskAdmin();
-        applicationAppManager.addRiskScore(user1, 0);
-        applicationAppManager.addRiskScore(user2, 10);
-        applicationAppManager.addRiskScore(user3, 49);
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user3, riskScores[2]);
 
         ///Set Pricing for NFTs 0-7
         switchToAppAdministrator();

@@ -196,7 +196,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.mint(user1, 10_000_000_000_000 * (10 ** 18));
 
         /// we register the rule in the protocol
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(25, 50, 75), createUint48Array(100_000_000, 10_000, 1), period);
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(_riskScore, createUint48Array(100_000_000, 10_000, 1), period);
         setAccountMaxTxValueByRiskRule(ruleId);
         /// we set a risk score for user1
         switchToRiskAdmin();
@@ -286,13 +286,13 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
 
     function testERC20_TransactionLimitByRiskScoreFuzz(uint8 _risk) public {
         uint8 risk = uint8((uint16(_risk) * 100) / 256);
-
+        uint8[] memory riskScores = createUint8Array(25, 50, 75);
         ///Give tokens to user1 and user2
         applicationCoin.mint(user1, 100000000 * (10 ** 18));
         applicationCoin.mint(user2, 100000000 * (10 ** 18));
 
         ///Activate rule
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(25, 50, 75), createUint48Array(100_000_000, 10_000, 1));
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, createUint48Array(100_000_000, 10_000, 1));
         setAccountMaxTxValueByRiskRule(ruleId); 
         /// we set a risk score for user1 and user 2
         switchToRiskAdmin();
@@ -303,10 +303,10 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         vm.stopPrank();
         vm.startPrank(user1);
 
-        if (risk >= 75) vm.expectRevert();
+        if (risk >= riskScores[2]) vm.expectRevert();
         applicationCoin.transfer(user2, 11 * (10 ** 18));
 
-        if (risk >= 50) vm.expectRevert();
+        if (risk >= riskScores[1]) vm.expectRevert();
         applicationCoin.transfer(user2, 10001 * (10 ** 18));
     }
 
@@ -333,7 +333,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         uint48 riskBalance4 = _amountSeed;
         // add the rule.
         uint8[] memory _riskScore = createUint8Array(25, 50, 75, 90);
-        uint32 ruleId = createAccountMaxValueByRiskRule(createUint8Array(25, 50, 75, 90), createUint48Array(riskBalance1, riskBalance2, riskBalance3, 1));
+        uint32 ruleId = createAccountMaxValueByRiskRule(_riskScore, createUint48Array(riskBalance1, riskBalance2, riskBalance3, 1));
         setAccountMaxValueByRiskRule(ruleId);
         /// we set a risk score for user2, user3 and user4
         switchToRiskAdmin();

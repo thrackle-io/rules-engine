@@ -289,6 +289,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         address _user2 = addressList[1];
         address _user3 = addressList[2];
         address _user4 = addressList[3];
+        uint8[] memory riskScores = createUint8Array(20, 40, 60, 80, 99);
         /// set up a non admin user with tokens
         applicationNFT.safeTransferFrom(appAdministrator, _user1, 0);
         applicationNFT.safeTransferFrom(appAdministrator, _user1, 1);
@@ -320,19 +321,19 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         applicationNFT.safeTransferFrom(_user1, _user2, 0); // a 10-dollar NFT
         applicationNFT.safeTransferFrom(_user1, _user2, 1); // a 20-dollar NFT
 
-        if (risk >= 99) vm.expectRevert();
+        if (risk >= riskScores[4]) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user1, _user2, 2); // a 30-dollar NFT
 
         vm.stopPrank();
         vm.startPrank(_user2);
         applicationNFT.safeTransferFrom(_user2, _user1, 0); // a 10-dollar NFT
 
-        if (risk >= 40) vm.expectRevert();
+        if (risk >= riskScores[1]) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user2, _user1, 5); // a 60-dollar NFT
 
         vm.stopPrank();
         vm.startPrank(_user3);
-        if (risk >= 20) vm.expectRevert();
+        if (risk >= riskScores[0]) vm.expectRevert();
         applicationNFT.safeTransferFrom(_user3, _user4, 19); // a 200-dollar NFT
     }
 
@@ -670,7 +671,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 10, 9_000_000_000_000 * ATTO - 900_000_000 * ATTO);
         erc721Pricer.setSingleNFTPrice(address(applicationNFT), 11, 1 * ATTO);
 
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(25, 50, 75), createUint48Array(100_000_000, 10_000, 1), period);
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(_riskScore, createUint48Array(100_000_000, 10_000, 1), period);
         setAccountMaxTxValueByRiskRule(ruleId);
         /// we set a risk score for user1
         switchToRiskAdmin();
@@ -807,7 +808,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
         }
 
-        uint32 ruleId = createAccountMaxValueByRiskRule(createUint8Array(0, 10, 40, 80, 99), createUint48Array(10_000_000, 100_000, 1_000, 500, 10));
+        uint32 ruleId = createAccountMaxValueByRiskRule(riskScores, createUint48Array(10_000_000, 100_000, 1_000, 500, 10));
         setAccountMaxValueByRiskRule(ruleId);
         vm.stopPrank();
         vm.startPrank(_user1);

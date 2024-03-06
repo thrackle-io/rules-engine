@@ -400,6 +400,7 @@ function testERC721_TokenMaxDailyTrades() public {
 
     function testERC721_AccountMaxTransactionValueByRiskScore() public {
         ///Mint NFT's (user1,2,3)
+        uint8[] memory riskScores = createUint8Array(0, 10, 40, 80);
         applicationNFT.safeMint(user1); // tokenId = 0
         applicationNFT.safeMint(user1); // tokenId = 1
         applicationNFT.safeMint(user1); // tokenId = 2
@@ -413,13 +414,13 @@ function testERC721_TokenMaxDailyTrades() public {
         assertEq(applicationNFT.balanceOf(user2), 3);
 
         ///Set Rule in NFTHandler
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(0, 10, 40, 80), createUint48Array(17, 15, 12, 11));
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, createUint48Array(17, 15, 12, 11));
         setAccountMaxTxValueByRiskRule(ruleId); 
         ///Set Risk Scores for users
         switchToRiskAdmin();
-        applicationAppManager.addRiskScore(user1, 0);
-        applicationAppManager.addRiskScore(user2, 10);
-        applicationAppManager.addRiskScore(user3, 49);
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user3, riskScores[2]);
 
         ///Set Pricing for NFTs 0-7
         switchToAppAdministrator();
@@ -498,6 +499,7 @@ function testERC721_TokenMaxDailyTrades() public {
     }
 
     function testERC721_AccountMaxTransactionValueByRiskScoreWithPeriod() public {
+        uint8[] memory riskScores = createUint8Array(0, 10, 40, 80);
         ///Mint NFT's (user1,2,3)
         applicationNFT.safeMint(user1); // tokenId = 0
         applicationNFT.safeMint(user1); // tokenId = 1
@@ -513,13 +515,13 @@ function testERC721_TokenMaxDailyTrades() public {
 
         ///Set Rule in NFTHandler
         uint8 period = 24; 
-        uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(0, 10, 40, 80), createUint48Array(17, 15, 12, 11), period);
+        uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, createUint48Array(17, 15, 12, 11), period);
         setAccountMaxTxValueByRiskRule(ruleId);
         ///Set Risk Scores for users
         switchToRiskAdmin();
-        applicationAppManager.addRiskScore(user1, 0);
-        applicationAppManager.addRiskScore(user2, 10);
-        applicationAppManager.addRiskScore(user3, 49);
+        applicationAppManager.addRiskScore(user1, riskScores[0]);
+        applicationAppManager.addRiskScore(user2, riskScores[1]);
+        applicationAppManager.addRiskScore(user3, riskScores[2]);
 
         ///Set Pricing for NFTs 0-7
         switchToAppAdministrator(); 
