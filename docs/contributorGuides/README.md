@@ -50,6 +50,10 @@ Due to the diamond pattern setup, spinning up new features and enabling new func
 
 Foundry can sometimes get finnicky. Make sure all code changes are commited on your branch or no changes have been made before you add fresh dependencies to the code in place. If you are adding a new dependency, please make that it follows the styling of package dependencies as denoted in the `remappings.txt` file. 
 
+## Branch names
+
+If possible, please use JIRA to create new branch names. If you do not have access to the team JIRA, do not fret! Just come up with a decently descriptive name that tracks an issue in Github!
+
 ## Relevant Documentation
 
 1. [Repository Checkout][checkoutRepo-url]
