@@ -54,6 +54,10 @@ Foundry can sometimes get finnicky. Make sure all code changes are commited on y
 
 If possible, please use JIRA to create new branch names. If you do not have access to the team JIRA, do not fret! Just come up with a decently descriptive name that tracks an issue in Github!
 
+## Code Style
+
+In every way possible, please fill out all nat spec that is reasonable to fill out in the code and try to follow the official [solidity styling guide](https://docs.soliditylang.org/en/latest/style-guide.html) and [order of layout](https://docs.soliditylang.org/en/latest/style-guide.html#order-of-layout). If you are not sure how to fill out a nat spec, please see this [documentation](https://docs.soliditylang.org/en/latest/natspec-format.html). 
+
 ## Relevant Documentation
 
 1. [Repository Checkout][checkoutRepo-url]
