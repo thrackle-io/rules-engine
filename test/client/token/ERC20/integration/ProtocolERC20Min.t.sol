@@ -812,6 +812,7 @@ contract ProtocolERC20MinTest is TestCommonFoundry, DummyAMM, ERC20Util{
 
     function _setupAccountMaxSellSize() internal {
         ///Add tag to user
+        switchToAppAdministrator();
         applicationAppManager.addTag(user1, "AccountMaxSellSize");
         applicationAppManager.addTag(user2, "AccountMaxSellSize");
         /// add the rule.
@@ -820,24 +821,13 @@ contract ProtocolERC20MinTest is TestCommonFoundry, DummyAMM, ERC20Util{
     }
 
     function _setupAccountMaxSellSizeBlankTag() internal {
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
-        ///Add tag to user
-        bytes32[] memory accs = new bytes32[](1);
-        uint192[] memory maxSizes = new uint192[](1);
-        uint16[] memory period = new uint16[](1);
-        accs[0] = bytes32("");
-        maxSizes[0] = uint192(600); ///Amount to trigger Sell freeze rules
-        period[0] = uint16(36); ///Hours
-
         /// add the rule.
         uint32 ruleId = createAccountMaxSellSizeRule("", 600, 36);
         setAccountMaxSellSizeRule(address(applicationCoinHandler), ruleId);
     }
 
     function _setupAccountMaxBuySizeRule() internal {
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
+        switchToAppAdministrator();
         /// Add tag to users
         applicationAppManager.addTag(user1, "MaxBuySize");
         applicationAppManager.addTag(user2, "MaxBuySize");
