@@ -49,8 +49,7 @@ contract DeployAllModulesPt2Script is Script, DiamondScriptUtil {
     function deployFacets() internal {
 
         /// Register all facets.
-        string[6] memory facets = [
-            "FeeRuleProcessorFacet",
+        string[5] memory facets = [
             "ApplicationRiskProcessorFacet",
             "ApplicationAccessLevelProcessorFacet",
             "ApplicationPauseProcessorFacet",
