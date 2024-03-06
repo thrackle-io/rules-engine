@@ -49,12 +49,11 @@ contract DeployAllModulesPt3Script is Script, DiamondScriptUtil {
     function deployFacets() internal {
 
         /// Register all facets.
-        string[5] memory facets = [
+        string[4] memory facets = [
             "RuleApplicationValidationFacet",
             "RuleDataFacet",
             "TaggedRuleDataFacet",
-            "AppRuleDataFacet",
-            "FeeRuleDataFacet"
+            "AppRuleDataFacet"
         ];
 
         string[] memory getSelectorsInput = new string[](3);
