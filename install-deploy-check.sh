@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source ~/.bashrc
-foundryup --version nightly-2cb875799419c907cc3709e586ece2559e6b340e
+foundryup
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 // import "./IAppAdministratorOrOwnerOnly.sol";
 import {IAppManager} from "src/client/application/IAppManager.sol";

@@ -20,10 +20,7 @@ API documentation can be found [here](src/src/README.md).
 
 `pip install eth-abi`
 
-Note: Due to an issue with the latest version of foundry at the time of writing, we are currently using a specific foundry version. To guarantee expected behavior please run the following command:
-```bash
-foundryup --version nightly-09fe3e041369a816365a020f715ad6f94dbce9f2
-```
+`foundryup`
 
 In order to facilitate testing and deployment, the following resources were created:
 

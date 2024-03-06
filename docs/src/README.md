@@ -17,18 +17,18 @@ npm i @thrackle-io/rules-protocol-client
 
 ### Dependencies
 
-This package requires `@openzeppelin/contracts` version 4.9 and `@openzeppelin/contracts-upgradeable` version 4.9.
+This package requires `@openzeppelin/contracts` version 5.0.2 and `@openzeppelin/contracts-upgradeable` version 5.0.2.
 
 If the contracts show any compiling errors, try to manually update the version of the existing openzeppelin library in your project by doing:
 
 ```c
-npm i @openzeppelin/contracts@=4.9
+forge install OpenZeppelin/openzeppelin-contracts
 ```
 
 and
 
 ```c
-npm i @openzeppelin/contracts-upgradeable@=4.9
+forge install OpenZeppelin/openzeppelin-contracts-upgradeable
 ```
 
 ## Usage
@@ -41,7 +41,7 @@ To use the package simply import the files you are interested in. Here is an exa
 
 ```c
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import "@thrackle-io/rules-protocol-client/token/ERC20/ProtocolERC20.sol";
 
