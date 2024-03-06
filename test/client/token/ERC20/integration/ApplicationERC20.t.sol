@@ -1163,9 +1163,10 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function _setupAccountMaxSellSize() internal {
         ///Add tag to user
+        switchToAppAdministrator();
         applicationAppManager.addTag(user1, "AccountMaxSellSize");
         applicationAppManager.addTag(user2, "AccountMaxSellSize");
-        /// add the rule.
+        /// add the rule. 
         uint32 ruleId = createAccountMaxSellSizeRule("AccountMaxSellSize", 600, 36);
         setAccountMaxSellSizeRule(address(applicationCoinHandler), ruleId);
     }
@@ -1177,8 +1178,7 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     function _setupAccountMaxBuySizeRule() internal {
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
+        switchToAppAdministrator();
         /// Add tag to users
         applicationAppManager.addTag(user1, "MaxBuySize");
         applicationAppManager.addTag(user2, "MaxBuySize");
