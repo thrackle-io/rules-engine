@@ -58,6 +58,10 @@ If possible, please use JIRA to create new branch names. If you do not have acce
 
 In every way possible, please fill out all nat spec that is reasonable to fill out in the code and try to follow the official [solidity styling guide](https://docs.soliditylang.org/en/latest/style-guide.html) and [order of layout](https://docs.soliditylang.org/en/latest/style-guide.html#order-of-layout). If you are not sure how to fill out a nat spec, please see this [documentation](https://docs.soliditylang.org/en/latest/natspec-format.html). 
 
+## Commits
+
+Always make sure your commits are descriptive. In order to ensure that commits have a chronological sensibility, it may make sense to squash many commits together. In the case of potential merge conflicts, the preferred methodology to resolve said conflicts is to rebase against the longer branch and make corrections along the way. A cherry-pick may also be of use here. 
+
 ## Relevant Documentation
 
 1. [Repository Checkout][checkoutRepo-url]
