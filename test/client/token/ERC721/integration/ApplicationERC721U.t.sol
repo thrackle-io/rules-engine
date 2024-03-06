@@ -8,13 +8,12 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
 
     function setUp() public {
         vm.warp(Blocktime);
-        vm.startPrank(superAdmin);
         setUpProtocolAndAppManagerAndTokensUpgradeable();
-        switchToAppAdministrator();
         vm.warp(Blocktime); // set block.timestamp
     }
 
-    function testERC721_ApplicationERC721U_Mint() public {
+    function testERC721_ApplicationERC721U_Mint() public endWithStopPrank() {
+        switchToAppAdministrator();
         /// Owner Mints new tokenId
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(appAdministrator);
         console.log(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(appAdministrator));
@@ -24,7 +23,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(appAdministrator), 2);
     }
 
-    function testERC721_ApplicationERC721U_AdminMintOnly() public {
+    function testERC721_ApplicationERC721U_AdminMintOnly() public endWithStopPrank() {
         ApplicationERC721UpgAdminMint nft = ApplicationERC721UpgAdminMint(address(applicationNFTProxy));
         /// since this is the default implementation, we only need to test the negative case
         switchToUser();
@@ -44,7 +43,8 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         nft.safeMint(appAdministrator);
     }
  
-    function testERC721_ApplicationERC721U_Transfer() public {
+    function testERC721_ApplicationERC721U_Transfer() public endWithStopPrank() {
+        switchToAppAdministrator();
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(appAdministrator);
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(appAdministrator), 1);
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).transferFrom(appAdministrator, user, 0);
@@ -52,7 +52,8 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(user), 1);
     }
 
-    function testERC721_ApplicationERC721U_Burn_Positive() public {
+    function testERC721_ApplicationERC721U_Burn_Positive() public endWithStopPrank() {
+        switchToAppAdministrator();
         ///Mint and transfer tokenId 0
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(appAdministrator);
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).transferFrom(appAdministrator, appAdministrator, 0);
@@ -62,17 +63,18 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).burn(1);
         ///Switch to app administrator account for burn
         vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToAppAdministrator();
         /// Burn appAdministrator token
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).burn(0);
         ///Return to app admin account
         vm.stopPrank();
-        vm.startPrank(appAdministrator);
+        switchToAppAdministrator();
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(appAdministrator), 0);
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(appAdministrator), 0);
     }
 
-    function testERC721_ApplicationERC721U_Burn_Negative() public {
+    function testERC721_ApplicationERC721U_Burn_Negative() public endWithStopPrank() {
+        switchToAppAdministrator();
         ///Mint and transfer tokenId 0
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user);
         switchToUser();
@@ -82,7 +84,8 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).burn(0);
     }
  
-    function testERC721_ApplicationERC721U_AccountMinMaxTokenBalanceRule() public {
+    function testERC721_ApplicationERC721U_AccountMinMaxTokenBalanceRule() public endWithStopPrank() {
+        switchToAppAdministrator();
         /// mint 6 NFTs to appAdministrator for transfer
         for(uint i=0;i < 6;i++){
             ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(appAdministrator);
@@ -147,10 +150,10 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         // transfer should still fail
         vm.expectRevert(0x1da56a44);
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).transferFrom(user2, user1, 4);
-    
     }
 
-    function testERC721_ApplicationERC721U_AccountApproveDenyOracle() public {
+    function testERC721_ApplicationERC721U_AccountApproveDenyOracle() public endWithStopPrank() {
+        switchToAppAdministrator();
         /// set up a non admin user an nft
         for(uint i=0;i < 5;i++){
             ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user1);
@@ -197,7 +200,8 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         createAccountApproveDenyOracleRule(2);
     }
 
-    function testERC721_ApplicationERC721U_PauseRulesViaAppManager() public {
+    function testERC721_ApplicationERC721U_PauseRulesViaAppManager() public endWithStopPrank() {
+        switchToAppAdministrator();
         /// set up a non admin user an nft
         for(uint i=0;i < 5;i++){
             ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user1);
@@ -227,7 +231,8 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
     /**
      * @dev Test the TokenMaxDailyTrades rule
      */
-    function testERC721_ApplicationERC721U_TokenMaxDailyTrades() public {
+    function testERC721_ApplicationERC721U_TokenMaxDailyTrades() public endWithStopPrank() {
+        switchToAppAdministrator();
         /// set up a non admin user an nft
         for(uint i=0;i < 5;i++){
             ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user1); 
@@ -295,7 +300,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).transferFrom(user2, user1, 2);
     }
 
-    function testERC721_ApplicationERC721U_AccountMaxTransactionValueByRiskScore() public {
+    function testERC721_ApplicationERC721U_AccountMaxTransactionValueByRiskScore() public endWithStopPrank() {
         switchToAppAdministrator();
         uint8[] memory riskScores = createUint8Array(0, 10, 40, 80);
         ///Mint NFT's (user1,2,3)
@@ -388,7 +393,8 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(user2, user3, 4);
     }
 
-    function testERC721_ApplicationERC721U_AccountDenyForNoAccessLevelInNFT() public {
+    function testERC721_ApplicationERC721U_AccountDenyForNoAccessLevelInNFT() public endWithStopPrank() {
+        switchToAppAdministrator();
         /// set up a non admin user an nft
         for(uint i=0;i < 5;i++){
             ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user1);
@@ -431,7 +437,8 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(user2), 1);
     }
 
-    function testERC721_ApplicationERC721U_AccountMinMaxTokenBalance() public {
+    function testERC721_ApplicationERC721U_AccountMinMaxTokenBalance() public endWithStopPrank() {
+        switchToAppAdministrator();
         /// Mint NFTs for users 1, 2, 3
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user1); // tokenId = 0
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(user1); // tokenId = 1
@@ -536,7 +543,8 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(user3, rich_user, 6);
     }
 
-    function testERC721_ApplicationERC721U_AdminMinTokenBalance() public {
+    function testERC721_ApplicationERC721U_AdminMinTokenBalance() public endWithStopPrank() {
+        switchToAppAdministrator();
         /// Mint TokenId 0-6 to admin
         for (uint i; i < 7; i++ ) {
             ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(ruleBypassAccount);
@@ -579,7 +587,8 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
     }
 
-    function testERC721_ApplicationERC721U_UpgradeAppManager721u() public {
+    function testERC721_ApplicationERC721U_UpgradeAppManager721u() public endWithStopPrank() {
+        switchToAppAdministrator();
         address newAdmin = address(75);
         /// create a new app manager
         ApplicationAppManager _applicationAppManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
@@ -616,8 +625,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         applicationAppManager3.confirmAppManager(address(applicationNFTProxy));
     }
 
-    function testERC721_ApplicationERC721U_ERC721Upgrade() public {
-        vm.stopPrank();
+    function testERC721_ApplicationERC721U_ERC721Upgrade() public endWithStopPrank() {
         vm.startPrank(proxyOwner);
         applicationNFT2 = new ApplicationERC721UpgAdminMint();
         applicationNFTProxy.upgradeTo(address(applicationNFT2));

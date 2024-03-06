@@ -16,7 +16,7 @@ abstract contract RuleStorageInvariantCommon is TestCommonFoundry{
     uint256 constant maxRuleCount = 2**32;
 
     function prepRuleStorageInvariant() public {
-        vm.startPrank(superAdmin);
+        switchToSuperAdmin();
         setUpProtocolAndAppManager();
         vm.warp(Blocktime);        
     }

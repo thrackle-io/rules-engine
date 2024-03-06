@@ -14,53 +14,44 @@ import "test/util/RuleCreation.sol";
 abstract contract TokenUtils is RuleCreation {
 
 
-    function setAccountMaxBuySizeRule(address assetHandler, uint32 ruleId) public {
+    function setAccountMaxBuySizeRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         TradingRuleFacet(address(assetHandler)).setAccountMaxBuySizeId(ruleId);
-        switchToOriginalUser();
     }
 
-    function setAccountMaxSellSizeRule(address assetHandler, uint32 ruleId) public {
+    function setAccountMaxSellSizeRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         TradingRuleFacet(address(assetHandler)).setAccountMaxSellSizeId(ruleId);
-        switchToOriginalUser();
     }
 
-    function setAccountMaxTxValueByRiskRule(uint32 ruleId) public {
+    function setAccountMaxTxValueByRiskRule(uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         applicationHandler.setAccountMaxTxValueByRiskScoreId(ruleId);
-        switchToOriginalUser();
     }
 
-    function setAccountMaxValueByAccessLevelRule(uint32 ruleId) public {
+    function setAccountMaxValueByAccessLevelRule(uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         applicationHandler.setAccountMaxValueByAccessLevelId(ruleId);
-        switchToOriginalUser();
     }
 
-    function setAccountMaxValueByRiskRule(uint32 ruleId) public {
+    function setAccountMaxValueByRiskRule(uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         applicationHandler.setAccountMaxValueByRiskScoreId(ruleId);
-        switchToOriginalUser();
     }
 
 
-    function setAccountMaxValueOutByAccessLevelRule(uint32 ruleId) public {
+    function setAccountMaxValueOutByAccessLevelRule(uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         applicationHandler.setAccountMaxValueOutByAccessLevelId(ruleId);
-        switchToOriginalUser();
     }
 
-    function setTokenMaxBuyVolumeRule(address assetHandler, uint32 ruleId) public {
+    function setTokenMaxBuyVolumeRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         TradingRuleFacet(address(assetHandler)).setTokenMaxBuyVolumeId(ruleId);
-        switchToOriginalUser();
     }
 
-    function setTokenMaxSellVolumeRule(address assetHandler, uint32 ruleId) public {
+    function setTokenMaxSellVolumeRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         TradingRuleFacet(address(assetHandler)).setTokenMaxSellVolumeId(ruleId);
-        switchToOriginalUser();
     }
-
 }

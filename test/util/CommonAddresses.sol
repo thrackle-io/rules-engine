@@ -30,7 +30,6 @@ contract CommonAddresses {
     address accessLevel = address(3);
     address rich_user = address(45);
     address proxyOwner = address(787);
-    address priorAddress;
     address newAdmin = address(75);
     address[] badBoys;
     address[] goodBoys;
