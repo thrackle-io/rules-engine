@@ -2,6 +2,8 @@
 pragma solidity ^0.8.24;
 
 import "test/util/TestCommonFoundry.sol";
+import "test/util/RuleCreation.sol";
+import "test/client/token/ERC721/util/ERC721Util.sol";
 
 /**
  * @dev This test suite is for testing the deployed protocol via forking the desired network
@@ -9,7 +11,7 @@ import "test/util/TestCommonFoundry.sol";
  * This test suite contains if checks that assume you have followed the deployment guide docs and have added an NFTTransferCounter and AccountBalanceByAccessLevel rule when testing forked contracts.
  */
 
-contract RuleProcessorDiamondTest is Test, TestCommonFoundry {
+contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util {
 
     address ruleProcessorDiamondAddress;
     bool forkTest;

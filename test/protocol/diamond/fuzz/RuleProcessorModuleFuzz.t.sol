@@ -2,8 +2,9 @@
 pragma solidity ^0.8.24;
 
 import "test/util/TestCommonFoundry.sol";
+import "test/util/RuleCreation.sol";
 
-contract RuleProcessorModuleFuzzTest is TestCommonFoundry {
+contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
 
     function setUp() public {
         vm.startPrank(superAdmin);

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
+import "src/common/ActionEnum.sol";
+
 /**
  * @title Test Arrays 
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -381,6 +383,66 @@ abstract contract TestArrays {
         array[0] = arg1;
         array[1] = arg2; 
         array[2] = arg3; 
+    }
+
+    /**
+     * @dev This function creates a uint8 array for Action Types to be used in tests 
+     * @notice This function creates a uint8 array size of 1 
+     * @return array uint8[] 
+     */
+    function createActionTypeArray(ActionTypes arg1) public pure returns(ActionTypes[] memory array) {
+        array = new ActionTypes[](1);
+        array[0] = arg1;
+    }
+
+    /**
+     * @dev This function creates a uint8 array for Action Types to be used in tests 
+     * @notice This function creates a uint8 array size of 2
+     * @return array uint8[] 
+     */
+    function createActionTypeArray(ActionTypes arg1, ActionTypes arg2) public pure returns(ActionTypes[] memory array) {
+        array = new ActionTypes[](2);
+        array[0] = arg1;
+        array[1] = arg2;
+    }
+
+    /**
+     * @dev This function creates a uint8 array for Action Types to be used in tests 
+     * @notice This function creates a uint8 array size of 3 
+     * @return array uint8[] 
+     */
+    function createActionTypeArray(ActionTypes arg1, ActionTypes arg2, ActionTypes arg3) public pure returns(ActionTypes[] memory array) {
+        array = new ActionTypes[](3);
+        array[0] = arg1;
+        array[1] = arg2;
+        array[2] = arg3;
+    }
+
+    /**
+     * @dev This function creates a uint8 array for Action Types to be used in tests 
+     * @notice This function creates a uint8 array size of 4 
+     * @return array uint8[] 
+     */
+    function createActionTypeArray(ActionTypes arg1, ActionTypes arg2, ActionTypes arg3, ActionTypes arg4) public pure returns(ActionTypes[] memory array) {
+        array = new ActionTypes[](4);
+        array[0] = arg1;
+        array[1] = arg2;
+        array[2] = arg3;
+        array[3] = arg4;
+    }
+
+    /**
+     * @dev This function creates a uint8 array for Action Types to be used in tests 
+     * @notice This function creates a uint8 array size of 5
+     * @return array uint8[] 
+     */
+    function createActionTypeArray(ActionTypes arg1, ActionTypes arg2, ActionTypes arg3, ActionTypes arg4, ActionTypes arg5) public pure returns(ActionTypes[] memory array) {
+        array = new ActionTypes[](5);
+        array[0] = arg1;
+        array[1] = arg2;
+        array[2] = arg3;
+        array[3] = arg4;
+        array[4] = arg5;
     }
 
 }

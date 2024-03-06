@@ -5,6 +5,7 @@ import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 import "test/util/GenerateSelectors.sol";
 import "test/util/TestArrays.sol";
+
 /// common diamond imports 
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/protocol/economic/ruleProcessor/RuleProcessorDiamond.sol";
@@ -26,8 +27,9 @@ import {RuleApplicationValidationFacet} from "src/protocol/economic/ruleProcesso
 import {ApplicationRiskProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol";
 import {ApplicationPauseProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol";
 import {ApplicationAccessLevelProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol";
+import {ApplicationRiskProcessorFacet} from "src/protocol/economic/ruleProcessor/ApplicationRiskProcessorFacet.sol";
 import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol";
-import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
+import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules, IApplicationRules as AppRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
 
