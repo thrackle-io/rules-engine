@@ -288,6 +288,8 @@ echo  Make Rule Admin
 echo "################################################################"
 echo
 
+cast send $APPLICATION_APP_MANAGER "addAppAdministrator(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
+
 cast send $APPLICATION_APP_MANAGER "addRuleAdministrator(address)" $APP_ADMIN_1 --private-key $APP_ADMIN_1_KEY --rpc-url $ETH_RPC_URL
 
 echo "################################################################"
