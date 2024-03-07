@@ -24,6 +24,6 @@ ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 ENV AWS_DEFAULT_REGION=${AWS_REGION}
 ENV GITHUB_BRANCH_NAME=${BRANCH_NAME}
 
-CMD ["./install-deploy-check.sh"]
+#CMD ["./install-deploy-check.sh"]
 
-# CMD ["tail", "-f", "/dev/null"]
+CMD ["tail", "-f", "/dev/null"]
