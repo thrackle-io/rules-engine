@@ -32,7 +32,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
             emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i], _ruleId);
             unchecked {
                 ++i;
-             }
+            }
         }            
     }
 
@@ -105,6 +105,9 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
                 _index = i;
                 _found = true;
                 break;
+            }
+            unchecked {
+                ++i;
             }
         }
         return (_index,_found);

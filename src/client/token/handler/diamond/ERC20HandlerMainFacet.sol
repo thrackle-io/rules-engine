@@ -28,7 +28,7 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
         data.appManager = _appManagerAddress;
         data.ruleProcessor = _ruleProcessorProxyAddress;
         data.assetAddress = _assetAddress;
-        data.lastPossibleAction = 5;
+        data.lastPossibleAction = 4;
         ERC165Lib.setSupportedInterface(type(IAdminMinTokenBalanceCapable).interfaceId, true);
         ini.initialized = true;
         callAnotherFacet(0xf2fde38b, abi.encodeWithSignature("transferOwnership(address)",_assetAddress));
