@@ -23,15 +23,15 @@ import {ApplicationAppManager} from "src/example/application/ApplicationAppManag
  */
 
 contract ApplicationAdminRolesScript is Script {
-    uint256 privateKey;
-    address ownerAddress;
+    uint256 appAdminKey;
+    address appAdminAddress;
 
     function setUp() public {}
 
     function run() public {
-        privateKey = vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY");
-        ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
-        vm.startBroadcast(privateKey);
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
+        vm.startBroadcast(appAdminKey);
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         /**
          * Admin set up:

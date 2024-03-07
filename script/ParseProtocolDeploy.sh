@@ -37,6 +37,9 @@ echo
 QUORRA=$(sed -n 's/QUORRA=//p' .env)
 QUORRA_PRIVATE_KEY=$(sed -n 's/QUORRA_PRIVATE_KEY=//p' .env) 
 
+APP_ADMIN_01=$(sed -n 's/APP_ADMIN_01=//p' .env)
+APP_ADMIN_PRIVATE_KEY_01=$(sed -n 's/APP_ADMIN_PRIVATE_KEY_01=//p' .env) 
+
 os=$(uname -a)
 if [[ $os == *"Darwin"* ]]; then
   sed -i '' 's/RULE_PROCESSOR_DIAMOND=.*/RULE_PROCESSOR_DIAMOND='$RULE_PROCESSOR_DIAMOND'/g' $ENV_FILE
@@ -52,4 +55,12 @@ if [[ $os == *"Darwin"* ]]; then
 else
   sed -i 's/^DEPLOYMENT_OWNER=.*/DEPLOYMENT_OWNER='$QUORRA'/g' $ENV_FILE
   sed -i 's/^DEPLOYMENT_OWNER_KEY=.*/DEPLOYMENT_OWNER_KEY='$QUORRA_PRIVATE_KEY'/g' $ENV_FILE
+fi
+
+if [[ $os == *"Darwin"* ]]; then
+  sed -i '' 's/^APP_ADMIN=.*/APP_ADMIN='$APP_ADMIN_01'/g' $ENV_FILE
+  sed -i '' 's/^APP_ADMIN_PRIVATE_KEY=.*/APP_ADMIN_PRIVATE_KEY='$APP_ADMIN_PRIVATE_KEY_01'/g' $ENV_FILE
+else
+  sed -i 's/^APP_ADMIN=.*/APP_ADMIN='$APP_ADMIN_01'/g' $ENV_FILE
+  sed -i 's/^APP_ADMIN_PRIVATE_KEY=.*/APP_ADMIN_PRIVATE_KEY='$APP_ADMIN_PRIVATE_KEY_01'/g' $ENV_FILE
 fi

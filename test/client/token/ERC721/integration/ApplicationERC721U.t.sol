@@ -584,9 +584,11 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationAppManager _applicationAppManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
         /// propose a new AppManager
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).proposeAppManagerAddress(address(_applicationAppManager2));
+        switchToNewAdmin();
+        _applicationAppManager2.addAppAdministrator(address(appAdministrator));
+        
         /// confirm the app manager
-        vm.stopPrank();
-        vm.startPrank(newAdmin);
+        switchToAppAdministrator();
         _applicationAppManager2.confirmAppManager(address(applicationNFTProxy));
         /// test to ensure it still works
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeMint(appAdministrator);
@@ -596,8 +598,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(user), 1);
 
         /// Test fail scenarios
-        vm.stopPrank();
-        vm.startPrank(newAdmin);
+        switchToAppAdministrator();
         // zero address
         vm.expectRevert(0xd92e233d);
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).proposeAppManagerAddress(address(0));
@@ -607,6 +608,9 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         // non proposer tries to confirm
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).proposeAppManagerAddress(address(_applicationAppManager2));
         ApplicationAppManager applicationAppManager3 = new ApplicationAppManager(newAdmin, "Castlevania3", false);
+        switchToNewAdmin();
+        applicationAppManager3.addAppAdministrator(address(appAdministrator));
+        switchToAppAdministrator();
         vm.expectRevert(0x41284967);
         applicationAppManager3.confirmAppManager(address(applicationNFTProxy));
     }

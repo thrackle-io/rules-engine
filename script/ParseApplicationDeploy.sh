@@ -111,7 +111,7 @@ if [[ $NUMBER == 3 ]]; then
   fi
 
   # Retrieve the ERC 721 Handler
-  APPLICATION_ERC721_HANDLER=$(parseContractAddress "HandlerDiamond" $CHAIN_ID 2 "Application_Deploy_04_ApplicationNFT.s.sol")
+  APPLICATION_ERC721_HANDLER=$(parseContractAddress "HandlerDiamond" $CHAIN_ID 0 "Application_Deploy_04_ApplicationNFT.s.sol")
   echo APPLICATION_ERC721_HANDLER=$APPLICATION_ERC721_HANDLER
   echo
 

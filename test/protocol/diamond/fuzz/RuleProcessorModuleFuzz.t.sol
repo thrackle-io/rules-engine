@@ -297,8 +297,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
 
         /// Preparing for rule
         {
-            vm.stopPrank();
-            vm.startPrank(superAdmin);
+            switchToAppAdministrator();
             applicationAppManager.addTag(from, tagFrom); ///add tag
             applicationAppManager.addTag(to, tagTo); ///add tag
             /// add a accountMinMaxTokenBalance rule
