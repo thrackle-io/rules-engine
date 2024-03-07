@@ -14,7 +14,7 @@ import "src/client/token/handler/common/HandlerUtils.sol";
  */
 contract ApplicationERC20HandlerTest is Test, HandlerUtils {
    
-    function testDetermineTransferAction() public {
+    function testERC20_ApplicationERC20Actions_DetermineTransferAction() public {
         address from;
         address to;
         address sender;

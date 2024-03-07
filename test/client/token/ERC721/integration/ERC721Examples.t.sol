@@ -42,12 +42,12 @@ contract ApplicationERC721ExampleTest is TestCommonFoundry {
 
     }
 
-    function testERC721AndHandlerVersions() public {
+    function testERC721_ApplicationERC721Examples_AndHandlerVersions() public {
         string memory version = VersionFacet(address(applicationNFTHandler)).version();
         assertEq(version, "1.1.0");
     }
 
-    function testOwnerOrAdminMint() public {
+    function testERC721_ApplicationERC721Examples_OwnerOrAdminMint() public {
         /// since this is the default implementation, we only need to test the negative case
         switchToUser();
         vm.expectRevert(0x2a79d188);

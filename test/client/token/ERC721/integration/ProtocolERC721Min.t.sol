@@ -17,19 +17,19 @@ contract ProtocolERC721MinTest is TestCommonFoundry, DummyNFTAMM, ERC721Util {
         switchToAppAdministrator();
     }
 
-    function testERC721_HandlerVersions() public {
+    function testERC721_ProtocolERC721Min_HandlerVersions() public {
         string memory version = VersionFacet(address(applicationNFTHandler)).version();
         assertEq(version, "1.1.0");
     }
 
-    function testERC721_AlreadyInitialized() public{
+    function testERC721_ProtocolERC721Min_AlreadyInitialized() public{
         vm.stopPrank();
         vm.startPrank(address(minimalNFT));
         vm.expectRevert(abi.encodeWithSignature("AlreadyInitialized()"));
         ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(user1, user2, user3);
     }
 
-    function test_ERC721OnlyTokenCanCallCheckAllRules() public{
+    function testERC721_ProtocolERC721Min_ERC721OnlyTokenCanCallCheckAllRules() public{
         address handler = minimalNFT.getHandlerAddress();
         assertEq(handler, address(applicationNFTHandler));
         address owner = ERC173Facet(address(applicationNFTHandler)).owner();
@@ -38,7 +38,7 @@ contract ProtocolERC721MinTest is TestCommonFoundry, DummyNFTAMM, ERC721Util {
         ERC20HandlerMainFacet(handler).checkAllRules(0, 0, user1, user2, user3, 0);
     }
 
-    function testERC721_Mint() public {
+    function testERC721_ProtocolERC721Min_Mint() public {
         /// Owner Mints new tokenId
         minimalNFT.safeMint(appAdministrator);
         console.log(minimalNFT.balanceOf(appAdministrator));
@@ -48,14 +48,14 @@ contract ProtocolERC721MinTest is TestCommonFoundry, DummyNFTAMM, ERC721Util {
         assertEq(minimalNFT.balanceOf(appAdministrator), 2);
     }
 
-    function testERC721_Transfer() public {
+    function testERC721_ProtocolERC721Min_Transfer() public {
         minimalNFT.safeMint(appAdministrator);
         minimalNFT.transferFrom(appAdministrator, user, 0);
         assertEq(minimalNFT.balanceOf(appAdministrator), 0);
         assertEq(minimalNFT.balanceOf(user), 1);
     }
 
-    function testERC721_Burn() public {
+    function testERC721_ProtocolERC721Min_BurnERC721_Positive() public {
         ///Mint and transfer tokenId 0
         minimalNFT.safeMint(appAdministrator);
         minimalNFT.transferFrom(appAdministrator, appAdministrator, 0);
@@ -73,7 +73,7 @@ contract ProtocolERC721MinTest is TestCommonFoundry, DummyNFTAMM, ERC721Util {
         assertEq(minimalNFT.balanceOf(appAdministrator), 0);
     }
 
-    function testERC721_BurnERC721_Negative() public {
+    function testERC721_ProtocolERC721Min_BurnERC721_Negative() public {
         ///Mint and transfer tokenId 0
         minimalNFT.safeMint(appAdministrator);
         switchToUser();
@@ -82,7 +82,7 @@ contract ProtocolERC721MinTest is TestCommonFoundry, DummyNFTAMM, ERC721Util {
         minimalNFT.burn(0);
     }
 
-    function testERC721_ZeroAddressChecksERC721() public {
+    function testERC721_ProtocolERC721Min_ZeroAddressChecksERC721() public {
         vm.expectRevert();
         new ApplicationERC721("FRANK", "FRANK", address(0x0), "https://SampleApp.io");
         vm.expectRevert();
@@ -102,7 +102,7 @@ contract ProtocolERC721MinTest is TestCommonFoundry, DummyNFTAMM, ERC721Util {
         applicationHandler.setNFTPricingAddress(address(0x00));
     }
 
-    function testERC721_AccountMinMaxTokenBalanceRule() public {
+    function testERC721_ProtocolERC721Min_AccountMinMaxTokenBalanceRule() public {
         /// mint 6 NFTs to appAdministrator for transfer
         for (uint i; i < 6; i++) {
         minimalNFT.safeMint(appAdministrator);
@@ -168,7 +168,7 @@ contract ProtocolERC721MinTest is TestCommonFoundry, DummyNFTAMM, ERC721Util {
         minimalNFT.burn(11);
     }
 
-    function testERC721_AccountMinMaxTokenBalanceBlankTag2() public {
+    function testERC721_ProtocolERC721Min_AccountMinMaxTokenBalanceBlankTag2() public {
         /// mint 6 NFTs to appAdministrator for transfer
         for (uint i; i < 10; i++) {
             minimalNFT.safeMint(appAdministrator);
@@ -218,7 +218,7 @@ contract ProtocolERC721MinTest is TestCommonFoundry, DummyNFTAMM, ERC721Util {
 
     }
 
-    function testERC721_AccountApproveDenyOracle2() public {
+    function testERC721_ProtocolERC721Min_AccountApproveDenyOracle2() public {
         /// set up a non admin user an nft
         for (uint i; i < 5; i++) {
             minimalNFT.safeMint(user1);
@@ -285,7 +285,7 @@ contract ProtocolERC721MinTest is TestCommonFoundry, DummyNFTAMM, ERC721Util {
         minimalNFT.burn(3);
     }
 
-    function testERC721_PauseRulesViaAppManager() public {
+    function testERC721_ProtocolERC721Min_PauseRulesViaAppManager() public {
         /// set up a non admin user an nft
         minimalNFT.safeMint(user1);
         minimalNFT.safeMint(user1);
@@ -305,7 +305,7 @@ contract ProtocolERC721MinTest is TestCommonFoundry, DummyNFTAMM, ERC721Util {
         minimalNFT.transferFrom(user1, address(59), 2);
     }
 
-function testERC721_TokenMaxDailyTrades() public {
+function testERC721_ProtocolERC721Min_TokenMaxDailyTrades() public {
         /// set up a non admin user an nft
         minimalNFT.safeMint(user1); // tokenId = 0
         minimalNFT.safeMint(user1); // tokenId = 1
@@ -367,7 +367,7 @@ function testERC721_TokenMaxDailyTrades() public {
         minimalNFT.transferFrom(user2, user1, 2);
     }
  
-    function testERC721_TokenMaxDailyTradesBlankTag() public {
+    function testERC721_ProtocolERC721Min_TokenMaxDailyTradesBlankTag() public {
         /// set up a non admin user an nft
         minimalNFT.safeMint(user1); // tokenId = 0
         minimalNFT.safeMint(user1); // tokenId = 1
@@ -403,7 +403,7 @@ function testERC721_TokenMaxDailyTrades() public {
         assertEq(minimalNFT.balanceOf(user2), 0);
     }
 
-    function testMinERC721_AccountMaxTransactionValueByRiskScore() public {
+    function testERC721_ProtocolERC721Min_AccountMaxTransactionValueByRiskScore() public {
         switchToAppAdministrator();
         uint8[] memory riskScores = createUint8Array(0, 10, 40, 80);
         ///Mint NFT's (user1,2,3)
@@ -504,7 +504,7 @@ function testERC721_TokenMaxDailyTrades() public {
         minimalNFT.burn(6);
     }
 
-    function testERC721_AccountMaxTransactionValueByRiskScoreWithPeriod() public {
+    function testERC721_ProtocolERC721Min_AccountMaxTransactionValueByRiskScoreWithPeriod() public {
         switchToAppAdministrator();
         uint8[] memory riskScores = createUint8Array(0, 10, 40, 80);
         ///Mint NFT's (user1,2,3)
@@ -626,7 +626,7 @@ function testERC721_TokenMaxDailyTrades() public {
     /**
      * @dev Test the AccessLevel = 0 rule
      */
-    function testERC721_AccountDenyForNoAccessLevelInNFT() public {
+    function testERC721_ProtocolERC721Min_AccountDenyForNoAccessLevelInNFT() public {
         /// set up a non admin user an nft
         minimalNFT.safeMint(user1); // tokenId = 0
         minimalNFT.safeMint(user1); // tokenId = 1
@@ -660,7 +660,7 @@ function testERC721_TokenMaxDailyTrades() public {
         assertEq(minimalNFT.balanceOf(user2), 1);
     }
 
-    function testERC721_AccountMinMaxTokenBalance() public {
+    function testERC721_ProtocolERC721Min_AccountMinMaxTokenBalance() public {
         /// Mint NFTs for users 1, 2, 3
         minimalNFT.safeMint(user1); // tokenId = 0
         minimalNFT.safeMint(user1); // tokenId = 1
@@ -755,7 +755,7 @@ function testERC721_TokenMaxDailyTrades() public {
         minimalNFT.safeTransferFrom(user3, rich_user, 6);
     }
     
-    function testERC721_AccountMinMaxTokenBalanceBlankTag() public {
+    function testERC721_ProtocolERC721Min_AccountMinMaxTokenBalanceBlankTag() public {
         /// Mint NFTs for users 1, 2, 3
         minimalNFT.safeMint(user1); // tokenId = 0
         minimalNFT.safeMint(user1); // tokenId = 1
@@ -782,7 +782,7 @@ function testERC721_TokenMaxDailyTrades() public {
     
     }
 
-    function testERC721_AdminMinTokenBalance() public {
+    function testERC721_ProtocolERC721Min_AdminMinTokenBalance() public {
         /// Mint TokenId 0-6 to super admin
         for (uint i; i < 7; i++ ) {
             minimalNFT.safeMint(ruleBypassAccount);
@@ -814,7 +814,7 @@ function testERC721_TokenMaxDailyTrades() public {
         ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
     }
 
-    function testERC721_TransferVolumeRule() public {
+    function testERC721_ProtocolERC721Min_TransferVolumeRule() public {
         switchToAppAdministrator();
         // mint 10 nft's to non admin user
         for (uint i = 0; i < 10; i++) {
@@ -844,7 +844,7 @@ function testERC721_TokenMaxDailyTrades() public {
         minimalNFT.safeTransferFrom(user1, user2, 3);
     }
 
-    function testERC721_TransferVolumeRuleWithSupplySet() public {
+    function testERC721_ProtocolERC721Min_TransferVolumeRuleWithSupplySet() public {
         switchToAppAdministrator();
         // mint 10 nft's to non admin user
         for (uint i = 0; i < 10; i++) {
@@ -875,7 +875,7 @@ function testERC721_TokenMaxDailyTrades() public {
         minimalNFT.safeTransferFrom(user1, user2, 3);
     }
 
-    function testERC721_TokenMinHoldTime() public {
+    function testERC721_ProtocolERC721Min_TokenMinHoldTime() public {
         /// set the rule for 24 hours
         switchToRuleAdmin();
         setTokenMinHoldTimeRule(24); 
@@ -909,7 +909,7 @@ function testERC721_TokenMaxDailyTrades() public {
         minimalNFT.safeTransferFrom(user2, user1, 0);
     }
 
-    function testERC721_CollectionTokenMaxSupplyVolatility() public {
+    function testERC721_ProtocolERC721Min_CollectionTokenMaxSupplyVolatility() public {
         /// Mint tokens to specific supply
         for (uint i = 0; i < 10; i++) {
             minimalNFT.safeMint(appAdministrator);
@@ -944,7 +944,7 @@ function testERC721_TokenMaxDailyTrades() public {
         minimalNFT.safeMint(user1);
     }
 
-    function testERC721_NFTValuationOrig() public {
+    function testERC721_ProtocolERC721Min_NFTValuationOrig() public {
         /// mint NFTs and set price to $1USD for each token
         for (uint i = 0; i < 10; i++) {
             minimalNFT.safeMint(user1);
@@ -1067,7 +1067,7 @@ function testERC721_TokenMaxDailyTrades() public {
 
     
 
-    function testERC721_UpgradeAppManager721() public {
+    function testERC721_ProtocolERC721Min_UpgradeAppManager721() public {
         address newAdmin = address(75);
         /// create a new app manager
         ApplicationAppManager _applicationAppManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
@@ -1115,7 +1115,7 @@ function testERC721_TokenMaxDailyTrades() public {
         return amm;
     }
 
-    function testERC721_TokenMaxBuyVolumeRule() public {
+    function testERC721_ProtocolERC721Min_TokenMaxBuyVolumeRule() public {
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
@@ -1153,7 +1153,7 @@ function testERC721_TokenMaxDailyTrades() public {
 
     }
 
-    function testERC721_TokenMaxSellVolumeRule() public {
+    function testERC721_ProtocolERC721Min_TokenMaxSellVolumeRule() public {
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
@@ -1190,7 +1190,7 @@ function testERC721_TokenMaxDailyTrades() public {
 
     }
 
-    function testERC721_AccountMaxSellSize() public {
+    function testERC721_ProtocolERC721Min_AccountMaxSellSize() public {
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
@@ -1212,7 +1212,7 @@ function testERC721_TokenMaxDailyTrades() public {
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
-    function testERC721_AccountMaxSellSizeBlankTag() public {
+    function testERC721_ProtocolERC721Min_AccountMaxSellSizeBlankTag() public {
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
@@ -1231,7 +1231,7 @@ function testERC721_TokenMaxDailyTrades() public {
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
-    function testERC721_AccountMaxBuySizeRule() public {
+    function testERC721_ProtocolERC721Min_AccountMaxBuySizeRule() public {
         switchToAppAdministrator();
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
@@ -1255,7 +1255,7 @@ function testERC721_TokenMaxDailyTrades() public {
         _testBuyNFT(1, amm);
     }
 
-    function testERC721_TokenMaxSellVolumeRuleByPasserRule() public {
+    function testERC721_ProtocolERC721Min_TokenMaxSellVolumeRuleByPasserRule() public {
         DummyNFTAMM amm = setupTradingRuleTests();
         _fundThreeAccounts();
         applicationAppManager.approveAddressToTradingRuleAllowlist(user, true);
