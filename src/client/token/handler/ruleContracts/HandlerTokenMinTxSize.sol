@@ -17,22 +17,65 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
     /// Rule Setters and Getters
     
     /**
-     * @dev Set the tokenMinTransactionRuleId. Restricted to rule administrators only.
+     * @dev Set the TokenMinTxSize. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
-     * @param _actions the action type
+     * @param _actions the action types
      * @param _ruleId Rule Id to set
      */
     function setTokenMinTxSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        TokenMinTxSizeS storage data = lib.tokenMinTxSizeStorage();
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_ruleId);
         for (uint i; i < _actions.length; ) {
-            data.tokenMinTxSize[_actions[i]].ruleId = _ruleId;
-            data.tokenMinTxSize[_actions[i]].active = true;
-            emit AD1467_ApplicationHandlerActionApplied(TOKEN_MIN_TX_SIZE, _actions[i], _ruleId);
+            setTokenMinTxSizeIdUpdate(_actions[i], _ruleId);  
+            emit AD1467_ApplicationHandlerSimpleActionApplied(TOKEN_MAX_TRADING_VOLUME, _actions[i], _ruleId);
+            unchecked {
+                ++i;
+             }
+        }            
+    }
+
+    /**
+     * @dev Set the setAccountMinMaxTokenBalanceRule suite. Restricted to rule administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions actions to have the rule applied to
+     * @param _ruleIds Rule Id corresponding to the actions
+     */
+    function setTokenMinTxSizeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if(_actions.length == 0) revert InputArraysSizesNotValid();
+        if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
+        clearTokenMinTxSize(); 
+        for (uint i; i < _actions.length; ) {
+            setTokenMinTxSizeIdUpdate(_actions[i], _ruleIds[i]);
+            unchecked {
+                ++i;
+            }
+        } 
+         emit AD1467_ApplicationHandlerSimpleActionAppliedFull(TOKEN_MAX_TRADING_VOLUME, _actions, _ruleIds);
+    }
+
+    /**
+     * @dev Clear the rule data structure
+     */
+    function clearTokenMinTxSize() internal {
+        TokenMinTxSizeS storage data = lib.tokenMinTxSizeStorage();
+        for (uint i; i < lib.handlerBaseStorage().lastPossibleAction; ) {
+            delete data.tokenMinTxSize[ActionTypes(i)];
             unchecked {
                 ++i;
             }
         }
+    }
+    
+    /**
+     * @dev Set the TokenMinTxSize. 
+     * @notice that setting a rule will automatically activate it.
+     * @param _action the action type to set the rule
+     * @param _ruleId Rule Id to set
+     */
+    function setTokenMinTxSizeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_ruleId);
+        TokenMinTxSizeS storage data = lib.tokenMinTxSizeStorage();
+        data.tokenMinTxSize[_action].ruleId = _ruleId;
+        data.tokenMinTxSize[_action].active = true;            
     }
 
     /**

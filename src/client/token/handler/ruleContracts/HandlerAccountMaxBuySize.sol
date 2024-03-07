@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "./HandlerRuleContractsCommonImports.sol";
+import {IAssetHandlerErrors} from "src/common/IErrors.sol";
 
 
 /**
@@ -12,7 +13,7 @@ import "./HandlerRuleContractsCommonImports.sol";
  */
 
 
-contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents{
+contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors{
 
     /// Rule Setters and Getters
     /**
@@ -21,11 +22,55 @@ contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents{
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxBuySizeId(uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        setAccountMaxBuySizeIdUpdate(ActionTypes.BUY, _ruleId);
+        emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY, _ruleId);
+    }
+
+    /**
+     * @dev Set the AccountMaxBuySizeRule suite for all actions. Restricted to rule administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions all the actions to set the rule for
+     * @param _ruleIds rule id's corresponding to each action
+     */
+    function setAccountMaxBuySizeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if(_actions.length == 0) revert InputArraysSizesNotValid();
+        if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
+        clearAccountMaxBuySize();
+        for (uint i; i < _actions.length; ) {
+            setAccountMaxBuySizeIdUpdate(_actions[i], _ruleIds[i]);
+            unchecked {
+                ++i;
+            }
+        } 
+         emit AD1467_ApplicationHandlerActionAppliedFull(ACCOUNT_MAX_BUY_SIZE, _actions, _ruleIds);
+    }
+
+    /**
+     * @dev Clear the rule data structure
+     */
+    function clearAccountMaxBuySize() internal {
+        AccountMaxBuySizeS storage data = lib.accountMaxBuySizeStorage();
+        for (uint i; i < lib.handlerBaseStorage().lastPossibleAction; ) {
+            delete data.id;
+            delete data.active;
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev Set the AccountMaxBuySizeRuleId. 
+     * @notice that setting a rule will automatically activate it.
+     * @param _action the action type to set the rule
+     * @param _ruleId Rule Id to set
+     */
+    function setAccountMaxBuySizeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
+        if (_action != ActionTypes.BUY) revert InvalidAction();
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMaxBuySize(_ruleId);
         AccountMaxBuySizeS storage AccountMaxBuySize = lib.accountMaxBuySizeStorage();
         AccountMaxBuySize.id = _ruleId;
         AccountMaxBuySize.active = true;
-        emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY, _ruleId);
     }
 
     /**
