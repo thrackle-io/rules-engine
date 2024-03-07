@@ -1,42 +1,34 @@
 # IApplicationRules
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)
 
 
 ## Structs
-### AccountMaxTransactionValueByRiskScore
-******** Transaction Size Per Period Rules ********
+### AccountMaxTxValueByRiskScore
+******** Account Max Transaction Value ByRisk Score Rules ********
 
-*maxSize size must be equal to riskScore size + 1.
-This is because the maxSize should also specified the max tx
-size allowed for anything between the highest risk level and 100
-which is specified in the last position of the maxSize.
-The positionning of the elements within the arrays has meaning.
-The first element in the maxSize array corresponds to the risk
-range between 0 and the risk score specified in the first position
-of the riskScore array (exclusive). The last maxSize value
-will represent the max tx size allowed for any risk score above
-the risk level set in the last element of the riskScore array.
-Therefore, the order of the values inside the riskScore
-array must be ascendant.*
+*maxValue size must be equal to _riskScore
+The positioning of the arrays is ascendant in terms of risk scores,
+and descendant in the size of transactions. (i.e. if highest risk score is 99, the last balanceLimit
+will apply to all risk scores of 100.)*
 
 
 ```solidity
-struct AccountMaxTransactionValueByRiskScore {
-    uint48[] maxSize;
+struct AccountMaxTxValueByRiskScore {
+    uint48[] maxValue;
     uint8[] riskScore;
     uint16 period;
-    uint64 startingTime;
+    uint64 startTime;
 }
 ```
 
 ### AccountMaxValueByRiskScore
-******** Account Balance Rules By Risk Score ********
+******** Account Max Value By Risk Score Rules ********
 
 
 ```solidity
 struct AccountMaxValueByRiskScore {
     uint8[] riskScore;
-    uint48[] maxBalance;
+    uint48[] maxValue;
 }
 ```
 

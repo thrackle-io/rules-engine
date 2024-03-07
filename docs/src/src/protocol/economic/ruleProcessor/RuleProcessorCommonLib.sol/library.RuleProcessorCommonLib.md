@@ -1,10 +1,10 @@
 # RuleProcessorCommonLib
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/RuleProcessorCommonLib.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/RuleProcessorCommonLib.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
 
-*stores common functions used throughout the protocol rule checks*
+*Stores common functions used throughout the protocol rule checks*
 
 
 ## State Variables
@@ -18,7 +18,7 @@ uint8 constant MAX_TAGS = 10;
 ## Functions
 ### validateTimestamp
 
-*validate a user entered timestamp to ensure that it is valid. Validity depends on it being greater than UNIX epoch and not more than 1 year into the future. It reverts with custom error if invalid*
+*Validate a user entered timestamp to ensure that it is valid. Validity depends on it being greater than UNIX epoch and not more than 1 year into the future. It reverts with custom error if invalid*
 
 
 ```solidity
@@ -27,11 +27,11 @@ function validateTimestamp(uint64 _startTime) internal view;
 
 ### checkRuleExistence
 
-*generic function to check the existence of a rule*
+*Generic function to check the existence of a rule*
 
 
 ```solidity
-function checkRuleExistence(uint32 _ruleIndex, uint32 _ruleTotal) internal pure returns (bool);
+function checkRuleExistence(uint32 _ruleIndex, uint32 _ruleTotal) internal pure;
 ```
 **Parameters**
 
@@ -40,12 +40,6 @@ function checkRuleExistence(uint32 _ruleIndex, uint32 _ruleTotal) internal pure 
 |`_ruleIndex`|`uint32`|index of the current rule|
 |`_ruleTotal`|`uint32`|total rules in existence for the rule type|
 
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|_exists true if it exists, false if not|
-
 
 ### isRuleActive
 
@@ -53,12 +47,12 @@ function checkRuleExistence(uint32 _ruleIndex, uint32 _ruleTotal) internal pure 
 
 
 ```solidity
-function isRuleActive(uint64 _startTs) internal view returns (bool);
+function isRuleActive(uint64 _startTime) internal view returns (bool);
 ```
 
 ### isWithinPeriod
 
-*determine if transaction should be accumulated with the previous or it is a new period which requires reset of accumulators*
+*Determine if transaction should be accumulated with the previous or it is a new period which requires reset of accumulators*
 
 
 ```solidity
@@ -82,12 +76,28 @@ function isWithinPeriod(uint64 _startTime, uint32 _period, uint64 _lastTransferT
 ### checkMaxTags
 
 if no transactions have happened in the past, it's new
+current timestamp subtracted by the remainder of seconds since the rule was active divided by period in seconds
 
-*determine if the max tag number is reached*
+*Determine if the max tag number is reached*
 
 
 ```solidity
 function checkMaxTags(bytes32[] memory _tags) internal pure;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tags`|`bytes32[]`|tags associated with the rule|
+
+
+### isApplicableToAllUsers
+
+*Determine if the rule applies to all users*
+
+
+```solidity
+function isApplicableToAllUsers(bytes32[] memory _tags) internal pure returns (bool _isAll);
 ```
 **Parameters**
 
@@ -98,13 +108,44 @@ function checkMaxTags(bytes32[] memory _tags) internal pure;
 
 ### retrieveRiskScoreMaxSize
 
+*Retrieve the max size of the risk rule for the risk score provided.*
+
 
 ```solidity
-function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskScores, uint48[] memory _maxSizes)
+function retrieveRiskScoreMaxSize(uint8 _riskScore, uint8[] memory _riskScores, uint48[] memory _maxValues)
     internal
     pure
     returns (uint256);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_riskScore`|`uint8`|risk score of the account|
+|`_riskScores`|`uint8[]`|array of risk scores for the rule|
+|`_maxValues`|`uint48[]`|array of max values from the rule|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|maxValue uint256 max value for the risk score for rule validation|
+
+
+### validateTags
+
+*validate tags to ensure only a blank or valid tags were submitted.*
+
+
+```solidity
+function validateTags(bytes32[] calldata _accountTags) internal pure;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accountTags`|`bytes32[]`|the timestamp the rule was enabled|
+
 
 ## Errors
 ### InvalidTimestamp
@@ -123,5 +164,11 @@ error MaxTagLimitReached();
 
 ```solidity
 error RuleDoesNotExist();
+```
+
+### TagListMustBeSingleBlankOrValueList
+
+```solidity
+error TagListMustBeSingleBlankOrValueList();
 ```
 

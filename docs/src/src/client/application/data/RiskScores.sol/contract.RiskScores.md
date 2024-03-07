@@ -1,5 +1,5 @@
 # RiskScores
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/data/RiskScores.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/application/data/RiskScores.sol)
 
 **Inherits:**
 [IRiskScores](/src/client/application/data/IRiskScores.sol/interface.IRiskScores.md), [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md)
@@ -57,6 +57,22 @@ function addScore(address _address, uint8 _score) public virtual onlyOwner;
 |----|----|-----------|
 |`_address`|`address`|address of the account|
 |`_score`|`uint8`|risk score (0-100)|
+
+
+### addMultipleRiskScores
+
+*Add the Risk Score at index to Account at index in array. Restricted to Risk Admins.*
+
+
+```solidity
+function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|address array upon which to apply the Risk Score|
+|`_scores`|`uint8[]`|Risk Score array (0-100)|
 
 
 ### addRiskScoreToMultipleAccounts

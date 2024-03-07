@@ -1,35 +1,43 @@
 # ITokenHandlerEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/common/IEvents.sol)
 
-**Author:**
-@ShaneDuncan602 @oscarsernarosero @TJ-Everett
+**Inherits:**
+[IAppManagerAddressSet](/src/common/IEvents.sol/interface.IAppManagerAddressSet.md)
 
-Handler Events Library
+Token Handler Events Library
 
-*This library for all protocol Handler Events. Each contract in the access module should inherit this library for emitting events.*
+*This library is for all Token Handler Events.*
 
 
 ## Events
-### HandlerDeployed
-Handler
-
-
-```solidity
-event HandlerDeployed(address indexed applicationHandler, address indexed appManager);
-```
-
-### ApplicationHandlerApplied
+### ApplicationHandlerActionApplied
 Rule applied
 
 
 ```solidity
-event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId);
+event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
 ```
 
-### ApplicationHandlerSimpleApplied
+### ApplicationHandlerSimpleActionApplied
 
 ```solidity
-event ApplicationHandlerSimpleApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint256 indexed param1);
+event ApplicationHandlerSimpleActionApplied(bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1);
+```
+
+### ApplicationHandlerActionDeactivated
+Rule deactivated
+
+
+```solidity
+event ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes action);
+```
+
+### ApplicationHandlerActionActivated
+Rule activated
+
+
+```solidity
+event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action);
 ```
 
 ### NFTValuationLimitUpdated
@@ -37,13 +45,7 @@ NFT Valuation Limit Updated
 
 
 ```solidity
-event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit, address indexed handlerAddress);
-```
-
-### AppManagerAddressSet
-
-```solidity
-event AppManagerAddressSet(address indexed _address);
+event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
 ```
 
 ### AppManagerAddressProposed
@@ -58,20 +60,6 @@ Fees
 
 ```solidity
 event FeeActivationSet(bool indexed _activation);
-```
-
-### ERC721PricingAddressSet
-Pricing
-
-
-```solidity
-event ERC721PricingAddressSet(address indexed _address);
-```
-
-### ERC20PricingAddressSet
-
-```solidity
-event ERC20PricingAddressSet(address indexed _address);
 ```
 
 ### ERC721AddressSet

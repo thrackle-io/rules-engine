@@ -1,22 +1,22 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/token/ERC20/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/token/ERC20/ProtocolERC20.sol)
 
 **Inherits:**
-ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md)
+ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md), ReentrancyGuard
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
 
 This is the base contract for all protocol ERC20s
 
-*The only thing to recognize is that flash minting is added but not allowed...yet*
+*The only thing to recognize is that flash minting is added but not yet allowed.*
 
 
 ## State Variables
 ### handler
 
 ```solidity
-ProtocolERC20Handler handler;
+IProtocolTokenHandler handler;
 ```
 
 
@@ -44,12 +44,12 @@ constructor(string memory _name, string memory _symbol, address _appManagerAddre
 |----|----|-----------|
 |`_name`|`string`|name of token|
 |`_symbol`|`string`|abreviated name for token (i.e. THRK)|
-|`_appManagerAddress`|`address`|address of app manager contract _upgradeMode is also passed to Handler contract to deploy a new data contract with the handler.|
+|`_appManagerAddress`|`address`|address of app manager contract|
 
 
 ### pause
 
-*pauses the contract. Only whenPaused modified functions will work once called.*
+*Pauses the contract. Only whenPaused modified functions will work once called.*
 
 *AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
 
@@ -90,7 +90,7 @@ function _beforeTokenTransfer(address from, address to, uint256 amount) internal
 
 Rule Processor Module Check
 
-*See {IERC165-supportsInterface}.*
+*See [IERC165-supportsInterface](/src/client/token/ERC721/ProtocolERC721.sol/contract.ProtocolERC721.md#supportsinterface).*
 
 
 ```solidity
@@ -99,19 +99,19 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
 
 ### transfer
 
-*This is overridden from {IERC20-transfer}. It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+*This is overridden from [IERC20-transfer](/lib/forge-std/src/interfaces/IERC20.sol/interface.IERC20.md#transfer). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
 Requirements:
 - `to` cannot be the zero address.
 - the caller must have a balance of at least `amount`.*
 
 
 ```solidity
-function transfer(address to, uint256 amount) public virtual override returns (bool);
+function transfer(address to, uint256 amount) public virtual override nonReentrant returns (bool);
 ```
 
 ### transferFrom
 
-*This is overridden from {IERC20-transferFrom}. It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+*This is overridden from [IERC20-transferFrom](/lib/forge-std/src/interfaces/IERC20.sol/interface.IERC20.md#transferfrom). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
 Emits an {Approval} event indicating the updated allowance. This is not
 required by the EIP. See the note at the beginning of {ERC20}.
 NOTE: Does not update the allowance if the current allowance
@@ -124,7 +124,7 @@ Requirements:
 
 
 ```solidity
-function transferFrom(address from, address to, uint256 amount) public override returns (bool);
+function transferFrom(address from, address to, uint256 amount) public override nonReentrant returns (bool);
 ```
 
 ### mint
@@ -145,7 +145,7 @@ function mint(address to, uint256 amount) public virtual;
 
 ### flashLoan
 
-check that the address calling mint is authorized(appAdminstrator, AMM or Staking Contract)
+Check that the address calling mint is authorized(appAdminstrator, AMM or Staking Contract)
 
 *This function is overridden here as a guarantee that flashloans are not allowed. This is done in case they are enabled at a later time.*
 
@@ -187,7 +187,7 @@ function connectHandlerToToken(address _handlerAddress) external appAdministrato
 
 ### getHandlerAddress
 
-*this function returns the handler address*
+*This function returns the handler address*
 
 
 ```solidity

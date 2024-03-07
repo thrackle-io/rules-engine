@@ -1,5 +1,5 @@
 # RuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/RuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/RuleDataFacet.sol)
 
 **Inherits:**
 Context, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/common/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppRuleInputErrors](/src/common/IErrors.sol/interface.IAppRuleInputErrors.md)
@@ -40,15 +40,14 @@ uint24 constant MAX_VOLUME_PERCENTAGE = 100000;
 Note that no update method is implemented for rules. Since reutilization of
 rules is encouraged, it is preferred to add an extra rule to the
 set instead of modifying an existing one.
-Token Purchase Percentage Getters/Setters **********
 
-*Function to add a Token Purchase Percentage rule*
+*Function to add a Token Max Buy Volume rule*
 
 
 ```solidity
 function addTokenMaxBuyVolume(
     address _appManagerAddr,
-    uint16 _tokenPercentage,
+    uint16 _supplyPercentage,
     uint16 _period,
     uint256 _totalSupply,
     uint64 _startTime
@@ -59,8 +58,8 @@ function addTokenMaxBuyVolume(
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_tokenPercentage`|`uint16`|Percentage of Tokens allowed to purchase|
-|`_period`|`uint16`|Time period that transactions are accumulated|
+|`_supplyPercentage`|`uint16`|Percentage of Tokens allowed to purchase|
+|`_period`|`uint16`|Time period that transactions are accumulated (in hours)|
 |`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
 |`_startTime`|`uint64`|start timestamp for the rule|
 
@@ -73,16 +72,14 @@ function addTokenMaxBuyVolume(
 
 ### addTokenMaxSellVolume
 
-Token Sell Percentage Getters/Setters **********
-
-*Function to add a Token Sell Percentage rule*
+*Function to add a Token Max Sell Volume rule*
 
 
 ```solidity
 function addTokenMaxSellVolume(
     address _appManagerAddr,
-    uint16 _tokenPercentage,
-    uint16 _sellPeriod,
+    uint16 _supplyPercentage,
+    uint16 _period,
     uint256 _totalSupply,
     uint64 _startTime
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
@@ -92,8 +89,8 @@ function addTokenMaxSellVolume(
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_tokenPercentage`|`uint16`|Percent of Tokens allowed to sell|
-|`_sellPeriod`|`uint16`|Time period that transactions are frozen|
+|`_supplyPercentage`|`uint16`|Percent of Tokens allowed to sell|
+|`_period`|`uint16`|Time period that transactions are frozen|
 |`_totalSupply`|`uint256`|total supply of tokens (0 if using total supply from the token contract)|
 |`_startTime`|`uint64`|start time for the period|
 
@@ -105,8 +102,6 @@ function addTokenMaxSellVolume(
 
 
 ### addPurchaseFeeByVolumeRule
-
-Token Purchase Fee By Volume Getters/Setters **********
 
 *Function to add a Token Purchase Fee By Volume rule*
 
@@ -173,9 +168,7 @@ function getTotalTokenPurchaseFeeByVolumeRules() public view returns (uint32);
 
 ### addTokenMaxPriceVolatility
 
-Token Volatility Getters/Setters **********
-
-*Function to add a Token Volatility rule*
+*Function to add a Token Max Price Volatility rule*
 
 
 ```solidity
@@ -210,7 +203,10 @@ function addTokenMaxPriceVolatility(
 
 
 ```solidity
-function getTokenMaxPriceVolatility(uint32 _index) external view returns (NonTaggedRules.TokenMaxPriceVolatility memory);
+function getTokenMaxPriceVolatility(uint32 _index)
+    external
+    view
+    returns (NonTaggedRules.TokenMaxPriceVolatility memory);
 ```
 **Parameters**
 
@@ -242,9 +238,7 @@ function getTotalTokenMaxPriceVolatility() public view returns (uint32);
 
 ### addTokenMaxTradingVolume
 
-Token Transfer Volume Getters/Setters **********
-
-*Function to add a Token transfer Volume rules*
+*Function to add a Token max trading Volume rules*
 
 
 ```solidity
@@ -262,7 +256,7 @@ function addTokenMaxTradingVolume(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_maxPercentage`|`uint24`|Maximum allowed volume percentage (this is 4 digits to allow 2 decimal places)|
-|`_hoursPerPeriod`|`uint16`|Allowed hours per period|
+|`_hoursPerPeriod`|`uint16`|hours that define a period|
 |`_startTime`|`uint64`|Timestamp to start the rule|
 |`_totalSupply`|`uint256`|Circulating supply value to use in calculations. If not specified, defaults to ERC20 totalSupply|
 
@@ -273,15 +267,13 @@ function addTokenMaxTradingVolume(
 |`<none>`|`uint32`|ruleId position of new rule in array|
 
 
-### addTokenMinTransactionSize
+### addTokenMinTxSize
 
-Minimum Transfer Rule Getters/Setters **********
-
-*Function to add Min Transfer rules*
+*Function to add Token Min Tx Size rules*
 
 
 ```solidity
-function addTokenMinTransactionSize(address _appManagerAddr, uint256 _minimumTransfer)
+function addTokenMinTxSize(address _appManagerAddr, uint256 _minSize)
     external
     ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);
@@ -291,7 +283,7 @@ function addTokenMinTransactionSize(address _appManagerAddr, uint256 _minimumTra
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_minimumTransfer`|`uint256`|Mimimum amount of tokens required for transfer|
+|`_minSize`|`uint256`|Mimimum amount of tokens required for transfer|
 
 **Returns**
 
@@ -300,15 +292,13 @@ function addTokenMinTransactionSize(address _appManagerAddr, uint256 _minimumTra
 |`<none>`|`uint32`|ruleId position of new rule in array|
 
 
-### addSupplyVolatilityRule
+### addTokenMaxSupplyVolatility
 
-Supply Volatility Getters/Setters **********
-
-*Function Token Supply Volatility rules*
+*Function Token Max Supply Volatility rules*
 
 
 ```solidity
-function addSupplyVolatilityRule(
+function addTokenMaxSupplyVolatility(
     address _appManagerAddr,
     uint16 _maxPercentage,
     uint16 _period,
@@ -335,9 +325,7 @@ function addSupplyVolatilityRule(
 
 ### addAccountApproveDenyOracle
 
-Oracle Getters/Setters **********
-
-*Function add an Oracle rule*
+*Function add an Account Approve/Deny Oracle rule*
 
 
 ```solidity

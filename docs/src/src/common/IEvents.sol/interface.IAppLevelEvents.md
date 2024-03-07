@@ -1,12 +1,16 @@
 # IAppLevelEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/common/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
 
 Protocol Module Events Library
 
-*This library for all events in the Protocol module for the protocol. Each contract in the Protocol module should inherit this library for emitting events.*
+Appliction Module Events Library
+
+*This library is for all events in the Protocol. Each contract should inherit thier specific library for emitting events.*
+
+*The library for all events in the Application module for the protocol.*
 
 
 ## Events
@@ -72,10 +76,10 @@ event RuleAdmin(address indexed admin, bool indexed add);
 event RiskAdmin(address indexed admin, bool indexed add);
 ```
 
-### AccessTierAdmin
+### AccessLevelAdmin
 
 ```solidity
-event AccessTierAdmin(address indexed admin, bool indexed add);
+event AccessLevelAdmin(address indexed admin, bool indexed add);
 ```
 
 ### AppAdministrator
@@ -88,6 +92,12 @@ event AppAdministrator(address indexed admin, bool indexed add);
 
 ```solidity
 event SuperAdministrator(address indexed admin, bool indexed add);
+```
+
+### RuleBypassAccount
+
+```solidity
+event RuleBypassAccount(address indexed bypassAccount, bool indexed add);
 ```
 
 ### TokenRegistered
@@ -116,6 +126,12 @@ event AMMRegistered(address indexed _address);
 event TreasuryRegistered(address indexed _address);
 ```
 
+### TradingRuleAddressAllowlist
+
+```solidity
+event TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
+```
+
 ### AccountProviderSet
 Accounts
 
@@ -136,18 +152,18 @@ event AccountAdded(address indexed account);
 event AccountRemoved(address indexed account);
 ```
 
-### GeneralTagProviderSet
-GeneralTags
+### TagProviderSet
+Tags
 
 
 ```solidity
-event GeneralTagProviderSet(address indexed _address);
+event TagProviderSet(address indexed _address);
 ```
 
-### GeneralTag
+### Tag
 
 ```solidity
-event GeneralTag(address indexed _address, bytes32 indexed _tag, bool indexed add);
+event Tag(address indexed _address, bytes32 indexed _tag, bool indexed add);
 ```
 
 ### TagAlreadyApplied

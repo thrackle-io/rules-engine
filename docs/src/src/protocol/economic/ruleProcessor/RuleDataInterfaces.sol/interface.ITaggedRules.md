@@ -1,96 +1,61 @@
 # ITaggedRules
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)
 
 
 ## Structs
-### PurchaseRule
-******** Account Purchase Rules ********
+### AccountMaxBuySize
+******** Account Max Buy Volume ********
 
 
 ```solidity
-struct PurchaseRule {
+struct AccountMaxBuySize {
     uint256 maxSize;
     uint16 period;
-    uint64 startTime;
 }
 ```
 
-### SellRule
-******** Account Sell Rules ********
+### AccountMaxSellSize
+******** Account Max Sell Size ********
 
 
 ```solidity
-struct SellRule {
-    uint256 sellAmount;
-    uint16 sellPeriod;
-    uint64 startTime;
+struct AccountMaxSellSize {
+    uint256 maxSize;
+    uint16 period;
 }
 ```
 
-### WithdrawalRule
-******** Account Withdrawal Rules ********
+### AccountMinMaxTokenBalance
+******** Account Min Max Token Balance ********
 
 
 ```solidity
-struct WithdrawalRule {
-    uint256 amount;
-    uint256 releaseDate;
-}
-```
-
-### MinMaxBalanceRule
-******** Minimum/Maximum Account Balances ********
-
-
-```solidity
-struct MinMaxBalanceRule {
-    uint256 minimum;
-    uint256 maximum;
+struct AccountMinMaxTokenBalance {
+    uint256 min;
+    uint256 max;
+    uint16 period;
 }
 ```
 
 ### AdminMinTokenBalance
-******** Admin Withdrawal Rules ********
+******** Admin Min Token Balance ********
 
 
 ```solidity
 struct AdminMinTokenBalance {
     uint256 amount;
-    uint256 releaseDate;
-}
-```
-
-### TransactionSizeToRiskRule
-******** Transaction Size Rules ********
-
-
-```solidity
-struct TransactionSizeToRiskRule {
-    uint8[] riskScore;
-    uint48[] maxSize;
-}
-```
-
-### MinBalByDateRule
-******** Minimum Balance By Date Rules ********
-
-
-```solidity
-struct MinBalByDateRule {
-    uint256 holdAmount;
-    uint16 holdPeriod;
-    uint256 startTimeStamp;
+    uint256 endTime;
 }
 ```
 
 ### TokenMaxDailyTrades
-******** NFT ********
+******** TokenMaxDailyTrades ********
 
 
 ```solidity
 struct TokenMaxDailyTrades {
     uint8 tradesAllowedPerDay;
-    uint64 startTs;
+    uint64 startTime;
 }
 ```
 

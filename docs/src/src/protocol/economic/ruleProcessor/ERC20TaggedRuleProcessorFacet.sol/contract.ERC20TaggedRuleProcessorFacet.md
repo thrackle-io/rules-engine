@@ -1,5 +1,5 @@
 # ERC20TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol)
 
 **Inherits:**
 [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagRuleErrors](/src/common/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md)
@@ -12,21 +12,29 @@ Implements Token Rules on Tagged Accounts.
 *Contract implements rules to be checked by Handler.*
 
 
-## Functions
-### checkMinMaxAccountBalancePasses
+## State Variables
+### BLANK_TAG
 
-*Check the minimum/maximum rule. This rule ensures that both the to and from accounts do not
+```solidity
+bytes32 constant BLANK_TAG = bytes32("");
+```
+
+
+## Functions
+### checkAccountMinMaxTokenBalance
+
+*Check the min/max token balance rule. This rule ensures that both the to and from accounts do not
 exceed the max balance or go below the min balance.*
 
 
 ```solidity
-function checkMinMaxAccountBalancePasses(
+function checkAccountMinMaxTokenBalance(
     uint32 ruleId,
     uint256 balanceFrom,
     uint256 balanceTo,
     uint256 amount,
-    bytes32[] calldata toTags,
-    bytes32[] calldata fromTags
+    bytes32[] memory toTags,
+    bytes32[] memory fromTags
 ) external view;
 ```
 **Parameters**
@@ -41,13 +49,13 @@ function checkMinMaxAccountBalancePasses(
 |`fromTags`|`bytes32[]`|tags applied via App Manager to sender address|
 
 
-### checkMinMaxAccountBalancePassesAMM
+### checkAccountMinMaxTokenBalanceAMM
 
-*Check the minimum/maximum rule through the AMM Swap*
+*Check the min/max token balance rule through the AMM Swap*
 
 
 ```solidity
-function checkMinMaxAccountBalancePassesAMM(
+function checkAccountMinMaxTokenBalanceAMM(
     uint32 ruleIdToken0,
     uint32 ruleIdToken1,
     uint256 tokenBalance0,
@@ -70,13 +78,17 @@ function checkMinMaxAccountBalancePassesAMM(
 |`fromTags`|`bytes32[]`|tags applied via App Manager to sender address|
 
 
-### ceckAccountMaxTokenBalance
+### checkAccountMaxTokenBalance
 
-*Check if tagged account passes maxAccountBalance rule*
+If the rule applies to all users, it checks blank tag only. Otherwise loop through
+tags and check for specific application. This was done in a minimal way to allow for
+modifications later while not duplicating rule check logic.
+
+*Check if tagged account passes AccountMaxTokenBalance rule*
 
 
 ```solidity
-function ceckAccountMaxTokenBalance(uint256 balanceTo, bytes32[] calldata toTags, uint256 amount, uint32 ruleId)
+function checkAccountMaxTokenBalance(uint256 balanceTo, bytes32[] memory toTags, uint256 amount, uint32 ruleId)
     public
     view;
 ```
@@ -92,15 +104,18 @@ function ceckAccountMaxTokenBalance(uint256 balanceTo, bytes32[] calldata toTags
 
 ### checkAccountMinTokenBalance
 
-This Function checks the max account balance for accounts depending on GeneralTags.
-Function will revert if a transaction breaks a single tag-dependent rule
+check if period is 0, 0 means a period hasn't been applied to this rule
 if a max is 0 it means it is an empty-rule/no-rule. a max should be greater than 0
 
-*Check if tagged account passes minAccountBalance rule*
+If the rule applies to all users, it checks blank tag only. Otherwise loop through
+tags and check for specific application. This was done in a minimal way to allow for
+modifications later while not duplicating rule check logic.
+
+*Check if tagged account passes AccountMinTokenBalance rule*
 
 
 ```solidity
-function checkAccountMinTokenBalance(uint256 balanceFrom, bytes32[] calldata fromTags, uint256 amount, uint32 ruleId)
+function checkAccountMinTokenBalance(uint256 balanceFrom, bytes32[] memory fromTags, uint256 amount, uint32 ruleId)
     public
     view;
 ```
@@ -114,20 +129,42 @@ function checkAccountMinTokenBalance(uint256 balanceFrom, bytes32[] calldata fro
 |`ruleId`|`uint32`|Rule identifier for rule arguments|
 
 
-### getMinMaxBalanceRule
+### getAccountMinMaxTokenBalanceStart
 
-This Function checks the min account balance for accounts depending on GeneralTags.
-Function will revert if a transaction breaks a single tag-dependent rule
-if a min is 0 then no need to check.
+check if period is 0, 0 means a period hasn't been applied to this rule
+Check to see if still in the hold period
+If the transaction will violate the rule, then revert
+if a min is 0 it means it is an empty-rule/no-rule. a min should be greater than 0
 
-*Function get the minMaxBalanceRule in the rule set that belongs to an account type*
+*Function get the min/max rule start timestamp*
 
 
 ```solidity
-function getMinMaxBalanceRule(uint32 _index, bytes32 _accountType)
+function getAccountMinMaxTokenBalanceStart(uint32 _index) public view returns (uint64 startTime);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`startTime`|`uint64`|rule start time|
+
+
+### getAccountMinMaxTokenBalance
+
+*Function get the accountMinMaxTokenBalance Rule in the rule set that belongs to an account type*
+
+
+```solidity
+function getAccountMinMaxTokenBalance(uint32 _index, bytes32 _accountType)
     public
     view
-    returns (TaggedRules.MinMaxBalanceRule memory);
+    returns (TaggedRules.AccountMinMaxTokenBalance memory);
 ```
 **Parameters**
 
@@ -140,16 +177,16 @@ function getMinMaxBalanceRule(uint32 _index, bytes32 _accountType)
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`TaggedRules.MinMaxBalanceRule`|minMaxBalanceRule at index location in array|
+|`<none>`|`TaggedRules.AccountMinMaxTokenBalance`|accountMinMaxTokenBalance Rule at index location in array|
 
 
-### getTotalMinMaxBalanceRules
+### getTotalAccountMinMaxTokenBalances
 
-*Function gets total Balance Limit rules*
+*Function gets total AccountMinMaxTokenBalances rules*
 
 
 ```solidity
-function getTotalMinMaxBalanceRules() public view returns (uint32);
+function getTotalAccountMinMaxTokenBalances() public view returns (uint32);
 ```
 **Returns**
 
@@ -163,7 +200,7 @@ function getTotalMinMaxBalanceRules() public view returns (uint32);
 that the function will revert if the check finds a violation of the rule, but won't give anything
 back if everything checks out.
 
-*checks that an admin won't hold less tokens than promised until a certain date*
+*Checks that an admin won't hold less tokens than promised until a certain date*
 
 
 ```solidity
@@ -180,7 +217,7 @@ function checkAdminMinTokenBalance(uint32 ruleId, uint256 currentBalance, uint25
 
 ### getAdminMinTokenBalance
 
-*Function gets Admin withdrawal rule at index*
+*Function gets AdminMinTokenBalance rule at index*
 
 
 ```solidity
@@ -201,7 +238,7 @@ function getAdminMinTokenBalance(uint32 _index) public view returns (TaggedRules
 
 ### getTotalAdminMinTokenBalance
 
-*Function to get total Admin withdrawal rules*
+*Function to get total AdminMinTokenBalance rules*
 
 
 ```solidity
@@ -214,61 +251,186 @@ function getTotalAdminMinTokenBalance() public view returns (uint32);
 |`<none>`|`uint32`|adminMinTokenBalanceRules total length of array|
 
 
-### checkMinBalByDatePasses
+### checkAccountMaxBuySize
 
-*Rule checks if the minimum balance by date rule will be violated. Tagged accounts must maintain a minimum balance throughout the period specified*
+If the rule applies to all users, it checks blank tag only. Otherwise loop through
+tags and check for specific application. This was done in a minimal way to allow for
+modifications later while not duplicating rule check logic.
+
+*Rule checks if recipient balance + amount exceeded purchaseAmount during purchase period, prevent purchases for freeze period*
 
 
 ```solidity
-function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags)
-    external
-    view;
+function checkAccountMaxBuySize(
+    uint32 ruleId,
+    uint256 boughtInPeriod,
+    uint256 amount,
+    bytes32[] memory toTags,
+    uint64 lastUpdateTime
+) external view returns (uint256);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`ruleId`|`uint32`|Rule identifier for rule arguments|
-|`balance`|`uint256`|account's current balance|
-|`amount`|`uint256`|Number of tokens to be transferred from this account|
+|`boughtInPeriod`|`uint256`|Number of tokens bought during Period|
+|`amount`|`uint256`|Number of tokens to be transferred|
 |`toTags`|`bytes32[]`|Account tags applied to sender via App Manager|
+|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|cumulativeTotal total amount of tokens bought within buy period.|
 
 
-### getMinBalByDateRule
+### getAccountMaxBuySize
 
-first check to see if still in the hold period
-If the transaction will violate the rule, then revert
-
-*Function get the minimum balance by date rule in the rule set that belongs to an account type*
+*Function get the account max buy size rule in the rule set that belongs to an account type*
 
 
 ```solidity
-function getMinBalByDateRule(uint32 _index, bytes32 _accountTag)
+function getAccountMaxBuySize(uint32 _index, bytes32 _accountType)
     public
     view
-    returns (TaggedRules.MinBalByDateRule memory);
+    returns (TaggedRules.AccountMaxBuySize memory);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_index`|`uint32`|position of rule in array|
-|`_accountTag`|`bytes32`|Tag of account|
+|`_accountType`|`bytes32`|Type of account|
 
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`TaggedRules.MinBalByDateRule`|Min BalanceByDate rule at index position|
+|`<none>`|`TaggedRules.AccountMaxBuySize`|AccountMaxBuySize rule at index position|
 
 
-### getTotalMinBalByDateRules
+### getAccountMaxBuySizeStart
 
-*Function to get total minimum balance by date rules*
+*Function get the account max buy size rule start timestamp*
 
 
 ```solidity
-function getTotalMinBalByDateRules() public view returns (uint32);
+function getAccountMaxBuySizeStart(uint32 _index) public view returns (uint64 startTime);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`startTime`|`uint64`|startTimestamp of rule at index position|
+
+
+### getTotalAccountMaxBuySize
+
+*Function to get total account max buy size rules*
+
+
+```solidity
+function getTotalAccountMaxBuySize() public view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|Total length of array|
+
+
+### checkAccountMaxSellSize
+
+*Sell rule functions similar to account max buy size rule but "resets" at 12 utc after maxSize is exceeded*
+
+
+```solidity
+function checkAccountMaxSellSize(
+    uint32 ruleId,
+    uint256 salesInPeriod,
+    uint256 amount,
+    bytes32[] memory fromTags,
+    uint64 lastUpdateTime
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|Rule identifier for rule arguments|
+|`salesInPeriod`|`uint256`||
+|`amount`|`uint256`|Number of tokens to be transferred|
+|`fromTags`|`bytes32[]`|Account tags applied to sender via App Manager|
+|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|cumulativeSales Total tokens sold within sell period.|
+
+
+### getAccountMaxSellSizeByIndex
+
+*Function to get Sell rule at index*
+
+
+```solidity
+function getAccountMaxSellSizeByIndex(uint32 _index, bytes32 _accountType)
+    public
+    view
+    returns (TaggedRules.AccountMaxSellSize memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|Position of rule in array|
+|`_accountType`|`bytes32`|Types of Accounts|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`TaggedRules.AccountMaxSellSize`|AccountMaxSellSize at position in array|
+
+
+### getAccountMaxSellSizeStartByIndex
+
+*Function get the account max buy size rule start timestamp*
+
+
+```solidity
+function getAccountMaxSellSizeStartByIndex(uint32 _index) public view returns (uint64 startTime);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|Position of rule in array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`startTime`|`uint64`|rule start timestamp.|
+
+
+### getTotalAccountMaxSellSize
+
+*Function to get total Sell rules*
+
+
+```solidity
+function getTotalAccountMaxSellSize() public view returns (uint32);
 ```
 **Returns**
 

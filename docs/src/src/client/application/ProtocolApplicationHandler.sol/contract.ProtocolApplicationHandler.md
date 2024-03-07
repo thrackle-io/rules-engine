@@ -1,8 +1,8 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
-Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
+Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -23,14 +23,14 @@ string private constant VERSION = "1.1.0";
 ### appManager
 
 ```solidity
-AppManager appManager;
+AppManager immutable appManager;
 ```
 
 
 ### appManagerAddress
 
 ```solidity
-address public appManagerAddress;
+address public immutable appManagerAddress;
 ```
 
 
@@ -41,12 +41,12 @@ IRuleProcessor immutable ruleProcessor;
 ```
 
 
-### accountBalanceByRiskRuleId
-Application level Rule Ids
+### accountMaxValueByRiskScoreId
+Risk Rule Ids
 
 
 ```solidity
-uint32 private accountBalanceByRiskRuleId;
+uint32 private accountMaxValueByRiskScoreId;
 ```
 
 
@@ -58,7 +58,7 @@ uint32 private accountMaxTransactionValueByRiskScoreId;
 
 
 ### accountMaxValueByRiskScoreActive
-Application level Rule on-off switches
+Risk Rule on-off switches
 
 
 ```solidity
@@ -73,12 +73,12 @@ bool private accountMaxTransactionValueByRiskScoreActive;
 ```
 
 
-### accountBalanceByAccessLevelRuleId
+### accountMaxValueByAccessLevelId
 AccessLevel Rule Ids
 
 
 ```solidity
-uint32 private accountBalanceByAccessLevelRuleId;
+uint32 private accountMaxValueByAccessLevelId;
 ```
 
 
@@ -98,10 +98,10 @@ bool private accountMaxValueByAccessLevelActive;
 ```
 
 
-### AccessLevel0RuleActive
+### AccountDenyForNoAccessLevelRuleActive
 
 ```solidity
-bool private AccessLevel0RuleActive;
+bool private AccountDenyForNoAccessLevelRuleActive;
 ```
 
 
@@ -118,6 +118,36 @@ Pause Rule on-off switch
 
 ```solidity
 bool private pauseRuleActive;
+```
+
+
+### erc20Pricer
+Pricing Module interfaces
+
+
+```solidity
+IProtocolERC20Pricing erc20Pricer;
+```
+
+
+### nftPricer
+
+```solidity
+IProtocolERC721Pricing nftPricer;
+```
+
+
+### erc20PricingAddress
+
+```solidity
+address public erc20PricingAddress;
+```
+
+
+### nftPricingAddress
+
+```solidity
+address public nftPricingAddress;
 ```
 
 
@@ -138,7 +168,7 @@ mapping(address => uint64) lastTxDateRiskRule;
 
 
 ### usdValueTotalWithrawals
-AccessLevelWithdrawalRule data
+AdminMinTokenBalanceRule data
 
 
 ```solidity
@@ -163,13 +193,13 @@ constructor(address _ruleProcessorProxyAddress, address _appManagerAddress);
 |`_appManagerAddress`|`address`|address of the application AppManager.|
 
 
-### requireValuations
+### requireApplicationRulesChecked
 
-*checks if any of the balance prerequisite rules are active*
+*checks if any of the Application level rules are active*
 
 
 ```solidity
-function requireValuations() public view returns (bool);
+function requireApplicationRulesChecked() public view returns (bool);
 ```
 **Returns**
 
@@ -185,37 +215,39 @@ function requireValuations() public view returns (bool);
 
 ```solidity
 function checkApplicationRules(
-    ActionTypes _action,
+    address _tokenAddress,
     address _from,
     address _to,
-    uint128 _usdBalanceTo,
-    uint128 _usdAmountTransferring
-) external onlyOwner returns (bool);
+    uint256 _amount,
+    uint16 _nftValuationLimit,
+    uint256 _tokenId,
+    ActionTypes _action,
+    HandlerTypes _handlerType
+) external onlyOwner;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_action`|`ActionTypes`|Action to be checked. This param is intentially added for future enhancements.|
+|`_tokenAddress`|`address`||
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
-|`_usdBalanceTo`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
-|`_usdAmountTransferring`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|success Returns true if allowed, false if not allowed|
+|`_amount`|`uint256`|amount of tokens to be transferred|
+|`_nftValuationLimit`|`uint16`|number of tokenID's per collection before checking collection price vs individual token price|
+|`_tokenId`|`uint256`|tokenId of the NFT token|
+|`_action`|`ActionTypes`|Action to be checked. This param is intentially added for future enhancements.|
+|`_handlerType`|`HandlerTypes`|the type of handler, used to direct to correct token pricing|
 
 
 ### _checkRiskRules
 
-*This function consolidates all the Risk rules that utilize application level Risk rules.*
+Based on the Handler Type retrieve pricing valuations
+
+*This function consolidates all the Risk rule checks.*
 
 
 ```solidity
-function _checkRiskRules(address _from, address _to, uint128 _usdBalanceTo, uint128 _usdAmountTransferring) internal;
+function _checkRiskRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation) internal;
 ```
 **Parameters**
 
@@ -223,26 +255,18 @@ function _checkRiskRules(address _from, address _to, uint128 _usdBalanceTo, uint
 |----|----|-----------|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
-|`_usdBalanceTo`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
-|`_usdAmountTransferring`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
+|`_balanceValuation`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
+|`_transferValuation`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
 
 
 ### _checkAccessLevelRules
 
-if rule is active check if the recipient is address(0) for burning tokens
-check if sender violates the rule
-check if recipient violates the rule
-
-*This function consolidates all the application level AccessLevel rules.*
+*This function consolidates all the Access Level rule checks.*
 
 
 ```solidity
-function _checkAccessLevelRules(
-    address _from,
-    address _to,
-    uint128 _usdBalanceValuation,
-    uint128 _usdAmountTransferring
-) internal;
+function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation)
+    internal;
 ```
 **Parameters**
 
@@ -250,19 +274,157 @@ function _checkAccessLevelRules(
 |----|----|-----------|
 |`_from`|`address`||
 |`_to`|`address`|address of the to account|
-|`_usdBalanceValuation`|`uint128`|address current balance in USD|
-|`_usdAmountTransferring`|`uint128`|number of tokens transferred|
+|`_balanceValuation`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
+|`_transferValuation`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
+
+
+### setNFTPricingAddress
+
+Exempting address(0) allows for burning.
+-------------- Pricing Module Configurations ---------------
+
+*Sets the address of the nft pricing contract and loads the contract.*
+
+
+```solidity
+function setNFTPricingAddress(address _address) external ruleAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_address`|`address`|Nft Pricing Contract address.|
+
+
+### setERC20PricingAddress
+
+*Sets the address of the erc20 pricing contract and loads the contract.*
+
+
+```solidity
+function setERC20PricingAddress(address _address) external ruleAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_address`|`address`|ERC20 Pricing Contract address.|
+
+
+### getAccTotalValuation
+
+This gets the account's balance in dollars.
+
+*Get the account's balance in dollars. It uses the registered tokens in the app manager.*
+
+
+```solidity
+function getAccTotalValuation(address _account, uint256 _nftValuationLimit)
+    public
+    view
+    returns (uint256 totalValuation);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_account`|`address`|address to get the balance for|
+|`_nftValuationLimit`|`uint256`||
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`totalValuation`|`uint256`|of the account in dollars|
+
+
+### _getERC20Price
+
+check if _account is zero address. If zero address we return a valuation of zero to allow for burning tokens when rules that need valuations are active.
+Loop through all Nfts and ERC20s and add values to balance for account valuation
+Check to see if user owns the asset
+
+This gets the token's value in dollars.
+
+*Get the value for a specific ERC20. This is done by interacting with the pricing module*
+
+
+```solidity
+function _getERC20Price(address _tokenAddress) internal view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenAddress`|`address`|the address of the token|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|price the price of 1 in dollars|
+
+
+### _getNFTValuePerCollection
+
+This gets the token's value in dollars.
+
+*Get the value for a specific ERC721. This is done by interacting with the pricing module*
+
+
+```solidity
+function _getNFTValuePerCollection(address _tokenAddress, address _account, uint256 _tokenAmount)
+    internal
+    view
+    returns (uint256 totalValueInThisContract);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenAddress`|`address`|the address of the token|
+|`_account`|`address`|of the token holder|
+|`_tokenAmount`|`uint256`|amount of NFTs from _tokenAddress contract|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`totalValueInThisContract`|`uint256`|in whole USD|
+
+
+### _getNFTCollectionValue
+
+This function gets the total token value in dollars of all tokens owned in each collection by address.
+
+*Get the total value for all tokens held by a wallet for a specific collection. This is done by interacting with the pricing module*
+
+
+```solidity
+function _getNFTCollectionValue(address _tokenAddress, uint256 _tokenAmount)
+    private
+    view
+    returns (uint256 totalValueInThisContract);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenAddress`|`address`|the address of the token|
+|`_tokenAmount`|`uint256`|amount of NFTs from _tokenAddress contract|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`totalValueInThisContract`|`uint256`|total valuation of tokens by collection in whole USD|
 
 
 ### setAccountMaxValueByRiskScoreId
 
-Check if sender is not AMM and then check sender access level
-Check if receiver is not an AMM or address(0) and then check the recipient access level. Exempting address(0) allows for burning.
-Check that the recipient is not address(0). If it is we do not check this rule as it is a burn.
-
 that setting a rule will automatically activate it.
 
-*Set the accountBalanceByRiskRule. Restricted to app administrators only.*
+*Set the accountMaxValueByRiskScoreRule. Restricted to app administrators only.*
 
 
 ```solidity
@@ -292,7 +454,7 @@ function activateAccountMaxValueByRiskScore(bool _on) external ruleAdministrator
 
 ### isAccountMaxValueByRiskScoreActive
 
-*Tells you if the accountBalanceByRiskRule is active or not.*
+*Tells you if the accountMaxValueByRiskScore Rule is active or not.*
 
 
 ```solidity
@@ -307,7 +469,7 @@ function isAccountMaxValueByRiskScoreActive() external view returns (bool);
 
 ### getAccountMaxValueByRiskScoreId
 
-*Retrieve the accountBalanceByRisk rule id*
+*Retrieve the accountMaxValueByRiskScore Rule id*
 
 
 ```solidity
@@ -317,14 +479,14 @@ function getAccountMaxValueByRiskScoreId() external view returns (uint32);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|accountBalanceByRiskRuleId rule id|
+|`<none>`|`uint32`|accountMaxValueByRiskScoreId rule id|
 
 
 ### setAccountMaxValueByAccessLevelId
 
 that setting a rule will automatically activate it.
 
-*Set the accountBalanceByAccessLevelRule. Restricted to app administrators only.*
+*Set the accountMaxValueByAccessLevelRule. Restricted to app administrators only.*
 
 
 ```solidity
@@ -354,7 +516,7 @@ function activateAccountMaxValueByAccessLevel(bool _on) external ruleAdministrat
 
 ### isAccountMaxValueByAccessLevelActive
 
-*Tells you if the accountBalanceByAccessLevelRule is active or not.*
+*Tells you if the accountMaxValueByAccessLevel Rule is active or not.*
 
 
 ```solidity
@@ -369,7 +531,7 @@ function isAccountMaxValueByAccessLevelActive() external view returns (bool);
 
 ### getAccountMaxValueByAccessLevelId
 
-*Retrieve the accountBalanceByAccessLevel rule id*
+*Retrieve the accountMaxValueByAccessLevel rule id*
 
 
 ```solidity
@@ -379,16 +541,16 @@ function getAccountMaxValueByAccessLevelId() external view returns (uint32);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|accountBalanceByAccessLevelRuleId rule id|
+|`<none>`|`uint32`|accountMaxValueByAccessLevelId rule id|
 
 
-### activateAccessLevel0Rule
+### activateAccountDenyForNoAccessLevelRule
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.*
 
 
 ```solidity
-function activateAccessLevel0Rule(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAccountDenyForNoAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -397,13 +559,13 @@ function activateAccessLevel0Rule(bool _on) external ruleAdministratorOnly(appMa
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
-### isAccessLevel0Active
+### isAccountDenyForNoAccessLevelActive
 
-*Tells you if the AccessLevel0 Rule is active or not.*
+*Tells you if the AccountDenyForNoAccessLevel Rule is active or not.*
 
 
 ```solidity
-function isAccessLevel0Active() external view returns (bool);
+function isAccountDenyForNoAccessLevelActive() external view returns (bool);
 ```
 **Returns**
 
@@ -416,7 +578,7 @@ function isAccessLevel0Active() external view returns (bool);
 
 that setting a rule will automatically activate it.
 
-*Set the withdrawalLimitByAccessLevelRule. Restricted to app administrators only.*
+*Set the accountMaxValueOutByAccessLevel Rule. Restricted to app administrators only.*
 
 
 ```solidity
@@ -446,7 +608,7 @@ function activateAccountMaxValueOutByAccessLevel(bool _on) external ruleAdminist
 
 ### isAccountMaxValueOutByAccessLevelActive
 
-*Tells you if the withdrawalLimitByAccessLevelRule is active or not.*
+*Tells you if the accountMaxValueOutByAccessLevel Rule is active or not.*
 
 
 ```solidity
@@ -461,7 +623,7 @@ function isAccountMaxValueOutByAccessLevelActive() external view returns (bool);
 
 ### getAccountMaxValueOutByAccessLevelId
 
-*Retrieve the withdrawalLimitByAccessLevel rule id*
+*Retrieve the accountMaxValueOutByAccessLevel Rule rule id*
 
 
 ```solidity
@@ -474,30 +636,30 @@ function getAccountMaxValueOutByAccessLevelId() external view returns (uint32);
 |`<none>`|`uint32`|accountMaxValueOutByAccessLevelId rule id|
 
 
-### getAccountMaxTransactionValueByRiskScoreId
+### getAccountMaxTxValueByRiskScoreId
 
-*Retrieve the MaxTxSizePerPeriodByRisk rule id*
+*Retrieve the AccountMaxTransactionValueByRiskScore rule id*
 
 
 ```solidity
-function getAccountMaxTransactionValueByRiskScoreId() external view returns (uint32);
+function getAccountMaxTxValueByRiskScoreId() external view returns (uint32);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|MaxTxSizePerPeriodByRisk rule id for specified token|
+|`<none>`|`uint32`|accountMaxTransactionValueByRiskScoreId rule id for specified token|
 
 
-### setAccountMaxTransactionValueByRiskScoreId
+### setAccountMaxTxValueByRiskScoreId
 
 that setting a rule will automatically activate it.
 
-*Set the MaxTxSizePerPeriodByRisk. Restricted to app administrators only.*
+*Set the AccountMaxTransactionValueByRiskScore Rule. Restricted to app administrators only.*
 
 
 ```solidity
-function setAccountMaxTransactionValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setAccountMaxTxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -506,13 +668,13 @@ function setAccountMaxTransactionValueByRiskScoreId(uint32 _ruleId) external rul
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
-### activateAccountMaxTransactionValueByRiskScore
+### activateAccountMaxTxValueByRiskScore
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.*
 
 
 ```solidity
-function activateAccountMaxTransactionValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAccountMaxTxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
@@ -521,13 +683,13 @@ function activateAccountMaxTransactionValueByRiskScore(bool _on) external ruleAd
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
-### isAccountMaxTransactionValueByRiskScoreActive
+### isAccountMaxTxValueByRiskScoreActive
 
-*Tells you if the MaxTxSizePerPeriodByRisk is active or not.*
+*Tells you if the accountMaxTransactionValueByRiskScore Rule is active or not.*
 
 
 ```solidity
-function isAccountMaxTransactionValueByRiskScoreActive() external view returns (bool);
+function isAccountMaxTxValueByRiskScoreActive() external view returns (bool);
 ```
 **Returns**
 

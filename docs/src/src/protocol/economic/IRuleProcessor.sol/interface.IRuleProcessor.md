@@ -1,5 +1,5 @@
 # IRuleProcessor
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/IRuleProcessor.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/IRuleProcessor.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -10,14 +10,14 @@ This is only used internally by the protocol.*
 
 
 ## Functions
-### checkMinMaxAccountBalancePasses
+### checkAccountMinMaxTokenBalance
 
-*Check the minimum/maximum rule. This rule ensures that both the to and from accounts do not
+*Check the AccountMinMaxTokenBalance rule. This rule ensures that both the to and from accounts do not
 exceed the max balance or go below the min balance.*
 
 
 ```solidity
-function checkMinMaxAccountBalancePasses(
+function checkAccountMinMaxTokenBalance(
     uint32 ruleId,
     uint256 balanceFrom,
     uint256 balanceTo,
@@ -38,14 +38,14 @@ function checkMinMaxAccountBalancePasses(
 |`fromTags`|`bytes32[]`|tags applied via App Manager to sender address|
 
 
-### checkTokenMinTransactionSize
+### checkTokenMinTxSize
 
-*Check the minimum transfer rule. This rule ensures accounts cannot transfer less than
+*Check the TokenMinTxSize rule. This rule ensures accounts cannot transfer less than
 the specified amount.*
 
 
 ```solidity
-function checkTokenMinTransactionSize(uint32 ruleId, uint256 amount) external view;
+function checkTokenMinTxSize(uint32 ruleId, uint256 amount) external view;
 ```
 **Parameters**
 
@@ -57,7 +57,7 @@ function checkTokenMinTransactionSize(uint32 ruleId, uint256 amount) external vi
 
 ### checkMinMaxAccountBalanceERC721
 
-*Check the minMaxAccoutBalace rule. This rule ensures accounts cannot exceed or drop below specified account balances via account tags.*
+*Check the MinMaxAccountBalanceERC721 rule. This rule ensures accounts cannot exceed or drop below specified account balances via account tags.*
 
 
 ```solidity
@@ -80,19 +80,19 @@ function checkMinMaxAccountBalanceERC721(
 |`fromTags`|`bytes32[]`|tags applied via App Manager to sender address|
 
 
-### checkAccountApproveDenyOracle
+### checkAccountApproveDenyOracles
 
-*This function receives a rule id, which it uses to get the oracle details, then calls the oracle to determine permissions.*
+*This function receives an array of rule ids, which it uses to get the oracle details, then calls the oracle to determine permissions.*
 
 
 ```solidity
-function checkAccountApproveDenyOracle(uint32 _ruleId, address _address) external view;
+function checkAccountApproveDenyOracles(Rule[] memory _rules, address _address) external view;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_ruleId`|`uint32`|Rule Id|
+|`_rules`|`Rule[]`|Rule Id Array|
 |`_address`|`address`|user address to be checked|
 
 
@@ -119,13 +119,13 @@ function checkBalanceByAccessLevelPasses(
 |`_amountToTransfer`|`uint256`|total number of tokens to be transferred|
 
 
-### checkPurchaseLimit
+### checkAccountMaxBuySize
 
-*This function receives a rule id for Purchase Limit details and checks that transaction passes.*
+*This function receives a rule id for AccountMaxBuySize details and checks that transaction passes.*
 
 
 ```solidity
-function checkPurchaseLimit(
+function checkAccountMaxBuySize(
     uint32 ruleId,
     uint256 boughtInPeriod,
     uint256 amount,
@@ -144,18 +144,18 @@ function checkPurchaseLimit(
 |`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
 
 
-### checkSellLimit
+### checkAccountMaxSellSize
 
-*This function receives a rule id for Sell Limit details and checks that transaction passes.*
+*This function receives a rule id for AccountMaxSellSize details and checks that transaction passes.*
 
 
 ```solidity
-function checkSellLimit(
+function checkAccountMaxSellSize(
     uint32 ruleId,
-    uint256 salesWithinPeriod,
+    uint256 salesInPeriod,
     uint256 amount,
     bytes32[] calldata fromTags,
-    uint256 lastUpdateTime
+    uint64 lastUpdateTime
 ) external view returns (uint256);
 ```
 **Parameters**
@@ -163,19 +163,19 @@ function checkSellLimit(
 |Name|Type|Description|
 |----|----|-----------|
 |`ruleId`|`uint32`|Rule identifier for rule arguments|
-|`salesWithinPeriod`|`uint256`||
+|`salesInPeriod`|`uint256`||
 |`amount`|`uint256`|Number of tokens to be transferred|
 |`fromTags`|`bytes32[]`|Account tags applied to sender via App Manager|
-|`lastUpdateTime`|`uint256`|block.timestamp of most recent transaction from sender.|
+|`lastUpdateTime`|`uint64`|block.timestamp of most recent transaction from sender.|
 
 
-### checkMinMaxAccountBalancePassesAMM
+### checkAccountMinMaxTokenBalanceAMM
 
 *Check the minimum/maximum rule through the AMM Swap*
 
 
 ```solidity
-function checkMinMaxAccountBalancePassesAMM(
+function checkAccountMinMaxTokenBalanceAMM(
     uint32 ruleIdToken0,
     uint32 ruleIdToken1,
     uint256 tokenBalance0,
@@ -200,7 +200,7 @@ function checkMinMaxAccountBalancePassesAMM(
 
 ### checkTokenMaxDailyTrades
 
-*This function receives a rule id, which it uses to get the NFT Trade Counter rule to check if the transfer is valid.*
+*This function receives a rule id, which it uses to get the TokenMaxDailyTrades rule to check if the transfer is valid.*
 
 
 ```solidity
@@ -219,23 +219,6 @@ function checkTokenMaxDailyTrades(
 |`transfersWithinPeriod`|`uint256`|Number of transfers within the time period|
 |`nftTags`|`bytes32[]`|NFT tags applied|
 |`lastTransferTime`|`uint64`|block.timestamp of most recent transaction from sender.|
-
-
-### checkTransactionLimitByRiskScore
-
-*Check Transaction Limit for Risk Score*
-
-
-```solidity
-function checkTransactionLimitByRiskScore(uint32 _ruleId, uint8 _riskScore, uint256 _amountToTransfer) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier for rule arguments|
-|`_riskScore`|`uint8`|the Risk Score of the account|
-|`_amountToTransfer`|`uint256`|total dollar amount to be transferred|
 
 
 ### assessAMMFee
@@ -259,7 +242,7 @@ function assessAMMFee(uint32 _ruleId, uint256 _collateralizedTokenAmount) extern
 that the function will revert if the check finds a violation of the rule, but won't give anything
 back if everything checks out.
 
-*checks that an admin won't hold less tokens than promised until a certain date*
+*Checks that an admin won't hold less tokens than promised until a certain date*
 
 
 ```solidity
@@ -274,29 +257,11 @@ function checkAdminMinTokenBalance(uint32 _ruleId, uint256 _currentBalance, uint
 |`_amountToTransfer`|`uint256`|Number of tokens to be transferred|
 
 
-### checkMinBalByDatePasses
-
-*Rule checks if the minimum balance by date rule will be violated. Tagged accounts must maintain a minimum balance throughout the period specified*
-
-
-```solidity
-function checkMinBalByDatePasses(uint32 ruleId, uint256 balance, uint256 amount, bytes32[] calldata toTags)
-    external
-    view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`ruleId`|`uint32`|Rule identifier for rule arguments|
-|`balance`|`uint256`|account's current balance|
-|`amount`|`uint256`|Number of tokens to be transferred from this account|
-|`toTags`|`bytes32[]`|Account tags applied to sender via App Manager|
-
-
 ### checkAccountMaxValueByRiskScore
 
-*This function checks if the requested action is valid according to the AccountBalanceByRiskScore rule*
+--------------------------- APPLICATION LEVEL --------------------------------
+
+*This function checks if the requested action is valid according to the AccountMaxValueByRiskScore rule*
 
 
 ```solidity
@@ -304,7 +269,7 @@ function checkAccountMaxValueByRiskScore(
     uint32 _ruleId,
     address _toAddress,
     uint8 _riskScoreTo,
-    uint128 _totalValuationTo,
+    uint128 _totalValueTo,
     uint128 _amountToTransfer
 ) external view;
 ```
@@ -315,20 +280,20 @@ function checkAccountMaxValueByRiskScore(
 |`_ruleId`|`uint32`|Rule Identifier|
 |`_toAddress`|`address`|Address of the recipient|
 |`_riskScoreTo`|`uint8`|the Risk Score of the recepient account|
-|`_totalValuationTo`|`uint128`|recepient account's beginning balance in USD with 18 decimals of precision|
+|`_totalValueTo`|`uint128`|recepient account's beginning balance in USD with 18 decimals of precision|
 |`_amountToTransfer`|`uint128`|total dollar amount to be transferred in USD with 18 decimals of precision|
 
 
 ### checkAccountMaxValueByAccessLevel
 
-*This function checks if the requested action is valid according to the AccountBalanceByAccessLevel rule*
+*This function checks if the requested action is valid according to the AccountMaxValueByAccessLevel rule*
 
 
 ```solidity
 function checkAccountMaxValueByAccessLevel(
     uint32 _ruleId,
     uint8 _accessLevelTo,
-    uint128 _totalValuationTo,
+    uint128 _totalValueTo,
     uint128 _amountToTransfer
 ) external view;
 ```
@@ -338,25 +303,25 @@ function checkAccountMaxValueByAccessLevel(
 |----|----|-----------|
 |`_ruleId`|`uint32`|Rule Identifier|
 |`_accessLevelTo`|`uint8`|the Access Level of the recepient account|
-|`_totalValuationTo`|`uint128`|recepient account's beginning balance in USD with 18 decimals of precision|
+|`_totalValueTo`|`uint128`|recepient account's beginning balance in USD with 18 decimals of precision|
 |`_amountToTransfer`|`uint128`|total dollar amount to be transferred in USD with 18 decimals of precision|
 
 
-### checkAccountMaxTransactionValueByRiskScore
+### checkAccountMaxTxValueByRiskScore
 
 that these ranges are set by ranges.
 
-*rule that checks if the tx exceeds the limit size in USD for a specific risk profile
+*Rule that checks if the tx exceeds the limit size in USD for a specific risk profile
 within a specified period of time.*
 
-*this check will cause a revert if the new value of _usdValueTransactedInPeriod in USD exceeds
+*this check will cause a revert if the new value of _valueTransactedInPeriod in USD exceeds
 the limit for the address risk profile.*
 
 
 ```solidity
-function checkAccountMaxTransactionValueByRiskScore(
+function checkAccountMaxTxValueByRiskScore(
     uint32 ruleId,
-    uint128 _usdValueTransactedInPeriod,
+    uint128 _valueTransactedInPeriod,
     uint128 amount,
     uint64 lastTxDate,
     uint8 riskScore
@@ -367,7 +332,7 @@ function checkAccountMaxTransactionValueByRiskScore(
 |Name|Type|Description|
 |----|----|-----------|
 |`ruleId`|`uint32`|to check against.|
-|`_usdValueTransactedInPeriod`|`uint128`|the cumulative amount of tokens recorded in the last period.|
+|`_valueTransactedInPeriod`|`uint128`|the cumulative amount of tokens recorded in the last period.|
 |`amount`|`uint128`|in USD of the current transaction with 18 decimals of precision.|
 |`lastTxDate`|`uint64`|timestamp of the last transfer of this token by this address.|
 |`riskScore`|`uint8`|of the address (0 -> 100)|
@@ -376,17 +341,16 @@ function checkAccountMaxTransactionValueByRiskScore(
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint128`|updated value for the _usdValueTransactedInPeriod. If _usdValueTransactedInPeriod are inside the current period, then this value is accumulated. If not, it is reset to current amount.|
+|`<none>`|`uint128`|updated value for the _valueTransactedInPeriod. If _valueTransactedInPeriod are inside the current period, then this value is accumulated. If not, it is reset to current amount.|
 
 
-### checkAccessLevel0
+### checkAccountDenyForNoAccessLevel
 
-*Ensure that Access Level = 0 rule passes. This seems like an easy rule to check but it is still
-abstracted to through the token rule router to allow for updates later(like special values)*
+*Ensure that AccountDenyForNoAccessLevel passes.*
 
 
 ```solidity
-function checkAccessLevel0(uint8 _accessLevel) external view;
+function checkAccountDenyForNoAccessLevel(uint8 _accessLevel) external view;
 ```
 **Parameters**
 
@@ -399,7 +363,7 @@ function checkAccessLevel0(uint8 _accessLevel) external view;
 
 that these ranges are set by ranges.
 
-*rule that checks if the withdrawal exceeds the limit size in USD for a specific access level*
+*Rule that checks if the value out exceeds the limit size in USD for a specific access level*
 
 
 ```solidity
@@ -441,9 +405,59 @@ function checkPauseRules(address _dataServer) external view;
 |`_dataServer`|`address`|address of the Application Rule Processor Diamond contract|
 
 
+### checkTokenMaxBuyVolume
+
+*Function receives a rule id, retrieves the rule data and checks if the TokenMaxBuyVolume Rule passes*
+
+
+```solidity
+function checkTokenMaxBuyVolume(
+    uint32 ruleId,
+    uint256 currentTotalSupply,
+    uint256 amountToTransfer,
+    uint64 lastPurchaseTime,
+    uint256 totalBoughtInPeriod
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|id of the rule to be checked|
+|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
+|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
+|`lastPurchaseTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`totalBoughtInPeriod`|`uint256`||
+
+
+### checkTokenMaxSellVolume
+
+*Function receives a rule id, retrieves the rule data and checks if the TokenMaxSellVolume Rule passes*
+
+
+```solidity
+function checkTokenMaxSellVolume(
+    uint32 ruleId,
+    uint256 currentTotalSupply,
+    uint256 amountToTransfer,
+    uint64 lastSellTime,
+    uint256 totalSoldInPeriod
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|id of the rule to be checked|
+|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
+|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
+|`lastSellTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`totalSoldInPeriod`|`uint256`|total amount of tokens sold during period.|
+
+
 ### checkTokenMaxTradingVolume
 
-*Rule checks if the token transfer volume rule will be violated.*
+*Rule checks if the token max trading volume rule will be violated.*
 
 
 ```solidity
@@ -474,7 +488,7 @@ function checkTokenMaxTradingVolume(
 
 ### checkTokenMaxSupplyVolatility
 
-*Rule checks if the total supply volatility rule will be violated.*
+*Rule checks if the tokenMaxSupplyVolatility rule will be violated.*
 
 
 ```solidity
@@ -506,13 +520,13 @@ function checkTokenMaxSupplyVolatility(
 |`<none>`|`uint256`||
 
 
-### checkNFTHoldTime
+### checkTokenMinHoldTime
 
 *This function receives data needed to check Minimum hold time rule. This a simple rule and thus is not stored in the rule storage diamond.*
 
 
 ```solidity
-function checkNFTHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view;
+function checkTokenMinHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view;
 ```
 **Parameters**
 
@@ -552,13 +566,13 @@ function validateTransactionLimitByRiskScore(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateMinMaxAccountBalanceERC721
+### validateAccountMinMaxTokenBalanceERC721
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateMinMaxAccountBalanceERC721(uint32 _ruleId) external view;
+function validateAccountMinMaxTokenBalanceERC721(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -582,13 +596,13 @@ function validateTokenMaxDailyTrades(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateMinMaxAccountBalance
+### validateAccountMinMaxTokenBalance
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateMinMaxAccountBalance(uint32 _ruleId) external view;
+function validateAccountMinMaxTokenBalance(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -612,13 +626,13 @@ function validateAccountMaxBuySize(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateSellLimit
+### validateAccountMaxSellSize
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateSellLimit(uint32 _ruleId) external view;
+function validateAccountMaxSellSize(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -627,13 +641,13 @@ function validateSellLimit(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateAdminWithdrawal
+### validateAdminMinTokenBalance
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateAdminWithdrawal(uint32 _ruleId) external view;
+function validateAdminMinTokenBalance(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -642,28 +656,13 @@ function validateAdminWithdrawal(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateMinBalByDate
+### validateTokenMinTxSize
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateMinBalByDate(uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### validateTokenMinTransactionSize
-
-*Validate the existence of the rule*
-
-
-```solidity
-function validateTokenMinTransactionSize(uint32 _ruleId) external view;
+function validateTokenMinTxSize(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -762,13 +761,13 @@ function validateAccountMaxValueByRiskScore(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### validateAccountMaxTransactionValueByRiskScore
+### validateAccountMaxTxValueByRiskScore
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateAccountMaxTransactionValueByRiskScore(uint32 _ruleId) external view;
+function validateAccountMaxTxValueByRiskScore(uint32 _ruleId) external view;
 ```
 **Parameters**
 

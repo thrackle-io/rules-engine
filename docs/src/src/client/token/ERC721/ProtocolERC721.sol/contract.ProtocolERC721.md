@@ -1,8 +1,8 @@
 # ProtocolERC721
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/token/ERC721/ProtocolERC721.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/token/ERC721/ProtocolERC721.sol)
 
 **Inherits:**
-ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [AppAdministratorOrOwnerOnly](/src/protocol/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md)
+ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [AppAdministratorOrOwnerOnly](/src/protocol/economic/AppAdministratorOrOwnerOnly.sol/contract.AppAdministratorOrOwnerOnly.md), ReentrancyGuard
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -21,14 +21,14 @@ address public handlerAddress;
 ### handler
 
 ```solidity
-IProtocolERC721Handler handler;
+IHandlerDiamond handler;
 ```
 
 
 ### _tokenIdCounter
 
 ```solidity
-Counters.Counter private _tokenIdCounter;
+Counters.Counter internal _tokenIdCounter;
 ```
 
 
@@ -44,19 +44,19 @@ string public baseUri;
 ## Functions
 ### constructor
 
-*Constructor sets the name, symbol and base URI of NFT along with the App Manager and Handler Address*
+*Constructor sets the name, symbol and base URI of NFT along with the App Manager Address*
 
 
 ```solidity
-constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri)
-    ERC721(_name, _symbol);
+constructor(string memory _nameProto, string memory _symbolProto, address _appManagerAddress, string memory _baseUri)
+    ERC721(_nameProto, _symbolProto);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_name`|`string`|Name of NFT|
-|`_symbol`|`string`|Symbol for the NFT|
+|`_nameProto`|`string`|Name of NFT|
+|`_symbolProto`|`string`|Symbol for the NFT|
 |`_appManagerAddress`|`address`|Address of App Manager|
 |`_baseUri`|`string`|URI for the base token|
 
@@ -121,7 +121,7 @@ function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721UR
 END setters and getters ***********
 
 *AppAdministratorOnly function takes appManagerAddress as parameter
-Function puases contract and prevents functions with whenNotPaused modifier*
+Function pauses contract and prevents functions with whenNotPaused modifier*
 
 
 ```solidity
@@ -165,6 +165,7 @@ function safeMint(address to) public payable virtual whenNotPaused appAdministra
 function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
     internal
     override(ERC721, ERC721Enumerable)
+    nonReentrant
     whenNotPaused;
 ```
 **Parameters**
@@ -239,7 +240,7 @@ function connectHandlerToToken(address _deployedHandlerAddress) external appAdmi
 
 ### getHandlerAddress
 
-*this function returns the handler address*
+*This function returns the handler address*
 
 
 ```solidity

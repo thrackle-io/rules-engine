@@ -1,8 +1,8 @@
 # TaggedRuleDataFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
 
 **Inherits:**
-Context, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/common/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IRiskInputErrors](/src/common/IErrors.sol/interface.IRiskInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [ITagRuleInputErrors](/src/common/IErrors.sol/interface.ITagRuleInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
+Context, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IEconomicEvents](/src/common/IEvents.sol/interface.IEconomicEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [ITagInputErrors](/src/common/IErrors.sol/interface.ITagInputErrors.md), [ITagRuleInputErrors](/src/common/IErrors.sol/interface.ITagRuleInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -13,25 +13,22 @@ This contract sets and gets the Tagged Rules for the protocol. Rules will be app
 
 
 ## Functions
-### addPurchaseRule
+### addAccountMaxBuySize
 
-Note that no update method is implemented. Since reutilization of
-rules is encouraged, it is preferred to add an extra rule to the
-set instead of modifying an existing one.
-Purchase Getters/Setters **********************
+Account Max Buy Size **********************
 
-*Function add a Token Purchase Percentage rule*
+*Function add an Account Max Buy Size rule*
 
 *Function has RuleAdministratorOnly Modifier and takes AppManager Address Param*
 
 
 ```solidity
-function addPurchaseRule(
+function addAccountMaxBuySize(
     address _appManagerAddr,
     bytes32[] calldata _accountTypes,
     uint256[] calldata _maxSizes,
     uint16[] calldata _periods,
-    uint64[] calldata _startTimes
+    uint64 _startTime
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -42,7 +39,7 @@ function addPurchaseRule(
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
 |`_maxSizes`|`uint256[]`|Allowed total purchase limits|
 |`_periods`|`uint16[]`|Hours purhchases allowed|
-|`_startTimes`|`uint64[]`|timestamp period to start|
+|`_startTime`|`uint64`|timestamp period to start|
 
 **Returns**
 
@@ -51,17 +48,19 @@ function addPurchaseRule(
 |`<none>`|`uint32`|position of new rule in array|
 
 
-### _addPurchaseRule
+### _addAccountMaxBuySize
 
-*internal Function to avoid stack too deep error*
+since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+
+*Internal Function to avoid stack too deep error*
 
 
 ```solidity
-function _addPurchaseRule(
+function _addAccountMaxBuySize(
     bytes32[] calldata _accountTypes,
     uint256[] calldata _maxSizes,
     uint16[] calldata _periods,
-    uint64[] calldata _startTimes
+    uint64 _startTime
 ) internal returns (uint32);
 ```
 **Parameters**
@@ -69,9 +68,9 @@ function _addPurchaseRule(
 |Name|Type|Description|
 |----|----|-----------|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_maxSizes`|`uint256[]`|Allowed total purchase limits|
-|`_periods`|`uint16[]`|Hours purhchases allowed|
-|`_startTimes`|`uint64[]`|timestamps for first period to start|
+|`_maxSizes`|`uint256[]`|Allowed total buy sizes|
+|`_periods`|`uint16[]`|Amount of hours that define the periods|
+|`_startTime`|`uint64`|timestamp for first period to start|
 
 **Returns**
 
@@ -80,20 +79,20 @@ function _addPurchaseRule(
 |`<none>`|`uint32`|position of new rule in array|
 
 
-### addSellRule
+### addAccountMaxSellSize
 
-Sell Getters/Setters *********************
+Account Max Sell Size *********************
 
-*Function to add set of sell rules*
+*Function to add an Account Max Sell Size rules*
 
 
 ```solidity
-function addSellRule(
+function addAccountMaxSellSize(
     address _appManagerAddr,
     bytes32[] calldata _accountTypes,
-    uint192[] calldata _sellAmounts,
-    uint16[] calldata _sellPeriod,
-    uint64[] calldata _startTimes
+    uint192[] calldata _maxSizes,
+    uint16[] calldata _period,
+    uint64 _startTime
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -102,9 +101,9 @@ function addSellRule(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_sellAmounts`|`uint192[]`|Allowed total sell limits|
-|`_sellPeriod`|`uint16[]`|Period for sales|
-|`_startTimes`|`uint64[]`|rule starts|
+|`_maxSizes`|`uint192[]`|Allowed total sell sizes|
+|`_period`|`uint16[]`|Amount of hours that define the periods|
+|`_startTime`|`uint64`|rule starts|
 
 **Returns**
 
@@ -113,17 +112,19 @@ function addSellRule(
 |`<none>`|`uint32`|position of new rule in array|
 
 
-### _addSellRule
+### _addAccountMaxSellSize
 
-*internal Function to avoid stack too deep error*
+since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+
+*Internal Function to avoid stack too deep error*
 
 
 ```solidity
-function _addSellRule(
+function _addAccountMaxSellSize(
     bytes32[] calldata _accountTypes,
-    uint192[] calldata _sellAmounts,
-    uint16[] calldata _sellPeriod,
-    uint64[] calldata _startTimes
+    uint192[] calldata _maxSizes,
+    uint16[] calldata _period,
+    uint64 _startTime
 ) internal returns (uint32);
 ```
 **Parameters**
@@ -131,9 +132,9 @@ function _addSellRule(
 |Name|Type|Description|
 |----|----|-----------|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_sellAmounts`|`uint192[]`|Allowed total sell limits|
-|`_sellPeriod`|`uint16[]`|Period for sales|
-|`_startTimes`|`uint64[]`|rule starts|
+|`_maxSizes`|`uint192[]`|Allowed total sell limits|
+|`_period`|`uint16[]`|Period for sales|
+|`_startTime`|`uint64`|rule starts|
 
 **Returns**
 
@@ -142,19 +143,21 @@ function _addSellRule(
 |`<none>`|`uint32`|position of new rule in array|
 
 
-### addMinMaxBalanceRule
+### addAccountMinMaxTokenBalance
 
-Balance Limit Getters/Setters **********************
+Account Min Max Token Balance **********************
 
-*Function adds Balance Limit Rule*
+*Function adds Account Min Max Token Balance Rule*
 
 
 ```solidity
-function addMinMaxBalanceRule(
+function addAccountMinMaxTokenBalance(
     address _appManagerAddr,
     bytes32[] calldata _accountTypes,
-    uint256[] calldata _minimum,
-    uint256[] calldata _maximum
+    uint256[] calldata _min,
+    uint256[] calldata _max,
+    uint16[] calldata _periods,
+    uint64 _startTime
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -163,26 +166,32 @@ function addMinMaxBalanceRule(
 |----|----|-----------|
 |`_appManagerAddr`|`address`|App Manager Address|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_minimum`|`uint256[]`|Minimum Balance allowed for tagged accounts|
-|`_maximum`|`uint256[]`|Maximum Balance allowed for tagged accounts|
+|`_min`|`uint256[]`|Minimum Balance allowed for tagged accounts|
+|`_max`|`uint256[]`|Maximum Balance allowed for tagged accounts|
+|`_periods`|`uint16[]`|Amount of hours that define the periods|
+|`_startTime`|`uint64`|Timestamp that the check should start|
 
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|_addMinMaxBalanceRule which returns location of rule in array|
+|`<none>`|`uint32`|_addAccountMinMaxTokenBalance which returns location of rule in array|
 
 
-### _addMinMaxBalanceRule
+### _addAccountMinMaxTokenBalance
 
-*internal Function to avoid stack too deep error*
+since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
+
+*Internal Function to avoid stack too deep error*
 
 
 ```solidity
-function _addMinMaxBalanceRule(
+function _addAccountMinMaxTokenBalance(
     bytes32[] calldata _accountTypes,
-    uint256[] calldata _minimum,
-    uint256[] calldata _maximum
+    uint256[] calldata _min,
+    uint256[] calldata _max,
+    uint16[] calldata _periods,
+    uint64 _startTime
 ) internal returns (uint32);
 ```
 **Parameters**
@@ -190,66 +199,10 @@ function _addMinMaxBalanceRule(
 |Name|Type|Description|
 |----|----|-----------|
 |`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_minimum`|`uint256[]`|Minimum Balance allowed for tagged accounts|
-|`_maximum`|`uint256[]`|Maximum Balance allowed for tagged accounts|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|position of new rule in array|
-
-
-### addWithdrawalRule
-
-Account Withdrawal Getters/Setters **********
-
-*Function adds Withdrawal Rule*
-
-
-```solidity
-function addWithdrawalRule(
-    address _appManagerAddr,
-    bytes32[] calldata _accountTypes,
-    uint256[] calldata _amount,
-    uint256[] calldata _releaseDate
-) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_appManagerAddr`|`address`|Address of App Manager|
-|`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_amount`|`uint256[]`|Transaction total|
-|`_releaseDate`|`uint256[]`|Date of release|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|_addWithdrawalRule which returns position of new rule in array|
-
-
-### _addWithdrawalRule
-
-*Internal function to avoid stack-too-deep error*
-
-
-```solidity
-function _addWithdrawalRule(
-    bytes32[] calldata _accountTypes,
-    uint256[] calldata _amount,
-    uint256[] calldata _releaseDate
-) internal returns (uint32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_accountTypes`|`bytes32[]`|Types of Accounts|
-|`_amount`|`uint256[]`|Transaction total|
-|`_releaseDate`|`uint256[]`|Date of release|
+|`_min`|`uint256[]`|Minimum Balance allowed for tagged accounts|
+|`_max`|`uint256[]`|Maximum Balance allowed for tagged accounts|
+|`_periods`|`uint16[]`|Amount of hours that define the periods|
+|`_startTime`|`uint64`|Timestamp that the check should start|
 
 **Returns**
 
@@ -260,13 +213,13 @@ function _addWithdrawalRule(
 
 ### addAdminMinTokenBalance
 
-Admin Account Withdrawal Getters/Setters **********
+Admin Min Token Balance **********
 
-*Function adds Withdrawal Rule for admins*
+*Function adds Admin Min Token Balance rule*
 
 
 ```solidity
-function addAdminMinTokenBalance(address _appManagerAddr, uint256 _amount, uint256 _releaseDate)
+function addAdminMinTokenBalance(address _appManagerAddr, uint256 _amount, uint256 _endTime)
     external
     ruleAdministratorOnly(_appManagerAddr)
     returns (uint32);
@@ -276,151 +229,29 @@ function addAdminMinTokenBalance(address _appManagerAddr, uint256 _amount, uint2
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|Address of App Manager|
-|`_amount`|`uint256`|Transaction total|
-|`_releaseDate`|`uint256`|Date of release|
+|`_amount`|`uint256`|Minimum amount of token to hold to|
+|`_endTime`|`uint256`|Date of release|
 
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|adminMinTokenBalanceRules position of new rule in array|
-
-
-### addAccountMaxTransactionValueByRiskScore
-
-_txnLimits size must be equal to _riskScore The positioning of the arrays is ascendant in terms of risk levels,
-and descendant in the size of transactions. (i.e. if highest risk level is 99, the last balanceLimit
-will apply to all risk scores of 100.)
-
-*Function to add new TransactionLimitByRiskScore Rules*
-
-*Function has RuleAdministratorOnly Modifier and takes AppManager Address Param*
-
-
-```solidity
-function addAccountMaxTransactionValueByRiskScore(
-    address _appManagerAddr,
-    uint8[] calldata _riskScores,
-    uint48[] calldata _txnLimits
-) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_appManagerAddr`|`address`|Address of App Manager|
-|`_riskScores`|`uint8[]`|User Risk Level Array which defines the limits between ranges. The levels are inclusive as ceilings.|
-|`_txnLimits`|`uint48[]`|Transaction Limit in whole USD for each score range. It corresponds to the _riskScores array and is +1 longer than _riskScores. A value of 1000 in this arrays will be interpreted as $1000.00 USD.|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|position of new rule in array|
-
-
-### _addAccountMaxTransactionValueByRiskScore
-
-*internal Function to avoid stack too deep error*
-
-
-```solidity
-function _addAccountMaxTransactionValueByRiskScore(uint8[] calldata _riskScores, uint48[] calldata _txnLimits)
-    internal
-    returns (uint32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_riskScores`|`uint8[]`|Account Risk Level|
-|`_txnLimits`|`uint48[]`|Transaction Limit for each Score. It corresponds to the _riskScores array|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|position of new rule in array|
-
-
-### addMinBalByDateRule
-
-Minimum Account Balance By Date Getters/Setters **********************
-
-*Function add a Minimum Account Balance By Date rule*
-
-*Function has RuleAdministratorOnly Modifier and takes AppManager Address Param*
-
-
-```solidity
-function addMinBalByDateRule(
-    address _appManagerAddr,
-    bytes32[] calldata _accountTags,
-    uint256[] calldata _holdAmounts,
-    uint16[] calldata _holdPeriods,
-    uint64[] calldata _startTimes
-) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_appManagerAddr`|`address`|Address of App Manager|
-|`_accountTags`|`bytes32[]`|Types of Accounts|
-|`_holdAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_holdPeriods`|`uint16[]`|Hours purchases allowed|
-|`_startTimes`|`uint64[]`|Timestamp that the check should start|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|ruleId of new rule in array|
-
-
-### _addMinBalByDateRule
-
-*internal Function to avoid stack too deep error*
-
-
-```solidity
-function _addMinBalByDateRule(
-    bytes32[] calldata _accountTags,
-    uint256[] calldata _holdAmounts,
-    uint16[] calldata _holdPeriods,
-    uint64[] memory _startTimes
-) internal returns (uint32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_accountTags`|`bytes32[]`|Types of Accounts|
-|`_holdAmounts`|`uint256[]`|Allowed total purchase limits|
-|`_holdPeriods`|`uint16[]`|Hours purhchases allowed|
-|`_startTimes`|`uint64[]`|Timestamp that the check should start|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|ruleId of new rule in array|
+|`<none>`|`uint32`|adminMinTokenBalance Rules position of new rule in array|
 
 
 ### addTokenMaxDailyTrades
 
-if defaults sent for timestamp, start them with current block time
-NFT Getters/Setters **********
+Token Max Daily Trades **********
 
-*Function adds Balance Limit Rule*
+*Function adds Token Max Daily Trades Rule*
 
 
 ```solidity
 function addTokenMaxDailyTrades(
     address _appManagerAddr,
-    bytes32[] calldata _nftTypes,
+    bytes32[] calldata _nftTags,
     uint8[] calldata _tradesAllowed,
-    uint64 _startTs
+    uint64 _startTime
 ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32);
 ```
 **Parameters**
@@ -428,9 +259,9 @@ function addTokenMaxDailyTrades(
 |Name|Type|Description|
 |----|----|-----------|
 |`_appManagerAddr`|`address`|App Manager Address|
-|`_nftTypes`|`bytes32[]`|Types of NFTs|
+|`_nftTags`|`bytes32[]`|Tags of NFTs|
 |`_tradesAllowed`|`uint8[]`|Maximum trades allowed within 24 hours|
-|`_startTs`|`uint64`|starting timestamp for the rule|
+|`_startTime`|`uint64`|starting timestamp for the rule|
 
 **Returns**
 
@@ -441,11 +272,11 @@ function addTokenMaxDailyTrades(
 
 ### _addTokenMaxDailyTrades
 
-*internal Function to avoid stack too deep error*
+*Internal Function to avoid stack too deep error*
 
 
 ```solidity
-function _addTokenMaxDailyTrades(bytes32[] calldata _nftTypes, uint8[] calldata _tradesAllowed, uint64 _startTs)
+function _addTokenMaxDailyTrades(bytes32[] calldata _nftTags, uint8[] calldata _tradesAllowed, uint64 _startTime)
     internal
     returns (uint32);
 ```
@@ -453,9 +284,9 @@ function _addTokenMaxDailyTrades(bytes32[] calldata _nftTypes, uint8[] calldata 
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_nftTypes`|`bytes32[]`|Types of NFTs|
+|`_nftTags`|`bytes32[]`|Tags of NFTs|
 |`_tradesAllowed`|`uint8[]`|Maximum trades allowed within 24 hours|
-|`_startTs`|`uint64`|starting timestamp for the rule|
+|`_startTime`|`uint64`|starting timestamp for the rule|
 
 **Returns**
 

@@ -1,8 +1,8 @@
 # ProtocolERC721U
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/token/ERC721/upgradeable/ProtocolERC721U.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/token/ERC721/upgradeable/ProtocolERC721U.sol)
 
 **Inherits:**
-Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable, [ProtocolTokenCommonU](/src/client/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md), PausableUpgradeable
+Initializable, ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable, UUPSUpgradeable, [ProtocolTokenCommonU](/src/client/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md), PausableUpgradeable, ReentrancyGuard
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -21,14 +21,14 @@ address public handlerAddress;
 ### handler
 
 ```solidity
-IProtocolERC721Handler handler;
+IProtocolTokenHandler handler;
 ```
 
 
 ### _tokenIdCounter
 
 ```solidity
-CountersUpgradeable.Counter private _tokenIdCounter;
+CountersUpgradeable.Counter internal _tokenIdCounter;
 ```
 
 
@@ -51,24 +51,32 @@ uint256[49] __gap;
 
 
 ## Functions
+### constructor
+
+
+```solidity
+constructor();
+```
+
 ### initialize
 
 *Initializer sets the name, symbol and base URI of NFT along with the App Manager and Handler Address*
 
 
 ```solidity
-function initialize(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri)
-    public
-    virtual
-    appAdministratorOnly(_appManagerAddress)
-    initializer;
+function initialize(
+    string memory _nameProto,
+    string memory _symbolProto,
+    address _appManagerAddress,
+    string memory _baseUri
+) public virtual appAdministratorOnly(_appManagerAddress) initializer;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_name`|`string`|Name of NFT|
-|`_symbol`|`string`|Symbol for the NFT|
+|`_nameProto`|`string`|Name of NFT|
+|`_symbolProto`|`string`|Symbol for the NFT|
 |`_appManagerAddress`|`address`|Address of App Manager|
 |`_baseUri`|`string`||
 
@@ -112,7 +120,7 @@ function _burn(uint256 tokenId) internal override(ERC721Upgradeable, ERC721URISt
 
 ### _baseURI
 
-*Function to return baseUri for contract*
+*Function to return baseURI for contract*
 
 
 ```solidity
@@ -127,6 +135,8 @@ function _baseURI() internal view override returns (string memory);
 
 ### tokenURI
 
+*Function to return tokenURI for contract*
+
 
 ```solidity
 function tokenURI(uint256 tokenId)
@@ -136,6 +146,12 @@ function tokenURI(uint256 tokenId)
     override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
     returns (string memory);
 ```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|tokenURI link to NFT metadata|
+
 
 ### setBaseURI
 
@@ -198,7 +214,8 @@ function safeMint(address to) public payable virtual appAdministratorOnly(appMan
 ```solidity
 function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
     internal
-    override(ERC721Upgradeable, ERC721EnumerableUpgradeable);
+    override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
+    nonReentrant;
 ```
 **Parameters**
 
@@ -212,6 +229,8 @@ function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256
 
 ### withdraw
 
+Rule Processor Module Check
+
 *Function to withdraw Ether sent to contract*
 
 *AppAdministratorOnly modifier uses appManagerAddress. Only Addresses asigned as AppAdministrator can call function.*
@@ -223,7 +242,7 @@ function withdraw() public payable virtual appAdministratorOnly(appManagerAddres
 
 ### getHandlerAddress
 
-*this function returns the handler address*
+*This function returns the handler address*
 
 
 ```solidity

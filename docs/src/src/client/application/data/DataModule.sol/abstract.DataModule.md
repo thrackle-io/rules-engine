@@ -1,5 +1,5 @@
 # DataModule
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/data/DataModule.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/application/data/DataModule.sol)
 
 **Inherits:**
 [IDataModule](/src/client/application/data/IDataModule.sol/interface.IDataModule.md), Ownable, [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md)
@@ -21,11 +21,9 @@ string private constant VERSION = "1.1.0";
 
 
 ### dataModuleAppManagerAddress
-Data Module
-
 
 ```solidity
-address public dataModuleAppManagerAddress;
+address public immutable dataModuleAppManagerAddress;
 ```
 
 
@@ -70,7 +68,7 @@ modifier appAdministratorOrOwnerOnly();
 
 ### proposeOwner
 
-*this function proposes a new owner that is put in storage to be confirmed in a separate process*
+*This function proposes a new owner that is put in storage to be confirmed in a separate process*
 
 
 ```solidity
@@ -85,7 +83,7 @@ function proposeOwner(address _newOwner) external appAdministratorOrOwnerOnly;
 
 ### confirmOwner
 
-*this function confirms a new appManagerAddress that was put in storage. It can only be confirmed by the proposed address*
+*This function confirms a new appManagerAddress that was put in storage. It can only be confirmed by the proposed address*
 
 
 ```solidity
@@ -109,7 +107,7 @@ function confirmDataProvider(ProviderType _providerType) external virtual appAdm
 
 ### version
 
-*gets the version of the contract*
+*Get the version of the contract*
 
 
 ```solidity

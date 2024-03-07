@@ -1,12 +1,12 @@
 # IApplicationEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/common/IEvents.sol)
 
-**Author:**
-@ShaneDuncan602 @oscarsernarosero @TJ-Everett
+**Inherits:**
+[IAppManagerAddressSet](/src/common/IEvents.sol/interface.IAppManagerAddressSet.md)
 
 Application Events Library
 
-*This library for all events for the Application ecosystems. Each Contract should inherit this library for emitting events.*
+*This library for all events for the Application ecosystems.*
 
 
 ## Events
@@ -95,13 +95,5 @@ event FeeType(
     int256 feePercentage,
     address targetAccount
 );
-```
-
-### AppManagerAddressSet
-AppManager set
-
-
-```solidity
-event AppManagerAddressSet(address indexed _address);
 ```
 

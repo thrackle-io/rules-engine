@@ -1,5 +1,5 @@
 # INonTaggedRules
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -9,12 +9,12 @@
 
 
 ## Structs
-### TokenMinimumTransferRule
-******** Token Minimum Transfer Rules ********
+### TokenMinTxSize
+******** Token Min Tx Size Rules ********
 
 
 ```solidity
-struct TokenMinimumTransferRule {
+struct TokenMinTxSize {
     uint256 minSize;
 }
 ```
@@ -32,14 +32,14 @@ struct TokenMaxBuyVolume {
 }
 ```
 
-### TokenPercentageSellRule
+### TokenMaxSellVolume
 ******** Token Max Sell Volume Rules ********
 
 
 ```solidity
-struct TokenPercentageSellRule {
+struct TokenMaxSellVolume {
     uint16 tokenPercentage;
-    uint16 sellPeriod;
+    uint16 period;
     uint256 totalSupply;
     uint64 startTime;
 }
@@ -57,7 +57,7 @@ struct TokenPurchaseFeeByVolume {
 ```
 
 ### TokenMaxPriceVolatility
-******** Token Volatility ********
+******** Token Max Price Volatility ********
 
 
 ```solidity
@@ -70,7 +70,7 @@ struct TokenMaxPriceVolatility {
 ```
 
 ### TokenMaxTradingVolume
-******** Token Transfer Volume ********
+******** Token Max Trading Volume ********
 
 
 ```solidity
@@ -82,21 +82,21 @@ struct TokenMaxTradingVolume {
 }
 ```
 
-### SupplyVolatilityRule
+### TokenMaxSupplyVolatility
 ******** Supply Volatility ********
 
 
 ```solidity
-struct SupplyVolatilityRule {
+struct TokenMaxSupplyVolatility {
     uint16 max;
     uint16 period;
-    uint64 startingTime;
+    uint64 startTime;
     uint256 totalSupply;
 }
 ```
 
 ### AccountApproveDenyOracle
-******** Oracle ********
+******** Account Approve/Deny Oracle ********
 
 
 ```solidity

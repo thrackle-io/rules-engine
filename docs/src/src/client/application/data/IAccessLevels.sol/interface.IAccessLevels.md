@@ -1,15 +1,15 @@
 # IAccessLevels
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/data/IAccessLevels.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/application/data/IAccessLevels.sol)
 
 **Inherits:**
-[IDataModule](/src/client/application/data/IDataModule.sol/interface.IDataModule.md), [IAccessLevelErrors](/src/common/IErrors.sol/interface.IAccessLevelErrors.md)
+[IDataModule](/src/client/application/data/IDataModule.sol/interface.IDataModule.md), [IAccessLevelErrors](/src/common/IErrors.sol/interface.IAccessLevelErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
 
-interface to define the functionality of the AccessLevel Levels data contract
+interface to define the functionality of the Access Levels data contract
 
-*AccessLevel score storage and retrieval functions are defined here*
+*Access Level storage and retrieval functions are defined here*
 
 
 ## Functions
@@ -29,9 +29,25 @@ function addLevel(address _address, uint8 _level) external;
 |`_level`|`uint8`|access level(0-4)|
 
 
+### addMultipleAccessLevels
+
+*Add the Access Level(0-4) to the list of account. Restricted to the owner.*
+
+
+```solidity
+function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|address array upon which to apply the Access Level|
+|`_level`|`uint8[]`|Access Level array to add|
+
+
 ### getAccessLevel
 
-*Get the Access Level for the account. Restricted to the owner*
+*Get the Access Level for the account.*
 
 
 ```solidity
@@ -52,7 +68,7 @@ function getAccessLevel(address _account) external view returns (uint8);
 
 ### addAccessLevelToMultipleAccounts
 
-*Add the Access Level(0-4) to multiple accounts. Restricted to Access Tiers.*
+*Add the Access Level(0-4) to multiple accounts. Restricted to the owner.*
 
 
 ```solidity
@@ -62,7 +78,22 @@ function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _lev
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_accounts`|`address[]`|address upon which to apply the Access Level|
+|`_accounts`|`address[]`|addresses upon which to apply the Access Level|
 |`_level`|`uint8`|Access Level to add|
+
+
+### removeAccessLevel
+
+*Remove the Access Level for the account. Restricted to the owner*
+
+
+```solidity
+function removeAccessLevel(address _account) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_account`|`address`|address of the account|
 
 

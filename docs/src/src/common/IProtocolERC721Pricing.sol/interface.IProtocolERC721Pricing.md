@@ -1,5 +1,5 @@
 # IProtocolERC721Pricing
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/common/IProtocolERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/common/IProtocolERC721Pricing.sol)
 
 **Inherits:**
 [NFTPricingErrors](/src/common/IErrors.sol/interface.NFTPricingErrors.md)
@@ -15,8 +15,8 @@ This contract is a simple pricing mechanism only. Its main purpose is to store p
 ## Functions
 ### getNFTPrice
 
-*gets the price for an NFT. It will return the NFT's specific price, or the
-price of the collection if no specific price hsa been given*
+*Gets the price for an NFT. It will return the NFT's specific price, or the
+price of the collection if no specific price has been given.*
 
 
 ```solidity
@@ -33,13 +33,27 @@ function getNFTPrice(address nftContract, uint256 id) external view returns (uin
 
 |Name|Type|Description|
 |----|----|-----------|
-|`price`|`uint256`|of the NFT in cents of dollars. 1000 => $ 10.00 USD|
+|`price`|`uint256`|of the Token in weis of dollars. 10^18 => $ 1.00 USD|
 
 
 ### getNFTCollectionPrice
+
+*Gets the default price for an NFT collection.*
 
 
 ```solidity
 function getNFTCollectionPrice(address nftContract) external view returns (uint256 price);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`nftContract`|`address`|is the address of the NFT contract|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`price`|`uint256`|of the Token in weis of dollars. 10^18 => $ 1.00 USD|
+
 

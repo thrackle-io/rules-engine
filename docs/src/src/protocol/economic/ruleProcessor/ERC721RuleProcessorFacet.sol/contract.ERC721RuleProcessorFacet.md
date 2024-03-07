@@ -1,5 +1,5 @@
 # ERC721RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol)
 
 **Inherits:**
 [IERC721Errors](/src/common/IErrors.sol/interface.IERC721Errors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md)
@@ -7,19 +7,19 @@
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
 
-Implements NFT Rule checks for rules
+Implements NFT Rule checks
 
-*facet in charge of the logic to check non-fungible token rules compliance*
+*Facet in charge of the logic to check non-fungible token rules compliance*
 
 
 ## Functions
-### checkNFTHoldTime
+### checkTokenMinHoldTime
 
-*This function receives data needed to check Minimum hold time rule. This a simple rule and thus is not stored in the rule storage diamond.*
+*This function receives data needed to check token min hold time rule. This a simple rule and thus is not stored in the rule storage diamond.*
 
 
 ```solidity
-function checkNFTHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view;
+function checkTokenMinHoldTime(uint32 _holdHours, uint256 _ownershipTs) external view;
 ```
 **Parameters**
 

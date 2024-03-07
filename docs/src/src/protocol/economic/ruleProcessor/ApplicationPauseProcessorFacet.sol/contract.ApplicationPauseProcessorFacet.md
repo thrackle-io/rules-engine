@@ -1,5 +1,5 @@
 # ApplicationPauseProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/ApplicationPauseProcessorFacet.sol)
 
 **Inherits:**
 ERC173, [IPauseRuleErrors](/src/common/IErrors.sol/interface.IPauseRuleErrors.md)
@@ -7,7 +7,7 @@ ERC173, [IPauseRuleErrors](/src/common/IErrors.sol/interface.IPauseRuleErrors.md
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
 
-Contains logic for checking specific action against pause rules. (part of diamond structure)
+Contains logic for checking specific action against pause rules.
 
 *Standard EIP2565 Facet with storage defined in its imported library*
 
@@ -19,13 +19,13 @@ Contains logic for checking specific action against pause rules. (part of diamon
 
 
 ```solidity
-function checkPauseRules(address _dataServer) external view returns (bool);
+function checkPauseRules(address _appManagerAddress) external view returns (bool);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_dataServer`|`address`|address of the appManager contract|
+|`_appManagerAddress`|`address`|address of the appManager contract|
 
 **Returns**
 

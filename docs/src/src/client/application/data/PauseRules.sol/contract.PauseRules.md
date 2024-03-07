@@ -1,5 +1,5 @@
 # PauseRules
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/data/PauseRules.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/application/data/PauseRules.sol)
 
 **Inherits:**
 [IPauseRules](/src/client/application/data/IPauseRules.sol/interface.IPauseRules.md), [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md)
@@ -7,7 +7,7 @@
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
 
-Data contract to store Pause for user accounts
+Data contract to store Pause rules for the application
 
 *This contract stores and serves pause rules via an internal mapping*
 

@@ -1,12 +1,9 @@
 # ICommonApplicationHandlerEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/common/IEvents.sol)
 
-**Author:**
-@ShaneDuncan602 @oscarsernarosero @TJ-Everett
+Common Application Handler Events Library
 
-Protocol Module Events Library
-
-*This library for all events in the Protocol module for the protocol. Each contract in the Protocol module should inherit this library for emitting events.*
+*This library is for all events in the Common Application Handler for the protocol. Each contract in the Protocol module should inherit this library for emitting events.*
 
 
 ## Events
@@ -15,7 +12,7 @@ Rule deactivated
 
 
 ```solidity
-event ApplicationHandlerDeactivated(bytes32 indexed ruleType, address indexed handlerAddress);
+event ApplicationHandlerDeactivated(bytes32 indexed ruleType);
 ```
 
 ### ApplicationHandlerActivated
@@ -23,6 +20,12 @@ Rule activated
 
 
 ```solidity
-event ApplicationHandlerActivated(bytes32 indexed ruleType, address indexed handlerAddress);
+event ApplicationHandlerActivated(bytes32 indexed ruleType);
+```
+
+### RulesBypassedViaRuleBypassAccount
+
+```solidity
+event RulesBypassedViaRuleBypassAccount(address indexed ruleBypassAccount, address indexed appManager);
 ```
 

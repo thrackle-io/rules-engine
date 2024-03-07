@@ -1,42 +1,46 @@
 # IOracleEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/common/IEvents.sol)
+
+Oracle Events Library
+
+*The library for all events for the Oracle contracts for the protocol.*
 
 
 ## Events
-### AllowedAddress
+### ApprovedAddress
 
 ```solidity
-event AllowedAddress(address indexed addr);
+event ApprovedAddress(address indexed addr);
 ```
 
-### NotAllowedAddress
+### NotApprovedAddress
 
 ```solidity
-event NotAllowedAddress(address indexed addr);
+event NotApprovedAddress(address indexed addr);
 ```
 
-### AllowListOracleDeployed
+### ApproveListOracleDeployed
 
 ```solidity
-event AllowListOracleDeployed();
+event ApproveListOracleDeployed();
 ```
 
-### SanctionedAddress
+### DeniedAddress
 
 ```solidity
-event SanctionedAddress(address indexed addr);
+event DeniedAddress(address indexed addr);
 ```
 
-### NonSanctionedAddress
+### NonDeniedAddress
 
 ```solidity
-event NonSanctionedAddress(address indexed addr);
+event NonDeniedAddress(address indexed addr);
 ```
 
-### SanctionedListOracleDeployed
+### DeniedListOracleDeployed
 
 ```solidity
-event SanctionedListOracleDeployed();
+event DeniedListOracleDeployed();
 ```
 
 ### OracleListChanged

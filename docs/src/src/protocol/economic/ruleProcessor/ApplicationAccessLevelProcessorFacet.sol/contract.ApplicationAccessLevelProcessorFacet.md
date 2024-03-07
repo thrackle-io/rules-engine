@@ -1,5 +1,5 @@
 # ApplicationAccessLevelProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/ApplicationAccessLevelProcessorFacet.sol)
 
 **Inherits:**
 [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IAccessLevelErrors](/src/common/IErrors.sol/interface.IAccessLevelErrors.md)
@@ -7,22 +7,25 @@
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
 
-Implements AccessLevel Rule Checks. AccessLevel rules are measured in
+Implements Access Level Rule Checks. Access Level rules are measured in
 in terms of USD with 18 decimals of precision.
 
-*This contract implements rules to be checked by Handler.*
+*This contract implements rules to be checked by am Application Handler.*
 
 
 ## Functions
 ### checkAccountMaxValueByAccessLevel
 
-*Check if transaction passes Balance by AccessLevel rule.*
+*Check if transaction passes Account Max Value By AccessLevel rule.*
 
 
 ```solidity
-function checkAccountMaxValueByAccessLevel(uint32 _ruleId, uint8 _accessLevel, uint128 _balance, uint128 _amountToTransfer)
-    external
-    view;
+function checkAccountMaxValueByAccessLevel(
+    uint32 _ruleId,
+    uint8 _accessLevel,
+    uint128 _balance,
+    uint128 _amountToTransfer
+) external view;
 ```
 **Parameters**
 
@@ -36,10 +39,9 @@ function checkAccountMaxValueByAccessLevel(uint32 _ruleId, uint8 _accessLevel, u
 
 ### getAccountMaxValueByAccessLevel
 
-Get the account's AccessLevel
 max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
 
-*Function to get the AccessLevel Balance rule in the rule set that belongs to the Access Level*
+*Function to get the Account Max Value By Access Level rule in the rule set that belongs to the Access Level*
 
 
 ```solidity
@@ -61,7 +63,7 @@ function getAccountMaxValueByAccessLevel(uint32 _index, uint8 _accessLevel) publ
 
 ### getTotalAccountMaxValueByAccessLevel
 
-*Function to get total AccessLevel Balance rules*
+*Function to get total Account Max Value By Access Level rules*
 
 
 ```solidity
@@ -76,7 +78,7 @@ function getTotalAccountMaxValueByAccessLevel() public view returns (uint32);
 
 ### checkAccountMaxValueOutByAccessLevel
 
-*Check if transaction passes Withdrawal by AccessLevel rule.*
+*Check if transaction passes Account Max Value Out By Access Level rule.*
 
 
 ```solidity
@@ -101,7 +103,7 @@ function checkAccountMaxValueOutByAccessLevel(
 
 max has to be multiplied by 10 ** 18 to take decimals in token pricing into account
 
-*Function to get the Access Level Withdrawal rule in the rule set that belongs to the Access Level*
+*Function to get the Account Max Value Out By Access Level rule in the rule set that belongs to the Access Level*
 
 
 ```solidity
@@ -123,7 +125,7 @@ function getAccountMaxValueOutByAccessLevel(uint32 _index, uint8 _accessLevel) p
 
 ### getTotalAccountMaxValueOutByAccessLevel
 
-*Function to get total AccessLevel withdrawal rules*
+*Function to get total Account Max Value Out By Access Level rules*
 
 
 ```solidity
@@ -136,13 +138,13 @@ function getTotalAccountMaxValueOutByAccessLevel() external view returns (uint32
 |`<none>`|`uint32`|Total number of access level withdrawal rules|
 
 
-### checkAccessLevel0
+### checkAccountDenyForNoAccessLevel
 
-*Check if transaction passes AccessLevel 0 rule.This has no stored rule as there are no additional variables needed.*
+*Check if transaction passes Account Deny For No Access Level rule.This has no stored rule as there are no additional variables needed.*
 
 
 ```solidity
-function checkAccessLevel0(uint8 _accessLevel) external pure;
+function checkAccountDenyForNoAccessLevel(uint8 _accessLevel) external pure;
 ```
 **Parameters**
 

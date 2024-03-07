@@ -1,5 +1,5 @@
 # IAppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/IAppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/application/IAppManager.sol)
 
 **Inherits:**
 [IAppManagerErrors](/src/common/IErrors.sol/interface.IAppManagerErrors.md), [IPermissionModifierErrors](/src/common/IErrors.sol/interface.IPermissionModifierErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md)
@@ -76,13 +76,13 @@ function isRuleAdministrator(address account) external view returns (bool);
 |`<none>`|`bool`|success true if rule administrator, false if not|
 
 
-### isAccessTier
+### isRuleBypassAccount
 
-*This function is where the access tier role is actually checked*
+*This function is where the rule bypass account role is actually checked*
 
 
 ```solidity
-function isAccessTier(address account) external view returns (bool);
+function isRuleBypassAccount(address account) external view returns (bool);
 ```
 **Parameters**
 
@@ -94,7 +94,28 @@ function isAccessTier(address account) external view returns (bool);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`bool`|success true if ACCESS_TIER_ADMIN_ROLE, false if not|
+|`<none>`|`bool`|success true if RULE_BYPASS_ACCOUNT, false if not|
+
+
+### isAccessLevelAdmin
+
+*This function is where the access level admin role is actually checked*
+
+
+```solidity
+function isAccessLevelAdmin(address account) external view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address`|address to be checked|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|success true if ACCESS_LEVEL_ADMIN_ROLE, false if not|
 
 
 ### isRiskAdmin
@@ -220,7 +241,7 @@ function hasTag(address _account, bytes32 _tag) external view returns (bool);
 
 ### getAccessLevelProvider
 
-*Get the address of the access levelprovider*
+*Get the address of the access level provider*
 
 
 ```solidity
@@ -230,7 +251,7 @@ function getAccessLevelProvider() external view returns (address);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`address`|accessLevelProvider Address of the access levelprovider|
+|`<none>`|`address`|accessLevelProvider Address of the access level provider|
 
 
 ### registerToken
@@ -360,6 +381,43 @@ function isTreasury(address _treasuryAddress) external view returns (bool);
 |`_treasuryAddress`|`address`|Address for the treasury|
 
 
+### approveAddressToTradingRuleAllowlist
+
+*manage the allowlist for trading-rule bypasser accounts*
+
+
+```solidity
+function approveAddressToTradingRuleAllowlist(address _address, bool isApproved) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_address`|`address`|account in the list to manage|
+|`isApproved`|`bool`|set to true to indicate that _address can bypass trading rules.|
+
+
+### isTradingRuleBypasser
+
+*tells if an address can bypass trading rules*
+
+
+```solidity
+function isTradingRuleBypasser(address _address) external view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_address`|`address`|the address to check for|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|true if the address can bypass trading rules, or false otherwise.|
+
+
 ### checkApplicationRules
 
 *Jump through to the gobal rules to see if the requested action is valid.*
@@ -367,37 +425,28 @@ function isTreasury(address _treasuryAddress) external view returns (bool);
 
 ```solidity
 function checkApplicationRules(
-    ActionTypes _action,
+    address _tokenAddress,
     address _from,
     address _to,
-    uint128 _usdBalanceTo,
-    uint128 _usdAmountTransferring
+    uint256 _amount,
+    uint16 _nftValuationLimit,
+    uint256 _tokenId,
+    ActionTypes _action,
+    HandlerTypes _handlerType
 ) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_action`|`ActionTypes`|Action to be checked|
+|`_tokenAddress`|`address`|address of the token calling the rule check|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
-|`_usdBalanceTo`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
-|`_usdAmountTransferring`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
-
-
-### requireValuations
-
-*checks if any of the balance prerequisite rules are active*
-
-
-```solidity
-function requireValuations() external returns (bool);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|true if one or more rules are active|
+|`_amount`|`uint256`|amount of tokens to be transferred|
+|`_nftValuationLimit`|`uint16`|number of tokenID's per collection before checking collection price vs individual token price|
+|`_tokenId`|`uint256`|tokenId of the NFT token|
+|`_action`|`ActionTypes`|Action to be checked|
+|`_handlerType`|`HandlerTypes`|type of handler calling checkApplicationRules function|
 
 
 ### confirmNewDataProvider

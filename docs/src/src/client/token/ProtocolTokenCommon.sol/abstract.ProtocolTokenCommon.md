@@ -1,5 +1,5 @@
 # ProtocolTokenCommon
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/token/ProtocolTokenCommon.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/token/ProtocolTokenCommon.sol)
 
 **Inherits:**
 [AppAdministratorOnly](/src/protocol/economic/AppAdministratorOnly.sol/contract.AppAdministratorOnly.md), [IApplicationEvents](/src/common/IEvents.sol/interface.IApplicationEvents.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IOwnershipErrors](/src/common/IErrors.sol/interface.IOwnershipErrors.md)
@@ -35,7 +35,7 @@ IAppManager appManager;
 ## Functions
 ### proposeAppManagerAddress
 
-*this function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process*
+*This function proposes a new appManagerAddress that is put in storage to be confirmed in a separate process*
 
 
 ```solidity
@@ -50,7 +50,7 @@ function proposeAppManagerAddress(address _newAppManagerAddress) external appAdm
 
 ### confirmAppManagerAddress
 
-*this function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address*
+*This function confirms a new appManagerAddress that was put in storageIt can only be confirmed by the proposed address*
 
 
 ```solidity
@@ -70,7 +70,7 @@ function getAppManagerAddress() external view returns (address);
 
 ### getHandlerAddress
 
-*this function returns the handler address*
+*This function returns the handler address*
 
 
 ```solidity

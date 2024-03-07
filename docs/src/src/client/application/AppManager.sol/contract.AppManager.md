@@ -1,15 +1,15 @@
 # AppManager
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/AppManager.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/application/AppManager.sol)
 
 **Inherits:**
-[IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md)
+[IAppManager](/src/client/application/IAppManager.sol/interface.IAppManager.md), AccessControlEnumerable, [IAppLevelEvents](/src/common/IEvents.sol/interface.IAppLevelEvents.md), ReentrancyGuard
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
 
 This contract is the permissions contract
 
-*This uses AccessControlEnumerable to maintain user permissions, handles metadata storage, and checks application level rules via its handler.*
+*This uses AccessControlEnumerable to maintain user permissions, handles metadata storage, and checks application level rules via the application handler.*
 
 
 ## State Variables
@@ -20,24 +20,17 @@ string private constant VERSION = "1.1.0";
 ```
 
 
+### SUPER_ADMIN_ROLE
+
+```solidity
+bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
+```
+
+
 ### APP_ADMIN_ROLE
 
 ```solidity
 bytes32 constant APP_ADMIN_ROLE = keccak256("APP_ADMIN_ROLE");
-```
-
-
-### ACCESS_TIER_ADMIN_ROLE
-
-```solidity
-bytes32 constant ACCESS_TIER_ADMIN_ROLE = keccak256("ACCESS_TIER_ADMIN_ROLE");
-```
-
-
-### RISK_ADMIN_ROLE
-
-```solidity
-bytes32 constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
 ```
 
 
@@ -48,10 +41,24 @@ bytes32 constant RULE_ADMIN_ROLE = keccak256("RULE_ADMIN_ROLE");
 ```
 
 
-### SUPER_ADMIN_ROLE
+### ACCESS_LEVEL_ADMIN_ROLE
 
 ```solidity
-bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
+bytes32 constant ACCESS_LEVEL_ADMIN_ROLE = keccak256("ACCESS_LEVEL_ADMIN_ROLE");
+```
+
+
+### RISK_ADMIN_ROLE
+
+```solidity
+bytes32 constant RISK_ADMIN_ROLE = keccak256("RISK_ADMIN_ROLE");
+```
+
+
+### RULE_BYPASS_ACCOUNT
+
+```solidity
+bytes32 constant RULE_BYPASS_ACCOUNT = keccak256("RULE_BYPASS_ACCOUNT");
 ```
 
 
@@ -85,10 +92,10 @@ IRiskScores riskScores;
 ```
 
 
-### generalTags
+### tags
 
 ```solidity
-IGeneralTags generalTags;
+ITags tags;
 ```
 
 
@@ -100,6 +107,8 @@ IPauseRules pauseRules;
 
 
 ### newAccessLevelsProviderAddress
+Data provider proposed addresses
+
 
 ```solidity
 address newAccessLevelsProviderAddress;
@@ -113,10 +122,10 @@ address newAccountsProviderAddress;
 ```
 
 
-### newGeneralTagsProviderAddress
+### newTagsProviderAddress
 
 ```solidity
-address newGeneralTagsProviderAddress;
+address newTagsProviderAddress;
 ```
 
 
@@ -156,13 +165,6 @@ ProtocolApplicationHandler public applicationHandler;
 
 ```solidity
 address applicationHandlerAddress;
-```
-
-
-### applicationRulesActive
-
-```solidity
-bool applicationRulesActive;
 ```
 
 
@@ -256,10 +258,33 @@ mapping(address => bool) isTreasuryRegistered;
 ```
 
 
+### tradingRuleAllowList
+Allowlist for trading rule exceptions
+
+
+```solidity
+address[] tradingRuleAllowList;
+```
+
+
+### isTradingRuleAllowlisted
+
+```solidity
+mapping(address => bool) isTradingRuleAllowlisted;
+```
+
+
+### tradingRuleAllowlistAddressToIndex
+
+```solidity
+mapping(address => uint256) tradingRuleAllowlistAddressToIndex;
+```
+
+
 ## Functions
 ### constructor
 
-*This constructor sets up the first default admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.*
+*This constructor sets up the super admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.*
 
 
 ```solidity
@@ -269,17 +294,17 @@ constructor(address root, string memory _appName, bool upgradeMode);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`root`|`address`|address to set as the default admin and first app administrator|
+|`root`|`address`|address to set as the super admin and first app administrator|
 |`_appName`|`string`|Application Name String|
 |`upgradeMode`|`bool`|specifies whether this is a fresh AppManager or an upgrade replacement.|
 
 
 ### grantRole
 
-this is purposely going to fail every time it will be invoked in order to force users to only use the appropiate
+This is purposely going to fail every time it will be invoked in order to force users to only use the appropiate
 channels to grant roles, and therefore enforce the special rules in an app.
 
-*This function overrides the parent's grantRole function. This basically disables its public nature to make it private.*
+*This function overrides the parent's grantRole function. This disables its public nature to make it private.*
 
 
 ```solidity
@@ -299,7 +324,7 @@ this is done to funnel all the role granting functions through the app manager f
 the superAdmins could add other superAdmins through this back door
 
 *This function overrides the parent's renounceRole function. Its purpose is to prevent superAdmins from renouncing through
-this "backdoor", so they are forced to find another superAdmin through the function proposeNewSuperAdmin.*
+this "backdoor", so they are forced to set another superAdmin through the function proposeNewSuperAdmin.*
 
 
 ```solidity
@@ -322,7 +347,11 @@ this "backdoor" which would effectively leave the app in a superAdmin-orphan sta
 
 
 ```solidity
-function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl);
+function revokeRole(bytes32 role, address account)
+    public
+    virtual
+    override(AccessControl, IAccessControl)
+    nonReentrant;
 ```
 **Parameters**
 
@@ -335,6 +364,7 @@ function revokeRole(bytes32 role, address account) public virtual override(Acces
 ### isSuperAdmin
 
 enforcing the min-1-admin requirement.
+-------------SUPER ADMIN---------------
 
 *This function is where the Super admin role is actually checked*
 
@@ -359,6 +389,8 @@ function isSuperAdmin(address account) public view returns (bool);
 
 -------------- PROPOSE NEW SUPER ADMIN ------------------
 
+We should only have 1 proposed superAdmin. If there is one already in this role, we should remove it to replace it.
+
 *Propose a new super admin. Restricted to super admins.*
 
 
@@ -372,9 +404,24 @@ function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROL
 |`account`|`address`|address to be added|
 
 
-### confirmSuperAdmin
+### updateProposedRole
 
-we should only have 1 proposed superAdmin. If there is one already in this role, we should remove it to replace it.
+A function used specifically for moving the proposed super admin from one account
+to another. Allows revoke and grant to be called in the same function without the possibility
+of re-entrancy.
+
+
+```solidity
+function updateProposedRole(address newAddress) private onlyRole(SUPER_ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`newAddress`|`address`|the new Proposed Super Admin account.|
+
+
+### confirmSuperAdmin
 
 only the proposed account can accept this role.
 
@@ -387,9 +434,6 @@ function confirmSuperAdmin() external;
 
 ### isAppAdministrator
 
-We first check that only the proposed superAdmin can confirm
-then we transfer the role
-we emit the events
 -------------APP ADMIN---------------
 
 *This function is where the app administrator role is actually checked*
@@ -417,7 +461,7 @@ function isAppAdministrator(address account) public view returns (bool);
 
 
 ```solidity
-function addAppAdministrator(address account) external onlyRole(SUPER_ADMIN_ROLE);
+function addAppAdministrator(address account) public onlyRole(SUPER_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -450,17 +494,6 @@ function addMultipleAppAdministrator(address[] memory _accounts) external onlyRo
 function renounceAppAdministrator() external;
 ```
 
-### checkForAdminWithdrawal
-
-If the AdminWithdrawal rule is active, App Admins are not allowed to renounce their role to prevent manipulation of the rule
-
-*Loop through all the registered tokens, if they are capable of admin withdrawal, see if it's active. If so, revert*
-
-
-```solidity
-function checkForAdminWithdrawal() internal;
-```
-
 ### isRuleAdministrator
 
 -------------RULE ADMIN---------------
@@ -490,7 +523,7 @@ function isRuleAdministrator(address account) public view returns (bool);
 
 
 ```solidity
-function addRuleAdministrator(address account) external onlyRole(APP_ADMIN_ROLE);
+function addRuleAdministrator(address account) public onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -523,15 +556,15 @@ function addMultipleRuleAdministrator(address[] memory account) external onlyRol
 function renounceRuleAdministrator() external;
 ```
 
-### isAccessTier
+### isRuleBypassAccount
 
--------------ACCESS TIER---------------
+-------------RULE BYPASS ACCOUNT ---------------
 
-*This function is where the access tier role is actually checked*
+*This function is where the rule bypass account role is actually checked*
 
 
 ```solidity
-function isAccessTier(address account) public view returns (bool);
+function isRuleBypassAccount(address account) public view returns (bool);
 ```
 **Parameters**
 
@@ -543,46 +576,123 @@ function isAccessTier(address account) public view returns (bool);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`bool`|success true if ACCESS_TIER_ADMIN_ROLE, false if not|
+|`<none>`|`bool`|success true if RULE_BYPASS_ACCOUNT, false if not|
 
 
-### addAccessTier
+### addRuleBypassAccount
 
-*Add an account to the access tier role. Restricted to app administrators.*
+*Add an account to the rule bypass account role. Restricted to app administrators.*
 
 
 ```solidity
-function addAccessTier(address account) external onlyRole(APP_ADMIN_ROLE);
+function addRuleBypassAccount(address account) public onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`account`|`address`|address to be added as a access tier|
+|`account`|`address`|address to be added as a rule bypass account|
 
 
-### addMultipleAccessTier
+### addMultipleRuleBypassAccounts
 
-*Add a list of accounts to the access tier role. Restricted to app administrators.*
+*Add a list of accounts to the rule bypass account role. Restricted to app administrators.*
 
 
 ```solidity
-function addMultipleAccessTier(address[] memory account) external onlyRole(APP_ADMIN_ROLE);
+function addMultipleRuleBypassAccounts(address[] memory _accounts) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`account`|`address[]`|address to be added as a access tier|
+|`_accounts`|`address[]`|addresses to be added as a rule bypass account|
 
 
-### renounceAccessTier
+### renounceRuleBypassAccount
 
-*Remove oneself from the access tier role.*
+This function checks for the AdminMinTokenBalance status as this role is subject to this rule. Rule Bypass Accounts cannot renounce role while rule is active.
+
+*Remove oneself from the rule bypass account role.*
 
 
 ```solidity
-function renounceAccessTier() external;
+function renounceRuleBypassAccount() external nonReentrant;
+```
+
+### checkForAdminMinTokenBalanceCapable
+
+If the AdminMinTokenBalanceCapable rule is active, Rule Bypass Accounts are not allowed to renounce their role to prevent manipulation of the rule
+
+*Loop through all the registered tokens, if they are capable of admin min token balance, see if it's active. If so, revert*
+
+*ruleBypassAccount is the only RBAC Role subjected to this rule as this role bypasses all other rules.*
+
+
+```solidity
+function checkForAdminMinTokenBalanceCapable() internal;
+```
+
+### isAccessLevelAdmin
+
+-------------ACCESS LEVEL---------------
+
+*This function is where the access level admin role is actually checked*
+
+
+```solidity
+function isAccessLevelAdmin(address account) public view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address`|address to be checked|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|success true if ACCESS_LEVEL_ADMIN_ROLE, false if not|
+
+
+### addAccessLevelAdmin
+
+*Add an account to the access level role. Restricted to app administrators.*
+
+
+```solidity
+function addAccessLevelAdmin(address account) public onlyRole(APP_ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address`|address to be added as a access level|
+
+
+### addMultipleAccessLevelAdmins
+
+*Add a list of accounts to the access level role. Restricted to app administrators.*
+
+
+```solidity
+function addMultipleAccessLevelAdmins(address[] memory account) external onlyRole(APP_ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address[]`|address to be added as a access level|
+
+
+### renounceAccessLevelAdmin
+
+*Remove oneself from the access level role.*
+
+
+```solidity
+function renounceAccessLevelAdmin() external;
 ```
 
 ### isRiskAdmin
@@ -614,7 +724,7 @@ function isRiskAdmin(address account) public view returns (bool);
 
 
 ```solidity
-function addRiskAdmin(address account) external onlyRole(APP_ADMIN_ROLE);
+function addRiskAdmin(address account) public onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -651,11 +761,11 @@ function renounceRiskAdmin() external;
 
 -------------MAINTAIN ACCESS LEVELS---------------
 
-*Add the Access Level(0-4) to the account. Restricted to Access Tiers.*
+*Add the Access Level(0-4) to the account. Restricted to Access Level Admins.*
 
 
 ```solidity
-function addAccessLevel(address _account, uint8 _level) external onlyRole(ACCESS_TIER_ADMIN_ROLE);
+function addAccessLevel(address _account, uint8 _level) public onlyRole(ACCESS_LEVEL_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -667,13 +777,13 @@ function addAccessLevel(address _account, uint8 _level) external onlyRole(ACCESS
 
 ### addAccessLevelToMultipleAccounts
 
-*Add the Access Level(0-4) to multiple accounts. Restricted to Access Tiers.*
+*Add the Access Level(0-4) to multiple accounts. Restricted to Access Level Admins.*
 
 
 ```solidity
 function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _level)
     external
-    onlyRole(ACCESS_TIER_ADMIN_ROLE);
+    onlyRole(ACCESS_LEVEL_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -685,13 +795,13 @@ function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _lev
 
 ### addMultipleAccessLevels
 
-*Add the Access Level(0-4) to the list of account. Restricted to Access Tiers.*
+*Add the Access Level(0-4) to the list of account. Restricted to Access Level Admins.*
 
 
 ```solidity
 function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level)
     external
-    onlyRole(ACCESS_TIER_ADMIN_ROLE);
+    onlyRole(ACCESS_LEVEL_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -703,7 +813,7 @@ function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _lev
 
 ### getAccessLevel
 
-*Get the AccessLevel Score for the specified account*
+*Get the Access Level for the specified account*
 
 
 ```solidity
@@ -722,6 +832,21 @@ function getAccessLevel(address _account) external view returns (uint8);
 |`<none>`|`uint8`||
 
 
+### removeAccessLevel
+
+*Remove the Access Level for an account.*
+
+
+```solidity
+function removeAccessLevel(address _account) external onlyRole(ACCESS_LEVEL_ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_account`|`address`|address which the Access Level will be removed from|
+
+
 ### addRiskScore
 
 -------------MAINTAIN RISK SCORES---------------
@@ -730,7 +855,7 @@ function getAccessLevel(address _account) external view returns (uint8);
 
 
 ```solidity
-function addRiskScore(address _account, uint8 _score) external onlyRole(RISK_ADMIN_ROLE);
+function addRiskScore(address _account, uint8 _score) public onlyRole(RISK_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -793,6 +918,21 @@ function getRiskScore(address _account) external view returns (uint8);
 |`<none>`|`uint8`|score risk score(0-100)|
 
 
+### removeRiskScore
+
+*Remove the Risk Score for an account.*
+
+
+```solidity
+function removeRiskScore(address _account) external onlyRole(RISK_ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_account`|`address`|address which the risk score will be removed from|
+
+
 ### addPauseRule
 
 --------------MAINTAIN PAUSE RULES---------------
@@ -833,7 +973,6 @@ function removePauseRule(uint64 _pauseStart, uint64 _pauseStop) external onlyRol
 
 ### activatePauseRuleCheck
 
-if length is 0 no pause rules exist
 set handler bool to false to save gas and prevent pause rule checks when non exist
 
 *enable/disable rule. Disabling a rule will save gas on transfer transactions.
@@ -874,17 +1013,17 @@ function getPauseRules() external view returns (PauseRule[] memory);
 function cleanOutdatedRules() external;
 ```
 
-### addGeneralTag
+### addTag
 
--------------MAINTAIN GENERAL TAGS---------------
+-------------MAINTAIN TAGS---------------
 
 there is a hard limit of 10 tags per address.
 
-*Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.*
+*Add a tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.*
 
 
 ```solidity
-function addGeneralTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE);
+function addTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -894,15 +1033,15 @@ function addGeneralTag(address _account, bytes32 _tag) external onlyRole(APP_ADM
 |`_tag`|`bytes32`|Tag for the account. Can be any allowed string variant|
 
 
-### addGeneralTagToMultipleAccounts
+### addTagToMultipleAccounts
 
 there is a hard limit of 10 tags per address.
 
-*Add a general tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.*
+*Add a tag to an account. Restricted to Application Administrators. Loops through existing tags on accounts and will emit an event if tag is * already applied.*
 
 
 ```solidity
-function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE);
+function addTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -912,7 +1051,7 @@ function addGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32 _ta
 |`_tag`|`bytes32`|Tag for the account. Can be any allowed string variant|
 
 
-### addMultipleGeneralTagToMultipleAccounts
+### addMultipleTagToMultipleAccounts
 
 there is a hard limit of 10 tags per address.
 
@@ -920,7 +1059,7 @@ there is a hard limit of 10 tags per address.
 
 
 ```solidity
-function addMultipleGeneralTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tag)
+function addMultipleTagToMultipleAccounts(address[] memory _accounts, bytes32[] memory _tags)
     external
     onlyRole(APP_ADMIN_ROLE);
 ```
@@ -929,16 +1068,16 @@ function addMultipleGeneralTagToMultipleAccounts(address[] memory _accounts, byt
 |Name|Type|Description|
 |----|----|-----------|
 |`_accounts`|`address[]`|Address array to be tagged|
-|`_tag`|`bytes32[]`|Tag array for the account at index. Can be any allowed string variant|
+|`_tags`|`bytes32[]`|Tag array for the account at index. Can be any allowed string variant|
 
 
-### removeGeneralTag
+### removeTag
 
-*Remove a general tag. Restricted to Application Administrators.*
+*Remove a tag. Restricted to Application Administrators.*
 
 
 ```solidity
-function removeGeneralTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE);
+function removeTag(address _account, bytes32 _tag) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -950,7 +1089,7 @@ function removeGeneralTag(address _account, bytes32 _tag) external onlyRole(APP_
 
 ### hasTag
 
-*Check to see if an account has a specific general tag*
+*Check to see if an account has a specific tag*
 
 
 ```solidity
@@ -1021,13 +1160,13 @@ function getRiskScoresProvider() external view returns (address);
 |`<none>`|`address`|provider Address of the provider|
 
 
-### proposeGeneralTagsProvider
+### proposeTagsProvider
 
-*First part of the 2 step process to set a new general tag provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.*
+*First part of the 2 step process to set a new tag provider. First, the new provider address is proposed and saved, then it is confirmed by invoking a confirmation function in the new provider that invokes the corresponding function in this contract.*
 
 
 ```solidity
-function proposeGeneralTagsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE);
+function proposeTagsProvider(address _newProvider) external onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1036,13 +1175,13 @@ function proposeGeneralTagsProvider(address _newProvider) external onlyRole(APP_
 |`_newProvider`|`address`|Address of the new provider|
 
 
-### getGeneralTagProvider
+### getTagProvider
 
-*Get the address of the general tag provider*
+*Get the address of the tag provider*
 
 
 ```solidity
-function getGeneralTagProvider() external view returns (address);
+function getTagProvider() external view returns (address);
 ```
 **Returns**
 
@@ -1141,23 +1280,6 @@ function getAccessLevelProvider() external view returns (address);
 |`<none>`|`address`|accessLevelProvider Address of the Access Level provider|
 
 
-### requireValuations
-
-APPLICATION CHECKS
-
-*checks if any of the balance prerequisite rules are active*
-
-
-```solidity
-function requireValuations() external returns (bool);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|true if one or more rules are active|
-
-
 ### checkApplicationRules
 
 *Check Application Rules for valid transactions.*
@@ -1165,22 +1287,28 @@ function requireValuations() external returns (bool);
 
 ```solidity
 function checkApplicationRules(
-    ActionTypes _action,
+    address _tokenAddress,
     address _from,
     address _to,
-    uint128 _usdBalanceTo,
-    uint128 _usdAmountTransferring
+    uint256 _amount,
+    uint16 _nftValuationLimit,
+    uint256 _tokenId,
+    ActionTypes _action,
+    HandlerTypes _handlerType
 ) external onlyHandler;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_action`|`ActionTypes`|Action to be checked|
+|`_tokenAddress`|`address`|address of the token calling the rule check|
 |`_from`|`address`|address of the from account|
 |`_to`|`address`|address of the to account|
-|`_usdBalanceTo`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
-|`_usdAmountTransferring`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
+|`_amount`|`uint256`|number of tokens to be transferred|
+|`_nftValuationLimit`|`uint16`|number of tokenID's per collection before checking collection price vs individual token price|
+|`_tokenId`|`uint256`|tokenId of the NFT token|
+|`_action`|`ActionTypes`|Action to be checked|
+|`_handlerType`|`HandlerTypes`|type of handler calling checkApplicationRules function|
 
 
 ### isRegisteredHandler
@@ -1311,7 +1439,7 @@ function _removeAddressWithMapping(
 |`_address`|`address`|The address to remove|
 
 
-### registerAMM
+### _addAddressWithMapping
 
 we store the last address in the array on a local variable to avoid unnecessary costly memory reads
 we check if we're trying to remove the last address in the array since this means we can skip some steps
@@ -1321,6 +1449,29 @@ we update the last address index to its new position (the removed-address index)
 we remove the last element of the _addressArray since it is now duplicated
 we set to false the membership mapping for this address in _addressArray
 we set the index to zero for this address in _addressArray
+
+*This function adds an address to a dynamic address array and takes care of the mappings.*
+
+
+```solidity
+function _addAddressWithMapping(
+    address[] storage _addressArray,
+    mapping(address => uint256) storage _addressToIndex,
+    mapping(address => bool) storage _registerFlag,
+    address _address
+) private;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_addressArray`|`address[]`|The array to have an address added|
+|`_addressToIndex`|`mapping(address => uint256)`|mapping that keeps track of the indexes in the list by address|
+|`_registerFlag`|`mapping(address => bool)`|mapping that keeps track of the addresses that are members of the list|
+|`_address`|`address`|The address to add|
+
+
+### registerAMM
 
 *This function allows the devs to register their AMM contract addresses. This will allow for token level rule exemptions*
 
@@ -1410,6 +1561,43 @@ function deRegisterTreasury(address _treasuryAddress) external onlyRole(APP_ADMI
 |`_treasuryAddress`|`address`|The of the AMM to be de-registered|
 
 
+### approveAddressToTradingRuleAllowlist
+
+*manage the approve list for trading-rule bypasser accounts*
+
+
+```solidity
+function approveAddressToTradingRuleAllowlist(address _address, bool isApproved) external onlyRole(APP_ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_address`|`address`|account in the list to manage|
+|`isApproved`|`bool`|set to true to indicate that _address can bypass trading rules.|
+
+
+### isTradingRuleBypasser
+
+*tells if an address can bypass trading rules*
+
+
+```solidity
+function isTradingRuleBypasser(address _address) public view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_address`|`address`|the address to check for|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|true if the address can bypass trading rules, or false otherwise.|
+
+
 ### getAccessLevelDataAddress
 
 *Getter for the access level contract address*
@@ -1455,19 +1643,19 @@ function getRiskDataAddress() external view returns (address);
 |`<none>`|`address`|riskDataAddress|
 
 
-### getGeneralTagsDataAddress
+### getTagsDataAddress
 
 *Getter for the general tags data contract address*
 
 
 ```solidity
-function getGeneralTagsDataAddress() external view returns (address);
+function getTagsDataAddress() external view returns (address);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`address`|generalTagsDataAddress|
+|`<none>`|`address`|tagsDataAddress|
 
 
 ### getPauseRulesDataAddress
@@ -1594,7 +1782,7 @@ function deployDataContracts() private;
 
 
 ```solidity
-function proposeDataContractMigration(address _newOwner) external onlyRole(APP_ADMIN_ROLE);
+function proposeDataContractMigration(address _newOwner) external nonReentrant onlyRole(APP_ADMIN_ROLE);
 ```
 **Parameters**
 
@@ -1609,7 +1797,7 @@ function proposeDataContractMigration(address _newOwner) external onlyRole(APP_A
 
 
 ```solidity
-function confirmDataContractMigration(address _oldAppManagerAddress) external onlyRole(APP_ADMIN_ROLE);
+function confirmDataContractMigration(address _oldAppManagerAddress) external nonReentrant onlyRole(APP_ADMIN_ROLE);
 ```
 
 ### confirmNewDataProvider

@@ -1,5 +1,5 @@
 # RuleApplicationValidationFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/RuleApplicationValidationFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/RuleApplicationValidationFacet.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -10,13 +10,13 @@ Check that a rule in fact exists.
 
 
 ## Functions
-### validateAMMFee
+### validateAccountMinMaxTokenBalanceERC721
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateAMMFee(uint32 _ruleId) external view;
+function validateAccountMinMaxTokenBalanceERC721(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -25,28 +25,13 @@ function validateAMMFee(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### getAllAMMFeeRules
-
-*Function get all AMM Fee rules for validation*
-
-
-```solidity
-function getAllAMMFeeRules() internal view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|total ammFeeRules array length|
-
-
-### validateTransactionLimitByRiskScore
+### validateAccountMinMaxTokenBalance
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateTransactionLimitByRiskScore(uint32 _ruleId) external view;
+function validateAccountMinMaxTokenBalance(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -55,58 +40,13 @@ function validateTransactionLimitByRiskScore(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### getAllTransactionLimitByRiskRules
+### getTotalAccountMinMaxTokenBalance
 
-*Function to get all Transaction Limit by Risk Score rules for validation*
-
-
-```solidity
-function getAllTransactionLimitByRiskRules() internal view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|Total length of array|
-
-
-### validateMinMaxAccountBalanceERC721
-
-*Validate the existence of the rule*
+*Function gets total AccountMinMaxTokenBalance rules*
 
 
 ```solidity
-function validateMinMaxAccountBalanceERC721(uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### validateMinMaxAccountBalance
-
-*Validate the existence of the rule*
-
-
-```solidity
-function validateMinMaxAccountBalance(uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### getAllMinMaxBalanceRules
-
-*Function gets total Balance Limit rules*
-
-
-```solidity
-function getAllMinMaxBalanceRules() internal view returns (uint32);
+function getTotalAccountMinMaxTokenBalance() internal view returns (uint32);
 ```
 **Returns**
 
@@ -132,7 +72,7 @@ function validateTokenMaxDailyTrades(uint32 _ruleId) external view;
 
 ### getTotalTokenMaxDailyTradesRules
 
-*Function gets total NFT Trade Counter rules*
+*Function gets total tokenMaxDailyTrades rules*
 
 
 ```solidity
@@ -175,13 +115,13 @@ function getTotalAccountMaxBuySize() internal view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### validateSellLimit
+### validateAccountMaxSellSize
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateSellLimit(uint32 _ruleId) external view;
+function validateAccountMaxSellSize(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -190,13 +130,13 @@ function validateSellLimit(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### getAllSellRule
+### getTotalAccountMaxSellSize
 
-*Function to get total Sell rules*
+*Function to get total Account Max Sell Size rules*
 
 
 ```solidity
-function getAllSellRule() internal view returns (uint32);
+function getTotalAccountMaxSellSize() internal view returns (uint32);
 ```
 **Returns**
 
@@ -205,13 +145,13 @@ function getAllSellRule() internal view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### validateAdminWithdrawal
+### validateAdminMinTokenBalance
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateAdminWithdrawal(uint32 _ruleId) external view;
+function validateAdminMinTokenBalance(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -220,13 +160,13 @@ function validateAdminWithdrawal(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### getAllAdminMinTokenBalances
+### getTotalAdminMinTokenBalance
 
-*Function to get total Admin withdrawal rules*
+*Function to get total Admin Min Token Balance rules*
 
 
 ```solidity
-function getAllAdminMinTokenBalances() internal view returns (uint32);
+function getTotalAdminMinTokenBalance() internal view returns (uint32);
 ```
 **Returns**
 
@@ -235,13 +175,13 @@ function getAllAdminMinTokenBalances() internal view returns (uint32);
 |`<none>`|`uint32`|adminMinTokenBalanceRules total length of array|
 
 
-### validateWithdrawal
+### validateTokenMinTxSize
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateWithdrawal(uint32 _ruleId) external view;
+function validateTokenMinTxSize(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -250,73 +190,13 @@ function validateWithdrawal(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### getAllWithdrawalRule
+### getTotalTokenMinTxSize
 
-*Function to get total withdrawal rules*
-
-
-```solidity
-function getAllWithdrawalRule() internal view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|withdrawalRulesIndex total length of array|
-
-
-### validateMinBalByDate
-
-*Validate the existence of the rule*
+*Function to get total Token Min Tx Size rules*
 
 
 ```solidity
-function validateMinBalByDate(uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### getAllMinBalByDateRule
-
-*Function to get total minimum balance by date rules*
-
-
-```solidity
-function getAllMinBalByDateRule() internal view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|Total length of array|
-
-
-### validateTokenMinTransactionSize
-
-*Validate the existence of the rule*
-
-
-```solidity
-function validateTokenMinTransactionSize(uint32 _ruleId) external view;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_ruleId`|`uint32`|Rule Identifier|
-
-
-### getTotalTokenMinTransactionSize
-
-*Function to get total Minimum Transfer rules*
-
-
-```solidity
-function getTotalTokenMinTransactionSize() internal view returns (uint32);
+function getTotalTokenMinTxSize() internal view returns (uint32);
 ```
 **Returns**
 
@@ -342,7 +222,7 @@ function validateAccountApproveDenyOracle(uint32 _ruleId) external view;
 
 ### getTotalAccountApproveDenyOracle
 
-*Function get total Oracle rules*
+*Function get total Account Approve Deny Oracle rules*
 
 
 ```solidity
@@ -352,7 +232,7 @@ function getTotalAccountApproveDenyOracle() internal view returns (uint32);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|total oracleRules array length|
+|`<none>`|`uint32`|total accountApproveDenyOracleRules array length|
 
 
 ### validateTokenMaxBuyVolume
@@ -372,7 +252,7 @@ function validateTokenMaxBuyVolume(uint32 _ruleId) external view;
 
 ### getTotalTokenMaxBuyVolume
 
-*Function to get total Token Purchase Percentage*
+*Function to get total Token Max Buy Volume*
 
 
 ```solidity
@@ -402,7 +282,7 @@ function validateTokenMaxSellVolume(uint32 _ruleId) external view;
 
 ### getTotalTokenMaxSellVolume
 
-*Function to get total Token Percentage Sell*
+*Function to get total Token Max Sell Volume*
 
 
 ```solidity
@@ -432,7 +312,7 @@ function validateTokenMaxTradingVolume(uint32 _ruleId) external view;
 
 ### getTotalTokenMaxTradingVolume
 
-*Function to get total Token Transfer Volume rules*
+*Function to get total Token Max Trading Volume*
 
 
 ```solidity
@@ -460,13 +340,13 @@ function validateTokenMaxSupplyVolatility(uint32 _ruleId) external view;
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### getAllSupplyVolatilityRules
+### getTotalTokenMaxSupplyVolatility
 
-*Function to get total Supply Volitility rules*
+*Function to get total Token Max Supply Volitility rules*
 
 
 ```solidity
-function getAllSupplyVolatilityRules() internal view returns (uint32);
+function getTotalTokenMaxSupplyVolatility() internal view returns (uint32);
 ```
 **Returns**
 
@@ -492,7 +372,7 @@ function validateAccountMaxValueByRiskScore(uint32 _ruleId) external view;
 
 ### getTotalAccountMaxValueByRiskScore
 
-*Function to get total Transaction Limit by Risk Score rules*
+*Function to get total Account Max Value by Risk Score rules*
 
 
 ```solidity
@@ -505,13 +385,13 @@ function getTotalAccountMaxValueByRiskScore() internal view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
-### validateAccountMaxTransactionValueByRiskScore
+### validateAccountMaxTxValueByRiskScore
 
 *Validate the existence of the rule*
 
 
 ```solidity
-function validateAccountMaxTransactionValueByRiskScore(uint32 _ruleId) external view;
+function validateAccountMaxTxValueByRiskScore(uint32 _ruleId) external view;
 ```
 **Parameters**
 
@@ -520,13 +400,13 @@ function validateAccountMaxTransactionValueByRiskScore(uint32 _ruleId) external 
 |`_ruleId`|`uint32`|Rule Identifier|
 
 
-### getTotalAccountMaxTransactionValueByRiskScore
+### getTotalAccountMaxTxValueByRiskScore
 
-*Function to get total Max Tx Size Per Period By Risk rules*
+*Function to get total Account Max Transaction Value by Risk rules*
 
 
 ```solidity
-function getTotalAccountMaxTransactionValueByRiskScore() internal view returns (uint32);
+function getTotalAccountMaxTxValueByRiskScore() internal view returns (uint32);
 ```
 **Returns**
 
@@ -568,7 +448,7 @@ function validateAccountMaxValueByAccessLevel(uint32 _ruleId) external view;
 
 ### getTotalAccountMaxValueByAccessLevel
 
-*Function to get total AccessLevel Balance rules*
+*Function to get total Account Max Value By Access Level rules*
 
 
 ```solidity
@@ -598,7 +478,7 @@ function validateAccountMaxValueOutByAccessLevel(uint32 _ruleId) external view;
 
 ### getTotalAccountMaxValueOutByAccessLevel
 
-*Function to get total AccessLevel withdrawal rules*
+*Function to get total Account Max Value Out By Access Level rules*
 
 
 ```solidity

@@ -1,5 +1,5 @@
 # IProtocolERC20Pricing
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/common/IProtocolERC20Pricing.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/common/IProtocolERC20Pricing.sol)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -12,7 +12,7 @@ This contract is a simple pricing mechanism only. Its main purpose is to store p
 ## Functions
 ### getTokenPrice
 
-*gets the price of a Token. It will return the Token's specific price.*
+*Gets the price of a Token. It will return the Token's specific price.*
 
 
 ```solidity
@@ -28,6 +28,6 @@ function getTokenPrice(address tokenContract) external view returns (uint256 pri
 
 |Name|Type|Description|
 |----|----|-----------|
-|`price`|`uint256`|of the Token in cents of dollars. 1000 => $ 10.00 USD|
+|`price`|`uint256`|of the Token in weis of dollars. 10^18 => $ 1.00 USD|
 
 

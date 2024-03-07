@@ -1,5 +1,5 @@
 # Constants
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/RuleCodeData.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/RuleCodeData.sol)
 
 ### AMM_FEE
 
@@ -35,18 +35,6 @@ bytes32 constant TOKEN_MAX_SELL_VOLUME = "TOKEN_MAX_SELL_VOLUME";
 
 ```solidity
 bytes32 constant ACCOUNT_MIN_MAX_TOKEN_BALANCE = "ACCOUNT_MIN_MAX_TOKEN_BALANCE";
-```
-
-### MIN_ACCT_BAL_BY_DATE
-
-```solidity
-bytes32 constant MIN_ACCT_BAL_BY_DATE = "MIN_ACCT_BAL_BY_DATE";
-```
-
-### WITHDRAWAL
-
-```solidity
-bytes32 constant WITHDRAWAL = "WITHDRAWAL";
 ```
 
 ### ADMIN_MIN_TOKEN_BALANCE
@@ -121,10 +109,10 @@ bytes32 constant TOKEN_MIN_TX_SIZE = "TOKEN_MIN_TX_SIZE";
 bytes32 constant TOKEN_MAX_SUPPLY_VOLATILITY = "TOKEN_MAX_SUPPLY_VOLATILITY";
 ```
 
-### ORACLE
+### ACCOUNT_APPROVE_DENY_ORACLE
 
 ```solidity
-bytes32 constant ORACLE = "ORACLE";
+bytes32 constant ACCOUNT_APPROVE_DENY_ORACLE = "ACCOUNT_APPROVE_DENY_ORACLE";
 ```
 
 ### TOKEN_MAX_DAILY_TRADES
@@ -145,15 +133,21 @@ bytes32 constant ACC_MAX_VALUE_OUT_ACCESS_LEVEL = "ACC_MAX_VALUE_OUT_ACCESS_LEVE
 bytes32 constant TOKEN_MIN_HOLD_TIME = "TOKEN_MIN_HOLD_TIME";
 ```
 
-### ACCESS_LEVEL_0
+### ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL
 
 ```solidity
-bytes32 constant ACCESS_LEVEL_0 = "ACCESS_LEVEL_0";
+bytes32 constant ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL = "ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL";
 ```
 
 ### PAUSE_RULE
 
 ```solidity
 bytes32 constant PAUSE_RULE = "PAUSE_RULE";
+```
+
+### TRADE_RULE_ORACLE_LIST
+
+```solidity
+bytes32 constant TRADE_RULE_ORACLE_LIST = "TRADE_RULE_ORACLE_LIST";
 ```
 

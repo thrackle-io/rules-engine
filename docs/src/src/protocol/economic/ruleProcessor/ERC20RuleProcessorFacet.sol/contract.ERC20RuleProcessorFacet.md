@@ -1,5 +1,5 @@
 # ERC20RuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol)
 
 **Inherits:**
 [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [IERC20Errors](/src/common/IErrors.sol/interface.IERC20Errors.md)
@@ -12,14 +12,29 @@ Implements Token Fee Rules on Accounts.
 *Facet in charge of the logic to check token rules compliance*
 
 
-## Functions
-### checkTokenMinTransactionSize
+## State Variables
+### _VOLUME_MULTIPLIER
 
-*Check if transaction passes minTransfer rule.*
+```solidity
+uint256 constant _VOLUME_MULTIPLIER = 10 ** 8;
+```
+
+
+### _BASIS_POINT
+
+```solidity
+uint256 constant _BASIS_POINT = 10000;
+```
+
+
+## Functions
+### checkTokenMinTxSize
+
+*Check if transaction passes Token Min Tx Size rule.*
 
 
 ```solidity
-function checkTokenMinTransactionSize(uint32 _ruleId, uint256 amountToTransfer) external view;
+function checkTokenMinTxSize(uint32 _ruleId, uint256 amountToTransfer) external view;
 ```
 **Parameters**
 
@@ -29,13 +44,13 @@ function checkTokenMinTransactionSize(uint32 _ruleId, uint256 amountToTransfer) 
 |`amountToTransfer`|`uint256`|total number of tokens to be transferred|
 
 
-### getMinimumTransferRule
+### getTokenMinTxSize
 
-*Function to get Minimum Transfer rules by index*
+*Function to get Token Min Tx Size rules by index*
 
 
 ```solidity
-function getMinimumTransferRule(uint32 _index) public view returns (NonTaggedRules.TokenMinimumTransferRule memory);
+function getTokenMinTxSize(uint32 _index) public view returns (NonTaggedRules.TokenMinTxSize memory);
 ```
 **Parameters**
 
@@ -47,16 +62,16 @@ function getMinimumTransferRule(uint32 _index) public view returns (NonTaggedRul
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`NonTaggedRules.TokenMinimumTransferRule`|Rule at index|
+|`<none>`|`NonTaggedRules.TokenMinTxSize`|Rule at index|
 
 
-### getTotalTokenMinTransactionSize
+### getTotalTokenMinTxSize
 
-*Function to get total Minimum Transfer rules*
+*Function to get total Token Min Tx Size rules*
 
 
 ```solidity
-function getTotalTokenMinTransactionSize() public view returns (uint32);
+function getTotalTokenMinTxSize() public view returns (uint32);
 ```
 **Returns**
 
@@ -65,13 +80,29 @@ function getTotalTokenMinTransactionSize() public view returns (uint32);
 |`<none>`|`uint32`|Total length of array|
 
 
+### checkAccountApproveDenyOracles
+
+*This function receives an array of rule ids, which it uses to get the oracle details, then calls the oracle to determine permissions.*
+
+
+```solidity
+function checkAccountApproveDenyOracles(Rule[] memory _rules, address _address) external view;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_rules`|`Rule[]`|Rule Id Array|
+|`_address`|`address`|user address to be checked|
+
+
 ### checkAccountApproveDenyOracle
 
 *This function receives a rule id, which it uses to get the oracle details, then calls the oracle to determine permissions.*
 
 
 ```solidity
-function checkAccountApproveDenyOracle(uint32 _ruleId, address _address) external view;
+function checkAccountApproveDenyOracle(uint32 _ruleId, address _address) internal view;
 ```
 **Parameters**
 
@@ -83,17 +114,16 @@ function checkAccountApproveDenyOracle(uint32 _ruleId, address _address) externa
 
 ### getAccountApproveDenyOracle
 
-Allow List type
-If Allow List Oracle rule active, address(0) is exempt to allow for burning
-Deny List type
-If Deny List Oracle rule active all transactions to addresses registered to deny list (including address(0)) will be denied.
-Invalid oracle type
+If Approve List Oracle rule active, address(0) is exempt to allow for burning
 
-*Function get Oracle Rule by index*
+*Function get Account Approve Deny Oracle Rule by index*
 
 
 ```solidity
-function getAccountApproveDenyOracle(uint32 _index) public view returns (NonTaggedRules.AccountApproveDenyOracle memory);
+function getAccountApproveDenyOracle(uint32 _index)
+    public
+    view
+    returns (NonTaggedRules.AccountApproveDenyOracle memory);
 ```
 **Parameters**
 
@@ -108,24 +138,26 @@ function getAccountApproveDenyOracle(uint32 _index) public view returns (NonTagg
 |`<none>`|`NonTaggedRules.AccountApproveDenyOracle`|AccountApproveDenyOracle at index|
 
 
-### getTotalAccountApproveDenyOracles
+### getTotalAccountApproveDenyOracle
 
-*Function get total Oracle rules*
+*Function get total Account Approve Deny Oracle rules*
 
 
 ```solidity
-function getTotalAccountApproveDenyOracles() public view returns (uint32);
+function getTotalAccountApproveDenyOracle() public view returns (uint32);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|total oracleRules array length|
+|`<none>`|`uint32`|total accountApproveDenyOracleRules array length|
 
 
 ### checkTokenMaxTradingVolume
 
-*Rule checks if the token transfer volume rule will be violated.*
+If the totalSupply value is set in the rule, it is set as the circulating supply. Otherwise, this function uses the ERC20 totalSupply sent from handler.
+
+*Rule checks if the Token Max Trading Volume rule will be violated.*
 
 
 ```solidity
@@ -156,9 +188,6 @@ function checkTokenMaxTradingVolume(
 
 ### getTokenMaxTradingVolume
 
-we procede to retrieve the rule
-If the last trades "tradesWithinPeriod" were inside current period,
-we need to acumulate this trade to the those ones. If not, reset to only current amount.
 if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
 
 *Function get Token Max Trading Volume by index*
@@ -182,7 +211,7 @@ function getTokenMaxTradingVolume(uint32 _index) public view returns (NonTaggedR
 
 ### getTotalTokenMaxTradingVolume
 
-*Function to get total Token Transfer Volume rules*
+*Function to get total Token Max Trading Volume rules*
 
 
 ```solidity
@@ -197,7 +226,9 @@ function getTotalTokenMaxTradingVolume() public view returns (uint32);
 
 ### checkTokenMaxSupplyVolatility
 
-*Rule checks if the token total supply volatility rule will be violated.*
+If the totalSupply value is set in the rule, it is set as the circulating supply. Otherwise, this function uses the ERC20 totalSupply sent from handler.
+
+*Rule checks if the Token Max Supply Volatility rule will be violated.*
 
 
 ```solidity
@@ -229,33 +260,169 @@ function checkTokenMaxSupplyVolatility(
 |`<none>`|`uint256`|_tokenTotalSupply properly adjusted token total supply. This is necessary because if the token's total supply is used it skews results within the period|
 
 
-### getSupplyVolatilityRule
+### getTokenMaxSupplyVolatility
 
-we procede to retrieve the rule
-check if totalSupply is specified in rule params
 Account for the very first period
-check if current transaction is inside rule period
-if the totalSupply value is set in the rule, use that as the circulating supply. Otherwise, use the ERC20 totalSupply(sent from handler)
-the _tokenTotalSupply is not modified during the rule period. It needs to stay the same value as what it was at the beginning of the period to keep consistent results since mints/burns change totalSupply in the token
-update total supply of token when outside of rule period
+The _tokenTotalSupply is not modified during the rule period.
+It needs to stay the same value as what it was at the beginning of the period to keep consistent results since mints/burns change totalSupply in the token.
+Update total supply of token when outside of rule period
+
+*Function to get Token Max Supply Volatility rule by index*
 
 
 ```solidity
-function getSupplyVolatilityRule(uint32 _index) public view returns (NonTaggedRules.SupplyVolatilityRule memory);
+function getTokenMaxSupplyVolatility(uint32 _index)
+    public
+    view
+    returns (NonTaggedRules.TokenMaxSupplyVolatility memory);
 ```
+**Parameters**
 
-### getTotalSupplyVolatilityRules
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
 
-*Function to get total Supply Volitility rules*
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`NonTaggedRules.TokenMaxSupplyVolatility`|tokenMaxSupplyVolatility Rule|
+
+
+### getTotalTokenMaxSupplyVolatility
+
+*Function to get total Token Max Supply Volatility rules*
 
 
 ```solidity
-function getTotalSupplyVolatilityRules() public view returns (uint32);
+function getTotalTokenMaxSupplyVolatility() public view returns (uint32);
 ```
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint32`|tokenMaxSupplyVolatilityRules total length of array|
+|`<none>`|`uint32`|tokenMaxSupplyVolatility Rules total length of array|
+
+
+### checkTokenMaxBuyVolume
+
+*Function receives a rule id, retrieves the rule data and checks if the Token Max Buy Volume Rule passes*
+
+
+```solidity
+function checkTokenMaxBuyVolume(
+    uint32 ruleId,
+    uint256 currentTotalSupply,
+    uint256 amountToTransfer,
+    uint64 lastPurchaseTime,
+    uint256 boughtInPeriod
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|id of the rule to be checked|
+|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
+|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
+|`lastPurchaseTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`boughtInPeriod`|`uint256`|total amount of tokens purchased in current period|
+
+
+### getTokenMaxBuyVolume
+
+*Function get Token Max Buy Volume by index*
+
+
+```solidity
+function getTokenMaxBuyVolume(uint32 _index) public view returns (NonTaggedRules.TokenMaxBuyVolume memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`NonTaggedRules.TokenMaxBuyVolume`|tokenMaxBuyVolumeRules rule at index position|
+
+
+### getTotalTokenMaxBuyVolume
+
+*Function to get total Token Max Buy Volume rules*
+
+
+```solidity
+function getTotalTokenMaxBuyVolume() public view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|Total length of array|
+
+
+### checkTokenMaxSellVolume
+
+*Function receives a rule id, retrieves the rule data and checks if the Token Max Sell Volume Rule passes*
+
+
+```solidity
+function checkTokenMaxSellVolume(
+    uint32 ruleId,
+    uint256 currentTotalSupply,
+    uint256 amountToTransfer,
+    uint64 lastSellTime,
+    uint256 soldWithinPeriod
+) external view returns (uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`ruleId`|`uint32`|id of the rule to be checked|
+|`currentTotalSupply`|`uint256`|total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.|
+|`amountToTransfer`|`uint256`|total number of tokens to be transferred in transaction.|
+|`lastSellTime`|`uint64`|time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.|
+|`soldWithinPeriod`|`uint256`|total amount of tokens sold within current period|
+
+
+### getTokenMaxSellVolume
+
+*Function get Token Max Sell Volume by index*
+
+
+```solidity
+function getTokenMaxSellVolume(uint32 _index) public view returns (NonTaggedRules.TokenMaxSellVolume memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint32`|position of rule in array|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`NonTaggedRules.TokenMaxSellVolume`|tokenMaxSellVolumeRules rule at index position|
+
+
+### getTotalTokenMaxSellVolume
+
+*Function to get total Token Max Sell Volume rules*
+
+
+```solidity
+function getTotalTokenMaxSellVolume() public view returns (uint32);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|Total length of array|
 
 

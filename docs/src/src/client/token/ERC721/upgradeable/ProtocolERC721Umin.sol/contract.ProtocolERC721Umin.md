@@ -1,13 +1,13 @@
 # ProtocolERC721Umin
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/token/ERC721/upgradeable/ProtocolERC721Umin.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/token/ERC721/upgradeable/ProtocolERC721Umin.sol)
 
 **Inherits:**
-Initializable, ERC721EnumerableUpgradeable, [ProtocolTokenCommonU](/src/client/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md)
+Initializable, ERC721EnumerableUpgradeable, [ProtocolTokenCommonU](/src/client/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md), ReentrancyGuard
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
 
-This is the base contract for all protocol ERC721Upgradeables
+This is the base contract for all protocol ERC721Upgradeable Minimals.
 
 
 ## State Variables
@@ -21,7 +21,7 @@ address private handlerAddress;
 ### handler
 
 ```solidity
-IProtocolERC721Handler private handler;
+IProtocolTokenHandler private handler;
 ```
 
 
@@ -63,7 +63,11 @@ function __ProtocolERC721_init_unchained(address _appManagerAddress) internal on
 
 
 ```solidity
-function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal virtual override;
+function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
+    internal
+    virtual
+    override
+    nonReentrant;
 ```
 **Parameters**
 
@@ -77,7 +81,9 @@ function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256
 
 ### getHandlerAddress
 
-*this function returns the handler address*
+Rule Processor Module Check
+
+*This function returns the handler address*
 
 
 ```solidity

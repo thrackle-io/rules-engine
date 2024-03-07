@@ -1,5 +1,5 @@
 # RuleProcessorDiamondLib
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/RuleProcessorDiamondLib.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/RuleProcessorDiamondLib.sol)
 
 **Author:**
 @oscarsernarosero, built on top of Nick Mudge implementation.
@@ -28,7 +28,7 @@ bytes32 constant RULE_DATA_POSITION = keccak256("nontagged-ruless.rule-data.stor
 ## Functions
 ### s
 
-*Function for position of rules. Every rule has its own storage.*
+*Function for position of facets and their selectors. Every facet has its own storage.*
 
 
 ```solidity
@@ -38,7 +38,7 @@ function s() internal pure returns (RuleProcessorDiamondStorage storage ds);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`ds`|`RuleProcessorDiamondStorage`|Data storage for Rule Processor Storage|
+|`ds`|`RuleProcessorDiamondStorage`|Data storage for Rule Processor Facet Storage|
 
 
 ### ruleDataStorage

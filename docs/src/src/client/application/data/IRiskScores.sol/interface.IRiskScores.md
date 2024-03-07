@@ -1,8 +1,8 @@
 # IRiskScores
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/data/IRiskScores.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/application/data/IRiskScores.sol)
 
 **Inherits:**
-[IDataModule](/src/client/application/data/IDataModule.sol/interface.IDataModule.md), [IRiskInputErrors](/src/common/IErrors.sol/interface.IRiskInputErrors.md)
+[IDataModule](/src/client/application/data/IDataModule.sol/interface.IDataModule.md), [IRiskInputErrors](/src/common/IErrors.sol/interface.IRiskInputErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -57,6 +57,22 @@ function getRiskScore(address _account) external view returns (uint8);
 |Name|Type|Description|
 |----|----|-----------|
 |`_account`|`address`|address of the account|
+
+
+### addMultipleRiskScores
+
+*Add the Risk Score at index to Account at index in array. Restricted to Risk Admins.*
+
+
+```solidity
+function addMultipleRiskScores(address[] memory _accounts, uint8[] memory _scores) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|address array upon which to apply the Risk Score|
+|`_scores`|`uint8[]`|Risk Score array (0-100)|
 
 
 ### addRiskScoreToMultipleAccounts

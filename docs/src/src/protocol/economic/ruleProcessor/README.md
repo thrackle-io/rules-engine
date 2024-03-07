@@ -1,7 +1,6 @@
 
 
 # Contents
-- [ActionTypes](ActionEnum.sol/enum.ActionTypes.md)
 - [AppRuleDataFacet](AppRuleDataFacet.sol/contract.AppRuleDataFacet.md)
 - [ApplicationAccessLevelProcessorFacet](ApplicationAccessLevelProcessorFacet.sol/contract.ApplicationAccessLevelProcessorFacet.md)
 - [ApplicationPauseProcessorFacet](ApplicationPauseProcessorFacet.sol/contract.ApplicationPauseProcessorFacet.md)
@@ -10,11 +9,7 @@
 - [ERC20TaggedRuleProcessorFacet](ERC20TaggedRuleProcessorFacet.sol/contract.ERC20TaggedRuleProcessorFacet.md)
 - [ERC721RuleProcessorFacet](ERC721RuleProcessorFacet.sol/contract.ERC721RuleProcessorFacet.md)
 - [ERC721TaggedRuleProcessorFacet](ERC721TaggedRuleProcessorFacet.sol/contract.ERC721TaggedRuleProcessorFacet.md)
-- [FeeRuleDataFacet](FeeRuleDataFacet.sol/contract.FeeRuleDataFacet.md)
-- [FeeRuleProcessorFacet](FeeRuleProcessorFacet.sol/contract.FeeRuleProcessorFacet.md)
-- [IOracle](IOracle.sol/interface.IOracle.md)
 - [IRuleStorage](IRuleStorage.sol/interface.IRuleStorage.md)
-- [RiskTaggedRuleProcessorFacet](RiskTaggedRuleProcessorFacet.sol/contract.RiskTaggedRuleProcessorFacet.md)
 - [RuleApplicationValidationFacet](RuleApplicationValidationFacet.sol/contract.RuleApplicationValidationFacet.md)
 - [ORACLE_TYPE](RuleCodeData.sol/enum.ORACLE_TYPE.md)
 - [RuleCodeData constants](RuleCodeData.sol/constants.RuleCodeData.md)
@@ -25,6 +20,7 @@
 - [IApplicationRules](RuleDataInterfaces.sol/interface.IApplicationRules.md)
 - [RuleProcessorCommonLib](RuleProcessorCommonLib.sol/library.RuleProcessorCommonLib.md)
 - [FunctionNotFound](RuleProcessorDiamond.sol/error.FunctionNotFound.md)
+- [FacetHasNoCodeOrHasBeenDestroyed](RuleProcessorDiamond.sol/error.FacetHasNoCodeOrHasBeenDestroyed.md)
 - [RuleProcessorDiamondArgs](RuleProcessorDiamond.sol/struct.RuleProcessorDiamondArgs.md)
 - [RuleProcessorDiamond](RuleProcessorDiamond.sol/contract.RuleProcessorDiamond.md)
 - [RuleProcessorDiamondImports](RuleProcessorDiamondImports.sol/abstract.RuleProcessorDiamondImports.md)

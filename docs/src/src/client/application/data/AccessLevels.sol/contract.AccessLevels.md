@@ -1,5 +1,5 @@
 # AccessLevels
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/client/application/data/AccessLevels.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/client/application/data/AccessLevels.sol)
 
 **Inherits:**
 [IAccessLevels](/src/client/application/data/IAccessLevels.sol/interface.IAccessLevels.md), [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md)
@@ -52,9 +52,25 @@ function addLevel(address _address, uint8 _level) public virtual onlyOwner;
 |`_level`|`uint8`|access level(0-4)|
 
 
+### addMultipleAccessLevels
+
+*Add the Access Level(0-4) to the list of account. Restricted to the owner.*
+
+
+```solidity
+function addMultipleAccessLevels(address[] memory _accounts, uint8[] memory _level) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_accounts`|`address[]`|address array upon which to apply the Access Level|
+|`_level`|`uint8[]`|Access Level array to add|
+
+
 ### addAccessLevelToMultipleAccounts
 
-*Add the Access Level(0-4) to multiple accounts. Restricted to Access Tiers.*
+*Add the Access Level(0-4) to multiple accounts. Restricted to the owner.*
 
 
 ```solidity
@@ -64,13 +80,13 @@ function addAccessLevelToMultipleAccounts(address[] memory _accounts, uint8 _lev
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_accounts`|`address[]`|address upon which to apply the Access Level|
+|`_accounts`|`address[]`|addresses upon which to apply the Access Level|
 |`_level`|`uint8`|Access Level to add|
 
 
 ### getAccessLevel
 
-*Get the Access Level for the account. Restricted to the owner*
+*Get the Access Level for the account.*
 
 
 ```solidity
@@ -87,5 +103,20 @@ function getAccessLevel(address _account) external view virtual returns (uint8);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint8`|level Access Level(0-4)|
+
+
+### removeAccessLevel
+
+*Remove the Access Level for the account. Restricted to the owner*
+
+
+```solidity
+function removeAccessLevel(address _account) external virtual onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_account`|`address`|address of the account|
 
 

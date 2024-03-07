@@ -1,5 +1,5 @@
 # ERC721TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a542d218e58cfe9de74725f5f4fd3ffef34da456/src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d6cc09e8b231cc94d92dd93b6d49fb2728ede233/src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol)
 
 **Inherits:**
 [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IERC721Errors](/src/common/IErrors.sol/interface.IERC721Errors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [ITagRuleErrors](/src/common/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md)
@@ -9,13 +9,25 @@
 
 Implements Non-Fungible Token Checks on Tagged Accounts.
 
-*This contract implements rules to be checked by Handler.*
+*This contract implements rules to be checked by a Token Handler.*
+
+
+## State Variables
+### BLANK_TAG
+
+```solidity
+bytes32 constant BLANK_TAG = bytes32("");
+```
 
 
 ## Functions
 ### checkMinMaxAccountBalanceERC721
 
-*Check the minMaxAccoutBalace rule. This rule ensures accounts cannot exceed or drop below specified account balances via account tags.*
+If the rule applies to all users, it checks blank tag only. Otherwise loop through
+tags and check for specific application. This was done in a minimal way to allow for
+modifications later while not duplicating rule check logic.
+
+*Check the minMaxAccoutBalance rule. This rule ensures accounts cannot exceed or drop below specified account balances via account tags.*
 
 
 ```solidity
@@ -23,8 +35,8 @@ function checkMinMaxAccountBalanceERC721(
     uint32 ruleId,
     uint256 balanceFrom,
     uint256 balanceTo,
-    bytes32[] calldata toTags,
-    bytes32[] calldata fromTags
+    bytes32[] memory toTags,
+    bytes32[] memory fromTags
 ) public view;
 ```
 **Parameters**
@@ -40,11 +52,13 @@ function checkMinMaxAccountBalanceERC721(
 
 ### minAccountBalanceERC721
 
+most restrictive tag will be enforced.
+
 *Check if tagged account passes minAccountBalanceERC721 rule*
 
 
 ```solidity
-function minAccountBalanceERC721(uint256 balanceFrom, bytes32[] calldata fromTags, uint32 ruleId) internal view;
+function minAccountBalanceERC721(uint256 balanceFrom, bytes32[] memory fromTags, uint32 ruleId) internal view;
 ```
 **Parameters**
 
@@ -57,16 +71,11 @@ function minAccountBalanceERC721(uint256 balanceFrom, bytes32[] calldata fromTag
 
 ### maxAccountBalanceERC721
 
-This Function checks the min account balance for accounts depending on GeneralTags.
-Function will revert if a transaction breaks a single tag-dependent rule
-we decrease the balance to check the rule
-if a min is 0 then no need to check.
-
 *Check if tagged account passes maxAccountBalanceERC721 rule*
 
 
 ```solidity
-function maxAccountBalanceERC721(uint256 balanceTo, bytes32[] calldata toTags, uint32 ruleId) internal view;
+function maxAccountBalanceERC721(uint256 balanceTo, bytes32[] memory toTags, uint32 ruleId) internal view;
 ```
 **Parameters**
 
@@ -77,40 +86,38 @@ function maxAccountBalanceERC721(uint256 balanceTo, bytes32[] calldata toTags, u
 |`ruleId`|`uint32`|Rule identifier for rule arguments|
 
 
-### getMinMaxBalanceRuleERC721
+### getAccountMinMaxTokenBalanceERC721
 
-we increase the balance to check the rule.
-
-*Function get the account max buy size rule in the rule set that belongs to an account type*
+*Function get the Account Min Max Token Balance ERC721 rule in the rule set that belongs to a specific tag.*
 
 
 ```solidity
-function getMinMaxBalanceRuleERC721(uint32 _index, bytes32 _accountType)
+function getAccountMinMaxTokenBalanceERC721(uint32 _index, bytes32 _nftTag)
     public
     view
-    returns (TaggedRules.MinMaxBalanceRule memory);
+    returns (TaggedRules.AccountMinMaxTokenBalance memory);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_index`|`uint32`|position of rule in array|
-|`_accountType`|`bytes32`|Type of Accounts|
+|`_nftTag`|`bytes32`|nft tag for rule application|
 
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`TaggedRules.MinMaxBalanceRule`|MinMaxBalanceRule at index location in array|
+|`<none>`|`TaggedRules.AccountMinMaxTokenBalance`|AccountMinMaxTokenBalance at index location in array|
 
 
-### getTotalMinMaxBalanceRulesERC721
+### getTotalAccountMinMaxTokenBalancesERC721
 
-*Function gets total Balance Limit rules*
+*Function gets total Account Min Max Token Balance ERC721 rules*
 
 
 ```solidity
-function getTotalMinMaxBalanceRulesERC721() public view returns (uint32);
+function getTotalAccountMinMaxTokenBalancesERC721() public view returns (uint32);
 ```
 **Returns**
 
@@ -121,14 +128,18 @@ function getTotalMinMaxBalanceRulesERC721() public view returns (uint32);
 
 ### checkTokenMaxDailyTrades
 
-*This function receives a rule id, which it uses to get the NFT Trade Counter rule to check if the transfer is valid.*
+If the rule applies to all users, it checks blank tag only. Otherwise loop through
+tags and check for specific application. This was done in a minimal way to allow for
+modifications later while not duplicating rule check logic.
+
+*This function receives a rule id, which it uses to get the Token Max Daily Trades rule to check if the transfer is valid.*
 
 
 ```solidity
 function checkTokenMaxDailyTrades(
     uint32 ruleId,
     uint256 transfersWithinPeriod,
-    bytes32[] calldata nftTags,
+    bytes32[] memory nftTags,
     uint64 lastTransferTime
 ) public view returns (uint256);
 ```
@@ -144,7 +155,7 @@ function checkTokenMaxDailyTrades(
 
 ### getTokenMaxDailyTrades
 
-*Function get the NFT Transfer Counter rule in the rule set that belongs to an NFT type*
+*Function get the Token Max Daily Trades rule in the rule set that belongs to an NFT type*
 
 
 ```solidity
@@ -164,12 +175,12 @@ function getTokenMaxDailyTrades(uint32 _index, bytes32 _nftType)
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`TaggedRules.TokenMaxDailyTrades`|NftTradeCounterRule at index location in array|
+|`<none>`|`TaggedRules.TokenMaxDailyTrades`|TokenMaxDailyTrades at index location in array|
 
 
 ### getTotalTokenMaxDailyTrades
 
-*Function gets total NFT Trade Counter rules*
+*Function gets total Token Max Daily Trades rules*
 
 
 ```solidity
