@@ -9,15 +9,15 @@ We're so glad you would want to come and contribute to Tron! We are a small team
 
 ## Code of Conduct
 
-We follow the Rust code of conduct which can be read [here](https://www.rust-lang.org/policies/code-of-conduct). Violations of this code of conduct can be reported to [The Captain](mailto:johnathan@thrackle.io). 
+We follow the Rust code of conduct which can be read [here](https://www.rust-lang.org/policies/code-of-conduct). Violations of this code of conduct can be reported to [the Thrackle Team](mailto:engineering@thrackle.io). 
 
 ## Asking For Help
 
-If you have reviewed existing documentation and still have questions or are having problems, we are always a message away. You can reach out to us on the team slack or message [The Captain](mailto:johnathan@thrackle.io). Opening an issue is also a great way to get help for particularly complex issues. 
+If you have reviewed existing documentation and still have questions or are having problems, we are always a message away. You can reach out to us on the team slack or message [the Thrackle Team](mailto:engineering@thrackle.io). Opening an issue is also a great way to get help for particularly complex issues. 
 
 ## Submitting a Bug Report
 
-If you feel you have stumbled upon a particularly severe bug, please quietly message [The Captain](mailto:johnathan@thrackle.io) as soon as possible and keep the bug report private so as to protect customer funds. While we are audited, that is no guarantee that everything is perfect and we are happy to negotiate a bug bounty for a severe bug. If you have found a bug that is not severe or an optimization potential, please open an issue on the repository, and (if possible) a PR with a solution, and a test to show the bug and the fix. 
+If you feel you have stumbled upon a particularly severe bug, please quietly message [the Thrackle Team](mailto:engineering@thrackle.io) as soon as possible and keep the bug report private so as to protect customer funds. While we are audited, that is no guarantee that everything is perfect and we are happy to negotiate a bug bounty for a severe bug. If you have found a bug that is not severe or an optimization potential, please open an issue on the repository, and (if possible) a PR with a solution, and a test to show the bug and the fix. 
 
 The most important pieces of information we need in a bug report are:
 
@@ -40,15 +40,15 @@ When reviewing a pull request, the primary goals are for the codebase to improve
 
 ## Testing
 
-All code changes should be accompanied by tests. If you are not sure how to write tests, please make yourself familiar with the [Foundry basic testing tools](https://book.getfoundry.sh/forge/writing-tests), [advanced testing tools](https://book.getfoundry.sh/forge/advanced-testing), and some of the fuzz testing available with [Echidna](https://github.com/crytic/echidna). If you're still having trouble writing tests, please feel free to reach out to the team, we're happy to help you reason through testing strategies.
+All code changes should be accompanied by tests. If you are not sure how to write tests, please make yourself familiar with the [Foundry basic testing tools](https://book.getfoundry.sh/forge/writing-tests), [advanced testing tools](https://book.getfoundry.sh/forge/advanced-testing), and some of the fuzz testing available with [Echidna](https://github.com/crytic/echidna). Additionally, all code changes should pass static analysis by [slither](https://github.com/crytic/slither) for which the repo is configured to run the command in the root. If you're still having trouble writing tests, please feel free to reach out to the team, we're happy to help you reason through testing strategies.
 
 ## Adding a new feature
 
-Due to the diamond pattern setup, spinning up new features and enabling new functionality has never been easier! Whether you are modifying the current core contracts or spinning up a different contracts, all can be made to interact with the system as a whole using the diamondCut function. This is a great way to add new functionality to the system without having to redeploy the entire system. Either modify the current contract in place, deploy a new contract to cut in and replace its previous version, or spin up a new contract to add into the system as a whole. To learn more about how this operates, read more [here](https://eip2535diamonds.substack.com/i/38730553/diamond-upgrades). All new features should first go through a strenuous effort of having been tested on a local network and verified by external team members on a test network before being merged into mainnet release.
+Due to the diamond pattern setup, spinning up new features and enabling new functionality has never been easier! Whether you are modifying the current core contracts or deploying new contracts to integrate in, all can be made to interact with the system as a whole using the diamondCut function. This is a great way to add new functionality to the system without having to redeploy the entire system. Either modify the current contract in place, deploy a new contract to cut in and replace its previous version, or write a new contract in the form of a facet to add into the system as a whole. To learn more about how this operates, read more [here](https://eip2535diamonds.substack.com/i/38730553/diamond-upgrades). All new features should first go through a strenuous effort of having been tested on a local network and verified by external team members on a test network before being merged into mainnet release.
 
 ## Adding dependencies
 
-Foundry can sometimes get finnicky. Make sure all code changes are commited on your branch or no changes have been made before you add fresh dependencies to the code in place. If you are adding a new dependency, please make that it follows the styling of package dependencies as denoted in the `remappings.txt` file. 
+Foundry can sometimes get finnicky. To ensure that your development life is made easier as well as ours, please try to add all dependency changes in a single commit or a separate PR if at all possible. In addition, if you are adding a new dependency, please ensure that it follows the styling of package dependencies as denoted in the `remappings.txt` file.
 
 ## Branch names
 
@@ -56,7 +56,7 @@ If possible, please use JIRA to create new branch names. If you do not have acce
 
 ## Code Style
 
-In every way possible, please fill out all nat spec that is reasonable to fill out in the code and try to follow the official [solidity styling guide](https://docs.soliditylang.org/en/latest/style-guide.html) and [order of layout](https://docs.soliditylang.org/en/latest/style-guide.html#order-of-layout). If you are not sure how to fill out a nat spec, please see this [documentation](https://docs.soliditylang.org/en/latest/natspec-format.html). 
+If possible, please fill out all [nat spec parameters](https://docs.soliditylang.org/en/latest/natspec-format.html) available to fill out in the code and try to follow the official [solidity styling guide](https://docs.soliditylang.org/en/latest/style-guide.html) and [order of layout](https://docs.soliditylang.org/en/latest/style-guide.html#order-of-layout). If you are at all unsure, please feel free to ask us. 
 
 ## Commits
 
