@@ -1,0 +1,31 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  build-test:
+    name: Generate Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Generate documentation
+        run: |
+          git config user.email "cloudops@thrackle.io"
+          git config user.name "CloudOps Thrackle"
+          forge doc
+          git add .
+          git commit -m "Generate documentation"
+          git push
