@@ -1,4 +1,7 @@
 import fs from "fs/promises"
+import { existsSync, mkdirSync } from "fs"
+
+const outputDir = "doom-abis"
 
 const ABIFiles = [
   {
@@ -110,7 +113,9 @@ const ABIFiles = [
   },
 ]
 
-const readAndGetABI = async (filename) => {
+const createOutputDir = (dir) => (!existsSync(dir) ? mkdirSync(dir) : undefined)
+
+const readAndGetJsonABI = async (filename) => {
   try {
     const abiFile = await fs.readFile(filename, { encoding: "utf-8" })
     return JSON.parse(abiFile).abi
@@ -119,21 +124,23 @@ const readAndGetABI = async (filename) => {
   }
 }
 
+createOutputDir(outputDir)
+
 ABIFiles.forEach(async (abiFile) => {
   const abi =
     abiFile.files.length == 1
-      ? await readAndGetABI(abiFile.files[0])
+      ? await readAndGetJsonABI(abiFile.files[0])
       : (
           await Promise.all(
             abiFile.files.flatMap(
-              async (filename) => await readAndGetABI(filename)
+              async (filename) => await readAndGetJsonABI(filename)
             )
           )
         ).flat()
 
   if (abi) {
     fs.writeFile(
-      `./doom-abis/${abiFile.name}.json`,
+      `./${outputDir}/${abiFile.name}.json`,
       JSON.stringify(abi),
       (err) => {
         if (err) console.log("Could not write file: ", abiFile.name)
