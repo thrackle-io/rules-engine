@@ -9,15 +9,15 @@ We're so glad you would want to come and contribute to Tron! We are a small team
 
 ## Code of Conduct
 
-We follow the Rust code of conduct which can be read [here](https://www.rust-lang.org/policies/code-of-conduct). Violations of this code of conduct can be reported to [the Thrackle Team](mailto:engineering@thrackle.io). 
+We follow the Rust code of conduct which can be read [here](https://www.rust-lang.org/policies/code-of-conduct). Violations of this code of conduct can be reported to the [Thrackle Team](mailto:engineering@thrackle.io). 
 
 ## Asking For Help
 
-If you have reviewed existing documentation and still have questions or are having problems, we are always a message away. You can reach out to us on the team slack or message [the Thrackle Team](mailto:engineering@thrackle.io). Opening an issue is also a great way to get help for particularly complex issues. 
+If you have reviewed existing documentation and still have questions or are having problems, we are always a message away. You can reach out to us on the team slack or message the [Thrackle Team](mailto:engineering@thrackle.io). Opening an issue is also a great way to get help for particularly complex issues. 
 
 ## Submitting a Bug Report
 
-If you feel you have stumbled upon a particularly severe bug, please quietly message [the Thrackle Team](mailto:engineering@thrackle.io) as soon as possible and keep the bug report private so as to protect customer funds. While we are audited, that is no guarantee that everything is perfect and we are happy to negotiate a bug bounty for a severe bug. If you have found a bug that is not severe or an optimization potential, please open an issue on the repository, and (if possible) a PR with a solution, and a test to show the bug and the fix. 
+If you feel you have stumbled upon a particularly severe bug, please quietly message the [Thrackle Team](mailto:engineering@thrackle.io) as soon as possible and keep the bug report private so as to protect customer funds. While we are audited, that is no guarantee that everything is perfect and we are happy to negotiate a bug bounty for a severe bug. If you have found a bug that is not severe or an optimization potential, please open an issue on the repository, and (if possible) a PR with a solution, and a test to show the bug and the fix. 
 
 The most important pieces of information we need in a bug report are:
 
