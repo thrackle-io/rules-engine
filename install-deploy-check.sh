@@ -33,13 +33,16 @@ TEST_THREE=$(echo TEST_THREE_UNCUT | tail -n 1 | grep "FAIL" | wc -l | tr -d ' '
 TEST_FOUR_UNCUT=$(bash deployAppERC721Test.sh)
 TEST_FOUR=$(echo TEST_FOUR_UNCUT | tail -n 1 | grep "FAIL" | wc -l | tr -d ' ')
 
+node abi-aggregator.mjs --branch $GITHUB_BRANCH_NAME
+TEST_FIVE=$?
+
 echo $TEST_ONE_UNCUT
 echo $TEST_TWO_UNCUT
 
 echo $TEST_ONE
 echo $TEST_TWO
 
-if [ "1" = "$TEST_ONE" ] && [ "1" = "$TEST_TWO" ] && [ "0" == "$TEST_THREE" ] && [ "0" == "$TEST_FOUR" ] ; then
+if [ "1" = "$TEST_ONE" ] && [ "1" = "$TEST_TWO" ] && [ "0" == "$TEST_THREE" ] && [ "0" == "$TEST_FOUR" ] && [ "0" == "$TEST_FIVE" ]; then
     echo "Running K8s Build And Deploy workflow for $GITHUB_BRANCH_NAME"
     export GH_TOKEN=$(aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:560711875040:secret:GHPAT-y6CS5m --region us-east-1 | jq -r '.SecretString' | jq -r .GHPAT)
     gh workflow run k8s.yml --ref $GITHUB_BRANCH_NAME
