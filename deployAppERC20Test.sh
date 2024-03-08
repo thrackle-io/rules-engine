@@ -26,6 +26,10 @@ else
   $(curl -L https://foundry.paradigm.xyz)
 fi
 
+if [ -n $FOUNDRY_PROFILE ]; then
+  RPC_URL="local"
+fi
+
 ##### VALIDATE and RETRIEVE Entry variables
 echo $RPC_URL
 # prompt for rpc-url if it's blank
@@ -110,7 +114,7 @@ echo "...Checking to make sure the pricing modules are set within the ERC20's Ha
 if [ $RPC_URL == "local" ]; then
   APP_MANAGER=$(cast call $APPLICATION_ERC20_ADDRESS 'getAppManagerAddress()(address)')  
   APP_HANDLER=$(cast call $APP_MANAGER 'getHandlerAddress()(address)')
-  HANDLER_PRICER=$(cast call $HANDLER 'erc20PricingAddress()(address)')  
+  HANDLER_PRICER=$(cast call $APP_HANDLER 'erc20PricingAddress()(address)')  
 else
   APP_MANAGER=$(cast call $APPLICATION_ERC20_ADDRESS 'getAppManagerAddress()(address)'  --rpc-url $RPC_URL)  
   APP_HANDLER=$(cast call $APP_MANAGER 'getHandlerAddress()(address)' --rpc-url $RPC_URL)

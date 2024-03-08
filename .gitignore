@@ -5,6 +5,9 @@
 *.so
 *.dylib
 
+# ABI files generated for DOOM
+doom-abis/
+
 # Test specific environment variables
 *.env
 *.env.deployTest
