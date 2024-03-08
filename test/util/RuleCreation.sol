@@ -85,7 +85,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint192[] memory amounts = createUint192Array(maxSellSize);
         uint16[] memory period = createUint16Array(_period);
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxSellSize(address(applicationAppManager), accs, amounts, period, uint64(Blocktime));
-        TaggedRules.AccountMaxSellSize memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMaxSellSizeByIndex(ruleId, tagForRule); 
+        TaggedRules.AccountMaxSellSize memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMaxSellSize(ruleId, tagForRule); 
         assertEq(rule.maxSize, maxSellSize);
         vm.stopPrank();
         return ruleId;

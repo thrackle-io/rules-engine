@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "test/util/TestCommon.sol";
+import "test/util/EndWithStopPrank.sol";
 
 /**
  * @title Test Common Foundry
@@ -11,12 +12,7 @@ import "test/util/TestCommon.sol";
  * create = set to proper user, deploy contracts, reset user, return the contract
  * _create = deploy contract, return the contract
  */
-abstract contract TestCommonFoundry is TestCommon {
-
-    modifier endWithStopPrank() {
-        _;
-        vm.stopPrank();
-    }
+abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
 
     modifier ifDeplomentTestsEnabled() {
         if(testDeployments) {

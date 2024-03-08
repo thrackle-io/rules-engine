@@ -378,13 +378,13 @@ function checkAccountMaxSellSize(
 |`<none>`|`uint256`|cumulativeSales Total tokens sold within sell period.|
 
 
-### getAccountMaxSellSizeByIndex
+### getAccountMaxSellSize
 
 *Function to get Sell rule at index*
 
 
 ```solidity
-function getAccountMaxSellSizeByIndex(uint32 _index, bytes32 _accountType)
+function getAccountMaxSellSize(uint32 _index, bytes32 _accountType)
     public
     view
     returns (TaggedRules.AccountMaxSellSize memory);

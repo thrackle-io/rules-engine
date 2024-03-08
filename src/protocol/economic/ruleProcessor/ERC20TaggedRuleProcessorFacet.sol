@@ -304,12 +304,12 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
         // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
         // slither-disable-next-line timestamp
         if (startTime <= block.timestamp){
-            if(getAccountMaxSellSizeByIndex(ruleId, BLANK_TAG).period > 0){
+            if(getAccountMaxSellSize(ruleId, BLANK_TAG).period > 0){
                 fromTags = new bytes32[](1);
                 fromTags[0] = BLANK_TAG;
             }
             for (uint i = 0; i < fromTags.length; ) {
-                TaggedRules.AccountMaxSellSize memory rule = getAccountMaxSellSizeByIndex(ruleId, fromTags[i]);
+                TaggedRules.AccountMaxSellSize memory rule = getAccountMaxSellSize(ruleId, fromTags[i]);
                 if (rule.period > 0) {
                     if (startTime.isWithinPeriod(rule.period, lastUpdateTime)) cumulativeSales = salesInPeriod + amount;
                     else cumulativeSales = amount;
@@ -329,7 +329,7 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
      * @param _accountType Types of Accounts
      * @return AccountMaxSellSize at position in array
      */
-    function getAccountMaxSellSizeByIndex(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.AccountMaxSellSize memory) {
+    function getAccountMaxSellSize(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.AccountMaxSellSize memory) {
         // No need to check the rule existence or index since it was already checked in getAccountMaxSellSizeStartByIndex
         RuleS.AccountMaxSellSizeS storage data = Storage.accountMaxSellSizeStorage();
         return data.AccountMaxSellSizesRules[_index][_accountType];

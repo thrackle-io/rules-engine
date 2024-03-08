@@ -20,7 +20,14 @@ contract RuleStorageTokenMinTxSizeMultiTest is RuleStorageInvariantCommon {
         prepRuleStorageInvariant();
         // Load 10 actors
         for(uint i; i < 10; i++){
-            actors.push(new RuleStorageTokenMinTxSizeActor(ruleProcessor, applicationAppManager));
+            ApplicationAppManager actorAppManager =  _createAppManager();
+            switchToSuperAdmin();
+            actorAppManager.addAppAdministrator(appAdministrator);
+            actors.push(new RuleStorageTokenMinTxSizeActor(ruleProcessor, actorAppManager));
+            if(i % 2 == 0){
+                vm.startPrank(appAdministrator);
+                actorAppManager.addRuleAdministrator(address(actors[actors.length - 1]));
+            }
         }
         actorManager = new RuleStorageTokenMinTxSizeActorManager(actors);
         switchToRuleAdmin();
@@ -66,6 +73,5 @@ contract RuleStorageTokenMinTxSizeMultiTest is RuleStorageInvariantCommon {
     function invariant_MinTxSizeImmutable() public {
         NonTaggedRules.TokenMinTxSize memory ruleAfter = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMinTxSize(index);
         assertEq(ruleBefore.minSize, ruleAfter.minSize);
-    }
-    
+    }  
 }

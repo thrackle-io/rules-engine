@@ -164,7 +164,7 @@ The following validation will be carried out by the create function in order to 
 - In Protocol [Rule Processor](../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol):
     -  Function to get a rule by its ID:
         ```c
-        function getAccountMaxSellSizeByIndex(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.AccountMaxSellSize memory, uint64 startTime);
+        function getAccountMaxSellSize(uint32 _index, bytes32 _accountType) external view returns (TaggedRules.AccountMaxSellSize memory, uint64 startTime);
         ```
     - Function to get current amount of rules in the protocol:
         ```c

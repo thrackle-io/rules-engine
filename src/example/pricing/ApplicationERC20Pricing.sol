@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "src/client/pricing/ProtocolERC20Pricing.sol";
+import "../../client/pricing/ProtocolERC20Pricing.sol";
 
 /**
  * @title ERC20 Pricing dummy contract
