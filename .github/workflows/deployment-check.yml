@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1
@@ -58,4 +59,3 @@ jobs:
           kubectl rollout restart deploy/anvil-deploy-check -n dev
           kubectl apply -f k8s/anvil/deployment-check-service.yaml -n dev
           kubectl apply -f k8s/tron/deployment-check-job.yaml -n dev
-
