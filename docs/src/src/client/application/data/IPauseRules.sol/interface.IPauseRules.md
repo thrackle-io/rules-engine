@@ -1,5 +1,5 @@
 # IPauseRules
-[Git Source](https://github.com/thrackle-io/tron/blob/5d067d497731c6b73733c2217dfac1db063f1640/src/client/application/data/IPauseRules.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/baac0bbfdefb8a299b09493a3979f2ef5c07be0f/src/client/application/data/IPauseRules.sol)
 
 **Inherits:**
 [IDataModule](/src/client/application/data/IDataModule.sol/interface.IDataModule.md), [IPauseRuleErrors](/src/common/IErrors.sol/interface.IPauseRuleErrors.md)
