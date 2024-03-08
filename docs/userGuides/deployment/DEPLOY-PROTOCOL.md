@@ -35,9 +35,15 @@ is an overview of this deployment process:
    foundryUp
    ````
 
-6. In the same terminal as above, navigate to the cloned repo directory and run the build script
+6. In the same terminal as above, navigate to the cloned repo directory and run the build script.
    ````
 	bash script/deploy/DeployProtocol.sh
+   ````
+
+   If this is your first time and you're trying to deploy in a local development environment, you might run into errors with the above approach, it's recommended to set a local profile for foundry prior to deployment:
+
+   ````
+   export FOUNDRY_PROFILE=local
    ````
 
 7. Take note of the output and locate the following addresses(from terminal output or broadcast/DeployAllModulesPt1.s.sol/<YOUR_CHAIN_ID>/run-latest.json). Example:
