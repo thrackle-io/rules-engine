@@ -7,18 +7,15 @@ import "test/util/RuleCreation.sol";
 contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
 
     function setUp() public {
-        vm.startPrank(superAdmin);
         setUpProcotolAndCreateERC20AndDiamondHandler();
         vm.warp(Blocktime);
-        switchToRuleAdmin();
     }
 
     /***************** Test Setters and Getters *****************/
     /************************ PurchaseFeeByVolumeRule **********************/
 
     /// Simple setting and getting
-    function testProtocol_RuleProcessorModuleFuzz_PurchaseFeeByVolumeRuleSetting(uint8 addressIndex, uint256 volume, uint16 rate) public {
-        vm.stopPrank();
+    function testProtocol_RuleProcessorModuleFuzz_PurchaseFeeByVolumeRuleSetting(uint8 addressIndex, uint256 volume, uint16 rate) public endWithStopPrank() {
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
 
@@ -43,8 +40,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
 
     /*********************** TokenMaxPriceVolatility ************************/
     /// Simple setting and getting
-    function testProtocol_RuleProcessorModuleFuzz_TokenMaxPriceVolatilitySetting(uint8 addressIndex, uint16 max, uint8 blocks, uint8 hFrozen) public {
-        vm.stopPrank();
+    function testProtocol_RuleProcessorModuleFuzz_TokenMaxPriceVolatilitySetting(uint8 addressIndex, uint16 max, uint8 blocks, uint8 hFrozen) public endWithStopPrank() {
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
 
@@ -70,8 +66,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
 
     /*********************** TokenMaxTradingVolume Rule ************************/
     /// Simple setting and getting
-    function testProtocol_RuleProcessorModuleFuzz_TokenMaxTradingVolumeRuleSetting(uint8 addressIndex, uint16 max, uint8 hPeriod, uint64 _startTime) public {
-        vm.stopPrank();
+    function testProtocol_RuleProcessorModuleFuzz_TokenMaxTradingVolumeRuleSetting(uint8 addressIndex, uint16 max, uint8 hPeriod, uint64 _startTime) public endWithStopPrank() {
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
 
@@ -99,8 +94,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
     /*********************** TokenMinTransactionSize ************************/
     /// Simple setting and getting
 
-    function testProtocol_RuleProcessorModuleFuzz_TokenMinTransactionSizeSetting(uint8 addressIndex, uint256 min) public {
-        vm.stopPrank();
+    function testProtocol_RuleProcessorModuleFuzz_TokenMinTransactionSizeSetting(uint8 addressIndex, uint256 min) public endWithStopPrank() {
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
 
@@ -125,10 +119,9 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
 
     /*********************** AccountMinMaxTokenBalance *******************/
     /// Simple setting and getting
-    function testProtocol_RuleProcessorModuleFuzz_AccountMinMaxTokenBalanceSettingFuzz(uint8 addressIndex, uint256 minA, uint256 minB, uint256 maxA, uint256 maxB, bytes32 accA, bytes32 accB) public {
+    function testProtocol_RuleProcessorModuleFuzz_AccountMinMaxTokenBalanceSettingFuzz(uint8 addressIndex, uint256 minA, uint256 minB, uint256 maxA, uint256 maxB, bytes32 accA, bytes32 accB) public endWithStopPrank() {
         vm.assume(accA != accB);
         vm.assume(accA != bytes32("") && accB != bytes32(""));
-        vm.stopPrank();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
 
@@ -170,8 +163,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
 
     /*********************** TokenMaxSupplyVolatility ************************/
     /// Simple setting and getting
-    function testProtocol_RuleProcessorModuleFuzz_TokenMaxSupplyVolatilitySettingFuzz(uint8 addressIndex, uint16 max, uint8 hPeriod, uint64 _startTime) public {
-        vm.stopPrank();
+    function testProtocol_RuleProcessorModuleFuzz_TokenMaxSupplyVolatilitySettingFuzz(uint8 addressIndex, uint16 max, uint8 hPeriod, uint64 _startTime) public endWithStopPrank() {
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
         vm.assume(max < 9999 && max > 0);
@@ -198,8 +190,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
 
     /*********************** AccountApproveDenyOracle ************************/
     /// Simple setting and getting
-    function testProtocol_RuleProcessorModuleFuzz_AccountApproveDenyOracle(uint8 addressIndex, uint8 _type, address _oracleAddress) public {
-        vm.stopPrank();
+    function testProtocol_RuleProcessorModuleFuzz_AccountApproveDenyOracle(uint8 addressIndex, uint8 _type, address _oracleAddress) public endWithStopPrank() {
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.startPrank(sender);
         uint32 _index;
@@ -228,11 +219,10 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
     /**************** AdminMinTokenBalance Rule Testing  ****************/
 
     /// Test AdminMinTokenBalance Rule endTime: 1669745700
-    function testProtocol_RuleProcessorModuleFuzz_AdminMinTokenBalanceAddFuzz(uint8 addressIndex, uint256 amountA, uint256 dateA, uint forward) public {
+    function testProtocol_RuleProcessorModuleFuzz_AdminMinTokenBalanceAddFuzz(uint8 addressIndex, uint256 amountA, uint256 dateA, uint forward) public endWithStopPrank() {
         /// avoiding arithmetic overflow when adding dateA and 1000 for second-rule test
         vm.assume(forward < uint256(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000));
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
+        switchToSuperAdmin();
         applicationAppManager.addAppAdministrator(address(ruleProcessor));
         assertEq(applicationAppManager.isAppAdministrator(address(ruleProcessor)), true);
 
@@ -274,7 +264,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
         uint128 transferAmount,
         uint128 balanceTo,
         uint128 balanceFrom
-    ) public {
+    ) public endWithStopPrank() {
         balanceTo;
         vm.assume(addressFrom % ADDRESSES.length != addressTo % ADDRESSES.length);
         vm.assume(tagFrom != "");
@@ -283,6 +273,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
         vm.assume(balanceFrom >= transferAmount);
         address from = ADDRESSES[addressFrom % ADDRESSES.length];
         address to = ADDRESSES[addressTo % ADDRESSES.length];
+        switchToRuleAdmin();
 
         /// the different code blocks "{}" are used to isolate computational processes and
         /// avoid the infamous too-many-variable Solidity issue.
@@ -297,6 +288,7 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
 
         /// Preparing for rule
         {
+            vm.stopPrank();
             switchToAppAdministrator();
             applicationAppManager.addTag(from, tagFrom); ///add tag
             applicationAppManager.addTag(to, tagTo); ///add tag
@@ -326,5 +318,4 @@ contract RuleProcessorModuleFuzzTest is TestCommonFoundry, RuleCreation {
             else ERC20NonTaggedRuleFacet(address(applicationCoinHandler)).setAccountApproveDenyOracleId(_createActionsArray(), whitelistOracle);
         }
     }
-
 }

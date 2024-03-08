@@ -13,45 +13,45 @@ import "test/client/token/TokenUtils.sol";
 
 abstract contract ERC20Util is TokenUtils {
 
-    function setAccountApproveDenyOracleRule(address assetHandler, uint32 ruleId) public {
+    function setAccountApproveDenyOracleRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.BURN, ActionTypes.MINT);
         ERC20NonTaggedRuleFacet(address(assetHandler)).setAccountApproveDenyOracleId(actionTypes, ruleId);
     }
 
-    function setAccountMinMaxTokenBalanceRule(address assetHandler, uint32 ruleId) public {
+    function setAccountMinMaxTokenBalanceRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.MINT);
         ERC20TaggedRuleFacet(address(assetHandler)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
-        switchToOriginalUser();
+        
     }
 
-    function setAdminMinTokenBalanceRule(address assetHandler, uint32 ruleId) public {
+    function setAdminMinTokenBalanceRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER);
         ERC20HandlerMainFacet(address(assetHandler)).setAdminMinTokenBalanceId(actionTypes, ruleId);
-        switchToOriginalUser();
+        
     }
 
-    function setTokenMaxSupplyVolatilityRule(address assetHandler, uint32 ruleId) public {
+    function setTokenMaxSupplyVolatilityRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.MINT, ActionTypes.BURN);
         ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMaxSupplyVolatilityId(actionTypes, ruleId);
-        switchToOriginalUser();
+        
     }
 
-    function setTokenMaxTradingVolumeRule(address assetHandler, uint32 ruleId) public {
+    function setTokenMaxTradingVolumeRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER);
         ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMaxTradingVolumeId(actionTypes, ruleId);
-        switchToOriginalUser();
+        
     }
 
-    function setTokenMinimumTransactionRule(address assetHandler, uint32 ruleId) public {
+    function setTokenMinimumTransactionRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
         switchToRuleAdmin();
         ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER);
         ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMinTxSizeId(actionTypes, ruleId);
-        switchToOriginalUser();
+        
     }
 
 

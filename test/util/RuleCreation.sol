@@ -57,16 +57,14 @@ abstract contract RuleCreation is TestCommonFoundry {
         }
         NonTaggedRules.AccountApproveDenyOracle memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(ruleId);
         assertEq(rule.oracleType, oracleType);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId; 
     }
 
-    function createAccountDenyForNoAccessLevelRule() public {
+    function createAccountDenyForNoAccessLevelRule() public endWithStopPrank() {
         switchToRuleAdmin();
         applicationHandler.activateAccountDenyForNoAccessLevelRule(true);
         assertTrue(applicationHandler.isAccountDenyForNoAccessLevelActive());
-        switchToOriginalUser();
-
     }
 
     function createAccountMaxBuySizeRule(bytes32 tagForRule, uint256 maxBuySize, uint16 _period) public returns(uint32) {
@@ -77,7 +75,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(address(applicationAppManager), accs, maxBuySizes, period, uint64(Blocktime));
         TaggedRules.AccountMaxBuySize memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMaxBuySize(ruleId, tagForRule); 
         assertEq(rule.maxSize, maxBuySize);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -89,7 +87,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxSellSize(address(applicationAppManager), accs, amounts, period, uint64(Blocktime));
         TaggedRules.AccountMaxSellSize memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMaxSellSizeByIndex(ruleId, tagForRule); 
         assertEq(rule.maxSize, maxSellSize);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -98,7 +96,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, period, uint64(block.timestamp));
         AppRules.AccountMaxTxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(ruleId); 
         assertEq(rule.maxValue[0], txnLimits[0]);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -107,7 +105,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), txnLimits, riskScores, 0, uint64(block.timestamp));
         AppRules.AccountMaxTxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(ruleId); 
         assertEq(rule.maxValue[0], txnLimits[0]);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -117,7 +115,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByAccessLevel(address(applicationAppManager), balanceAmounts);
         uint256 balance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccountMaxValueByAccessLevel(ruleId, 2);
         assertEq(balance, balanceAmounts3);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId; 
     }
 
@@ -126,7 +124,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = AppRuleDataFacet(address(ruleProcessor)).addAccountMaxValueByRiskScore(address(applicationAppManager), riskScores, txnLimits);
         AppRules.AccountMaxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxValueByRiskScore(ruleId); 
         assertEq(rule.maxValue[0], txnLimits[0]);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -137,7 +135,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         applicationHandler.setAccountMaxValueOutByAccessLevelId(ruleId);
         uint256 balance = ApplicationAccessLevelProcessorFacet(address(ruleProcessor)).getAccountMaxValueOutByAccessLevel(ruleId, 2);
         assertEq(balance, withdrawalLimits3);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -151,7 +149,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), ruleTags, minAmounts, maxAmounts, periods, uint64(Blocktime));
         TaggedRules.AccountMinMaxTokenBalance memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMinMaxTokenBalance(ruleId, ruleTags[0]);
         assertEq(rule.max, maxAmounts[0]);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -165,7 +163,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMinMaxTokenBalance(address(applicationAppManager), ruleTags, minAmounts, maxAmounts, periods, uint64(Blocktime));
         TaggedRules.AccountMinMaxTokenBalance memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMinMaxTokenBalance(ruleId, ruleTags[0]);
         assertEq(rule.max, maxAmounts[0]);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -174,7 +172,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAdminMinTokenBalance(address(applicationAppManager), adminWithdrawalTotal, period);
         TaggedRules.AdminMinTokenBalance memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAdminMinTokenBalance(ruleId);
         assertEq(rule.amount, adminWithdrawalTotal);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -183,7 +181,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuyVolume(address(applicationAppManager), tokenPercentage, period, _totalSupply, ruleStartTime);
         NonTaggedRules.TokenMaxBuyVolume memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMaxBuyVolume(ruleId); 
         assertEq(rule.tokenPercentage, tokenPercentage);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -194,7 +192,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         TaggedRules.TokenMaxDailyTrades memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(ruleId, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, dailyTradeMax1);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -205,7 +203,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addTokenMaxDailyTrades(address(applicationAppManager), nftTags, tradesAllowed, Blocktime);
         TaggedRules.TokenMaxDailyTrades memory rule = ERC721TaggedRuleProcessorFacet(address(ruleProcessor)).getTokenMaxDailyTrades(ruleId, nftTags[0]);
         assertEq(rule.tradesAllowedPerDay, dailyTradeMax1);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -214,7 +212,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxSellVolume(address(applicationAppManager), tokenPercentage, period, _totalSupply, ruleStartTime);
         NonTaggedRules.TokenMaxSellVolume memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMaxSellVolume(ruleId); 
         assertEq(rule.tokenPercentage, tokenPercentage);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -223,7 +221,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMaxSupplyVolatility(address(applicationAppManager), volatilityLimit, rulePeriod, startTime, tokenSupply);
         NonTaggedRules.TokenMaxSupplyVolatility memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMaxSupplyVolatility(ruleId);
         assertEq(rule.max, volatilityLimit);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -234,7 +232,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         assertEq(rule.max, max);
         assertEq(rule.period, period);
         assertEq(rule.startTime, startTime);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
 
@@ -243,10 +241,7 @@ abstract contract RuleCreation is TestCommonFoundry {
         uint32 ruleId = RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), tokenMinTxSize);
         NonTaggedRules.TokenMinTxSize memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getTokenMinTxSize(ruleId);
         assertEq(rule.minSize, tokenMinTxSize);
-        switchToOriginalUser();
+        vm.stopPrank();
         return ruleId;
     }
-
-
-
 }

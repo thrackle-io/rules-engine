@@ -13,6 +13,11 @@ import "test/util/TestCommon.sol";
  */
 abstract contract TestCommonFoundry is TestCommon {
 
+    modifier endWithStopPrank() {
+        _;
+        vm.stopPrank();
+    }
+
     /**
      * @dev Deploy and set up the Rules Processor Diamond
      * @return diamond fully configured rules processor diamond
@@ -227,29 +232,25 @@ function _addStorageFacetsToFacetCut() public {
     /**
      * @dev Deploy and set up the main protocol contracts. 
      */
-    function setUpProtocol() public {
+    function setUpProtocol() public endWithStopPrank() {
         switchToSuperAdmin();
         ruleProcessor = _createRulesProcessorDiamond();
-        /// reset the user to the original
-        switchToOriginalUser();
     }
 
     /**
      * @dev Deploy and set up the main protocol contracts. This includes:
      * 1. ProcessorDiamond 2. AppManager
      */
-    function setUpProtocolAndAppManager() public {
-        switchToSuperAdminWithSave();
+    function setUpProtocolAndAppManager() public endWithStopPrank() {
+        switchToSuperAdmin();
         ruleProcessor = _createRulesProcessorDiamond();
         applicationAppManager = _createAppManager();
         switchToAppAdministrator(); // app admin should set up everything after creation of the appManager
         applicationAppManager.setNewApplicationHandlerAddress(address(_createAppHandler(ruleProcessor, applicationAppManager)));
         applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
-        /// reset the user to the original
-        switchToOriginalUser();
     }
 
-    function setUpProtocolAndAppManagerAndTokensWithERC721HandlerDiamond() public {
+    function setUpProtocolAndAppManagerAndTokensWithERC721HandlerDiamond() public endWithStopPrank() {
         setUpProtocolAndAppManager();
         (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
         (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
@@ -273,8 +274,6 @@ function _addStorageFacetsToFacetCut() public {
         switchToAppAdministrator();
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
-        /// reset the user to the original
-        switchToOriginalUser();
     }
 
 
@@ -339,8 +338,7 @@ function _addStorageFacetsToFacetCut() public {
     function createRulesProcessorDiamond() public returns (RuleProcessorDiamond diamond) {
         switchToSuperAdmin();
         RuleProcessorDiamond d = _createRulesProcessorDiamond();
-        /// reset the user to the original
-        switchToOriginalUser();
+        vm.stopPrank();
         return d;
     }
 
@@ -353,8 +351,7 @@ function _addStorageFacetsToFacetCut() public {
         switchToSuperAdmin();
         ApplicationAppManager a = _createAppManager();
         a.setNewApplicationHandlerAddress(address(_createAppHandler(_ruleProcessor, a)));
-        /// reset the user to the original
-        switchToOriginalUser();
+        vm.stopPrank();
         return a;
     }
 
@@ -363,7 +360,7 @@ function _addStorageFacetsToFacetCut() public {
     /**
      * @dev Deploy and set up Specialized ERC20 token and handler 
      */
-    function setUpProcotolAndCreateERC20AndHandlerSpecialOwner() public {
+    function setUpProcotolAndCreateERC20AndHandlerSpecialOwner() public endWithStopPrank() {
         setUpProtocolAndAppManager();
 
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
@@ -400,16 +397,13 @@ function _addStorageFacetsToFacetCut() public {
 
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
-        /// reset the user to the original
-        switchToOriginalUser();
-
     }
 
     /**
      * @dev Deploy and set up the main protocol contracts. This includes:
      * 1. ProcessorDiamond, 2. AppManager with its handler connected, 3. ApplicationERC20 with its handler, and default price
      */
-    function setUpProtocolAndAppManagerAndTokensUpgradeable() public {
+    function setUpProtocolAndAppManagerAndTokensUpgradeable() public endWithStopPrank() {
         setUpProtocolAndAppManager();
 
         // create the ERC20 and connect it to its handler
@@ -453,14 +447,12 @@ function _addStorageFacetsToFacetCut() public {
         
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
-        /// reset the user to the original
-        switchToOriginalUser();
     }
 
     /**
      * @dev Deploy and set up ERC20 token with DIAMOND handler 
      */
-    function setUpProcotolAndCreateERC20AndDiamondHandler() public {
+    function setUpProcotolAndCreateERC20AndDiamondHandler() public endWithStopPrank() {
         setUpProtocolAndAppManager();
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
@@ -490,14 +482,12 @@ function _addStorageFacetsToFacetCut() public {
 
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
-        switchToOriginalUser();
-
     }
 
     /**
      * @dev Deploy and set up ERC20 token with DIAMOND handler 
      */
-    function setUpProcotolAndCreateERC721MinAndDiamondHandler() public {
+    function setUpProcotolAndCreateERC721MinAndDiamondHandler() public endWithStopPrank() {
         setUpProtocolAndAppManager();
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
@@ -527,14 +517,12 @@ function _addStorageFacetsToFacetCut() public {
 
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
-        switchToOriginalUser();
-
     }
 
     /**
      * @dev Deploy and set up ERC20 token with DIAMOND handler 
      */
-    function setUpProcotolAndCreateERC20MinAndDiamondHandler() public {
+    function setUpProcotolAndCreateERC20MinAndDiamondHandler() public endWithStopPrank() {
         setUpProtocolAndAppManager();
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
@@ -564,12 +552,10 @@ function _addStorageFacetsToFacetCut() public {
 
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
-        switchToOriginalUser();
-
     }
 
-    function deployAndSetupERC721(string memory name, string memory symbol) internal returns(ApplicationERC721 erc721, HandlerDiamond handler) {
-        switchToSuperAdminWithSave();
+    function deployAndSetupERC721(string memory name, string memory symbol) internal endWithStopPrank() returns(ApplicationERC721 erc721, HandlerDiamond handler) {
+        switchToSuperAdmin();
         erc721 = _createERC721(name, symbol, applicationAppManager);
         handler = _createERC721HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
@@ -578,11 +564,10 @@ function _addStorageFacetsToFacetCut() public {
         erc721.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc721));
-        switchToOriginalUser();
     }
 
-    function deployAndSetupERC721Min(string memory name, string memory symbol) internal returns(MinimalERC721 erc721, HandlerDiamond handler) {
-        switchToSuperAdminWithSave();
+    function deployAndSetupERC721Min(string memory name, string memory symbol) internal endWithStopPrank() returns(MinimalERC721 erc721, HandlerDiamond handler) {
+        switchToSuperAdmin();
         erc721 = _createERC721Min(name, symbol, applicationAppManager);
         handler = _createERC721HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
@@ -591,11 +576,10 @@ function _addStorageFacetsToFacetCut() public {
         erc721.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc721));
-        switchToOriginalUser();
     }
 
-    function deployAndSetupERC20(string memory name, string memory symbol) internal returns(ApplicationERC20 erc20, HandlerDiamond handler){
-        switchToSuperAdminWithSave();
+    function deployAndSetupERC20(string memory name, string memory symbol) internal endWithStopPrank() returns(ApplicationERC20 erc20, HandlerDiamond handler) {
+        switchToSuperAdmin();
         erc20 = _createERC20(name, symbol, applicationAppManager);
         handler = _createERC20HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
@@ -604,11 +588,10 @@ function _addStorageFacetsToFacetCut() public {
         erc20.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc20));
-        switchToOriginalUser();
     }
 
-    function deployAndSetupERC20Min(string memory name, string memory symbol) internal returns(MinimalERC20 erc20, HandlerDiamond handler){
-        switchToSuperAdminWithSave();
+    function deployAndSetupERC20Min(string memory name, string memory symbol) internal endWithStopPrank() returns(MinimalERC20 erc20, HandlerDiamond handler) {
+        switchToSuperAdmin();
         erc20 = _createERC20Min(name, symbol, applicationAppManager);
         handler = _createERC20HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
@@ -617,7 +600,6 @@ function _addStorageFacetsToFacetCut() public {
         erc20.connectHandlerToToken(address(handler));
         /// register the token
         applicationAppManager.registerToken(name, address(erc20));
-        switchToOriginalUser();
     }
 
     /**
@@ -639,7 +621,7 @@ function _addStorageFacetsToFacetCut() public {
     ///---------------USER SWITCHING--------------------
     function switchToAppAdministrator() public {
         vm.stopPrank();
-        vm.startPrank(superAdmin);
+        switchToSuperAdmin();
         applicationAppManager.addAppAdministrator(appAdministrator); //set a app administrator
         vm.stopPrank(); //stop interacting as the app admin
         vm.startPrank(appAdministrator); //interact as the created app administrator
@@ -685,26 +667,6 @@ function _addStorageFacetsToFacetCut() public {
     function switchToSuperAdmin() public {
         vm.stopPrank();
         vm.startPrank(superAdmin);
-    }
-
-    /**
-     * @dev Function to set the super admin as the calling address. It stores the current address for future resetting
-     *
-     */
-    function switchToSuperAdminWithSave() public {
-        priorAddress = msg.sender;
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
-    }
-
-    /**
-     * @dev Function to set the address back to the original user. It clears priorAddress
-     *
-     */
-    function switchToOriginalUser() public {
-        vm.stopPrank();
-        vm.startPrank(priorAddress);
-        priorAddress = address(0);
     }
 
     function switchToNewAdmin() public {

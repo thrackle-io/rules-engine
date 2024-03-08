@@ -67,7 +67,6 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
             forkTest = true;
         } else {
             vm.warp(Blocktime);
-            vm.startPrank(appAdministrator);
             setUpProcotolAndCreateERC20AndDiamondHandler();
             switchToAppAdministrator();
 
@@ -86,31 +85,24 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         }
     }
 
-    function testApplication_ApplicationDeployment_ApplicationHandlerConnected() public {
-            vm.stopPrank();
-            vm.startPrank(superAdmin);
+    function testApplication_ApplicationDeployment_ApplicationHandlerConnected() public endWithStopPrank() {
             assertEq(applicationAppManager.getHandlerAddress(), address(applicationHandler));
             assertEq(applicationHandler.appManagerAddress(), address(applicationAppManager));
-            vm.stopPrank();
     }
 
-    function testApplication_ApplicationDeployment_ERC20HandlerConnections() public {
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
+    function testApplication_ApplicationDeployment_ERC20HandlerConnections() public endWithStopPrank() {
+        switchToSuperAdmin();
         assertEq(applicationCoin.getHandlerAddress(), address(applicationCoinHandler));
         assertEq(ERC173Facet(address(applicationCoinHandler)).owner(), address(applicationCoin));
         assertEq(applicationCoin.getAppManagerAddress(), address(applicationAppManager));
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationCoinHandler)));
-        vm.stopPrank();
     }
 
-    function testApplication_ApplicationDeployment_ERC721HandlerConnections() public {
-        vm.stopPrank();
-        vm.startPrank(superAdmin);
+    function testApplication_ApplicationDeployment_ERC721HandlerConnections() public endWithStopPrank() {
+        switchToSuperAdmin();
         assertEq(applicationNFT.getAppManagerAddress(), address(applicationAppManager));
         assertEq(applicationNFT.getHandlerAddress(), address(applicationNFTHandler));
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationNFTHandler)));
-        vm.stopPrank();
     }
 
     function testApplication_ApplicationDeployment_VerifyTokensRegistered() public {

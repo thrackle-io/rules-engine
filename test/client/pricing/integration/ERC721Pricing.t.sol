@@ -14,7 +14,6 @@ import "test/util/TestCommonFoundry.sol";
 contract ERC721PricingTest is TestCommonFoundry {
 
     function setUp() public {
-        vm.startPrank(superAdmin);
         setUpProtocolAndAppManagerAndPricingAndTokens();
 
     }
@@ -59,8 +58,7 @@ contract ERC721PricingTest is TestCommonFoundry {
     }
 
     /// Testing that the pricing contract won't allow price setting to anyone but the owner
-    function testPricing_ERC721Pricing_SettingSingleNFTPrice_NotOwner() public {
-        vm.stopPrank();
+    function testPricing_ERC721Pricing_SettingSingleNFTPrice_NotOwner() public endWithStopPrank() {
         vm.startPrank(bob);
         vm.expectRevert();
         openOcean.setSingleNFTPrice(address(boredWhaleNFT), 1, 5000 * (10 ** 18));
