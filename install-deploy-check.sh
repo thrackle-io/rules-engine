@@ -33,14 +33,14 @@ TEST_THREE=$(echo TEST_THREE_UNCUT | tail -n 1 | grep "FAIL" | wc -l | tr -d ' '
 TEST_FOUR_UNCUT=$(bash deployAppERC721Test.sh)
 TEST_FOUR=$(echo TEST_FOUR_UNCUT | tail -n 1 | grep "FAIL" | wc -l | tr -d ' ')
 
-node abi-aggregator.mjs --branch $GITHUB_BRANCH_NAME
+TEST_FIVE_UNCUT=$(node abi-aggregator.mjs --branch $GITHUB_BRANCH_NAME)
 TEST_FIVE=$?
 
 echo $TEST_ONE_UNCUT
 echo $TEST_TWO_UNCUT
-
-echo $TEST_ONE
-echo $TEST_TWO
+echo $TEST_THREE_UNCUT
+echo $TEST_FOUR_UNCUT
+echo $TEST_FIVE_UNCUT
 
 if [ "1" = "$TEST_ONE" ] && [ "1" = "$TEST_TWO" ] && [ "0" == "$TEST_THREE" ] && [ "0" == "$TEST_FOUR" ] && [ "0" == "$TEST_FIVE" ]; then
     echo "Running K8s Build And Deploy workflow for $GITHUB_BRANCH_NAME"
