@@ -28,9 +28,9 @@ else
 fi
 
 ##### VALIDATE and RETRIEVE Entry variables
-echo $RPC_URL
+echo $FOUNDRY_PROFILE
 # prompt for rpc-url if it's blank
-if [[ -z $RPC_URL ]]; then
+if [[ -z $FOUNDRY_PROFILE ]]; then
   while true; do
     promptForInput "RPC_URL"
 
