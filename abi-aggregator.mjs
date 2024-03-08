@@ -50,8 +50,6 @@ const ABIFiles = [
       "./out/ERC721TaggedRuleFacet.sol/ERC721TaggedRuleFacet.json",
       "./out/ERC721NonTaggedRuleFacet.sol/ERC721NonTaggedRuleFacet.json",
       "./out/TradingRuleFacet.sol/TradingRuleFacet.json",
-      "./out/StorageLib.sol/StorageLib.json",
-      "./out/RuleStorage.sol/RuleStorage.json",
     ],
   },
   {
