@@ -27,10 +27,14 @@ else
   $(curl -L https://foundry.paradigm.xyz)
 fi
 
+if [ -n $FOUNDRY_PROFILE ]; then
+  RPC_URL="local"
+fi
+
 ##### VALIDATE and RETRIEVE Entry variables
-echo $FOUNDRY_PROFILE
+echo $RPC_URL
 # prompt for rpc-url if it's blank
-if [[ -z $FOUNDRY_PROFILE ]]; then
+if [[ -z $RPC_URL ]]; then
   while true; do
     promptForInput "RPC_URL"
 
