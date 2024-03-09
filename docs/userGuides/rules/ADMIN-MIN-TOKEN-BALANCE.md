@@ -178,21 +178,21 @@ This rule doesn't require of any data to be recorded.
 
 ## Events
 
-- **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
+- **event AD1467_ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
         - ruleType: "ADMIN_MIN_TOKEN_BALANCE".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: empty array.
 
-- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
+- **event AD1467_ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - Parameters: 
         - ruleType: "ADMIN_MIN_TOKEN_BALANCE".
         - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
-- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
     - Emitted when: rule has been activated in the asset handler.
     - Parameters:
         - ruleType: "ADMIN_MIN_TOKEN_BALANCE".

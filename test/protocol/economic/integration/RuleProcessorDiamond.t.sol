@@ -93,6 +93,14 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, RuleCreation {
         assertEq(version, "1.1.0");
     }
 
+    /// Test Adding rule event emission  
+    function testProtocol_RuleProcessorDiamond_RuleAddEventEmission() public {
+        switchToRuleAdmin();
+        vm.expectEmit(true, true, false, false);
+        emit AD1467_ProtocolRuleCreated(TOKEN_MIN_TX_SIZE, 0, new bytes32[](0)); 
+        RuleDataFacet(address(ruleProcessor)).addTokenMinTxSize(address(applicationAppManager), 2222);
+    }
+
     /// Test Adding Token Min Transaction Size Rule by Non admin 
     function testProtocol_RuleProcessorDiamond_AddTokenMinTransactionSizeRule_ByNonAdmin() public endWithStopPrank() {
         vm.startPrank(address(0xDEADfff));

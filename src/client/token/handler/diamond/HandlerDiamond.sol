@@ -35,7 +35,7 @@ contract HandlerDiamond is ERC173, IHandlerDiamondEvents {
      */
     constructor(FacetCut[] memory diamondCut, HandlerDiamondArgs memory args) payable {
         DiamondLib.diamondCut(diamondCut, args.init, args.initCalldata);
-        emit HandlerDeployed();
+        emit AD1467_HandlerDeployed();
     }
 
     /**

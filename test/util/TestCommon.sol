@@ -32,6 +32,17 @@ import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRul
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules, IApplicationRules as AppRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
+import {IAppLevelEvents, 
+        IAppManagerAddressSet, 
+        IOracleEvents, 
+        IApplicationHandlerEvents, 
+        ICommonApplicationHandlerEvents, 
+        IRuleProcessorDiamondEvents, 
+        IEconomicEvents, 
+        IHandlerDiamondEvents, 
+        ITokenHandlerEvents, 
+        IApplicationEvents} 
+from "src/common/IEvents.sol";
 
 /// Client Contract imports 
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
@@ -84,7 +95,24 @@ import "./CommonAddresses.sol";
  * create = set to proper user, deploy contracts, reset user, return the contract
  * _create = deploy contract, return the contract
  */
-abstract contract TestCommon is Test, GenerateSelectors, TestArrays, CommonAddresses {
+abstract contract TestCommon is 
+    Test, 
+    GenerateSelectors, 
+    TestArrays, 
+    CommonAddresses, 
+    IAppLevelEvents, 
+    IAppManagerAddressSet, 
+    IOracleEvents, 
+    IApplicationHandlerEvents, 
+    ICommonApplicationHandlerEvents, 
+    IRuleProcessorDiamondEvents, 
+    IEconomicEvents, 
+    IHandlerDiamondEvents, 
+    ITokenHandlerEvents, 
+    IApplicationEvents 
+    {
+
+
     FacetCut[] _ruleProcessorFacetCuts;
 
     uint256 constant ATTO = 10 ** 18;
@@ -155,6 +183,8 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays, CommonAddre
      * @return _appManager fully configured app manager
      */
     function _createAppManager() public virtual returns (ApplicationAppManager _appManager) {
+        vm.expectEmit(true,true,false,false);
+        emit AD1467_AppManagerDeployed(superAdmin, "Castlevania");
         _appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         return _appManager;
     }
@@ -166,6 +196,8 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays, CommonAddre
      * @return _applicationHandler application handler
      */
     function _createAppHandler(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager) public returns (ApplicationHandler _applicationHandler) {
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_ApplicationHandlerDeployed(address(_appManager));
         return new ApplicationHandler(address(_ruleProcessor), address(_appManager));
     }
 
@@ -177,6 +209,8 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays, CommonAddre
      * @return _token token
      */
     function _createERC20(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC20 _token) {
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_NewTokenDeployed(address(_appManager));
         return new ApplicationERC20(_name, _symbol, address(_appManager));
     }
 
@@ -188,6 +222,8 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays, CommonAddre
      * @return _token token
      */
     function _createERC20Min(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (MinimalERC20 _token) {
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_NewTokenDeployed(address(_appManager));
         return new MinimalERC20(_name, _symbol, address(_appManager));
     }
 
@@ -207,6 +243,8 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays, CommonAddre
      * @return _token token
      */
     function _createERC721(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC721 _token) {
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_NewNFTDeployed(address(_appManager));
         return new ApplicationERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
     }
 
@@ -218,6 +256,8 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays, CommonAddre
      * @return _token token
      */
     function _createERC721Min(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (MinimalERC721 _token) {
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_NewTokenDeployed(address(_appManager));
         return new MinimalERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
     }
 
@@ -253,6 +293,8 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays, CommonAddre
      * @return _oracleAllowed address 
      */
     function _createOracleApproved() public returns (OracleApproved _oracleAllowed){
+        vm.expectEmit(false,false,false,false);
+        emit AD1467_ApproveListOracleDeployed();
         return new OracleApproved(); 
     }
 
@@ -261,6 +303,8 @@ abstract contract TestCommon is Test, GenerateSelectors, TestArrays, CommonAddre
      * @return _oracleDenied address
      */
     function _createOracleDenied() public returns (OracleDenied _oracleDenied){
+        vm.expectEmit(false,false,false,false);
+        emit AD1467_DeniedListOracleDeployed();
         return new OracleDenied(); 
     }
 

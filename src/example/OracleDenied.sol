@@ -17,7 +17,7 @@ contract OracleDenied is Ownable, IOracleEvents {
      * @dev Constructor that only serves the purpose of notifying the indexer of its creation via event
      */
     constructor() {
-        emit DeniedListOracleDeployed();
+        emit AD1467_DeniedListOracleDeployed();
     }
 
     /**
@@ -36,7 +36,7 @@ contract OracleDenied is Ownable, IOracleEvents {
         for (uint256 i = 0; i < newDeniedAddrs.length; i++) {
             deniedAddresses[newDeniedAddrs[i]] = true;
         }
-        emit OracleListChanged(true, newDeniedAddrs);
+        emit AD1467_OracleListChanged(true, newDeniedAddrs);
     }
 
     /**
@@ -47,7 +47,7 @@ contract OracleDenied is Ownable, IOracleEvents {
         deniedAddresses[newDeniedAddr] = true;
         address[] memory addresses = new address[](1);
         addresses[0] =  newDeniedAddr;
-        emit OracleListChanged(true, addresses);
+        emit AD1467_OracleListChanged(true, addresses);
     }
 
     /**
@@ -58,7 +58,7 @@ contract OracleDenied is Ownable, IOracleEvents {
         for (uint256 i = 0; i < removeDeniedAddrs.length; i++) {
             deniedAddresses[removeDeniedAddrs[i]] = false;
         }
-        emit OracleListChanged(false, removeDeniedAddrs);
+        emit AD1467_OracleListChanged(false, removeDeniedAddrs);
     }
 
     /**
@@ -77,10 +77,10 @@ contract OracleDenied is Ownable, IOracleEvents {
      */
     function isDeniedVerbose(address addr) public returns (bool) {
         if (isDenied(addr)) {
-            emit DeniedAddress(addr);
+            emit AD1467_DeniedAddress(addr);
             return true;
         } else {
-            emit NonDeniedAddress(addr);
+            emit AD1467_NonDeniedAddress(addr);
             return false;
         }
     }

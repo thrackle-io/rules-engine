@@ -148,7 +148,7 @@ This rule doesn't require of any data to be recorded.
 
 ## Events
 
-- **PauseRuleEvent(uint256 indexed pauseStart, uint256 indexed pauseStop, bool indexed add)**: emitted when:
+- **event AD1467_PauseRuleEvent(uint256 indexed pauseStart, uint256 indexed pauseStop, bool indexed add)**: emitted when:
     - A pause rule has been added. In this case, the `add` field of the event will be *true*.
     - A pause rule has been removed. In this case, the `add` field of the event will be *false*.
 

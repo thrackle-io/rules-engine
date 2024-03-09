@@ -39,7 +39,7 @@ contract PauseRules is IPauseRules, DataModule {
         }
         PauseRule memory pauseRule = PauseRule(_pauseStart, _pauseStop);
         pauseRules.push(pauseRule);
-        emit PauseRuleEvent(_pauseStart, _pauseStop, true);
+        emit AD1467_PauseRuleEvent(_pauseStart, _pauseStop, true);
     }
 
     /**
@@ -65,7 +65,7 @@ contract PauseRules is IPauseRules, DataModule {
                 PauseRule memory rule = pauseRules[i];
                 if (rule.pauseStart == _pauseStart && rule.pauseStop == _pauseStop) {
                     _removePauseRule(i);
-                    emit PauseRuleEvent(_pauseStart, _pauseStop, false);
+                    emit AD1467_PauseRuleEvent(_pauseStart, _pauseStop, false);
                 } else {
                     exit = true;
                 }
@@ -86,7 +86,7 @@ contract PauseRules is IPauseRules, DataModule {
             // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
             // slither-disable-next-line timestamp
             while (pauseRules.length > 0 && i < pauseRules.length && pauseRules[i].pauseStop <= block.timestamp) {
-                emit PauseRuleEvent(pauseRules[i].pauseStart, pauseRules[i].pauseStop, false);
+                emit AD1467_PauseRuleEvent(pauseRules[i].pauseStart, pauseRules[i].pauseStop, false);
                 _removePauseRule(uint8(i));
             }
             unchecked {

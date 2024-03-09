@@ -135,10 +135,10 @@ The following validation will be carried out by the addTag function in order to 
 
 ## Events
 
-- **Tag(address indexed _address, bytes32 indexed _tag, bool indexed add)**: emitted when:
+- **event AD1467_Tag(address indexed _address, bytes32 indexed _tag, bool indexed add)**: emitted when:
     - A tag has been added. In this case, the `add` field of the event will be *true*.
     - A tag has been removed. In this case, the `add` field of the event will be *false*.
-- **TagAlreadyApplied(address indexed _address)**: emitted when: 
+- **event AD1467_TagAlreadyApplied(address indexed _address)**: emitted when: 
     - A tag has already been added to an account. 
-- **TagProviderSet(address indexed _address)**: emitted when:
+- **event AD1467_TagProviderSet(address indexed _address)**: emitted when:
     - A tag data contract has been migrated to the app manager address

@@ -28,7 +28,7 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ITokenHandlerEvent
         for (uint i; i < _actions.length; ) {
             data.tokenMaxDailyTrades[_actions[i]].ruleId = _ruleId;
             data.tokenMaxDailyTrades[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(TOKEN_MAX_DAILY_TRADES, _actions[i], _ruleId);
+            emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_DAILY_TRADES, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
@@ -44,9 +44,9 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ITokenHandlerEvent
         for (uint i; i < _actions.length; ) {
             lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[_actions[i]].active = _on;
             if (_on) {
-                emit ApplicationHandlerActionActivated(TOKEN_MAX_DAILY_TRADES, _actions[i]);
+                emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_DAILY_TRADES, _actions[i]);
             } else {
-                emit ApplicationHandlerActionDeactivated(TOKEN_MAX_DAILY_TRADES, _actions[i]);
+                emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_DAILY_TRADES, _actions[i]);
             }
             unchecked {
                 ++i;

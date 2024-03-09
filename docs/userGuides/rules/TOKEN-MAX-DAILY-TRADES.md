@@ -201,21 +201,21 @@ mapping(uint256 => uint64) lastTxDate;
 ###### *see [ERC721Handler](../../../src/client/token/ERC721/ProtocolERC721Handler.sol)*
 ### Events
 
-- **ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** 
+- **event AD1467_ProcotolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)** 
     - Emitted when: A Transfer counter rule has been added. For this rule:
     - Parameters:
         - ruleType: TOKEN_MAX_DAILY_TRADES.
         - index: the rule index set by the Protocol.
         - extraTags: an empty array.
 
-- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
+- **event AD1467_ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: A Transfer counter rule has been added. For this rule:
     - Parameters: 
         - ruleType: TOKEN_MAX_DAILY_TRADES.
         - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
-- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
+- **event AD1467_ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: A Transfer counter rule has been activated in an asset handler:
     Parameters:
         - ruleType: TOKEN_MAX_DAILY_TRADES.

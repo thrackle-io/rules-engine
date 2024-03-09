@@ -166,14 +166,14 @@ This rule doesn't require of any data to be recorded.
 
 ## Events
 
-- **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
+- **event AD1467_ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
         - ruleType: "ACC_MAX_VALUE_BY_ACCESS_LEVEL".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: empty array.
 
-- **event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
+- **event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
     - Emitted when: rule has been applied in an application handler.
     - Parameters: 
         - ruleType: "ACC_MAX_VALUE_BY_ACCESS_LEVEL".

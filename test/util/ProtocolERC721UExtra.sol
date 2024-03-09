@@ -65,7 +65,7 @@ contract ProtocolERC721UExtra is
     function _initializeProtocol(address _appManagerAddress) private onlyInitializing {
         if (_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
-        emit NewNFTDeployed(address(this), _appManagerAddress);
+        emit AD1467_NewNFTDeployed(_appManagerAddress);
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -164,6 +164,6 @@ contract ProtocolERC721UExtra is
         if (_deployedHandlerAddress == address(0)) revert ZeroAddress();
         handlerAddress = _deployedHandlerAddress;
         handler = IProtocolTokenHandler(handlerAddress);
-        emit HandlerConnected(_deployedHandlerAddress, address(this));
+        emit AD1467_HandlerConnected(_deployedHandlerAddress, address(this));
     }
 }

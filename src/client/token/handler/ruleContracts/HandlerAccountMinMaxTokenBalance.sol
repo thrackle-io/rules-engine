@@ -28,7 +28,7 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandle
             AccountMinMaxTokenBalanceHandlerS storage data = lib.accountMinMaxTokenBalanceStorage();
             data.accountMinMaxTokenBalance[_actions[i]].ruleId = _ruleId;
             data.accountMinMaxTokenBalance[_actions[i]].active = true;            
-            emit ApplicationHandlerActionApplied(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i], _ruleId);
+            emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i], _ruleId);
             unchecked {
                         ++i;
              }
@@ -44,9 +44,9 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandle
         for (uint i; i < _actions.length; ) {
             lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance[_actions[i]].active = _on;
             if (_on) {
-                emit ApplicationHandlerActionActivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i]);
+                emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i]);
             } else {
-                emit ApplicationHandlerActionDeactivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i]);
+                emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i]);
             }
             unchecked {
                 ++i;

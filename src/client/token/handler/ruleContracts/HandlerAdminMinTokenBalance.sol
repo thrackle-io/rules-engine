@@ -37,7 +37,7 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
             /// after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
             adminMinTokenBalance[_actions[i]].ruleId = _ruleId;
             adminMinTokenBalance[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(ADMIN_MIN_TOKEN_BALANCE, _actions[i], _ruleId);
+            emit AD1467_ApplicationHandlerActionApplied(ADMIN_MIN_TOKEN_BALANCE, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
@@ -97,9 +97,9 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
         for (uint i; i < _actions.length; ) {
             adminMinTokenBalance[_actions[i]].active = _on;
             if (_on) {
-                emit ApplicationHandlerActionActivated(ADMIN_MIN_TOKEN_BALANCE, _actions[i]);
+                emit AD1467_ApplicationHandlerActionActivated(ADMIN_MIN_TOKEN_BALANCE, _actions[i]);
             } else {
-                emit ApplicationHandlerActionDeactivated(ADMIN_MIN_TOKEN_BALANCE, _actions[i]);
+                emit AD1467_ApplicationHandlerActionDeactivated(ADMIN_MIN_TOKEN_BALANCE, _actions[i]);
             }
             unchecked {
                 ++i;

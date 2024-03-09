@@ -16,49 +16,47 @@ import {ActionTypes} from "src/common/ActionEnum.sol";
  */
 interface IAppLevelEvents {
     ///AppManager
-    event HandlerConnected(address indexed handlerAddress, address indexed appManager);
-    event RoleCheck(string contractName, string functionName, address checkedAddress, bytes32 checkedRole);
-    event AppManagerDeployed(address indexed superAndAppAdmin, string indexed appName);
-    event AppManagerDeployedForUpgrade(address indexed superAndAppAdmin, string indexed appName);
-    event AppManagerUpgrade(address indexed deployedAddress, address replacedAddress);
-    event AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
-    event DataContractsMigrated(address indexed ownerAddress);
-    event RemoveFromRegistry(string contractName, address contractAddress);
-    event RuleAdmin(address indexed admin, bool indexed add);
-    event RiskAdmin(address indexed admin, bool indexed add);
-    event AccessLevelAdmin(address indexed admin, bool indexed add);
-    event AppAdministrator(address indexed admin, bool indexed add); 
-    event SuperAdministrator(address indexed admin, bool indexed add);
-    event RuleBypassAccount(address indexed bypassAccount, bool indexed add);  
+    event AD1467_AppManagerDeployed(address indexed superAndAppAdmin, string indexed appName);
+    event AD1467_AppManagerDeployedForUpgrade(address indexed superAndAppAdmin, string indexed appName);
+    event AD1467_AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
+    event AD1467_DataContractsMigrated(address indexed ownerAddress);
+    event AD1467_RemoveFromRegistry(string contractName, address contractAddress);
+    event AD1467_RuleAdmin(address indexed admin, bool indexed add);
+    event AD1467_RiskAdmin(address indexed admin, bool indexed add);
+    event AD1467_AccessLevelAdmin(address indexed admin, bool indexed add);
+    event AD1467_AppAdministrator(address indexed admin, bool indexed add); 
+    event AD1467_SuperAdministrator(address indexed admin, bool indexed add);
+    event AD1467_RuleBypassAccount(address indexed bypassAccount, bool indexed add);
+    event AD1467_AppNameChanged(string indexed appName);  
     ///Registrations
-    event TokenRegistered(string indexed _token, address indexed _address);
-    event TokenNameUpdated(string indexed _token, address indexed _address);
-    event AMMRegistered(address indexed _address);
-    event TreasuryRegistered(address indexed _address);
-    event TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
+    event AD1467_TokenRegistered(string indexed _token, address indexed _address);
+    event AD1467_TokenNameUpdated(string indexed _token, address indexed _address);
+    event AD1467_AMMRegistered(address indexed _address);
+    event AD1467_TreasuryRegistered(address indexed _address);
+    event AD1467_TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
     ///Accounts
-    event AccountProviderSet(address indexed _address);
-    event AccountAdded(address indexed account);
-    event AccountRemoved(address indexed account);
+    event AD1467_AccountProviderSet(address indexed _address);
+    event AD1467_AccountAdded(address indexed account);
+    event AD1467_AccountRemoved(address indexed account);
     ///Tags
-    event TagProviderSet(address indexed _address);
-    event Tag(address indexed _address, bytes32 indexed _tag, bool indexed add);
-    event TagAlreadyApplied(address indexed _address);
+    event AD1467_TagProviderSet(address indexed _address);
+    event AD1467_Tag(address indexed _address, bytes32 indexed _tag, bool indexed add);
+    event AD1467_TagAlreadyApplied(address indexed _address);
     ///AccessLevels
-    event AccessLevelProviderSet(address indexed _address);
-    event AccessLevelAdded(address indexed _address, uint8 indexed _level);
-    event AccessLevelRemoved(address indexed _address);
+    event AD1467_AccessLevelProviderSet(address indexed _address);
+    event AD1467_AccessLevelAdded(address indexed _address, uint8 indexed _level);
+    event AD1467_AccessLevelRemoved(address indexed _address);
     ///PauseRules
-    event PauseRuleProviderSet(address indexed _address);
-    event PauseRuleEvent(uint256 indexed pauseStart, uint256 indexed pauseStop, bool indexed add);
+    event AD1467_PauseRuleProviderSet(address indexed _address);
+    event AD1467_PauseRuleEvent(uint256 indexed pauseStart, uint256 indexed pauseStop, bool indexed add);
     ///RiskScores
-    event RiskProviderSet(address indexed _address);
-    event RiskScoreAdded(address indexed _address, uint8 _score);
-    event RiskScoreRemoved(address indexed _address);
+    event AD1467_RiskProviderSet(address indexed _address);
+    event AD1467_RiskScoreAdded(address indexed _address, uint8 _score);
+    event AD1467_RiskScoreRemoved(address indexed _address);
 }
 
 interface IAppManagerAddressSet{
-    event AppManagerAddressSet(address indexed _address);
+    event AD1467_AppManagerAddressSet(address indexed _address);
 }
 
 /**
@@ -66,13 +64,13 @@ interface IAppManagerAddressSet{
  * @notice Oracle Events Library
  */
 interface IOracleEvents{
-    event ApprovedAddress(address indexed addr);
-    event NotApprovedAddress(address indexed addr);
-    event ApproveListOracleDeployed();
-    event DeniedAddress(address indexed addr);
-    event NonDeniedAddress(address indexed addr);
-    event DeniedListOracleDeployed();
-    event OracleListChanged(bool indexed add, address[] addresses); // new event
+    event AD1467_ApprovedAddress(address indexed addr);
+    event AD1467_NotApprovedAddress(address indexed addr);
+    event AD1467_ApproveListOracleDeployed();
+    event AD1467_DeniedAddress(address indexed addr);
+    event AD1467_NonDeniedAddress(address indexed addr);
+    event AD1467_DeniedListOracleDeployed();
+    event AD1467_OracleListChanged(bool indexed add, address[] addresses); // new event
 }
 
 
@@ -82,12 +80,12 @@ interface IOracleEvents{
  */
 
 interface IApplicationHandlerEvents {
-    event ApplicationHandlerDeployed(address indexed appManager);
+    event AD1467_ApplicationHandlerDeployed(address indexed appManager);
     // Rule applied
-    event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
+    event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
     /// Pricing
-    event ERC721PricingAddressSet(address indexed _address);
-    event ERC20PricingAddressSet(address indexed _address);
+    event AD1467_ERC721PricingAddressSet(address indexed _address);
+    event AD1467_ERC20PricingAddressSet(address indexed _address);
 }
 
 /**
@@ -96,11 +94,11 @@ interface IApplicationHandlerEvents {
  */
 interface ICommonApplicationHandlerEvents {
     /// Rule deactivated
-    event ApplicationHandlerDeactivated(bytes32 indexed ruleType);
+    event AD1467_ApplicationHandlerDeactivated(bytes32 indexed ruleType);
     /// Rule activated
-    event ApplicationHandlerActivated(bytes32 indexed ruleType);
+    event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType);
     //// Rule Bypassed Via Rule Bypass Account 
-    event RulesBypassedViaRuleBypassAccount(address indexed ruleBypassAccount, address indexed appManager);
+    event AD1467_RulesBypassedViaRuleBypassAccount(address indexed ruleBypassAccount, address indexed appManager);
 }
 
 /**
@@ -111,7 +109,7 @@ interface ICommonApplicationHandlerEvents {
  */
 interface IRuleProcessorDiamondEvents {
     /// Initial deploy of the Rule Processor Diamond
-    event RuleProcessorDiamondDeployed();
+    event AD1467_RuleProcessorDiamondDeployed();
 }
 
 /**
@@ -120,9 +118,7 @@ interface IRuleProcessorDiamondEvents {
  */
 interface IEconomicEvents {
     /// Generic Rule Creation Event
-    event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags);
-    ///TokenRuleRouterProxy
-    event newHandler(address indexed Handler);
+    event AD1467_ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags);
 }
 
 /**
@@ -130,7 +126,7 @@ interface IEconomicEvents {
  * @notice Diamond Handler Events Library
  */
 interface IHandlerDiamondEvents {
-    event HandlerDeployed();
+    event AD1467_HandlerDeployed();
 }
 
 /**
@@ -139,19 +135,19 @@ interface IHandlerDiamondEvents {
  */
 interface ITokenHandlerEvents is IAppManagerAddressSet{
     /// Rule applied
-    event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
-    event ApplicationHandlerSimpleActionApplied(bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1);
+    event AD1467_ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
+    event AD1467_ApplicationHandlerSimpleActionApplied(bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1);
     /// Rule deactivated
-    event ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes action);
+    event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes action);
     /// Rule activated
-    event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action);
+    event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action);
     /// NFT Valuation Limit Updated
-    event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
-    event AppManagerAddressProposed(address indexed _address);
+    event AD1467_NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
+    event AD1467_AppManagerAddressProposed(address indexed _address);
     /// Fees
-    event FeeActivationSet(bool indexed _activation);
+    event AD1467_FeeActivationSet(bool indexed _activation);
     /// Configuration
-    event ERC721AddressSet(address indexed _address);
+    event AD1467_ERC721AddressSet(address indexed _address);
 }
 
 /**
@@ -161,21 +157,16 @@ interface ITokenHandlerEvents is IAppManagerAddressSet{
 
 interface IApplicationEvents is IAppManagerAddressSet{
     /// Application Handler
-    event HandlerConnected(address indexed handlerAddress, address indexed assetAddress); 
+    event AD1467_HandlerConnected(address indexed handlerAddress, address indexed assetAddress); 
     ///ProtocolERC20
-    event NewTokenDeployed(address indexed applicationCoin, address indexed appManagerAddress);
+    event AD1467_NewTokenDeployed(address indexed appManagerAddress);
     ///ProtocolERC721 & ERC721A
-    event NewNFTDeployed(address indexed applicationNFT, address indexed appManagerAddress);
-    ///AMM
-    event AMMDeployed(address indexed ammAddress);
-    event Swap(address indexed tokenIn, uint256 amountIn, uint256 amountOut);
-    event AddLiquidity(address token0, address token1, uint256 amount0, uint256 amount1);
-    event RemoveLiquidity(address token, uint256 amount);
+    event AD1467_NewNFTDeployed(address indexed appManagerAddress);
     ///ERC20Pricing
-    event TokenPrice(address indexed token, uint256 indexed price);
+    event AD1467_TokenPrice(address indexed token, uint256 indexed price);
     ///NFTPricing
-    event SingleTokenPrice(address indexed collection, uint256 indexed tokenID, uint256 indexed price);
-    event CollectionPrice(address indexed collection, uint256 indexed price);
+    event AD1467_SingleTokenPrice(address indexed collection, uint256 indexed tokenID, uint256 indexed price);
+    event AD1467_CollectionPrice(address indexed collection, uint256 indexed price);
     ///Fees
-    event FeeType(bytes32 indexed tag, bool indexed add, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount);
+    event AD1467_FeeType(bytes32 indexed tag, bool indexed add, uint256 minBalance, uint256 maxBalance, int256 feePercentage, address targetAccount);
 }

@@ -27,7 +27,7 @@ contract ProtocolERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pric
      */
     function setSingleTokenPrice(address tokenContract, uint256 price) external onlyOwner {
         tokenPrices[tokenContract] = price;
-        emit TokenPrice(tokenContract, price);
+        emit AD1467_TokenPrice(tokenContract, price);
     }
 
     /**

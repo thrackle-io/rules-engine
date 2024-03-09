@@ -34,7 +34,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
 
             Rule memory newOracleRule = Rule(_ruleId, true);
             accountApproveDenyOracle[_actions[i]].push(newOracleRule);
-            emit ApplicationHandlerActionApplied(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i], _ruleId);
+            emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
@@ -56,9 +56,9 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
                     accountApproveDenyOracle[_actions[i]][ruleIndex].active = _on;
 
                     if (_on) {
-                        emit ApplicationHandlerActionActivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i]);
+                        emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i]);
                     } else {
-                        emit ApplicationHandlerActionDeactivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i]);
+                        emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_APPROVE_DENY_ORACLE, _actions[i]);
                     }
                 }
                 unchecked {

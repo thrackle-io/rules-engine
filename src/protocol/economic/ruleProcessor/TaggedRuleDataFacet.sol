@@ -63,7 +63,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
             }
         }
         data.startTimes[index] = _startTime;
-        emit ProtocolRuleCreated(ACCOUNT_MAX_BUY_SIZE, index, _accountTypes);
+        emit AD1467_ProtocolRuleCreated(ACCOUNT_MAX_BUY_SIZE, index, _accountTypes);
         ++data.accountMaxBuySizeIndex;
         return index;
     }
@@ -114,7 +114,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
             }
         }
         data.startTimes[index] = _startTime;
-        emit ProtocolRuleCreated(ACCOUNT_MAX_SELL_SIZE, index, _accountTypes);
+        emit AD1467_ProtocolRuleCreated(ACCOUNT_MAX_SELL_SIZE, index, _accountTypes);
         ++data.AccountMaxSellSizesIndex;
         return index;
     }
@@ -179,7 +179,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
             }
         }
         data.startTimes[index] = _startTime;
-        emit ProtocolRuleCreated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, index, _accountTypes);
+        emit AD1467_ProtocolRuleCreated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, index, _accountTypes);
         ++data.accountMinMaxTokenBalanceIndex;
         return index;
     }
@@ -203,7 +203,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         uint32 index = data.adminMinTokenBalanceIndex;
         TaggedRules.AdminMinTokenBalance memory rule = TaggedRules.AdminMinTokenBalance(_amount, _endTime);
         data.adminMinTokenBalanceRules[index] = rule;
-        emit ProtocolRuleCreated(ADMIN_MIN_TOKEN_BALANCE, index, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(ADMIN_MIN_TOKEN_BALANCE, index, new bytes32[](0));
         ++data.adminMinTokenBalanceIndex;
         return index;
     }
@@ -248,7 +248,7 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
                 ++i;
             }
         }
-        emit ProtocolRuleCreated(TOKEN_MAX_DAILY_TRADES, index, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(TOKEN_MAX_DAILY_TRADES, index, new bytes32[](0));
         ++data.tokenMaxDailyTradesIndex;
         return index;
     }

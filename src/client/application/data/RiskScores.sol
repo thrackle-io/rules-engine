@@ -31,7 +31,7 @@ contract RiskScores is IRiskScores, DataModule {
         if (_score > MAX_RISK) revert riskScoreOutOfRange(_score);
         if (_address == address(0)) revert ZeroAddress();
         scores[_address] = _score;
-        emit RiskScoreAdded(_address, _score);
+        emit AD1467_RiskScoreAdded(_address, _score);
     }
 
     /**
@@ -58,7 +58,7 @@ contract RiskScores is IRiskScores, DataModule {
         if (_score > MAX_RISK) revert riskScoreOutOfRange(_score);
         for (uint256 i; i < _accounts.length; ) {
             scores[_accounts[i]] = _score;
-            emit RiskScoreAdded(_accounts[i], _score);
+            emit AD1467_RiskScoreAdded(_accounts[i], _score);
             unchecked {
                 ++i;
             }
@@ -71,7 +71,7 @@ contract RiskScores is IRiskScores, DataModule {
      */
     function removeScore(address _account) external virtual onlyOwner {
         delete scores[_account];
-        emit RiskScoreRemoved(_account);
+        emit AD1467_RiskScoreRemoved(_account);
     }
 
     /**

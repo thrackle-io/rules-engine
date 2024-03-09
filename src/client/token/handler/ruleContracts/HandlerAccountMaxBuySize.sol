@@ -25,7 +25,7 @@ contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents{
         AccountMaxBuySizeS storage AccountMaxBuySize = lib.accountMaxBuySizeStorage();
         AccountMaxBuySize.id = _ruleId;
         AccountMaxBuySize.active = true;
-        emit ApplicationHandlerActionApplied(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY, _ruleId);
+        emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY, _ruleId);
     }
 
     /**
@@ -35,9 +35,9 @@ contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents{
     function activateAccountMaxBuySize(bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         lib.accountMaxBuySizeStorage().active = _on;
         if (_on) {
-            emit ApplicationHandlerActionActivated(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY);
+            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY);
         } else {
-            emit ApplicationHandlerActionDeactivated(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY);
+            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY);
         }
     }
 

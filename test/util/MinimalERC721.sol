@@ -27,7 +27,7 @@ contract MinimalERC721 is ERC721, IProtocolTokenMin, ProtocolTokenCommon, ERC721
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
 
-        emit NewTokenDeployed(address(this), _appManagerAddress);
+        emit AD1467_NewTokenDeployed(_appManagerAddress);
     }
 
     /**
@@ -52,7 +52,7 @@ contract MinimalERC721 is ERC721, IProtocolTokenMin, ProtocolTokenCommon, ERC721
     function connectHandlerToToken(address _handlerAddress) external override appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
         _handler = IHandlerDiamond(_handlerAddress);
-        emit HandlerConnected(_handlerAddress, address(this));
+        emit AD1467_HandlerConnected(_handlerAddress, address(this));
     }
 
     /**
