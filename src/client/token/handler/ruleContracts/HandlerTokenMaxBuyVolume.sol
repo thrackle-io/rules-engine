@@ -51,7 +51,7 @@ contract HandlerTokenMaxBuyVolume is RuleAdministratorOnly, ITokenHandlerEvents,
      */
     function clearTokenMaxBuyVolume() internal {
         TokenMaxBuyVolumeS storage data = lib.tokenMaxBuyVolumeStorage();
-        for (uint i; i < lib.handlerBaseStorage().lastPossibleAction; ) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
             delete data.id;
             delete data.active;
             delete data.boughtInPeriod;

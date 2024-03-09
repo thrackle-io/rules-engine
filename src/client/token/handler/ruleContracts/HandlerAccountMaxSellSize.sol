@@ -50,7 +50,7 @@ contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents
      */
     function clearAccountMaxSellSize() internal {
         AccountMaxSellSizeS storage data = lib.accountMaxSellSizeStorage();
-        for (uint i; i < lib.handlerBaseStorage().lastPossibleAction; ) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
             delete data.id;
             delete data.active;
             unchecked {

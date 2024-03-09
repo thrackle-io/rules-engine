@@ -64,7 +64,7 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
      */
     function clearAdminMinTokenBalance() internal {
         AdminMinTokenBalanceS storage data = lib.adminMinTokenBalanceStorage();
-        for (uint i; i < lib.handlerBaseStorage().lastPossibleAction; ) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
             delete data.adminMinTokenBalance[ActionTypes(i)];
             unchecked {
                 ++i;

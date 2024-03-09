@@ -13,14 +13,12 @@ Facet Location
 - [ERC20TaggedRuleProcessorFacet.sol](../../../../src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol) 
 - [ERC721RuleProcessorFacet.sol](../../../../src/protocol/economic/ruleProcessor/ERC721RuleProcessorFacet.sol) 
 - [ERC721TaggedRuleProcessorFacet.sol](../../../../src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol) 
-- [FeeRuleProcessorFacet.sol](../../../../src/protocol/economic/ruleProcessor/FeeRuleProcessorFacet.sol) 
 
 ## Validation Facet: 
 - [RuleApplicationValidationFacet.sol](../../../../src/protocol/economic/ruleProcessor/RuleApplicationValidationFacet.sol) 
 
 ## Storage Facets: 
 - [AppRuleDataFacet.sol](../../../../src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol)
-- [FeeRuleDataFacet.sol](../../../../src/protocol/economic/ruleProcessor/FeeRuleDataFacet.sol)
 - [RuleDataFacet.sol](../../../../src/protocol/economic/ruleProcessor/RuleDataFacet.sol)
 - [TaggedRuleDataFacet.sol](../../../../src/protocol/economic/ruleProcessor/TaggedRuleDataFacet.sol)
 

@@ -58,7 +58,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      * @param _actions actions to have the rule applied to
      * @param _minHoldTimeHours min hold time in hours corresponding to the actions
      */
-    function setTokenMinHoldTimeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _minHoldTimeHours) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+    function setTokenMinHoldTimeFull(ActionTypes[] calldata _actions, uint32[] calldata _minHoldTimeHours) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         if(_actions.length == 0) revert InputArraysSizesNotValid();
         if(_actions.length != _minHoldTimeHours.length) revert InputArraysMustHaveSameLength();
         clearTokenMinHoldTime(); 
@@ -76,7 +76,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
      */
     function clearTokenMinHoldTime() internal {
         TokenMinHoldTimeS storage data = lib.tokenMinHoldTimeStorage();
-        for (uint i; i < lib.handlerBaseStorage().lastPossibleAction; ) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
             delete data.tokenMinHoldTime[ActionTypes(i)];
             unchecked {
                 ++i;

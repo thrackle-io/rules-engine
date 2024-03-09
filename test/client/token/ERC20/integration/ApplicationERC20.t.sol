@@ -5,7 +5,7 @@ import "test/util/TestCommonFoundry.sol";
 import "../../TestTokenCommon.sol";
 import "test/client/token/ERC20/util/ERC20Util.sol";
 
-contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
+contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util, ITokenHandlerEvents {
 
     function setUp() public {
         setUpProcotolAndCreateERC20AndDiamondHandler();
@@ -1509,7 +1509,249 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
         amm.dummyTrade(address(applicationCoin), address(applicationCoin2), 500, 500, true);
     }
- 
+
+    /*********************** Atomic Rule Setting Tests ************************************/
+    /* These tests insure that the atomic setting/application of rules is functioning properly */
+
+    /* MinMaxTokenBalance */
+    function testApplicationERC20_AccountMinMaxTokenBalanceAtomicFullSet() public {
+        uint32[] memory ruleIds = new uint32[](5);
+        // Set up rule
+        ruleIds[0] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(1000));
+        ruleIds[1] = createAccountMinMaxTokenBalanceRule(createBytes32Array("RJ"), createUint256Array(2), createUint256Array(2000));
+        ruleIds[2] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Tayler"), createUint256Array(3), createUint256Array(3000));
+        ruleIds[3] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Michael"), createUint256Array(4), createUint256Array(4000));
+        ruleIds[4] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Shane"), createUint256Array(5), createUint256Array(5000));
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        // Apply the rules to all actions
+        setAccountMinMaxTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
+        // Verify that all the rule id's were set correctly 
+        assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.P2P_TRANSFER),ruleIds[0]);
+        assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.SELL),ruleIds[1]);
+        assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.BUY),ruleIds[2]);
+        assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.MINT),ruleIds[3]);
+        assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.BURN),ruleIds[4]);
+        // Verify that all the rules were activated
+        assertTrue(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.P2P_TRANSFER));
+        assertTrue(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.SELL));
+        assertTrue(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BUY));
+        assertTrue(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.MINT));
+        assertTrue(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BURN));
+    }
+
+    function testApplicationERC20_AccountMinMaxTokenBalanceAtomicFullReSet() public {
+        uint32[] memory ruleIds = new uint32[](5);
+        // Set up rule
+        ruleIds[0] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(1000));
+        ruleIds[1] = createAccountMinMaxTokenBalanceRule(createBytes32Array("RJ"), createUint256Array(2), createUint256Array(2000));
+        ruleIds[2] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Tayler"), createUint256Array(3), createUint256Array(3000));
+        ruleIds[3] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Michael"), createUint256Array(4), createUint256Array(4000));
+        ruleIds[4] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Michael"), createUint256Array(5), createUint256Array(5000));
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        // Apply the rules to all actions
+        setAccountMinMaxTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
+
+        // Reset with a partial list of rules and insure that the changes are saved correctly
+        ruleIds = new uint32[](2);
+        ruleIds[0] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(10000));
+        ruleIds[1] = createAccountMinMaxTokenBalanceRule(createBytes32Array("RJ"), createUint256Array(1), createUint256Array(20000));
+        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
+        // Apply the new set of rules
+         setAccountMinMaxTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
+        // Verify that all the rule id's were set correctly 
+        assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.SELL),ruleIds[0]);
+        assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.BUY),ruleIds[1]);
+        // Verify that the old ones were cleared
+        assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.P2P_TRANSFER),0);
+        assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.MINT),0);
+        assertEq(ERC20TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.BURN),0);
+        // Verify that the new rules were activated
+        assertTrue(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.SELL));
+        assertTrue(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BUY));
+        // Verify that the old rules are not activated
+        assertFalse(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.P2P_TRANSFER));
+        assertFalse(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.MINT));
+        assertFalse(ERC20TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BURN));
+    }
+
+    /* AdminMinTokenBalance */
+    function testApplicationERC20_AdminMinTokenBalanceAtomicFullSet() public {
+        uint32[] memory ruleIds = new uint32[](5);
+        // Set up rule
+        ruleIds[0] = createAdminMinTokenBalanceRule(1, Blocktime + 100);
+        ruleIds[1] = createAdminMinTokenBalanceRule(2, Blocktime + 200);
+        ruleIds[2] = createAdminMinTokenBalanceRule(3, Blocktime + 300);
+        ruleIds[3] = createAdminMinTokenBalanceRule(4, Blocktime + 400);
+        ruleIds[4] = createAdminMinTokenBalanceRule(5, Blocktime + 500);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        // Apply the rules to all actions
+        setAdminMinTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
+        // Verify that all the rule id's were set correctly 
+        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.P2P_TRANSFER),ruleIds[0]);
+        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.SELL),ruleIds[1]);
+        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.BUY),ruleIds[2]);
+        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.MINT),ruleIds[3]);
+        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.BURN),ruleIds[4]);
+        // Verify that all the rules were activated
+        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.P2P_TRANSFER));
+        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.SELL));
+        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.BUY));
+        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.MINT));
+        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.BURN));
+    }
+
+    function testApplicationERC20_AdminMinTokenBalanceAtomicFullReSet() public {
+        uint32[] memory ruleIds = new uint32[](5);
+        // Set up rule
+        ruleIds[0] = createAdminMinTokenBalanceRule(1, Blocktime + 100);
+        ruleIds[1] = createAdminMinTokenBalanceRule(2, Blocktime + 200);
+        ruleIds[2] = createAdminMinTokenBalanceRule(3, Blocktime + 300);
+        ruleIds[3] = createAdminMinTokenBalanceRule(4, Blocktime + 400);
+        ruleIds[4] = createAdminMinTokenBalanceRule(5, Blocktime + 500);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        // Apply the rules to all actions
+        // Reset with a partial list of rules and insure that the changes are saved correctly
+        ruleIds = new uint32[](2);
+        ruleIds[0] = createAdminMinTokenBalanceRule(6, Blocktime + 600);
+        ruleIds[1] = createAdminMinTokenBalanceRule(7, Blocktime + 600);
+        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
+        // Apply the new set of rules
+        setAdminMinTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
+        // Verify that all the rule id's were set correctly 
+        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.SELL),ruleIds[0]);
+        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.BUY),ruleIds[1]);
+        // Verify that the old ones were cleared
+        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.P2P_TRANSFER),0);
+        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.MINT),0);
+        assertEq(ERC20HandlerMainFacet(address(applicationCoinHandler)).getAdminMinTokenBalanceId(ActionTypes.BURN),0);
+        // Verify that the new rules were activated
+        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.SELL));
+        assertTrue(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.BUY));
+        // Verify that the old rules are not activated
+        assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.P2P_TRANSFER));
+        assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.MINT));
+        assertFalse(ERC20HandlerMainFacet(address(applicationCoinHandler)).isAdminMinTokenBalanceActive(ActionTypes.BURN));
+    }
+    
+      /* AccountMaxBuySize */
+    function testApplicationERC20_AccountMaxBuySizeAtomicFullSet() public {
+        uint32[] memory ruleIds = new uint32[](1);
+        // Set up rule(This one is different because it can only apply to buys)
+        ruleIds[0] = createAccountMaxBuySizeRule("Oscar", 1, 1);
+        // Apply the rules to all actions
+        setAccountMaxBuySizeRule(address(applicationCoinHandler), ruleIds[0]);
+        // Verify that all the rule id's were set correctly 
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxBuySizeId(),ruleIds[0]);
+        // Verify that all the rules were activated
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxBuySizeActive());
+    }
+
+    function testApplicationERC20_AccountMaxBuySizeAtomicFullReSet() public {
+         uint32 ruleId;
+        // Set up rule(This one is different because it can only apply to buys)
+        ruleId = createAccountMaxBuySizeRule("Oscar", 100, 5);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.BUY);
+        // Apply the rules to all actions
+        ruleId = createAccountMaxBuySizeRule("Oscar", 100, 5);
+        actions = createActionTypeArray(ActionTypes.BUY);
+        // Apply the new set of rules
+        setAccountMaxBuySizeRule(address(applicationCoinHandler), ruleId);
+        // Verify that all the rule id's were set correctly 
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxBuySizeId(),ruleId);
+        // Verify that the new rules were activated
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxBuySizeActive());
+    }
+
+      /* AccountMaxSellSize */
+    function testApplicationERC20_AccountMaxSellSizeAtomicFullSet() public {
+        uint32[] memory ruleIds = new uint32[](1);
+        // Set up rule(This one is different because it can only apply to buys)
+        ruleIds[0] = createAccountMaxSellSizeRule("Oscar", 1, 1);
+        // Apply the rules to all actions
+        setAccountMaxSellSizeRule(address(applicationCoinHandler), ruleIds[0]);
+        // Verify that all the rule id's were set correctly 
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxSellSizeId(),ruleIds[0]);
+        // Verify that all the rules were activated
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxSellSizeActive());
+    }
+
+    function testApplicationERC20_AccountMaxSellSizeAtomicFullReSet() public {
+         uint32 ruleId;
+        // Set up rule(This one is different because it can only apply to buys)
+        ruleId = createAccountMaxSellSizeRule("Oscar", 100, 5);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.BUY);
+        setAccountMaxSellSizeRule(address(applicationCoinHandler), ruleId);
+        // Apply the rules to all actions
+        ruleId = createAccountMaxSellSizeRule("Oscar", 200, 5);
+        actions = createActionTypeArray(ActionTypes.BUY);
+        // Apply the new set of rules
+        setAccountMaxSellSizeRule(address(applicationCoinHandler), ruleId);
+        // Verify that all the rule id's were set correctly 
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getAccountMaxSellSizeId(),ruleId);
+        // Verify that the new rules were activated
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isAccountMaxSellSizeActive());
+    }
+
+      /* TokenMaxBuyVolume */
+    function testApplicationERC20_TokenMaxBuyVolumeAtomicFullSet() public {
+        uint32[] memory ruleIds = new uint32[](1);
+        // Set up rule(This one is different because it can only apply to buys)
+        ruleIds[0] = createTokenMaxBuyVolumeRule(10, 48, 0, Blocktime);
+        // Apply the rules to all actions
+        setTokenMaxBuyVolumeRule(address(applicationCoinHandler), ruleIds[0]);
+        // Verify that all the rule id's were set correctly 
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxBuyVolumeId(),ruleIds[0]);
+        // Verify that all the rules were activated
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxBuyVolumeActive());
+    }
+
+    function testApplicationERC20_TokenMaxBuyVolumeAtomicFullReSet() public {
+         uint32 ruleId;
+        // Set up rule(This one is different because it can only apply to buys)
+        ruleId = createTokenMaxBuyVolumeRule(10, 24, 0, Blocktime);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.BUY);
+        setTokenMaxBuyVolumeRule(address(applicationCoinHandler), ruleId);
+        // Apply the rules to all actions
+        ruleId = createTokenMaxBuyVolumeRule(10, 48, 0, Blocktime);
+        actions = createActionTypeArray(ActionTypes.BUY);
+        // Apply the new set of rules
+        setTokenMaxBuyVolumeRule(address(applicationCoinHandler), ruleId);
+        // Verify that all the rule id's were set correctly 
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxBuyVolumeId(),ruleId);
+        // Verify that the new rules were activated
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxBuyVolumeActive());
+    }
+
+      /* TokenMaxSellVolume */
+    function testApplicationERC20_TokenMaxSellVolumeAtomicFullSet() public {
+        uint32[] memory ruleIds = new uint32[](1);
+        // Set up rule(This one is different because it can only apply to buys)
+        ruleIds[0] = createTokenMaxSellVolumeRule(10, 48, 0, Blocktime);
+        // Apply the rules to all actions
+        setTokenMaxSellVolumeRule(address(applicationCoinHandler), ruleIds[0]);
+        // Verify that all the rule id's were set correctly 
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxSellVolumeId(),ruleIds[0]);
+        // Verify that all the rules were activated
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxSellVolumeActive());
+    }
+
+    function testApplicationERC20_TokenMaxSellVolumeAtomicFullReSet() public {
+         uint32 ruleId;
+        // Set up rule(This one is different because it can only apply to buys)
+        ruleId = createTokenMaxSellVolumeRule(10, 24, 0, Blocktime);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.BUY);
+        setTokenMaxSellVolumeRule(address(applicationCoinHandler), ruleId);
+        // Apply the rules to all actions
+        ruleId = createTokenMaxSellVolumeRule(10, 48, 0, Blocktime);
+        actions = createActionTypeArray(ActionTypes.BUY);
+        // Apply the new set of rules
+        setTokenMaxSellVolumeRule(address(applicationCoinHandler), ruleId);
+        // Verify that all the rule id's were set correctly 
+        assertEq(TradingRuleFacet(address(applicationCoinHandler)).getTokenMaxSellVolumeId(),ruleId);
+        // Verify that the new rules were activated
+        assertTrue(TradingRuleFacet(address(applicationCoinHandler)).isTokenMaxSellVolumeActive());
+    }
+
      function initializeAMMAndUsers() public returns (DummyAMM amm){
         amm = new DummyAMM();
         applicationCoin2.mint(appAdministrator, 1_000_000_000_000 * ATTO);

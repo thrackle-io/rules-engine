@@ -16,7 +16,6 @@ uint8 constant MAX_ORACLE_RULES = 10;
 
 
 contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors{
-
     /// Rule Setters and Getters
 
      /**
@@ -46,13 +45,15 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
         if(_actions.length == 0) revert InputArraysSizesNotValid();
         if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearAccountApproveDenyOracle(); 
+        AccountApproveDenyOracleS storage data = lib.accountApproveDenyOracleStorage();
+        
         for (uint i; i < _actions.length; ) {
             setAccountApproveDenyOracleIdUpdate(_actions[i], _ruleIds[i]);
             unchecked {
                 ++i;
             }
         } 
-         emit AD1467_ApplicationHandlerActionAppliedFull(ACCOUNT_APPROVE_DENY_ORACLE, _actions, _ruleIds);
+        emit AD1467_ApplicationHandlerActionAppliedFull(ACCOUNT_APPROVE_DENY_ORACLE, _actions, _ruleIds);
     }
 
     /**
@@ -60,7 +61,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
      */
     function clearAccountApproveDenyOracle() internal {
         AccountApproveDenyOracleS storage data = lib.accountApproveDenyOracleStorage();
-        for (uint i; i < lib.handlerBaseStorage().lastPossibleAction; ) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
             delete data.accountApproveDenyOracle[ActionTypes(i)];
             unchecked {
                 ++i;
@@ -166,7 +167,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
      * @param ruleId the id of the rule to check
      * @return boolean representing if the rule is active
      */
-    function isAccountAllowDenyOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool) {
+    function isAccountApproveDenyOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool) {
         mapping(ActionTypes => Rule[]) storage accountApproveDenyOracle = lib.accountApproveDenyOracleStorage().accountApproveDenyOracle;
         for (uint256 ruleIndex; ruleIndex < accountApproveDenyOracle[_action].length; ) {
             if (accountApproveDenyOracle[_action][ruleIndex].ruleId == ruleId) {

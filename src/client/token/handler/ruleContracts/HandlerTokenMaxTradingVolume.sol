@@ -65,7 +65,7 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ITokenHandlerEve
      */
     function clearTokenMaxTradingVolume() internal {
         TokenMaxTradingVolumeS storage data = lib.tokenMaxTradingVolumeStorage();
-        for (uint i; i < lib.handlerBaseStorage().lastPossibleAction; ) {
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
             delete data.tokenMaxTradingVolume[ActionTypes(i)];
             unchecked {
                 ++i;
