@@ -19,7 +19,7 @@ abstract contract ERC721Util is TokenUtils {
         ERC721NonTaggedRuleFacet(address(assetHandler)).setAccountApproveDenyOracleId(actionTypes, ruleId);
     }
 
-    function setAccountApproveDenyOracleRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank() {
+    function setAccountApproveDenyOracleRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[][] memory ruleIds) public endWithStopPrank() {
         switchToRuleAdmin();
         ERC721NonTaggedRuleFacet(address(assetHandler)).setAccountApproveDenyOracleIdFull(actions, ruleIds);
     }

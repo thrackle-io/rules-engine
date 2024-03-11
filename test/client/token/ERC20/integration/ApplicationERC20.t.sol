@@ -7,6 +7,9 @@ import "test/client/token/ERC20/util/ERC20Util.sol";
 
 contract ApplicationERC20Test is TestCommonFoundry, ERC20Util,DummyAMM {
 
+    uint32[][] ruleId2D;
+    uint32[][] ruleId2D_2;
+
     function setUp() public {
         setUpProcotolAndCreateERC20AndDiamondHandler();
         switchToAppAdministrator();
@@ -1755,60 +1758,60 @@ contract ApplicationERC20Test is TestCommonFoundry, ERC20Util,DummyAMM {
 
     /* AccountApproveDenyOracle */
     function testApplicationERC20_AccountApproveDenyOracleAtomicFullSet() public {
-        uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
-        ruleIds[0] = createAccountApproveDenyOracleRule(0);
-        ruleIds[1] = createAccountApproveDenyOracleRule(0);
-        ruleIds[2] = createAccountApproveDenyOracleRule(0);
-        ruleIds[3] = createAccountApproveDenyOracleRule(0);
-        ruleIds[4] = createAccountApproveDenyOracleRule(0);
-        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        for(uint i; i < 5;i++){
+            ruleId2D.push([createAccountApproveDenyOracleRule(0),createAccountApproveDenyOracleRule(0),createAccountApproveDenyOracleRule(0),createAccountApproveDenyOracleRule(0)]);
+        }
+        
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes(0), ActionTypes(1), ActionTypes(2), ActionTypes(3), ActionTypes(4));
         // Apply the rules to all actions
-        setAccountApproveDenyOracleRuleFull(address(applicationNFTHandler), actions, ruleIds);
-        // Verify that all the rule id's were set correctly 
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.P2P_TRANSFER)[0],ruleIds[0]);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.SELL)[0],ruleIds[1]);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.BUY)[0],ruleIds[2]);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.MINT)[0],ruleIds[3]);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.BURN)[0],ruleIds[4]);
-        // Verify that all the rules were activated
-        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.P2P_TRANSFER,ruleIds[0]));
-        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.SELL,ruleIds[1]));
-        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.BUY,ruleIds[2]));
-        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.MINT,ruleIds[3]));
-        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.BURN,ruleIds[4]));
+        setAccountApproveDenyOracleRuleFull(address(applicationNFTHandler), actions, ruleId2D);
+        // Verify that all the rule id's were set correctly and are active
+        for(uint i; i < 5;i++){
+            for(uint j; j < 4; j++){
+                assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes(i))[j],ruleId2D[i][j]);
+                assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes(i),ruleId2D[i][j]));
+            }
+        }
+        
     }
 
     function testApplicationERC20_AccountApproveDenyOracleAtomicFullReSet() public {
-        uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
-        ruleIds[0] = createAccountApproveDenyOracleRule(0);
-        ruleIds[1] = createAccountApproveDenyOracleRule(0);
-        ruleIds[2] = createAccountApproveDenyOracleRule(0);
-        ruleIds[3] = createAccountApproveDenyOracleRule(0);
-        ruleIds[4] = createAccountApproveDenyOracleRule(0);
+        for(uint i; i < 5;i++){
+            ruleId2D.push([createAccountApproveDenyOracleRule(0),createAccountApproveDenyOracleRule(0),createAccountApproveDenyOracleRule(0),createAccountApproveDenyOracleRule(0)]);
+        }
+        
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
-        setAccountApproveDenyOracleRuleFull(address(applicationNFTHandler), actions, ruleIds);
+        setAccountApproveDenyOracleRuleFull(address(applicationNFTHandler), actions, ruleId2D);
         // Reset with a partial list of rules and insure that the changes are saved correctly
-        uint32[] memory ruleIds2 = new uint32[](2);
-        ruleIds2[0] = createAccountApproveDenyOracleRule(0);
-        ruleIds2[1] = createAccountApproveDenyOracleRule(0);
+        for(uint i; i < 2;i++){
+            ruleId2D_2.push([createAccountApproveDenyOracleRule(0),createAccountApproveDenyOracleRule(0)]);
+        }
         actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
         // Apply the new set of rules
-        setAccountApproveDenyOracleRuleFull(address(applicationNFTHandler), actions, ruleIds2);
-        // Verify that all the rule id's were set correctly 
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.SELL)[0],ruleIds2[0]);
-        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.BUY)[0],ruleIds2[1]);
+        setAccountApproveDenyOracleRuleFull(address(applicationNFTHandler), actions, ruleId2D_2);
+        // // Verify that all the rule id's were set correctly 
+        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.SELL)[0],ruleId2D_2[0][0]);
+        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.SELL)[1],ruleId2D_2[0][1]);
+        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.BUY)[0],ruleId2D_2[1][0]);
+        assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.BUY)[1],ruleId2D_2[1][1]);
         // Verify that the old ones were cleared
         assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.MINT).length,0);
         assertEq(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).getAccountApproveDenyOracleIds(ActionTypes.BURN).length,0);
         // Verify that the new rules were activated
-        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.SELL,ruleIds2[0]));
-        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.BUY,ruleIds2[1]));
-        // // Verify that the old rules are not activated
-        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.MINT,ruleIds[3]));
-        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.BURN,ruleIds[4]));
+        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.SELL,ruleId2D_2[0][0]));
+        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.SELL,ruleId2D_2[0][1]));
+        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.BUY,ruleId2D_2[1][0]));
+        assertTrue(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.BUY,ruleId2D_2[1][1]));
+        // // // Verify that the old rules are not activated
+        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.MINT,ruleId2D[0][0]));
+        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.MINT,ruleId2D[0][1]));
+        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.MINT,ruleId2D[0][2]));
+        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.BURN,ruleId2D[0][0]));
+        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.BURN,ruleId2D[0][1]));
+        assertFalse(ERC20NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.BURN,ruleId2D[0][2]));
     }
 
     /* TokenMaxSupplyVolatility */
