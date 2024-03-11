@@ -1,5 +1,5 @@
 # IEconomicEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/ce8f3ce20cc777375e5a3cbfcde63db2607acc28/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13105ed31bc78c8d50cdf97173deb83a68e88dee/src/common/IEvents.sol)
 
 Economic Module Events Library
 
@@ -7,19 +7,11 @@ Economic Module Events Library
 
 
 ## Events
-### ProtocolRuleCreated
+### AD1467_ProtocolRuleCreated
 Generic Rule Creation Event
 
 
 ```solidity
-event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags);
-```
-
-### newHandler
-TokenRuleRouterProxy
-
-
-```solidity
-event newHandler(address indexed Handler);
+event AD1467_ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags);
 ```
 

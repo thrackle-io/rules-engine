@@ -1,5 +1,5 @@
 # IApplicationHandlerEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/ce8f3ce20cc777375e5a3cbfcde63db2607acc28/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13105ed31bc78c8d50cdf97173deb83a68e88dee/src/common/IEvents.sol)
 
 Application Handler Events Library
 
@@ -7,29 +7,29 @@ Application Handler Events Library
 
 
 ## Events
-### ApplicationHandlerDeployed
+### AD1467_ApplicationHandlerDeployed
 
 ```solidity
-event ApplicationHandlerDeployed(address indexed appManager);
+event AD1467_ApplicationHandlerDeployed(address indexed appManager);
 ```
 
-### ApplicationRuleApplied
+### AD1467_ApplicationRuleApplied
 
 ```solidity
-event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
+event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);
 ```
 
-### ERC721PricingAddressSet
+### AD1467_ERC721PricingAddressSet
 Pricing
 
 
 ```solidity
-event ERC721PricingAddressSet(address indexed _address);
+event AD1467_ERC721PricingAddressSet(address indexed _address);
 ```
 
-### ERC20PricingAddressSet
+### AD1467_ERC20PricingAddressSet
 
 ```solidity
-event ERC20PricingAddressSet(address indexed _address);
+event AD1467_ERC20PricingAddressSet(address indexed _address);
 ```
 

@@ -1,5 +1,5 @@
 # ITokenHandlerEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/ce8f3ce20cc777375e5a3cbfcde63db2607acc28/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13105ed31bc78c8d50cdf97173deb83a68e88dee/src/common/IEvents.sol)
 
 **Inherits:**
 [IAppManagerAddressSet](/src/common/IEvents.sol/interface.IAppManagerAddressSet.md)
@@ -10,63 +10,67 @@ Token Handler Events Library
 
 
 ## Events
-### ApplicationHandlerActionApplied
+### AD1467_ApplicationHandlerActionApplied
 Rule applied
 
 
 ```solidity
-event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
+event AD1467_ApplicationHandlerActionApplied(
+    bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId
+);
 ```
 
-### ApplicationHandlerSimpleActionApplied
+### AD1467_ApplicationHandlerSimpleActionApplied
 
 ```solidity
-event ApplicationHandlerSimpleActionApplied(bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1);
+event AD1467_ApplicationHandlerSimpleActionApplied(
+    bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1
+);
 ```
 
-### ApplicationHandlerActionDeactivated
+### AD1467_ApplicationHandlerActionDeactivated
 Rule deactivated
 
 
 ```solidity
-event ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes action);
+event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes action);
 ```
 
-### ApplicationHandlerActionActivated
+### AD1467_ApplicationHandlerActionActivated
 Rule activated
 
 
 ```solidity
-event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action);
+event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action);
 ```
 
-### NFTValuationLimitUpdated
+### AD1467_NFTValuationLimitUpdated
 NFT Valuation Limit Updated
 
 
 ```solidity
-event NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
+event AD1467_NFTValuationLimitUpdated(uint256 indexed nftValuationLimit);
 ```
 
-### AppManagerAddressProposed
+### AD1467_AppManagerAddressProposed
 
 ```solidity
-event AppManagerAddressProposed(address indexed _address);
+event AD1467_AppManagerAddressProposed(address indexed _address);
 ```
 
-### FeeActivationSet
+### AD1467_FeeActivationSet
 Fees
 
 
 ```solidity
-event FeeActivationSet(bool indexed _activation);
+event AD1467_FeeActivationSet(bool indexed _activation);
 ```
 
-### ERC721AddressSet
+### AD1467_ERC721AddressSet
 Configuration
 
 
 ```solidity
-event ERC721AddressSet(address indexed _address);
+event AD1467_ERC721AddressSet(address indexed _address);
 ```
 

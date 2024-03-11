@@ -1,5 +1,5 @@
 # IApplicationEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/ce8f3ce20cc777375e5a3cbfcde63db2607acc28/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13105ed31bc78c8d50cdf97173deb83a68e88dee/src/common/IEvents.sol)
 
 **Inherits:**
 [IAppManagerAddressSet](/src/common/IEvents.sol/interface.IAppManagerAddressSet.md)
@@ -10,84 +10,58 @@ Application Events Library
 
 
 ## Events
-### HandlerConnected
+### AD1467_HandlerConnected
 Application Handler
 
 
 ```solidity
-event HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
+event AD1467_HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
 ```
 
-### NewTokenDeployed
+### AD1467_NewTokenDeployed
 ProtocolERC20
 
 
 ```solidity
-event NewTokenDeployed(address indexed applicationCoin, address indexed appManagerAddress);
+event AD1467_NewTokenDeployed(address indexed appManagerAddress);
 ```
 
-### NewNFTDeployed
+### AD1467_NewNFTDeployed
 ProtocolERC721 & ERC721A
 
 
 ```solidity
-event NewNFTDeployed(address indexed applicationNFT, address indexed appManagerAddress);
+event AD1467_NewNFTDeployed(address indexed appManagerAddress);
 ```
 
-### AMMDeployed
-AMM
-
-
-```solidity
-event AMMDeployed(address indexed ammAddress);
-```
-
-### Swap
-
-```solidity
-event Swap(address indexed tokenIn, uint256 amountIn, uint256 amountOut);
-```
-
-### AddLiquidity
-
-```solidity
-event AddLiquidity(address token0, address token1, uint256 amount0, uint256 amount1);
-```
-
-### RemoveLiquidity
-
-```solidity
-event RemoveLiquidity(address token, uint256 amount);
-```
-
-### TokenPrice
+### AD1467_TokenPrice
 ERC20Pricing
 
 
 ```solidity
-event TokenPrice(address indexed token, uint256 indexed price);
+event AD1467_TokenPrice(address indexed token, uint256 indexed price);
 ```
 
-### SingleTokenPrice
+### AD1467_SingleTokenPrice
 NFTPricing
 
 
 ```solidity
-event SingleTokenPrice(address indexed collection, uint256 indexed tokenID, uint256 indexed price);
+event AD1467_SingleTokenPrice(address indexed collection, uint256 indexed tokenID, uint256 indexed price);
 ```
 
-### CollectionPrice
+### AD1467_CollectionPrice
 
 ```solidity
-event CollectionPrice(address indexed collection, uint256 indexed price);
+event AD1467_CollectionPrice(address indexed collection, uint256 indexed price);
 ```
 
-### FeeType
+### AD1467_FeeType
 Fees
 
 
 ```solidity
-event FeeType(
+event AD1467_FeeType(
     bytes32 indexed tag,
     bool indexed add,
     uint256 minBalance,

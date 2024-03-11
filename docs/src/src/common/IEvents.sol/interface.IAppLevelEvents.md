@@ -1,5 +1,5 @@
 # IAppLevelEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/ce8f3ce20cc777375e5a3cbfcde63db2607acc28/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13105ed31bc78c8d50cdf97173deb83a68e88dee/src/common/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -14,215 +14,203 @@ Appliction Module Events Library
 
 
 ## Events
-### HandlerConnected
+### AD1467_AppManagerDeployed
 AppManager
 
 
 ```solidity
-event HandlerConnected(address indexed handlerAddress, address indexed appManager);
+event AD1467_AppManagerDeployed(address indexed superAndAppAdmin, string indexed appName);
 ```
 
-### RoleCheck
+### AD1467_AppManagerDeployedForUpgrade
 
 ```solidity
-event RoleCheck(string contractName, string functionName, address checkedAddress, bytes32 checkedRole);
+event AD1467_AppManagerDeployedForUpgrade(address indexed superAndAppAdmin, string indexed appName);
 ```
 
-### AppManagerDeployed
+### AD1467_AppManagerDataUpgradeProposed
 
 ```solidity
-event AppManagerDeployed(address indexed superAndAppAdmin, string indexed appName);
+event AD1467_AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
 ```
 
-### AppManagerDeployedForUpgrade
+### AD1467_DataContractsMigrated
 
 ```solidity
-event AppManagerDeployedForUpgrade(address indexed superAndAppAdmin, string indexed appName);
+event AD1467_DataContractsMigrated(address indexed ownerAddress);
 ```
 
-### AppManagerUpgrade
+### AD1467_RemoveFromRegistry
 
 ```solidity
-event AppManagerUpgrade(address indexed deployedAddress, address replacedAddress);
+event AD1467_RemoveFromRegistry(string contractName, address contractAddress);
 ```
 
-### AppManagerDataUpgradeProposed
+### AD1467_RuleAdmin
 
 ```solidity
-event AppManagerDataUpgradeProposed(address indexed deployedAddress, address replacedAddress);
+event AD1467_RuleAdmin(address indexed admin, bool indexed add);
 ```
 
-### DataContractsMigrated
+### AD1467_RiskAdmin
 
 ```solidity
-event DataContractsMigrated(address indexed ownerAddress);
+event AD1467_RiskAdmin(address indexed admin, bool indexed add);
 ```
 
-### RemoveFromRegistry
+### AD1467_AccessLevelAdmin
 
 ```solidity
-event RemoveFromRegistry(string contractName, address contractAddress);
+event AD1467_AccessLevelAdmin(address indexed admin, bool indexed add);
 ```
 
-### RuleAdmin
+### AD1467_AppAdministrator
 
 ```solidity
-event RuleAdmin(address indexed admin, bool indexed add);
+event AD1467_AppAdministrator(address indexed admin, bool indexed add);
 ```
 
-### RiskAdmin
+### AD1467_SuperAdministrator
 
 ```solidity
-event RiskAdmin(address indexed admin, bool indexed add);
+event AD1467_SuperAdministrator(address indexed admin, bool indexed add);
 ```
 
-### AccessLevelAdmin
+### AD1467_RuleBypassAccount
 
 ```solidity
-event AccessLevelAdmin(address indexed admin, bool indexed add);
+event AD1467_RuleBypassAccount(address indexed bypassAccount, bool indexed add);
 ```
 
-### AppAdministrator
+### AD1467_AppNameChanged
 
 ```solidity
-event AppAdministrator(address indexed admin, bool indexed add);
+event AD1467_AppNameChanged(string indexed appName);
 ```
 
-### SuperAdministrator
-
-```solidity
-event SuperAdministrator(address indexed admin, bool indexed add);
-```
-
-### RuleBypassAccount
-
-```solidity
-event RuleBypassAccount(address indexed bypassAccount, bool indexed add);
-```
-
-### TokenRegistered
+### AD1467_TokenRegistered
 Registrations
 
 
 ```solidity
-event TokenRegistered(string indexed _token, address indexed _address);
+event AD1467_TokenRegistered(string indexed _token, address indexed _address);
 ```
 
-### TokenNameUpdated
+### AD1467_TokenNameUpdated
 
 ```solidity
-event TokenNameUpdated(string indexed _token, address indexed _address);
+event AD1467_TokenNameUpdated(string indexed _token, address indexed _address);
 ```
 
-### AMMRegistered
+### AD1467_AMMRegistered
 
 ```solidity
-event AMMRegistered(address indexed _address);
+event AD1467_AMMRegistered(address indexed _address);
 ```
 
-### TreasuryRegistered
+### AD1467_TreasuryRegistered
 
 ```solidity
-event TreasuryRegistered(address indexed _address);
+event AD1467_TreasuryRegistered(address indexed _address);
 ```
 
-### TradingRuleAddressAllowlist
+### AD1467_TradingRuleAddressAllowlist
 
 ```solidity
-event TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
+event AD1467_TradingRuleAddressAllowlist(address indexed _address, bool indexed isApproved);
 ```
 
-### AccountProviderSet
+### AD1467_AccountProviderSet
 Accounts
 
 
 ```solidity
-event AccountProviderSet(address indexed _address);
+event AD1467_AccountProviderSet(address indexed _address);
 ```
 
-### AccountAdded
+### AD1467_AccountAdded
 
 ```solidity
-event AccountAdded(address indexed account);
+event AD1467_AccountAdded(address indexed account);
 ```
 
-### AccountRemoved
+### AD1467_AccountRemoved
 
 ```solidity
-event AccountRemoved(address indexed account);
+event AD1467_AccountRemoved(address indexed account);
 ```
 
-### TagProviderSet
+### AD1467_TagProviderSet
 Tags
 
 
 ```solidity
-event TagProviderSet(address indexed _address);
+event AD1467_TagProviderSet(address indexed _address);
 ```
 
-### Tag
+### AD1467_Tag
 
 ```solidity
-event Tag(address indexed _address, bytes32 indexed _tag, bool indexed add);
+event AD1467_Tag(address indexed _address, bytes32 indexed _tag, bool indexed add);
 ```
 
-### TagAlreadyApplied
+### AD1467_TagAlreadyApplied
 
 ```solidity
-event TagAlreadyApplied(address indexed _address);
+event AD1467_TagAlreadyApplied(address indexed _address);
 ```
 
-### AccessLevelProviderSet
+### AD1467_AccessLevelProviderSet
 AccessLevels
 
 
 ```solidity
-event AccessLevelProviderSet(address indexed _address);
+event AD1467_AccessLevelProviderSet(address indexed _address);
 ```
 
-### AccessLevelAdded
+### AD1467_AccessLevelAdded
 
 ```solidity
-event AccessLevelAdded(address indexed _address, uint8 indexed _level);
+event AD1467_AccessLevelAdded(address indexed _address, uint8 indexed _level);
 ```
 
-### AccessLevelRemoved
+### AD1467_AccessLevelRemoved
 
 ```solidity
-event AccessLevelRemoved(address indexed _address);
+event AD1467_AccessLevelRemoved(address indexed _address);
 ```
 
-### PauseRuleProviderSet
+### AD1467_PauseRuleProviderSet
 PauseRules
 
 
 ```solidity
-event PauseRuleProviderSet(address indexed _address);
+event AD1467_PauseRuleProviderSet(address indexed _address);
 ```
 
-### PauseRuleEvent
+### AD1467_PauseRuleEvent
 
 ```solidity
-event PauseRuleEvent(uint256 indexed pauseStart, uint256 indexed pauseStop, bool indexed add);
+event AD1467_PauseRuleEvent(uint256 indexed pauseStart, uint256 indexed pauseStop, bool indexed add);
 ```
 
-### RiskProviderSet
+### AD1467_RiskProviderSet
 RiskScores
 
 
 ```solidity
-event RiskProviderSet(address indexed _address);
+event AD1467_RiskProviderSet(address indexed _address);
 ```
 
-### RiskScoreAdded
+### AD1467_RiskScoreAdded
 
 ```solidity
-event RiskScoreAdded(address indexed _address, uint8 _score);
+event AD1467_RiskScoreAdded(address indexed _address, uint8 _score);
 ```
 
-### RiskScoreRemoved
+### AD1467_RiskScoreRemoved
 
 ```solidity
-event RiskScoreRemoved(address indexed _address);
+event AD1467_RiskScoreRemoved(address indexed _address);
 ```
 

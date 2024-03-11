@@ -1,5 +1,5 @@
 # IOracleEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/ce8f3ce20cc777375e5a3cbfcde63db2607acc28/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13105ed31bc78c8d50cdf97173deb83a68e88dee/src/common/IEvents.sol)
 
 Oracle Events Library
 
@@ -7,45 +7,45 @@ Oracle Events Library
 
 
 ## Events
-### ApprovedAddress
+### AD1467_ApprovedAddress
 
 ```solidity
-event ApprovedAddress(address indexed addr);
+event AD1467_ApprovedAddress(address indexed addr);
 ```
 
-### NotApprovedAddress
+### AD1467_NotApprovedAddress
 
 ```solidity
-event NotApprovedAddress(address indexed addr);
+event AD1467_NotApprovedAddress(address indexed addr);
 ```
 
-### ApproveListOracleDeployed
+### AD1467_ApproveListOracleDeployed
 
 ```solidity
-event ApproveListOracleDeployed();
+event AD1467_ApproveListOracleDeployed();
 ```
 
-### DeniedAddress
+### AD1467_DeniedAddress
 
 ```solidity
-event DeniedAddress(address indexed addr);
+event AD1467_DeniedAddress(address indexed addr);
 ```
 
-### NonDeniedAddress
+### AD1467_NonDeniedAddress
 
 ```solidity
-event NonDeniedAddress(address indexed addr);
+event AD1467_NonDeniedAddress(address indexed addr);
 ```
 
-### DeniedListOracleDeployed
+### AD1467_DeniedListOracleDeployed
 
 ```solidity
-event DeniedListOracleDeployed();
+event AD1467_DeniedListOracleDeployed();
 ```
 
-### OracleListChanged
+### AD1467_OracleListChanged
 
 ```solidity
-event OracleListChanged(bool indexed add, address[] addresses);
+event AD1467_OracleListChanged(bool indexed add, address[] addresses);
 ```
 

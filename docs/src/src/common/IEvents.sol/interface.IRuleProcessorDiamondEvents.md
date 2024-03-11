@@ -1,5 +1,5 @@
 # IRuleProcessorDiamondEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/ce8f3ce20cc777375e5a3cbfcde63db2607acc28/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/13105ed31bc78c8d50cdf97173deb83a68e88dee/src/common/IEvents.sol)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -10,11 +10,11 @@ Rule Processor Module Events Library
 
 
 ## Events
-### RuleProcessorDiamondDeployed
+### AD1467_RuleProcessorDiamondDeployed
 Initial deploy of the Rule Processor Diamond
 
 
 ```solidity
-event RuleProcessorDiamondDeployed();
+event AD1467_RuleProcessorDiamondDeployed();
 ```
 
