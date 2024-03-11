@@ -10,6 +10,18 @@ This facet contains functions that are necessary for rule facilitation on a prot
 
 ```c
 function initialize(address _ruleProcessorProxyAddress, address _appManagerAddress, address _assetAddress) external onlyOwner
+├── when the caller is not the owner
+│ └── it should revert
+└── when the caller is the owner
+    └── when the function has not been called previously 
+        ├── when ruleProcessorProxyAddress or appManagerAddress or assetAddress is the zero address
+        │ └── it should revert
+        └── when the ruleProcessorProxyAddress or appManagerAddress or assetAddress is not the zero address 
+            ├── it should set the ruleProcessorProxyAddress state variable
+            ├── it should set the appManagerAddress state variable
+            ├── it should set the assetAddress state variable
+            ├── it should set the assetAddress state variable
+            └── it should set the initialized state variable to true 
 ```
 This function can only be called once and stores parameters that are used throughout the facets. 
 
@@ -17,6 +29,15 @@ This function can only be called once and stores parameters that are used throug
 The next function in this facet is the check all rules function: 
 ```c
 ffunction checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external onlyOwner returns (bool)
+├── when the caller is not the owner
+│ └── it should revert
+└── when the caller is the owner
+    └── it should call the application manager and check application level rules 
+        └── when application level rules are active 
+        │ └── it should validate application level rules through the application manager 
+        ├── it should call the rule processor diamond and validate the transaction 
+        └── when the rule processor diamond returns true 
+          └── it should succeed
 ```
 This function is the entry point for the token to facilitate checks to all rules set to active.  
 

@@ -40,7 +40,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     uint32 private accountMaxValueOutByAccessLevelId;
     /// AccessLevel Rule on-off switches
     bool private accountMaxValueByAccessLevelActive;
-    bool private AccountDenyForNoAccessLevelRuleActive;
+    bool private accountDenyForNoAccessLevelRuleActive;
     bool private accountMaxValueOutByAccessLevelActive;
     /// Pause Rule on-off switch
     bool private pauseRuleActive; 
@@ -78,7 +78,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function requireApplicationRulesChecked() public view returns (bool) {
         return pauseRuleActive ||
                accountMaxValueByRiskScoreActive || accountMaxTransactionValueByRiskScoreActive || 
-               accountMaxValueByAccessLevelActive || accountMaxValueOutByAccessLevelActive || AccountDenyForNoAccessLevelRuleActive;
+               accountMaxValueByAccessLevelActive || accountMaxValueOutByAccessLevelActive || accountDenyForNoAccessLevelRuleActive;
     }
 
     /**
@@ -107,7 +107,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
             balanceValuation = uint128(getAccTotalValuation(_to, _nftValuationLimit));
             transferValuation = uint128(nftPricer.getNFTPrice(_tokenAddress, _tokenId));
         }
-        if (accountMaxValueByAccessLevelActive || AccountDenyForNoAccessLevelRuleActive || accountMaxValueOutByAccessLevelActive) {
+        if (accountMaxValueByAccessLevelActive || accountDenyForNoAccessLevelRuleActive || accountMaxValueOutByAccessLevelActive) {
             _checkAccessLevelRules(_from, _to, balanceValuation, transferValuation);
         }
         if (accountMaxValueByRiskScoreActive || accountMaxTransactionValueByRiskScoreActive) {
@@ -159,9 +159,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation) internal {
         uint8 score = appManager.getAccessLevel(_to);
         uint8 fromScore = appManager.getAccessLevel(_from);
-        if (AccountDenyForNoAccessLevelRuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
+        if (accountDenyForNoAccessLevelRuleActive && !appManager.isRegisteredAMM(_from)) ruleProcessor.checkAccountDenyForNoAccessLevel(fromScore);
         /// Exempting address(0) allows for burning.
-        if (AccountDenyForNoAccessLevelRuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
+        if (accountDenyForNoAccessLevelRuleActive && !appManager.isRegisteredAMM(_to) && _to != address(0)) ruleProcessor.checkAccountDenyForNoAccessLevel(score);
         if (accountMaxValueByAccessLevelActive && _to != address(0))
             ruleProcessor.checkAccountMaxValueByAccessLevel(accountMaxValueByAccessLevelId, score, _balanceValuation, _transferValuation);
         if (accountMaxValueOutByAccessLevelActive) {
@@ -376,7 +376,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateAccountDenyForNoAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-        AccountDenyForNoAccessLevelRuleActive = _on;
+        accountDenyForNoAccessLevelRuleActive = _on;
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL);
         } else {
@@ -389,7 +389,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @return boolean representing if the rule is active
      */
     function isAccountDenyForNoAccessLevelActive() external view returns (bool) {
-        return AccountDenyForNoAccessLevelRuleActive;
+        return accountDenyForNoAccessLevelRuleActive;
     }
 
     /**

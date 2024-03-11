@@ -54,11 +54,30 @@ The functions are slightly different for a Super Admin. Because there can only b
 
 ```c
 function proposeNewSuperAdmin(address account) external onlyRole(SUPER_ADMIN_ROLE)
+├── when the caller is not a super administrator
+│ └── it should revert
+└── when the caller is a super administrator
+    └── if the account proposed for new super admin is not zero address 
+        ├── if number of proposed super admins is greater than 0 
+        │ └── it should set the account as the proposed super admin role   
+        │    └── it should grant only the account as the proposed super admin 
+        └── if number of proposed super admins is 0 
+          └── it should grant only the account as the proposed super admin
 ```
 The first part of the two-step process, to propose the new Super Admin address. This can only be called by the existing Super admin.
 
 ```c
 function confirmSuperAdmin() external
+├── it will set the newSuperAdmin local variable as the proposed super admin 
+├── if the caller is not the proposed super admin 
+│ └── it should revert
+└── it sets the super admin as the oldSuperAdmin local variable 
+    ├── it grants the super admin role to the newSuperAdmin   
+    ├── it revokes the super admin role from the oldSuperAdmin  
+    └── it renounces the proposed super admin role for the caller  
+        ├── it emits an {AD1467_SuperAdministrator} event for the new super admin
+        └── it emits an {AD1467_SuperAdministrator} event for the former super admin 
+
 ```
 The second part of the two-step process, confirming renounces the role for the existing Super Admin and promotes the Proposed Super Admin to the role. This can only be called by the Proposed Super Admin.
 
@@ -118,6 +137,15 @@ The Application Manager provides a function that can be called from registered T
 
 ```c
 function checkApplicationRules(address _tokenAddress, address _from, address _to, uint256 _amount, uint16 _nftValuationLimit, uint256 _tokenId, ActionTypes _action, HandlerTypes _handlerType) external onlyHandler
+├── when the caller is not a registered handler 
+│ └── it should revert
+└── when the caller is a registered handler
+    └── it should call the application handler requireApplicationRulesChecked()
+        └── when application level rules are active 
+          └── it should validate application level rules through the application handler 
+            └── when the application handler returns true 
+                └── it should succeed
+
 ```
 The function actually calls to the registered Application Handler to check the rules. This can only be called by registered Token Handlers. 
 
@@ -152,11 +180,58 @@ When upgrading to a new Application Manager contract a two step process is provi
 First the following function must be called on the original Application Manager:
 ```c
 function proposeDataContractMigration(address _newOwner) external onlyRole(APP_ADMIN_ROLE) 
+├── when the caller is not an application administrator
+│ └── it should revert
+└── when the caller is an application administrator
+    └── it should call the proposeOwner() in each data contract 
+        ├── when proposeOwner() is called for accounts data contract 
+        │ └── it should set the newDataProviderOwner for the accounts data contract 
+        │    └── it should continue to next data contract 
+        ├── when proposeOwner() is called for accessLevels data contract 
+        │ └── it should set the newDataProviderOwner for the accessLevels data contract 
+        │    └── it should continue to next data contract 
+        ├── when proposeOwner() is called for riskScores data contract 
+        │ └── it should set the newDataProviderOwner for the riskScores data contract 
+        │    └── it should continue to next data contract
+        ├── when proposeOwner() is called for tags data contract 
+        │ └── it should set the newDataProviderOwner for the tags data contract 
+        │    └── it should continue to next data contract
+        ├── when proposeOwner() is called for pauseRules data contract 
+        │ └── it should set the newDataProviderOwner for the pauseRules data contract 
+        └── if all proposeOwner() functions succed 
+          └── it should emit {AD1467_AppManagerDataUpgradeProposed} event
 ```
 The provided address should be the address of the new Application Manager contract. This function can only be called by the Application Admin.
 
 In order to finalize the process the following function must be called in the new Application Manager:
 ```c
 function confirmDataContractMigration(address _oldAppManagerAddress) external onlyRole(APP_ADMIN_ROLE)
+├── when the caller is not an application administrator
+│ └── it should revert
+└── when the caller is an application administrator
+    ├── it should set the oldAppManager variable to _oldAppManagerAddress
+    └── it should call the getAccountDataAddress() in each data contract 
+        ├── when getAccountDataAddress() is called for accounts data contract 
+        │ └── it should set the newDataProviderOwner for the accounts data contract 
+        │    └── it should continue to next data contract 
+        ├── when getAccessLevelDataAddress() is called for accessLevels data contract 
+        │ └── it should set the newDataProviderOwner for the accessLevels data contract 
+        │    └── it should continue to next data contract 
+        ├── when getRiskDataAddress() is called for riskScores data contract 
+        │ └── it should set the newDataProviderOwner for the riskScores data contract 
+        │    └── it should continue to next data contract
+        ├── when getTagsDataAddress() is called for tags data contract 
+        │ └── it should set the newDataProviderOwner for the tags data contract 
+        │    └── it should continue to next data contract
+        ├── when getPauseRulesDataAddress() is called for pauseRules data contract 
+        │ └── it should set the newDataProviderOwner for the pauseRules data contract 
+        │    └── it should continue to confirmOwner functions
+        ├── it should call confirmOwner() on accounts data contract 
+        ├── it should call confirmOwner() on accessLevel data contract
+        ├── it should call confirmOwner() on riskScores data contract
+        ├── it should call confirmOwner() on tags data contract
+        ├── it should call confirmOwner() on pauseRules data contract  
+        └── if all getDataAddress functions and all confirm owner functions succed 
+          └── it should emit {AD1467_DataContractsMigrated} event
 ```
 This function can only be called by the App Admin.
