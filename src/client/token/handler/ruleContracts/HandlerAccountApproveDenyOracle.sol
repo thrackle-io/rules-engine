@@ -45,8 +45,6 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
         if(_actions.length == 0) revert InputArraysSizesNotValid();
         if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearAccountApproveDenyOracle(); 
-        AccountApproveDenyOracleS storage data = lib.accountApproveDenyOracleStorage();
-        
         for (uint i; i < _actions.length; ) {
             setAccountApproveDenyOracleIdUpdate(_actions[i], _ruleIds[i]);
             unchecked {

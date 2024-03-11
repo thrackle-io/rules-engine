@@ -138,6 +138,7 @@ interface ITokenHandlerEvents is IAppManagerAddressSet{
     event AD1467_ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes indexed action, uint32 indexed ruleId);
     event AD1467_ApplicationHandlerActionAppliedFull(bytes32 indexed ruleType, ActionTypes[] indexed actions, uint32[] indexed ruleIds);
     event AD1467_ApplicationHandlerSimpleActionApplied(bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1);
+    event AD1467_ApplicationHandlerSimpleActionAppliedFull(bytes32 indexed ruleType, ActionTypes[] action, uint32[] indexed param1);
     /// Rule deactivated
     event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes action);
     /// Rule activated

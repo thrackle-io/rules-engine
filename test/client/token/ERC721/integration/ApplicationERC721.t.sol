@@ -1644,6 +1644,127 @@ function testERC721_ApplicationERC721_TokenMaxDailyTrades() public endWithStopPr
         assertFalse(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isAccountApproveDenyOracleActive(ActionTypes.BURN,ruleIds[4]));
     }
 
+    /* TokenMinimumTransaction */
+    function testApplicationERC20_TokenMinimumTransactionAtomicFullSet() public {
+        uint32[] memory ruleIds = new uint32[](5);
+        // Set up rule
+        ruleIds[0] = createTokenMinimumTransactionRule(1);
+        ruleIds[1] = createTokenMinimumTransactionRule(2);
+        ruleIds[2] = createTokenMinimumTransactionRule(3);
+        ruleIds[3] = createTokenMinimumTransactionRule(4);
+        ruleIds[4] = createTokenMinimumTransactionRule(5);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        // Apply the rules to all actions
+        setTokenMinimumTransactionRuleFull(address(applicationNFTHandler), actions, ruleIds);
+        // Verify that all the rule id's were set correctly 
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.P2P_TRANSFER),ruleIds[0]);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.SELL),ruleIds[1]);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.BUY),ruleIds[2]);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.MINT),ruleIds[3]);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.BURN),ruleIds[4]);
+        // Verify that all the rules were activated
+        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.P2P_TRANSFER));
+        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.SELL));
+        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.BUY));
+        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.MINT));
+        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.BURN));
+    }
+
+    function testApplicationERC20_TokenMinimumTransactionAtomicFullReSet() public {
+        uint32[] memory ruleIds = new uint32[](5);
+        // Set up rule
+        ruleIds[0] = createTokenMinimumTransactionRule(1);
+        ruleIds[1] = createTokenMinimumTransactionRule(2);
+        ruleIds[2] = createTokenMinimumTransactionRule(3);
+        ruleIds[3] = createTokenMinimumTransactionRule(4);
+        ruleIds[4] = createTokenMinimumTransactionRule(5);
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        // Apply the rules to all actions
+        setTokenMinimumTransactionRuleFull(address(applicationNFTHandler), actions, ruleIds);
+        // Reset with a partial list of rules and insure that the changes are saved correctly
+        ruleIds = new uint32[](2);
+        ruleIds[0] = createTokenMinimumTransactionRule(6);
+        ruleIds[1] = createTokenMinimumTransactionRule(7);
+        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
+        // Apply the new set of rules
+        setTokenMinimumTransactionRuleFull(address(applicationNFTHandler), actions, ruleIds);
+        // Verify that all the rule id's were set correctly 
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.SELL),ruleIds[0]);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.BUY),ruleIds[1]);
+        // Verify that the old ones were cleared
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.P2P_TRANSFER),0);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.MINT),0);
+        assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.BURN),0);
+        // Verify that the new rules were activated
+        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.SELL));
+        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.BUY));
+        // Verify that the old rules are not activated
+        assertFalse(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.P2P_TRANSFER));
+        assertFalse(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.MINT));
+        assertFalse(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.BURN));
+    }
+
+    /* MinMaxTokenBalance */
+    function testApplicationERC20_AccountMinMaxTokenBalanceAtomicFullSet() public {
+        uint32[] memory ruleIds = new uint32[](5);
+        // Set up rule
+        ruleIds[0] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(1000));
+        ruleIds[1] = createAccountMinMaxTokenBalanceRule(createBytes32Array("RJ"), createUint256Array(2), createUint256Array(2000));
+        ruleIds[2] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Tayler"), createUint256Array(3), createUint256Array(3000));
+        ruleIds[3] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Michael"), createUint256Array(4), createUint256Array(4000));
+        ruleIds[4] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Shane"), createUint256Array(5), createUint256Array(5000));
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        // Apply the rules to all actions
+        setAccountMinMaxTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
+        // Verify that all the rule id's were set correctly 
+        assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.P2P_TRANSFER),ruleIds[0]);
+        assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.SELL),ruleIds[1]);
+        assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.BUY),ruleIds[2]);
+        assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.MINT),ruleIds[3]);
+        assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.BURN),ruleIds[4]);
+        // Verify that all the rules were activated
+        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.P2P_TRANSFER));
+        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.SELL));
+        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BUY));
+        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.MINT));
+        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BURN));
+    }
+
+    function testApplicationERC20_AccountMinMaxTokenBalanceAtomicFullReSet() public {
+        uint32[] memory ruleIds = new uint32[](5);
+        // Set up rule
+        ruleIds[0] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(1000));
+        ruleIds[1] = createAccountMinMaxTokenBalanceRule(createBytes32Array("RJ"), createUint256Array(2), createUint256Array(2000));
+        ruleIds[2] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Tayler"), createUint256Array(3), createUint256Array(3000));
+        ruleIds[3] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Michael"), createUint256Array(4), createUint256Array(4000));
+        ruleIds[4] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Michael"), createUint256Array(5), createUint256Array(5000));
+        ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
+        // Apply the rules to all actions
+        setAccountMinMaxTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
+
+        // Reset with a partial list of rules and insure that the changes are saved correctly
+        ruleIds = new uint32[](2);
+        ruleIds[0] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(10000));
+        ruleIds[1] = createAccountMinMaxTokenBalanceRule(createBytes32Array("RJ"), createUint256Array(1), createUint256Array(20000));
+        actions = createActionTypeArray(ActionTypes.SELL, ActionTypes.BUY);
+        // Apply the new set of rules
+         setAccountMinMaxTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
+        // Verify that all the rule id's were set correctly 
+        assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.SELL),ruleIds[0]);
+        assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.BUY),ruleIds[1]);
+        // Verify that the old ones were cleared
+        assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.P2P_TRANSFER),0);
+        assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.MINT),0);
+        assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.BURN),0);
+        // Verify that the new rules were activated
+        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.SELL));
+        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BUY));
+        // Verify that the old rules are not activated
+        assertFalse(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.P2P_TRANSFER));
+        assertFalse(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.MINT));
+        assertFalse(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BURN));
+    }
+
     /// INTERNAL HELPER FUNCTIONS
     function _approveTokens(DummyNFTAMM amm, uint256 amountERC20, bool _isApprovalERC721) internal {
         applicationCoin.approve(address(amm), amountERC20);
