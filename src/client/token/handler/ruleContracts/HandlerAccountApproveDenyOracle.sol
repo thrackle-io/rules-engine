@@ -36,22 +36,17 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
     }
 
     /**
-     * @dev Set the setAccountMinMaxTokenBalanceRule suite. This function works differently since the rule allows multiples per action. Restricted to rule administrators only.
+     * @dev Set the setAccountMinMaxTokenBalanceRule suite. This function works differently since the rule allows multiples per action. The actions are repeated to account for multiple oracle rules per action. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _actions actions to have the rule applied to
      * @param _ruleIds Rule Id corresponding to the actions
      */
-    function setAccountApproveDenyOracleIdFull(ActionTypes[] calldata _actions, uint32[][] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+    function setAccountApproveDenyOracleIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         if(_actions.length == 0) revert InputArraysSizesNotValid();
         if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearAccountApproveDenyOracle(); 
         for (uint i; i < _actions.length; ) {
-            for(uint j; j< _ruleIds[i].length;){
-                setAccountApproveDenyOracleIdUpdate(_actions[i], _ruleIds[i][j]);
-                unchecked {
-                    ++j;
-                }
-            }
+            setAccountApproveDenyOracleIdUpdate(_actions[i], _ruleIds[i]);
             unchecked {
                     ++i;
             }
