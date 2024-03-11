@@ -79,6 +79,9 @@ This contract contains the function to check all trading rules that are active i
 function checkTradingRules(address _from, address _to, bytes32[] memory fromTags, bytes32[] memory toTags, uint256 _amount, ActionTypes action)
 ```
 
+## Events
+- **event AD1467_HandlerDeployed()**: 
+    - Emitted when: the Asset Handler is deployed.
 
 ### Upgrading 
 

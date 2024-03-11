@@ -36,7 +36,7 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ITokenHandlerEve
         for (uint i; i < _actions.length; ) {
             data.tokenMaxTradingVolume[_actions[i]].ruleId = _ruleId;
             data.tokenMaxTradingVolume[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(TOKEN_MAX_TRADING_VOLUME, _actions[i], _ruleId);
+            emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_TRADING_VOLUME, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
@@ -52,9 +52,9 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ITokenHandlerEve
         for (uint i; i < _actions.length; ) {
             lib.tokenMaxTradingVolumeStorage().tokenMaxTradingVolume[_actions[i]].active = _on;
             if (_on) {
-                emit ApplicationHandlerActionActivated(TOKEN_MAX_TRADING_VOLUME, _actions[i]);
+                emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_TRADING_VOLUME, _actions[i]);
             } else {
-                emit ApplicationHandlerActionDeactivated(TOKEN_MAX_TRADING_VOLUME, _actions[i]);
+                emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_TRADING_VOLUME, _actions[i]);
             }
             unchecked {
                 ++i;

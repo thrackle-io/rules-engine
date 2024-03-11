@@ -68,7 +68,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         appManager = AppManager(_appManagerAddress);
         ruleProcessor = IRuleProcessor(_ruleProcessorProxyAddress);
         transferOwnership(_appManagerAddress);
-        emit ApplicationHandlerDeployed(_appManagerAddress);
+        emit AD1467_ApplicationHandlerDeployed(_appManagerAddress);
     }
 
     /**
@@ -178,7 +178,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         if (_address == address(0)) revert ZeroAddress();
         nftPricingAddress = _address;
         nftPricer = IProtocolERC721Pricing(_address);
-        emit ERC721PricingAddressSet(_address);
+        emit AD1467_ERC721PricingAddressSet(_address);
     }
 
     /**
@@ -189,7 +189,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         if (_address == address(0)) revert ZeroAddress();
         erc20PricingAddress = _address;
         erc20Pricer = IProtocolERC20Pricing(_address);
-        emit ERC20PricingAddressSet(_address);
+        emit AD1467_ERC20PricingAddressSet(_address);
     }
 
     /**
@@ -298,7 +298,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         ruleProcessor.validateAccountMaxValueByRiskScore(_ruleId);
         accountMaxValueByRiskScoreId = _ruleId;
         accountMaxValueByRiskScoreActive = true;
-        emit ApplicationRuleApplied(BALANCE_BY_RISK, _ruleId);
+        emit AD1467_ApplicationRuleApplied(BALANCE_BY_RISK, _ruleId);
     }
 
     /**
@@ -308,9 +308,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccountMaxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountMaxValueByRiskScoreActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(BALANCE_BY_RISK);
+            emit AD1467_ApplicationHandlerActivated(BALANCE_BY_RISK);
         } else {
-            emit ApplicationHandlerDeactivated(BALANCE_BY_RISK);
+            emit AD1467_ApplicationHandlerDeactivated(BALANCE_BY_RISK);
         }
     }
 
@@ -339,7 +339,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         ruleProcessor.validateAccountMaxValueByAccessLevel(_ruleId);
         accountMaxValueByAccessLevelId = _ruleId;
         accountMaxValueByAccessLevelActive = true;
-        emit ApplicationRuleApplied(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _ruleId);
+        emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _ruleId);
     }
 
     /**
@@ -349,9 +349,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccountMaxValueByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountMaxValueByAccessLevelActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL);
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL);
         } else {
-            emit ApplicationHandlerDeactivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL);
+            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL);
         }
     }
 
@@ -378,9 +378,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccountDenyForNoAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         AccountDenyForNoAccessLevelRuleActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL);
+            emit AD1467_ApplicationHandlerActivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL);
         } else {
-            emit ApplicationHandlerDeactivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL);
+            emit AD1467_ApplicationHandlerDeactivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL);
         }
     }
 
@@ -401,7 +401,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         ruleProcessor.validateAccountMaxValueOutByAccessLevel(_ruleId);
         accountMaxValueOutByAccessLevelId = _ruleId;
         accountMaxValueOutByAccessLevelActive = true;
-        emit ApplicationRuleApplied(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _ruleId);
+        emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _ruleId);
     }
 
     /**
@@ -411,9 +411,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccountMaxValueOutByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountMaxValueOutByAccessLevelActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL);
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL);
         } else {
-            emit ApplicationHandlerDeactivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL);
+            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL);
         }
     }
 
@@ -450,7 +450,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
         ruleProcessor.validateAccountMaxTxValueByRiskScore(_ruleId);
         accountMaxTransactionValueByRiskScoreId = _ruleId;
         accountMaxTransactionValueByRiskScoreActive = true;
-        emit ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _ruleId);
+        emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _ruleId);
     }
 
     /**
@@ -461,9 +461,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activateAccountMaxTxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountMaxTransactionValueByRiskScoreActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE);
+            emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE);
         } else {
-            emit ApplicationHandlerDeactivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE);
+            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE);
         }
     }
 
@@ -485,9 +485,9 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
     function activatePauseRule(bool _on) external onlyOwner {
         pauseRuleActive = _on; 
         if (_on) {
-            emit ApplicationHandlerActivated(PAUSE_RULE);
+            emit AD1467_ApplicationHandlerActivated(PAUSE_RULE);
         } else {
-            emit ApplicationHandlerDeactivated(PAUSE_RULE);
+            emit AD1467_ApplicationHandlerDeactivated(PAUSE_RULE);
         }
     }
 

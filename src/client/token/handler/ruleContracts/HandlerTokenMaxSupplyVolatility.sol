@@ -36,7 +36,7 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ITokenHandler
         for (uint i; i < _actions.length; ) {
             data.tokenMaxSupplyVolatility[_actions[i]].ruleId = _ruleId;
             data.tokenMaxSupplyVolatility[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i], _ruleId);
+            emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
@@ -53,9 +53,9 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ITokenHandler
         for (uint i; i < _actions.length; ) {
             data.tokenMaxSupplyVolatility[_actions[i]].active = _on;
             if (_on) {
-                emit ApplicationHandlerActionActivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i]);
+                emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i]);
             } else {
-                emit ApplicationHandlerActionDeactivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i]);
+                emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i]);
             }
             unchecked {
                 ++i;

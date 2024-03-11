@@ -25,7 +25,7 @@ contract HandlerTokenMaxSellVolume is RuleAdministratorOnly, ITokenHandlerEvents
         TokenMaxSellVolumeS storage tokenMaxSellVolume = lib.tokenMaxSellVolumeStorage();
         tokenMaxSellVolume.id = _ruleId;
         tokenMaxSellVolume.active = true;
-        emit ApplicationHandlerActionApplied(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL, _ruleId);
+        emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL, _ruleId);
     }
 
     /**
@@ -35,9 +35,9 @@ contract HandlerTokenMaxSellVolume is RuleAdministratorOnly, ITokenHandlerEvents
     function activateTokenMaxSellVolume(bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         lib.tokenMaxSellVolumeStorage().active = _on;
         if (_on) {
-            emit ApplicationHandlerActionActivated(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL);
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL);
         } else {
-            emit ApplicationHandlerActionDeactivated(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL);
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL);
         }
     }
 

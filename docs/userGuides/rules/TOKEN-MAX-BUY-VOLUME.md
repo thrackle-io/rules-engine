@@ -216,21 +216,21 @@ uint256 private totalBoughtInPeriod;
 
 ## Events
 
-- **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
+- **event AD1467_ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
         - ruleType: "TOKEN_MAX_BUY_VOLUME".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
-- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
+- **event AD1467_ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - parameters: 
         - ruleType: "TOKEN_MAX_BUY_VOLUME".
         - action: the protocol action the rule is being applied to.
         - ruleId: the index of the rule created in the protocol by rule type.
 
-- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
     - Emitted when: a Transfer counter rule has been activated in an asset handler:
     - Parameters:
         - ruleType: "TOKEN_MAX_BUY_VOLUME".

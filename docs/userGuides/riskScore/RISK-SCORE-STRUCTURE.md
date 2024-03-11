@@ -128,9 +128,9 @@ The following validation will be carried out by the addRiskScore function in ord
 
 ## Events
 
-- **RiskScoreAdded(address indexed _address, uint8 _score)**: emitted when:
+- **AD1467_RiskScoreAdded(address indexed _address, uint8 _score)**: emitted when:
     - A risk score has been added.
-- **RiskScoreRemoved(address indexed _address)**: emitted when: 
+- **AD1467_RiskScoreRemoved(address indexed _address)**: emitted when: 
     - A risk score is removed. 
-- **RiskProviderSet(address indexed _address)**: emitted when:
+- **AD1467_RiskProviderSet(address indexed _address)**: emitted when:
     - A risk score data contract has been migrated to the app manager address

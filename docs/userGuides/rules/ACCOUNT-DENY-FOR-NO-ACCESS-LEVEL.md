@@ -104,7 +104,7 @@ This rule doesn't require of any data to be recorded.
 
 ## Events
 
-- **event ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
+- **event AD1467_ApplicationRuleApplied(bytes32 indexed ruleType, uint32 indexed ruleId);**:
     - Emitted when: rule has been applied in an application handler.
     - Parameters: 
         - ruleType: "ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL".

@@ -30,7 +30,7 @@ contract AccessLevels is IAccessLevels, DataModule {
         if (_level > 4) revert AccessLevelIsNotValid(_level);
         if (_address == address(0)) revert ZeroAddress();
         levels[_address] = _level;
-        emit AccessLevelAdded(_address, _level);
+        emit AD1467_AccessLevelAdded(_address, _level);
     }
 
     /**
@@ -57,7 +57,7 @@ contract AccessLevels is IAccessLevels, DataModule {
         if (_level > 4) revert AccessLevelIsNotValid(_level);
         for (uint256 i; i < _accounts.length; ) {
             levels[_accounts[i]] = _level;
-            emit AccessLevelAdded(_accounts[i], _level);
+            emit AD1467_AccessLevelAdded(_accounts[i], _level);
             unchecked {
                 ++i;
             }
@@ -79,6 +79,6 @@ contract AccessLevels is IAccessLevels, DataModule {
      */
     function removeAccessLevel(address _account) external virtual onlyOwner {
         delete levels[_account];
-        emit AccessLevelRemoved(_account);
+        emit AD1467_AccessLevelRemoved(_account);
     }
 }

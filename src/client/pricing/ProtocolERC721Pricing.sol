@@ -32,7 +32,7 @@ contract ProtocolERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pr
         } else {
             revert NotAnNFTContract(nftContract);
         }
-        emit SingleTokenPrice(nftContract, id, price);
+        emit AD1467_SingleTokenPrice(nftContract, id, price);
     }
 
     /**
@@ -48,7 +48,7 @@ contract ProtocolERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pr
         } else {
             revert NotAnNFTContract(nftContract);
         }
-        emit CollectionPrice(nftContract, price);
+        emit AD1467_CollectionPrice(nftContract, price);
     }
 
     /**

@@ -38,8 +38,9 @@ abstract contract TestCommonFoundry is TestCommon {
         });
 
         /// Build the diamond
+        vm.expectEmit(false,false,false,false);
+        emit AD1467_RuleProcessorDiamondDeployed();
         RuleProcessorDiamond ruleProcessorInternal = new RuleProcessorDiamond(_ruleProcessorFacetCuts, diamondArgs);
-
         // Deploy the diamond.
         return ruleProcessorInternal;
     }
@@ -475,7 +476,11 @@ function _addStorageFacetsToFacetCut() public {
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
         switchToRuleAdmin(); 
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_ERC721PricingAddressSet(address(erc721Pricer));
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_ERC20PricingAddressSet(address(erc20Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
         switchToAppAdministrator();
@@ -587,6 +592,8 @@ function _addStorageFacetsToFacetCut() public {
         switchToAppAdministrator();
         erc20.connectHandlerToToken(address(handler));
         /// register the token
+        vm.expectEmit(true,true,false,false);
+        emit AD1467_TokenRegistered(name, address(erc20));
         applicationAppManager.registerToken(name, address(erc20));
     }
 

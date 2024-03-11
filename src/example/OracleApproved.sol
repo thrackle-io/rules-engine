@@ -17,7 +17,7 @@ contract OracleApproved is Ownable, IOracleEvents {
      * @dev Constructor that only serves the purpose of notifying the indexer of its creation via event
      */
     constructor() {
-        emit ApproveListOracleDeployed();
+        emit AD1467_ApproveListOracleDeployed();
     }
 
     /**
@@ -36,7 +36,7 @@ contract OracleApproved is Ownable, IOracleEvents {
         for (uint256 i = 0; i < newApproves.length; i++) {
             approvedAddresses[newApproves[i]] = true;
         }
-        emit OracleListChanged(true, newApproves);
+        emit AD1467_OracleListChanged(true, newApproves);
     }
 
     /**
@@ -47,7 +47,7 @@ contract OracleApproved is Ownable, IOracleEvents {
         approvedAddresses[newApprove] = true;
         address[] memory addresses = new address[](1);
         addresses[0] =  newApprove;
-        emit OracleListChanged(true,addresses);
+        emit AD1467_OracleListChanged(true,addresses);
     }
 
     /**
@@ -58,7 +58,7 @@ contract OracleApproved is Ownable, IOracleEvents {
         for (uint256 i = 0; i < removeApproves.length; i++) {
             approvedAddresses[removeApproves[i]] = false;
         }
-        emit OracleListChanged(false, removeApproves);
+        emit AD1467_OracleListChanged(false, removeApproves);
     }
 
     /**
@@ -77,10 +77,10 @@ contract OracleApproved is Ownable, IOracleEvents {
      */
     function isApprovedVerbose(address addr) public returns (bool) {
         if (isApproved(addr)) {
-            emit ApprovedAddress(addr);
+            emit AD1467_ApprovedAddress(addr);
             return true;
         } else {
-            emit NotApprovedAddress(addr);
+            emit AD1467_NotApprovedAddress(addr);
             return false;
         }
     }

@@ -246,14 +246,14 @@ This rule doesn't require any data to be recorded.
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: the tags for each sub-rule.
 
-- **event ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
+- **event AD1467_ApplicationHandlerActionApplied(bytes32 indexed ruleType, ActionTypes action, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an asset handler.
     - Parameters: 
         - ruleType: "ACCOUNT_MIN_MAX_TOKEN_BALANCE".
         - action: the protocol action the rule is being applied to.
         - ruleId: the ruleId set for this rule in the handler.
 
-- **event ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
+- **event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action)** 
     - Emitted when: rule has been activated in the asset handler.
     - Parameters:
         - ruleType: "ACCOUNT_MIN_MAX_TOKEN_BALANCE".

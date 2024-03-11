@@ -19,7 +19,7 @@ contract NFTValuationLimit is ITokenHandlerEvents, AppAdministratorOrOwnerOnlyDi
      */
     function setNFTValuationLimit(uint16 _newNFTValuationLimit) public appAdministratorOrOwnerOnly(lib.handlerBaseStorage().appManager) {
         lib.nftValuationLimitStorage().nftValuationLimit = _newNFTValuationLimit;
-        emit NFTValuationLimitUpdated(_newNFTValuationLimit);
+        emit AD1467_NFTValuationLimitUpdated(_newNFTValuationLimit);
     }
 
     /**

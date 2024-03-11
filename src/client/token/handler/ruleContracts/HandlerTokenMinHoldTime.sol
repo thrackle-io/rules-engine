@@ -26,9 +26,9 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
         for (uint i; i < _actions.length; ) {
             lib.tokenMinHoldTimeStorage().tokenMinHoldTime[_actions[i]].active = _on;
             if (_on) {
-                emit ApplicationHandlerActionActivated(TOKEN_MIN_HOLD_TIME, _actions[i]);
+                emit AD1467_ApplicationHandlerActionActivated(TOKEN_MIN_HOLD_TIME, _actions[i]);
             } else {
-                emit ApplicationHandlerActionDeactivated(TOKEN_MIN_HOLD_TIME, _actions[i]);
+                emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MIN_HOLD_TIME, _actions[i]);
             }
             unchecked {
                 ++i;
@@ -48,7 +48,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
         for (uint i; i < _actions.length; ) {
             data.tokenMinHoldTime[_actions[i]].period = _minHoldTimeHours;
             data.tokenMinHoldTime[_actions[i]].active = true;
-            emit ApplicationHandlerSimpleActionApplied(TOKEN_MIN_HOLD_TIME, _actions[i], uint256(_minHoldTimeHours));
+            emit AD1467_ApplicationHandlerSimpleActionApplied(TOKEN_MIN_HOLD_TIME, _actions[i], uint256(_minHoldTimeHours));
             unchecked {
                 ++i;
             }

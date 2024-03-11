@@ -79,7 +79,7 @@ Notice that only accounts with the appAdministrator role can invoke this functio
 
 ### Events:
 
-- **ERC721PricingAddressSet(address indexed _address);**
+- **Event AD1467_ERC721PricingAddressSet(address indexed _address);**
     - Parameters:
         - _address: the address of the pricing contract.
 

@@ -49,7 +49,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         NonTaggedRules.TokenMaxBuyVolume memory rule = NonTaggedRules.TokenMaxBuyVolume(_supplyPercentage, _period, _totalSupply, _startTime);
         uint32 ruleId = data.tokenMaxBuyVolumeIndex;
         data.tokenMaxBuyVolumeRules[ruleId] = rule;
-        emit ProtocolRuleCreated(TOKEN_MAX_BUY_VOLUME, ruleId, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(TOKEN_MAX_BUY_VOLUME, ruleId, new bytes32[](0));
         ++data.tokenMaxBuyVolumeIndex;
         return ruleId;
     }
@@ -78,7 +78,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         uint32 ruleId = data.tokenMaxSellVolumeIndex;
         NonTaggedRules.TokenMaxSellVolume memory rule = NonTaggedRules.TokenMaxSellVolume(_supplyPercentage, _period, _totalSupply, _startTime);
         data.tokenMaxSellVolumeRules[ruleId] = rule;
-        emit ProtocolRuleCreated(TOKEN_MAX_SELL_VOLUME, ruleId, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(TOKEN_MAX_SELL_VOLUME, ruleId, new bytes32[](0));
         ++data.tokenMaxSellVolumeIndex;
         return ruleId;
     }
@@ -98,7 +98,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         NonTaggedRules.TokenPurchaseFeeByVolume memory rule = NonTaggedRules.TokenPurchaseFeeByVolume(_volume, _rateIncreased);
         uint32 ruleId = data.purchaseFeeByVolumeRuleIndex;
         data.purchaseFeeByVolumeRules[ruleId] = rule;
-        emit ProtocolRuleCreated(BUY_FEE_BY_VOLUME, ruleId, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(BUY_FEE_BY_VOLUME, ruleId, new bytes32[](0));
         ++data.purchaseFeeByVolumeRuleIndex;
         return ruleId;
     }
@@ -145,7 +145,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         NonTaggedRules.TokenMaxPriceVolatility memory rule = NonTaggedRules.TokenMaxPriceVolatility(_max, _period, _hoursFrozen, _totalSupply);
         uint32 ruleId = data.tokenMaxPriceVolatilityIndex;
         data.tokenMaxPriceVolatilityRules[ruleId] = rule;
-        emit ProtocolRuleCreated(TOKEN_VOLATILITY, ruleId, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(TOKEN_VOLATILITY, ruleId, new bytes32[](0));
         ++data.tokenMaxPriceVolatilityIndex;
         return ruleId;
     }
@@ -195,7 +195,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         NonTaggedRules.TokenMaxTradingVolume memory rule = NonTaggedRules.TokenMaxTradingVolume(_maxPercentage, _hoursPerPeriod, _startTime, _totalSupply);
         uint32 ruleId = data.tokenMaxTradingVolumeIndex;
         data.tokenMaxTradingVolumeRules[ruleId] = rule;
-        emit ProtocolRuleCreated(TOKEN_MAX_TRADING_VOLUME, ruleId, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(TOKEN_MAX_TRADING_VOLUME, ruleId, new bytes32[](0));
         ++data.tokenMaxTradingVolumeIndex;
         return ruleId;
     }
@@ -213,7 +213,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         NonTaggedRules.TokenMinTxSize memory rule = NonTaggedRules.TokenMinTxSize(_minSize);
         uint32 ruleId = data.tokenMinTxSizeIndex;
         data.tokenMinTxSizeRules[ruleId] = rule;
-        emit ProtocolRuleCreated(TOKEN_MIN_TX_SIZE, ruleId, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(TOKEN_MIN_TX_SIZE, ruleId, new bytes32[](0));
         ++data.tokenMinTxSizeIndex;
         return ruleId;
     }
@@ -243,7 +243,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         NonTaggedRules.TokenMaxSupplyVolatility memory rule = NonTaggedRules.TokenMaxSupplyVolatility(_maxPercentage, _period, _startTime, _totalSupply);
         uint32 ruleId = data.tokenMaxSupplyVolatilityIndex;
         data.tokenMaxSupplyVolatilityRules[ruleId] = rule;
-        emit ProtocolRuleCreated(TOKEN_MAX_SUPPLY_VOLATILITY, ruleId, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(TOKEN_MAX_SUPPLY_VOLATILITY, ruleId, new bytes32[](0));
         ++data.tokenMaxSupplyVolatilityIndex;
         return ruleId;
     }
@@ -263,7 +263,7 @@ contract RuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, IInpu
         NonTaggedRules.AccountApproveDenyOracle memory rule = NonTaggedRules.AccountApproveDenyOracle(_type, _oracleAddress);
         uint32 ruleId = data.accountApproveDenyOracleIndex;
         data.accountApproveDenyOracleRules[ruleId] = rule;
-        emit ProtocolRuleCreated(ACCOUNT_APPROVE_DENY_ORACLE, ruleId, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(ACCOUNT_APPROVE_DENY_ORACLE, ruleId, new bytes32[](0));
         ++data.accountApproveDenyOracleIndex;
         return ruleId;
     }

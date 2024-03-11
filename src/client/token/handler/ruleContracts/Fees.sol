@@ -42,7 +42,7 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
         data.feesByTag[_tag] = Fee(_minBalance, _maxBalance, _feePercentage, _targetAccount);
         // once fee is added to mapping, set the fee to active 
         lib.feeStorage().feeActive = true; 
-        emit FeeType(_tag, true, _minBalance, _maxBalance, _feePercentage, _targetAccount);
+        emit AD1467_FeeType(_tag, true, _minBalance, _maxBalance, _feePercentage, _targetAccount);
     }
 
     /**
@@ -54,7 +54,7 @@ contract Fees is IApplicationEvents, ITokenHandlerEvents, IInputErrors, ITagInpu
         // feePercentage must always not be 0 so it can be used to check rule existence
         if (data.feesByTag[_tag].feePercentage != 0) {
             delete (data.feesByTag[_tag]);
-            emit FeeType(_tag, false, 0, 0, 0, address(0));
+            emit AD1467_FeeType(_tag, false, 0, 0, 0, address(0));
             // if the fee existed, then decrement total
             data.feeTotal -= 1;
         }

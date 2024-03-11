@@ -36,7 +36,7 @@ contract RuleProcessorDiamond is ERC173, IRuleProcessorDiamondEvents {
      */
     constructor(FacetCut[] memory diamondCut, RuleProcessorDiamondArgs memory args) payable {
         DiamondLib.diamondCut(diamondCut, args.init, args.initCalldata);
-        emit RuleProcessorDiamondDeployed();
+        emit AD1467_RuleProcessorDiamondDeployed();
     }
 
     /**

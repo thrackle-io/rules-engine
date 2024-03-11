@@ -20,6 +20,54 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
         assertEq(version, "1.1.0");
     }
 
+    function testERC20_ApplicationERC20_DeregisterTokenEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        vm.expectEmit(true,true,false,false);
+        emit AD1467_RemoveFromRegistry("FRANK", address(applicationCoin));
+        applicationAppManager.deregisterToken("FRANK");
+    }
+
+    function testERC20_ApplicationERC20_UpdateTokenEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        vm.expectEmit(true,true,false,false);
+        emit AD1467_TokenNameUpdated("FRANK", address(applicationCoin));
+        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+    }
+
+    function testERC20_ApplicationERC20_ProposeAndConfirmAppManager() public endWithStopPrank() {
+        switchToAppAdministrator();
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_AppManagerAddressProposed(address(applicationAppManager));
+        HandlerBase(address(applicationCoinHandler)).proposeAppManagerAddress(address(applicationAppManager));
+
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_AppManagerAddressSet(address(applicationAppManager));
+        applicationAppManager.confirmAppManager(address(applicationCoinHandler));
+    }
+
+    function testERC20_ApplicationERC20_OracleApproveEventEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_OracleListChanged(true, ADDRESSES);
+        oracleApproved.addToApprovedList(ADDRESSES);
+    }
+
+    function testERC20_ApplicationERC20_ActionAppliedEventEmission() public endWithStopPrank() {
+        uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(10), createUint256Array(1000));
+        ActionTypes[] memory actionTypes = createActionTypeArray(ActionTypes.P2P_TRANSFER);
+        switchToRuleAdmin();
+        vm.expectEmit(true,true,true,false);
+        emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_MIN_MAX_TOKEN_BALANCE, ActionTypes.P2P_TRANSFER, ruleId);
+        ERC20TaggedRuleFacet(address(applicationCoinHandler)).setAccountMinMaxTokenBalanceId(actionTypes, ruleId);
+    }
+
+    function testERC20_ApplicationERC20_OracleDeniedEventEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_OracleListChanged(true, ADDRESSES);
+        oracleDenied.addToDeniedList(ADDRESSES);
+    }
+
      function testERC20_ApplicationERC20_OnlyTokenCanCallCheckAllRules() public{
         address handler = applicationCoin.getHandlerAddress();
         assertEq(handler, address(applicationCoinHandler));
@@ -683,6 +731,32 @@ contract ApplicationERC20Test is TestCommonFoundry, DummyAMM, ERC20Util {
         /// add enough time so that it should pass
         vm.warp(Blocktime + (720 * 1 hours));
         applicationCoin.transfer(user1, 1 * (10 ** 18));
+    }
+
+    function testERC20_ApplicationERC20_AddFeeEventEmission() public endWithStopPrank() {
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        // create a fee
+        switchToRuleAdmin();
+        vm.expectEmit(true,true,true,true);
+        emit AD1467_FeeType("cheap",true, minBalance, maxBalance, feePercentage, targetAccount);
+        FeesFacet(address(applicationCoinHandler)).addFee("cheap", minBalance, maxBalance, feePercentage, targetAccount);
+    }
+
+    function testERC20_ApplicationERC20_SetFeeEventEmission() public endWithStopPrank() {
+        uint256 minBalance = 10 * ATTO;
+        uint256 maxBalance = 10000000 * ATTO;
+        int24 feePercentage = 300;
+        address targetAccount = rich_user;
+        // create a fee
+        switchToRuleAdmin();
+        FeesFacet(address(applicationCoinHandler)).addFee("cheap", minBalance, maxBalance, feePercentage, targetAccount);
+
+        vm.expectEmit(true,true,true,true);
+        emit AD1467_FeeActivationSet(false);
+        FeesFacet(address(applicationCoinHandler)).setFeeActivation(false);
     }
 
     function testERC20_ApplicationERC20_TransactionFeeTableCoin() public endWithStopPrank() {

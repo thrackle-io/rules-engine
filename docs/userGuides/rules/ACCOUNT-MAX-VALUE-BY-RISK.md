@@ -185,14 +185,14 @@ This rule does not require any data to be recorded.
 
 ## Events
 
-- **event ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
+- **event AD1467_ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
         - ruleType: "BALANCE_BY_RISK".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
-- **event ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
+- **event AD1467_ApplicationHandlerApplied(bytes32 indexed ruleType, address indexed handlerAddress, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an application handler.
     - Parameters: 
         - ruleType: "BALANCE_BY_RISK".

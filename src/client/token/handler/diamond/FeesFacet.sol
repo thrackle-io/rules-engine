@@ -14,7 +14,7 @@ contract FeesFacet is RuleAdministratorOnly, Fees {
      */
     function setFeeActivation(bool on_off) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         lib.feeStorage().feeActive = on_off;
-        emit FeeActivationSet(on_off);
+        emit AD1467_FeeActivationSet(on_off);
     }
 
     /**

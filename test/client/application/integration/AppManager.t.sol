@@ -10,6 +10,74 @@ contract AppManagerBaseTest is TestCommonFoundry {
         vm.warp(Blocktime); // set block.timestamp
     }
 
+    function testApplication_AppManager_RuleAdminEventEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        vm.expectEmit(true,true,false,false);
+        emit AD1467_RuleAdmin(ruleAdmin, true);
+        applicationAppManager.addRuleAdministrator(ruleAdmin); 
+    }
+
+    function testApplication_AppManager_RiskAdminEventEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        vm.expectEmit(true,true,false,false);
+        emit AD1467_RiskAdmin(riskAdmin, true);
+        applicationAppManager.addRiskAdmin(riskAdmin);
+    }
+
+    function testApplication_AppManager_AccessLevelAdminEventEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        vm.expectEmit(true,true,false,false);
+        emit AD1467_AccessLevelAdmin(accessLevelAdmin, true);
+        applicationAppManager.addAccessLevelAdmin(accessLevelAdmin);
+    }
+
+    function testApplication_AppManager_AppAdminEventEmission() public endWithStopPrank() {
+        switchToSuperAdmin();
+        vm.expectEmit(true,true,false,false);
+        emit AD1467_AppAdministrator(appAdministrator, true);
+        applicationAppManager.addAppAdministrator(appAdministrator);
+    }
+
+    function testApplication_AppManager_RuleBypassAccountEventEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        vm.expectEmit(true,true,false,false);
+        emit AD1467_RuleAdmin(ruleAdmin, true);
+        applicationAppManager.addRuleAdministrator(ruleAdmin);
+    }
+
+    function testApplication_AppManager_AppNameEventEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        string memory appName = "CoolApp";
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_AppNameChanged(appName);
+        applicationAppManager.setAppName(appName);
+    }
+
+
+    function testApplication_AppManager_RegisterAmmEventEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        address amm = address(0x577777); 
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_AMMRegistered(amm);
+        applicationAppManager.registerAMM(amm);
+    }
+
+    function testApplication_AppManager_RegisterTreasuryEventEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        address appTreasury = address(0xAAAAA);
+        vm.expectEmit(true,false,false,false);
+        emit AD1467_TreasuryRegistered(appTreasury);
+        applicationAppManager.registerTreasury(appTreasury);
+    }
+
+    function testApplication_AppManager_TradingRulesAddressAllowListEventEmission() public endWithStopPrank() {
+        switchToAppAdministrator();
+        address tradingRulesAllowList = address(0xAAAAAA); 
+        vm.expectEmit(true,true,false,false);
+        emit AD1467_TradingRuleAddressAllowlist(tradingRulesAllowList, true);
+        applicationAppManager.approveAddressToTradingRuleAllowlist(tradingRulesAllowList, true);
+    }
+
     function testApplication_AppManager_IsSuperAdmin() public {
         assertEq(applicationAppManager.isSuperAdmin(superAdmin), true);
         assertEq(applicationAppManager.isSuperAdmin(appAdministrator), false);

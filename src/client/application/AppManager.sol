@@ -100,9 +100,9 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
         appName = _appName;
         if (!upgradeMode) {
             deployDataContracts();
-            emit AppManagerDeployed(root, _appName);
+            emit AD1467_AppManagerDeployed(root, _appName);
         } else {
-            emit AppManagerDeployedForUpgrade(root, _appName);
+            emit AD1467_AppManagerDeployedForUpgrade(root, _appName);
         }
     }
 
@@ -199,8 +199,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
         super.grantRole(SUPER_ADMIN_ROLE, newSuperAdmin);
         super.revokeRole(SUPER_ADMIN_ROLE, oldSuperAdmin);
         renounceRole(PROPOSED_SUPER_ADMIN_ROLE, _msgSender());
-        emit SuperAdministrator(_msgSender(), true);
-        emit SuperAdministrator(oldSuperAdmin, false);
+        emit AD1467_SuperAdministrator(_msgSender(), true);
+        emit AD1467_SuperAdministrator(oldSuperAdmin, false);
     }
 
     /// -------------APP ADMIN---------------
@@ -221,7 +221,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
     function addAppAdministrator(address account) public onlyRole(SUPER_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(APP_ADMIN_ROLE, account);
-        emit AppAdministrator(account, true);
+        emit AD1467_AppAdministrator(account, true);
     }
 
     /**
@@ -242,7 +242,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
      */
     function renounceAppAdministrator() external {
         renounceRole(APP_ADMIN_ROLE, _msgSender());
-        emit AppAdministrator(_msgSender(), false);
+        emit AD1467_AppAdministrator(_msgSender(), false);
     }
 
     /// -------------RULE ADMIN---------------
@@ -263,7 +263,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
     function addRuleAdministrator(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RULE_ADMIN_ROLE, account);
-        emit RuleAdmin(account, true);
+        emit AD1467_RuleAdmin(account, true);
     }
 
     /**
@@ -284,7 +284,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
      */
     function renounceRuleAdministrator() external {
         renounceRole(RULE_ADMIN_ROLE, _msgSender());
-        emit RuleAdmin(_msgSender(), false);
+        emit AD1467_RuleAdmin(_msgSender(), false);
     }
 
     /// -------------RULE BYPASS ACCOUNT ---------------
@@ -305,7 +305,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
     function addRuleBypassAccount(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RULE_BYPASS_ACCOUNT, account);
-        emit RuleBypassAccount(account, true);
+        emit AD1467_RuleBypassAccount(account, true);
     }
 
     /**
@@ -333,7 +333,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
         // slither-disable-next-line reentrancy-benign
         renounceRole(RULE_BYPASS_ACCOUNT, _msgSender());
         // slither-disable-next-line reentrancy-events
-        emit RuleBypassAccount(_msgSender(), false);
+        emit AD1467_RuleBypassAccount(_msgSender(), false);
     }
 
     /**
@@ -372,7 +372,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
     function addAccessLevelAdmin(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(ACCESS_LEVEL_ADMIN_ROLE, account);
-        emit AccessLevelAdmin(account, true);
+        emit AD1467_AccessLevelAdmin(account, true);
     }
 
     /**
@@ -393,7 +393,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
      */
     function renounceAccessLevelAdmin() external {
         renounceRole(ACCESS_LEVEL_ADMIN_ROLE, _msgSender());
-        emit AccessLevelAdmin(_msgSender(), false);
+        emit AD1467_AccessLevelAdmin(_msgSender(), false);
     }
 
     /// -------------RISK ADMIN---------------
@@ -414,7 +414,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
     function addRiskAdmin(address account) public onlyRole(APP_ADMIN_ROLE) {
         if (account == address(0)) revert ZeroAddress();
         super.grantRole(RISK_ADMIN_ROLE, account);
-        emit RiskAdmin(account, true);
+        emit AD1467_RiskAdmin(account, true);
     }
 
     /**
@@ -435,7 +435,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
      */
     function renounceRiskAdmin() external {
         renounceRole(RISK_ADMIN_ROLE, _msgSender());
-        emit RiskAdmin(_msgSender(), false);
+        emit AD1467_RiskAdmin(_msgSender(), false);
     }
 
     /// -------------MAINTAIN ACCESS LEVELS---------------
@@ -772,8 +772,8 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
         if(!isTokenRegistered[_tokenAddress]){  
             _addAddressWithMapping(tokenList, tokenToIndex, isTokenRegistered, _tokenAddress);
             registeredHandlers[ProtocolTokenCommon(_tokenAddress).getHandlerAddress()] = true;
-            emit TokenRegistered(_token, _tokenAddress);
-        }else emit TokenNameUpdated(_token, _tokenAddress);
+            emit AD1467_TokenRegistered(_token, _tokenAddress);
+        }else emit AD1467_TokenNameUpdated(_token, _tokenAddress);
         
     }
 
@@ -808,7 +808,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
         delete addressToToken[tokenAddress];
         /// also remove its handler from the registration
         delete registeredHandlers[ProtocolTokenCommon(tokenAddress).getHandlerAddress()];
-        emit RemoveFromRegistry(_tokenId, tokenAddress);
+        emit AD1467_RemoveFromRegistry(_tokenId, tokenAddress);
     }
 
      /**
@@ -871,7 +871,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
         if (_AMMAddress == address(0)) revert ZeroAddress();
         if (isRegisteredAMM(_AMMAddress)) revert AddressAlreadyRegistered();
         _addAddressWithMapping(ammList, ammToIndex, isAMMRegistered, _AMMAddress);
-        emit AMMRegistered(_AMMAddress);
+        emit AD1467_AMMRegistered(_AMMAddress);
     }
 
     /**
@@ -907,7 +907,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
         if (_treasuryAddress == address(0)) revert ZeroAddress();
         if (isTreasury(_treasuryAddress)) revert AddressAlreadyRegistered();
         _addAddressWithMapping(treasuryList, treasuryToIndex, isTreasuryRegistered, _treasuryAddress);
-        emit TreasuryRegistered(_treasuryAddress);
+        emit AD1467_TreasuryRegistered(_treasuryAddress);
     }
 
     /**
@@ -935,7 +935,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
                 revert AddressAlreadyRegistered();
             _addAddressWithMapping(tradingRuleAllowList, tradingRuleAllowlistAddressToIndex, isTradingRuleAllowlisted, _address);
         }
-        emit TradingRuleAddressAllowlist(_address, isApproved);
+        emit AD1467_TradingRuleAddressAllowlist(_address, isApproved);
     }
 
     /**
@@ -1028,6 +1028,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
      */
     function setAppName(string calldata _appName) external onlyRole(APP_ADMIN_ROLE) {
         appName = _appName;
+        emit AD1467_AppNameChanged(appName);
     }
 
     /**
@@ -1063,7 +1064,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
         // applied to this function
         // slither-disable-next-line reentrancy-events
-        emit AppManagerDataUpgradeProposed(_newOwner, address(this));
+        emit AD1467_AppManagerDataUpgradeProposed(_newOwner, address(this));
     }
 
     /**
@@ -1084,7 +1085,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
         // applied to this function
         // slither-disable-next-line reentrancy-events
-        emit DataContractsMigrated(address(this));
+        emit AD1467_DataContractsMigrated(address(this));
     }
 
     
@@ -1097,31 +1098,31 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
             if (newTagsProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newTagsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             tags = ITags(newTagsProviderAddress);
-            emit TagProviderSet(newTagsProviderAddress);
+            emit AD1467_TagProviderSet(newTagsProviderAddress);
             delete newTagsProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.RISK_SCORE) {
             if (newRiskScoresProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newRiskScoresProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             riskScores = IRiskScores(newRiskScoresProviderAddress);
-            emit RiskProviderSet(newRiskScoresProviderAddress);
+            emit AD1467_RiskProviderSet(newRiskScoresProviderAddress);
             delete newRiskScoresProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.ACCESS_LEVEL) {
             if (newAccessLevelsProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newAccessLevelsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             accessLevels = IAccessLevels(newAccessLevelsProviderAddress);
-            emit AccessLevelProviderSet(newAccessLevelsProviderAddress);
+            emit AD1467_AccessLevelProviderSet(newAccessLevelsProviderAddress);
             delete newAccessLevelsProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.ACCOUNT) {
             if (newAccountsProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newAccountsProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             accounts = IAccounts(newAccountsProviderAddress);
-            emit AccountProviderSet(newAccountsProviderAddress);
+            emit AD1467_AccountProviderSet(newAccountsProviderAddress);
             delete newAccountsProviderAddress;
         } else if (_providerType == IDataModule.ProviderType.PAUSE_RULE) {
             if (newPauseRulesProviderAddress == address(0)) revert NoProposalHasBeenMade();
             if (_msgSender() != newPauseRulesProviderAddress) revert ConfirmerDoesNotMatchProposedAddress();
             pauseRules = IPauseRules(newPauseRulesProviderAddress);
-            emit PauseRuleProviderSet(newPauseRulesProviderAddress);
+            emit AD1467_PauseRuleProviderSet(newPauseRulesProviderAddress);
             delete newPauseRulesProviderAddress;
         }
     }

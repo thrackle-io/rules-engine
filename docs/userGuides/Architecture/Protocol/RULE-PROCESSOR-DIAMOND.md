@@ -13,6 +13,9 @@ The Rule Processor diamond architecture consists of the Rule Processor Diamond, 
 The diamond pattern allows the protocol to upgrade, add new features and improvements through the use of a proxy contract. New facet contracts can be deployed and connected to the diamond via a specialized function called diamondCut. New facets and functions allow the protocol to grow while maintaining address immutability with the proxy contract. Calling contracts will only need to set the address of the diamond proxy at deployment, without having to worry about that address changing overtime. The Protocol Rule Processor follows ERC 2535 standards for storage and functions. 
 #### *[ERC 2535: Diamond Proxies](https://eips.ethereum.org/EIPS/eip-2535)*
 
+## Events
+- **event AD1467_RuleProcessorDiamondDeployed()**: 
+    - Emitted when: the Rule Processor Diamond is deployed.
 
 ### Upgrading 
 

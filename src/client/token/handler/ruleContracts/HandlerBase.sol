@@ -25,7 +25,7 @@ import "../ruleContracts/Fees.sol";
     function proposeAppManagerAddress(address _newAppManagerAddress) external appAdministratorOrOwnerOnly(lib.handlerBaseStorage().appManager) {
         if (_newAppManagerAddress == address(0)) revert ZeroAddress();
         lib.handlerBaseStorage().newAppManagerAddress = _newAppManagerAddress;
-        emit AppManagerAddressProposed(_newAppManagerAddress);
+        emit AD1467_AppManagerAddressProposed(_newAppManagerAddress);
     }
 
     /**
@@ -38,7 +38,7 @@ import "../ruleContracts/Fees.sol";
         data.appManager = data.newAppManagerAddress;
         data.appManager = lib.handlerBaseStorage().appManager;
         delete data.newAppManagerAddress;
-        emit AppManagerAddressSet(lib.handlerBaseStorage().appManager);
+        emit AD1467_AppManagerAddressSet(lib.handlerBaseStorage().appManager);
     }
 
  }

@@ -62,7 +62,7 @@ Notice that only accounts with the appAdministrator role can invoke this functio
 
 ### Events:
 
-- **event ERC20PricingAddressSet(address indexed _address);**
+- **event AD1467_ERC20PricingAddressSet(address indexed _address);**
     - Parameters:
         - _address: the address of the pricing contract.
 

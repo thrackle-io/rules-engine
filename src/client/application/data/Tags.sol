@@ -37,13 +37,13 @@ contract Tags is DataModule, ITags, INoAddressToRemove {
     function addTag(address _address, bytes32 _tag) public virtual onlyOwner {
         if (_tag == "") revert BlankTag();
         if (_address == address(0)) revert ZeroAddress();
-        if (hasTag(_address, _tag)) emit TagAlreadyApplied(_address);
+        if (hasTag(_address, _tag)) emit AD1467_TagAlreadyApplied(_address);
         else {
             if (tagRecords[_address].length >= MAX_TAGS) revert MaxTagLimitReached();
             tagToIndex[_address][_tag] = tagRecords[_address].length;
             tagRecords[_address].push(_tag);
             isTagRegistered[_address][_tag] = true;
-            emit Tag(_address, _tag, true);
+            emit AD1467_Tag(_address, _tag, true);
 
         }
     }
@@ -58,13 +58,13 @@ contract Tags is DataModule, ITags, INoAddressToRemove {
     function addTagToMultipleAccounts(address[] memory _accounts, bytes32 _tag) external virtual onlyOwner {
         if (_tag == "") revert BlankTag();
         for (uint256 i; i < _accounts.length; ) {
-            if (hasTag(_accounts[i], _tag)) emit TagAlreadyApplied(_accounts[i]);
+            if (hasTag(_accounts[i], _tag)) emit AD1467_TagAlreadyApplied(_accounts[i]);
             else {
                 if (tagRecords[_accounts[i]].length >= MAX_TAGS) revert MaxTagLimitReached();
                 tagToIndex[_accounts[i]][_tag] = tagRecords[_accounts[i]].length;
                 tagRecords[_accounts[i]].push(_tag);
                 isTagRegistered[_accounts[i]][_tag] = true;
-                emit Tag(_accounts[i], _tag, true);
+                emit AD1467_Tag(_accounts[i], _tag, true);
             }
             unchecked {
                 ++i;
@@ -98,7 +98,7 @@ contract Tags is DataModule, ITags, INoAddressToRemove {
             /// we set the index to zero for this tag in this account
             delete tagToIndex[_address][_tag];
             /// only one event should be emitted and only if a tag was actually removed
-            emit Tag(_address, _tag, false);
+            emit AD1467_Tag(_address, _tag, false);
         }else revert NoAddressToRemove();
 
     }

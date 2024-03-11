@@ -83,7 +83,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
                 lib.tokenMinHoldTimeStorage().ownershipStart[_tokenId] = block.timestamp;
         } else if (lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].active && isFromBypassAccount) {
                 IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).checkAdminMinTokenBalance(lib.adminMinTokenBalanceStorage().adminMinTokenBalance[action].ruleId, balanceFrom, _tokenId);
-                emit RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
+                emit AD1467_RulesBypassedViaRuleBypassAccount(address(msg.sender), lib.handlerBaseStorage().appManager); 
             }
         return true;
     }

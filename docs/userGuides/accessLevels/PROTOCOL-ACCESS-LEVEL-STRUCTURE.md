@@ -118,7 +118,7 @@ The following validation will be carried out by the addAccessLevel function in o
         ``` 
 
 ## Events
-- **AccessLevelAdded(address indexed _address, uint8 indexed _level)**: emitted when: 
+- **AD1467_AccessLevelAdded(address indexed _address, uint8 indexed _level)**: emitted when: 
     - An access level has been added. 
-- **AccessLevelProviderSet(address indexed _address)**: emitted when:
+- **AD1467_AccessLevelProviderSet(address indexed _address)**: emitted when:
     - An access level data contract has been migrated to the app manager address

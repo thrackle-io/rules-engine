@@ -48,7 +48,7 @@ function setFeeActivation(bool on_off) external ruleAdministratorOnly(lib.handle
 
 ## Events 
 
-- **event FeeActivationSet(bool on_off)**: 
+- **event AD1467_FeeActivationSet(bool on_off)**: 
     - Emitted when: the Asset Handler has a fee status change.
     - Parameters:
         - on_off: Activation status for fees 

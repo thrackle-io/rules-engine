@@ -41,7 +41,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
         appManagerAddress = _appManagerAddress;
         appManager = IAppManager(_appManagerAddress);
 
-        emit NewTokenDeployed(address(this), _appManagerAddress);
+        emit AD1467_NewTokenDeployed(_appManagerAddress);
     }
 
     /**
@@ -213,7 +213,7 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     function connectHandlerToToken(address _handlerAddress) external appAdministratorOnly(appManagerAddress) {
         if (_handlerAddress == address(0)) revert ZeroAddress();
         handler = IProtocolTokenHandler(_handlerAddress);
-        emit HandlerConnected(_handlerAddress, address(this));
+        emit AD1467_HandlerConnected(_handlerAddress, address(this));
     }
 
     /**

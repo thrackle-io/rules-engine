@@ -25,7 +25,7 @@ contract HandlerTokenMaxBuyVolume is RuleAdministratorOnly, ITokenHandlerEvents{
         TokenMaxBuyVolumeS storage tokenMaxBuyVolume = lib.tokenMaxBuyVolumeStorage();
         tokenMaxBuyVolume.id = _ruleId;
         tokenMaxBuyVolume.active = true;
-        emit ApplicationHandlerActionApplied(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY, _ruleId);
+        emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY, _ruleId);
     }
 
     /**
@@ -35,9 +35,9 @@ contract HandlerTokenMaxBuyVolume is RuleAdministratorOnly, ITokenHandlerEvents{
     function activateTokenMaxBuyVolume(bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         lib.tokenMaxBuyVolumeStorage().active = _on;
         if (_on) {
-            emit ApplicationHandlerActionActivated(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY);
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY);
         } else {
-            emit ApplicationHandlerActionDeactivated(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY);
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY);
         }
     }
 

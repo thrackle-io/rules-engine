@@ -28,7 +28,7 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
         for (uint i; i < _actions.length; ) {
             data.tokenMinTxSize[_actions[i]].ruleId = _ruleId;
             data.tokenMinTxSize[_actions[i]].active = true;
-            emit ApplicationHandlerActionApplied(TOKEN_MIN_TX_SIZE, _actions[i], _ruleId);
+            emit AD1467_ApplicationHandlerActionApplied(TOKEN_MIN_TX_SIZE, _actions[i], _ruleId);
             unchecked {
                 ++i;
             }
@@ -44,9 +44,9 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
         for (uint i; i < _actions.length; ) {
             lib.tokenMinTxSizeStorage().tokenMinTxSize[_actions[i]].active = _on;
             if (_on) {
-                emit ApplicationHandlerActionActivated(TOKEN_MIN_TX_SIZE, _actions[i]);
+                emit AD1467_ApplicationHandlerActionActivated(TOKEN_MIN_TX_SIZE, _actions[i]);
             } else {
-                emit ApplicationHandlerActionDeactivated(TOKEN_MIN_TX_SIZE, _actions[i]);
+                emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MIN_TX_SIZE, _actions[i]);
             }
             unchecked {
                 ++i;
