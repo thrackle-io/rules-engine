@@ -34,7 +34,6 @@ abstract contract ERC20Util is TokenUtils {
     function setAccountMinMaxTokenBalanceRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank() {
         switchToRuleAdmin();
         ERC20TaggedRuleFacet(address(assetHandler)).setAccountMinMaxTokenBalanceIdFull(actions, ruleIds);
-        switchToOriginalUser();
     }
 
     function setAdminMinTokenBalanceRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
@@ -59,7 +58,6 @@ abstract contract ERC20Util is TokenUtils {
     function setTokenMaxSupplyVolatilityRuleFull(address assetHandler, ActionTypes[] memory actions, uint32[] memory ruleIds) public endWithStopPrank() {
         switchToRuleAdmin();
         ERC20NonTaggedRuleFacet(address(assetHandler)).setTokenMaxSupplyVolatilityIdFull(actions, ruleIds);
-        switchToOriginalUser();
     }
 
     function setTokenMaxTradingVolumeRule(address assetHandler, uint32 ruleId) public endWithStopPrank() {
