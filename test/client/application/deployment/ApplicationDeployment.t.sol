@@ -16,6 +16,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         if(vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
             // Verify App Manager has been deployed
             superAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
+            appAdministrator = vm.envAddress("APP_ADMIN_01");
             applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
             assertEq(vm.envAddress("APPLICATION_APP_MANAGER"), address(applicationAppManager));
             

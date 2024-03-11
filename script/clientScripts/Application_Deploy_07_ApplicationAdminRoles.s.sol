@@ -29,8 +29,8 @@ contract ApplicationAdminRolesScript is Script {
     function setUp() public {}
 
     function run() public {
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
-        appAdminAddress = vm.envAddress("APP_ADMIN");
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY_01");
+        appAdminAddress = vm.envAddress("APP_ADMIN_01");
         vm.startBroadcast(appAdminKey);
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         /**
@@ -42,13 +42,20 @@ contract ApplicationAdminRolesScript is Script {
          * RISK_ADMIN = Risk admin
          * RULE_BYPASS_ACCOUNT = rule bypass account 
          */
-        applicationAppManager.addAppAdministrator(vm.envAddress("APP_ADMIN"));
-        vm.stopBroadcast();
-        vm.startBroadcast(vm.envUint("APP_ADMIN_PRIVATE_KEY"));
-        applicationAppManager.addRuleAdministrator(vm.envAddress("RULE_ADMIN"));
-        applicationAppManager.addAccessLevelAdmin(vm.envAddress("ACCESS_LEVEL_ADMIN"));
-        applicationAppManager.addRiskAdmin(vm.envAddress("RISK_ADMIN"));
-        applicationAppManager.addRuleBypassAccount(vm.envAddress("RULE_BYPASS_ACCOUNT"));
+        if (vm.envAddress("LOCAL_RULE_ADMIN") != address(0x0)) {
+            applicationAppManager.addRuleAdministrator(vm.envAddress("LOCAL_RULE_ADMIN"));
+        }
+        
+        if (vm.envAddress("ACCESS_LEVEL_ADMIN") != address(0x0)) {
+            applicationAppManager.addAccessLevelAdmin(vm.envAddress("ACCESS_LEVEL_ADMIN"));
+        }
+
+        if (vm.envAddress("RISK_ADMIN") != address(0x0)) {
+            applicationAppManager.addRiskAdmin(vm.envAddress("RISK_ADMIN"));
+        }
+        if (vm.envAddress("RULE_BYPASS_ACCOUNT") != address(0x0)) {
+            applicationAppManager.addRuleBypassAccount(vm.envAddress("RULE_BYPASS_ACCOUNT"));
+        }
         vm.stopBroadcast();
     }
 }

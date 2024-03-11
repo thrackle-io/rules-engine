@@ -18,6 +18,12 @@ abstract contract TestCommonFoundry is TestCommon {
         vm.stopPrank();
     }
 
+    modifier ifDeplomentTestsEnabled() {
+        if(testDeployments) {
+            _;
+        }
+    }
+
     /**
      * @dev Deploy and set up the Rules Processor Diamond
      * @return diamond fully configured rules processor diamond

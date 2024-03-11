@@ -31,8 +31,8 @@ contract ApplicationDeployOracleScript is Script {
     function setUp() public {}
 
     function run() public {
-        privateKey = vm.envUint("LOCAL_DEPLOYMENT_OWNER_KEY");
-        ownerAddress = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
+        privateKey = vm.envUint("APP_ADMIN_PRIVATE_KEY_01");
+        ownerAddress = vm.envAddress("APP_ADMIN_01");
         vm.startBroadcast(privateKey);
 
         /// Deploy Oracle Contracts
