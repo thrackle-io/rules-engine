@@ -4,20 +4,29 @@
 
 # Welcome!
 
-We're so glad you would want to come and contribute to Tron! We are a small team and we are always looking for help. There are multiple opportunities to contribute at all levels, be it in documentation or code. See a gas optimization, or a bug? We'd love to hear your take! This document will be the place to get you started. Please do not be intimidated by this as this is just a helpful guide to help you navigate the process.
+We're so glad you would want to come and contribute! We are a small team and we are always looking for help. There are multiple opportunities to contribute at all levels, be it in documentation or code. See a gas optimization, or a bug? We'd love to hear your take! This document will be the place to get you started. Please do not be intimidated by this as this is just a helpful guide to help you navigate the process.
 
 
 ## Code of Conduct
 
-We follow the Rust code of conduct which can be read [here](https://www.rust-lang.org/policies/code-of-conduct). Violations of this code of conduct can be reported to the [Thrackle Team](mailto:engineering@thrackle.io). 
+The following are our code of conduct. Violations of this code of conduct can be reported to the [Team](mailto:engineering@thrackle.io). 
+
+* We are committed to providing a friendly, safe and welcoming environment for all, regardless of level of experience, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, nationality, or other similar characteristic.
+* Please avoid using overtly sexual aliases or other nicknames that might detract from a friendly, safe and welcoming environment for all.
+* Please be kind and courteous. There’s no need to be mean or rude.
+* Respect that people have differences of opinion and that every design or implementation choice carries a trade-off and numerous costs. There is seldom a right answer.
+* Please keep unstructured critique to a minimum. If you have solid ideas you want to experiment with, make a fork and see how it works.
+* We will exclude you from interaction if you insult, demean or harass anyone. That is not welcome behavior. We interpret the term “harassment” as including the definition in the Citizen Code of Conduct; if you have any lack of clarity about what might be included in that concept, please read their definition. In particular, we don’t tolerate behavior that excludes people in socially marginalized groups.
+* Private harassment is also unacceptable. No matter who you are, if you feel you have been or are being harassed or made uncomfortable by a community member, please contact one of the channel ops or any of the Rust moderation team immediately. Whether you’re a regular contributor or a newcomer, we care about making this community a safe place for you and we’ve got your back.
+* Likewise any spamming, trolling, flaming, baiting or other attention-stealing behavior is not welcome.
 
 ## Asking For Help
 
-If you have reviewed existing documentation and still have questions or are having problems, we are always a message away. You can reach out to us on the team slack or message the [Thrackle Team](mailto:engineering@thrackle.io). Opening an issue is also a great way to get help for particularly complex issues. 
+If you have reviewed existing documentation and still have questions or are having problems, we are always a message away. You can reach out to the [Team](mailto:engineering@thrackle.io). Opening an issue is also a great way to get help for particularly complex issues. 
 
 ## Submitting a Bug Report
 
-If you feel you have stumbled upon a particularly severe bug, please quietly message the [Thrackle Team](mailto:engineering@thrackle.io) as soon as possible and keep the bug report private so as to protect customer funds. While we are audited, that is no guarantee that everything is perfect and we are happy to negotiate a bug bounty for a severe bug. If you have found a bug that is not severe or an optimization potential, please open an issue on the repository, and (if possible) a PR with a solution, and a test to show the bug and the fix. 
+If you feel you have stumbled upon a particularly severe bug, please quietly message the [Team](mailto:engineering@thrackle.io) as soon as possible and keep the bug report private so as to protect customer funds. While we are audited, that is no guarantee that everything is perfect and we are happy to work with you to track down and squash severe bugs. If you have found a bug that is not severe or an optimization potential, please open an issue on the repository, and (if possible) a PR with a solution, and a test to show the bug and the fix. 
 
 The most important pieces of information we need in a bug report are:
 
@@ -44,7 +53,7 @@ All code changes should be accompanied by tests. If you are not sure how to writ
 
 ## Adding a new feature
 
-Due to the diamond pattern setup, spinning up new features and enabling new functionality has never been easier! Whether you are modifying the current core contracts or deploying new contracts to integrate in, all can be made to interact with the system as a whole using the diamondCut function. This is a great way to add new functionality to the system without having to redeploy the entire system. Either modify the current contract in place, deploy a new contract to cut in and replace its previous version, or write a new contract in the form of a facet to add into the system as a whole. To learn more about how this operates, read more [here](https://eip2535diamonds.substack.com/i/38730553/diamond-upgrades). All new features should first go through a strenuous effort of having been tested on a local network and verified by external team members on a test network before being merged into mainnet release.
+Please ensure you make yourself familiar with the current architecture and best practices around working with that architecture. All new features should first go through a strenuous effort of having been tested on a local network and verified by team members on a test network before being merged into mainnet release. If you are adding a new feature, please ensure that you have added a new test to cover that feature. 
 
 ## Adding dependencies
 
@@ -60,7 +69,7 @@ If possible, please fill out all [nat spec parameters](https://docs.soliditylang
 
 ## Commits
 
-Always make sure your commits are descriptive. In order to ensure that commits have a chronological sensibility, it may make sense to squash many commits together. In the case of potential merge conflicts, the preferred methodology to resolve said conflicts is to rebase against the longer branch and make corrections along the way. A cherry-pick may also be of use here. 
+Always make sure your commits messages are informative and describe the changes within the commit at a high level. In order to ensure that commits have a chronological sensibility, it may make sense to squash many commits together. In the case of potential merge conflicts, the preferred methodology to resolve said conflicts is to rebase against the trunk and make corrections along the way.
 
 ## Relevant Documentation
 
