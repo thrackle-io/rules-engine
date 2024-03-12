@@ -49,7 +49,7 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
                 ++i;
             }
         } 
-         emit AD1467_ApplicationHandlerSimpleActionAppliedFull(TOKEN_MAX_TRADING_VOLUME, _actions, _ruleIds);
+        emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MAX_TRADING_VOLUME, _actions, _ruleIds);
     }
 
     /**
