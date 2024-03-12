@@ -26,7 +26,7 @@ If you have reviewed existing documentation and still have questions or are havi
 
 ## Submitting a Bug Report
 
-If you feel you have stumbled upon a particularly severe bug, please quietly message the [Team](mailto:engineering@thrackle.io) as soon as possible and keep the bug report private so as to protect customer funds. While we try our best to ensure quality through rigorous testing, that is no guarantee that everything is perfect and we are happy to work with you to track down and squash severe bugs. If you have found a bug that is not severe or an optimization potential, please open an issue on the repository, and (if possible) a PR with a solution, and a test to show the bug and the fix. 
+If you feel you have stumbled upon a particularly severe bug, please quietly message the [Team](mailto:engineering@thrackle.io) as soon as possible and keep the bug report private so the incident response team can react accordingly. If you have found a bug that is not severe or an optimization potential, please open an issue on the repository, and (if possible) a PR with a solution, and a test to show the bug and the fix.  
 
 The most important pieces of information we need in a bug report are:
 
