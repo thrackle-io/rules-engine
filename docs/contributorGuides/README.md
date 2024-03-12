@@ -26,7 +26,7 @@ If you have reviewed existing documentation and still have questions or are havi
 
 ## Submitting a Bug Report
 
-If you feel you have stumbled upon a particularly severe bug, please quietly message the [Team](mailto:engineering@thrackle.io) as soon as possible and keep the bug report private so as to protect customer funds. While we are audited, that is no guarantee that everything is perfect and we are happy to work with you to track down and squash severe bugs. If you have found a bug that is not severe or an optimization potential, please open an issue on the repository, and (if possible) a PR with a solution, and a test to show the bug and the fix. 
+If you feel you have stumbled upon a particularly severe bug, please quietly message the [Team](mailto:engineering@thrackle.io) as soon as possible and keep the bug report private so as to protect customer funds. While we try our best to ensure quality, that is no guarantee that everything is perfect and we are happy to work with you to track down and squash severe bugs. If you have found a bug that is not severe or an optimization potential, please open an issue on the repository, and (if possible) a PR with a solution, and a test to show the bug and the fix. 
 
 The most important pieces of information we need in a bug report are:
 
@@ -68,7 +68,7 @@ If possible, please use JIRA to create new branch names. If you do not have acce
 If possible, please fill out all [nat spec parameters](https://docs.soliditylang.org/en/latest/natspec-format.html) available to fill out in the code and try to follow the official [solidity styling guide](https://docs.soliditylang.org/en/latest/style-guide.html) and [order of layout](https://docs.soliditylang.org/en/latest/style-guide.html#order-of-layout). If you are at all unsure, please feel free to ask us. 
 
 ## Commits
-    
+
 Always make sure your commits messages are informative and describe the changes within the commit at a high level. In order to ensure that commits have a chronological sensibility, it may make sense to squash many commits together. In the case of potential merge conflicts, the preferred methodology to resolve said conflicts is to rebase against the trunk and make corrections along the way.
 
 ## Relevant Documentation
