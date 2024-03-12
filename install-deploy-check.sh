@@ -23,6 +23,7 @@ forge script script/clientScripts/Application_Deploy_05_Oracle.s.sol --ffi --bro
 source script/ParseApplicationDeploy.sh 4
 forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast
 source script/ParseApplicationDeploy.sh 5
+forge script script/clientScripts/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --broadcast
 
 TEST_ONE_UNCUT=$(forge test --ffi -vv --match-contract RuleProcessorDiamondTest)
 TEST_ONE=$(echo $TEST_ONE_UNCUT | tail -n 1 | grep "0m failed" | wc -l | tr -d ' ')

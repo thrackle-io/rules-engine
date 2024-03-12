@@ -159,6 +159,8 @@ abstract contract TestCommon is
 
     ApplicationERC721Pricing public openOcean; 
 
+    bool public testDeployments = true;
+
     // common block time
     uint64 Blocktime = 1769924800;
 
