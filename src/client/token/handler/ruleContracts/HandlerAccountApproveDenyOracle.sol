@@ -51,7 +51,7 @@ contract HandlerAccountApproveDenyOracle is RuleAdministratorOnly, ITokenHandler
                     ++i;
             }
         } 
-        emit AD1467_ApplicationHandlerActionAppliedFull2D(ACCOUNT_APPROVE_DENY_ORACLE, _actions, _ruleIds);
+        emit AD1467_ApplicationHandlerActionAppliedFull(ACCOUNT_APPROVE_DENY_ORACLE, _actions, _ruleIds);
     }
 
     /**

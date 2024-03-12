@@ -45,7 +45,7 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
     function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _minHoldTimeHours) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         for (uint i; i < _actions.length; ) {
             setTokenMinHoldTimeIdUpdate(_actions[i], _minHoldTimeHours);  
-            emit AD1467_ApplicationHandlerSimpleActionApplied(TOKEN_MIN_HOLD_TIME, _actions[i], _minHoldTimeHours);
+            emit AD1467_ApplicationHandlerActionApplied(TOKEN_MIN_HOLD_TIME, _actions[i], _minHoldTimeHours);
             unchecked {
                 ++i;
              }

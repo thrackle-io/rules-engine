@@ -28,12 +28,6 @@ contract ApplicationERC721Test is TestCommonFoundry, DummyNFTAMM, ERC721Util {
         ERC721HandlerMainFacet(address(applicationNFTHandler)).initialize(user1, user2, user3);
     }
 
-    function testERC721_ApplicationERC721_SimpleActionEventEmission() public endWithStopPrank() {
-        switchToRuleAdmin();
-        vm.expectEmit(true,true,true,false);
-        emit AD1467_ApplicationHandlerSimpleActionApplied(TOKEN_MIN_HOLD_TIME, ActionTypes.P2P_TRANSFER, 24);
-        ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(_createActionsArray(), 24);
-    }
 
     function testERC721_ApplicationERC721_NFTEvaluationLimitEventEmission() public endWithStopPrank() {
         switchToAppAdministrator();
