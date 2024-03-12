@@ -86,14 +86,15 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
     function activateMinTransactionSizeRule(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         for (uint i; i < _actions.length; ) {
             lib.tokenMinTxSizeStorage().tokenMinTxSize[_actions[i]].active = _on;
-            if (_on) {
-                emit AD1467_ApplicationHandlerActionActivated(TOKEN_MIN_TX_SIZE, _actions[i]);
-            } else {
-                emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MIN_TX_SIZE, _actions[i]);
-            }
             unchecked {
                 ++i;
             }
+        }
+
+        if (_on) {
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MIN_TX_SIZE, _actions);
+        } else {
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MIN_TX_SIZE, _actions);
         }
     }
 
