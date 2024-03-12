@@ -1,5 +1,5 @@
 # ApplicationERC20Pricing
-[Git Source](https://github.com/thrackle-io/tron/blob/a1ed7a1196c8d6c5b62fc72c2a02c192f6b90700/src/example/pricing/ApplicationERC20Pricing.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d12cfa3cb48422acc5d155aaf1a5d1ffab60585d/src/example/pricing/ApplicationERC20Pricing.sol)
 
 **Inherits:**
 [ProtocolERC20Pricing](/src/client/pricing/ProtocolERC20Pricing.sol/contract.ProtocolERC20Pricing.md)

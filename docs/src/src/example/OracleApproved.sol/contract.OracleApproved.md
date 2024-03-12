@@ -1,5 +1,5 @@
 # OracleApproved
-[Git Source](https://github.com/thrackle-io/tron/blob/a1ed7a1196c8d6c5b62fc72c2a02c192f6b90700/src/example/OracleApproved.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d12cfa3cb48422acc5d155aaf1a5d1ffab60585d/src/example/OracleApproved.sol)
 
 **Inherits:**
 Ownable, [IOracleEvents](/src/common/IEvents.sol/interface.IOracleEvents.md)

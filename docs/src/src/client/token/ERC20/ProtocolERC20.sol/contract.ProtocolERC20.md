@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/tron/blob/a1ed7a1196c8d6c5b62fc72c2a02c192f6b90700/src/client/token/ERC20/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d12cfa3cb48422acc5d155aaf1a5d1ffab60585d/src/client/token/ERC20/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md), ReentrancyGuard
@@ -90,7 +90,7 @@ function _beforeTokenTransfer(address from, address to, uint256 amount) internal
 
 Rule Processor Module Check
 
-*See [IERC165-supportsInterface](/lib/diamond-std/implementations/ERC165/ERC165Facet.sol/contract.ERC165Facet.md#supportsinterface).*
+*See [IERC165-supportsInterface](/src/client/token/ERC721/ProtocolERC721.sol/contract.ProtocolERC721.md#supportsinterface).*
 
 
 ```solidity
@@ -99,7 +99,7 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
 
 ### transfer
 
-*This is overridden from [IERC20-transfer](/lib/openzeppelin-contracts/contracts/mocks/token/ERC20ReturnFalseMock.sol/abstract.ERC20ReturnFalseMock.md#transfer). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+*This is overridden from [IERC20-transfer](/lib/forge-std/src/interfaces/IERC20.sol/interface.IERC20.md#transfer). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
 Requirements:
 - `to` cannot be the zero address.
 - the caller must have a balance of at least `amount`.*
@@ -111,7 +111,7 @@ function transfer(address to, uint256 amount) public virtual override nonReentra
 
 ### transferFrom
 
-*This is overridden from [IERC20-transferFrom](/lib/openzeppelin-contracts/contracts/mocks/token/ERC20ReturnFalseMock.sol/abstract.ERC20ReturnFalseMock.md#transferfrom). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
+*This is overridden from [IERC20-transferFrom](/lib/forge-std/src/interfaces/IERC20.sol/interface.IERC20.md#transferfrom). It handles all fees/discounts and then uses ERC20 _transfer to do the actual transfers
 Emits an {Approval} event indicating the updated allowance. This is not
 required by the EIP. See the note at the beginning of {ERC20}.
 NOTE: Does not update the allowance if the current allowance
