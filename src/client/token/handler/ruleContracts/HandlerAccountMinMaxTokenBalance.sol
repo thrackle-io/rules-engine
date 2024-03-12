@@ -84,14 +84,14 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandle
     function activateAccountMinMaxTokenBalance(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         for (uint i; i < _actions.length; ) {
             lib.accountMinMaxTokenBalanceStorage().accountMinMaxTokenBalance[_actions[i]].active = _on;
-            if (_on) {
-                emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i]);
-            } else {
-                emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions[i]);
-            }
             unchecked {
                 ++i;
             }
+        }
+        if (_on) {
+            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions);
+        } else {
+            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MIN_MAX_TOKEN_BALANCE, _actions);
         }
     }
 

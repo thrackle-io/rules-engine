@@ -81,10 +81,12 @@ contract HandlerTokenMaxBuyVolume is RuleAdministratorOnly, ITokenHandlerEvents,
      */
     function activateTokenMaxBuyVolume(bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         lib.tokenMaxBuyVolumeStorage().active = _on;
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.BUY;
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY);
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_BUY_VOLUME, actionsArray);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_BUY_VOLUME, ActionTypes.BUY);
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_BUY_VOLUME, actionsArray);
         }
     }
 

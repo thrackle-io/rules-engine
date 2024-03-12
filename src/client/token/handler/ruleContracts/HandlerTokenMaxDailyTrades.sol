@@ -84,14 +84,14 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ITokenHandlerEvent
     function activateTokenMaxDailyTrades(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         for (uint i; i < _actions.length; ) {
             lib.tokenMaxDailyTradesStorage().tokenMaxDailyTrades[_actions[i]].active = _on;
-            if (_on) {
-                emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_DAILY_TRADES, _actions[i]);
-            } else {
-                emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_DAILY_TRADES, _actions[i]);
-            }
             unchecked {
                 ++i;
             }
+        }
+        if (_on) {
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_DAILY_TRADES, _actions);
+        } else {
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_DAILY_TRADES, _actions);
         }
     }
 

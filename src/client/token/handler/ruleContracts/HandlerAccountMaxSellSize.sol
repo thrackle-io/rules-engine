@@ -79,10 +79,12 @@ contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents
      */
     function activateAccountMaxSellSize(bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         lib.accountMaxSellSizeStorage().active = _on;
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.SELL;
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL);
+            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MAX_SELL_SIZE, actionsArray);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL);
+            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MAX_SELL_SIZE, actionsArray);
         }
     }
 
