@@ -92,14 +92,14 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ITokenHandler
         TokenMaxSupplyVolatilityS storage data = lib.tokenMaxSupplyVolatilityStorage();
         for (uint i; i < _actions.length; ) {
             data.tokenMaxSupplyVolatility[_actions[i]].active = _on;
-            if (_on) {
-                emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i]);
-            } else {
-                emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i]);
-            }
             unchecked {
                 ++i;
             }
+        }
+        if (_on) {
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions);
+        } else {
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_SUPPLY_VOLATILITY, _actions);
         }
     }
 

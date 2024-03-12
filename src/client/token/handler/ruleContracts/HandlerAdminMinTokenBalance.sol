@@ -137,14 +137,14 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
         mapping(ActionTypes => Rule) storage adminMinTokenBalance = lib.adminMinTokenBalanceStorage().adminMinTokenBalance;
         for (uint i; i < _actions.length; ) {
             adminMinTokenBalance[_actions[i]].active = _on;
-            if (_on) {
-                emit AD1467_ApplicationHandlerActionActivated(ADMIN_MIN_TOKEN_BALANCE, _actions[i]);
-            } else {
-                emit AD1467_ApplicationHandlerActionDeactivated(ADMIN_MIN_TOKEN_BALANCE, _actions[i]);
-            }
             unchecked {
                 ++i;
             }
+        }
+        if (_on) {
+            emit AD1467_ApplicationHandlerActionActivated(ADMIN_MIN_TOKEN_BALANCE, _actions);
+        } else {
+            emit AD1467_ApplicationHandlerActionDeactivated(ADMIN_MIN_TOKEN_BALANCE, _actions);
         }
     }
 
