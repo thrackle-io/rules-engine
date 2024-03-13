@@ -2,11 +2,11 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IApplicationEvents} from "src/common/IEvents.sol";
 import {IZeroAddressError, IProtocolERC20Errors} from "src/common/IErrors.sol";
 import "../ProtocolTokenCommon.sol";
@@ -67,10 +67,10 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
      * @param amount number of tokens to be transferred
      */
      // slither-disable-next-line calls-loop
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override whenNotPaused {
+    function _update(address from, address to, uint256 amount) internal override whenNotPaused {
         /// Rule Processor Module Check
         require(ERC20HandlerMainFacet(address(handler)).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
-        super._beforeTokenTransfer(from, to, amount);
+        super._update(from, to, amount);
     }
 
     /**

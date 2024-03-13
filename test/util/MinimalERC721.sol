@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "src/client/token/IProtocolTokenMin.sol";
 import "src/client/token/IProtocolTokenHandler.sol";
 import "src/client/token/ProtocolTokenCommon.sol";
@@ -17,8 +16,7 @@ import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
 contract MinimalERC721 is ERC721, IProtocolTokenMin, ProtocolTokenCommon, ERC721Burnable, ERC721Enumerable, AppAdministratorOrOwnerOnly {
-    using Counters for Counters.Counter;
-    Counters.Counter internal _tokenIdCounter;
+    uint256 internal _tokenIdCounter;
     IHandlerDiamond _handler;
 
     constructor(string memory _nameProto, string memory _symbolProto, address _appManagerAddress, string memory _baseUri) ERC721(_nameProto, _symbolProto) {
@@ -39,10 +37,10 @@ contract MinimalERC721 is ERC721, IProtocolTokenMin, ProtocolTokenCommon, ERC721
      * represent the first id to start the batch.
      */
      // slither-disable-next-line calls-loop
-        function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721, ERC721Enumerable) {
+        function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal  {
         /// Rule Processor Module Check
         require(IHandlerDiamond(_handler).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
+        super._update(from, to, tokenId);
     }
 
         /**
@@ -70,9 +68,9 @@ contract MinimalERC721 is ERC721, IProtocolTokenMin, ProtocolTokenCommon, ERC721
      * @param to Address of recipient
      */
     function safeMint(address to) public payable virtual appAdministratorOrOwnerOnly(appManagerAddress) {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = _tokenIdCounter;
         _safeMint(to, tokenId);
+        _tokenIdCounter += 1;
     }
 
     /**

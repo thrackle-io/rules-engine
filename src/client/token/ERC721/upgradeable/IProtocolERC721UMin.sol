@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721EnumerableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 
 /**
  * @title  Upgradeable ERC721 Protocol Interface Minimal implementation model
@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721Enume
  * @notice This is the base contract for all protocol ERC721Upgradeables
  * @dev Using this interface requires the implementing token properly handle the listed functions as well as insert the checkAllRules hook into _beforeTokenTransfer
  */
-interface IProtocolERC721UMin is IERC721EnumerableUpgradeable {
+interface IProtocolERC721UMin is ERC721EnumerableUpgradeable {
     event HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
     error ZeroAddress();
 

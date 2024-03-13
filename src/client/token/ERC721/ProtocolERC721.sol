@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "../ProtocolTokenCommon.sol";
 import "src/protocol/economic/AppAdministratorOrOwnerOnly.sol";
 import "src/client/token/handler/diamond/IHandlerDiamond.sol";
@@ -19,10 +18,9 @@ import "src/client/token/handler/diamond/IHandlerDiamond.sol";
  */
 
 contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, Pausable, ProtocolTokenCommon, AppAdministratorOrOwnerOnly, ReentrancyGuard {
-    using Counters for Counters.Counter;
     address public handlerAddress;
     IHandlerDiamond handler;
-    Counters.Counter internal _tokenIdCounter;
+    uint256 internal _tokenIdCounter;
 
     /// Base Contract URI
     string public baseUri;
@@ -93,9 +91,9 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @param to Address of recipient
      */
     function safeMint(address to) public payable virtual whenNotPaused appAdministratorOrOwnerOnly(appManagerAddress) {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = _tokenIdCounter;
         _safeMint(to, tokenId);
+        _tokenIdCounter += 1;
     }
 
     /**
@@ -106,13 +104,13 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
      * @param batchSize the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will
      * represent the first id to start the batch.
      */
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant override(ERC721, ERC721Enumerable) whenNotPaused {
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant whenNotPaused {
         // Rule Processor Module Check
         require(IHandlerDiamond(handler).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
         // applied to this function
         // slither-disable-next-line reentrancy-benign
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
+        super._update(from, to, tokenId, batchSize);
     }
 
     /// The following functions are overrides required by Solidity.

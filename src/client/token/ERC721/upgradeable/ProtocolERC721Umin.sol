@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "../../IProtocolTokenHandler.sol";
 import "../../ProtocolTokenCommonU.sol";
 
@@ -47,7 +47,7 @@ contract ProtocolERC721Umin is Initializable, ERC721EnumerableUpgradeable, Proto
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
         // applied to this function
         // slither-disable-next-line reentrancy-benign
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
+        super._update(from, to, tokenId, batchSize);
     }
 
     /**

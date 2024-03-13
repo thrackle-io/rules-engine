@@ -2,12 +2,15 @@
 pragma solidity ^0.8.24;
 
 import "test/util/TestCommonFoundry.sol";
+import "test/client/application/ApplicationCommonTests.t.sol";
 
-contract AppManagerBaseTest is TestCommonFoundry {
+// contract AppManagerBaseTest is TestCommonFoundry {
+    contract ApplicationDeploymentTest is Test, TestCommonFoundry, ApplicationCommonTests {
     
     function setUp() public {
         setUpProtocolAndAppManager();
         vm.warp(Blocktime); // set block.timestamp
+        testDeployments = true;
     }
 
     function testApplication_AppManager_RuleAdminEventEmission() public endWithStopPrank() {

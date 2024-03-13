@@ -24,7 +24,7 @@ abstract contract DataModule is IDataModule, Ownable, IOwnershipErrors, IZeroAdd
      * @dev Constructor that sets the app manager address used for permissions. This is required for upgrades.
      * @param _dataModuleAppManagerAddress address of the owning app manager
      */
-    constructor(address _dataModuleAppManagerAddress) {
+    constructor(address _dataModuleAppManagerAddress) Ownable(_dataModuleAppManagerAddress) {
         dataModuleAppManagerAddress = _dataModuleAppManagerAddress;
     }
 

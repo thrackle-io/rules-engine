@@ -30,10 +30,10 @@ contract MinimalERC20 is ERC20, IProtocolTokenMin, ProtocolTokenCommon, ERC20Bur
      * @param amount number of tokens to be transferred
      */
      // slither-disable-next-line calls-loop
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal {
         /// Rule Processor Module Check
         require(ERC20HandlerMainFacet(address(_handler)).checkAllRules(balanceOf(from), balanceOf(to), from, to, _msgSender(), amount));
-        super._beforeTokenTransfer(from, to, amount);
+        super._update(from, to, amount);
     }
 
         /**

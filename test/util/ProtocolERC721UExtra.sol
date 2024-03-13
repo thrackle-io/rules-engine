@@ -2,14 +2,13 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "src/client/token/IProtocolTokenHandler.sol";
 import "src/client/token/ProtocolTokenCommonU.sol";
 
@@ -29,10 +28,9 @@ contract ProtocolERC721UExtra is
     ProtocolTokenCommonU,
     PausableUpgradeable
 {
-    using CountersUpgradeable for CountersUpgradeable.Counter;
     address public handlerAddress;
     IProtocolTokenHandler handler;
-    CountersUpgradeable.Counter private _tokenIdCounter;
+    uint256 private _tokenIdCounter;
 
     /// Base Contract URI
     string public baseUri;
@@ -119,9 +117,9 @@ contract ProtocolERC721UExtra is
      * @param to Address of recipient
      */
     function safeMint(address to) public payable virtual {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = _tokenIdCounter;
         _safeMint(to, tokenId);
+        _tokenIdCounter += 1;
     }
 
     /**
@@ -132,11 +130,11 @@ contract ProtocolERC721UExtra is
      * @param batchSize the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will
      * represent the first id to start the batch.
      */
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal {
         // Rule Processor Module Check
         require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
 
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
+        super._update(from, to, tokenId, batchSize);
     }
 
     /**

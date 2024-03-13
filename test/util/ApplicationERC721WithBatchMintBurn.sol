@@ -35,7 +35,7 @@ contract ApplicationERC721WithBatchMintBurn is ProtocolERC721 {
             _mint(to, startTokenId + i);
         }
         _currentIndex += quantity;
-        _afterTokenTransfer(address(0), to, startTokenId, quantity);
+        _update(address(0), to, startTokenId, quantity);
     }
 
     function burn(uint256 quantity) public override {
@@ -50,6 +50,6 @@ contract ApplicationERC721WithBatchMintBurn is ProtocolERC721 {
             _burn(to, startTokenId - i);
         }
         _currentIndex -= quantity;
-        _afterTokenTransfer(address(0), to, startTokenId, quantity);
+        _update(address(0), to, startTokenId, quantity);
     }
 }

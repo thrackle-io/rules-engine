@@ -2,15 +2,14 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "../../IProtocolTokenHandler.sol";
 import "../../ProtocolTokenCommonU.sol";
 
@@ -31,10 +30,9 @@ contract ProtocolERC721U is
     PausableUpgradeable,
     ReentrancyGuard
 {
-    using CountersUpgradeable for CountersUpgradeable.Counter;
     address public handlerAddress;
     IProtocolTokenHandler handler;
-    CountersUpgradeable.Counter internal _tokenIdCounter;
+    uint256 internal _tokenIdCounter;
 
     /// Base Contract URI
     string public baseUri;
@@ -129,9 +127,9 @@ contract ProtocolERC721U is
      * @param to Address of recipient
      */
     function safeMint(address to) public payable virtual appAdministratorOnly(appManagerAddress) {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = _tokenIdCounter;
         _safeMint(to, tokenId);
+        _tokenIdCounter += 1;
     }
 
     /**
@@ -142,13 +140,13 @@ contract ProtocolERC721U is
      * @param batchSize the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will
      * represent the first id to start the batch.
      */
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant override(ERC721Upgradeable, ERC721EnumerableUpgradeable) {
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant {
         /// Rule Processor Module Check
         require(handler.checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to,  _msgSender(), tokenId));
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
         // applied to this function
         // slither-disable-next-line reentrancy-benign
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
+        super._update(from, to, tokenId, batchSize);
     }
 
     /**

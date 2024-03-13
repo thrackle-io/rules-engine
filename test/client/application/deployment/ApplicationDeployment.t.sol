@@ -2,11 +2,12 @@
 pragma solidity ^0.8.24;
 
 import "test/util/TestCommonFoundry.sol";
+import "test/client/application/ApplicationCommonTests.t.sol";
 
 /**
  * @dev This test suite is for testing the deployed application.
  */
-contract ApplicationDeploymentTest is Test, TestCommonFoundry {
+contract ApplicationDeploymentTest is Test, TestCommonFoundry, ApplicationCommonTests {
 
     address appManagerAddress;
     bool forkTest;
@@ -65,32 +66,18 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
             assertEq(vm.envAddress("ERC721_PRICING_CONTRACT"), address(erc721Pricer));
 
             forkTest = true;
+            testDeployments = true;
         } else {
-            vm.warp(Blocktime);
-            setUpProcotolAndCreateERC20AndDiamondHandler();
-            switchToAppAdministrator();
-
-            applicationCoin2 = _createERC20("DRACULA", "DRK", applicationAppManager);
-            applicationCoinHandler2 = _createERC20HandlerDiamond();
-            ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(applicationCoin2));
-            applicationCoin2.connectHandlerToToken(address(applicationCoinHandler2));
-            /// register the token
-            applicationAppManager.registerToken("Dracula Coin", address(applicationCoin2));
-            applicationAppManager.registerTreasury(vm.envAddress("FEE_TREASURY"));
-            applicationAppManager.addRuleAdministrator(vm.envAddress("QUORRA"));
-            applicationCoin.connectHandlerToToken(address(applicationCoinHandler));
-            applicationCoin2.connectHandlerToToken(address(applicationCoinHandler2));
-            forkTest = false;
-            vm.stopPrank();
+            testDeployments = false;
         }
     }
 
-    function testApplication_ApplicationDeployment_ApplicationHandlerConnected() public endWithStopPrank() {
+    function testApplication_ApplicationDeployment_ApplicationHandlerConnected() public endWithStopPrank() ifDeplomentTestsEnabled() {
             assertEq(applicationAppManager.getHandlerAddress(), address(applicationHandler));
             assertEq(applicationHandler.appManagerAddress(), address(applicationAppManager));
     }
 
-    function testApplication_ApplicationDeployment_ERC20HandlerConnections() public endWithStopPrank() {
+    function testApplication_ApplicationDeployment_ERC20HandlerConnections() public endWithStopPrank() ifDeplomentTestsEnabled() {
         switchToSuperAdmin();
         assertEq(applicationCoin.getHandlerAddress(), address(applicationCoinHandler));
         assertEq(ERC173Facet(address(applicationCoinHandler)).owner(), address(applicationCoin));
@@ -98,14 +85,14 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationCoinHandler)));
     }
 
-    function testApplication_ApplicationDeployment_ERC721HandlerConnections() public endWithStopPrank() {
+    function testApplication_ApplicationDeployment_ERC721HandlerConnections() public endWithStopPrank() ifDeplomentTestsEnabled() {
         switchToSuperAdmin();
         assertEq(applicationNFT.getAppManagerAddress(), address(applicationAppManager));
         assertEq(applicationNFT.getHandlerAddress(), address(applicationNFTHandler));
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationNFTHandler)));
     }
 
-    function testApplication_ApplicationDeployment_VerifyTokensRegistered() public {
+    function testApplication_ApplicationDeployment_VerifyTokensRegistered() public ifDeplomentTestsEnabled() {
         if(vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
             assertEq(applicationAppManager.getTokenID(address(applicationCoin)), "Frankenstein Coin");
             assertEq(applicationAppManager.getTokenID(address(applicationNFT)), "Clyde Picture");
@@ -117,12 +104,12 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         console.log(applicationHandler.erc20PricingAddress());
     }
 
-    function testApplication_ApplicationDeployment_VerifyPricingContractsConnectedToHandler() public {
+    function testApplication_ApplicationDeployment_VerifyPricingContractsConnectedToHandler() public ifDeplomentTestsEnabled() {
         assertEq(applicationHandler.erc20PricingAddress(), address(erc20Pricer));
         assertEq(applicationHandler.nftPricingAddress(), address(erc721Pricer));
     }
 
-    function testApplication_ApplicationDeployment_VerifyRuleAdmin() public {
+    function testApplication_ApplicationDeployment_VerifyRuleAdmin() public ifDeplomentTestsEnabled() {
         if(vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
             assertTrue(applicationAppManager.isRuleAdministrator(vm.envAddress("LOCAL_RULE_ADMIN")));
         } else {
@@ -130,7 +117,7 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
         }
     }
 
-    function testApplication_ApplicationDeployment_VerifyTreasury() public {
+    function testApplication_ApplicationDeployment_VerifyTreasury() public ifDeplomentTestsEnabled() {
         assertTrue(applicationAppManager.isTreasury(vm.envAddress("FEE_TREASURY")));
     }
 }
