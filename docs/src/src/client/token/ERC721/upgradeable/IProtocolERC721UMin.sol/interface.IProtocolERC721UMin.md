@@ -1,5 +1,5 @@
 # IProtocolERC721UMin
-[Git Source](https://github.com/thrackle-io/tron/blob/1a1d6b2809bc510780a53bad6853fa1ef1652aab/src/client/token/ERC721/upgradeable/IProtocolERC721UMin.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/af28404fa455abf3b77fe8e040ff86d48b926353/src/client/token/ERC721/upgradeable/IProtocolERC721UMin.sol)
 
 **Inherits:**
 IERC721EnumerableUpgradeable
