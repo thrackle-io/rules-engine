@@ -17,7 +17,7 @@ npm i @thrackle-io/rules-protocol-client
 
 ### Dependencies
 
-This package requires `@openzeppelin/contracts` version 5.0.2 and `@openzeppelin/contracts-upgradeable` version 5.0.2.
+This package requires `@openzeppelin/contracts` version 4.9.6 and `@openzeppelin/contracts-upgradeable` version 4.9.6.
 
 If the contracts show any compiling errors, try to manually update the version of the existing openzeppelin library in your project by doing:
 

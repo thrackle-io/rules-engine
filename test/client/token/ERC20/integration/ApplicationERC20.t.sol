@@ -24,15 +24,15 @@ contract ApplicationERC20Test is TestCommonFoundry, ERC20Util,DummyAMM {
     function testERC20_ApplicationERC20_DeregisterTokenEmission() public endWithStopPrank() {
         switchToAppAdministrator();
         vm.expectEmit(true,true,false,false);
-        emit AD1467_RemoveFromRegistry("FRANK", address(applicationCoin));
-        applicationAppManager.deregisterToken("FRANK");
+        emit AD1467_RemoveFromRegistry("Frankenstein Coin", address(applicationCoin));
+        applicationAppManager.deregisterToken("Frankenstein Coin");
     }
 
     function testERC20_ApplicationERC20_UpdateTokenEmission() public endWithStopPrank() {
         switchToAppAdministrator();
         vm.expectEmit(true,true,false,false);
-        emit AD1467_TokenNameUpdated("FRANK", address(applicationCoin));
-        applicationAppManager.registerToken("FRANK", address(applicationCoin));
+        emit AD1467_TokenNameUpdated("Frankenstein Coin", address(applicationCoin));
+        applicationAppManager.registerToken("Frankenstein Coin", address(applicationCoin));
     }
 
     function testERC20_ApplicationERC20_ProposeAndConfirmAppManager() public endWithStopPrank() {

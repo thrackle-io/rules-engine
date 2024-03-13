@@ -2,11 +2,13 @@
 pragma solidity ^0.8.24;
 
 import "test/util/TestCommonFoundry.sol";
+import "test/client/application/ApplicationCommonTests.t.sol";
 
 /**
  * @dev This test suite is for testing the deployed application.
  */
-contract ApplicationDeploymentTest is Test, TestCommonFoundry {
+
+contract ApplicationDeploymentTest is Test, TestCommonFoundry, ApplicationCommonTests {
     address appManagerAddress;
     bool forkTest;
     event LogAddress(address _address);
@@ -16,14 +18,10 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
             // Verify App Manager has been deployed
             superAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
             appAdministrator = vm.envAddress("APP_ADMIN_01");
-            applicationAppManager = ApplicationAppManager(
-                vm.envAddress("APPLICATION_APP_MANAGER")
-            );
-            assertEq(
-                vm.envAddress("APPLICATION_APP_MANAGER"),
-                address(applicationAppManager)
-            );
-
+            ruleAdmin = vm.envAddress("LOCAL_RULE_ADMIN");
+            feeTreasury = vm.envAddress("FEE_TREASURY");
+            applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
+            assertEq(vm.envAddress("APPLICATION_APP_MANAGER"), address(applicationAppManager));
             // Verify App Handler has been deployed
             assertTrue(
                 vm.envAddress("APPLICATION_APPLICATION_HANDLER") != address(0x0)
@@ -133,166 +131,9 @@ contract ApplicationDeploymentTest is Test, TestCommonFoundry {
             );
 
             forkTest = true;
+            testDeployments = true;
         } else {
-            vm.warp(Blocktime);
-            setUpProcotolAndCreateERC20AndDiamondHandler();
-            switchToAppAdministrator();
-
-            applicationCoin2 = _createERC20(
-                "DRACULA",
-                "DRK",
-                applicationAppManager
-            );
-            applicationCoinHandler2 = _createERC20HandlerDiamond();
-            ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(
-                address(ruleProcessor),
-                address(applicationAppManager),
-                address(applicationCoin2)
-            );
-            applicationCoin2.connectHandlerToToken(
-                address(applicationCoinHandler2)
-            );
-            /// register the token
-            applicationAppManager.registerToken(
-                "Dracula Coin",
-                address(applicationCoin2)
-            );
-            applicationAppManager.registerTreasury(
-                vm.envAddress("FEE_TREASURY")
-            );
-            applicationAppManager.addRuleAdministrator(vm.envAddress("QUORRA"));
-            applicationCoin.connectHandlerToToken(
-                address(applicationCoinHandler)
-            );
-            applicationCoin2.connectHandlerToToken(
-                address(applicationCoinHandler2)
-            );
-            forkTest = false;
-            vm.stopPrank();
+            testDeployments = false;
         }
-    }
-
-    function testApplication_ApplicationDeployment_ApplicationHandlerConnected()
-        public
-        endWithStopPrank
-    {
-        assertEq(
-            applicationAppManager.getHandlerAddress(),
-            address(applicationHandler)
-        );
-        assertEq(
-            applicationHandler.appManagerAddress(),
-            address(applicationAppManager)
-        );
-    }
-
-    function testApplication_ApplicationDeployment_ERC20HandlerConnections()
-        public
-        endWithStopPrank
-    {
-        switchToSuperAdmin();
-        assertEq(
-            applicationCoin.getHandlerAddress(),
-            address(applicationCoinHandler)
-        );
-        assertEq(
-            ERC173Facet(address(applicationCoinHandler)).owner(),
-            address(applicationCoin)
-        );
-        assertEq(
-            applicationCoin.getAppManagerAddress(),
-            address(applicationAppManager)
-        );
-        assertTrue(
-            applicationAppManager.isRegisteredHandler(
-                address(applicationCoinHandler)
-            )
-        );
-    }
-
-    function testApplication_ApplicationDeployment_ERC721HandlerConnections()
-        public
-        endWithStopPrank
-    {
-        switchToSuperAdmin();
-        assertEq(
-            applicationNFT.getAppManagerAddress(),
-            address(applicationAppManager)
-        );
-        assertEq(
-            applicationNFT.getHandlerAddress(),
-            address(applicationNFTHandler)
-        );
-        assertTrue(
-            applicationAppManager.isRegisteredHandler(
-                address(applicationNFTHandler)
-            )
-        );
-    }
-
-    function testApplication_ApplicationDeployment_VerifyTokensRegistered()
-        public
-        view
-    {
-        if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
-            assertEq(
-                applicationAppManager.getTokenID(address(applicationCoin)),
-                "Frankenstein Coin"
-            );
-            assertEq(
-                applicationAppManager.getTokenID(address(applicationNFT)),
-                "Clyde Picture"
-            );
-        } else {
-            assertEq(
-                applicationAppManager.getTokenID(address(applicationCoin)),
-                "FRANK"
-            );
-            assertEq(
-                applicationAppManager.getTokenID(address(applicationNFT)),
-                "FRANKENSTEIN"
-            );
-        }
-
-        console.log(applicationHandler.erc20PricingAddress());
-    }
-
-    function testApplication_ApplicationDeployment_VerifyPricingContractsConnectedToHandler()
-        public
-        view
-    {
-        assertEq(
-            applicationHandler.erc20PricingAddress(),
-            address(erc20Pricer)
-        );
-        assertEq(applicationHandler.nftPricingAddress(), address(erc721Pricer));
-    }
-
-    function testApplication_ApplicationDeployment_VerifyRuleAdmin()
-        public
-        view
-    {
-        if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
-            assertTrue(
-                applicationAppManager.isRuleAdministrator(
-                    vm.envAddress("LOCAL_RULE_ADMIN")
-                )
-            );
-        } else {
-            assertTrue(
-                applicationAppManager.isRuleAdministrator(
-                    vm.envAddress("QUORRA")
-                )
-            );
-        }
-    }
-
-    function testApplication_ApplicationDeployment_VerifyTreasury()
-        public
-        view
-    {
-        assertTrue(
-            applicationAppManager.isTreasury(vm.envAddress("FEE_TREASURY"))
-        );
     }
 }

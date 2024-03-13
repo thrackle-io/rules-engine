@@ -12,7 +12,7 @@ import "test/protocol/economic/RuleProcessorDiamondCommonTests.sol";
  * This test suite contains if checks that assume you have followed the deployment guide docs and have added an NFTTransferCounter and AccountBalanceByAccessLevel rule when testing forked contracts.
  */
 
-contract RuleProcessorDiamondTest2 is Test, TestCommonFoundry, ERC721Util, RuleProcessorDiamondCommonTests {
+contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util, RuleProcessorDiamondCommonTests {
 
     address ruleProcessorDiamondAddress;
     bool forkTest;
