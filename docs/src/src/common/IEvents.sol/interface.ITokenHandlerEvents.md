@@ -1,5 +1,5 @@
 # ITokenHandlerEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/06e770e8df9f2623305edd5cd2be197d5544e702/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/5bfb84a51be01d9a959b76979e9b34e41875da67/src/common/IEvents.sol)
 
 **Inherits:**
 [IAppManagerAddressSet](/src/common/IEvents.sol/interface.IAppManagerAddressSet.md)
@@ -20,12 +20,10 @@ event AD1467_ApplicationHandlerActionApplied(
 );
 ```
 
-### AD1467_ApplicationHandlerSimpleActionApplied
+### AD1467_ApplicationHandlerActionAppliedFull
 
 ```solidity
-event AD1467_ApplicationHandlerSimpleActionApplied(
-    bytes32 indexed ruleType, ActionTypes action, uint256 indexed param1
-);
+event AD1467_ApplicationHandlerActionAppliedFull(bytes32 indexed ruleType, ActionTypes[] actions, uint32[] ruleIds);
 ```
 
 ### AD1467_ApplicationHandlerActionDeactivated
@@ -33,7 +31,7 @@ Rule deactivated
 
 
 ```solidity
-event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes action);
+event AD1467_ApplicationHandlerActionDeactivated(bytes32 indexed ruleType, ActionTypes[] actions);
 ```
 
 ### AD1467_ApplicationHandlerActionActivated
@@ -41,7 +39,7 @@ Rule activated
 
 
 ```solidity
-event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes action);
+event AD1467_ApplicationHandlerActionActivated(bytes32 indexed ruleType, ActionTypes[] actions);
 ```
 
 ### AD1467_NFTValuationLimitUpdated

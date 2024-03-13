@@ -1,8 +1,8 @@
 # HandlerAccountMaxBuySize
-[Git Source](https://github.com/thrackle-io/tron/blob/06e770e8df9f2623305edd5cd2be197d5544e702/src/client/token/handler/ruleContracts/HandlerAccountMaxBuySize.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/5bfb84a51be01d9a959b76979e9b34e41875da67/src/client/token/handler/ruleContracts/HandlerAccountMaxBuySize.sol)
 
 **Inherits:**
-[RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md)
+[RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -28,6 +28,53 @@ function setAccountMaxBuySizeId(uint32 _ruleId) external ruleAdministratorOnly(l
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### setAccountMaxBuySizeIdFull
+
+that setting a rule will automatically activate it.
+
+*Set the AccountMaxBuySizeRule suite for all actions. Restricted to rule administrators only.*
+
+
+```solidity
+function setAccountMaxBuySizeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds)
+    external
+    ruleAdministratorOnly(lib.handlerBaseStorage().appManager);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`|all the actions to set the rule for|
+|`_ruleIds`|`uint32[]`|rule id's corresponding to each action|
+
+
+### clearAccountMaxBuySize
+
+*Clear the rule data structure*
+
+
+```solidity
+function clearAccountMaxBuySize() internal;
+```
+
+### setAccountMaxBuySizeIdUpdate
+
+that setting a rule will automatically activate it.
+
+*Set the AccountMaxBuySizeRuleId.*
+
+
+```solidity
+function setAccountMaxBuySizeIdUpdate(ActionTypes _action, uint32 _ruleId) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type to set the rule|
 |`_ruleId`|`uint32`|Rule Id to set|
 
 

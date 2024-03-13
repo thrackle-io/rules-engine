@@ -1,24 +1,14 @@
 # HandlerAdminMinTokenBalance
-[Git Source](https://github.com/thrackle-io/tron/blob/06e770e8df9f2623305edd5cd2be197d5544e702/src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/5bfb84a51be01d9a959b76979e9b34e41875da67/src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol)
 
 **Inherits:**
-[HandlerRuleContractsCommonImports](/src/client/token/handler/ruleContracts/HandlerRuleContractsCommonImports.sol/abstract.HandlerRuleContractsCommonImports.md), [IAppManagerErrors](/src/common/IErrors.sol/interface.IAppManagerErrors.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IAdminMinTokenBalanceCapable](/src/client/token/IAdminMinTokenBalanceCapable.sol/abstract.IAdminMinTokenBalanceCapable.md)
+[HandlerRuleContractsCommonImports](/src/client/token/handler/ruleContracts/HandlerRuleContractsCommonImports.sol/abstract.HandlerRuleContractsCommonImports.md), [IAppManagerErrors](/src/common/IErrors.sol/interface.IAppManagerErrors.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IAdminMinTokenBalanceCapable](/src/client/token/IAdminMinTokenBalanceCapable.sol/abstract.IAdminMinTokenBalanceCapable.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
 
 *Setters and getters for the rule in the handler. Meant to be inherited by a handler
 facet to easily support the rule.*
-
-
-## State Variables
-### LAST_POSSIBLE_ACTION
-This is used to set the max action for an efficient check of all actions in the enum
-
-
-```solidity
-uint8 constant LAST_POSSIBLE_ACTION = uint8(ActionTypes.BURN);
-```
 
 
 ## Functions
@@ -44,10 +34,57 @@ function setAdminMinTokenBalanceId(ActionTypes[] calldata _actions, uint32 _rule
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
-### isAdminMinTokenBalanceActiveAndApplicable
+### setAdminMinTokenBalanceIdFull
 
 if the rule is currently active, we check that time for current ruleId is expired. Revert if not expired.
 after time expired on current rule we set new ruleId and maintain true for adminRuleActive bool.
+
+that setting a rule will automatically activate it.
+
+*Set the setAdminMinTokenBalance suite. Restricted to rule administrators only.*
+
+
+```solidity
+function setAdminMinTokenBalanceIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds)
+    external
+    ruleAdministratorOnly(lib.handlerBaseStorage().appManager);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`|actions to have the rule applied to|
+|`_ruleIds`|`uint32[]`|Rule Id corresponding to the actions|
+
+
+### clearAdminMinTokenBalance
+
+*Clear the rule data structure*
+
+
+```solidity
+function clearAdminMinTokenBalance() internal;
+```
+
+### setAdminMinTokenBalanceIdUpdate
+
+that setting a rule will automatically activate it.
+
+*Set the AdminMinTokenBalance.*
+
+
+```solidity
+function setAdminMinTokenBalanceIdUpdate(ActionTypes _action, uint32 _ruleId) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type to set the rule|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### isAdminMinTokenBalanceActiveAndApplicable
 
 *This function is used by the app manager to determine if the AdminMinTokenBalance rule is active for any actions*
 

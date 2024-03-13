@@ -1,5 +1,5 @@
 # HandlerAccountApproveDenyOracle
-[Git Source](https://github.com/thrackle-io/tron/blob/06e770e8df9f2623305edd5cd2be197d5544e702/src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/5bfb84a51be01d9a959b76979e9b34e41875da67/src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol)
 
 **Inherits:**
 [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
@@ -18,7 +18,7 @@ Rule Setters and Getters
 
 that setting a rule will automatically activate it.
 
-*Set the accountApproveDenyOracleId. Restricted to rule administrators only.*
+*Set the AccountApproveDenyOracle. Restricted to rule administrators only.*
 
 
 ```solidity
@@ -32,6 +32,79 @@ function setAccountApproveDenyOracleId(ActionTypes[] calldata _actions, uint32 _
 |----|----|-----------|
 |`_actions`|`ActionTypes[]`|the action types|
 |`_ruleId`|`uint32`|Rule Id to set|
+
+
+### setAccountApproveDenyOracleIdFull
+
+that setting a rule will automatically activate it.
+
+*Set the setAccountMinMaxTokenBalanceRule suite. This function works differently since the rule allows multiples per action. The actions are repeated to account for multiple oracle rules per action. Restricted to rule administrators only.*
+
+
+```solidity
+function setAccountApproveDenyOracleIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds)
+    external
+    ruleAdministratorOnly(lib.handlerBaseStorage().appManager);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`|actions to have the rule applied to|
+|`_ruleIds`|`uint32[]`|Rule Id corresponding to the actions|
+
+
+### clearAccountApproveDenyOracle
+
+*Clear the rule data structure*
+
+
+```solidity
+function clearAccountApproveDenyOracle() internal;
+```
+
+### setAccountApproveDenyOracleIdUpdate
+
+that setting a rule will automatically activate it.
+
+*Set the AccountApproveDenyOracle.*
+
+
+```solidity
+function setAccountApproveDenyOracleIdUpdate(ActionTypes _action, uint32 _ruleId) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type to set the rule|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### _doesAccountApproveDenyOracleIdExist
+
+*Check to see if the oracle rule already exists in the array. If it does, return the index*
+
+
+```solidity
+function _doesAccountApproveDenyOracleIdExist(ActionTypes _action, uint32 _ruleId)
+    internal
+    view
+    returns (uint256 _index, bool _found);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the corresponding action|
+|`_ruleId`|`uint32`|the rule's identifier|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_index`|`uint256`|the index of the found oracle rule|
+|`_found`|`bool`|true if found|
 
 
 ### activateAccountApproveDenyOracle
@@ -74,13 +147,13 @@ function getAccountApproveDenyOracleIds(ActionTypes _action) external view retur
 |`<none>`|`uint32[]`|oracleRuleId|
 
 
-### isAccountAllowDenyOracleActive
+### isAccountApproveDenyOracleActive
 
 *Tells you if the Accont Approve Deny Oracle Rule is active or not.*
 
 
 ```solidity
-function isAccountAllowDenyOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool);
+function isAccountApproveDenyOracleActive(ActionTypes _action, uint32 ruleId) external view returns (bool);
 ```
 **Parameters**
 

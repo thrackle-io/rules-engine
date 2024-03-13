@@ -1,8 +1,8 @@
 # HandlerTokenMaxSellVolume
-[Git Source](https://github.com/thrackle-io/tron/blob/06e770e8df9f2623305edd5cd2be197d5544e702/src/client/token/handler/ruleContracts/HandlerTokenMaxSellVolume.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/5bfb84a51be01d9a959b76979e9b34e41875da67/src/client/token/handler/ruleContracts/HandlerTokenMaxSellVolume.sol)
 
 **Inherits:**
-[RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md)
+[RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [IAssetHandlerErrors](/src/common/IErrors.sol/interface.IAssetHandlerErrors.md)
 
 **Author:**
 @ShaneDuncan602 @oscarsernarosero @TJ-Everett
@@ -18,7 +18,7 @@ Rule Setters and Getters
 
 that setting a rule will automatically activate it.
 
-*Set the TokenMaxSellVolumeRuleId. Restricted to rule administrators only.*
+*Set the AccountMaxSellSizeRuleId. Restricted to rule administrators only.*
 
 
 ```solidity
@@ -28,6 +28,53 @@ function setTokenMaxSellVolumeId(uint32 _ruleId) external ruleAdministratorOnly(
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### setTokenMaxSellVolumeIdFull
+
+that setting a rule will automatically activate it.
+
+*Set the TokenMaxSellVolume suite. Restricted to rule administrators only.*
+
+
+```solidity
+function setTokenMaxSellVolumeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds)
+    external
+    ruleAdministratorOnly(lib.handlerBaseStorage().appManager);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`|actions to have the rule applied to|
+|`_ruleIds`|`uint32[]`|Rule Id corresponding to the actions|
+
+
+### clearTokenMaxSellVolume
+
+*Clear the rule data structure*
+
+
+```solidity
+function clearTokenMaxSellVolume() internal;
+```
+
+### setTokenMaxSellVolumeIdUpdate
+
+that setting a rule will automatically activate it.
+
+*Set the TokenMaxSellVolume.*
+
+
+```solidity
+function setTokenMaxSellVolumeIdUpdate(ActionTypes _action, uint32 _ruleId) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type to set the rule|
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
