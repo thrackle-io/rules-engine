@@ -2,7 +2,14 @@
 
 ENV_FILE=".env"
 
-CHAIN_ID=31337
+if [[ -n $CHAIN_ID ]]; then
+  CHAIN_ID=${CHAIN_ID}
+elif [[ -n $DB_CHAIN ]]; then
+  CHAIN_ID=${DB_CHAIN}
+else
+  CHAIN_ID=31337
+fi
+
 settingChainID=false
 
   for var in "$@"
