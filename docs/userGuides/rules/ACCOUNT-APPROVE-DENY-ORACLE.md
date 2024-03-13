@@ -12,7 +12,6 @@ The deny list is designed as a tool to reduce the risk of malicious actors in th
 
 - [x] ERC20
 - [x] ERC721
-- [x] AMM
 
 ## Applies To Actions:
 
@@ -24,7 +23,7 @@ The deny list is designed as a tool to reduce the risk of malicious actors in th
 
 ## Scope 
 
-This rule works at both the token level and AMM level. It must be activated and configured for each desired token in the corresponding token handler or each desired AMM in the AMM Handler. When configured at a token level, each token can have a maximum of 10 oracle rules associated with it.
+This rule works at the token level. It must be activated and configured for each desired token in the corresponding token handler. When configured at a token level, each token can have a maximum of 10 oracle rules associated with it.
 
 ## Data Structure
 

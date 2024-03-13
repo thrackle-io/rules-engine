@@ -26,4 +26,5 @@ if [ $WITH_DEPLOY = "--with-deploy" ]; then
 	source script/ParseApplicationDeploy.sh 4
 	forge script script/clientScripts/Application_Deploy_06_Pricing.s.sol --ffi --broadcast
 	source script/ParseApplicationDeploy.sh 5
+	forge script script/clientScripts/Application_Deploy_07_ApplicationAdminRoles.s.sol --ffi --broadcast
 fi
