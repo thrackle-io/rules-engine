@@ -1,5 +1,5 @@
 # ProtocolERC721Umin
-[Git Source](https://github.com/thrackle-io/tron/blob/af28404fa455abf3b77fe8e040ff86d48b926353/src/client/token/ERC721/upgradeable/ProtocolERC721Umin.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/06e770e8df9f2623305edd5cd2be197d5544e702/src/client/token/ERC721/upgradeable/ProtocolERC721Umin.sol)
 
 **Inherits:**
 Initializable, ERC721EnumerableUpgradeable, [ProtocolTokenCommonU](/src/client/token/ProtocolTokenCommonU.sol/contract.ProtocolTokenCommonU.md), ReentrancyGuard
