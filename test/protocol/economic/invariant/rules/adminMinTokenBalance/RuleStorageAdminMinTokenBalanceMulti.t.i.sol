@@ -51,7 +51,10 @@ contract RuleStorageAdminMinTokenBalanceMultiTest is
     }
 
     // The total amount of rules will never decrease.
-    function invariant_rulesTotalMinTxSizeNeverDecreases() public view {
+    function invariant_rulesTotalAdminMinTokenBalanceNeverDecreases()
+        public
+        view
+    {
         uint256 total;
         for (uint i; i < actors.length; i++) {
             total += actors[i].totalRules();
@@ -65,7 +68,10 @@ contract RuleStorageAdminMinTokenBalanceMultiTest is
     }
 
     // The biggest ruleId in a rule type will always be the same as the total amount of rules registered in the protocol for that rule type - 1.
-    function invariant_rulesTotalMinTxSizeEqualsAppBalances() public view {
+    function invariant_rulesTotalAdminMinTokenBalanceEqualsAppBalances()
+        public
+        view
+    {
         uint256 total;
         for (uint i; i < actors.length; i++) {
             total += actors[i].totalRules();
@@ -84,7 +90,7 @@ contract RuleStorageAdminMinTokenBalanceMultiTest is
     }
 
     // There can be only a total of 2**32 of each rule type.
-    function invariant_rulesTotalMinTxSizeLessThanMax() public view {
+    function invariant_rulesTotalAdminMinTokenBalanceLessThanMax() public view {
         assertLe(
             ERC20TaggedRuleProcessorFacet(address(ruleProcessor))
                 .getTotalAdminMinTokenBalance(),
@@ -93,7 +99,7 @@ contract RuleStorageAdminMinTokenBalanceMultiTest is
     }
 
     /// The next ruleId created in a specific rule type will always be the same as the previous ruleId + 1.
-    function invariant_rulesTotalMinTxSizeIncrementsByOne() public {
+    function invariant_rulesTotalAdminMinTokenBalanceIncrementsByOne() public {
         uint256 previousTotal = ERC20TaggedRuleProcessorFacet(
             address(ruleProcessor)
         ).getTotalAdminMinTokenBalance();
@@ -109,7 +115,7 @@ contract RuleStorageAdminMinTokenBalanceMultiTest is
     }
 
     // Rules can never be modified.
-    function invariant_MinTxSizeImmutable() public view {
+    function invariant_AdminMinTokenBalanceImmutable() public view {
         TaggedRules.AdminMinTokenBalance
             memory ruleAfter = ERC20TaggedRuleProcessorFacet(
                 address(ruleProcessor)
