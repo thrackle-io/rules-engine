@@ -78,6 +78,7 @@ contract HandlerAdminMinTokenBalance is  HandlerRuleContractsCommonImports, IApp
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
      */
+    // slither-disable-next-line calls-loop
     function setAdminMinTokenBalanceIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAdminMinTokenBalance(_ruleId);
         AdminMinTokenBalanceS storage data = lib.adminMinTokenBalanceStorage();

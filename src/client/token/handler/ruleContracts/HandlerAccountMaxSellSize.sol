@@ -13,7 +13,7 @@ import {IAssetHandlerErrors} from "src/common/IErrors.sol";
  */
 
 
-contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors, ReentrancyGuard {
+contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
 
     /// Rule Setters and Getters
     /**
@@ -21,7 +21,7 @@ contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setAccountMaxSellSizeId(uint32 _ruleId) external nonReentrant ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+    function setAccountMaxSellSizeId(uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         setAccountMaxSellSizeIdUpdate(ActionTypes.SELL, _ruleId);
         emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL, _ruleId);
     }
@@ -32,7 +32,7 @@ contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents
      * @param _actions actions to have the rule applied to
      * @param _ruleIds Rule Id corresponding to the actions
      */
-    function setAccountMaxSellSizeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external nonReentrant ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+    function setAccountMaxSellSizeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         if(_actions.length == 0) revert InputArraysSizesNotValid();
         if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearAccountMaxSellSize();
@@ -65,6 +65,7 @@ contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
      */
+    // slither-disable-next-line calls-loop
     function setAccountMaxSellSizeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         if (_action != ActionTypes.SELL) revert InvalidAction();
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMaxSellSize(_ruleId);
