@@ -72,7 +72,7 @@ interface IInputErrors {
     error InvertedLimits();
     error CantMixPeriodicAndNonPeriodic();
     error InvalidOracleType(uint8 _type);
-    error InvalidRuleInput();
+    error InvalidRuleInput();    
 }
 
 interface IAppRuleInputErrors {
@@ -166,6 +166,9 @@ interface IAssetHandlerErrors {
     error BatchMintBurnNotSupported();
     error FeesAreGreaterThanTransactionAmount(address);
     error AccountApproveDenyOraclesPerAssetLimitReached();
+    error InvalidAction();
+    error InputArraysMustHaveSameLength();
+    error InputArraysSizesNotValid();
 }
 
 interface IFeesErrors {

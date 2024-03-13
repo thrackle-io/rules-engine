@@ -41,4 +41,13 @@ import "../ruleContracts/Fees.sol";
         emit AD1467_AppManagerAddressSet(lib.handlerBaseStorage().appManager);
     }
 
+    /**
+     * @dev Set the last possible action for use in action validations.
+     * @param _lastPossibleAction the highest number in the Action Enum
+     */
+    function setLastPossibleAction(uint8 _lastPossibleAction) external appAdministratorOrOwnerOnly(lib.handlerBaseStorage().appManager){
+        lib.handlerBaseStorage().lastPossibleAction = _lastPossibleAction;
+    }
+
+    
  }

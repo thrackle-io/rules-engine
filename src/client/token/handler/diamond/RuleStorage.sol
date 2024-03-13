@@ -63,6 +63,7 @@ struct TokenMinTxSizeS{
     address ruleProcessor;
     address appManager;
     address assetAddress;
+    uint8 lastPossibleAction;
  }
 
  struct AdminMinTokenBalanceS{

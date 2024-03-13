@@ -25,34 +25,77 @@ contract HandlerTokenMinHoldTime is RuleAdministratorOnly, ITokenHandlerEvents, 
     function activateTokenMinHoldTime(ActionTypes[] calldata _actions, bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         for (uint i; i < _actions.length; ) {
             lib.tokenMinHoldTimeStorage().tokenMinHoldTime[_actions[i]].active = _on;
-            if (_on) {
-                emit AD1467_ApplicationHandlerActionActivated(TOKEN_MIN_HOLD_TIME, _actions[i]);
-            } else {
-                emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MIN_HOLD_TIME, _actions[i]);
+            unchecked {
+                ++i;
             }
+        }
+        if (_on) {
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MIN_HOLD_TIME, _actions);
+        } else {
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MIN_HOLD_TIME, _actions);
+        }
+    }
+
+    /**
+     * @dev Set the TokenMinHoldTime. Restricted to rule administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions the action types
+     * @param _minHoldTimeHours min hold time in hours
+     */
+    function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _minHoldTimeHours) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        for (uint i; i < _actions.length; ) {
+            setTokenMinHoldTimeIdUpdate(_actions[i], _minHoldTimeHours);  
+            emit AD1467_ApplicationHandlerActionApplied(TOKEN_MIN_HOLD_TIME, _actions[i], _minHoldTimeHours);
+            unchecked {
+                ++i;
+             }
+        }            
+    }
+
+    /**
+     * @dev Set the setAccountMinMaxTokenBalanceRule suite. Restricted to rule administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions actions to have the rule applied to
+     * @param _minHoldTimeHours min hold time in hours corresponding to the actions
+     */
+    function setTokenMinHoldTimeFull(ActionTypes[] calldata _actions, uint32[] calldata _minHoldTimeHours) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if(_actions.length == 0) revert InputArraysSizesNotValid();
+        if(_actions.length != _minHoldTimeHours.length) revert InputArraysMustHaveSameLength();
+        clearTokenMinHoldTime(); 
+        for (uint i; i < _actions.length; ) {
+            setTokenMinHoldTimeIdUpdate(_actions[i], _minHoldTimeHours[i]);
+            unchecked {
+                ++i;
+            }
+        } 
+         emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MIN_HOLD_TIME, _actions, _minHoldTimeHours);
+    }
+
+    /**
+     * @dev Clear the rule data structure
+     */
+    function clearTokenMinHoldTime() internal {
+        TokenMinHoldTimeS storage data = lib.tokenMinHoldTimeStorage();
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
+            delete data.tokenMinHoldTime[ActionTypes(i)];
             unchecked {
                 ++i;
             }
         }
     }
-
+    
     /**
-     * @dev Setter the minimum hold time rule hold hours
-     * @param _actions the action types
-     * @param _minHoldTimeHours minimum amount of time to hold the asset
+     * @dev Set the TokenMinHoldTime. 
+     * @notice that setting a rule will automatically activate it.
+     * @param _action the action type to set the rule
+     * @param _minHoldTimeHours the min hold time in hours
      */
-    function setTokenMinHoldTime(ActionTypes[] calldata _actions, uint32 _minHoldTimeHours) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+    function setTokenMinHoldTimeIdUpdate(ActionTypes _action, uint32 _minHoldTimeHours) internal {
         if (_minHoldTimeHours == 0) revert ZeroValueNotPermited();
         if (_minHoldTimeHours > MAX_HOLD_TIME_HOURS) revert PeriodExceeds5Years();
         TokenMinHoldTimeS storage data = lib.tokenMinHoldTimeStorage();
-        for (uint i; i < _actions.length; ) {
-            data.tokenMinHoldTime[_actions[i]].period = _minHoldTimeHours;
-            data.tokenMinHoldTime[_actions[i]].active = true;
-            emit AD1467_ApplicationHandlerSimpleActionApplied(TOKEN_MIN_HOLD_TIME, _actions[i], uint256(_minHoldTimeHours));
-            unchecked {
-                ++i;
-            }
-        }
+        data.tokenMinHoldTime[_action].period = _minHoldTimeHours;
+        data.tokenMinHoldTime[_action].active = true;            
     }
 
     /**

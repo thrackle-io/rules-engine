@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "./HandlerRuleContractsCommonImports.sol";
+import {IAssetHandlerErrors} from "src/common/IErrors.sol";
 
 
 /**
@@ -12,7 +13,7 @@ import "./HandlerRuleContractsCommonImports.sol";
  */
 
 
-contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents{
+contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors{
 
     /// Rule Setters and Getters
     /**
@@ -21,11 +22,55 @@ contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxSellSizeId(uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMaxSellSize(_ruleId);
-        AccountMaxSellSizeS storage accountMaxSellSize = lib.accountMaxSellSizeStorage();
-        accountMaxSellSize.id = _ruleId;
-        accountMaxSellSize.active = true;
+        setAccountMaxSellSizeIdUpdate(ActionTypes.SELL, _ruleId);
         emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL, _ruleId);
+    }
+
+    /**
+     * @dev Set the AccountMaxSellSizeRule suite. Restricted to rule administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions actions to have the rule applied to
+     * @param _ruleIds Rule Id corresponding to the actions
+     */
+    function setAccountMaxSellSizeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if(_actions.length == 0) revert InputArraysSizesNotValid();
+        if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
+        clearAccountMaxSellSize();
+        for (uint i; i < _actions.length; ) {
+            setAccountMaxSellSizeIdUpdate(_actions[i], _ruleIds[i]);
+            unchecked {
+                ++i;
+            }
+        } 
+         emit AD1467_ApplicationHandlerActionAppliedFull(ACCOUNT_MAX_SELL_SIZE, _actions, _ruleIds);
+    }
+
+    /**
+     * @dev Clear the rule data structure
+     */
+    function clearAccountMaxSellSize() internal {
+        AccountMaxSellSizeS storage data = lib.accountMaxSellSizeStorage();
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
+            delete data.id;
+            delete data.active;
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * @dev Set the AccountMaxSellSizeRuleId. 
+     * @notice that setting a rule will automatically activate it.
+     * @param _action the action type to set the rule
+     * @param _ruleId Rule Id to set
+     */
+    function setAccountMaxSellSizeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
+        if (_action != ActionTypes.SELL) revert InvalidAction();
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMaxSellSize(_ruleId);
+        AccountMaxSellSizeS storage AccountMaxSellSize = lib.accountMaxSellSizeStorage();
+        AccountMaxSellSize.id = _ruleId;
+        AccountMaxSellSize.active = true;
     }
 
     /**
@@ -34,10 +79,12 @@ contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents
      */
     function activateAccountMaxSellSize(bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         lib.accountMaxSellSizeStorage().active = _on;
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.SELL;
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL);
+            emit AD1467_ApplicationHandlerActionActivated(ACCOUNT_MAX_SELL_SIZE, actionsArray);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MAX_SELL_SIZE, ActionTypes.SELL);
+            emit AD1467_ApplicationHandlerActionDeactivated(ACCOUNT_MAX_SELL_SIZE, actionsArray);
         }
     }
 

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "./HandlerRuleContractsCommonImports.sol";
+import {IAssetHandlerErrors} from "src/common/IErrors.sol";
 
 
 /**
@@ -12,32 +13,77 @@ import "./HandlerRuleContractsCommonImports.sol";
  */
 
 
-contract HandlerTokenMaxSellVolume is RuleAdministratorOnly, ITokenHandlerEvents{
+contract HandlerTokenMaxSellVolume is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors{
 
     /// Rule Setters and Getters
+
     /**
-     * @dev Set the TokenMaxSellVolumeRuleId. Restricted to rule administrators only.
+     * @dev Set the AccountMaxSellSizeRuleId. Restricted to rule administrators only.
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
     function setTokenMaxSellVolumeId(uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        setTokenMaxSellVolumeIdUpdate(ActionTypes.SELL, _ruleId);
+        emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL, _ruleId);
+    }
+
+    /**
+     * @dev Set the TokenMaxSellVolume suite. Restricted to rule administrators only.
+     * @notice that setting a rule will automatically activate it.
+     * @param _actions actions to have the rule applied to
+     * @param _ruleIds Rule Id corresponding to the actions
+     */
+    function setTokenMaxSellVolumeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+        if(_actions.length == 0) revert InputArraysSizesNotValid();
+        if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
+        clearTokenMaxSellVolume(); 
+        for (uint i; i < _actions.length; ) {
+            setTokenMaxSellVolumeIdUpdate(_actions[i], _ruleIds[i]);
+            unchecked {
+                ++i;
+            }
+        } 
+         emit AD1467_ApplicationHandlerActionAppliedFull(TOKEN_MAX_SELL_VOLUME, _actions, _ruleIds);
+    }
+
+    /**
+     * @dev Clear the rule data structure
+     */
+    function clearTokenMaxSellVolume() internal {
+        TokenMaxSellVolumeS storage data = lib.tokenMaxSellVolumeStorage();
+        for (uint i; i <= lib.handlerBaseStorage().lastPossibleAction; ) {
+            delete data.id;
+            delete data.active;
+            unchecked {
+                ++i;
+            }
+        }
+    }
+    /**
+     * @dev Set the TokenMaxSellVolume. 
+     * @notice that setting a rule will automatically activate it.
+     * @param _action the action type to set the rule
+     * @param _ruleId Rule Id to set
+     */
+    function setTokenMaxSellVolumeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
+        if (_action != ActionTypes.SELL) revert InvalidAction();
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxSellVolume(_ruleId);
         TokenMaxSellVolumeS storage tokenMaxSellVolume = lib.tokenMaxSellVolumeStorage();
         tokenMaxSellVolume.id = _ruleId;
         tokenMaxSellVolume.active = true;
-        emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL, _ruleId);
     }
-
     /**
      * @dev enable/disable rule. Disabling a rule will save gas on transfer transactions.
      * @param _on boolean representing if a rule must be checked or not.
      */
     function activateTokenMaxSellVolume(bool _on) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         lib.tokenMaxSellVolumeStorage().active = _on;
+        ActionTypes[] memory actionsArray = new ActionTypes[](1);
+        actionsArray[0] = ActionTypes.SELL;
         if (_on) {
-            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL);
+            emit AD1467_ApplicationHandlerActionActivated(TOKEN_MAX_SELL_VOLUME, actionsArray);
         } else {
-            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_SELL_VOLUME, ActionTypes.SELL);
+            emit AD1467_ApplicationHandlerActionDeactivated(TOKEN_MAX_SELL_VOLUME, actionsArray);
         }
     }
 
