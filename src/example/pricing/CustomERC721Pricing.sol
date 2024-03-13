@@ -2,11 +2,11 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {IApplicationEvents} from "src/common/IEvents.sol";
-import "src/common/IProtocolERC721Pricing.sol";
-import "src/protocol/economic/AppAdministratorOnly.sol";
-import "src/example/pricing/AggregatorV3Interface.sol";
-import {IZeroAddressError} from "src/common/IErrors.sol";
+import {IApplicationEvents} from "../../common/IEvents.sol";
+import "../../common/IProtocolERC721Pricing.sol";
+import "../../protocol/economic/AppAdministratorOnly.sol";
+import "../../example/pricing/AggregatorV3Interface.sol";
+import {IZeroAddressError} from "../../common/IErrors.sol";
 
 /**
  * @title CustomERC721 Pricing example contract

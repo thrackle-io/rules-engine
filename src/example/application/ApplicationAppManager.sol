@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import {AppManager} from "src/client/application/AppManager.sol";
+import {AppManager} from "../../client/application/AppManager.sol";
 
 /**
  * @title Application specific app manager

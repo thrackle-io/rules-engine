@@ -20,13 +20,7 @@ contract RuleStorageTokenMinTxSizeActor is TestCommonFoundry, RuleStorageInvaria
      * @dev add the rule to the diamond using fuzzed values
      */
     function addTokenMinTxSize(uint256 _minSize) public returns (uint32 _ruleId){
-        _minSize = bound(_minSize,1,type(uint256).max);
-        vm.stopPrank();
-        vm.startPrank(ruleAdmin);
         _ruleId = RuleDataFacet(address(processor)).addTokenMinTxSize(address(appManager), _minSize);
         ++totalRules;
-        return _ruleId;
     }
-    
-
 }

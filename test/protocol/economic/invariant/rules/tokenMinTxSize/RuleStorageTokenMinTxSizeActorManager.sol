@@ -12,7 +12,6 @@ import "../util/RuleStorageInvariantActorManagerCommon.sol";
 contract RuleStorageTokenMinTxSizeActorManager is RuleStorageInvariantActorManagerCommon {
 
     RuleStorageTokenMinTxSizeActor[] actors;
-    uint256 public totalMinTx;
 
     constructor(RuleStorageTokenMinTxSizeActor[] memory _actors){
         actors = _actors;
@@ -21,11 +20,9 @@ contract RuleStorageTokenMinTxSizeActorManager is RuleStorageInvariantActorManag
     /**
      * @dev uses the fuzzed handler index to "randomly" choose a handler to add the rule
      */
-    function addTokenMinTxSize(uint8 _handlerIndex, uint256 _minSize) public {
+    function addTokenMinTxSize(uint8 _handlerIndex, uint256 _minSize) public endWithStopPrank {
         _handlerIndex = uint8(bound(uint256(_handlerIndex), 0, actors.length-1));
         _minSize = bound(_minSize,1,type(uint256).max);
         actors[_handlerIndex].addTokenMinTxSize(_minSize);
-        ++totalMinTx;
     }
- 
 }
