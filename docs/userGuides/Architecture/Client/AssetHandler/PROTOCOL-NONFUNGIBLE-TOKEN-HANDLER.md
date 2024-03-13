@@ -28,7 +28,7 @@ This function can only be called once and stores parameters that are used throug
 
 The next function in this facet is the check all rules function: 
 ```c
-ffunction checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external onlyOwner returns (bool)
+function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external onlyOwner returns (bool)
 ├── when the caller is not the owner
 │ └── it should revert
 └── when the caller is the owner
