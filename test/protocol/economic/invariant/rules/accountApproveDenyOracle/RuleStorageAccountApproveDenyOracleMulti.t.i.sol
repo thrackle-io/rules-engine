@@ -37,7 +37,7 @@ contract RuleStorageAccountApproveDenyOracleMultiTest is RuleStorageInvariantCom
     }
 
     // The total amount of rules will never decrease.
-    function invariant_rulesTotalAccountApproveDenyOracleNeverDecreases() public {
+    function invariant_rulesTotalAccountApproveDenyOracleNeverDecreases() public view {
         uint256 total;
         for(uint i; i < actors.length; i++){
             total += actors[i].totalRules();
@@ -47,7 +47,7 @@ contract RuleStorageAccountApproveDenyOracleMultiTest is RuleStorageInvariantCom
     }
 
     // The biggest ruleId in a rule type will always be the same as the total amount of rules registered in the protocol for that rule type - 1.
-    function invariant_rulesTotalAccountApproveDenyOracleEqualsAppBalances() public {
+    function invariant_rulesTotalAccountApproveDenyOracleEqualsAppBalances() public view {
         uint256 total;
         for(uint i; i < actors.length; i++){
             total += actors[i].totalRules();
@@ -59,7 +59,7 @@ contract RuleStorageAccountApproveDenyOracleMultiTest is RuleStorageInvariantCom
     }
 
     // There can be only a total of 2**32 of each rule type.
-    function invariant_rulesTotalAccountApproveDenyOracleLessThanMax() public {
+    function invariant_rulesTotalAccountApproveDenyOracleLessThanMax() public view {
         assertLe(ERC20RuleProcessorFacet(address(ruleProcessor)).getTotalAccountApproveDenyOracle(), maxRuleCount);
     }
 
@@ -70,7 +70,7 @@ contract RuleStorageAccountApproveDenyOracleMultiTest is RuleStorageInvariantCom
         assertEq(previousTotal, RuleDataFacet(address(ruleProcessor)).addAccountApproveDenyOracle(address(applicationAppManager), 0, address(0xabc)));
     }
     // Rules can never be modified.
-    function invariant_AccountApproveDenyOracleImmutable() public {
+    function invariant_AccountApproveDenyOracleImmutable() public view {
         NonTaggedRules.AccountApproveDenyOracle memory ruleAfter = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(index);
         assertEq(ruleBefore.oracleType, ruleAfter.oracleType);
         assertEq(ruleBefore.oracleAddress, ruleAfter.oracleAddress);

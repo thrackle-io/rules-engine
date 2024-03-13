@@ -14,7 +14,7 @@ contract ProtocolERC20MinTest is TestCommonFoundry, DummyAMM, ERC20Util{
         vm.warp(Blocktime);
     }
 
-    function testERC20_ProtocolERC20Min_ERC20AndHandlerVersions() public {
+    function testERC20_ProtocolERC20Min_ERC20AndHandlerVersions() public view {
         string memory version = VersionFacet(address(applicationCoinHandler)).version();
         assertEq(version, "1.1.0");
     }
@@ -35,7 +35,7 @@ contract ProtocolERC20MinTest is TestCommonFoundry, DummyAMM, ERC20Util{
     }
 
     /// Test balance
-    function testERC20_ProtocolERC20Min_Balance() public {
+    function testERC20_ProtocolERC20Min_Balance() public view {
         console.logUint(minimalCoin.totalSupply());
         assertEq(minimalCoin.balanceOf(appAdministrator), 10000000000000000000000 * ATTO);
     }

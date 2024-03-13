@@ -15,7 +15,7 @@ contract ProtocolERC721MinTest is TestCommonFoundry, DummyNFTAMM, ERC721Util {
         setUpProcotolAndCreateERC721MinAndDiamondHandler();
     }
 
-    function testERC721_ProtocolERC721Min_HandlerVersions() public {
+    function testERC721_ProtocolERC721Min_HandlerVersions() public view {
         string memory version = VersionFacet(address(applicationNFTHandler)).version();
         assertEq(version, "1.1.0");
     }

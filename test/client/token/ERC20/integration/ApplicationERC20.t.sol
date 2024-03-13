@@ -16,7 +16,7 @@ contract ApplicationERC20Test is TestCommonFoundry, ERC20Util,DummyAMM {
         vm.stopPrank();
     }
 
-    function testERC20_ApplicationERC20_ERC20AndHandlerVersions() public {
+    function testERC20_ApplicationERC20_ERC20AndHandlerVersions() public view {
         string memory version = VersionFacet(address(applicationCoinHandler)).version();
         assertEq(version, "1.1.0");
     }
@@ -85,7 +85,7 @@ contract ApplicationERC20Test is TestCommonFoundry, ERC20Util,DummyAMM {
     }
 
     /// Test balance
-    function testERC20_ApplicationERC20_Balance() public {
+    function testERC20_ApplicationERC20_Balance() public view {
         console.logUint(applicationCoin.totalSupply());
         assertEq(applicationCoin.balanceOf(appAdministrator), 10000000000000000000000 * ATTO);
     }

@@ -39,7 +39,7 @@ contract ApplicationERC721ExampleTest is TestCommonFoundry {
         setUpProcotolAndCreateERC20AndDiamondHandler();
     }
 
-    function testERC721_ApplicationERC721Examples_AndHandlerVersions() public {
+    function testERC721_ApplicationERC721Examples_AndHandlerVersions() public view {
         string memory version = VersionFacet(address(applicationNFTHandler)).version();
         assertEq(version, "1.1.0");
     }

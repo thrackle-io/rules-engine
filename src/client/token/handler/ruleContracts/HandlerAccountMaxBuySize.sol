@@ -13,7 +13,7 @@ import {IAssetHandlerErrors} from "src/common/IErrors.sol";
  */
 
 
-contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors{
+contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors, ReentrancyGuard {
 
     /// Rule Setters and Getters
     /**
@@ -21,7 +21,7 @@ contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents,
      * @notice that setting a rule will automatically activate it.
      * @param _ruleId Rule Id to set
      */
-    function setAccountMaxBuySizeId(uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+    function setAccountMaxBuySizeId(uint32 _ruleId) external nonReentrant ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         setAccountMaxBuySizeIdUpdate(ActionTypes.BUY, _ruleId);
         emit AD1467_ApplicationHandlerActionApplied(ACCOUNT_MAX_BUY_SIZE, ActionTypes.BUY, _ruleId);
     }
@@ -32,7 +32,7 @@ contract HandlerAccountMaxBuySize is RuleAdministratorOnly, ITokenHandlerEvents,
      * @param _actions all the actions to set the rule for
      * @param _ruleIds rule id's corresponding to each action
      */
-    function setAccountMaxBuySizeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
+    function setAccountMaxBuySizeIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external nonReentrant ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         if(_actions.length == 0) revert InputArraysSizesNotValid();
         if(_actions.length != _ruleIds.length) revert InputArraysMustHaveSameLength();
         clearAccountMaxBuySize();

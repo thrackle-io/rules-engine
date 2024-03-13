@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Rule} from "../common/DataStructures.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 import {StorageLib as lib} from "../diamond/StorageLib.sol";
