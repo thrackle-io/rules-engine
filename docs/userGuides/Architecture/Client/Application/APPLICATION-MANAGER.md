@@ -198,7 +198,7 @@ function proposeDataContractMigration(address _newOwner) external onlyRole(APP_A
         │    └── it should continue to next data contract
         ├── when proposeOwner() is called for pauseRules data contract 
         │ └── it should set the newDataProviderOwner for the pauseRules data contract 
-        └── if all proposeOwner() functions succed 
+        └── when all proposeOwner() functions succeed 
           └── it should emit {AD1467_AppManagerDataUpgradeProposed} event
 ```
 The provided address should be the address of the new Application Manager contract. This function can only be called by the Application Admin.
@@ -231,7 +231,7 @@ function confirmDataContractMigration(address _oldAppManagerAddress) external on
         ├── it should call confirmOwner() on riskScores data contract
         ├── it should call confirmOwner() on tags data contract
         ├── it should call confirmOwner() on pauseRules data contract  
-        └── if all getDataAddress functions and all confirm owner functions succed 
+        └── when all getDataAddress functions and all confirm owner functions succeed 
           └── it should emit {AD1467_DataContractsMigrated} event
 ```
 This function can only be called by the App Admin.

@@ -31,28 +31,28 @@ The Application Manager then calls the function:
     └── it should call the rule processor diamond and validate the transaction when application level rules are active 
         ├── when pauseRuleActive rules are active 
         │ └── it should validate pause rules through the rule processor diamond 
-        │    ├── if the rule processor diamond returns true 
+        │    ├── when the rule processor diamond returns true 
         │    └── it should continue to next active rule check 
         ├── when accountMaxValueByRiskScoreActive is true 
         │ └── it should validate account Max Value By RiskScore rules through the rule processor diamond 
-        │    ├── if the rule processor diamond returns true 
+        │    ├── when the rule processor diamond returns true 
         │    └── it should continue to next active rule check
         ├── when accountMaxTransactionValueByRiskScoreActive is true 
         │ └── it should validate account Max Transaction Value By Risk Score rules through the rule processor diamond 
-        │    ├── if the rule processor diamond returns true 
+        │    ├── when the rule processor diamond returns true 
         │    └── it should continue to next active rule check
         ├── when accountMaxValueByAccessLevelActive is true 
         │ └── it should validate account Max Value By Access Level rules through the rule processor diamond 
-        │    ├── if the rule processor diamond returns true 
+        │    ├── when the rule processor diamond returns true 
         │    └── it should continue to next active rule check
         ├── when accountMaxValueOutByAccessLevelActive is true 
         │ └── it should validate account Max Value Out By Access Level rules through the rule processor diamond 
-        │    ├── if the rule processor diamond returns true 
+        │    ├── when the rule processor diamond returns true 
         │    └── it should continue to next active rule check
         ├── when accountDenyForNoAccessLevelRuleActive is true 
         │ └── it should validate Account Deny For No Access Level Rule rules through the rule processor diamond 
-        │    └── if the rule processor diamond returns true 
-        └── if all active application rule checks return true
+        │    └── when the rule processor diamond returns true 
+        └── when all active application rule checks return true
           └── it should succeed
 
 
