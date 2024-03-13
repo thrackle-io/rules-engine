@@ -16,7 +16,7 @@ contract OracleApproved is Ownable, IOracleEvents {
     /**
      * @dev Constructor that only serves the purpose of notifying the indexer of its creation via event
      */
-    constructor() {
+    constructor() Ownable(msg.sender) {
         emit AD1467_ApproveListOracleDeployed();
     }
 

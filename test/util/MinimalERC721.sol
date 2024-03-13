@@ -30,17 +30,17 @@ contract MinimalERC721 is ERC721, IProtocolTokenMin, ProtocolTokenCommon, ERC721
 
     /**
      * @dev Function called before any token transfers to confirm transfer is within rules of the protocol
-     * @param from sender address
      * @param to recipient address
      * @param tokenId Id of token to be transferred
-     * @param batchSize the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will
-     * represent the first id to start the batch.
+     * @param auth Auth argument is optional. If the value passed is non 0, then this function will check that
+     * `auth` is either the owner of the token, or approved to operate on the token (by the owner).
      */
-     // slither-disable-next-line calls-loop
-        function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal  {
-        /// Rule Processor Module Check
-        require(IHandlerDiamond(_handler).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
-        super._update(from, to, tokenId);
+    function _update(address to, uint256 tokenId, address auth) internal override(ERC721Enumerable, ERC721) returns (address) {
+        require(_handler.checkAllRules(balanceOf(_msgSender()), to == address(0) ? 0 : balanceOf(to), _msgSender(), to, _msgSender(), tokenId));
+        // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+        // applied to this function
+        // slither-disable-next-line reentrancy-benign
+        return ERC721Enumerable._update(to, tokenId, auth);
     }
 
         /**
@@ -83,5 +83,14 @@ contract MinimalERC721 is ERC721, IProtocolTokenMin, ProtocolTokenCommon, ERC721
      */
     function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
         return ERC721Enumerable.supportsInterface(interfaceId) || super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @dev Function to increase balance. This is only done to override OZ dependencies and ensure which balance increase we want.
+     * @param account Account to have balance increased
+     * @param value Number of assets to be increased by
+     */
+    function _increaseBalance(address account, uint128 value) internal override(ERC721Enumerable, ERC721) {
+        ERC721Enumerable._increaseBalance(account, value);
     }
 }

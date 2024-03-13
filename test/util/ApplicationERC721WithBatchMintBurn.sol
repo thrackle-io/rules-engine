@@ -24,18 +24,17 @@ contract ApplicationERC721WithBatchMintBurn is ProtocolERC721 {
     constructor(string memory _name, string memory _symbol, address _appManagerAddress, string memory _baseUri) ProtocolERC721(_name, _symbol, _appManagerAddress, _baseUri) {}
 
     function mint(uint256 quantity) external payable {
-        _mint(msg.sender, quantity);
+        _safeMint(msg.sender, quantity, "");
     }
 
-    function _mint(address to, uint256 quantity) internal override {
+    function _safeMint(address to, uint256 quantity, bytes memory _data) internal override {
         uint256 startTokenId = _currentIndex;
-        _beforeTokenTransfer(address(0), to, startTokenId, quantity);
+        _update(to, startTokenId, address(0));
         // for loop
         for (uint i = 0; i < quantity; i++) {
             _mint(to, startTokenId + i);
         }
         _currentIndex += quantity;
-        _update(address(0), to, startTokenId, quantity);
     }
 
     function burn(uint256 quantity) public override {
@@ -44,12 +43,11 @@ contract ApplicationERC721WithBatchMintBurn is ProtocolERC721 {
 
     function _burn(address to, uint256 quantity) internal virtual {
         uint256 startTokenId = _currentIndex;
-        _beforeTokenTransfer(address(0), to, startTokenId, quantity);
+         _update(to, startTokenId, address(0));
         // for loop
         for (uint i = 0; i < quantity; i++) {
             _burn(to, startTokenId - i);
         }
         _currentIndex -= quantity;
-        _update(address(0), to, startTokenId, quantity);
     }
 }

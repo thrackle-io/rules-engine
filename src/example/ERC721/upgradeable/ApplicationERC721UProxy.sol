@@ -35,6 +35,7 @@ contract ApplicationERC721UProxy is ERC1967Proxy {
 
     using ERC1967Utils for ERC1967Proxy;
 
+    receive() external payable {}
     /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
@@ -96,7 +97,7 @@ contract ApplicationERC721UProxy is ERC1967Proxy {
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
      */
     function upgradeTo(address newImplementation) external ifAdmin {
-        ERC1967Utils.upgradeToAndCall(newImplementation, bytes(""), false);
+        ERC1967Utils.upgradeToAndCall(newImplementation, bytes(""));
     }
 
     /**
@@ -107,7 +108,7 @@ contract ApplicationERC721UProxy is ERC1967Proxy {
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
      */
     function upgradeToAndCall(address newImplementation, bytes calldata data) external payable ifAdmin {
-        ERC1967Utils.upgradeToAndCall(newImplementation, data, true);
+        ERC1967Utils.upgradeToAndCall(newImplementation, data);
     }
 
     /**

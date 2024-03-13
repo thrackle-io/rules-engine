@@ -27,7 +27,7 @@ contract CustomERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pricin
 
     error NoPriceFeed(address tokenAddress);
 
-    constructor(address _appManagerAddress) {
+    constructor(address _appManagerAddress) Ownable(msg.sender) {
         if(_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
     }

@@ -21,6 +21,8 @@ contract AppAdministratorOrOwnerOnly is Ownable, RBACModifiersCommonImports {
         _;
     }
 
+    constructor() Ownable(msg.sender) {}
+
     function _appAdministratorOrOwnerOnly(address _permissionModuleAppManagerAddress) private view {
         if (_permissionModuleAppManagerAddress == address(0)) revert AppManagerNotConnected();
         IAppManager appManager = IAppManager(_permissionModuleAppManagerAddress);

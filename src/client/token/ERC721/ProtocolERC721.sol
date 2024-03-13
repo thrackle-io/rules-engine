@@ -96,30 +96,55 @@ contract ProtocolERC721 is ERC721Burnable, ERC721URIStorage, ERC721Enumerable, P
         _tokenIdCounter += 1;
     }
 
+    // /**
+    //  * @dev Function called before any token transfers to confirm transfer is within rules of the protocol
+    //  * @param from sender address
+    //  * @param to recipient address
+    //  * @param tokenId Id of token to be transferred
+    //  * @param batchSize the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will
+    //  * represent the first id to start the batch.
+    //  */
+    // function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant whenNotPaused {
+    //     // Rule Processor Module Check
+    //     require(IHandlerDiamond(handler).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
+    //     // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
+    //     // applied to this function
+    //     // slither-disable-next-line reentrancy-benign
+    //     super._update(from, to, tokenId, batchSize);
+    // }
+
     /**
      * @dev Function called before any token transfers to confirm transfer is within rules of the protocol
-     * @param from sender address
      * @param to recipient address
      * @param tokenId Id of token to be transferred
-     * @param batchSize the amount of NFTs to mint in batch. If a value greater than 1 is given, tokenId will
-     * represent the first id to start the batch.
+     * @param auth Auth argument is optional. If the value passed is non 0, then this function will check that
+     * `auth` is either the owner of the token, or approved to operate on the token (by the owner).
      */
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize) internal nonReentrant whenNotPaused {
-        // Rule Processor Module Check
-        require(IHandlerDiamond(handler).checkAllRules(from == address(0) ? 0 : balanceOf(from), to == address(0) ? 0 : balanceOf(to), from, to, _msgSender(), tokenId));
+    function _update(address to, uint256 tokenId, address auth) internal override (ERC721, ERC721Enumerable) returns (address) {
+        require(IHandlerDiamond(handler).checkAllRules(balanceOf(_msgSender()), to == address(0) ? 0 : balanceOf(to), _msgSender(), to, _msgSender(), tokenId));
         // Disabling this finding, it is a false positive. A reentrancy lock modifier has been 
         // applied to this function
         // slither-disable-next-line reentrancy-benign
-        super._update(from, to, tokenId, batchSize);
+        return ERC721Enumerable._update(to, tokenId, auth);
     }
+
+    // /// The following functions are overrides required by Solidity.
+    // /**
+    //  * @dev Function to burn or remove token from circulation
+    //  * @param tokenId Id of token to be burned
+    //  */
+    // function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) whenNotPaused {
+    //     super._burn(tokenId);
+    // }
 
     /// The following functions are overrides required by Solidity.
     /**
-     * @dev Function to burn or remove token from circulation
-     * @param tokenId Id of token to be burned
+     * @dev Function to increase balance. This is only done to override OZ dependencies and ensure which balance increase we want.
+     * @param account Account to have balance increased
+     * @param value Number of assets to be increased by
      */
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) whenNotPaused {
-        super._burn(tokenId);
+    function _increaseBalance(address account, uint128 value) internal override(ERC721Enumerable, ERC721) {
+        ERC721Enumerable._increaseBalance(account, value);
     }
 
     /**

@@ -19,6 +19,7 @@ contract ProtocolERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pr
     mapping(address => mapping(uint256 => uint256)) public nftPrice;
     mapping(address => uint256) public collectionPrice;
 
+    constructor() Ownable(msg.sender) {}
     /**
      * @dev set the price for a single NFT from a collection
      * @param nftContract is the address of the NFT contract

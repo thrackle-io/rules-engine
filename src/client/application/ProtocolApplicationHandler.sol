@@ -62,7 +62,7 @@ contract ProtocolApplicationHandler is Ownable, RuleAdministratorOnly, IApplicat
      * @param _ruleProcessorProxyAddress of the protocol's Rule Processor contract.
      * @param _appManagerAddress address of the application AppManager.
      */
-    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress) {
+    constructor(address _ruleProcessorProxyAddress, address _appManagerAddress) Ownable(msg.sender) {
         if (_ruleProcessorProxyAddress == address(0) || _appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
         appManager = AppManager(_appManagerAddress);

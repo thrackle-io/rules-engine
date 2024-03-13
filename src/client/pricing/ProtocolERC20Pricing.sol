@@ -17,6 +17,7 @@ contract ProtocolERC20Pricing is Ownable, IApplicationEvents, IProtocolERC20Pric
     
     mapping(address => uint256) public tokenPrices;
 
+    constructor() Ownable(msg.sender) {}
     /**
      * @dev set the price for a single Token
      * @param tokenContract is the address of the Token contract

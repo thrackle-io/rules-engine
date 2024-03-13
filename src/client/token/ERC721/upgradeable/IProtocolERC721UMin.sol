@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Enumer
  * @notice This is the base contract for all protocol ERC721Upgradeables
  * @dev Using this interface requires the implementing token properly handle the listed functions as well as insert the checkAllRules hook into _beforeTokenTransfer
  */
-interface IProtocolERC721UMin is ERC721EnumerableUpgradeable {
+abstract contract IProtocolERC721UMin is ERC721EnumerableUpgradeable {
     event HandlerConnected(address indexed handlerAddress, address indexed assetAddress);
     error ZeroAddress();
 
@@ -17,11 +17,11 @@ interface IProtocolERC721UMin is ERC721EnumerableUpgradeable {
      * @dev this function returns the handler address
      * @return handlerAddress
      */
-    function getHandlerAddress() external view returns (address);
+    function getHandlerAddress() external virtual view returns (address);
 
     /**
      * @dev Function to connect Token to previously deployed Handler contract
      * @param _deployedHandlerAddress address of the currently deployed Handler Address
      */
-    function connectHandlerToToken(address _deployedHandlerAddress) external;
+    function connectHandlerToToken(address _deployedHandlerAddress) external virtual;
 }

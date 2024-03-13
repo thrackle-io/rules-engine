@@ -27,7 +27,7 @@ contract CustomERC721Pricing is Ownable, IApplicationEvents, IProtocolERC721Pric
 
     error NoPriceFeed(address tokenAddress);
 
-    constructor(address _appManagerAddress) {
+    constructor(address _appManagerAddress) Ownable(msg.sender) {
         if(_appManagerAddress == address(0)) revert ZeroAddress();
         appManagerAddress = _appManagerAddress;
     }
