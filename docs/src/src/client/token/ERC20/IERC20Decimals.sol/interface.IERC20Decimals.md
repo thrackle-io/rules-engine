@@ -1,5 +1,5 @@
 # IERC20Decimals
-[Git Source](https://github.com/thrackle-io/tron/blob/263e499d66345014a4fa5059735434da59124980/src/client/token/ERC20/IERC20Decimals.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/1a1d6b2809bc510780a53bad6853fa1ef1652aab/src/client/token/ERC20/IERC20Decimals.sol)
 
 *Interface of the ERC20 standard as defined in the EIP.*
 
@@ -86,7 +86,7 @@ Ether and Wei. This is the default value returned by this function, unless
 it's overridden.
 NOTE: This information is only used for _display_ purposes: it in
 no way affects any of the arithmetic of the contract, including
-[IERC20-balanceOf](/src/client/token/ITokenInterface.sol/interface.IToken.md#balanceof) and {IERC20-transfer}.*
+[IERC20-balanceOf](/lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol/interface.IERC777.md#balanceof) and {IERC20-transfer}.*
 
 
 ```solidity
