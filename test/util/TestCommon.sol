@@ -6,7 +6,7 @@ import "forge-std/Test.sol";
 import "test/util/GenerateSelectors.sol";
 import "test/util/TestArrays.sol";
 
-/// common diamond imports 
+/// common diamond imports
 import {IDiamondCut} from "diamond-std/core/DiamondCut/IDiamondCut.sol";
 import {RuleProcessorDiamondArgs, RuleProcessorDiamond} from "src/protocol/economic/ruleProcessor/RuleProcessorDiamond.sol";
 import {IDiamondInit} from "diamond-std/initializers/IDiamondInit.sol";
@@ -18,7 +18,7 @@ import "src/protocol/diamond/ProtocolNativeFacet.sol";
 import "src/protocol/diamond/ProtocolRawFacet.sol";
 import {ERC173Facet} from "diamond-std/implementations/ERC173/ERC173Facet.sol";
 import {VersionFacet} from "src/protocol/diamond/VersionFacet.sol";
-/// Protocol Diamond imports 
+/// Protocol Diamond imports
 import {ERC20RuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20RuleProcessorFacet.sol";
 import {ERC20TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC20TaggedRuleProcessorFacet.sol";
 import {ERC721TaggedRuleProcessorFacet} from "src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol";
@@ -32,26 +32,16 @@ import {TaggedRuleDataFacet} from "src/protocol/economic/ruleProcessor/TaggedRul
 import {INonTaggedRules as NonTaggedRules, ITaggedRules as TaggedRules, IApplicationRules as AppRules} from "src/protocol/economic/ruleProcessor/RuleDataInterfaces.sol";
 import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.sol";
 import {AppRuleDataFacet} from "src/protocol/economic/ruleProcessor/AppRuleDataFacet.sol";
-import {IAppLevelEvents, 
-        IAppManagerAddressSet, 
-        IOracleEvents, 
-        IApplicationHandlerEvents, 
-        ICommonApplicationHandlerEvents, 
-        IRuleProcessorDiamondEvents, 
-        IEconomicEvents, 
-        IHandlerDiamondEvents, 
-        ITokenHandlerEvents, 
-        IApplicationEvents} 
-from "src/common/IEvents.sol";
+import {IAppLevelEvents, IAppManagerAddressSet, IOracleEvents, IApplicationHandlerEvents, ICommonApplicationHandlerEvents, IRuleProcessorDiamondEvents, IEconomicEvents, IHandlerDiamondEvents, ITokenHandlerEvents, IApplicationEvents} from "src/common/IEvents.sol";
 
-/// Client Contract imports 
+/// Client Contract imports
 import {ApplicationHandler} from "src/example/application/ApplicationHandler.sol";
 import {HandlerDiamond, HandlerDiamondArgs} from "src/client/token/handler/diamond/HandlerDiamond.sol";
 import "src/example/application/ApplicationAppManager.sol";
 
 import "src/example/ERC20/ApplicationERC20.sol";
 
-import { ApplicationERC721AdminOrOwnerMint as ApplicationERC721 } from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
+import {ApplicationERC721AdminOrOwnerMint as ApplicationERC721} from "src/example/ERC721/ApplicationERC721AdminOrOwnerMint.sol";
 import "test/util/ApplicationERC721WithBatchMintBurn.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UProxy.sol";
 import "src/example/ERC721/upgradeable/ApplicationERC721UpgAdminMint.sol";
@@ -79,14 +69,13 @@ import {ERC20HandlerMainFacet} from "src/client/token/handler/diamond/ERC20Handl
 import {ERC721HandlerMainFacet} from "src/client/token/handler/diamond/ERC721HandlerMainFacet.sol";
 import "src/client/token/handler/diamond/FeesFacet.sol";
 import "src/client/token/handler/diamond/RuleStorage.sol";
-/// common imports 
+/// common imports
 import "src/example/pricing/ApplicationERC20Pricing.sol";
 import "src/example/pricing/ApplicationERC721Pricing.sol";
 import "src/example/OracleDenied.sol";
 import "src/example/OracleApproved.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 import "./CommonAddresses.sol";
-
 
 /**
  * @title Test Common
@@ -96,24 +85,22 @@ import "./CommonAddresses.sol";
  * create = set to proper user, deploy contracts, reset user, return the contract
  * _create = deploy contract, return the contract
  */
-abstract contract TestCommon is 
-    Test, 
-    GenerateSelectors, 
-    TestArrays, 
-    CommonAddresses, 
-    IAppLevelEvents, 
-    IAppManagerAddressSet, 
-    IOracleEvents, 
-    IApplicationHandlerEvents, 
-    ICommonApplicationHandlerEvents, 
-    IRuleProcessorDiamondEvents, 
-    IEconomicEvents, 
-    IHandlerDiamondEvents, 
-    ITokenHandlerEvents, 
-    IApplicationEvents 
-    {
-
-
+abstract contract TestCommon is
+    Test,
+    GenerateSelectors,
+    TestArrays,
+    CommonAddresses,
+    IAppLevelEvents,
+    IAppManagerAddressSet,
+    IOracleEvents,
+    IApplicationHandlerEvents,
+    ICommonApplicationHandlerEvents,
+    IRuleProcessorDiamondEvents,
+    IEconomicEvents,
+    IHandlerDiamondEvents,
+    ITokenHandlerEvents,
+    IApplicationEvents
+{
     FacetCut[] _ruleProcessorFacetCuts;
 
     uint256 constant ATTO = 10 ** 18;
@@ -153,7 +140,7 @@ abstract contract TestCommon is
     ApplicationERC721UProxy public applicationNFTProxy;
 
     OracleApproved public oracleApproved;
-    OracleDenied public oracleDenied; 
+    OracleDenied public oracleDenied;
 
     ApplicationERC721 public boredWhaleNFT;
     HandlerDiamond public boredWhaleHandler;
@@ -164,7 +151,7 @@ abstract contract TestCommon is
     ApplicationERC20 public reptileToken;
     HandlerDiamond public reptileTokenHandler;
 
-    ApplicationERC721Pricing public openOcean; 
+    ApplicationERC721Pricing public openOcean;
     ApplicationERC20Pricing public uniBase;
 
     bool public testDeployments = true;
@@ -172,10 +159,10 @@ abstract contract TestCommon is
     // common block time
     uint64 Blocktime = 1769924800;
 
-    // common starting time 
+    // common starting time
     uint32 startTime = 12;
 
-    // common starting supply 
+    // common starting supply
     uint256 totalSupply = 100_000_000_000;
 
     address[] ADDRESSES = [address(0xFF1), address(0xFF2), address(0xFF3), address(0xFF4), address(0xFF5), address(0xFF6), address(0xFF7), address(0xFF8)];
@@ -193,7 +180,7 @@ abstract contract TestCommon is
      * @return _appManager fully configured app manager
      */
     function _createAppManager() public virtual returns (ApplicationAppManager _appManager) {
-        vm.expectEmit(true,true,false,false);
+        vm.expectEmit(true, true, false, false);
         emit AD1467_AppManagerDeployed(superAdmin, "Castlevania");
         _appManager = new ApplicationAppManager(superAdmin, "Castlevania", false);
         return _appManager;
@@ -206,7 +193,7 @@ abstract contract TestCommon is
      * @return _applicationHandler application handler
      */
     function _createAppHandler(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager) public returns (ApplicationHandler _applicationHandler) {
-        vm.expectEmit(true,false,false,false);
+        vm.expectEmit(true, false, false, false);
         emit AD1467_ApplicationHandlerDeployed(address(_appManager));
         return new ApplicationHandler(address(_ruleProcessor), address(_appManager));
     }
@@ -215,11 +202,11 @@ abstract contract TestCommon is
      * @dev Deploy and set up an ERC20
      * @param _name token name
      * @param _symbol token symbol
-     * @param _appManager previously created appManager 
+     * @param _appManager previously created appManager
      * @return _token token
      */
     function _createERC20(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC20 _token) {
-        vm.expectEmit(true,false,false,false);
+        vm.expectEmit(true, false, false, false);
         emit AD1467_NewTokenDeployed(address(_appManager));
         return new ApplicationERC20(_name, _symbol, address(_appManager));
     }
@@ -228,11 +215,11 @@ abstract contract TestCommon is
      * @dev Deploy and set up a minimal protocol ERC20
      * @param _name token name
      * @param _symbol token symbol
-     * @param _appManager previously created appManager 
+     * @param _appManager previously created appManager
      * @return _token token
      */
     function _createERC20Min(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (MinimalERC20 _token) {
-        vm.expectEmit(true,false,false,false);
+        vm.expectEmit(true, false, false, false);
         emit AD1467_NewTokenDeployed(address(_appManager));
         return new MinimalERC20(_name, _symbol, address(_appManager));
     }
@@ -253,7 +240,7 @@ abstract contract TestCommon is
      * @return _token token
      */
     function _createERC721(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (ApplicationERC721 _token) {
-        vm.expectEmit(true,false,false,false);
+        vm.expectEmit(true, false, false, false);
         emit AD1467_NewNFTDeployed(address(_appManager));
         return new ApplicationERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
     }
@@ -266,7 +253,7 @@ abstract contract TestCommon is
      * @return _token token
      */
     function _createERC721Min(string memory _name, string memory _symbol, ApplicationAppManager _appManager) public returns (MinimalERC721 _token) {
-        vm.expectEmit(true,false,false,false);
+        vm.expectEmit(true, false, false, false);
         emit AD1467_NewTokenDeployed(address(_appManager));
         return new MinimalERC721(_name, _symbol, address(_appManager), "https://SampleApp.io");
     }
@@ -280,14 +267,13 @@ abstract contract TestCommon is
     }
 
     /**
-     * @dev Deploy and set up an ERC721 Upgradeable Proxy  
-     * @param _applicationNFTU logic contract 
-     * @param _proxyOwner address of the proxy owner 
+     * @dev Deploy and set up an ERC721 Upgradeable Proxy
+     * @param _applicationNFTU logic contract
+     * @param _proxyOwner address of the proxy owner
      * @return _proxy token
      */
     function _createERC721UpgradeableProxy(address _applicationNFTU, address _proxyOwner) public returns (ApplicationERC721UProxy _proxy) {
         return new ApplicationERC721UProxy(address(_applicationNFTU), _proxyOwner, "");
-        
     }
 
     /**
@@ -298,30 +284,29 @@ abstract contract TestCommon is
         return new ApplicationERC721Pricing();
     }
 
-    /** 
-     * @dev Deploy Allowed Oracle 
-     * @return _oracleAllowed address 
+    /**
+     * @dev Deploy Allowed Oracle
+     * @return _oracleAllowed address
      */
-    function _createOracleApproved() public returns (OracleApproved _oracleAllowed){
-        vm.expectEmit(false,false,false,false);
+    function _createOracleApproved() public returns (OracleApproved _oracleAllowed) {
+        vm.expectEmit(false, false, false, false);
         emit AD1467_ApproveListOracleDeployed();
-        return new OracleApproved(); 
+        return new OracleApproved();
     }
 
-    /** 
-     * @dev Deploy Oracle contracts 
+    /**
+     * @dev Deploy Oracle contracts
      * @return _oracleDenied address
      */
-    function _createOracleDenied() public returns (OracleDenied _oracleDenied){
-        vm.expectEmit(false,false,false,false);
+    function _createOracleDenied() public returns (OracleDenied _oracleDenied) {
+        vm.expectEmit(false, false, false, false);
         emit AD1467_DeniedListOracleDeployed();
-        return new OracleDenied(); 
+        return new OracleDenied();
     }
 
-    function _createActionsArray() public pure returns(ActionTypes[] memory){
+    function _createActionsArray() public pure returns (ActionTypes[] memory) {
         ActionTypes[] memory actionTypes = new ActionTypes[](1);
         actionTypes[0] = ActionTypes.P2P_TRANSFER;
         return actionTypes;
     }
-    
 }

@@ -605,15 +605,23 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
     }
 
     function deployAndSetupERC721(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC721 erc721, HandlerDiamond handler) {
+        (erc721, handler) = deployAndSetupERC721(name, symbol, applicationAppManager);
+    }
+
+    function deployAndSetupERC721(
+        string memory name,
+        string memory symbol,
+        ApplicationAppManager _applicationAppManager
+    ) internal endWithStopPrank returns (ApplicationERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
-        erc721 = _createERC721(name, symbol, applicationAppManager);
+        erc721 = _createERC721(name, symbol, _applicationAppManager);
         handler = _createERC721HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
-        ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
+        ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(_applicationAppManager), address(erc721));
         switchToAppAdministrator();
         erc721.connectHandlerToToken(address(handler));
         /// register the token
-        applicationAppManager.registerToken(name, address(erc721));
+        _applicationAppManager.registerToken(name, address(erc721));
     }
 
     function deployAndSetupERC721NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC721 erc721, HandlerDiamond handler) {
@@ -651,17 +659,25 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
     }
 
     function deployAndSetupERC20(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {
+        (erc20, handler) = deployAndSetupERC20(name, symbol, applicationAppManager);
+    }
+
+    function deployAndSetupERC20(
+        string memory name,
+        string memory symbol,
+        ApplicationAppManager _applicationAppManager
+    ) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {
         switchToSuperAdmin();
-        erc20 = _createERC20(name, symbol, applicationAppManager);
+        erc20 = _createERC20(name, symbol, _applicationAppManager);
         handler = _createERC20HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
-        ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
+        ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(_applicationAppManager), address(erc20));
         switchToAppAdministrator();
         erc20.connectHandlerToToken(address(handler));
         /// register the token
         vm.expectEmit(true, true, false, false);
         emit AD1467_TokenRegistered(name, address(erc20));
-        applicationAppManager.registerToken(name, address(erc20));
+        _applicationAppManager.registerToken(name, address(erc20));
     }
 
     function deployAndSetupERC20NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {

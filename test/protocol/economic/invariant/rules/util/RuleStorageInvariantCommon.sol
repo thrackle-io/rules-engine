@@ -10,14 +10,13 @@ import {RuleDataFacet} from "src/protocol/economic/ruleProcessor/RuleDataFacet.s
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55
  * @dev Stores common variables/imports used for rule storage invariant tests
  */
-abstract contract RuleStorageInvariantCommon is TestCommonFoundry{
-    
+abstract contract RuleStorageInvariantCommon is TestCommonFoundry {
     uint32 index;
-    uint256 constant maxRuleCount = 2**32;
+    uint256 constant maxRuleCount = 2 ** 32;
 
     function prepRuleStorageInvariant() public {
         switchToSuperAdmin();
         setUpProtocolAndAppManager();
-        vm.warp(Blocktime);        
+        vm.warp(Blocktime);
     }
 }
