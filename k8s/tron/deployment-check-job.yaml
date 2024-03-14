@@ -9,9 +9,9 @@ spec:
       name: deploy-check
     spec:
       containers:
-        - name: deploy-check
-          image: { { TRON_TESTING_IMAGE_TAG } }
-          env:
-            - name: FOUNDRY_PROFILE
-              value: deployment-check
-      restartPolicy: Never
+      - name: deploy-check
+        image: {{TRON_TESTING_IMAGE_TAG}}
+        env:
+          - name: FOUNDRY_PROFILE
+            value: deployment-check
+    restartPolicy: Never
