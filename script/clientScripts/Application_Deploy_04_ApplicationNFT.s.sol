@@ -51,7 +51,7 @@ contract ApplicationDeployNFTScript is Script, DeployBase {
         nft1.connectHandlerToToken(address(applicationNFTHandlerDiamond));
 
         /// Register the tokens with the application's app manager
-        applicationAppManager.registerToken("Clyde Picture", address(nft1));
+        applicationAppManager.registerToken("Clyde", address(nft1));
 
         vm.stopBroadcast();
     }

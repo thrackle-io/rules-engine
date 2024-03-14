@@ -460,7 +460,7 @@ function _addStorageFacetsToFacetCut() public {
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
         // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
-        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("Frankenstein Coin", "FRANK");
         (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
         
         switchToAppAdministrator();
@@ -470,7 +470,7 @@ function _addStorageFacetsToFacetCut() public {
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
 
         /// create an ERC721
-        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
+        (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("Clyde", "CLYDEPIC");
         (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
 
         switchToAppAdministrator();
@@ -487,6 +487,8 @@ function _addStorageFacetsToFacetCut() public {
 
         switchToAppAdministrator();
 
+        applicationAppManager.registerTreasury(feeTreasury);
+
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
     }
@@ -499,7 +501,7 @@ function _addStorageFacetsToFacetCut() public {
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
         // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
-        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("Frankenstein Coin", "FRANK");
         (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
         
         switchToAppAdministrator();

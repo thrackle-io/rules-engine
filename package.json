@@ -7,8 +7,8 @@
   "version": "1.1.0",
   "description": "Set of contracts to easily start an application in rules protocol",
   "dependencies": {
-    "@openzeppelin/contracts": "5.0.2",
-    "@openzeppelin/contracts-upgradeable": "5.0.2"
+    "@openzeppelin/contracts": "4.9.6",
+    "@openzeppelin/contracts-upgradeable": "4.9.6"
   },
   "files": [
     "src/application",
