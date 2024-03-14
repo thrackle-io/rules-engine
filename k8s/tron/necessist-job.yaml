@@ -8,7 +8,7 @@ spec:
     metadata:
       name: necessist
     spec:
-      containers:
-        - name: necessist
-          image: { { NECESSIST_IMAGE_TAG } }
-      restartPolicy: Never
+    containers:
+      - name: necessist
+        image: {{NECESSIST_IMAGE_TAG}}
+    restartPolicy: Never

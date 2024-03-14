@@ -52,4 +52,4 @@ data:
 kind: ConfigMap
 metadata:
   name: tron
-  namespace: { { NAMESPACE } }
+  namespace: {{NAMESPACE}}
