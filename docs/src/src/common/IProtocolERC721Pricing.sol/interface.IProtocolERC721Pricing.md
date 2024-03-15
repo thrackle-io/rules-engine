@@ -1,5 +1,5 @@
 # IProtocolERC721Pricing
-[Git Source](https://github.com/thrackle-io/tron/blob/d4dc3a1319e6df3195618c1297a6c755d61cf319/src/common/IProtocolERC721Pricing.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/7030db34eb7187742ede73deed40ef4d7dddaa1b/src/common/IProtocolERC721Pricing.sol)
 
 **Inherits:**
 [NFTPricingErrors](/src/common/IErrors.sol/interface.NFTPricingErrors.md)

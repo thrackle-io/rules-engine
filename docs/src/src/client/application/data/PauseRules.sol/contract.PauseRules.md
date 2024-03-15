@@ -1,5 +1,5 @@
 # PauseRules
-[Git Source](https://github.com/thrackle-io/tron/blob/d4dc3a1319e6df3195618c1297a6c755d61cf319/src/client/application/data/PauseRules.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/7030db34eb7187742ede73deed40ef4d7dddaa1b/src/client/application/data/PauseRules.sol)
 
 **Inherits:**
 [IPauseRules](/src/client/application/data/IPauseRules.sol/interface.IPauseRules.md), [DataModule](/src/client/application/data/DataModule.sol/abstract.DataModule.md)

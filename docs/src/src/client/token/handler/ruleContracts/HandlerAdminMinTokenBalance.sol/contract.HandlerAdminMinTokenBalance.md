@@ -1,5 +1,5 @@
 # HandlerAdminMinTokenBalance
-[Git Source](https://github.com/thrackle-io/tron/blob/d4dc3a1319e6df3195618c1297a6c755d61cf319/src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/7030db34eb7187742ede73deed40ef4d7dddaa1b/src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol)
 
 **Inherits:**
 [HandlerRuleContractsCommonImports](/src/client/token/handler/ruleContracts/HandlerRuleContractsCommonImports.sol/abstract.HandlerRuleContractsCommonImports.md), [IAppManagerErrors](/src/common/IErrors.sol/interface.IAppManagerErrors.md), [ITokenHandlerEvents](/src/common/IEvents.sol/interface.ITokenHandlerEvents.md), [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IAdminMinTokenBalanceCapable](/src/client/token/IAdminMinTokenBalanceCapable.sol/abstract.IAdminMinTokenBalanceCapable.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md)

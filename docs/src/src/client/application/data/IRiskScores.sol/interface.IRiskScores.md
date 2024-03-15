@@ -1,5 +1,5 @@
 # IRiskScores
-[Git Source](https://github.com/thrackle-io/tron/blob/d4dc3a1319e6df3195618c1297a6c755d61cf319/src/client/application/data/IRiskScores.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/7030db34eb7187742ede73deed40ef4d7dddaa1b/src/client/application/data/IRiskScores.sol)
 
 **Inherits:**
 [IDataModule](/src/client/application/data/IDataModule.sol/interface.IDataModule.md), [IRiskInputErrors](/src/common/IErrors.sol/interface.IRiskInputErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md)
