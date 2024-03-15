@@ -1,5 +1,5 @@
 # SampleUpgradeFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/a0e7b20980bb06404eb010a144cfad3764962831/src/protocol/diamond/SampleUpgradeFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/4674814db01d3b90ed90d394187432e47d662f5c/src/protocol/diamond/SampleUpgradeFacet.sol)
 
 **Inherits:**
 ERC173
