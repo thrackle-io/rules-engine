@@ -1,5 +1,5 @@
 # ERC20HandlerMainFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/5605c9510d83af8a1b2bbbbbe9ac058b9e276ba7/src/client/token/handler/diamond/ERC20HandlerMainFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d4dc3a1319e6df3195618c1297a6c755d61cf319/src/client/token/handler/diamond/ERC20HandlerMainFacet.sol)
 
 **Inherits:**
 [HandlerBase](/src/client/token/handler/ruleContracts/HandlerBase.sol/contract.HandlerBase.md), [HandlerAdminMinTokenBalance](/src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol/contract.HandlerAdminMinTokenBalance.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IHandlerDiamondErrors](/src/common/IErrors.sol/interface.IHandlerDiamondErrors.md), ERC173

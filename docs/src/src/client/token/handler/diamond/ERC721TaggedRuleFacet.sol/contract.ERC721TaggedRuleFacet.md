@@ -1,5 +1,5 @@
 # ERC721TaggedRuleFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/5605c9510d83af8a1b2bbbbbe9ac058b9e276ba7/src/client/token/handler/diamond/ERC721TaggedRuleFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d4dc3a1319e6df3195618c1297a6c755d61cf319/src/client/token/handler/diamond/ERC721TaggedRuleFacet.sol)
 
 **Inherits:**
 [HandlerAccountMinMaxTokenBalance](/src/client/token/handler/ruleContracts/HandlerAccountMinMaxTokenBalance.sol/contract.HandlerAccountMinMaxTokenBalance.md), [FacetUtils](/src/client/token/handler/common/FacetUtils.sol/contract.FacetUtils.md)

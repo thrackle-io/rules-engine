@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/tron/blob/5605c9510d83af8a1b2bbbbbe9ac058b9e276ba7/src/client/token/ERC20/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d4dc3a1319e6df3195618c1297a6c755d61cf319/src/client/token/ERC20/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md), ReentrancyGuard
