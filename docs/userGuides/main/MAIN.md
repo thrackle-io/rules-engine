@@ -14,6 +14,10 @@
 
 ## [Rule Guide][ruleGuide-url]
 
+## [Handler Details][handlerDetails-url]
+
+## [Tags Guide][tagsGuide-url]
+
 ## [Glossary][glossary-url]
 
 ---
@@ -36,7 +40,8 @@ Should we create some sort of deployment verification test scripts?
 [userGuide-url]: ./USERGUIDE.md
 [ruleGuide-url]: ../rules/RULE-GUIDE.md
 [glossary-url]: ../GLOSSARY.md
-
+[handlerDetails-url]: ../Client/AssetHandler/PROTOCOL-ASSET-HANDLER-DIAMOND.md
+[tagsGuide-url]: ../tags/README.md
 
 <!-- These are the header links -->
 [header-url]: github-template.png

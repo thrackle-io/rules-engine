@@ -16,7 +16,7 @@ In order for US-Dollar-based application rules to function properly, the protoco
             - *Do not change the import or parent contract*
         3.  Compile the contract
             ````
-            forge build --use solc:0.8.17
+            forge build --use solc:0.8.24
 
             ````
         4.  Deploy the contract. (no parameters required)
@@ -44,7 +44,7 @@ In order for US-Dollar-based application rules to function properly, the protoco
             - *Do not change the import or parent contract*
         3.  Compile the contract
             ````
-            forge build --use solc:0.8.17
+            forge build --use solc:0.8.24
 
             ````
         4.  Deploy the contract. (no parameters required)
