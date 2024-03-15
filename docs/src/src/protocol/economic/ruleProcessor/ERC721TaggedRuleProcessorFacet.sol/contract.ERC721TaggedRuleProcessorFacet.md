@@ -1,5 +1,5 @@
 # ERC721TaggedRuleProcessorFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/7030db34eb7187742ede73deed40ef4d7dddaa1b/src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/f201d50818b608b30301a670e76c0b866af89050/src/protocol/economic/ruleProcessor/ERC721TaggedRuleProcessorFacet.sol)
 
 **Inherits:**
 [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IERC721Errors](/src/common/IErrors.sol/interface.IERC721Errors.md), [IRuleProcessorErrors](/src/common/IErrors.sol/interface.IRuleProcessorErrors.md), [ITagRuleErrors](/src/common/IErrors.sol/interface.ITagRuleErrors.md), [IMaxTagLimitError](/src/common/IErrors.sol/interface.IMaxTagLimitError.md)
