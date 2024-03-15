@@ -68,6 +68,7 @@ contract HandlerTokenMaxBuyVolume is RuleAdministratorOnly, ITokenHandlerEvents,
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
      */
+    // slither-disable-next-line calls-loop
     function setTokenMaxBuyVolumeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         if (_action != ActionTypes.BUY) revert InvalidAction();
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxBuyVolume(_ruleId);

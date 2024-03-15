@@ -69,6 +69,7 @@ contract HandlerTokenMaxDailyTrades is RuleAdministratorOnly, ITokenHandlerEvent
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
      */
+    // slither-disable-next-line calls-loop
     function setTokenMaxDailyTradesIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxDailyTrades(_ruleId);
         TokenMaxDailyTradesS storage data = lib.tokenMaxDailyTradesStorage();

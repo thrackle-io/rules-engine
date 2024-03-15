@@ -37,7 +37,7 @@ contract RuleStorageAccountMaxTxValueByRiskScoreMultiTest is RuleStorageInvarian
     }
 
     // The total amount of rules will never decrease.
-    function invariant_rulesTotalAccountMaxTxValueByRiskScoreNeverDecreases() public {
+    function invariant_rulesTotalAccountMaxTxValueByRiskScoreNeverDecreases() public view {
         uint256 total;
         for(uint i; i < actors.length; i++){
             total += actors[i].totalRules();
@@ -47,7 +47,7 @@ contract RuleStorageAccountMaxTxValueByRiskScoreMultiTest is RuleStorageInvarian
     }
 
     // The biggest ruleId in a rule type will always be the same as the total amount of rules registered in the protocol for that rule type - 1.
-    function invariant_rulesTotalAccountMaxTxValueByRiskScoreEqualsAppBalances() public {
+    function invariant_rulesTotalAccountMaxTxValueByRiskScoreEqualsAppBalances() public view {
         uint256 total;
         for(uint i; i < actors.length; i++){
             total += actors[i].totalRules();
@@ -59,7 +59,7 @@ contract RuleStorageAccountMaxTxValueByRiskScoreMultiTest is RuleStorageInvarian
     }
 
     // There can be only a total of 2**32 of each rule type.
-    function invariant_rulesTotalAccountMaxTxValueByRiskScoreLessThanMax() public {
+    function invariant_rulesTotalAccountMaxTxValueByRiskScoreLessThanMax() public view {
         assertLe(ApplicationRiskProcessorFacet(address(ruleProcessor)).getTotalAccountMaxTxValueByRiskScore(), maxRuleCount);
     }
 
@@ -70,7 +70,7 @@ contract RuleStorageAccountMaxTxValueByRiskScoreMultiTest is RuleStorageInvarian
         assertEq(previousTotal, AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager),createUint48Array(100), createUint8Array(50), 24, uint64(block.timestamp)));
     }
     // Rules can never be modified.
-    function invariant_AccountMaxTxValueByRiskScoreImmutable() public {
+    function invariant_AccountMaxTxValueByRiskScoreImmutable() public view {
         AppRules.AccountMaxTxValueByRiskScore memory ruleAfter = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(index);
         assertEq(ruleBefore.maxValue[0], ruleAfter.maxValue[0]);
         assertEq(ruleBefore.riskScore[0], ruleAfter.riskScore[0]);

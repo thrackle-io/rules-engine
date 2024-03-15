@@ -28,7 +28,7 @@ This rule works at the application level which means that all tokens in the app 
 This rule is a simple boolean stored in the Application Handler contract:
 
 ```c
-bool private AccountDenyForNoAccessLevelRuleActive;
+bool private accountDenyForNoAccessLevelRuleActive;
 ```
 
 ###### *see [Application Handler](../../../src/client/application/ProtocolApplicationHandler.sol)*
@@ -72,7 +72,7 @@ Adding a account-deny-for-no-access-level rule is done through the function:
 * @param _on boolean representing if a rule must be checked or not.
 */
 function activateAccountDenyForNoAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress) {
-    AccountDenyForNoAccessLevelRuleActive = _on;
+    accountDenyForNoAccessLevelRuleActive = _on;
     if (_on) {
         emit ApplicationHandlerActivated(ACCESS_LEVEL_0);
     } else {

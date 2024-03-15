@@ -37,7 +37,7 @@ contract RuleStorageAccountMaxBuySizeMultiTest is RuleStorageInvariantCommon {
     }
 
     // The total amount of rules will never decrease.
-    function invariant_rulesTotalAccountMaxBuySizeNeverDecreases() public {
+    function invariant_rulesTotalAccountMaxBuySizeNeverDecreases() public view {
         uint256 total;
         for(uint i; i < actors.length; i++){
             total += actors[i].totalRules();
@@ -47,7 +47,7 @@ contract RuleStorageAccountMaxBuySizeMultiTest is RuleStorageInvariantCommon {
     }
 
     // The biggest ruleId in a rule type will always be the same as the total amount of rules registered in the protocol for that rule type - 1.
-    function invariant_rulesTotalAccountMaxBuySizeEqualsAppBalances() public {
+    function invariant_rulesTotalAccountMaxBuySizeEqualsAppBalances() public view {
         uint256 total;
         for(uint i; i < actors.length; i++){
             total += actors[i].totalRules();
@@ -59,7 +59,7 @@ contract RuleStorageAccountMaxBuySizeMultiTest is RuleStorageInvariantCommon {
     }
 
     // There can be only a total of 2**32 of each rule type.
-    function invariant_rulesTotalAccountMaxBuySizeLessThanMax() public {
+    function invariant_rulesTotalAccountMaxBuySizeLessThanMax() public view {
         assertLe(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAccountMaxBuySize(), maxRuleCount);
     }
 
@@ -70,7 +70,7 @@ contract RuleStorageAccountMaxBuySizeMultiTest is RuleStorageInvariantCommon {
         assertEq(previousTotal, TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(address(applicationAppManager), createBytes32Array(bytes32("tag")), createUint256Array(223456789), createUint16Array(24), uint64(block.timestamp)));
     }
     // Rules can never be modified.
-    function invariant_AccountMaxBuySizeImmutable() public {
+    function invariant_AccountMaxBuySizeImmutable() public view {
         TaggedRules.AccountMaxBuySize memory ruleAfter = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMaxBuySize(index,"tag");
         assertEq(ruleBefore.maxSize, ruleAfter.maxSize);
         assertEq(ruleBefore.period, ruleAfter.period);

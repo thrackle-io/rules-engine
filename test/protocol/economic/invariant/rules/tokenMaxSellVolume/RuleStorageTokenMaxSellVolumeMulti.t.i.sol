@@ -10,6 +10,7 @@ import "./RuleStorageTokenMaxSellVolumeActorManager.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55
  * @dev This is the multi actor rule storage invariant test for multiple actors.
  */
+
 contract RuleStorageTokenMaxSellVolumeMultiTest is RuleStorageInvariantCommon {
     RuleStorageTokenMaxSellVolumeActorManager actorManager;
     RuleStorageTokenMaxSellVolumeActor[] actors;

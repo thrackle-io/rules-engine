@@ -13,7 +13,7 @@ import {IAssetHandlerErrors} from "src/common/IErrors.sol";
  */
 
 
-contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors{
+contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents, IAssetHandlerErrors {
 
     /// Rule Setters and Getters
     /**
@@ -65,6 +65,7 @@ contract HandlerAccountMaxSellSize is RuleAdministratorOnly, ITokenHandlerEvents
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
      */
+    // slither-disable-next-line calls-loop
     function setAccountMaxSellSizeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         if (_action != ActionTypes.SELL) revert InvalidAction();
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMaxSellSize(_ruleId);

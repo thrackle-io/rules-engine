@@ -70,6 +70,7 @@ contract HandlerAccountMinMaxTokenBalance is RuleAdministratorOnly, ITokenHandle
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
      */
+    // slither-disable-next-line calls-loop
     function setAccountMinMaxTokenBalanceIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateAccountMinMaxTokenBalance(_ruleId);
         AccountMinMaxTokenBalanceHandlerS storage data = lib.accountMinMaxTokenBalanceStorage();

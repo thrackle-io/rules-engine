@@ -79,6 +79,7 @@ contract HandlerTokenMaxTradingVolume is RuleAdministratorOnly, ITokenHandlerEve
      * @param _action the action type to set the rule
      * @param _ruleId Rule Id to set
      */
+    // slither-disable-next-line calls-loop
     function setTokenMaxTradingVolumeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
         IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxTradingVolume(_ruleId);
         TokenMaxTradingVolumeS storage data = lib.tokenMaxTradingVolumeStorage();
