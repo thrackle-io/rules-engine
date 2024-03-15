@@ -7,16 +7,16 @@ import "test/client/token/ERC721/util/ERC721Util.sol";
 
 abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
 
-    function testApplication_ApplicationCommonTests_IsSuperAdmin() public ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_IsSuperAdmin() public view ifDeplomentTestsEnabled() {
         assertEq(applicationAppManager.isSuperAdmin(superAdmin), true);
         assertEq(applicationAppManager.isSuperAdmin(appAdministrator), false);
     }
 
-    function testApplication_ApplicationCommonTests_IsAppAdministrator_Negative() public ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_IsAppAdministrator_Negative() public view ifDeplomentTestsEnabled() {
         assertEq(applicationAppManager.isAppAdministrator(superAdmin), false);
     }
 
-    function testApplication_ApplicationCommonTests_IsAppAdministrator_Positive() public ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_IsAppAdministrator_Positive() public view ifDeplomentTestsEnabled() {
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
     }
 
@@ -588,16 +588,16 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationCoinHandler)));
     }
 
-        function testApplication_ApplicationCommonTests_VerifyPricingContractsConnectedToHandler() public ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_VerifyPricingContractsConnectedToHandler() public view ifDeplomentTestsEnabled() {
         assertEq(applicationHandler.erc20PricingAddress(), address(erc20Pricer));
         assertEq(applicationHandler.nftPricingAddress(), address(erc721Pricer));
     }
 
-    function testApplication_ApplicationCommonTests_VerifyRuleAdmin() public ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_VerifyRuleAdmin() public view ifDeplomentTestsEnabled() {
         assertTrue(applicationAppManager.isRuleAdministrator(ruleAdmin));
     }
 
-    function testApplication_ApplicationCommonTests_VerifyTreasury() public ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_VerifyTreasury() public view ifDeplomentTestsEnabled() {
         assertTrue(applicationAppManager.isTreasury(feeTreasury));
     }
 
