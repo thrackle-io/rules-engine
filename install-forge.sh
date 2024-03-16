@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-WITH_DEPLOY=$1
+SCRIPT_MODE=$1
 
 source ~/.bashrc
 foundryup
@@ -9,9 +9,11 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 
-forge build
+if [ $SCRIPT_MODE = "--with-build" ]; then
+	forge build
+fi
 
-if [ $WITH_DEPLOY = "--with-deploy" ]; then
+if [ $SCRIPT_MODE = "--with-deploy" ]; then
 	forge script script/DeployAllModulesPt1.s.sol --ffi --broadcast
 	source script/ParseProtocolDeploy.sh
 	forge script script/DeployAllModulesPt2.s.sol --ffi --broadcast
