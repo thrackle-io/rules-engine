@@ -1,5 +1,5 @@
 # ERC721NonTaggedRuleFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/ca86a0ac3b5737f1c6c7b1df4820e4363feb10cd/src/client/token/handler/diamond/ERC721NonTaggedRuleFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/d5c4da9c910c7f583b74a714399bd64fbb32b616/src/client/token/handler/diamond/ERC721NonTaggedRuleFacet.sol)
 
 **Inherits:**
 [HandlerAccountApproveDenyOracle](/src/client/token/handler/ruleContracts/HandlerAccountApproveDenyOracle.sol/contract.HandlerAccountApproveDenyOracle.md), [HandlerTokenMaxSupplyVolatility](/src/client/token/handler/ruleContracts/HandlerTokenMaxSupplyVolatility.sol/contract.HandlerTokenMaxSupplyVolatility.md), [HandlerTokenMaxTradingVolume](/src/client/token/handler/ruleContracts/HandlerTokenMaxTradingVolume.sol/contract.HandlerTokenMaxTradingVolume.md), [HandlerTokenMinTxSize](/src/client/token/handler/ruleContracts/HandlerTokenMinTxSize.sol/contract.HandlerTokenMinTxSize.md), [HandlerTokenMinHoldTime](/src/client/token/handler/ruleContracts/HandlerTokenMinHoldTime.sol/contract.HandlerTokenMinHoldTime.md), [HandlerTokenMaxDailyTrades](/src/client/token/handler/ruleContracts/HandlerTokenMaxDailyTrades.sol/contract.HandlerTokenMaxDailyTrades.md)
