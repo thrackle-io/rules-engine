@@ -2,11 +2,16 @@
 
 [![Project Version][version-image]][version-url]
 
-# *** UNDER CONSTRUCTION ***
-
 Relevant Documentation:
 - [Deployment Guides][deploymentGuide-url]
 - [Rule Guide][ruleGuide-url]
+- [Tag Guide][tag-url]
+- [Access Level Guide][accessLevel-url]
+- [Admin Roles][adminRoles-url]
+- [Integration of Oracles][oracles-url]
+- [Risk Score][riskScore-url]
+- [Pricing Contracts][pricing-url]
+- [Fees][fees-url]
 - [Glossary][glossary-url]
 - [Architecture Overview][archOverview-url]
 
@@ -131,9 +136,16 @@ Formatting at the commandline:
 > npx prettier --write .
 
 <!-- These are the body links -->
-[deploymentGuide-url]: ./deployment/NFT-DEPLOYMENT.md
+[deploymentGuide-url]: ./deployment/README.md
 [archOverview-url]: ./ARCHITECTURE-OVERVIEW.md
 [ruleGuide-url]: ./rules/RULE-GUIDE.md
+[tag-url]: ./tags/README.md
+[accessLevel-url]: ./accessLevels/README.md
+[adminRoles-url]: ./permissions/ADMIN-ROLES.md
+[oracles-url]: ./oracles/README.md
+[pricing-url]: ./pricing/README.md
+[fees-url]: ./fees/README.md
+[riskScore-url]: ./riskScore/README.md
 [glossary-url]: ./GLOSSARY.md
 
 <!-- These are the header links -->
