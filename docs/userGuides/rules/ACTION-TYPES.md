@@ -33,3 +33,7 @@ The protocol defines a mint as a transfer from zero address to any address or co
 ## BURN
 
 The protocol defines a burn as a transfer to the zero address from any address(except the zero address) or any contract originating from any sender.
+
+## What Actions apply to what Rules? 
+
+Please see [Rule Applicatibility](./RULE-APPLICABILITY.md)

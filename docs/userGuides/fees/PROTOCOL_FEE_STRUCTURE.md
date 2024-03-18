@@ -106,11 +106,11 @@ The following validation will be carried out by the create function in order to 
 - `feePercentage` is not equal to 0.
 - `targetAccount` is not the zero address. 
 
-###### *see [Fees](../../../src/client/token/data/Fees.sol)*
+###### *see [Fees](../../../src/client/token/handler/ruleContracts/Fees.sol)*
 
 ## Other Functions:
 
-- In [Fees](../../../src/client/token/data/Fees.sol):
+- In [Fees](../../../src/client/token/handler/ruleContracts/Fees.sol):
     -  Function to remove a fee:
         ```c
         function removeFee(bytes32 _tag) external onlyOwner;
