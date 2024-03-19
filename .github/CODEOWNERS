@@ -1,0 +1,8 @@
+# Code Owners Configuration, for Reviewer Tagging
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Tag devops for review in all PRs affecting Github Actions
+/.github/ @thrackle-io/devops
+
+# Tag devops for review in all PRs affecting Kubernetes Resources
+/k8s/ @thrackle-io/devops
