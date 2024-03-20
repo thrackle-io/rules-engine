@@ -575,6 +575,16 @@ function _addStorageFacetsToFacetCut() public {
         applicationAppManager.registerToken(name, address(erc721));
     }
 
+    function deployAndSetupERC721NoRegister(string memory name, string memory symbol) internal endWithStopPrank() returns(ApplicationERC721 erc721, HandlerDiamond handler) {
+        switchToSuperAdmin();
+        erc721 = _createERC721(name, symbol, applicationAppManager);
+        handler = _createERC721HandlerDiamond();
+        VersionFacet(address(handler)).updateVersion("1.1.0");
+        ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
+        switchToAppAdministrator();
+        erc721.connectHandlerToToken(address(handler));
+    }
+
     function deployAndSetupERC721Min(string memory name, string memory symbol) internal endWithStopPrank() returns(MinimalERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc721 = _createERC721Min(name, symbol, applicationAppManager);
@@ -599,6 +609,16 @@ function _addStorageFacetsToFacetCut() public {
         vm.expectEmit(true,true,false,false);
         emit AD1467_TokenRegistered(name, address(erc20));
         applicationAppManager.registerToken(name, address(erc20));
+    }
+
+    function deployAndSetupERC20NoRegister(string memory name, string memory symbol) internal endWithStopPrank() returns(ApplicationERC20 erc20, HandlerDiamond handler) {
+        switchToSuperAdmin();
+        erc20 = _createERC20(name, symbol, applicationAppManager);
+        handler = _createERC20HandlerDiamond();
+        VersionFacet(address(handler)).updateVersion("1.1.0");
+        ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc20));
+        switchToAppAdministrator();
+        erc20.connectHandlerToToken(address(handler));
     }
 
     function deployAndSetupERC20Min(string memory name, string memory symbol) internal endWithStopPrank() returns(MinimalERC20 erc20, HandlerDiamond handler) {

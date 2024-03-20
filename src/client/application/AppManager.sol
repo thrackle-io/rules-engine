@@ -20,7 +20,7 @@ import "src/client/application/data/IDataModule.sol";
 import "src/client/token/IAdminMinTokenBalanceCapable.sol";
 import "src/client/token/ProtocolTokenCommon.sol";
 import "src/client/token/HandlerTypeEnum.sol";
-import {IAppLevelEvents} from "src/common/IEvents.sol";
+import {IAppLevelEvents,IApplicationEvents} from "src/common/IEvents.sol";
 import {ActionTypes} from "src/common/ActionEnum.sol";
 
 /**
@@ -29,7 +29,7 @@ import {ActionTypes} from "src/common/ActionEnum.sol";
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  * @notice This contract is the permissions contract
  */
-contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, ReentrancyGuard {
+contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, IApplicationEvents, ReentrancyGuard {
     string private constant VERSION = "1.1.0";
     using ERC165Checker for address;
     bytes32 constant SUPER_ADMIN_ROLE = keccak256("SUPER_ADMIN_ROLE");
@@ -80,6 +80,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
     address[] tradingRuleAllowList;
     mapping(address => bool) isTradingRuleAllowlisted;
     mapping(address => uint) tradingRuleAllowlistAddressToIndex;
+
 
     /**
      * @dev This constructor sets up the super admin and app administrator roles while also forming the hierarchy of roles and deploying data contracts. App Admins are the top tier. They may assign all admins, including other app admins.
@@ -1012,6 +1013,7 @@ contract AppManager is IAppManager, AccessControlEnumerable, IAppLevelEvents, Re
         if (_newApplicationHandler == address(0)) revert ZeroAddress();
         applicationHandler = ProtocolApplicationHandler(_newApplicationHandler);
         applicationHandlerAddress = _newApplicationHandler;
+        emit AD1467_HandlerConnected(applicationHandlerAddress, address(this)); 
     }
 
     /**

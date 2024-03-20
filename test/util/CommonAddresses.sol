@@ -32,6 +32,9 @@ contract CommonAddresses {
     address rich_user = address(45);
     address proxyOwner = address(787);
     address newAdmin = address(75);
+    address ammAddress = address(0xa33);
+    address treasuryAddress = address(0xadde55);
+    address tradingRuleAddress = address(0x00222);
     address[] badBoys;
     address[] goodBoys;
 }
