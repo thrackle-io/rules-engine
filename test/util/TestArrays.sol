@@ -336,6 +336,19 @@ abstract contract TestArrays {
 
     /**
     * @dev This function creates a bytes32 array to be used in tests 
+    * @notice This function creates a bytes32 array size of 3 
+    * @return array bytes32[] 
+    */
+    function createBytes32Array(bytes32 arg1, bytes32 arg2, bytes32 arg3, bytes32 arg4) public pure returns(bytes32[] memory array) {
+        array = new bytes32[](3);
+        array[0] = arg1;
+        array[1] = arg2; 
+        array[2] = arg3; 
+        array[3] = arg4;
+    }
+
+    /**
+    * @dev This function creates a bytes32 array to be used in tests 
     * @notice This function creates a bytes32 array size of 8 
     * @return array bytes32[] 
     */
@@ -383,6 +396,19 @@ abstract contract TestArrays {
         array[0] = arg1;
         array[1] = arg2; 
         array[2] = arg3; 
+    }
+
+    /**
+    * @dev This function creates a address array to be used in tests 
+    * @notice This function creates a address array size of 3 
+    * @return array address[] 
+    */
+    function createAddressArray(address arg1, address arg2, address arg3, address arg4) public pure returns(address[] memory array) {
+        array = new address[](3);
+        array[0] = arg1;
+        array[1] = arg2; 
+        array[2] = arg3; 
+        array[3] = arg4; 
     }
 
     /**

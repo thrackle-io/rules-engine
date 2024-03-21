@@ -31,6 +31,12 @@ contract ERC721PricingTest is TestCommonFoundry {
         assertEq(openOcean.getNFTPrice(address(boredReptilianNFT), 1), 666 * (10 ** 16));
     }
 
+    function testPricing_ERC721Pricing_SettingSingleNFTPrice_Negative() public {
+        switchToUser(); 
+        vm.expectRevert("Ownable: caller is not the owner"); 
+        openOcean.setSingleNFTPrice(address(boredWhaleNFT), 1, 5000 * (10 ** 18));
+    }
+
     /// Testing setting the price for a whole NFT contract under the right conditions
     function testPricing_ERC721Pricing_SettingNFTCollectionPrice() public {
         openOcean.setNFTCollectionPrice(address(boredWhaleNFT), 1000 * (10 ** 18));

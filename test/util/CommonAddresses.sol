@@ -10,6 +10,7 @@ contract CommonAddresses {
 // common addresses
     address superAdmin = address(0xDaBEEF);
     address appAdministrator = address(0xDEAD);
+    address newSuperAdmin = address(0xACE);
     address ruleBypassAccount = address(0xAAA);
     address ruleAdmin = address(0xACDC);
     address accessLevelAdmin = address(0xBBB);

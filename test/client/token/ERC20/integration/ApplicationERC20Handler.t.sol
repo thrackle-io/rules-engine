@@ -12,15 +12,12 @@ import "test/client/token/ERC20/util/ERC20Util.sol";
  * @notice It simulates the input from a token contract
  */
 contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
-
-
     function setUp() public {
         vm.warp(Blocktime);
         setUpProcotolAndCreateERC20AndHandlerSpecialOwner();
-
     }
 
-    function testERC20_ApplicationERC20Handler_FeeCreationAndSetting() public endWithStopPrank() {
+    function testERC20_ApplicationERC20Handler_FeeCreationAndSetting() public endWithStopPrank {
         bytes32 tag1 = "cheap";
         uint256 minBalance = 10 * 10 ** 18;
         uint256 maxBalance = 1000 * 10 ** 18;
@@ -81,7 +78,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         Fees(address(applicationCoinHandlerSpecialOwner)).addFee(tag1, minBalance, maxBalance, feePercentage, feeCollectorAccount);
     }
 
-    function testERC20_ApplicationERC20Handler_GetApplicableFees() public endWithStopPrank() {
+    function testERC20_ApplicationERC20Handler_GetApplicableFees() public endWithStopPrank {
         switchToRuleAdmin();
         bytes32 tag1 = "cheap";
         uint256 minBalance = 10 * 10 ** 18;
@@ -143,17 +140,17 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
     }
 
     /// Test risk score max size of 99 when adding risk rules
-    function testERC20_ApplicationERC20Handler_AccountMaxTransactionValueByRiskScore() public endWithStopPrank() { 
+    function testERC20_ApplicationERC20Handler_AccountMaxTransactionValueByRiskScore() public endWithStopPrank {
         switchToRuleAdmin();
         ///Activate rule
         uint32 ruleId = createAccountMaxTxValueByRiskRule(createUint8Array(25, 50, 75), createUint48Array(1000000, 10000, 10));
-        setAccountMaxTxValueByRiskRule(ruleId); 
-        AppRules.AccountMaxTxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(0); 
+        setAccountMaxTxValueByRiskRule(ruleId);
+        AppRules.AccountMaxTxValueByRiskScore memory rule = ApplicationRiskProcessorFacet(address(ruleProcessor)).getAccountMaxTxValueByRiskScore(0);
         assertEq(rule.maxValue[0], 1000000);
     }
 
     /// Test risk score max size of 100 when adding risk rules
-    function testERC20_ApplicationERC20Handler_AccountMaxTransactionValueByRiskScore_Negative() public endWithStopPrank() { 
+    function testERC20_ApplicationERC20Handler_AccountMaxTransactionValueByRiskScore_Negative() public endWithStopPrank {
         switchToRuleAdmin();
         ///add txnLimit failing (risk score 100)
         uint48[] memory maxValue = createUint48Array(1000000, 10000, 10);
@@ -162,7 +159,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), maxValue, riskScore, 0, uint64(block.timestamp));
     }
 
-    function testERC20_ApplicationERC20Handler_AccountMinMaxTokenBalanceTaggedCheckPasses() public endWithStopPrank() {
+    function testERC20_ApplicationERC20Handler_AccountMinMaxTokenBalanceTaggedCheckPasses() public endWithStopPrank {
         switchToAppAdministrator();
         applicationAppManager.addTag(user1, "BALLER");
         applicationAppManager.addTag(user2, "BALLER");
@@ -176,15 +173,15 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         /// execute a passing check for the maximum
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(1000, 0, user1, user2, user1, 500);
         // execute a failing check for the minimum
-        vm.expectRevert(0x3e237976);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 1000, user1, user2, user1, 15);
         // execute a passing check for the maximum
-        vm.expectRevert(0x1da56a44);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(1000, 800, user1, user2, user1, 500);
     }
 
-    /// Test Account Approve Deny Oracle Rule 
-    function testERC20_ApplicationERC20Handler_AccountApproveDenyOracleERC20Handler() public endWithStopPrank() {
+    /// Test Account Approve Deny Oracle Rule
+    function testERC20_ApplicationERC20Handler_AccountApproveDenyOracleERC20Handler() public endWithStopPrank {
         switchToAppAdministrator();
         // add a denied address
         badBoys.push(address(69));
@@ -200,7 +197,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         vm.startPrank(address(applicationCoin));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, user2, user1, 10);
         // This one should fail
-        vm.expectRevert(0x2767bda4);
+        vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(69), user1, 10);
 
         // check the approved list type
@@ -216,7 +213,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         // This one should pass
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(59), user1, 10);
         // This one should fail
-        vm.expectRevert(0xcafd3316);
+        vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(88), user1, 10);
 
         // Finally, check the invalid type
@@ -225,7 +222,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         createAccountApproveDenyOracleRule(2);
     }
 
-    function testERC20_ApplicationERC20Handler_TurningOnOffRules() public endWithStopPrank() {
+    function testERC20_ApplicationERC20Handler_TurningOnOffRules() public endWithStopPrank {
         switchToAppAdministrator();
         /// Set the min/max rule data
         applicationAppManager.addTag(user1, "BALLER");
@@ -241,10 +238,10 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         /// execute a passing check for the maximum
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(1000, 0, user1, user2, user1, 500);
         // execute a failing check for the minimum
-        vm.expectRevert(0x3e237976);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 1000, user1, user2, user1, 15);
         // execute a failing check for the maximum
-        vm.expectRevert(0x1da56a44);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(1000, 800, user1, user2, user1, 500);
         /// turning rules off
         switchToRuleAdmin();
@@ -260,15 +257,15 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         vm.stopPrank();
         vm.startPrank(address(applicationCoin));
         /// now we cannot break the rules again
-        vm.expectRevert(0x3e237976);
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 1000, user1, user2, user1, 15);
-        vm.expectRevert(0x1da56a44);
+        vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(1000, 800, user1, user2, user1, 500);
 
         // add the rule.
         switchToRuleAdmin();
         uint32 _index = createAccountApproveDenyOracleRule(0);
-        setAccountApproveDenyOracleRule(address(applicationCoinHandlerSpecialOwner), _index); 
+        setAccountApproveDenyOracleRule(address(applicationCoinHandlerSpecialOwner), _index);
         assertEq(_index, 0);
         NonTaggedRules.AccountApproveDenyOracle memory rule = ERC20RuleProcessorFacet(address(ruleProcessor)).getAccountApproveDenyOracle(_index);
         assertEq(rule.oracleType, 0);
@@ -285,9 +282,8 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         // This one should pass
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, user2, user1, 10);
         // This one should fail
-        vm.expectRevert(0x2767bda4);
+        vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(68), user1, 10);
-
 
         // check the allowed list type
         switchToRuleAdmin();
@@ -311,7 +307,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         // This one should pass
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(59), user1, 10);
         // This one should fail
-        vm.expectRevert(0xcafd3316);
+        vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(88), user1, 10);
 
         // let's turn the allowed list rule off
@@ -322,7 +318,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(88), user1, 10);
 
         // let's verify that the denied list rule is still active
-        vm.expectRevert(0x2767bda4);
+        vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(68), user1, 10);
 
         // let's turn it back on
@@ -330,7 +326,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         ERC20NonTaggedRuleFacet(address(applicationCoinHandlerSpecialOwner)).activateAccountApproveDenyOracle(_createActionsArray(), true, _indexTwo);
         vm.stopPrank();
         vm.startPrank(address(applicationCoin));
-        vm.expectRevert(0xcafd3316);
+        vm.expectRevert(abi.encodeWithSignature("AddressNotApproved()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(88), user1, 10);
 
         // Remove the denied list rule and verify it no longer fails.
@@ -341,7 +337,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(68), user1, 10);
     }
 
-    function testERC20_ApplicationERC20Handler_UpgradeApplicationERC20Handler() public endWithStopPrank() {
+    function testERC20_ApplicationERC20Handler_UpgradeApplicationERC20Handler() public endWithStopPrank {
         /// put data in the old rule handler
         /// Fees
         bytes32 tag1 = "cheap";
@@ -357,7 +353,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         assertEq(fee.minBalance, minBalance);
         assertEq(fee.maxBalance, maxBalance);
         assertEq(1, Fees(address(applicationCoinHandlerSpecialOwner)).getFeeTotal());
-       }
+    }
 
     function testERC20_ApplicationERC20Handler_ZeroAddressErrors() public {
         /// test both address checks in constructor
@@ -369,5 +365,4 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         vm.expectRevert();
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(0x0));
     }
-
 }

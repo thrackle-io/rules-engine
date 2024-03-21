@@ -20,7 +20,7 @@ contract ApplicationERC20 is ProtocolERC20 {
     constructor(string memory _name, string memory _symbol, address _appManagerAddress) ProtocolERC20(_name, _symbol, _appManagerAddress) {}
 
     /**
-     * @dev Function mints new tokens. Allows for free and open minting of tokens. Comment out to use appAdministatorOnly minting.
+     * @dev Function mints new tokens. Allows for free and open minting of tokens. 
      * @param to recipient address
      * @param amount number of tokens to mint
      */

@@ -207,6 +207,21 @@ contract ProtocolERC20 is ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable
     }
 
     /**
+     * @dev Function sets the Max Supply for tokens. If left at 0, infinite supply.
+     * @param _maxSupply maximum supply of tokens allowed.
+     */
+    function setMaxSupply(uint256 _maxSupply) external appAdministratorOnly(appManagerAddress) {
+        MAX_SUPPLY = _maxSupply;
+    }
+
+    /**
+     * @dev Function gets the Max Supply for tokens. 
+     */
+    function getMaxSupply() external view returns(uint256){
+        return MAX_SUPPLY;
+    }
+
+    /**
      * @dev Function to connect Token to previously deployed Handler contract
      * @param _handlerAddress address of the currently deployed Handler Address
      */

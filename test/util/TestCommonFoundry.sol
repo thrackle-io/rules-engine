@@ -289,8 +289,11 @@ function _addStorageFacetsToFacetCut() public {
         setUpProtocolAndAppManager();
         (boredWhaleNFT, boredWhaleHandler) = deployAndSetupERC721("Bored Whale Island Club", "BWYC");
         (boredReptilianNFT, boredReptileHandler) = deployAndSetupERC721("Board Reptilian Spaceship Club", "BRSC");
+        (boredCoin, boredCoinHandler) = deployAndSetupERC20("Bored Whale Coin", "BRDC");
+        (reptileToken, reptileTokenHandler) = deployAndSetupERC20("Reptile Token", "RTR");
         /// Deploy the pricing contract
         openOcean = _createERC721Pricing();
+        uniBase = _createERC20Pricing();
     }
 
     /**
@@ -460,7 +463,7 @@ function _addStorageFacetsToFacetCut() public {
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
         // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
-        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("Frankenstein Coin", "FRANK");
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
         (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
         
         switchToAppAdministrator();
@@ -501,7 +504,7 @@ function _addStorageFacetsToFacetCut() public {
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
         // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
-        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("Frankenstein Coin", "FRANK");
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
         (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
         
         switchToAppAdministrator();
@@ -750,5 +753,16 @@ function _addStorageFacetsToFacetCut() public {
     function switchToNewAdmin() public {
         vm.stopPrank();
         vm.startPrank(newAdmin);
+    }
+
+    function _addAdminsToAddressArray() public {
+        ADDRESSES = [address(0xFF1), address(0xFF2), address(0xFF3), address(0xFF4), address(0xFF5), address(0xFF6), address(0xFF7), address(0xFF8),address(superAdmin), address(appAdministrator), address(ruleAdmin), address(riskAdmin), address(accessLevelAdmin)];
+    }
+
+    function _grantAdminRolesToAdmins() public {
+        switchToAppAdministrator(); 
+        applicationAppManager.addAccessLevelAdmin(accessLevelAdmin);
+        applicationAppManager.addRiskAdmin(riskAdmin);
+        applicationAppManager.addRuleAdministrator(ruleAdmin);
     }
 }
