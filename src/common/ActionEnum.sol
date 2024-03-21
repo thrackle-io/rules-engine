@@ -11,5 +11,6 @@ enum ActionTypes {
     BUY,
     SELL,   
     MINT,
-    BURN
+    BURN,
+    NONE
 }

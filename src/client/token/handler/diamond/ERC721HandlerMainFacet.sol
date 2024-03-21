@@ -48,11 +48,48 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
      * @return true if all checks pass
      */
     function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to,  address _sender, uint256 _tokenId) external onlyOwner returns (bool) {
+        return _checkAllRules(balanceFrom, balanceTo, _from, _to, _sender, _tokenId, ActionTypes.NONE);
+    }
+
+    /**
+     * @dev This function is the one called from the contract that implements this handler. It's the legacy entry point. This function only serves as a pass-through to the active function.
+     * @param _balanceFrom token balance of sender address
+     * @param _balanceTo token balance of recipient address
+     * @param _from sender address
+     * @param _to recipient address
+     * @param _amount number of tokens transferred
+     * @param _tokenId the token's specific ID
+     * @param _action Action Type defined by ApplicationHandlerLib -- (Purchase, Sell, Trade, Inquire) are the legacy options
+     * @return Success equals true if all checks pass
+     */
+    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external onlyOwner returns (bool) {
+        _action = ActionTypes.P2P_TRANSFER;// This hard-coded setting is for the legacy clients. When no this is no longer needed, this line can be removed giving clients the option of setting their own action
+        _amount;// legacy parameter
+        return _checkAllRules(_balanceFrom, _balanceTo, _from, _to, address(0), _tokenId, _action);
+    }
+
+    /**
+     * @dev This function contains the logic for checking all rules. It performs all the checks for the external functions.
+     * @param balanceFrom token balance of sender address
+     * @param balanceTo token balance of recipient address
+     * @param _from sender address
+     * @param _to recipient address
+     * @param _sender the address triggering the contract action
+     * @param _tokenId id of the NFT being transferred
+     * @param _action the client determined action, if NONE then the action is dynamically determined
+     * @return true if all checks pass
+     */
+    function _checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to,  address _sender, uint256 _tokenId, ActionTypes _action) internal returns (bool) {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         
         bool isFromBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_from);
         bool isToBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_to);
-        ActionTypes action = determineTransferAction(_from, _to, _sender);
+        ActionTypes action;
+        if (_action == ActionTypes.NONE){
+            action = determineTransferAction(_from, _to, _sender);
+        } else {
+            action = _action;
+        }
         uint256 _amount = 1; /// currently not supporting batch NFT transactions. Only single NFT transfers.
         /// standard tagged and non-tagged rules do not apply when either to or from is an admin
         if (!isFromBypassAccount && !isToBypassAccount) {
@@ -88,5 +125,6 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
             }
         return true;
     }
+
     
 }
