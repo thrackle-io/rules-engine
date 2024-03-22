@@ -21,7 +21,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         vm.warp(Blocktime);
     }
 
-    function testERC20_ApplicationERC20_TokenMaxSupplyVolatility_Fail() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TokenMaxSupplyVolatility_Negative() public endWithStopPrank() {
         _tokenMaxSupplyVolatilitySetup();
         vm.startPrank(user1);
         /// fail transactions (mint and burn with passing transfers)

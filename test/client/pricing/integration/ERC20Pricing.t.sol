@@ -29,16 +29,12 @@ contract ERC20PricingTest is TestCommonFoundry {
         assertEq(uniBase.getTokenPrice(address(reptileToken)), 666 * (10 ** 16));
     }
 
+    /// Testing that the pricing contract won't allow price setting to anyone but the owner
     function testPricing_ERC20Pricing_SettingSingleTokenPrice_Negative() public {
         switchToUser(); 
         vm.expectRevert("Ownable: caller is not the owner"); 
         uniBase.setSingleTokenPrice(address(boredCoin), 5000 * (10 ** 18));
     }
 
-    /// Testing that the pricing contract won't allow price setting to anyone but the owner
-    function testPricing_ERC20Pricing_SettingSingleTokenPrice_NotOwner() public endWithStopPrank() {
-        vm.startPrank(bob);
-        vm.expectRevert();
-        uniBase.setSingleTokenPrice(address(boredCoin), 5000 * (10 ** 18));
-    }
+
 }

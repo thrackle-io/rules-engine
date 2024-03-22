@@ -20,7 +20,7 @@ struct HandlerDiamondArgs {
 }
 
 /**
- * @title Rule Processors Diamond Contract
+ * @title Asset Handler Diamond Contract
  * @author @ShaneDuncan602 @oscarsernarosero @TJ-Everett
  * @dev The proxy contract of the diamond pattern. Responsible for handling 
  * the token rule configuration and communication with the application and protocol.

@@ -7,27 +7,27 @@ import "test/client/token/ERC721/util/ERC721Util.sol";
 
 abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
 
-    function testApplication_ApplicationCommonTests_IsSuperAdmin() public view ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_IsSuperAdmin() public view ifDeploymentTestsEnabled() {
         assertEq(applicationAppManager.isSuperAdmin(superAdmin), true);
         assertEq(applicationAppManager.isSuperAdmin(appAdministrator), false);
     }
 
-    function testApplication_ApplicationCommonTests_IsAppAdministrator_Negative() public view ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_IsAppAdministrator_Negative() public view ifDeploymentTestsEnabled() {
         assertEq(applicationAppManager.isAppAdministrator(superAdmin), false);
     }
 
-    function testApplication_ApplicationCommonTests_IsAppAdministrator_Positive() public view ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_IsAppAdministrator_Positive() public view ifDeploymentTestsEnabled() {
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
     }
 
-    function testApplication_ApplicationCommonTests_ProposeNewSuperAdmin_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_ProposeNewSuperAdmin_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRiskAdmin();
         /// check that a non superAdmin cannot propose a newSuperAdmin
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ccc is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
     }
 
-    function testApplication_ApplicationCommonTests_ProposeSuperAdmin() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_ProposeSuperAdmin() public endWithStopPrank() ifDeploymentTestsEnabled() {
         /// propose superAdmins to make sure that only one will ever be in the app
         switchToSuperAdmin(); 
         /// track the Proposed Admin role proposals and number of proposed admins (should not be > 1)
@@ -40,7 +40,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
     }
 
-    function testApplication_ApplicationCommonTests_RevokeSuperAdmin_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RevokeSuperAdmin_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         /// proposed super admin cannot revoke the super admin role.
         vm.stopPrank();
         vm.startPrank(newSuperAdmin);
@@ -48,7 +48,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         applicationAppManager.revokeRole(SUPER_ADMIN_ROLE, superAdmin);
     }
 
-    function testApplication_ApplicationCommonTests_MigratingSuperAdmin() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_MigratingSuperAdmin() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToSuperAdmin(); 
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
@@ -62,7 +62,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 0);
     }
 
-    function testApplication_ApplicationCommonTests_MigratingSuperAdminRevokeAppAdmin() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_MigratingSuperAdminRevokeAppAdmin() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToSuperAdmin(); 
         applicationAppManager.proposeNewSuperAdmin(newSuperAdmin);
         assertEq(applicationAppManager.getRoleMemberCount(PROPOSED_SUPER_ADMIN_ROLE), 1);
@@ -71,23 +71,24 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         applicationAppManager.confirmSuperAdmin();
         applicationAppManager.addAppAdministrator(address(0xB0b));
         applicationAppManager.revokeRole(APP_ADMIN_ROLE,address(0xB0b));
+        assertEq(applicationAppManager.isAppAdministrator(address(0xB0b)), false);
     }
 
-    function testApplication_ApplicationCommonTests_AddAppAdministratorAppManager() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddAppAdministratorAppManager() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToSuperAdmin();
         applicationAppManager.addAppAdministrator(appAdministrator);
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
         assertEq(applicationAppManager.isAppAdministrator(user), false);
     }
 
-    function testApplication_ApplicationCommonTests_AddAppAdministratorAppManager_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddAppAdministratorAppManager_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         vm.expectRevert("AccessControl: account 0x000000000000000000000000000000000000dead is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
         applicationAppManager.addAppAdministrator(address(77));
         assertFalse(applicationAppManager.isAppAdministrator(address(77)));
     }
 
-    function testApplication_ApplicationCommonTests_RevokeAppAdministrator_Positive() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RevokeAppAdministrator_Positive() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToSuperAdmin();
         applicationAppManager.addAppAdministrator(appAdministrator); //set an app administrator
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), true);
@@ -98,43 +99,43 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(applicationAppManager.isAppAdministrator(appAdministrator), false);
     }
 
-    function testApplication_ApplicationCommonTests_RevokeAppAdministrator_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RevokeAppAdministrator_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser(); 
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
         applicationAppManager.revokeRole(APP_ADMIN_ROLE, address(77)); // try to revoke other app administrator
     }
 
-    function testApplication_ApplicationCommonTests_RenounceAppAdministrator() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RenounceAppAdministrator() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator(); 
         applicationAppManager.renounceAppAdministrator();
         assertFalse(applicationAppManager.isAppAdministrator(appAdministrator));
     }
 
-    function testApplication_ApplicationCommonTests_RevokeAppAdministrator() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RevokeAppAdministrator() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToSuperAdmin(); 
         applicationAppManager.revokeRole(APP_ADMIN_ROLE,appAdministrator);
         assertFalse(applicationAppManager.isAppAdministrator(appAdministrator));
     }
 
-    function testApplication_ApplicationCommonTests_AddRiskAdmin_Positive() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddRiskAdmin_Positive() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRiskAdmin();
         assertEq(applicationAppManager.isRiskAdmin(riskAdmin), true);
         assertEq(applicationAppManager.isRiskAdmin(address(88)), false);
     }
 
-    function testApplication_ApplicationCommonTests_AddRiskAdmin_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddRiskAdmin_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser();
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
         applicationAppManager.addRiskAdmin(address(88)); //add risk admin
     }
 
-    function testApplication_ApplicationCommonTests_RenounceRiskAdmin() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RenounceRiskAdmin() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRiskAdmin(); //interact as the created risk admin
         applicationAppManager.renounceRiskAdmin();
         assertFalse(applicationAppManager.isRiskAdmin(riskAdmin));
     }
 
-    function testApplication_ApplicationCommonTests_RevokeRiskAdmin_Positive() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RevokeRiskAdmin_Positive() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator(); 
         applicationAppManager.addRiskAdmin(riskAdmin); //add risk admin
         applicationAppManager.addRiskAdmin(address(0xB0B)); //add risk admin
@@ -144,57 +145,57 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(applicationAppManager.isRiskAdmin(riskAdmin), false);
     }
 
-    function testApplication_ApplicationCommonTests_RevokeRiskAdmin_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RevokeRiskAdmin_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser(); //interact as a user
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
         applicationAppManager.revokeRole(RISK_ADMIN_ROLE, riskAdmin);
     }
 
-    function testApplication_ApplicationCommonTests_AddaccessLevelAdmin_Positive() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddaccessLevelAdmin_Positive() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAccessLevelAdmin();
         assertEq(applicationAppManager.isAccessLevelAdmin(accessLevelAdmin), true);
         assertEq(applicationAppManager.isAccessLevelAdmin(address(88)), false);
     }
 
-    function testApplication_ApplicationCommonTests_AddaccessLevelAdmin_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddaccessLevelAdmin_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser();
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
         applicationAppManager.addAccessLevelAdmin(address(88)); //add AccessLevel admin
     }
 
-    function testApplication_ApplicationCommonTests_RenounceAccessLevelAdmin() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RenounceAccessLevelAdmin() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAccessLevelAdmin();
         applicationAppManager.renounceAccessLevelAdmin();
         assertFalse(applicationAppManager.isAccessLevelAdmin(accessLevelAdmin));
     }
 
-    function testApplication_ApplicationCommonTests_RevokeAccessLevelAdmin_Positive() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RevokeAccessLevelAdmin_Positive() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAccessLevelAdmin();
         switchToAppAdministrator();
         applicationAppManager.revokeRole(ACCESS_LEVEL_ADMIN_ROLE, accessLevelAdmin);
         assertEq(applicationAppManager.isAccessLevelAdmin(accessLevelAdmin), false);
     }
 
-    function testApplication_ApplicationCommonTests_RevokeAccessLevelAdmin_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RevokeAccessLevelAdmin_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser();
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
         applicationAppManager.revokeRole(ACCESS_LEVEL_ADMIN_ROLE, accessLevelAdmin);
     }
 
-    function testApplication_ApplicationCommonTests_AddAccessLevel_Positive() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddAccessLevel_Positive() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user, 4);
         uint8 retLevel = applicationAppManager.getAccessLevel(user);
         assertEq(retLevel, 4);
     }
 
-    function testApplication_ApplicationCommonTests_AddAccessLevel_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddAccessLevel_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser(); // create a user and make it the sender.
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x2104bd22bc71f1a868806c22aa1905dad25555696bbf4456c5b464b8d55f7335");
         applicationAppManager.addAccessLevel(user, 4);
     }
 
-    function testApplication_ApplicationCommonTests_UpdateAccessLevel() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_UpdateAccessLevel() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user, 4);
         uint8 userAccessLevel = applicationAppManager.getAccessLevel(user);
@@ -204,25 +205,25 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(userAccessLevel, 1);
     }
 
-    function testApplication_ApplicationCommonTests_AddRiskScore_Positive() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddRiskScore_Positive() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user, 75);
         assertEq(75, applicationAppManager.getRiskScore(user));
     }
 
-    function testApplication_ApplicationCommonTests_AddRiskScore_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddRiskScore_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser(); 
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f");
         applicationAppManager.addRiskScore(user, 44);
     }
 
-    function testApplication_ApplicationCommonTests_GetRiskScore() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_GetRiskScore() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user, 75);
         assertEq(75, applicationAppManager.getRiskScore(user));
     }
 
-    function testApplication_ApplicationCommonTests_AddAndRemoveRiskScore() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddAndRemoveRiskScore() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user, 75);
         assertEq(75, applicationAppManager.getRiskScore(user));
@@ -230,7 +231,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(0, applicationAppManager.getRiskScore(user));
     }
 
-    function testApplication_ApplicationCommonTests_UpdateRiskScore() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_UpdateRiskScore() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user, 75);
         assertEq(75, applicationAppManager.getRiskScore(user));
@@ -238,25 +239,32 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(55, applicationAppManager.getRiskScore(user));
     }
 
-    function testApplication_ApplicationCommonTests_AddTag_Positive() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_UpdateRiskScore_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
+        switchToUser();
+        vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x870ee5500b98ca09b5fcd7de4a95293916740021c92172d268dad85baec3c85f");
+        applicationAppManager.addRiskScore(user, 75);
+        assertEq(0, applicationAppManager.getRiskScore(user));
+    }
+
+    function testApplication_ApplicationCommonTests_AddTag_Positive() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         applicationAppManager.addTag(user, "TAG1"); //add tag
         assertTrue(applicationAppManager.hasTag(user, "TAG1"));
     }
 
-    function testApplication_ApplicationCommonTests_AddTag_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddTag_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         vm.expectRevert(0xd7be2be3);
         applicationAppManager.addTag(user, ""); //add blank tag
     }
 
-    function testApplication_ApplicationCommonTests_AddTagAsUser_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddTagAsUser_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser();
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
         applicationAppManager.addTag(user, ""); //add blank tag
     }
 
-    function testApplication_ApplicationCommonTests_HasTag() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_HasTag() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         applicationAppManager.addTag(user, "TAG1"); 
         applicationAppManager.addTag(user, "TAG3"); 
@@ -265,7 +273,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertTrue(applicationAppManager.hasTag(user, "TAG3"));
     }
 
-    function testApplication_ApplicationCommonTests_RemoveTag() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RemoveTag() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         applicationAppManager.addTag(user, "TAG1");
         assertTrue(applicationAppManager.hasTag(user, "TAG1"));
@@ -273,7 +281,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertFalse(applicationAppManager.hasTag(user, "TAG1"));
     }
 
-    function testApplication_ApplicationCommonTests_RemoveTagAsUser_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RemoveTagAsUser_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         applicationAppManager.addTag(user, "TAG1");
         switchToUser();
@@ -281,7 +289,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         applicationAppManager.removeTag(user, "Tag1"); //add blank tag
     }
 
-    function testApplication_ApplicationCommonTests_AddPauseRule() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AddPauseRule() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769955500, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
@@ -290,7 +298,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertTrue(noRule.length == 1);
     }
 
-    function testApplication_ApplicationCommonTests_RemovePauseRule() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RemovePauseRule() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769955500, 1769984800);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
@@ -300,7 +308,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertTrue(removeTest.length == 0);
     }
 
-    function testApplication_ApplicationCommonTests_AutoCleaningRules() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AutoCleaningRules() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRuleAdmin();
         applicationAppManager.addPauseRule(Blocktime + 100, Blocktime + 200);
         PauseRule[] memory test = applicationAppManager.getPauseRules();
@@ -317,7 +325,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertTrue(noRule.length == 1);
     }
 
-    function testApplication_ApplicationCommonTests_RuleSizeLimit() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RuleSizeLimit() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRuleAdmin();
         for (uint8 i; i < 15; i++) {
             applicationAppManager.addPauseRule(Blocktime + (i + 1) * 10, Blocktime + (i + 2) * 10);
@@ -328,7 +336,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         applicationAppManager.addPauseRule(Blocktime + 150, Blocktime + 160);
     }
 
-    function testApplication_ApplicationCommonTests_ManualCleaning() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_ManualCleaning() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRuleAdmin();
         for (uint8 i; i < 15; i++) {
             applicationAppManager.addPauseRule(Blocktime + (i + 1) * 10, Blocktime + (i + 2) * 10);
@@ -341,7 +349,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertTrue(test.length == 0);
     }
 
-    function testApplication_ApplicationCommonTests_AnotherManualCleaning() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AnotherManualCleaning() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToRuleAdmin();
         applicationAppManager.addPauseRule(Blocktime + 1000, Blocktime + 1010);
         applicationAppManager.addPauseRule(Blocktime + 1020, Blocktime + 1030);
@@ -357,7 +365,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertTrue(test.length == 3);
     }
 
-    function testApplication_ApplicationCommonTests_SetNewTagProvider() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_SetNewTagProvider() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         Tags dataMod = new Tags(address(applicationAppManager));
         applicationAppManager.proposeTagsProvider(address(dataMod));
@@ -365,13 +373,13 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(address(dataMod), applicationAppManager.getTagProvider());
     }
 
-    function testApplication_ApplicationCommonTests_SetNewTagProvider_Nagative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_SetNewTagProvider_Nagative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser(); 
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
         applicationAppManager.proposeTagsProvider(address(0xD0D));
     }
 
-    function testApplication_ApplicationCommonTests_SetNewAccessLevelProvider() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_SetNewAccessLevelProvider() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator(); 
         AccessLevels dataMod = new AccessLevels(address(applicationAppManager));
         applicationAppManager.proposeAccessLevelsProvider(address(dataMod));
@@ -379,14 +387,14 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(address(dataMod), applicationAppManager.getAccessLevelProvider());
     }
 
-    function testApplication_ApplicationCommonTests_SetNewAccessLevelProvider_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_SetNewAccessLevelProvider_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser(); 
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
         applicationAppManager.proposeAccessLevelsProvider(address(0xD0D));
 
     }
 
-    function testApplication_ApplicationCommonTests_SetNewAccountProvider() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_SetNewAccountProvider() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator(); 
         Accounts dataMod = new Accounts(address(applicationAppManager));
         applicationAppManager.proposeAccountsProvider(address(dataMod));
@@ -394,13 +402,13 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(address(dataMod), applicationAppManager.getAccountProvider());
     }
 
-    function testApplication_ApplicationCommonTests_SetNewAccountProvider_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_SetNewAccountProvider_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser(); 
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
         applicationAppManager.proposeAccountsProvider(address(0xD0D));
     }
 
-    function testApplication_ApplicationCommonTests_SetNewRiskScoreProvider() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_SetNewRiskScoreProvider() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator(); 
         RiskScores dataMod = new RiskScores(address(applicationAppManager));
         applicationAppManager.proposeRiskScoresProvider(address(dataMod));
@@ -408,7 +416,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(address(dataMod), applicationAppManager.getRiskScoresProvider());
     }
 
-    function testApplication_ApplicationCommonTests_SetNewPauseRulesProvider() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_SetNewPauseRulesProvider() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator(); 
         PauseRules dataMod = new PauseRules(address(applicationAppManager));
         applicationAppManager.proposePauseRulesProvider(address(dataMod));
@@ -416,7 +424,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(address(dataMod), applicationAppManager.getPauseRulesProvider());
     }
 
-    function testApplication_ApplicationCommonTests_SetNewPauseRulesProvider_Negative() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_SetNewPauseRulesProvider_Negative() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToUser(); 
         vm.expectRevert("AccessControl: account 0x0000000000000000000000000000000000000ddd is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
         applicationAppManager.proposePauseRulesProvider(address(0xD0D));
@@ -434,7 +442,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         appManagerNew.confirmDataContractMigration(address(applicationAppManager));
         return appManagerNew;
     }
-    function testApplication_ApplicationCommonTests_UpgradeAppManagerRiskScoreData() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_UpgradeAppManagerRiskScoreData() public endWithStopPrank() ifDeploymentTestsEnabled() {
         /// Risk Data
         switchToRiskAdmin(); // create a risk admin and make it the sender.
         applicationAppManager.addRiskScore(user1, 75);
@@ -448,7 +456,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(65, appManagerNew.getRiskScore(user2));
     }
 
-    function testApplication_ApplicationCommonTests_UpgradeAppManagerTagsData() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_UpgradeAppManagerTagsData() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator(); 
         /// Tags Data
         applicationAppManager.addTag(user1, "TAG1"); //add tag
@@ -462,7 +470,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertTrue(appManagerNew.hasTag(user2, "TAG2"));
     }
 
-    function testApplication_ApplicationCommonTests_UpgradeAppManagerPasueRuleData() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_UpgradeAppManagerPasueRuleData() public endWithStopPrank() ifDeploymentTestsEnabled() {
         /// Pause Rule Data
         switchToRuleAdmin();
         applicationAppManager.addPauseRule(1769955500, 1769984800);
@@ -475,7 +483,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertTrue(test.length == 1);
     }
 
-    function testApplication_ApplicationCommonTests_UpgradeAppManagerAccessLevelData() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_UpgradeAppManagerAccessLevelData() public endWithStopPrank() ifDeploymentTestsEnabled() {
         /// AccessLevel
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user1, 4);
@@ -489,42 +497,42 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertEq(appManagerNew.getAccessLevel(user2), 3);
     }
 
-    function testApplication_ApplicationCommonTests_RuleAdminEventEmission() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RuleAdminEventEmission() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         vm.expectEmit(true,true,false,false);
         emit AD1467_RuleAdmin(ruleAdmin, true);
         applicationAppManager.addRuleAdministrator(ruleAdmin); 
     }
 
-    function testApplication_ApplicationCommonTests_RiskAdminEventEmission() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RiskAdminEventEmission() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         vm.expectEmit(true,true,false,false);
         emit AD1467_RiskAdmin(riskAdmin, true);
         applicationAppManager.addRiskAdmin(riskAdmin);
     }
 
-    function testApplication_ApplicationCommonTests_AccessLevelAdminEventEmission() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AccessLevelAdminEventEmission() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         vm.expectEmit(true,true,false,false);
         emit AD1467_AccessLevelAdmin(accessLevelAdmin, true);
         applicationAppManager.addAccessLevelAdmin(accessLevelAdmin);
     }
 
-    function testApplication_ApplicationCommonTests_AppAdminEventEmission() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AppAdminEventEmission() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToSuperAdmin();
         vm.expectEmit(true,true,false,false);
         emit AD1467_AppAdministrator(appAdministrator, true);
         applicationAppManager.addAppAdministrator(appAdministrator);
     }
 
-    function testApplication_ApplicationCommonTests_RuleBypassAccountEventEmission() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RuleBypassAccountEventEmission() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         vm.expectEmit(true,true,false,false);
         emit AD1467_RuleAdmin(ruleAdmin, true);
         applicationAppManager.addRuleAdministrator(ruleAdmin);
     }
 
-    function testApplication_ApplicationCommonTests_AppNameEventEmission() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_AppNameEventEmission() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         string memory appName = "CoolApp";
         vm.expectEmit(true,false,false,false);
@@ -533,7 +541,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
     }
 
 
-    function testApplication_ApplicationCommonTests_RegisterAmmEventEmission() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RegisterAmmEventEmission() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         address amm = address(0x577777); 
         vm.expectEmit(true,false,false,false);
@@ -541,7 +549,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         applicationAppManager.registerAMM(amm);
     }
 
-    function testApplication_ApplicationCommonTests_RegisterTreasuryEventEmission() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_RegisterTreasuryEventEmission() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         address appTreasury = address(0xAAAAA);
         vm.expectEmit(true,false,false,false);
@@ -549,7 +557,7 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         applicationAppManager.registerTreasury(appTreasury);
     }
 
-    function testApplication_ApplicationCommonTests_TradingRulesAddressAllowListEventEmission() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_TradingRulesAddressAllowListEventEmission() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToAppAdministrator();
         address tradingRulesAllowList = address(0xAAAAAA); 
         vm.expectEmit(true,true,false,false);
@@ -557,12 +565,12 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         applicationAppManager.approveAddressToTradingRuleAllowlist(tradingRulesAllowList, true);
     }
 
-    function testApplication_ApplicationCommonTests_ApplicationHandlerConnected() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_ApplicationHandlerConnected() public endWithStopPrank() ifDeploymentTestsEnabled() {
         assertEq(applicationAppManager.getHandlerAddress(), address(applicationHandler));
         assertEq(applicationHandler.appManagerAddress(), address(applicationAppManager));
     }
 
-    function testApplication_ApplicationCommonTests_ERC20HandlerConnections() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_ERC20HandlerConnections() public endWithStopPrank() ifDeploymentTestsEnabled() {
         switchToSuperAdmin();
         assertEq(applicationCoin.getHandlerAddress(), address(applicationCoinHandler));
         assertEq(ERC173Facet(address(applicationCoinHandler)).owner(), address(applicationCoin));
@@ -570,26 +578,26 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry {
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationCoinHandler)));
     }
 
-    function testApplication_ApplicationCommonTests_VerifyPricingContractsConnectedToHandler() public view ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_VerifyPricingContractsConnectedToHandler() public view ifDeploymentTestsEnabled() {
 
         assertEq(applicationHandler.erc20PricingAddress(), address(erc20Pricer));
         assertEq(applicationHandler.nftPricingAddress(), address(erc721Pricer));
     }
 
-    function testApplication_ApplicationCommonTests_VerifyRuleAdmin() public view ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_VerifyRuleAdmin() public view ifDeploymentTestsEnabled() {
         assertTrue(applicationAppManager.isRuleAdministrator(ruleAdmin));
     }
 
-    function testApplication_ApplicationCommonTests_VerifyTreasury() public view ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_VerifyTreasury() public view ifDeploymentTestsEnabled() {
         assertTrue(applicationAppManager.isTreasury(feeTreasury));
     }
 
-    function testApplication_ApplicationCommonTests_VerifyTokensRegistered() public view ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_VerifyTokensRegistered() public view ifDeploymentTestsEnabled() {
         assertEq(applicationAppManager.getTokenID(address(applicationCoin)), "FRANK");
         assertEq(applicationAppManager.getTokenID(address(applicationNFT)), "Clyde");
     }
 
-    function testApplication_ApplicationCommonTests_ERC721HandlerConnections() public endWithStopPrank() ifDeplomentTestsEnabled() {
+    function testApplication_ApplicationCommonTests_ERC721HandlerConnections() public endWithStopPrank() ifDeploymentTestsEnabled() {
         assertEq(applicationNFT.getAppManagerAddress(), address(applicationAppManager));
         assertEq(applicationNFT.getHandlerAddress(), address(applicationNFTHandler));
         assertTrue(applicationAppManager.isRegisteredHandler(address(applicationNFTHandler)));

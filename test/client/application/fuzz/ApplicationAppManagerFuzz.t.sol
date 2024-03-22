@@ -52,9 +52,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         vm.startPrank(sender);
         if (sender != superAdmin) {
-            /// The expected reversion is dynamic. The expected error is in the log statement below
-            vm.expectRevert();
-            console.log(address(sender), " AccessControl: account is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
             applicationAppManager.addAppAdministrator(address(0xBABE));
             assertFalse(applicationAppManager.isAppAdministrator(address(0xBABE)));
         }
@@ -88,9 +86,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         alts[1] = address(0xBABE);
         vm.startPrank(sender);
         if (sender != superAdmin) {
-            vm.expectRevert();
-            /// The expected reversion is dynamic. The expected error is in the log statement below
-            console.log(address(sender), " AccessControl: account is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
             applicationAppManager.addMultipleAppAdministrator(alts);
             assertFalse(applicationAppManager.isAppAdministrator(address(0xFF77)));
             assertFalse(applicationAppManager.isAppAdministrator(address(0xBABE)));
@@ -117,9 +113,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(random);
         if (random != superAdmin) {
-        vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(random), " AccessControl: account is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.revokeRole(APP_ADMIN_ROLE, admin);
         assertTrue(applicationAppManager.isAppAdministrator(admin));
         } else if (random == superAdmin) {
@@ -139,8 +133,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         vm.startPrank(sender);
         if (sender != superAdmin) {
-            vm.expectRevert();
-            /// The expected reversion is dynamic. The expected error is in the log statement below
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
             console.log(address(sender), " AccessControl: account is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
             applicationAppManager.addAppAdministrator(admin);
         } else if (sender == superAdmin) {
@@ -167,9 +160,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
         if (sender != appAdministrator) {
-            vm.expectRevert();
-            /// The expected reversion is dynamic. The expected error is in the log statement below
-            console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             applicationAppManager.addRiskAdmin(admin);
         }
         if (sender == appAdministrator) {
@@ -191,9 +182,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
         if (sender != appAdministrator) {
-            vm.expectRevert();
-            /// The expected reversion is dynamic. The expected error is in the log statement below
-            console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             applicationAppManager.addRiskAdmin(admin);
         }
         if (sender == appAdministrator) {
@@ -203,9 +192,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             vm.stopPrank();
             vm.startPrank(random);
             if (random != appAdministrator && random != admin) {
-                vm.expectRevert();
-                /// The expected reversion is dynamic. The expected error is in the log statement below
-                console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+                vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
                 applicationAppManager.addRiskAdmin(random); 
             }
         }
@@ -222,9 +209,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address random = ADDRESSES[addressIndexB % ADDRESSES.length];
         vm.startPrank(sender);
         if (sender != appAdministrator) {
-            vm.expectRevert();
-            /// The expected reversion is dynamic. The expected error is in the log statement below
-            console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             applicationAppManager.addMultipleRiskAdmin(ADDRESSES);
         }
         if (sender == appAdministrator) {
@@ -248,8 +233,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         vm.startPrank(sender);
         if (sender != appAdministrator) {
-            vm.expectRevert();
-            console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             applicationAppManager.addMultipleRiskAdmin(ADDRESSES);
             assertFalse(applicationAppManager.isRiskAdmin(address(88)));
         }
@@ -266,9 +250,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -310,9 +292,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -322,9 +302,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             assertFalse(applicationAppManager.isAccessLevelAdmin(address(88)));
             vm.stopPrank();
             vm.startPrank(random);
-            if (random != appAdministrator && random != admin) vm.expectRevert();
-            /// The expected reversion is dynamic. The expected error is in the log statement below
-            console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+            if (random != appAdministrator && random != admin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             applicationAppManager.addAccessLevelAdmin(address(0xBABE)); //add AccessLevel
         }
     }
@@ -340,9 +318,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -367,9 +343,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -395,9 +369,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -414,21 +386,18 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
      * Test that only the correct admin role can call the function within the App Manager.  
      * Postconditions: When Sender is correct admin role: Risk Score Admin granted to the random address, else reverts. 
      */
-    function testApplication_ApplicationAppManagerFuzz_AddRiskScore_Negative(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint8 riskScore) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddRiskScore_Negative(uint8 addressIndexA, uint8 addressIndexB, uint8 riskScore) public endWithStopPrank() {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
-        address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
-        address random = ADDRESSES[addressIndexC % ADDRESSES.length];
+        address random = ADDRESSES[addressIndexB % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != appAdministrator) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        if (sender != appAdministrator) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.addRiskAdmin(random);
         if (sender == appAdministrator) {
             vm.stopPrank();
             vm.startPrank(random);
-            if (random != admin && random != riskAdmin && riskScore > 100) {
-                vm.expectRevert();
-                /// The expected reversion is dynamic and does contain the expected error. 
+            if (riskScore > 100) {
+                bytes4 selector = bytes4(keccak256("riskScoreOutOfRange(uint8)"));
+                vm.expectRevert(abi.encodeWithSelector(selector, riskScore));
                 applicationAppManager.addRiskScore(address(0xBABE), riskScore);
             }
         }
@@ -445,9 +414,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -466,13 +433,12 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
      */
     function testApplication_ApplicationAppManagerFuzz_AddTag_Negative(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, bytes32 Tag1, bytes32 Tag2) public endWithStopPrank() {
         vm.assume(Tag1 != Tag2 && Tag2 != Tag1);
+        vm.assume(Tag2 != "");
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689");
+        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -482,10 +448,9 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             if (admin != appAdministrator && Tag1 != "") assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag2));
             vm.stopPrank();
             vm.startPrank(random);
-            if ((random != admin && random != appAdministrator) || Tag2 == "") vm.expectRevert();
+            if ((random != admin && random != appAdministrator)) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             /// The expected reversion is dynamic and does not contain the expected error. 
             applicationAppManager.addTag(address(0xBABE), Tag2);
-            if ((random == admin || random == appAdministrator) && Tag2 != "") assertTrue(applicationAppManager.hasTag(address(0xBABE), Tag1));
         }
     }
 
@@ -523,9 +488,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address[] memory tagAddresses = createAddressArray(address(0xff1), address(0xff2), address(0xff3));
         vm.startPrank(sender); 
         if (sender != appAdministrator) {
-            vm.expectRevert();
-            /// The expected reversion is dynamic. The expected error is in the log statement below
-            console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             applicationAppManager.addMultipleTagToMultipleAccounts(tagAddresses, genTags);
         } 
         if (sender == appAdministrator) {
@@ -573,19 +536,13 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(sender);
         console.log(address(sender));
-        if ((sender != appAdministrator)) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        if ((sender != appAdministrator)) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.removeTag(address(0xBABE), Tag3);
         if ((sender == appAdministrator)) assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag3));
-        if ((sender != appAdministrator)) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        if ((sender != appAdministrator)) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.removeTag(address(0xBABE), Tag2);
         if ((sender == appAdministrator)) assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag2));
-        if ((sender != appAdministrator)) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        if ((sender != appAdministrator)) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.removeTag(address(0xBABE), Tag1);
         if ((sender == appAdministrator)) {
             assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag1));
@@ -609,9 +566,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             /// remove tags
             vm.stopPrank();
             vm.startPrank(sender);
-            if ((sender != appAdministrator)) vm.expectRevert();
-            /// The expected reversion is dynamic. The expected error is in the log statement below
-            console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+            if ((sender != appAdministrator)) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             applicationAppManager.removeTag(address(0xBABE), Tag1);
         }
     }
@@ -626,21 +581,18 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     function testApplication_ApplicationAppManagerFuzz_AddPauseRuleFuzz(uint8 addressIndexA, uint8 addressIndexB, uint64 start, uint64 end) public endWithStopPrank() {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
+        bytes4 selector = bytes4(keccak256("InvalidDateWindow(uint256,uint256)"));
         vm.startPrank(sender);
-        if (sender != appAdministrator) vm.expectRevert();
-            /// The expected reversion is dynamic. The expected error is in the log statement below
-            console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        if (sender != appAdministrator) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             applicationAppManager.addRuleAdministrator(admin);
         if (sender == appAdministrator) {
             vm.stopPrank();
             vm.startPrank(admin);
             /// we are adding a repeated rule to test the resiliency of the
             /// contract to this scenario
-            if (start >= end || start <= block.timestamp) vm.expectRevert();
-            /// The expected reversion is dynamic and does not contain the expected error.
+            if (start >= end || start <= block.timestamp) vm.expectRevert(abi.encodeWithSelector(selector, start, end));
             applicationAppManager.addPauseRule(start, end);
-            if (start >= end || start <= block.timestamp) vm.expectRevert();
-            /// The expected reversion is dynamic and does not contain the expected error.
+            if (start >= end || start <= block.timestamp) vm.expectRevert(abi.encodeWithSelector(selector, start, end));
             applicationAppManager.addPauseRule(start, end);
             if (start < end && start > block.timestamp) {
                 PauseRule[] memory test = applicationAppManager.getPauseRules();
@@ -660,21 +612,18 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
+        bytes4 selector = bytes4(keccak256("InvalidDateWindow(uint256,uint256)"));
         vm.startPrank(sender);
-        if (sender != appAdministrator) vm.expectRevert();
-        /// The expected reversion is dynamic. The expected error is in the log statement below
-        console.log(address(sender), " AccessControl: account is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60");
+        if (sender != appAdministrator) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.addRuleAdministrator(admin);
         if (sender == appAdministrator) {
             vm.stopPrank();
             vm.startPrank(admin);
             /// we are adding a repeated rule to test the resiliency of the
             /// contract to this scenario
-            if (start >= end || start <= block.timestamp) vm.expectRevert();
-            /// The expected reversion is dynamic and does not contain the expected error.
+            if (start >= end || start <= block.timestamp) vm.expectRevert(abi.encodeWithSelector(selector, start, end));
             applicationAppManager.addPauseRule(start, end);
-            if (start >= end || start <= block.timestamp) vm.expectRevert();
-            /// The expected reversion is dynamic and does not contain the expected error.
+            if (start >= end || start <= block.timestamp) vm.expectRevert(abi.encodeWithSelector(selector, start, end));
             applicationAppManager.addPauseRule(start, end);
             if (start < end && start > block.timestamp) {
                 PauseRule[] memory test = applicationAppManager.getPauseRules();
@@ -684,7 +633,7 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
                 vm.stopPrank();
                 vm.startPrank(random);
                 /// testing onlyRule
-                if (random != admin && random != ruleAdmin) vm.expectRevert();
+                if (random != admin && random != ruleAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x5ff038c4899bb7fbbc7cf40ef4accece5ebd324c2da5ab7db2c3b81e845e2a7a"));
                 /// The expected reversion is dynamic and does not contain the expected error.
                 applicationAppManager.addPauseRule(1769924850, 1769984900);
                 if (random == admin || random == ruleAdmin) {

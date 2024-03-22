@@ -759,7 +759,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         uint32 ruleId = createAdminMinTokenBalanceRule(1_000_000 * (10 ** 18), uint64(block.timestamp + 365 days));
         setAdminMinTokenBalanceRule(address(applicationCoinHandler), ruleId);
         /// check that we cannot change the rule or turn it off while the current rule is still active
-        vm.expectRevert();
+        vm.expectRevert(0xd66c3008);
         ERC20HandlerMainFacet(address(applicationCoinHandler)).activateAdminMinTokenBalance(createActionTypeArray(ActionTypes.P2P_TRANSFER), false);
     }
 

@@ -14,7 +14,7 @@ import "test/util/EndWithStopPrank.sol";
  */
 abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
 
-    modifier ifDeplomentTestsEnabled() {
+    modifier ifDeploymentTestsEnabled() {
         if(testDeployments) {
             _;
         }
