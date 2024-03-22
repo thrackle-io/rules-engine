@@ -1167,9 +1167,9 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         uint32 ruleId = createAdminMinTokenBalanceRule(5, uint64(block.timestamp + 365 days));
         setAdminMinTokenBalanceRule(address(applicationNFTHandler), ruleId);
         /// check that we cannot change the rule or turn it off while the current rule is still active
-        vm.expectRevert();
+        vm.expectRevert(0xd66c3008);
         ERC721HandlerMainFacet(address(applicationNFTHandler)).activateAdminMinTokenBalance(_createActionsArray(), false);
-        vm.expectRevert();
+        vm.expectRevert(0xd66c3008);
         ERC721HandlerMainFacet(address(applicationNFTHandler)).setAdminMinTokenBalanceId(_createActionsArray(), ruleId);
 
         switchToRuleBypassAccount();
@@ -1177,11 +1177,11 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 0);
         applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 1);
         /// This one fails
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 2);
 
         vm.warp(Blocktime + daysForward);
-        if (daysForward < 365 days) vm.expectRevert();
+        if (daysForward < 365 days) vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
         applicationNFT.safeTransferFrom(ruleBypassAccount, _user1, 2);
         switchToRuleAdmin();
         if (daysForward >= 365 days) {

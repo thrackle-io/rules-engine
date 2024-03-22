@@ -982,7 +982,6 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 10_000_000, 10_000_000, true);
 
         /// check that rule does not apply to coin 0 as this would be a sell
-        // amm.swap(address(applicationCoin2), 60_000_000);
         amm.dummyTrade(address(testCaseToken), address(applicationCoin2), 60_000_000, 60_000_000, false);
     }
 

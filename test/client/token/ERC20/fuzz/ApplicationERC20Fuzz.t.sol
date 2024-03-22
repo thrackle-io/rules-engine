@@ -104,13 +104,12 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         setTokenMinimumTransactionRule(address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
         /// now we perform the transfer
-        // emit Log("transferAmount", _transferAmount);
         applicationCoin.transfer(_user1, _transferAmount + 1);
         assertEq(applicationCoin.balanceOf(_user1), _transferAmount + 1);
     }
 
     function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Negative(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
-        // if the transferAmount is the max, adust so the internal arithmetic works
+        // if the transferAmount is the max, adjust so the internal arithmetic works
         _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max-1));
         applicationCoin.mint(appAdministrator, type(uint256).max);
         address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
@@ -416,7 +415,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         /// we start making transfers
         vm.stopPrank();
         vm.startPrank(user1);
-        /// first we send only 1 token which shouldn't trigger any risk check
+        /// Transfer 1 token to ensure valid transaction passes
         applicationCoin.transfer(user2, 1);
     }
 
@@ -459,7 +458,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         console.log(risk);
         applicationCoin.transfer(user2, 10_000 * (10 ** 18) - 1);
         /// 10_001
-        /// if the user's risk profile is in the second to the lowest range, this transfer should revert
+        /// if the user's risk profile is in the lowest range, this transfer should revert
         if (risk >= _riskScore[0]) vm.expectRevert();
         console.log(risk);
         applicationCoin.transfer(user2, 100_000_000 * (10 ** 18) - 10_000 * (10 ** 18));
@@ -476,13 +475,13 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         uint8[] memory riskScores = createUint8Array(25, 50, 75);
         // make sure it at least always falls into the range
         risk = uint8(bound(uint256(risk), 0, 75));
-        ///Give tokens to user1 and user2
+        ///Give tokens to user1
         applicationCoin.mint(user1, 100000000 * (10 ** 18));
 
         ///Activate rule
         uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, createUint48Array(100_000_000, 10_000, 1));
         setAccountMaxTxValueByRiskRule(ruleId);
-        /// we set a risk score for user1 and user 2
+        /// we set a risk score for user1
         switchToRiskAdmin();
         applicationAppManager.addRiskScore(user1, risk);
 
@@ -806,9 +805,9 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         bytes32[] memory accs = createBytes32Array(tag1, tag2, tag3);
         uint256[] memory minAmounts = createUint256Array((_amountSeed * (10 ** 18)), (_amountSeed + 1000) * (10 ** 18), (_amountSeed + 2000) * (10 ** 18));
         uint256[] memory maxAmounts = createUint256Array(
-            999999000000000000000000000000000000000000000000000000000000000000000000000,
-            999990000000000000000000000000000000000000000000000000000000000000000000000,
-            999990000000000000000000000000000000000000000000000000000000000000000000000
+            999999 * BIGNUMBER,
+            99999 * BIGNUMBER,
+            99999 * BIGNUMBER
         );
         /// 720 = 1 month, 4380 = 6 months, 17520 = 2 years
         uint16[] memory periods = createUint16Array(720, 4380, 17520);

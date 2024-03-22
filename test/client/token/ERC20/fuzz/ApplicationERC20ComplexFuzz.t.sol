@@ -5,20 +5,11 @@ import "test/util/TestCommonFoundry.sol";
 import "test/client/token/ERC20/util/ERC20Util.sol";
 
 contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
-    // event Log(string eventString, uint256 number);
     ApplicationERC20 draculaCoin;
 
     function setUp() public {
         vm.warp(Blocktime);
         setUpProcotolAndCreateERC20AndDiamondHandler();
-        switchToAppAdministrator();
-        draculaCoin = new ApplicationERC20("application2", "DRAC", address(applicationAppManager));
-        applicationCoinHandler2 = _createERC20HandlerDiamond();
-        ERC20HandlerMainFacet(address(applicationCoinHandler2)).initialize(address(ruleProcessor), address(applicationAppManager), address(draculaCoin));
-        draculaCoin.connectHandlerToToken(address(applicationCoinHandler2));
-        /// register the token
-        applicationAppManager.registerToken("DRAC", address(draculaCoin));
-        vm.stopPrank();
     }
 
    function testERC20_ApplicationERC20Fuzz_AccountApproveDenyOracle_Complex(uint8 _addressIndex) public endWithStopPrank {

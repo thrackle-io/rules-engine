@@ -155,7 +155,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         ///add txnLimit failing (risk score 100)
         uint48[] memory maxValue = createUint48Array(1000000, 10000, 10);
         uint8[] memory riskScore = createUint8Array(25, 75, 100);
-        vm.expectRevert();
+        vm.expectRevert(0xfe5d1090);
         AppRuleDataFacet(address(ruleProcessor)).addAccountMaxTxValueByRiskScore(address(applicationAppManager), maxValue, riskScore, 0, uint64(block.timestamp));
     }
 
@@ -241,11 +241,11 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20Handler_ZeroAddressErrors() public {
         /// test both address checks in constructor
         HandlerDiamond handler = _createERC20HandlerDiamond();
-        vm.expectRevert();
+        vm.expectRevert(0xd92e233d);
         ERC20HandlerMainFacet(address(handler)).initialize(address(0x0), address(applicationAppManager), appAdministrator);
-        vm.expectRevert();
+        vm.expectRevert(0xd92e233d);
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(0x0), appAdministrator);
-        vm.expectRevert();
+        vm.expectRevert(0xd92e233d);
         ERC20HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(0x0));
     }
 
