@@ -531,6 +531,41 @@ function _addStorageFacetsToFacetCut() public {
     /**
      * @dev Deploy and set up ERC20 token with DIAMOND handler 
      */
+    function setUpProcotolAndCreateERC721MinLegacyAndDiamondHandler() public endWithStopPrank() {
+        setUpProtocolAndAppManager();
+        /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
+        /// requires a token be attached and registered for permissions in appManager
+        // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("Frankenstein Coin", "FRANK");
+        (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
+        
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc20Pricer = _createERC20Pricing();
+
+        erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
+
+        /// create an ERC721
+        (minimalNFTLegacy, applicationNFTHandler) = deployAndSetupERC721MinLegacy("FRANKENSTEIN", "FRK");
+        (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
+
+        switchToAppAdministrator();
+        /// set up the pricer for erc20
+        erc721Pricer = _createERC721Pricing();
+        erc721Pricer.setNFTCollectionPrice(address(minimalNFTLegacy), 1 * (10 ** 18)); //setting at $1
+        switchToRuleAdmin(); 
+        applicationHandler.setNFTPricingAddress(address(erc721Pricer));
+        applicationHandler.setERC20PricingAddress(address(erc20Pricer));
+
+        switchToAppAdministrator();
+
+        oracleApproved = _createOracleApproved();
+        oracleDenied = _createOracleDenied();
+    }
+
+    /**
+     * @dev Deploy and set up ERC20 token with DIAMOND handler 
+     */
     function setUpProcotolAndCreateERC20MinAndDiamondHandler() public endWithStopPrank() {
         setUpProtocolAndAppManager();
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
@@ -588,6 +623,18 @@ function _addStorageFacetsToFacetCut() public {
     function deployAndSetupERC721Min(string memory name, string memory symbol) internal endWithStopPrank() returns(MinimalERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc721 = _createERC721Min(name, symbol, applicationAppManager);
+        handler = _createERC721HandlerDiamond();
+        VersionFacet(address(handler)).updateVersion("1.1.0");
+        ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));
+        switchToAppAdministrator();
+        erc721.connectHandlerToToken(address(handler));
+        /// register the token
+        applicationAppManager.registerToken(name, address(erc721));
+    }
+
+    function deployAndSetupERC721MinLegacy(string memory name, string memory symbol) internal endWithStopPrank() returns(MinimalERC721Legacy erc721, HandlerDiamond handler) {
+        switchToSuperAdmin();
+        erc721 = new MinimalERC721Legacy(name, symbol);
         handler = _createERC721HandlerDiamond();
         VersionFacet(address(handler)).updateVersion("1.1.0");
         ERC721HandlerMainFacet(address(handler)).initialize(address(ruleProcessor), address(applicationAppManager), address(erc721));

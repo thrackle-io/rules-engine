@@ -36,19 +36,54 @@ contract ERC20HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Hand
 
     /**
      * @dev This function is the one called from the contract that implements this handler. It's the entry point.
-     * @param balanceFrom token balance of sender address
-     * @param balanceTo token balance of recipient address
+     * @param _balanceFrom token balance of sender address
+     * @param _balanceTo token balance of recipient address
      * @param _from sender address
      * @param _to recipient address
      * @param _sender the address triggering the contract action
      * @param _amount number of tokens transferred
      * @return true if all checks pass
      */
-    function checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _amount) external onlyOwner returns (bool) {
+    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, address _sender, uint256 _amount) external onlyOwner returns (bool) {
+        return _checkAllRules(_balanceFrom, _balanceTo, _from, _to, _sender, _amount, ActionTypes.NONE);
+    }
+
+    /**
+     * @dev This function is the one called from the contract that implements this handler. It's the entry point.
+     * @param _balanceFrom token balance of sender address
+     * @param _balanceTo token balance of recipient address
+     * @param _from sender address
+     * @param _to recipient address
+     * @param _sender the address triggering the contract action
+     * @param _amount number of tokens transferred
+     * @param _action Action Type 
+     * @return true if all checks pass
+     */
+    function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, address _sender, uint256 _amount, ActionTypes _action) external onlyOwner returns (bool) {
+        return _checkAllRules(_balanceFrom, _balanceTo, _from, _to, _sender, _amount, _action);
+    }
+
+    /**
+     * @dev This function contains the logic for checking all rules. It performs all the checks for the external functions.
+     * @param balanceFrom token balance of sender address
+     * @param balanceTo token balance of recipient address
+     * @param _from sender address
+     * @param _to recipient address
+     * @param _sender the address triggering the contract action
+     * @param _amount number of tokens transferred
+     * @param _action Action Type 
+     * @return true if all checks pass
+     */
+    function _checkAllRules(uint256 balanceFrom, uint256 balanceTo, address _from, address _to, address _sender, uint256 _amount, ActionTypes _action) internal returns (bool) {
         HandlerBaseS storage handlerBaseStorage = lib.handlerBaseStorage();
         bool isFromBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_from);
         bool isToBypassAccount = IAppManager(handlerBaseStorage.appManager).isRuleBypassAccount(_to);
-        ActionTypes action = determineTransferAction(_from, _to, _sender);
+        ActionTypes action;
+        if (_action == ActionTypes.NONE){
+            action = determineTransferAction(_from, _to, _sender);
+        } else {
+            action = _action;
+        }
         // All transfers to treasury account are allowed
         if (!IAppManager(handlerBaseStorage.appManager).isTreasury(_to)) {
             /// standard rules do not apply when either to or from is an admin

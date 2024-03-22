@@ -59,6 +59,7 @@ import "test/util/ApplicationERC721UExtra.sol";
 import "test/util/ApplicationERC721UExtra2.sol";
 import "test/util/MinimalERC20.sol";
 import "test/util/MinimalERC721.sol";
+import "test/util/MinimalERC721Legacy.sol";
 
 import "src/client/application/data/IPauseRules.sol";
 import "src/client/application/data/Tags.sol";
@@ -140,6 +141,7 @@ abstract contract TestCommon is
     ApplicationERC721 public applicationNFT;
     ApplicationERC721 public applicationNFTv2;
     MinimalERC721 public minimalNFT;
+    MinimalERC721Legacy public minimalNFTLegacy;
     // ApplicationERC721HandlerMod public ERC721AssetHandler;
     ApplicationERC721Pricing public erc721Pricer;
 
