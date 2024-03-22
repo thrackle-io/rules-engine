@@ -49,6 +49,7 @@ contract ApplicationERC20PauseInvariantTest is TestCommonFoundry {
         switchToAppAdministrator();
         applicationCoin.pause();
         vm.startPrank(USER1);
+        vm.expectRevert("Pausable: paused");
         bool r = applicationCoin.transfer(target, transfer_amount);
         assertFalse(r);
         assertEq(
@@ -74,7 +75,7 @@ contract ApplicationERC20PauseInvariantTest is TestCommonFoundry {
         switchToAppAdministrator();
         applicationCoin.pause();
         vm.startPrank(USER1);
-
+        vm.expectRevert("Pausable: paused");
         bool r = applicationCoin.transferFrom(USER1, target, transfer_amount);
         assertFalse(r);
         assertEq(
