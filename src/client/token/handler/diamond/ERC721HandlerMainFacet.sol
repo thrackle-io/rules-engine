@@ -63,7 +63,7 @@ contract ERC721HandlerMainFacet is HandlerBase, HandlerAdminMinTokenBalance, Han
      * @return Success equals true if all checks pass
      */
     function checkAllRules(uint256 _balanceFrom, uint256 _balanceTo, address _from, address _to, uint256 _amount, uint256 _tokenId, ActionTypes _action) external onlyOwner returns (bool) {
-        _action = ActionTypes.P2P_TRANSFER;// This hard-coded setting is for the legacy clients. When no this is no longer needed, this line can be removed giving clients the option of setting their own action
+        _action = ActionTypes.P2P_TRANSFER;// This hard-coded setting is for the legacy clients. When this is no longer needed, this line can be removed giving clients the option of setting their own action
         _amount;// legacy parameter
         return _checkAllRules(_balanceFrom, _balanceTo, _from, _to, address(0), _tokenId, _action);
     }
