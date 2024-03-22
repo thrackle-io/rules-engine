@@ -1,5 +1,5 @@
 # ERC721HandlerMainFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/d9139140f50076b996b790d1128c5e2182de1d13/src/client/token/handler/diamond/ERC721HandlerMainFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/bcbcc01a5b28a551282aabeb3b2db849eb2ab94f/src/client/token/handler/diamond/ERC721HandlerMainFacet.sol)
 
 **Inherits:**
 [HandlerBase](/src/client/token/handler/ruleContracts/HandlerBase.sol/contract.HandlerBase.md), [HandlerAdminMinTokenBalance](/src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol/contract.HandlerAdminMinTokenBalance.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [NFTValuationLimit](/src/client/token/handler/ruleContracts/NFTValuationLimit.sol/contract.NFTValuationLimit.md), [IHandlerDiamondErrors](/src/common/IErrors.sol/interface.IHandlerDiamondErrors.md), ERC173
@@ -50,6 +50,76 @@ function checkAllRules(
 |`_to`|`address`|recipient address|
 |`_sender`|`address`|the address triggering the contract action|
 |`_tokenId`|`uint256`|id of the NFT being transferred|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|true if all checks pass|
+
+
+### checkAllRules
+
+*This function is the one called from the contract that implements this handler. It's the legacy entry point. This function only serves as a pass-through to the active function.*
+
+
+```solidity
+function checkAllRules(
+    uint256 _balanceFrom,
+    uint256 _balanceTo,
+    address _from,
+    address _to,
+    uint256 _amount,
+    uint256 _tokenId,
+    ActionTypes _action
+) external onlyOwner returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_balanceFrom`|`uint256`|token balance of sender address|
+|`_balanceTo`|`uint256`|token balance of recipient address|
+|`_from`|`address`|sender address|
+|`_to`|`address`|recipient address|
+|`_amount`|`uint256`|number of tokens transferred|
+|`_tokenId`|`uint256`|the token's specific ID|
+|`_action`|`ActionTypes`|Action Type defined by ApplicationHandlerLib -- (Purchase, Sell, Trade, Inquire) are the legacy options|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|Success equals true if all checks pass|
+
+
+### _checkAllRules
+
+*This function contains the logic for checking all rules. It performs all the checks for the external functions.*
+
+
+```solidity
+function _checkAllRules(
+    uint256 balanceFrom,
+    uint256 balanceTo,
+    address _from,
+    address _to,
+    address _sender,
+    uint256 _tokenId,
+    ActionTypes _action
+) internal returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`balanceFrom`|`uint256`|token balance of sender address|
+|`balanceTo`|`uint256`|token balance of recipient address|
+|`_from`|`address`|sender address|
+|`_to`|`address`|recipient address|
+|`_sender`|`address`|the address triggering the contract action|
+|`_tokenId`|`uint256`|id of the NFT being transferred|
+|`_action`|`ActionTypes`|the client determined action, if NONE then the action is dynamically determined|
 
 **Returns**
 

@@ -1,5 +1,5 @@
 # ERC20HandlerMainFacet
-[Git Source](https://github.com/thrackle-io/tron/blob/d9139140f50076b996b790d1128c5e2182de1d13/src/client/token/handler/diamond/ERC20HandlerMainFacet.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/bcbcc01a5b28a551282aabeb3b2db849eb2ab94f/src/client/token/handler/diamond/ERC20HandlerMainFacet.sol)
 
 **Inherits:**
 [HandlerBase](/src/client/token/handler/ruleContracts/HandlerBase.sol/contract.HandlerBase.md), [HandlerAdminMinTokenBalance](/src/client/token/handler/ruleContracts/HandlerAdminMinTokenBalance.sol/contract.HandlerAdminMinTokenBalance.md), [HandlerUtils](/src/client/token/handler/common/HandlerUtils.sol/contract.HandlerUtils.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IHandlerDiamondErrors](/src/common/IErrors.sol/interface.IHandlerDiamondErrors.md), ERC173
@@ -32,13 +32,82 @@ function initialize(address _ruleProcessorProxyAddress, address _appManagerAddre
 
 ```solidity
 function checkAllRules(
-    uint256 balanceFrom,
-    uint256 balanceTo,
+    uint256 _balanceFrom,
+    uint256 _balanceTo,
     address _from,
     address _to,
     address _sender,
     uint256 _amount
 ) external onlyOwner returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_balanceFrom`|`uint256`|token balance of sender address|
+|`_balanceTo`|`uint256`|token balance of recipient address|
+|`_from`|`address`|sender address|
+|`_to`|`address`|recipient address|
+|`_sender`|`address`|the address triggering the contract action|
+|`_amount`|`uint256`|number of tokens transferred|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|true if all checks pass|
+
+
+### checkAllRules
+
+*This function is the one called from the contract that implements this handler. It's the entry point.*
+
+
+```solidity
+function checkAllRules(
+    uint256 _balanceFrom,
+    uint256 _balanceTo,
+    address _from,
+    address _to,
+    address _sender,
+    uint256 _amount,
+    ActionTypes _action
+) external onlyOwner returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_balanceFrom`|`uint256`|token balance of sender address|
+|`_balanceTo`|`uint256`|token balance of recipient address|
+|`_from`|`address`|sender address|
+|`_to`|`address`|recipient address|
+|`_sender`|`address`|the address triggering the contract action|
+|`_amount`|`uint256`|number of tokens transferred|
+|`_action`|`ActionTypes`|Action Type|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|true if all checks pass|
+
+
+### _checkAllRules
+
+*This function contains the logic for checking all rules. It performs all the checks for the external functions.*
+
+
+```solidity
+function _checkAllRules(
+    uint256 balanceFrom,
+    uint256 balanceTo,
+    address _from,
+    address _to,
+    address _sender,
+    uint256 _amount,
+    ActionTypes _action
+) internal returns (bool);
 ```
 **Parameters**
 
@@ -50,6 +119,7 @@ function checkAllRules(
 |`_to`|`address`|recipient address|
 |`_sender`|`address`|the address triggering the contract action|
 |`_amount`|`uint256`|number of tokens transferred|
+|`_action`|`ActionTypes`|Action Type|
 
 **Returns**
 
