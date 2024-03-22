@@ -33,7 +33,6 @@ contract ApplicationERC721BasicInvariantTest is TestCommonFoundry {
         targetSender(USER1);
         targetSender(USER2);
         targetSender(USER3);
-        targetSender(appAdministrator);
         targetSender(target);
         targetContract(address(applicationNFT));
     }
@@ -59,31 +58,31 @@ contract ApplicationERC721BasicInvariantTest is TestCommonFoundry {
 
     // transferFrom a token that the caller is not approved for should revert
     function invariant_ERC721_external_transferFromNotApproved() public virtual {
-        uint256 selfBalance = applicationNFT.balanceOf(msg.sender);
+        uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return;        
-        if(!(target != address(this)))return;
-        if(!(target != msg.sender))return;
-        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(msg.sender, 0);
-        bool isApproved = applicationNFT.isApprovedForAll(msg.sender, address(this));
+        if(!(target != target))return;
+        if(!(target != USER1))return;
+        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
+        bool isApproved = applicationNFT.isApprovedForAll(USER1, target);
         address approved = applicationNFT.getApproved(tokenId2);
-        if(!(approved != address(this) && !isApproved))return;
+        if(!(approved != target && !isApproved))return;
         vm.expectRevert("ERC721: Invalid token owner query should have reverted");
-        applicationNFT.transferFrom(msg.sender, target, tokenId2);
+        applicationNFT.transferFrom(USER1, target, tokenId2);
     }
 
     // transferFrom should reset approval for that token
     function invariant_ERC721_external_transferFromResetApproval() public virtual {
-        uint256 selfBalance = applicationNFT.balanceOf(msg.sender);
+        uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0)) return;  
         if(!(target != address(this)))return;
-        if(!(target != msg.sender))return;
+        if(!(target != USER1))return;
         if(!(target != address(0)))return;
 
-        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(msg.sender, 0);
+        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
 
-        vm.startPrank(msg.sender);
+        vm.startPrank(USER1);
         applicationNFT.approve(address(this), tokenId2);
-        applicationNFT.transferFrom(msg.sender, target, tokenId2);
+        applicationNFT.transferFrom(USER1, target, tokenId2);
         
         address approved = applicationNFT.getApproved(tokenId2);
         assertTrue(approved == address(0));
@@ -91,15 +90,15 @@ contract ApplicationERC721BasicInvariantTest is TestCommonFoundry {
 
     // transferFrom correctly updates owner
     function invariant_ERC721_external_transferFromUpdatesOwner() public virtual {
-        uint256 selfBalance = applicationNFT.balanceOf(msg.sender);
+        uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return;  
         if(!(target != address(this)))return;
-        if(!(target != msg.sender))return;
+        if(!(target != USER1))return;
         if(!(target != address(0)))return;
-        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(msg.sender, 0);
+        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
 
-        vm.startPrank(msg.sender);
-        try applicationNFT.transferFrom(msg.sender, target, tokenId2) {
+        vm.startPrank(USER1);
+        try applicationNFT.transferFrom(USER1, target, tokenId2) {
             assertEq(applicationNFT.ownerOf(tokenId2),target);
         } catch {
             revert ("transferFrom unexpectedly reverted");
@@ -119,26 +118,26 @@ contract ApplicationERC721BasicInvariantTest is TestCommonFoundry {
 
     // Transfers to the zero address should revert
     function invariant_ERC721_external_transferToZeroAddress() public virtual {
-        uint256 selfBalance = applicationNFT.balanceOf(msg.sender);
+        uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return; 
-        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(msg.sender, 0);
+        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
 
-        vm.startPrank(msg.sender);
-        vm.expectRevert("ERC721: Invalid token owner query should have reverted");
-        applicationNFT.transferFrom(msg.sender, address(0), tokenId2);
+        vm.startPrank(USER1);
+        vm.expectRevert("ERC721: transfer to the zero address");
+        applicationNFT.transferFrom(USER1, address(0), tokenId2);
 
     }
 
     // Transfers to self should not break accounting
     function invariant_ERC721_external_transferFromSelf() public virtual {
-        uint256 selfBalance = applicationNFT.balanceOf(msg.sender);
+        uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return; 
-        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(msg.sender, 0);
-        vm.startPrank(msg.sender);
+        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
+        vm.startPrank(USER1);
 
-        try applicationNFT.transferFrom(msg.sender, msg.sender, tokenId2) {
-            assertTrue(applicationNFT.ownerOf(tokenId2) == msg.sender);
-            assertEq(applicationNFT.balanceOf(msg.sender), selfBalance);
+        try applicationNFT.transferFrom(USER1, USER1, tokenId2) {
+            assertTrue(applicationNFT.ownerOf(tokenId2) == USER1);
+            assertEq(applicationNFT.balanceOf(USER1), selfBalance);
         } catch {
             revert("transferFrom unexpectedly reverted");
         }
@@ -147,15 +146,15 @@ contract ApplicationERC721BasicInvariantTest is TestCommonFoundry {
 
     // Transfer to self reset approval
     function invariant_ERC721_external_transferFromSelfResetsApproval() public virtual {
-        uint256 selfBalance = applicationNFT.balanceOf(msg.sender);
+        uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return; 
-        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(msg.sender, 0);
-        if(!(applicationNFT.ownerOf(tokenId2) == msg.sender))return;
+        uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
+        if(!(applicationNFT.ownerOf(tokenId2) == USER1))return;
 
-        vm.startPrank(msg.sender);
+        vm.startPrank(USER1);
         applicationNFT.approve(address(this), tokenId2);
 
-        applicationNFT.transferFrom(msg.sender, msg.sender, tokenId2);
+        applicationNFT.transferFrom(USER1, USER1, tokenId2);
         assertTrue(applicationNFT.getApproved(tokenId2) == address(0));
     }
 

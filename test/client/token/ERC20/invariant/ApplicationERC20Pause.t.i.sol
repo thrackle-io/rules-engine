@@ -32,10 +32,8 @@ contract ApplicationERC20PauseInvariantTest is TestCommonFoundry {
         applicationCoin.mint(USER2, 10 * ATTO);
         applicationCoin.mint(USER3, 10 * ATTO);
         vm.stopPrank();
-        targetSender(USER1);
         targetSender(USER2);
         targetSender(USER3);
-        targetSender(appAdministrator);
         targetSender(target);
         targetContract(address(applicationCoin));
     }
@@ -43,18 +41,18 @@ contract ApplicationERC20PauseInvariantTest is TestCommonFoundry {
 // Transfers should not be possible during paused state
     function invariant_ERC20external_pausedTransfer() public {
         (, msgSender, ) = vm.readCallers();
-        uint256 balance_sender = applicationCoin.balanceOf(address(this));
+        uint256 balance_sender = applicationCoin.balanceOf(USER1);
         uint256 balance_receiver = applicationCoin.balanceOf(target);
         if(!(balance_sender > 0))return;
         uint256 transfer_amount = amount % (balance_sender + 1);
 
         switchToAppAdministrator();
         applicationCoin.pause();
-        vm.startPrank(msgSender);
+        vm.startPrank(USER1);
         bool r = applicationCoin.transfer(target, transfer_amount);
         assertFalse(r);
         assertEq(
-            applicationCoin.balanceOf(address(this)),
+            applicationCoin.balanceOf(USER1),
             balance_sender
         );
         assertEq(
@@ -67,20 +65,20 @@ contract ApplicationERC20PauseInvariantTest is TestCommonFoundry {
 
     // Transfers should not be possible during paused state
     function invariant_ERC20external_pausedTransferFrom() public {
-        uint256 balance_sender = applicationCoin.balanceOf(msg.sender);
+        uint256 balance_sender = applicationCoin.balanceOf(USER1);
         uint256 balance_receiver = applicationCoin.balanceOf(target);
-        uint256 allowance = applicationCoin.allowance(msg.sender, address(this));
+        uint256 allowance = applicationCoin.allowance(USER1, address(this));
         if(!(balance_sender > 0 && allowance > balance_sender))return;
         uint256 transfer_amount = amount % (balance_sender + 1);
 
         switchToAppAdministrator();
         applicationCoin.pause();
-        vm.startPrank(msgSender);
+        vm.startPrank(USER1);
 
-        bool r = applicationCoin.transferFrom(msg.sender, target, transfer_amount);
+        bool r = applicationCoin.transferFrom(USER1, target, transfer_amount);
         assertFalse(r);
         assertEq(
-            applicationCoin.balanceOf(msg.sender),
+            applicationCoin.balanceOf(USER1),
             balance_sender
         );
         assertEq(
