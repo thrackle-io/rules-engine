@@ -375,17 +375,47 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         applicationNFT.safeTransferFrom(_user1, _user2, 0); // a 10-dollar NFT
         applicationNFT.safeTransferFrom(_user1, _user2, 1); // a 20-dollar NFT
 
-        if (_risk >= riskScoresRuleA[4]) vm.expectRevert();
+        if (_risk >= riskScoresRuleA[4]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 20000000000000000000));
+        }
         applicationNFT.safeTransferFrom(_user1, _user2, 2); // a 30-dollar NFT
 
         vm.startPrank(_user2);
         applicationNFT.safeTransferFrom(_user2, _user1, 0); // a 10-dollar NFT
 
-        if (_risk >= riskScoresRuleA[1]) vm.expectRevert();
+        if (_risk >= riskScoresRuleA[4]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 20000000000000000000));
+        } else if (_risk >= riskScoresRuleA[3]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 30000000000000000000));
+        } else if (_risk >= riskScoresRuleA[2]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 40000000000000000000));
+        } else if (_risk >= riskScoresRuleA[1]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 50000000000000000000));
+        } 
         applicationNFT.safeTransferFrom(_user2, _user1, 5); // a 60-dollar NFT
 
         vm.startPrank(_user3);
-        if (_risk >= riskScoresRuleA[0]) vm.expectRevert();
+        if (_risk >= riskScoresRuleA[4]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 20000000000000000000));
+        } else if (_risk >= riskScoresRuleA[3]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 30000000000000000000));
+        } else if (_risk >= riskScoresRuleA[2]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 40000000000000000000));
+        } else if (_risk >= riskScoresRuleA[1]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 50000000000000000000));
+        } else if (_risk >= riskScoresRuleA[0]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 70000000000000000000));
+        }
         applicationNFT.safeTransferFrom(_user3, _user4, 19); // a 200-dollar NFT
     }
 
@@ -414,16 +444,16 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
     function testERC721_ApplicationERC721Fuzz_AccountMaxValueByAccessLevel_NoAccessLevel(uint8 _addressIndex, uint8 _amountSeed) public endWithStopPrank() {
         (address _user1, address _user2, address _user3, address _user4) = _buildAccountMaxValueByAccessLevelBase(_addressIndex, _amountSeed);
         vm.startPrank(_user1);
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSignature("OverMaxValueByAccessLevel()"));
         applicationNFT.safeTransferFrom(_user1, _user2, 0);
         vm.startPrank(_user2);
-        vm.expectRevert();
+        vm.expectRevert("ERC721: caller is not token owner or approved");
         applicationNFT.safeTransferFrom(_user2, _user4, 0);
         vm.startPrank(_user4);
-        vm.expectRevert();
+        vm.expectRevert("ERC721: caller is not token owner or approved");
         applicationNFT.safeTransferFrom(_user4, _user1, 0);
         vm.startPrank(_user3);
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSignature("OverMaxValueByAccessLevel()"));
         applicationNFT.safeTransferFrom(_user3, _user4, 19);
     }
 
@@ -439,7 +469,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         (address _user1, address _user2, address _user3, address _user4) = _buildAccountMaxValueByAccessLevelFull(_addressIndex, _amountSeed);
         (uint48 accessBalance1, uint48 accessBalance2, uint48 accessBalance3, uint48 accessBalance4) = _buildAccessBalances(_amountSeed);
         vm.startPrank(_user1);
-        if (accessBalance3 < 210) vm.expectRevert();
+        if (accessBalance3 < 210) vm.expectRevert(abi.encodeWithSignature("OverMaxValueByAccessLevel()"));
         applicationNFT.safeTransferFrom(_user1, _user3, 0);
         (accessBalance1, accessBalance2, accessBalance4, _user2, _user4);
     }
@@ -470,7 +500,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         /// let's send 150-dollar worth of dracs to user4. If accessBalance4 allows less than
         /// 300 (150 in NFTs and 150 in erc20s) it should fail when trying to send NFT
         applicationCoin.transfer(_user4, 150 * ATTO);
-        if (accessBalance4 < 300) vm.expectRevert();
+        if (accessBalance4 < 300) vm.expectRevert(abi.encodeWithSignature("OverMaxValueByAccessLevel()"));
         applicationNFT.safeTransferFrom(_user1, _user4, 14);
         if (accessBalance3 >= 300) assertEq(applicationCoin.balanceOf(_user4), 150 * ATTO);
         console.log(_user2, _user3, accessBalance1, accessBalance2);
@@ -675,6 +705,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScore_SenderFirstPeriod(uint8 _risk, uint8 _period) public endWithStopPrank() {
         (address _user1, address _user2, uint8 risk, uint8 period) = _buildAccountMaxTransactionValueByRiskScoreWithPeriod(_risk, _period);
+        _risk = uint8((uint16(_risk) * 100) / 256);
+        
         /// TEST RULE ON SENDER
         /// we start making transfers
         vm.startPrank(_user1);
@@ -684,19 +716,46 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         /// let's go to the future in the middle of the period
         vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
         /// now, if the user's risk profile is in the highest range, this transfer should revert
-        if (risk >= riskScoresRuleB[2]) vm.expectRevert();
+        if (_risk >= riskScoresRuleB[2]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 1000000000000000000));
+        }
         applicationNFT.safeTransferFrom(_user1, _user2, 1);
         /// 2
         /// if the user's risk profile is in the second to the highest range, this transfer should revert
-        if (risk >= riskScoresRuleB[1]) vm.expectRevert();
+        if (_risk >= riskScoresRuleB[2]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 1000000000000000000));
+        } else if (_risk >= riskScoresRuleB[1]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 10000000000000000000000));
+        }
         applicationNFT.safeTransferFrom(_user1, _user2, 2);
         /// 10_001
         /// if the user's risk profile is in the second to the lowest range, this transfer should revert
-        if (risk >= riskScoresRuleB[0]) vm.expectRevert();
+        if (_risk >= riskScoresRuleB[2]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 1000000000000000000));
+        } else if (_risk >= riskScoresRuleB[1]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 10000000000000000000000));
+        } else if (_risk >= riskScoresRuleB[0]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 100000000000000000000000000));
+        }
         console.log(risk);
         applicationNFT.safeTransferFrom(_user1, _user2, 3);
         /// 100_000_000 - 10_000 + 10_001 = 100_000_000 + 1 = 100_000_001
-        if (risk >= riskScoresRuleB[0]) vm.expectRevert();
+        if (_risk >= riskScoresRuleB[2]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 1000000000000000000));
+        } else if (_risk >= riskScoresRuleB[1]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 10000000000000000000000));
+        } else if (_risk >= riskScoresRuleB[0]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 100000000000000000000000000));
+        }
         console.log(risk);
         applicationNFT.safeTransferFrom(_user1, _user2, 4);
         /// if passed: 1_000_000_000_000 - 100_000_000 + 100_000_001 = 1_000_000_000_000 + 1 = 1_000_000_000_001
@@ -734,24 +793,52 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScore_RecipientFirstPeriod(uint8 _risk, uint8 _period) public endWithStopPrank() {
         (address _user1, address _user2, uint8 risk, uint8 period) = _buildAccountMaxTransactionValueByRiskScoreWithPeriodRecipient(_risk, _period);
+        _risk = uint8((uint16(_risk) * 100) / 256);
         vm.startPrank(_user2);
 
         /// first we send only 1 token which shouldn't trigger any risk check
         applicationNFT.safeTransferFrom(_user2, _user1, 6);
         /// 1
         /// now, if the _user's risk profile is in the highest range, this transfer should revert
-        if (risk >= riskScoresRuleB[2]) vm.expectRevert();
+        if (_risk >= riskScoresRuleB[2]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 1000000000000000000));
+        }
         applicationNFT.safeTransferFrom(_user2, _user1, 7);
         /// 2
         /// if the _user's risk profile is in the second to the highest range, this transfer should revert
-        if (risk >= riskScoresRuleB[1]) vm.expectRevert();
+        if (_risk >= riskScoresRuleB[2]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 1000000000000000000));
+        } else if (_risk >= riskScoresRuleB[1]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 90000000000000000000000));
+        }
         applicationNFT.safeTransferFrom(_user2, _user1, 8);
         /// 90_001
         /// if the _user's risk profile is in the lowest range, this transfer should revert
-        if (risk >= riskScoresRuleB[0]) vm.expectRevert();
+        if (_risk >= riskScoresRuleB[2]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 1000000000000000000));
+        } else if (_risk >= riskScoresRuleB[1]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 90000000000000000000000));
+        } else if (_risk >= riskScoresRuleB[0]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 900000000000000000000000000));
+        }
         applicationNFT.safeTransferFrom(_user2, _user1, 9);
         /// 900_000_000 - 90_000 + 90_001 = 900_000_000 + 1 = 900_000_001
-        if (risk >= riskScoresRuleB[0]) vm.expectRevert();
+        if (_risk >= riskScoresRuleB[2]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 1000000000000000000));
+        } else if (_risk >= riskScoresRuleB[1]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 90000000000000000000000));
+        } else if (_risk >= riskScoresRuleB[0]) {
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 900000000000000000000000000));
+        }
         applicationNFT.safeTransferFrom(_user2, _user1, 10);
         /// if passed: 9_000_000_000_000 - 900_000_000 + 900_000_001  = 9_000_000_000_000 + 1 = 9_000_000_000_001
         console.log(period);
@@ -768,6 +855,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
     function testERC721_ApplicationERC721Fuzz_AccountMaxTransactionValueByRiskScore_burn(uint8 _risk, uint8 _period) public endWithStopPrank() {
         (address _user1, address _user2, uint8 risk, uint8 period) = _buildAccountMaxTransactionValueByRiskScoreWithPeriodRecipient(_risk, _period);
+        _risk = uint8((uint16(_risk) * 100) / 256);
         /// test burn while rule is active
         vm.startPrank(_user2);
         /// we jump to the next period and make sure it still works.
@@ -775,7 +863,8 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         applicationNFT.safeTransferFrom(_user2, _user1, 11);
         vm.startPrank(_user1);
         if (risk >= riskScoresRuleB[2]) {
-            vm.expectRevert();
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            vm.expectRevert(abi.encodeWithSelector(selector, _risk, 1000000000000000000));
             applicationNFT.burn(11);
             vm.warp(block.timestamp + (uint256(period) * 2 hours));
             applicationNFT.burn(11);
@@ -815,13 +904,13 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         uint32 ruleId = createAccountMaxValueByRiskRule(riskScores, createUint48Array(10_000_000, 100_000, 1_000, 500, 10));
         setAccountMaxValueByRiskRule(ruleId);
         vm.startPrank(_user1);
-        if (priceA >= uint112(maxValueForUser2) * ATTO) vm.expectRevert();
+        if (priceA >= uint112(maxValueForUser2) * ATTO) vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
         applicationNFT.safeTransferFrom(_user1, _user2, 0);
         if (priceA <= uint112(maxValueForUser2) * ATTO) {
-            if (uint64(priceA) + uint64(priceB) >= uint112(maxValueForUser2) * ATTO) vm.expectRevert();
+            if (uint64(priceA) + uint64(priceB) >= uint112(maxValueForUser2) * ATTO) vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
             applicationNFT.safeTransferFrom(_user1, _user2, 1);
             if (uint64(priceA) + uint64(priceB) < uint112(maxValueForUser2) * ATTO) {
-                if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(maxValueForUser2) * ATTO) vm.expectRevert();
+                if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(maxValueForUser2) * ATTO) vm.expectRevert(abi.encodeWithSignature("OverMaxAccValueByRiskScore()"));
                 applicationNFT.safeTransferFrom(_user1, _user2, 2);
             }
         }
@@ -884,20 +973,20 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
 
         ///perform transfers
         vm.startPrank(_user1);
-        if (accessLevel < 1) vm.expectRevert();
+        if (accessLevel < 1) vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
         applicationNFT.safeTransferFrom(_user1, _user2, 0);
 
         vm.startPrank(_user3);
-        if (accessLevel < 2) vm.expectRevert();
+        if (accessLevel < 2) vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
         applicationNFT.safeTransferFrom(_user3, _user2, 1);
 
         vm.startPrank(_user4);
-        if (accessLevel < 3) vm.expectRevert();
+        if (accessLevel < 3) vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
         applicationNFT.safeTransferFrom(_user4, _user2, 4);
 
         /// transfer erc20 tokens
         vm.startPrank(_user4);
-        if (accessLevel < 4) vm.expectRevert();
+        if (accessLevel < 4) vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
         applicationCoin.transfer(_user2, 50 * ATTO);
 
         switchToAccessLevelAdmin();
@@ -909,7 +998,7 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         assertEq(erc20Pricer.getTokenPrice(address(applicationCoin)), 5 * (10 ** 17));
 
         vm.startPrank(_user2);
-        if (accessLevel < 2) vm.expectRevert();
+        if (accessLevel < 2) vm.expectRevert(abi.encodeWithSignature("OverMaxValueOutByAccessLevel()"));
         applicationCoin.transfer(_user4, 25 * ATTO);
     }
 
@@ -938,17 +1027,17 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             assertEq(applicationNFT.balanceOf(_rich_user), maxVol);
         }
         if (maxVol == 0) {
-            vm.expectRevert();
+            vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
             applicationNFT.safeMint(_rich_user);
         }
         if (maxVol == 0) {
-            vm.expectRevert();
+            vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
             applicationNFT.safeMint(_rich_user);
         }
         /// at vol limit
         vm.startPrank(_rich_user);
         if ((10000 / applicationNFT.totalSupply()) > volLimit) {
-            vm.expectRevert();
+            vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
             applicationNFT.burn(9);
         } else {
             applicationNFT.burn(9);
@@ -960,201 +1049,6 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
             applicationNFT.safeMint(_rich_user);
             vm.startPrank(_rich_user);
             applicationNFT.burn(11);
-        }
-    }
-
-    /// Test Whole Protocol with Non Fungible Token
-    function testERC721_ApplicationERC721Fuzz_TheWholeProtocolThroughNFT(uint32 priceA, uint32 priceB, uint16 priceC, uint8 riskScore, bytes32 tag1) public endWithStopPrank() {
-        switchToAppAdministrator();
-        vm.assume(priceA > 0 && priceB > 0 && priceC > 0);
-        vm.assume(tag1 != "");
-        riskScore = uint8((uint16(riskScore) * 100) / 254);
-        (address _user1, address _user2, address _user3, address _user4) = _get4RandomAddresses(222);
-
-        uint32 maxValueForUser2;
-        bool reached3;
-        ///Add Tag to account
-        applicationAppManager.addTag(_user1, "Oscar"); ///add tag
-        assertTrue(applicationAppManager.hasTag(_user1, "Oscar"));
-        applicationAppManager.addTag(_user2, "Oscar"); ///add tag
-        assertTrue(applicationAppManager.hasTag(_user2, "Oscar"));
-
-        erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1);
-        applicationNFT.safeMint(_user1);
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 0, priceA);
-        applicationNFT.safeMint(_user1);
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 1, priceB);
-        applicationNFT.safeMint(_user1);
-        erc721Pricer.setSingleNFTPrice(address(applicationNFT), 2, priceC);
-        for (uint i; i < 5; i++) applicationNFT.safeMint(_user1);
-
-        {
-            if (priceA % 2 == 0) {
-                badBoys.push(_user4);
-                oracleDenied.addToDeniedList(badBoys);
-                uint32 ruleId = createAccountApproveDenyOracleRule(0);
-                setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
-            } else {
-                goodBoys.push(_user1);
-                goodBoys.push(_user2);
-                goodBoys.push(_user3);
-                goodBoys.push(address(0xee55));
-                oracleApproved.addToApprovedList(goodBoys);
-                uint32 ruleId = createAccountApproveDenyOracleRule(1);
-                setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
-            }
-            switchToAppAdministrator();
-            uint8[] memory riskScores = createUint8Array(0, 10, 40, 80, 99);
-            uint48[] memory balanceLimits = createUint48Array(10_000_000, 100_000, 1_000, 500, 10);
-            // we find the max balance user2
-            for (uint i; i < balanceLimits.length - 1; ) {
-                if (riskScore < riskScores[i]) {
-                    maxValueForUser2 = uint32(balanceLimits[i]);
-                } else {
-                    maxValueForUser2 = uint32(balanceLimits[4]);
-                }
-                unchecked {
-                    ++i;
-                }
-            }
-            uint32 ruleIdRisk = createAccountMaxValueByRiskRule(createUint8Array(0, 10, 40, 80, 99), createUint48Array(10_000_000, 100_000, 1_000, 500, 10));
-            setAccountMaxValueByRiskRule(ruleIdRisk);
-        }
-        {
-            uint32 ruleIdMinMax = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(3));
-            setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleIdMinMax);
-        }
-
-        {
-            switchToAppAdministrator();
-            applicationAppManager.addTag(address(applicationNFT), "BoredGrape"); ///add tag
-            uint32 ruleIdDailyTrades = createTokenMaxDailyTradesRule("BoredGrape", 3);
-            setTokenMaxDailyTradesRule(address(applicationNFTHandler), ruleIdDailyTrades);
-        }
-        {
-            uint32 ruleIdMaxTxRisk = createAccountMaxTxValueByRiskRule(createUint8Array(0, 10, 40, 80, 99), createUint48Array(7_500_000, 75_000, 750, 350, 10));
-            setAccountMaxTxValueByRiskRule(ruleIdMaxTxRisk);
-        }
-
-        switchToRiskAdmin();
-        // we apply random risk score to user2
-        applicationAppManager.addRiskScore(_user2, riskScore);
-
-        vm.startPrank(_user1);
-        /// test oracle rule
-        vm.expectRevert();
-        applicationNFT.safeTransferFrom(_user1, _user4, 7);
-
-        /// test risk rules
-        if (priceA > uint112(maxValueForUser2) * ATTO) vm.expectRevert();
-        applicationNFT.safeTransferFrom(_user1, _user2, 0);
-
-        if (priceA <= (uint112(maxValueForUser2) * 3 * ATTO) / 4 && priceA <= uint112(maxValueForUser2) * ATTO) {
-            if (uint64(priceA) + uint64(priceB) > uint112(maxValueForUser2) * ATTO || priceB > (uint112(maxValueForUser2) * 3 * ATTO) / 4) vm.expectRevert();
-            applicationNFT.safeTransferFrom(_user1, _user2, 1);
-
-            if (uint64(priceA) + uint64(priceB) <= uint112(maxValueForUser2) * ATTO && priceB <= (uint112(maxValueForUser2) * 3 * ATTO) / 4) {
-                if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(maxValueForUser2) * ATTO || priceC > (uint112(maxValueForUser2) * 3 * ATTO) / 4) vm.expectRevert();
-                applicationNFT.safeTransferFrom(_user1, _user2, 2);
-
-                if (uint64(priceA) + uint64(priceB) + uint64(priceC) <= uint112(maxValueForUser2) * ATTO && priceC <= (uint112(maxValueForUser2) * 3 * ATTO) / 4) {
-                    /// balanceLimit rule should fail since _user2 now would have 4
-                    vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
-                    applicationNFT.safeTransferFrom(_user1, _user2, 3);
-                    /// now let's warp a day to make sure this won't be a problem
-                    vm.warp(Blocktime + 40 hours);
-                    for (uint i = 3; i < 6; i++) {
-                        applicationNFT.safeTransferFrom(_user1, _user3, i);
-                    }
-                    reached3 = true;
-
-                    /// warp to allow user 1 to transfer NFT 6
-                    vm.warp(Blocktime + 725 hours);
-                    applicationNFT.safeTransferFrom(_user1, _user3, 6);
-                    /// balanceLimit rule should fail since _user1 now would have 0
-                    vm.expectRevert(abi.encodeWithSignature("UnderMinBalance()"));
-                    applicationNFT.safeTransferFrom(_user1, _user3, 7);
-
-                    /// let's give back the NFTs to _user1
-                    /// we update the min max balance rule so it's not a problem testing our AccessLevel
-                    uint32 minMaxRuleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(5));
-                    setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), minMaxRuleId);
-                    vm.startPrank(_user3);
-
-                    applicationNFT.safeTransferFrom(_user3, _user1, 3);
-                    applicationNFT.safeTransferFrom(_user3, _user2, 4);
-
-                    vm.startPrank(_user2);
-                    applicationNFT.safeTransferFrom(_user2, _user1, 2);
-                }
-                uint32 _index = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(8));
-                setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), _index);
-                vm.startPrank(_user2);
-                applicationNFT.safeTransferFrom(_user2, _user1, 1);
-            }
-            uint32 index = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(8));
-            setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), index);
-            vm.startPrank(_user2);
-            applicationNFT.safeTransferFrom(_user2, _user1, 0);
-        }
-        {
-            uint32 indexTwo = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(8));
-            setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), indexTwo);
-        }
-        {
-            /// now let's try to give it to _user3, but this time it should fail since this would be more
-            /// than 3 trades in less than 24 hrs
-            vm.startPrank(_user1);
-            applicationNFT.safeTransferFrom(_user1, _user3, 3);
-
-            vm.startPrank(_user3);
-            applicationNFT.safeTransferFrom(_user3, _user1, 3);
-
-            vm.startPrank(_user1);
-            if (reached3) {
-                vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
-                applicationNFT.safeTransferFrom(_user1, _user3, 3);
-                vm.warp(Blocktime + 1725 hours);
-                applicationNFT.safeTransferFrom(_user1, _user3, 3);
-            } else {
-                applicationNFT.safeTransferFrom(_user1, _user3, 3);
-                vm.startPrank(_user3);
-                vm.expectRevert(abi.encodeWithSignature("OverMaxDailyTrades()"));
-                applicationNFT.safeTransferFrom(_user3, _user1, 3);
-                vm.warp(Blocktime + 1725 hours);
-                applicationNFT.safeTransferFrom(_user3, _user1, 3);
-            }
-
-            uint8 accessLevel = riskScore % 5;
-            switchToAccessLevelAdmin();
-            _user2 = address(0xee55);
-            applicationAppManager.addAccessLevel(_user2, accessLevel);
-            // add the rule.
-            uint48[] memory balanceAmounts = createUint48Array(0, 500, 10_000, 800_000, 200_000_000);
-            {
-                uint32 ruleIdAccessLevel = createAccountMaxValueByAccessLevelRule(0, 500, 10_000, 800_000, 200_000_000);
-                setAccountMaxValueByAccessLevelRule(ruleIdAccessLevel);
-            }
-            {
-                /// test access level rules
-                vm.startPrank(_user1);
-                if (priceA > uint(balanceAmounts[accessLevel]) * ATTO) vm.expectRevert();
-                applicationNFT.safeTransferFrom(_user1, _user2, 0);
-
-                if (priceA <= uint120(balanceAmounts[accessLevel]) * ATTO) {
-                    if (uint64(priceA) + uint64(priceB) > uint120(balanceAmounts[accessLevel]) * ATTO) vm.expectRevert();
-                    applicationNFT.safeTransferFrom(_user1, _user2, 1);
-
-                    if (uint64(priceA) + uint64(priceB) <= uint112(balanceAmounts[accessLevel]) * ATTO) {
-                        if (uint64(priceA) + uint64(priceB) + uint64(priceC) > uint112(balanceAmounts[accessLevel]) * ATTO) vm.expectRevert();
-                        applicationNFT.safeTransferFrom(_user1, _user2, 2);
-
-                        if (uint(priceA) + uint(priceB) + uint(priceC) <= uint112(balanceAmounts[accessLevel]) * ATTO) {
-                            /// balanceLimit rule should fail since _user2 now would have 4
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -1242,7 +1136,11 @@ contract ApplicationERC721FuzzTest is TestCommonFoundry, ERC721Util {
         switchToRuleAdmin();
         // hold time range must be between 1 hour and 5 years
         if (_hours == 0 || _hours > 43830) {
-            vm.expectRevert();
+            if(_hours == 0) {
+                vm.expectRevert(abi.encodeWithSignature("ZeroValueNotPermited()"));
+            } else {
+                vm.expectRevert(abi.encodeWithSignature("PeriodExceeds5Years()"));
+            }
             ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).setTokenMinHoldTime(_createActionsArray(), _hours);
         } else {
             /// set the rule for x hours

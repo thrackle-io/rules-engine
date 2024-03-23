@@ -59,14 +59,15 @@ contract ERC721PricingTest is TestCommonFoundry {
      * @notice currently not supporting ERC1155.
      */
     function testPricing_ERC721Pricing_SettingSingleNFTPrice_InvalidContract() public {
-        vm.expectRevert();
+        bytes4 selector = bytes4(keccak256("NotAnNFTContract(address)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, 0xBABE));
         openOcean.setSingleNFTPrice(address(0xBABE), 1, 5000 * (10 ** 18));
     }
 
     /// Testing that the pricing contract won't allow price setting to anyone but the owner
     function testPricing_ERC721Pricing_SettingSingleNFTPrice_NotOwner() public endWithStopPrank() {
         vm.startPrank(bob);
-        vm.expectRevert();
+        vm.expectRevert("Ownable: caller is not the owner");
         openOcean.setSingleNFTPrice(address(boredWhaleNFT), 1, 5000 * (10 ** 18));
     }
 }
