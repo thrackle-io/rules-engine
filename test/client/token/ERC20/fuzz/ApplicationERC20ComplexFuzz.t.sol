@@ -92,21 +92,49 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
 	        /// let's go to the future in the middle of the period
 	        vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
 	        /// now, if the user's risk profile is in the highest range, this transfer should revert
-	        if (risk >= _riskScore[2]) vm.expectRevert();
+	        if (risk >= _riskScore[2]) {
+            	bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
+        	}
 	        console.log(risk);
 	        applicationCoin.transfer(user2, 1 * (10 ** 18));
 	        /// 2
 	        /// if the user's risk profile is in the second to the highest range, this transfer should revert
-	        if (risk >= _riskScore[1]) vm.expectRevert();
+	        if (risk >= _riskScore[2]) {
+            	bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
+        	} else if (risk >= _riskScore[1]) {
+            	bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 10000000000000000000000));
+        	}
+
 	        console.log(risk);
 	        applicationCoin.transfer(user2, 10_000 * (10 ** 18) - 1);
 	        /// 10_001
 	        /// if the user's risk profile is in the second to the lowest range, this transfer should revert
-	        if (risk >= _riskScore[0]) vm.expectRevert();
+	    	if (risk >= _riskScore[2]) {
+            	bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+        	vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
+        	} else if (risk >= _riskScore[1]) {
+            	bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 10000000000000000000000));
+        	} else if (risk >= _riskScore[0]) {
+            	bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 100000000000000000000000000));
+        	}
 	        console.log(risk);
 	        applicationCoin.transfer(user2, 100_000_000 * (10 ** 18) - 10_000 * (10 ** 18));
 	        /// 100_000_000 - 10_000 + 10_001 = 100_000_000 + 1 = 100_000_001
-	        if (risk >= _riskScore[0]) vm.expectRevert();
+	        if (risk >= _riskScore[2]) {
+            	bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+        		vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
+        	} else if (risk >= _riskScore[1]) {
+            	bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 10000000000000000000000));
+        	} else if (risk >= _riskScore[0]) {
+            	bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 100000000000000000000000000));
+        	}
 	        console.log(risk);
 	        applicationCoin.transfer(user2, 1_000_000_000_000 * (10 ** 18) - 100_000_000 * (10 ** 18));
 	        /// if passed: 1_000_000_000_000 - 100_000_000 + 100_000_001 = 1_000_000_000_000 + 1 = 1_000_000_000_001
@@ -136,21 +164,48 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
 	        applicationCoin.transfer(user1, 1 * (10 ** 18));
 	        /// 1
 	        /// now, if the user's risk profile is in the highest range, this transfer should revert
-	        if (risk >= 90) vm.expectRevert();
+	        if (risk >= 90) {
+				bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
+			}
 	        console.log(risk);
 	        applicationCoin.transfer(user1, 1 * (10 ** 18));
 	        /// 2
 	        /// if the user's risk profile is in the second to the highest range, this transfer should revert
-	        if (risk >= 40) vm.expectRevert();
+	        if (risk >= 90) {
+				bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
+			} else if (risk >= 40) {
+				bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 90000000000000000000000));
+			}
 	        console.log(risk);
 	        applicationCoin.transfer(user1, 90_000 * (10 ** 18) - 1);
 	        /// 90_001
 	        /// if the user's risk profile is in the second to the lowest range, this transfer should revert
-	        if (risk >= 10) vm.expectRevert();
+	        if (risk >= 90) {
+				bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
+			} else if (risk >= 40) {
+				bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 90000000000000000000000));
+			} else if (risk >= 10) {
+				bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 900000000000000000000000000));
+			}
 	        console.log(risk);
 	        applicationCoin.transfer(user1, 900_000_000 * (10 ** 18) - 90_000 * (10 ** 18));
 	        /// 900_000_000 - 90_000 + 90_001 = 900_000_000 + 1 = 900_000_001
-	        if (risk >= 10) vm.expectRevert();
+	        if (risk >= 90) {
+				bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
+			} else if (risk >= 40) {
+				bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 90000000000000000000000));
+			} else if (risk >= 10) {
+				bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            	vm.expectRevert(abi.encodeWithSelector(selector, risk, 900000000000000000000000000));
+			}
 	        console.log(risk);
 	        applicationCoin.transfer(user1, 9_000_000_000_000 * (10 ** 18) - 900_000_000 * (10 ** 18));
 	        /// if passed: 9_000_000_000_000 - 900_000_000 + 900_000_001  = 9_000_000_000_000 + 1 = 9_000_000_000_001
@@ -207,7 +262,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
 	            vm.startPrank(user1);
 	            uint256 transferAmount = uint256(volLimit) * (10 * (10 ** 18));
 	            applicationCoin.mint(user1, (transferAmount - (1 * (10 ** 18))));
-	            vm.expectRevert();
+	            vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
 	            applicationCoin.mint(user1, transferAmount);
 
 	            applicationCoin.transfer(ruleBypassAccount, applicationCoin.balanceOf(user1));
@@ -226,7 +281,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
 	        applicationCoin.mint(user1, 5 * (10 ** 18));
 	        applicationCoin.mint(user1, 4 * (10 ** 18));
 	        applicationCoin.mint(user1, 1 * (10 ** 18));
-	        vm.expectRevert();
+	        vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
 	        applicationCoin.mint(user1, 1_000_000_000_000_000); /// 0.0001 tokens
 
 	        /// test above 100% volatility limits
