@@ -181,7 +181,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
     }
 
     /// Test Account Approve Deny Oracle Rule
-    function testERC20_ApplicationERC20Handler_AccountDenyOracleERC20Handler_Pass() public endWithStopPrank {
+    function testERC20_ApplicationERC20Handler_AccountDenyOracleERC20Handler_Positive() public endWithStopPrank {
         _accountDenyOracleERC20HandlerSetup();
         // test that the oracle works
         // This one should pass
@@ -190,22 +190,22 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, user2, user1, 10);
     }
 
-    function testERC20_ApplicationERC20Handler_AccountDenyOracleERC20Handler_Fail() public endWithStopPrank {
-         _accountDenyOracleERC20HandlerSetup();
-         vm.startPrank(address(applicationCoin));
+    function testERC20_ApplicationERC20Handler_AccountDenyOracleERC20Handler_Negative() public endWithStopPrank {
+        _accountDenyOracleERC20HandlerSetup();
+        vm.startPrank(address(applicationCoin));
         // This one should fail
         vm.expectRevert(abi.encodeWithSignature("AddressIsDenied()"));
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(69), user1, 10);
     }
 
-    function testERC20_ApplicationERC20Handler_AccountApproveOracleERC20Handler_Pass() public endWithStopPrank {
+    function testERC20_ApplicationERC20Handler_AccountApproveOracleERC20Handler_Positive() public endWithStopPrank {
         _accountApproveOracleERC20HandlerSetup();
         vm.startPrank(address(applicationCoin));
         // This one should pass
         ERC20HandlerMainFacet(address(applicationCoinHandlerSpecialOwner)).checkAllRules(20, 0, user1, address(59), user1, 10);
     }
 
-    function testERC20_ApplicationERC20Handler_AccountApproveOracleERC20Handler_Fail() public endWithStopPrank {
+    function testERC20_ApplicationERC20Handler_AccountApproveOracleERC20Handler_Negative() public endWithStopPrank {
         _accountApproveOracleERC20HandlerSetup();
         vm.startPrank(address(applicationCoin));
         // This one should fail
@@ -250,7 +250,7 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
     }
 
     /// Utility Helper Functions
-        function _feeCreationAndSettingSetup() public endWithStopPrank {
+    function _feeCreationAndSettingSetup() public endWithStopPrank {
         bytes32 tag1 = "cheap";
         minBalance = 10 * 10 ** 18;
         maxBalance = 1000 * 10 ** 18;
@@ -308,5 +308,4 @@ contract ApplicationERC20HandlerTest is TestCommonFoundry, ERC20Util {
         uint32 ruleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRule(address(applicationCoinHandlerSpecialOwner), ruleId);
     }
-
 }

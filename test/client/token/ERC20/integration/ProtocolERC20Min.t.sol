@@ -7,8 +7,7 @@ import "test/client/token/ERC20/util/ERC20Util.sol";
 import "test/client/token/ERC20/integration/ERC20CommonTests.t.sol";
 
 contract ProtocolERC20MinTest is ERC20CommonTests {
-
-    function setUp() public endWithStopPrank() {
+    function setUp() public endWithStopPrank {
         setUpProcotolAndCreateERC20MinAndDiamondHandler();
         switchToAppAdministrator();
         minimalCoin.mint(appAdministrator, 10_000_000_000_000_000_000_000 * ATTO);

@@ -123,7 +123,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).transferFrom(user2, user1, 4);
     }
 
-    function testERC721_ApplicationERC721U_AccountDenyOracle_Fail() public endWithStopPrank {
+    function testERC721_ApplicationERC721U_AccountDenyOracle_Negative() public endWithStopPrank {
         _accountDenyOracleSetup();
         vm.startPrank(user1);
         ///perform transfer that checks rule
@@ -133,7 +133,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(address(69)), 0);
     }
 
-    function testERC721_ApplicationERC721U_AccountApproveOracle_Fail() public endWithStopPrank {
+    function testERC721_ApplicationERC721U_AccountApproveOracle_Negative() public endWithStopPrank {
         _accountApproveOracleSetup();
         vm.startPrank(user1);
         // This one should fail
@@ -147,7 +147,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         createAccountApproveDenyOracleRule(2);
     }
 
-    function testERC721_ApplicationERC721U_PauseRulesViaAppManager_Fail() public endWithStopPrank {
+    function testERC721_ApplicationERC721U_PauseRulesViaAppManager_Negative() public endWithStopPrank {
         _pauseRulesViaAppManagerSetup();
         vm.startPrank(user1);
         bytes4 selector = bytes4(keccak256("ApplicationPaused(uint256,uint256)"));
@@ -204,7 +204,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).transferFrom(user2, user1, 2);
     }
 
-    function testERC721_ApplicationERC721U_AccountMaxTransactionValueByRiskScore_Fail() public endWithStopPrank {
+    function testERC721_ApplicationERC721U_AccountMaxTransactionValueByRiskScore_Negative() public endWithStopPrank {
         ///Fail cases
         _accountMaxTransactionValueByRiskScoreSetup();
         vm.startPrank(user2);
@@ -245,7 +245,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(user2, user3, 5);
     }
 
-     function testERC721_ApplicationERC721U_AccountMaxTransactionValueByRiskScore_Upgrade() public endWithStopPrank {
+    function testERC721_ApplicationERC721U_AccountMaxTransactionValueByRiskScore_Upgrade() public endWithStopPrank {
         /// upgrade the NFT and make sure it still fails
         _accountMaxTransactionValueByRiskScoreSetup();
         ///simulate price changes
@@ -268,7 +268,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(user2, user3, 4);
     }
 
-    function testERC721_ApplicationERC721U_AccountDenyForNoAccessLevelInNFT_Fail() public endWithStopPrank {
+    function testERC721_ApplicationERC721U_AccountDenyForNoAccessLevelInNFT_Negative() public endWithStopPrank {
         // transfers should not work for addresses without AccessLevel
         _accountDenyForNoAccessLevelInNFTSetup();
         vm.startPrank(user1);
@@ -307,7 +307,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(user2), 1);
     }
 
-    function testERC721_ApplicationERC721U_AccountMinMaxTokenBalance_Fail() public endWithStopPrank {
+    function testERC721_ApplicationERC721U_AccountMinMaxTokenBalance_Negative() public endWithStopPrank {
         /// Transfers failing (below min value limit)
         _accountMinMaxTokenBalanceSetup();
         vm.startPrank(user1);
@@ -360,7 +360,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).safeTransferFrom(user3, rich_user, 6);
     }
 
-    function testERC721_ApplicationERC721U_AdminMinTokenBalance_Fail() public endWithStopPrank {
+    function testERC721_ApplicationERC721U_AdminMinTokenBalance_Negative() public endWithStopPrank {
         _adminMinTokenBalanceSetup();
         switchToRuleBypassAccount();
         /// This one fails
@@ -480,7 +480,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         }
 
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(user1), 5);
-        
+
         // add the rule.
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
         setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
@@ -488,7 +488,7 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         switchToAppAdministrator();
         badBoys.push(address(69));
         oracleDenied.addToDeniedList(badBoys);
-        
+
         // test that the oracle works
         // This one should pass
         ///perform transfer that checks rule
@@ -567,9 +567,8 @@ contract ApplicationERC721UTest is TestCommonFoundry, ERC721Util {
         vm.startPrank(user1);
         ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).transferFrom(user1, user2, 1);
         assertEq(ApplicationERC721UpgAdminMint(address(applicationNFTProxy)).balanceOf(user2), 1);
-        
 
-        if(additionalTag) {
+        if (additionalTag) {
             // add the other tag and check to make sure that it still only allows 1 trade
             switchToAppAdministrator();
             applicationAppManager.addTag(address(applicationNFTProxy), "DiscoPunk"); ///add tag

@@ -12,10 +12,8 @@ import "test/util/TestCommonFoundry.sol";
  * @notice It simulates an NFT-marketplace price source.
  */
 contract ERC721PricingTest is TestCommonFoundry {
-
     function setUp() public {
         setUpProtocolAndAppManagerAndPricingAndTokens();
-
     }
 
     function testPricing_ERC721Pricing_PricerVersion() public view {
@@ -32,8 +30,8 @@ contract ERC721PricingTest is TestCommonFoundry {
     }
 
     function testPricing_ERC721Pricing_SettingSingleNFTPrice_Negative() public {
-        switchToUser(); 
-        vm.expectRevert("Ownable: caller is not the owner"); 
+        switchToUser();
+        vm.expectRevert("Ownable: caller is not the owner");
         openOcean.setSingleNFTPrice(address(boredWhaleNFT), 1, 5000 * (10 ** 18));
     }
 
@@ -65,7 +63,7 @@ contract ERC721PricingTest is TestCommonFoundry {
     }
 
     /// Testing that the pricing contract won't allow price setting to anyone but the owner
-    function testPricing_ERC721Pricing_SettingSingleNFTPrice_NotOwner() public endWithStopPrank() {
+    function testPricing_ERC721Pricing_SettingSingleNFTPrice_NotOwner() public endWithStopPrank {
         vm.startPrank(bob);
         vm.expectRevert("Ownable: caller is not the owner");
         openOcean.setSingleNFTPrice(address(boredWhaleNFT), 1, 5000 * (10 ** 18));

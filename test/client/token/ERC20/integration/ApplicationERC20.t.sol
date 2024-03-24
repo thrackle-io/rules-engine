@@ -7,13 +7,12 @@ import "test/client/token/ERC20/util/ERC20Util.sol";
 import "test/client/token/ERC20/integration/ERC20CommonTests.t.sol";
 
 contract ApplicationERC20Test is ERC20CommonTests {
-
     address targetAccount;
     address targetAccount2;
     uint256 minBalance;
     uint256 maxBalance;
 
-    function setUp() public endWithStopPrank() {
+    function setUp() public endWithStopPrank {
         setUpProcotolAndCreateERC20AndDiamondHandler();
         switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, 10_000_000_000_000_000_000_000 * ATTO);
@@ -21,7 +20,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         vm.warp(Blocktime);
     }
 
-    function testERC20_ApplicationERC20_TokenMaxSupplyVolatility_Negative() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TokenMaxSupplyVolatility_Negative() public endWithStopPrank {
         _tokenMaxSupplyVolatilitySetup();
         vm.startPrank(user1);
         /// fail transactions (mint and burn with passing transfers)
@@ -29,13 +28,13 @@ contract ApplicationERC20Test is ERC20CommonTests {
         applicationCoin.mint(user1, 6500 * ATTO);
     }
 
-    function testERC20_ApplicationERC20_TokenMaxSupplyVolatility_Period() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TokenMaxSupplyVolatility_Period() public endWithStopPrank {
         _tokenMaxSupplyVolatilitySetup();
         vm.startPrank(user1);
         /// move out of rule period
         vm.warp(Blocktime + 40 hours);
         applicationCoin.mint(user1, 2550 * ATTO);
-    
+
         /// burn tokens
         /// move into fresh period
         vm.warp(Blocktime + 95 hours);
@@ -56,7 +55,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         applicationCoin.burn(2550 * ATTO);
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableCoin_AppAdminExclusion() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableCoin_AppAdminExclusion() public endWithStopPrank {
         _transactionFeeTableCoinSetup();
         switchToAppAdministrator();
         // make sure fees don't affect Application Administrators(even if tagged)
@@ -65,7 +64,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(user2), 100 * ATTO);
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableCoin_FeeAssessment() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableCoin_FeeAssessment() public endWithStopPrank {
         _transactionFeeTableCoinSetup();
         switchToAppAdministrator();
         // now test the fee assessment
@@ -78,7 +77,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableCoin_Exclusion() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableCoin_Exclusion() public endWithStopPrank {
         // make sure when fees are active, that non qualifying users are not affected
         _transactionFeeTableCoinSetup();
         switchToAppAdministrator();
@@ -89,7 +88,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount), 0); // Nothing added
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableCoin_MultipleFee() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableCoin_MultipleFee() public endWithStopPrank {
         // make sure multiple fees work by adding additional rule and applying to user4
         _transactionFeeTableCoinSetup();
         switchToRuleAdmin();
@@ -105,7 +104,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount2), 6 * ATTO); // treasury gets fees
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableCoin_Discount() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableCoin_Discount() public endWithStopPrank {
         // make sure discounts work by adding a discount to user4
         _transactionFeeTableCoinSetup();
         switchToAppAdministrator();
@@ -124,7 +123,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount2), 5 * ATTO); // treasury gets fees(added from previous...6 + 5)
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableCoin_Deactivation() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableCoin_Deactivation() public endWithStopPrank {
         // make sure deactivation works
         _transactionFeeTableCoinSetup();
         switchToRuleAdmin();
@@ -137,7 +136,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount2), 0); // Nothing added
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableCoin_BlankTag_StandardFee() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableCoin_BlankTag_StandardFee() public endWithStopPrank {
         _transactionFeeTableCoinBlankTagSetup();
         vm.startPrank(user4);
         // make sure standard fee works
@@ -147,12 +146,12 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableCoin_BlankTag_AdditionalFee() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableCoin_BlankTag_AdditionalFee() public endWithStopPrank {
         _transactionFeeTableCoinBlankTagSetup();
         vm.startPrank(user4);
         // make sure standard fee works
         applicationCoin.transfer(user3, 100 * ATTO);
-        /// Now add another fee and make sure it accumulates. 
+        /// Now add another fee and make sure it accumulates.
         switchToRuleAdmin();
         FeesFacet(address(applicationCoinHandler)).addFee("less cheap", minBalance, maxBalance, 600, targetAccount2);
         switchToAppAdministrator();
@@ -162,10 +161,10 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(user4), 99800 * ATTO); //from account decrements properly
         assertEq(applicationCoin.balanceOf(user7), 91 * ATTO); // to account gets amount - fees
         assertEq(applicationCoin.balanceOf(targetAccount), 6 * ATTO); // treasury gets fees(added from previous)
-        assertEq(applicationCoin.balanceOf(targetAccount2), 6 * ATTO); // treasury gets fees    
+        assertEq(applicationCoin.balanceOf(targetAccount2), 6 * ATTO); // treasury gets fees
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableDiscountsCoin() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableDiscountsCoin() public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.transfer(user4, 100000 * ATTO);
         minBalance = 10 * ATTO;
@@ -211,7 +210,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount), 0 * ATTO);
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_AppAdminExclusion() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_AppAdminExclusion() public endWithStopPrank {
         _transactionFeeTableTransferFromSetup();
         switchToAppAdministrator();
         // make sure fees don't affect Application Administrators(even if tagged)
@@ -222,7 +221,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(user2), 100 * ATTO);
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_FeeAssessment() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_FeeAssessment() public endWithStopPrank {
         _transactionFeeTableTransferFromSetup();
         vm.startPrank(user4);
         // test the fee assessment
@@ -235,7 +234,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_Exclusion() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_Exclusion() public endWithStopPrank {
         _transactionFeeTableTransferFromSetup();
         // make sure when fees are active, that non qualifying users are not affected
         switchToAppAdministrator();
@@ -248,7 +247,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount), 0); // Nothing added
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_MultipleFee() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_MultipleFee() public endWithStopPrank {
         _transactionFeeTableTransferFromSetup();
         // make sure multiple fees work by adding additional rule and applying to user4
         switchToRuleAdmin();
@@ -265,7 +264,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount2), 6 * ATTO); // treasury gets fees
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_Discount() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_Discount() public endWithStopPrank {
         _transactionFeeTableTransferFromSetup();
         // make sure discounts work by adding a discount to user4
         switchToRuleAdmin();
@@ -284,7 +283,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount2), 5 * ATTO); // treasury gets fees
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_Deactivation() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableTransferFrom_Deactivation() public endWithStopPrank {
         _transactionFeeTableTransferFromSetup();
         // make sure deactivation works
         switchToRuleAdmin();
@@ -299,7 +298,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount2), 0); // treasury doesn't receive anything
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableCoinGt100_FeeAssessment() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableCoinGt100_FeeAssessment() public endWithStopPrank {
         _transactionFeeTableCoinGt100Setup();
         vm.startPrank(user4);
         // make sure standard fee works
@@ -309,11 +308,11 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableCoinGt100_100Percent() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableCoinGt100_100Percent() public endWithStopPrank {
         _transactionFeeTableCoinGt100Setup();
         // add a fee to bring it to 100 percent
         switchToRuleAdmin();
-        int24  feePercentage = 9700;
+        int24 feePercentage = 9700;
         FeesFacet(address(applicationCoinHandler)).addFee("less cheap", minBalance, maxBalance, feePercentage, targetAccount2);
         switchToAppAdministrator();
         // now test the fee assessment
@@ -323,15 +322,15 @@ contract ApplicationERC20Test is ERC20CommonTests {
         applicationCoin.transfer(user3, 100 * ATTO);
         assertEq(applicationCoin.balanceOf(user4), 99900 * ATTO);
         assertEq(applicationCoin.balanceOf(user3), 0);
-        assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO); 
-        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * ATTO); 
+        assertEq(applicationCoin.balanceOf(targetAccount), 3 * ATTO);
+        assertEq(applicationCoin.balanceOf(targetAccount2), 97 * ATTO);
     }
 
-    function testERC20_ApplicationERC20_TransactionFeeTableCoinGt100_Above100Percent() public endWithStopPrank() {
+    function testERC20_ApplicationERC20_TransactionFeeTableCoinGt100_Above100Percent() public endWithStopPrank {
         _transactionFeeTableCoinGt100Setup();
         // add a fee to bring it over 100 percent
         switchToRuleAdmin();
-        int24  feePercentage = 10;
+        int24 feePercentage = 10;
         FeesFacet(address(applicationCoinHandler)).addFee("less cheap", minBalance, maxBalance, 9700, targetAccount2);
         FeesFacet(address(applicationCoinHandler)).addFee("super cheap", minBalance, maxBalance, feePercentage, targetAccount2);
         switchToAppAdministrator();
@@ -346,12 +345,12 @@ contract ApplicationERC20Test is ERC20CommonTests {
         // make sure nothing changed
         assertEq(applicationCoin.balanceOf(user4), 100000 * ATTO);
         assertEq(applicationCoin.balanceOf(user3), 0);
-        assertEq(applicationCoin.balanceOf(targetAccount), 0); 
+        assertEq(applicationCoin.balanceOf(targetAccount), 0);
         assertEq(applicationCoin.balanceOf(targetAccount2), 0); // current 7
     }
 
     /// INTERNAL HELPER FUNCTIONS
-    function _tokenMaxSupplyVolatilitySetup() public endWithStopPrank() {
+    function _tokenMaxSupplyVolatilitySetup() public endWithStopPrank {
         switchToAppAdministrator();
         /// burn tokens to specific supply
         applicationCoin.burn(10_000_000_000_000_000_000_000 * ATTO);
@@ -372,10 +371,10 @@ contract ApplicationERC20Test is ERC20CommonTests {
         applicationCoin.mint(user1, 8000 * ATTO);
     }
 
-    function _transactionFeeTableCoinSetup() public endWithStopPrank() {
+    function _transactionFeeTableCoinSetup() public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.transfer(user4, 100000 * ATTO);
-        
+
         int24 feePercentage = 300;
         targetAccount = rich_user;
         targetAccount2 = user10;
@@ -392,7 +391,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         assertEq(1, FeesFacet(address(applicationCoinHandler)).getFeeTotal());
     }
 
-    function _transactionFeeTableCoinBlankTagSetup() public endWithStopPrank() {
+    function _transactionFeeTableCoinBlankTagSetup() public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.transfer(user4, 100000 * ATTO);
         minBalance = 10 * ATTO;
@@ -407,7 +406,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         applicationAppManager.addTag(user4, "discount"); ///add tag
     }
 
-    function _transactionFeeTableTransferFromSetup() public endWithStopPrank() {
+    function _transactionFeeTableTransferFromSetup() public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.transfer(user4, 100000 * ATTO);
         minBalance = 10 * ATTO;
@@ -429,7 +428,7 @@ contract ApplicationERC20Test is ERC20CommonTests {
         applicationAppManager.addTag(user4, "cheap"); ///add tag
     }
 
-    function _transactionFeeTableCoinGt100Setup() public endWithStopPrank() {
+    function _transactionFeeTableCoinGt100Setup() public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.transfer(user4, 100000 * ATTO);
         minBalance = 10 * ATTO;

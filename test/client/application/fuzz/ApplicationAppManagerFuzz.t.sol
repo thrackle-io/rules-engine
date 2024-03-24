@@ -3,23 +3,21 @@ pragma solidity ^0.8.24;
 
 import "test/util/TestCommonFoundry.sol";
 
-
 contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
-
     function setUp() public {
         setUpProtocolAndAppManager();
-        _addAdminsToAddressArray(); 
-        _grantAdminRolesToAdmins();           
+        _addAdminsToAddressArray();
+        _grantAdminRolesToAdmins();
         vm.warp(Blocktime); // set block.timestamp
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: The app admin role is renounced. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: The app admin role is renounced.
      */
-    function testApplication_ApplicationAppManagerFuzz_RenounceAppAdmin(uint8 addressIndex) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_RenounceAppAdmin(uint8 addressIndex) public endWithStopPrank {
         switchToAppAdministrator();
         address sender = ADDRESSES[addressIndex % ADDRESSES.length];
         vm.stopPrank();
@@ -28,13 +26,13 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         assertFalse(applicationAppManager.isAppAdministrator(sender));
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: The app admin role is granted to newAppAdmin only. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: The app admin role is granted to newAppAdmin only.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddAppAdministrator(uint8 addressIndex) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddAppAdministrator(uint8 addressIndex) public endWithStopPrank {
         address newAppAdmin = ADDRESSES[addressIndex % ADDRESSES.length];
         switchToSuperAdmin();
         applicationAppManager.addAppAdministrator(newAppAdmin);
@@ -42,13 +40,13 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         assertFalse(applicationAppManager.isAppAdministrator(address(0xBABE)));
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: App Admin Role is granted to 0xBABE address, else reverts. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: App Admin Role is granted to 0xBABE address, else reverts.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddAppAdministrator_Negative(uint8 addressIndexA) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddAppAdministrator_Negative(uint8 addressIndexA) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         vm.startPrank(sender);
         if (sender != superAdmin) {
@@ -58,13 +56,13 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: Add App Admin Role to entire ADDRESSES array. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: Add App Admin Role to entire ADDRESSES array.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddMultipleAppAdministrator(uint8 addressIndexA) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddMultipleAppAdministrator(uint8 addressIndexA) public endWithStopPrank {
         address TestAddress = ADDRESSES[addressIndexA % ADDRESSES.length];
         switchToSuperAdmin();
         applicationAppManager.addMultipleAppAdministrator(ADDRESSES);
@@ -73,13 +71,13 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         assertTrue(applicationAppManager.isAppAdministrator(address(TestAddress)));
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: Add App Admin Role to entire ADDRESSES array, else revert. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: Add App Admin Role to entire ADDRESSES array, else revert.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddMultipleAppAdministrator_Negative(uint8 addressIndexA) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddMultipleAppAdministrator_Negative(uint8 addressIndexA) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address[] memory alts = new address[](2);
         alts[0] = address(0xFF77);
@@ -97,13 +95,13 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: App Admin role is revoked from admin. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: App Admin role is revoked from admin.
      */
-    function testApplication_ApplicationAppManagerFuzz_RevokeAppAdministrator(uint8 addressIndexA, uint8 addressIndexB) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_RevokeAppAdministrator(uint8 addressIndexA, uint8 addressIndexB) public endWithStopPrank {
         address admin = ADDRESSES[addressIndexA % ADDRESSES.length];
         address random = ADDRESSES[addressIndexB % ADDRESSES.length];
         switchToSuperAdmin();
@@ -113,22 +111,22 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(random);
         if (random != superAdmin) {
-        vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
-        applicationAppManager.revokeRole(APP_ADMIN_ROLE, admin);
-        assertTrue(applicationAppManager.isAppAdministrator(admin));
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
+            applicationAppManager.revokeRole(APP_ADMIN_ROLE, admin);
+            assertTrue(applicationAppManager.isAppAdministrator(admin));
         } else if (random == superAdmin) {
             applicationAppManager.revokeRole(APP_ADMIN_ROLE, admin);
             assertFalse(applicationAppManager.isAppAdministrator(admin));
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
      * Postconditions: When Sender is correct admin role: App Admin role is renounced from admin.
-     */ 
-    function testApplication_ApplicationAppManagerFuzz_RenounceAppAdministrator(uint8 addressIndexA, uint8 addressIndexB) public endWithStopPrank() {
+     */
+    function testApplication_ApplicationAppManagerFuzz_RenounceAppAdministrator(uint8 addressIndexA, uint8 addressIndexB) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         vm.startPrank(sender);
@@ -148,13 +146,13 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     }
 
     ///---------------Risk ADMIN--------------------
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
      * Postconditions: When Sender is correct admin role: Risk Admin role is added to the random address.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddRiskAdmin(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddRiskAdmin(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
@@ -164,19 +162,19 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             applicationAppManager.addRiskAdmin(admin);
         }
         if (sender == appAdministrator) {
-            applicationAppManager.addRiskAdmin(random); 
-            assertTrue(applicationAppManager.isRiskAdmin(random)); 
+            applicationAppManager.addRiskAdmin(random);
+            assertTrue(applicationAppManager.isRiskAdmin(random));
             assertFalse(applicationAppManager.isRiskAdmin(address(88)));
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: Risk Admin role is added to the random address, else revert. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: Risk Admin role is added to the random address, else revert.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddRiskAdmin_Negative(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddRiskAdmin_Negative(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
@@ -186,25 +184,25 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             applicationAppManager.addRiskAdmin(admin);
         }
         if (sender == appAdministrator) {
-            applicationAppManager.addRiskAdmin(random); 
-            assertTrue(applicationAppManager.isRiskAdmin(random)); 
+            applicationAppManager.addRiskAdmin(random);
+            assertTrue(applicationAppManager.isRiskAdmin(random));
             assertFalse(applicationAppManager.isRiskAdmin(address(88)));
             vm.stopPrank();
             vm.startPrank(random);
             if (random != appAdministrator && random != admin) {
                 vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
-                applicationAppManager.addRiskAdmin(random); 
+                applicationAppManager.addRiskAdmin(random);
             }
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
      * Postconditions: When Sender is correct admin role: Risk Admin role is added to the ADDRESSES array.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddMultipleRiskAdmins(uint8 addressIndexA, uint8 addressIndexB) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddMultipleRiskAdmins(uint8 addressIndexA, uint8 addressIndexB) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address random = ADDRESSES[addressIndexB % ADDRESSES.length];
         vm.startPrank(sender);
@@ -220,16 +218,15 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             assertFalse(applicationAppManager.isRiskAdmin(address(0xC0FFEE)));
             assertFalse(applicationAppManager.isRiskAdmin(address(88)));
         }
-
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: Risk Admin role is added to the ADDRESSES array, else revert. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: Risk Admin role is added to the ADDRESSES array, else revert.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddMultipleRiskAdmins_Negative(uint8 addressIndexA) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddMultipleRiskAdmins_Negative(uint8 addressIndexA) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         vm.startPrank(sender);
         if (sender != appAdministrator) {
@@ -239,18 +236,19 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
      * Postconditions: When Sender is correct admin role: Risk Admin role is renounced by the admin address.
      */
-    function testApplication_ApplicationAppManagerFuzz_RenounceRiskAdmin(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_RenounceRiskAdmin(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
+        if (sender != superAdmin)
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -265,34 +263,34 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
      * Postconditions: When Sender is correct admin role: Risk Admin role is revoked from the admin address.
      */
-    function testApplication_ApplicationAppManagerFuzz_RevokeRiskAdmin(uint8 addressIndexA) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_RevokeRiskAdmin(uint8 addressIndexA) public endWithStopPrank {
         address random = ADDRESSES[addressIndexA % ADDRESSES.length];
         switchToAppAdministrator();
         applicationAppManager.addRiskAdmin(random);
         assertTrue(applicationAppManager.isRiskAdmin(random));
         assertFalse(applicationAppManager.isRiskAdmin(address(88)));
-           
     }
 
     ///---------------ACCESS LEVEL--------------------
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: Add Access Level Admin role to the random address. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: Add Access Level Admin role to the random address.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
+        if (sender != superAdmin)
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -302,23 +300,25 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             assertFalse(applicationAppManager.isAccessLevelAdmin(address(88)));
             vm.stopPrank();
             vm.startPrank(random);
-            if (random != appAdministrator && random != admin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+            if (random != appAdministrator && random != admin)
+                vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             applicationAppManager.addAccessLevelAdmin(address(0xBABE)); //add AccessLevel
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: Add Access Level Admin role to the ADDRESSES array. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: Add Access Level Admin role to the ADDRESSES array.
      */
-    function testApplication_ApplicationAppManagerFuzz_MultipleAddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_MultipleAddAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
+        if (sender != superAdmin)
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -332,18 +332,19 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: Access Level Admin role renounced by the random address. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: Access Level Admin role renounced by the random address.
      */
-    function testApplication_ApplicationAppManagerFuzz_RenounceAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_RenounceAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
+        if (sender != superAdmin)
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -351,25 +352,26 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             applicationAppManager.addAccessLevelAdmin(random); //add AccessLevel admin
             assertTrue(applicationAppManager.isAccessLevelAdmin(random));
             assertFalse(applicationAppManager.isAccessLevelAdmin(address(88)));
-            vm.stopPrank(); 
+            vm.stopPrank();
             vm.startPrank(random);
             applicationAppManager.renounceAccessLevelAdmin();
             assertFalse(applicationAppManager.isAccessLevelAdmin(random));
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: Access Level Admin role revoked from the random address. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: Access Level Admin role revoked from the random address.
      */
-    function testApplication_ApplicationAppManagerFuzz_RevokeAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_RevokeAccessLevel(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
+        if (sender != superAdmin)
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -380,17 +382,18 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: Risk Score Admin granted to the random address, else reverts. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: Risk Score Admin granted to the random address, else reverts.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddRiskScore_Negative(uint8 addressIndexA, uint8 addressIndexB, uint8 riskScore) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddRiskScore_Negative(uint8 addressIndexA, uint8 addressIndexB, uint8 riskScore) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address random = ADDRESSES[addressIndexB % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != appAdministrator) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+        if (sender != appAdministrator)
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.addRiskAdmin(random);
         if (sender == appAdministrator) {
             vm.stopPrank();
@@ -404,17 +407,18 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
     }
 
     ///---------------TAGS--------------------
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: When the tag is not blank: Tag applied to 0xBABE address. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: When the tag is not blank: Tag applied to 0xBABE address.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddTag(uint8 addressIndexA, uint8 addressIndexB, bytes32 Tag1) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddTag(uint8 addressIndexA, uint8 addressIndexB, bytes32 Tag1) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
+        if (sender != superAdmin)
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -425,20 +429,21 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: When the tag is not blank: Tag applied to 0xBABE address, else reverts. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: When the tag is not blank: Tag applied to 0xBABE address, else reverts.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddTag_Negative(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, bytes32 Tag1, bytes32 Tag2) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddTag_Negative(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, bytes32 Tag1, bytes32 Tag2) public endWithStopPrank {
         vm.assume(Tag1 != Tag2 && Tag2 != Tag1);
         vm.assume(Tag2 != "");
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         vm.startPrank(sender);
-        if (sender != superAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
+        if (sender != superAdmin)
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x7613a25ecc738585a232ad50a301178f12b3ba8887d13e138b523c4269c47689"));
         applicationAppManager.addAppAdministrator(admin);
         if (sender == superAdmin) {
             vm.stopPrank();
@@ -448,25 +453,26 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             if (admin != appAdministrator && Tag1 != "") assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag2));
             vm.stopPrank();
             vm.startPrank(random);
-            if ((random != admin && random != appAdministrator)) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
-            /// The expected reversion is dynamic and does not contain the expected error. 
+            if ((random != admin && random != appAdministrator))
+                vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+            /// The expected reversion is dynamic and does not contain the expected error.
             applicationAppManager.addTag(address(0xBABE), Tag2);
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: When the tag is not blank: Tag applied to tagAddresses array. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: When the tag is not blank: Tag applied to tagAddresses array.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddMultipleGenTagsToMulitpleAccounts(bytes32 Tag1, bytes32 Tag2,  bytes32 Tag3) public endWithStopPrank() {
-        vm.assume(Tag1 != Tag2 && Tag2 != Tag3&& Tag3 != Tag1);
+    function testApplication_ApplicationAppManagerFuzz_AddMultipleGenTagsToMulitpleAccounts(bytes32 Tag1, bytes32 Tag2, bytes32 Tag3) public endWithStopPrank {
+        vm.assume(Tag1 != Tag2 && Tag2 != Tag3 && Tag3 != Tag1);
         vm.assume(Tag1 != "" && Tag2 != "" && Tag3 != "");
         bytes32[] memory genTags = createBytes32Array(Tag1, Tag2, Tag3);
         address[] memory tagAddresses = createAddressArray(address(0xff1), address(0xff2), address(0xff3));
 
-        switchToAppAdministrator(); 
+        switchToAppAdministrator();
         applicationAppManager.addMultipleTagToMultipleAccounts(tagAddresses, genTags);
         /// Test to prove addresses in array are tagged by index matched to second array of tags
         assertTrue(applicationAppManager.hasTag(address(0xff1), Tag1));
@@ -474,23 +480,23 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         assertTrue(applicationAppManager.hasTag(address(0xff3), Tag3));
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
      * Postconditions: When Sender is correct admin role:
      */
-    function testApplication_ApplicationAppManagerFuzz_AddMultipleGenTagsToMulitpleAccounts_Negative(uint8 addressIndexA, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3) public endWithStopPrank() {
-        vm.assume(Tag1 != Tag2 && Tag2 != Tag3&& Tag3 != Tag1);
+    function testApplication_ApplicationAppManagerFuzz_AddMultipleGenTagsToMulitpleAccounts_Negative(uint8 addressIndexA, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3) public endWithStopPrank {
+        vm.assume(Tag1 != Tag2 && Tag2 != Tag3 && Tag3 != Tag1);
         vm.assume(Tag1 != "" && Tag2 != "" && Tag3 != "");
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         bytes32[] memory genTags = createBytes32Array(Tag1, Tag2, Tag3);
         address[] memory tagAddresses = createAddressArray(address(0xff1), address(0xff2), address(0xff3));
-        vm.startPrank(sender); 
+        vm.startPrank(sender);
         if (sender != appAdministrator) {
             vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             applicationAppManager.addMultipleTagToMultipleAccounts(tagAddresses, genTags);
-        } 
+        }
         if (sender == appAdministrator) {
             applicationAppManager.addMultipleTagToMultipleAccounts(tagAddresses, genTags);
             /// Test to prove addresses in array are tagged by index matched to second array of tags
@@ -500,13 +506,13 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: When the tag is not blank: Tags are applied to 0xBABE address, else reverts. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: When the tag is not blank: Tags are applied to 0xBABE address, else reverts.
      */
-    function testApplication_ApplicationAppManagerFuzz_RemoveTag(uint8 addressIndexA, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3, bytes32 Tag4) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_RemoveTag_Positive(uint8 addressIndexA, bytes32 Tag1, bytes32 Tag2, bytes32 Tag3, bytes32 Tag4) public endWithStopPrank {
         vm.assume(Tag1 != Tag2 && Tag2 != Tag3 && Tag3 != Tag4 && Tag4 != Tag1 && Tag4 != Tag2 && Tag3 != Tag1);
 
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
@@ -536,26 +542,29 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(sender);
         console.log(address(sender));
-        if ((sender != appAdministrator)) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+        if ((sender != appAdministrator))
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.removeTag(address(0xBABE), Tag3);
         if ((sender == appAdministrator)) assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag3));
-        if ((sender != appAdministrator)) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+        if ((sender != appAdministrator))
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.removeTag(address(0xBABE), Tag2);
         if ((sender == appAdministrator)) assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag2));
-        if ((sender != appAdministrator)) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+        if ((sender != appAdministrator))
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.removeTag(address(0xBABE), Tag1);
         if ((sender == appAdministrator)) {
             assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag1));
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: When the tag is not blank: Tag is applied to 0xBABE address, else reverts. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: When the tag is not blank: Tag is applied to 0xBABE address, else reverts.
      */
-    function testApplication_ApplicationAppManagerFuzz_RemoveTag_Negative(uint8 addressIndexA, bytes32 Tag1) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_RemoveTag_Negative(uint8 addressIndexA, bytes32 Tag1) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         switchToAppAdministrator();
         /// add first tag
@@ -566,25 +575,27 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
             /// remove tags
             vm.stopPrank();
             vm.startPrank(sender);
-            if ((sender != appAdministrator)) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+            if ((sender != appAdministrator))
+                vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
             applicationAppManager.removeTag(address(0xBABE), Tag1);
         }
     }
 
     ///---------------PAUSE RULES----------------
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: Sets the Pause Rules  
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: Sets the Pause Rules
      */
-    function testApplication_ApplicationAppManagerFuzz_AddPauseRuleFuzz(uint8 addressIndexA, uint8 addressIndexB, uint64 start, uint64 end) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddPauseRuleFuzz(uint8 addressIndexA, uint8 addressIndexB, uint64 start, uint64 end) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         bytes4 selector = bytes4(keccak256("InvalidDateWindow(uint256,uint256)"));
         vm.startPrank(sender);
-        if (sender != appAdministrator) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
-            applicationAppManager.addRuleAdministrator(admin);
+        if (sender != appAdministrator)
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+        applicationAppManager.addRuleAdministrator(admin);
         if (sender == appAdministrator) {
             vm.stopPrank();
             vm.startPrank(admin);
@@ -602,19 +613,20 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         }
     }
 
-    /** 
-     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected. 
-     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up. 
-     * Test that only the correct admin role can call the function within the App Manager.  
-     * Postconditions: When Sender is correct admin role: Set Pause Rules, else reverts. 
+    /**
+     * Preconditions: Rule Processor Diamond, App Manager, and App Handler Deployed and connected.
+     * Super Admin role is set at contruction, App Admin, Rule Admin, Risk Admin, and Rule Admins are set during test set up.
+     * Test that only the correct admin role can call the function within the App Manager.
+     * Postconditions: When Sender is correct admin role: Set Pause Rules, else reverts.
      */
-    function testApplication_ApplicationAppManagerFuzz_AddPauseRuleFuzz_Negative(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint64 start, uint64 end) public endWithStopPrank() {
+    function testApplication_ApplicationAppManagerFuzz_AddPauseRuleFuzz_Negative(uint8 addressIndexA, uint8 addressIndexB, uint8 addressIndexC, uint64 start, uint64 end) public endWithStopPrank {
         address sender = ADDRESSES[addressIndexA % ADDRESSES.length];
         address admin = ADDRESSES[addressIndexB % ADDRESSES.length];
         address random = ADDRESSES[addressIndexC % ADDRESSES.length];
         bytes4 selector = bytes4(keccak256("InvalidDateWindow(uint256,uint256)"));
         vm.startPrank(sender);
-        if (sender != appAdministrator) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+        if (sender != appAdministrator)
+            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
         applicationAppManager.addRuleAdministrator(admin);
         if (sender == appAdministrator) {
             vm.stopPrank();
@@ -633,7 +645,8 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
                 vm.stopPrank();
                 vm.startPrank(random);
                 /// testing onlyRule
-                if (random != admin && random != ruleAdmin) vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x5ff038c4899bb7fbbc7cf40ef4accece5ebd324c2da5ab7db2c3b81e845e2a7a"));
+                if (random != admin && random != ruleAdmin)
+                    vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(random), " is missing role 0x5ff038c4899bb7fbbc7cf40ef4accece5ebd324c2da5ab7db2c3b81e845e2a7a"));
                 /// The expected reversion is dynamic and does not contain the expected error.
                 applicationAppManager.addPauseRule(1769924850, 1769984900);
                 if (random == admin || random == ruleAdmin) {

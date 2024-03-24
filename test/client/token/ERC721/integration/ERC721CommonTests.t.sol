@@ -10,8 +10,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     uint256 erc721Liq = 10_000;
     uint256 erc20Liq = 100_000 * ATTO;
     DummyNFTAMM amm;
-    
-    function testERC721_ERC721CommonTests_HandlerVersions() public {
+
+    function testERC721_ERC721CommonTests_HandlerVersions() public view {
         string memory version = VersionFacet(address(applicationNFTHandler)).version();
         assertEq(version, "1.1.0");
     }
@@ -57,13 +57,13 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user), 1);
     }
 
-    function testERC721_ERC721CommonTests_Transfer_Negative() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_Transfer_Negative() public endWithStopPrank {
         switchToAppAdministrator();
         vm.expectRevert("ERC721: invalid token ID");
         testCaseNFT.transferFrom(appAdministrator, user, 0);
     }
 
-        function testERC721_ERC721CommonTests_BurnERC721_Positive() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_BurnERC721_Positive() public endWithStopPrank {
         switchToAppAdministrator();
         ///Mint and transfer tokenId 0
         ProtocolERC721(address(testCaseNFT)).safeMint(appAdministrator);
@@ -109,15 +109,15 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     }
 
     /// Account Min/Max Token Balance Tests
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceRule_Minimum_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceRule_Minimum_Negative() public endWithStopPrank {
         /// make sure the minimum rules fail results in revert
         _accountMinMaxTokenBalanceRuleSetup(true);
         vm.startPrank(user1);
         vm.expectRevert(0x3e237976);
         testCaseNFT.transferFrom(user1, user3, 4);
     }
-    
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceRule_Maximum_Fail() public endWithStopPrank() {
+
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceRule_Maximum_Negative() public endWithStopPrank {
         ///make sure the maximum rule fail results in revert
         _accountMinMaxTokenBalanceRuleSetup(true);
         switchToAppAdministrator();
@@ -132,7 +132,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.transferFrom(user2, user1, 3);
     }
 
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceRule_Burning() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceRule_Burning() public endWithStopPrank {
         /// test that burn works with rule
         _accountMinMaxTokenBalanceRuleSetup(true);
         vm.startPrank(rich_user);
@@ -142,7 +142,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         ERC721Burnable(address(testCaseNFT)).burn(5);
     }
 
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceBlankTag_Pass() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceBlankTag_Positive() public endWithStopPrank {
         ///perform transfer that checks rule
         _accountMinMaxTokenBalanceRuleSetup(false);
         vm.startPrank(user1);
@@ -150,7 +150,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user1), 1);
     }
 
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceBlankTag_Minimum_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceBlankTag_Minimum_Negative() public endWithStopPrank {
         /// make sure the minimum rules fail results in revert
         _accountMinMaxTokenBalanceRuleSetup(false);
         vm.startPrank(user1);
@@ -158,7 +158,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.transferFrom(user1, user3, 4);
     }
 
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceBlankTag_Maximum_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceBlankTag_Maximum_Negative() public endWithStopPrank {
         ///make sure the maximum rule fail results in revert
         _accountMinMaxTokenBalanceRuleSetup(false);
         switchToAppAdministrator();
@@ -176,7 +176,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     }
 
     /// Account Approve Deny Oracle Tests
-    function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Deny_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Deny_Negative() public endWithStopPrank {
         ///perform transfer that checks rule
         // This one should fail
         _accountApproveDenyOracleSetup(true);
@@ -186,7 +186,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(address(69)), 0);
     }
 
-    function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Approve_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Approve_Negative() public endWithStopPrank {
         _accountApproveDenyOracleSetup(false);
         // This one should fail
         vm.startPrank(user1);
@@ -194,13 +194,13 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.transferFrom(user1, address(88), 3);
     }
 
-    function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Invalid() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Invalid() public endWithStopPrank {
         // Finally, check the invalid type
         vm.expectRevert("Oracle Type Invalid");
         createAccountApproveDenyOracleRule(2);
     }
 
-    function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Burning() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountApproveDenyOracle_Burning() public endWithStopPrank {
         _accountApproveDenyOracleSetup(false);
         /// swap to user and burn
         vm.startPrank(user1);
@@ -236,7 +236,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.transferFrom(user1, address(59), 2);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_FlexibleTag() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_FlexibleTag() public endWithStopPrank {
         _tokenMaxDailyTradesSetup(true);
         switchToAppAdministrator();
         applicationAppManager.removeTag(address(testCaseNFT), "BoredGrape"); ///add tag
@@ -251,7 +251,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user2), 1);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_StrictTag_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_StrictTag_Negative() public endWithStopPrank {
         _tokenMaxDailyTradesSetup(true);
         vm.startPrank(user2);
         // this one should fail because it is more than 1 in 24 hours
@@ -260,7 +260,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user2), 1);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Period() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_Period() public endWithStopPrank {
         _tokenMaxDailyTradesSetup(true);
         // add a day to the time and it should pass
         vm.warp(block.timestamp + 1 days);
@@ -269,7 +269,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user2), 0);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_MultipleTag() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_MultipleTag() public endWithStopPrank {
         _tokenMaxDailyTradesSetup(true);
         // add the other tag and check to make sure that it still only allows 1 trade
         vm.startPrank(user1);
@@ -281,7 +281,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.transferFrom(user2, user1, 2);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_BlankTag_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_BlankTag_Negative() public endWithStopPrank {
         _tokenMaxDailyTradesSetup(false);
         vm.startPrank(user2);
         // this one should fail because it is more than 1 in 24 hours
@@ -290,7 +290,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user2), 1);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_BlankTag_Period() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TokenMaxDailyTrades_BlankTag_Period() public endWithStopPrank {
         _tokenMaxDailyTradesSetup(false);
         // add a day to the time and it should pass
         vm.startPrank(user2);
@@ -299,12 +299,11 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user2), 0);
     }
 
-
     /// Account Max Transaction Value By Risk Score Tests
-    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Pass() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Positive() public endWithStopPrank {
         ///Transfer NFT's
         ///Positive cases
-        _accountMaxTransactionValueByRiskScoreSetup(false); 
+        _accountMaxTransactionValueByRiskScoreSetup(false);
         vm.startPrank(user1);
         testCaseNFT.safeTransferFrom(user1, user3, 0);
         vm.startPrank(user3);
@@ -314,9 +313,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user1, user2, 1);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Negative() public endWithStopPrank {
         ///Fail cases
-        _accountMaxTransactionValueByRiskScoreSetup(false); 
+        _accountMaxTransactionValueByRiskScoreSetup(false);
         vm.startPrank(user2);
         bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 10, 15000000000000000000));
@@ -331,7 +330,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user2, user3, 5);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_PriceChange() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_PriceChange() public endWithStopPrank {
         _accountMaxTransactionValueByRiskScoreSetup(false);
         ///simulate price changes
         switchToAppAdministrator();
@@ -352,7 +351,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user2, user3, 4);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Burning() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Burning() public endWithStopPrank {
         _accountMaxTransactionValueByRiskScoreSetup(false);
         /// set price of token 5 below limit of user 2
         switchToAppAdministrator();
@@ -363,14 +362,14 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         /// transaction valuation must remain within risk limit for sender
         vm.startPrank(user2);
         ERC721Burnable(address(testCaseNFT)).burn(5);
-        
+
         vm.startPrank(user2);
         bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
         vm.expectRevert(abi.encodeWithSelector(selector, 10, 15000000000000000000));
         ERC721Burnable(address(testCaseNFT)).burn(6);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Period_Pass() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Period_Positive() public endWithStopPrank {
         ///Transfer NFT's
         ///Positive cases
         _accountMaxTransactionValueByRiskScoreSetup(true);
@@ -386,8 +385,8 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         vm.warp(block.timestamp + 25 hours * 3);
         testCaseNFT.safeTransferFrom(user1, user2, 1);
     }
-    
-    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Period_Fail() public endWithStopPrank() {
+
+    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Period_Negative() public endWithStopPrank {
         ///Fail cases
         _accountMaxTransactionValueByRiskScoreSetup(true);
         vm.startPrank(user2);
@@ -404,7 +403,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user2, user3, 5);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Period_Combination() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Period_Combination() public endWithStopPrank {
         ///simulate price changes
         _accountMaxTransactionValueByRiskScoreSetup(true);
         switchToAppAdministrator();
@@ -431,7 +430,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user2, user3, 4);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Period_Burning() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMaxTransactionValueByRiskScore_Period_Burning() public endWithStopPrank {
         /// set price of token 5 below limit of user 2
         _accountMaxTransactionValueByRiskScoreSetup(true);
         switchToAppAdministrator();
@@ -450,7 +449,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     /**
      * @dev Test the AccessLevel = 0 rule
      */
-     function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Negative() public endWithStopPrank {
         // transfers should not work for addresses without AccessLevel
         _accountDenyForNoAccessLevelInNFTSetup();
         vm.startPrank(user1);
@@ -464,7 +463,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.transferFrom(user1, user2, 0);
     }
 
-    function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Pass() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountDenyForNoAccessLevelInNFT_Positive() public endWithStopPrank {
         _accountDenyForNoAccessLevelInNFTSetup();
         switchToAccessLevelAdmin();
         applicationAppManager.addAccessLevel(user2, 1);
@@ -474,7 +473,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user2), 1);
     }
 
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Pass() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Positive() public endWithStopPrank {
         /// Transfers passing (above min value limit)
         _accountMinMaxTokenBalanceSetup(true);
         vm.startPrank(user1);
@@ -493,7 +492,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user3), 3);
     }
 
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Negative() public endWithStopPrank {
         _accountMinMaxTokenBalanceSetup(true);
         /// Transfers failing (below min value limit)
         vm.startPrank(user1);
@@ -515,7 +514,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user3), 3);
     }
 
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Period() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_Period() public endWithStopPrank {
         _accountMinMaxTokenBalanceSetup(true);
 
         /// Expire time restrictions for users and transfer below rule
@@ -531,22 +530,23 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user3, rich_user, 6);
     }
 
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_BlankTag_Pass() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_BlankTag_Positive() public endWithStopPrank {
         _accountMinMaxTokenBalanceSetup(false);
         vm.startPrank(user1);
         testCaseNFT.safeTransferFrom(user1, user2, 0);
     }
-    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_BlankTag_Fail() public endWithStopPrank() {
+
+    function testERC721_ERC721CommonTests_AccountMinMaxTokenBalance_BlankTag_Negative() public endWithStopPrank {
         // should fail since it puts user1 below min of 1
         _accountMinMaxTokenBalanceSetup(false);
         vm.startPrank(user1);
         testCaseNFT.safeTransferFrom(user1, user2, 0);
         testCaseNFT.safeTransferFrom(user1, user3, 1);
-        vm.expectRevert(0xa7fb7b4b); 
+        vm.expectRevert(0xa7fb7b4b);
         testCaseNFT.safeTransferFrom(user1, user3, 2);
     }
 
-    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Negative() public endWithStopPrank {
         _adminMinTokenBalanceSetup();
         switchToRuleBypassAccount();
         /// This one fails
@@ -555,17 +555,17 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 2);
     }
 
-    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Period() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_AdminMinTokenBalance_Period() public endWithStopPrank {
         _adminMinTokenBalanceSetup();
         switchToRuleBypassAccount();
         /// Move Time forward 366 days
         vm.warp(Blocktime + 366 days);
 
         /// Transfers and updating rules should now pass
-        testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 2);  
-    }  
+        testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 2);
+    }
 
-    function testERC721_ERC721CommonTests_TransferVolumeRule_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TransferVolumeRule_Negative() public endWithStopPrank {
         _transferVolumeRuleSetup();
         vm.startPrank(user1);
         // transfer one that hits the percentage
@@ -573,7 +573,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user1, user2, 1);
     }
 
-    function testERC721_ERC721CommonTests_TransferVolumeRule_Period() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TransferVolumeRule_Period() public endWithStopPrank {
         _transferVolumeRuleSetup();
         vm.startPrank(user1);
         /// now move a little over 2 hours into the future to make sure the next block will work
@@ -590,8 +590,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user1, user2, 3);
     }
 
-
-    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet_Negative() public endWithStopPrank {
         _transferVolumeRuleWithSupplySet();
         vm.startPrank(user1);
         testCaseNFT.safeTransferFrom(user1, user2, 0);
@@ -600,7 +599,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user1, user2, 1);
     }
 
-    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet_Period() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TransferVolumeRuleWithSupplySet_Period() public endWithStopPrank {
         _transferVolumeRuleWithSupplySet();
         vm.startPrank(user1);
         /// now move a little over 2 hours into the future to make sure the next block will work
@@ -618,7 +617,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user1, user2, 3);
     }
 
-    function testERC721_ERC721CommonTests_TokenMinHoldTime_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_Negative() public endWithStopPrank {
         /// set the rule for 24 hours
         switchToRuleAdmin();
         setTokenMinHoldTimeRule(24);
@@ -631,10 +630,10 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user1, user2, 0);
     }
 
-    function testERC721_ERC721CommonTests_TokenMinHoldTime_Period() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_Period() public endWithStopPrank {
         /// set the rule for 24 hours
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(24); 
+        setTokenMinHoldTimeRule(24);
         switchToAppAdministrator();
         // mint 1 nft to non admin user(this should set their ownership start time)
         ProtocolERC721(address(testCaseNFT)).safeMint(user1);
@@ -654,10 +653,10 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user2, user1, 0);
     }
 
-    function testERC721_ERC721CommonTests_TokenMinHoldTime_UpdatedRule() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_TokenMinHoldTime_UpdatedRule() public endWithStopPrank {
         // now change the rule hold hours to 2 and it should pass
         switchToRuleAdmin();
-        setTokenMinHoldTimeRule(2); 
+        setTokenMinHoldTimeRule(2);
         switchToAppAdministrator();
         ProtocolERC721(address(testCaseNFT)).safeMint(user1);
         // move forward in time 1 day and it should pass
@@ -668,7 +667,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user1, user2, 0);
     }
 
-    function testERC721_ERC721CommonTests_CollectionTokenMaxSupplyVolatility_Fail() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_CollectionTokenMaxSupplyVolatility_Negative() public endWithStopPrank {
         _collectionTokenMaxSupplyVolatilitySetup();
         switchToAppAdministrator();
         /// fail transactions (mint and burn with passing transfers)
@@ -677,7 +676,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         ProtocolERC721(address(testCaseNFT)).safeMint(user1);
     }
 
-    function testERC721_ERC721CommonTests_CollectionTokenMaxSupplyVolatility_Burning() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_CollectionTokenMaxSupplyVolatility_Burning() public endWithStopPrank {
         _collectionTokenMaxSupplyVolatilitySetup();
         vm.startPrank(user1);
         ERC721Burnable(address(testCaseNFT)).burn(10);
@@ -690,7 +689,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         ProtocolERC721(address(testCaseNFT)).safeMint(user1);
     }
 
-    function testERC721_ERC721CommonTests_NFTValuationOrig_Fails() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_NFTValuationOrig_Fails() public endWithStopPrank {
         /// retest rule to ensure proper valuation totals
         /// user 2 has access level 1 and can hold balance of 1
         _NFTValuationOrigSetup();
@@ -700,9 +699,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         vm.startPrank(user2);
         vm.expectRevert(0xaee8b993);
         testCaseNFT.transferFrom(user2, user1, 1);
-    } 
+    }
 
-    function testERC721_ERC721CommonTests_NFTValuationOrig_IncreaseAccessLevel() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_NFTValuationOrig_IncreaseAccessLevel() public endWithStopPrank {
         _NFTValuationOrigSetup();
         vm.startPrank(user1);
         testCaseNFT.transferFrom(user1, user2, 1);
@@ -720,7 +719,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.transferFrom(user2, user1, 1);
     }
 
-    function testERC721_ERC721CommonTests_NFTValuationOrig_AdjustValuation() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_NFTValuationOrig_AdjustValuation() public endWithStopPrank {
         _NFTValuationOrigSetup();
         /// adjust nft valuation limit to ensure we revert back to individual pricing
         switchToAppAdministrator();
@@ -733,7 +732,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.transferFrom(user2, user1, 1);
     }
 
-    function testERC721_ERC721CommonTests_NFTValuationOrig_Burning() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_NFTValuationOrig_Burning() public endWithStopPrank {
         _NFTValuationOrigSetup();
         vm.startPrank(user1);
         testCaseNFT.transferFrom(user1, user2, 1);
@@ -746,7 +745,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         applicationNFTv2.burn(36);
     }
 
-    function testERC721_ERC721CommonTests_UpgradeAppManager721_ZeroAddress() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_UpgradeAppManager721_ZeroAddress() public endWithStopPrank {
         _upgradeAppManager721Setup();
         switchToAppAdministrator();
         // zero address
@@ -754,7 +753,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         ProtocolTokenCommon(address(testCaseNFT)).proposeAppManagerAddress(address(0));
     }
 
-    function testERC721_ERC721CommonTests_UpgradeAppManager721_NoProposedAddress() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_UpgradeAppManager721_NoProposedAddress() public endWithStopPrank {
         _upgradeAppManager721Setup();
         switchToAppAdministrator();
         // no proposed address
@@ -762,7 +761,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         applicationAppManager2.confirmAppManager(address(testCaseNFT));
     }
 
-    function testERC721_ERC721CommonTests_UpgradeAppManager721_NonProposerConfirms() public endWithStopPrank() {
+    function testERC721_ERC721CommonTests_UpgradeAppManager721_NonProposerConfirms() public endWithStopPrank {
         _upgradeAppManager721Setup();
         switchToAppAdministrator();
         // non proposer tries to confirm
@@ -775,7 +774,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         applicationAppManager3.confirmAppManager(address(testCaseNFT));
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxBuyVolumeRule_Fail() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_TokenMaxBuyVolumeRule_Negative() public endWithStopPrank {
         _tokenMaxBuyVolumeRuleSetup();
         uint16 tokenPercentage = 10; /// 1%
         vm.startPrank(user);
@@ -786,7 +785,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _approveTokens(amm, 5 * 10 ** 8 * ATTO, true);
         vm.expectRevert(0x6a46d1f4);
         _testBuyNFT(tokenPercentage + 1, amm);
-    } 
+    }
 
     function testERC721_ERC721CommonTests_TokenMaxBuyVolumeRule_Period() public endWithStopPrank {
         _tokenMaxBuyVolumeRuleSetup();
@@ -804,7 +803,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _testBuyNFT(tokenPercentage + 2, amm);
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxSellVolumeRule_Fail() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_TokenMaxSellVolumeRule_Negative() public endWithStopPrank {
         _tokenMaxSellVolumeRuleSetup();
         uint16 tokenPercentageSell = 30; /// 0.30%
         /// If try to sell one more, it should fail in this period.
@@ -832,7 +831,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _testSellNFT(erc721Liq / 2 + 100 + 2, amm);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxSellSize_Fail() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_AccountMaxSellSize_Negative() public endWithStopPrank {
         _accountMaxSellSizeSetup(true);
         switchToUser();
         /// Swap that fails
@@ -840,7 +839,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
-   function testERC721_ERC721CommonTests_AccountMaxSellSize_Period() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_AccountMaxSellSize_Period() public endWithStopPrank {
         _accountMaxSellSizeSetup(true);
         switchToUser();
         /// we wait until the next period so user can swap again
@@ -848,7 +847,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxSellSize_BlankTag_Fail() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_AccountMaxSellSize_BlankTag_Negative() public endWithStopPrank {
         _accountMaxSellSizeSetup(false);
         switchToUser();
         /// Swap that fails
@@ -864,7 +863,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         _testSellNFT(erc721Liq / 2 + 2, amm);
     }
 
-    function testERC721_ERC721CommonTests_AccountMaxBuySizeRule_Fail() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_AccountMaxBuySizeRule_Negative() public endWithStopPrank {
         _accountMaxBuySizeRuleSetup();
         switchToUser();
         /// Swap that fails
@@ -904,7 +903,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         }
     }
 
-    function testERC721_ERC721CommonTests_TokenMaxSellVolumeRuleByPasserRule_Fail() public endWithStopPrank {
+    function testERC721_ERC721CommonTests_TokenMaxSellVolumeRuleByPasserRule_Negative() public endWithStopPrank {
         uint16 tokenPercentageSell = 30; /// 0.30%
         _tokenMaxSellVolumeRuleByPasserRuleSetup();
         vm.startPrank(user1);
@@ -922,6 +921,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMaxDailyTradesAtomicFullSet() public {
         uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
+        // for (uint i; i < ruleIds.length; i++) ruleIds[i] = createTokenMaxDailyTradesRule(bytes32(abi.encodePacked("BoredGrape", i)), bytes32("DiscoPunk"), uint8(1), uint8(5 + (uint8(i) * 10)));
         ruleIds[0] = createTokenMaxDailyTradesRule("BoredGrape1", "DiscoPunk", 1, 5);
         ruleIds[1] = createTokenMaxDailyTradesRule("BoredGrape2", "DiscoPunk", 1, 15);
         ruleIds[2] = createTokenMaxDailyTradesRule("BoredGrape3", "DiscoPunk", 1, 25);
@@ -937,16 +937,13 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxDailyTradesId(ActionTypes.MINT), ruleIds[3]);
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxDailyTradesId(ActionTypes.BURN), ruleIds[4]);
         // Verify that all the rules were activated
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxDailyTradesActive(ActionTypes.P2P_TRANSFER));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxDailyTradesActive(ActionTypes.SELL));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxDailyTradesActive(ActionTypes.BUY));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxDailyTradesActive(ActionTypes.MINT));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxDailyTradesActive(ActionTypes.BURN));
+        for (uint i; i < 5; i++) assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxDailyTradesActive(ActionTypes(i)));
     }
 
     function testERC721_ERC721CommonTests_TokenMaxDailyTradesAtomicFullReSet() public {
         uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
+        // for (uint i; i < ruleIds.length; i++) ruleIds[i] = createTokenMaxDailyTradesRule(string.concat("BoredGrape", vm.toString(i + 1)), "DiscoPunk", 1, 5 + (i * 10));
         ruleIds[0] = createTokenMaxDailyTradesRule("BoredGrape1", "DiscoPunk", 1, 5);
         ruleIds[1] = createTokenMaxDailyTradesRule("BoredGrape2", "DiscoPunk", 1, 15);
         ruleIds[2] = createTokenMaxDailyTradesRule("BoredGrape3", "DiscoPunk", 1, 25);
@@ -982,11 +979,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMaxSupplyVolatilityAtomicFullSet() public {
         uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
-        ruleIds[0] = createTokenMaxSupplyVolatilityRule(2000, 4, Blocktime, 0);
-        ruleIds[1] = createTokenMaxSupplyVolatilityRule(3000, 5, Blocktime, 0);
-        ruleIds[2] = createTokenMaxSupplyVolatilityRule(4000, 6, Blocktime, 0);
-        ruleIds[3] = createTokenMaxSupplyVolatilityRule(5000, 7, Blocktime, 0);
-        ruleIds[4] = createTokenMaxSupplyVolatilityRule(6000, 8, Blocktime, 0);
+        for (uint i; i < ruleIds.length; i++) ruleIds[i] = createTokenMaxSupplyVolatilityRule(uint16(2000 + (1000 * i)), uint8(4 + i), Blocktime, 0);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
         setTokenMaxSupplyVolatilityRuleFull(address(applicationNFTHandler), actions, ruleIds);
@@ -997,21 +990,13 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxSupplyVolatilityId(ActionTypes.MINT), ruleIds[3]);
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxSupplyVolatilityId(ActionTypes.BURN), ruleIds[4]);
         // Verify that all the rules were activated
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.P2P_TRANSFER));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.SELL));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.BUY));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.MINT));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes.BURN));
+        for (uint i; i < 5; i++) assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxSupplyVolatilityActive(ActionTypes(i)));
     }
 
     function testERC721_ERC721CommonTests_TokenMaxSupplyVolatilityAtomicFullReSet() public {
         uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
-        ruleIds[0] = createTokenMaxSupplyVolatilityRule(2000, 4, Blocktime, 0);
-        ruleIds[1] = createTokenMaxSupplyVolatilityRule(3000, 5, Blocktime, 0);
-        ruleIds[2] = createTokenMaxSupplyVolatilityRule(4000, 6, Blocktime, 0);
-        ruleIds[3] = createTokenMaxSupplyVolatilityRule(5000, 7, Blocktime, 0);
-        ruleIds[4] = createTokenMaxSupplyVolatilityRule(6000, 8, Blocktime, 0);
+        for (uint i; i < ruleIds.length; i++) ruleIds[i] = createTokenMaxSupplyVolatilityRule(uint16(2000 + (1000 * i)), uint8(4 + i), Blocktime, 0);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
 
@@ -1042,11 +1027,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMaxTradingVolumeAtomicFullSet() public {
         uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
-        ruleIds[0] = createTokenMaxTradingVolumeRule(1000, 2, Blocktime, 100_000 * ATTO);
-        ruleIds[1] = createTokenMaxTradingVolumeRule(2000, 2, Blocktime, 100_000 * ATTO);
-        ruleIds[2] = createTokenMaxTradingVolumeRule(3000, 2, Blocktime, 100_000 * ATTO);
-        ruleIds[3] = createTokenMaxTradingVolumeRule(4000, 2, Blocktime, 100_000 * ATTO);
-        ruleIds[4] = createTokenMaxTradingVolumeRule(5000, 2, Blocktime, 100_000 * ATTO);
+        for (uint i; i < ruleIds.length; i++) ruleIds[0] = createTokenMaxTradingVolumeRule(uint24(1000 * (i + 1)), 2, Blocktime, 100_000 * ATTO);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
         setTokenMaxTradingVolumeRuleFull(address(applicationNFTHandler), actions, ruleIds);
@@ -1057,21 +1038,13 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.MINT), ruleIds[3]);
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMaxTradingVolumeId(ActionTypes.BURN), ruleIds[4]);
         // Verify that all the rules were activated
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.P2P_TRANSFER));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.SELL));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.BUY));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.MINT));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes.BURN));
+        for (uint i; i < 5; i++) assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMaxTradingVolumeActive(ActionTypes(i)));
     }
 
     function testERC721_ERC721CommonTests_TokenMaxTradingVolumeAtomicFullReSet() public {
         uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
-        ruleIds[0] = createTokenMaxTradingVolumeRule(1000, 2, Blocktime, 100_000 * ATTO);
-        ruleIds[1] = createTokenMaxTradingVolumeRule(2000, 2, Blocktime, 100_000 * ATTO);
-        ruleIds[2] = createTokenMaxTradingVolumeRule(3000, 2, Blocktime, 100_000 * ATTO);
-        ruleIds[3] = createTokenMaxTradingVolumeRule(4000, 2, Blocktime, 100_000 * ATTO);
-        ruleIds[4] = createTokenMaxTradingVolumeRule(5000, 2, Blocktime, 100_000 * ATTO);
+        for (uint i; i < ruleIds.length; i++) ruleIds[0] = createTokenMaxTradingVolumeRule(uint24(1000 * (i + 1)), 2, Blocktime, 100_000 * ATTO);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
         setTokenMaxTradingVolumeRuleFull(address(applicationNFTHandler), actions, ruleIds);
@@ -1102,11 +1075,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMinHoldTimeAtomicFullSet() public {
         uint32[] memory periods = new uint32[](5);
         // Set up rule
-        periods[0] = 1;
-        periods[1] = 2;
-        periods[2] = 3;
-        periods[3] = 4;
-        periods[4] = 5;
+        for (uint i; i < periods.length; i++) periods[i] = uint32(i + 1);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
         setTokenMinHoldTimeRuleFull(address(applicationNFTHandler), actions, periods);
@@ -1117,21 +1086,13 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.MINT), periods[3]);
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinHoldTimePeriod(ActionTypes.BURN), periods[4]);
         // Verify that all the rules were activated
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes.P2P_TRANSFER));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes.SELL));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes.BUY));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes.MINT));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes.BURN));
+        for (uint i; i < 5; i++) assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinHoldTimeActive(ActionTypes(i)));
     }
 
     function ttestERC721_ERC721CommonTests_TokenMinHoldTimeAtomicFullReSet() public {
         uint32[] memory periods = new uint32[](5);
         // Set up rule
-        periods[0] = 1;
-        periods[1] = 2;
-        periods[2] = 3;
-        periods[3] = 4;
-        periods[4] = 5;
+        for (uint i; i < periods.length; i++) periods[i] = uint32(i + 1);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
         setTokenMinHoldTimeRuleFull(address(applicationNFTHandler), actions, periods);
@@ -1269,11 +1230,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_TokenMinimumTransactionAtomicFullSet() public {
         uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
-        ruleIds[0] = createTokenMinimumTransactionRule(1);
-        ruleIds[1] = createTokenMinimumTransactionRule(2);
-        ruleIds[2] = createTokenMinimumTransactionRule(3);
-        ruleIds[3] = createTokenMinimumTransactionRule(4);
-        ruleIds[4] = createTokenMinimumTransactionRule(5);
+        for (uint i; i < ruleIds.length; i++) ruleIds[i] = createTokenMinimumTransactionRule(i + 1);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
         setTokenMinimumTransactionRuleFull(address(applicationNFTHandler), actions, ruleIds);
@@ -1284,21 +1241,13 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.MINT), ruleIds[3]);
         assertEq(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).getTokenMinTxSizeId(ActionTypes.BURN), ruleIds[4]);
         // Verify that all the rules were activated
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.P2P_TRANSFER));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.SELL));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.BUY));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.MINT));
-        assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes.BURN));
+        for (uint i; i < 5; i++) assertTrue(ERC721NonTaggedRuleFacet(address(applicationNFTHandler)).isTokenMinTxSizeActive(ActionTypes(i)));
     }
 
     function testERC721_ERC721CommonTests_TokenMinimumTransactionAtomicFullReSet() public {
         uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
-        ruleIds[0] = createTokenMinimumTransactionRule(1);
-        ruleIds[1] = createTokenMinimumTransactionRule(2);
-        ruleIds[2] = createTokenMinimumTransactionRule(3);
-        ruleIds[3] = createTokenMinimumTransactionRule(4);
-        ruleIds[4] = createTokenMinimumTransactionRule(5);
+        for (uint i; i < ruleIds.length; i++) ruleIds[i] = createTokenMinimumTransactionRule(i + 1);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
         setTokenMinimumTransactionRuleFull(address(applicationNFTHandler), actions, ruleIds);
@@ -1329,11 +1278,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceAtomicFullSet() public {
         uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
-        ruleIds[0] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(1000));
-        ruleIds[1] = createAccountMinMaxTokenBalanceRule(createBytes32Array("RJ"), createUint256Array(2), createUint256Array(2000));
-        ruleIds[2] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Tayler"), createUint256Array(3), createUint256Array(3000));
-        ruleIds[3] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Michael"), createUint256Array(4), createUint256Array(4000));
-        ruleIds[4] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Shane"), createUint256Array(5), createUint256Array(5000));
+        bytes32[5] memory tags = [bytes32("Oscar"), bytes32("RJ"), bytes32("Tayler"), bytes32("Michael"), bytes32("Shane")];
+        for (uint i; i < ruleIds.length; i++) createAccountMinMaxTokenBalanceRule(createBytes32Array(tags[i]), createUint256Array(i + 1), createUint256Array((i + 1) * 1000));
+
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
         setAccountMinMaxTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
@@ -1344,21 +1291,14 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.MINT), ruleIds[3]);
         assertEq(ERC721TaggedRuleFacet(address(applicationCoinHandler)).getAccountMinMaxTokenBalanceId(ActionTypes.BURN), ruleIds[4]);
         // Verify that all the rules were activated
-        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.P2P_TRANSFER));
-        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.SELL));
-        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BUY));
-        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.MINT));
-        assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes.BURN));
+        for (uint i; i < 5; i++) assertTrue(ERC721TaggedRuleFacet(address(applicationCoinHandler)).isAccountMinMaxTokenBalanceActive(ActionTypes(i)));
     }
 
     function testERC721_ERC721CommonTests_AccountMinMaxTokenBalanceAtomicFullReSet() public {
         uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
-        ruleIds[0] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(1000));
-        ruleIds[1] = createAccountMinMaxTokenBalanceRule(createBytes32Array("RJ"), createUint256Array(2), createUint256Array(2000));
-        ruleIds[2] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Tayler"), createUint256Array(3), createUint256Array(3000));
-        ruleIds[3] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Michael"), createUint256Array(4), createUint256Array(4000));
-        ruleIds[4] = createAccountMinMaxTokenBalanceRule(createBytes32Array("Michael"), createUint256Array(5), createUint256Array(5000));
+        bytes32[5] memory tags = [bytes32("Oscar"), bytes32("RJ"), bytes32("Tayler"), bytes32("Michael"), bytes32("Shane")];
+        for (uint i; i < ruleIds.length; i++) createAccountMinMaxTokenBalanceRule(createBytes32Array(tags[i]), createUint256Array(i + 1), createUint256Array((i + 1) * 1000));
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
         setAccountMinMaxTokenBalanceRuleFull(address(applicationCoinHandler), actions, ruleIds);
@@ -1387,9 +1327,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
     }
 
     /// INTERNAL HELPER FUNCTIONS
-    function _approveTokens(DummyNFTAMM amm, uint256 amountERC20, bool _isApprovalERC721) internal {
-        applicationCoin.approve(address(amm), amountERC20);
-        testCaseNFT.setApprovalForAll(address(amm), _isApprovalERC721);
+    function _approveTokens(DummyNFTAMM _amm, uint256 amountERC20, bool _isApprovalERC721) internal {
+        applicationCoin.approve(address(_amm), amountERC20);
+        testCaseNFT.setApprovalForAll(address(_amm), _isApprovalERC721);
     }
 
     function _safeMintERC721(uint256 amount) internal {
@@ -1398,18 +1338,18 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         }
     }
 
-    function _addLiquidityInBatchERC721(DummyNFTAMM amm, uint256 amount) private {
+    function _addLiquidityInBatchERC721(DummyNFTAMM _amm, uint256 amount) private {
         for (uint256 i; i < amount; i++) {
-            testCaseNFT.safeTransferFrom(appAdministrator, address(amm), i);
+            testCaseNFT.safeTransferFrom(appAdministrator, address(_amm), i);
         }
     }
 
-    function _testBuyNFT(uint256 _tokenId, DummyNFTAMM amm) internal {
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, _tokenId, true);
+    function _testBuyNFT(uint256 _tokenId, DummyNFTAMM _amm) internal {
+        _amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, _tokenId, true);
     }
 
-    function _testSellNFT(uint256 _tokenId, DummyNFTAMM amm) internal {
-        amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, _tokenId, false);
+    function _testSellNFT(uint256 _tokenId, DummyNFTAMM _amm) internal {
+        _amm.dummyTrade(address(applicationCoin), address(testCaseNFT), 10, _tokenId, false);
     }
 
     function _fundThreeAccounts() internal endWithStopPrank {
@@ -1428,7 +1368,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         }
     }
 
-    function _accountMinMaxTokenBalanceRuleSetup(bool tag) public endWithStopPrank() {
+    function _accountMinMaxTokenBalanceRuleSetup(bool tag) public endWithStopPrank {
         switchToAppAdministrator();
         /// mint 6 NFTs to appAdministrator for transfer
         for (uint i; i < 7; i++) {
@@ -1448,7 +1388,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user1), 2);
 
         switchToAppAdministrator();
-        if(tag) {
+        if (tag) {
             ///Add Tag to account
             applicationAppManager.addTag(user1, "Oscar"); ///add tag
             assertTrue(applicationAppManager.hasTag(user1, "Oscar"));
@@ -1458,7 +1398,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
             assertTrue(applicationAppManager.hasTag(user3, "Oscar"));
             switchToRuleAdmin();
             ///update ruleId in application NFT handler
-            uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(6)); 
+            uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array("Oscar"), createUint256Array(1), createUint256Array(6));
             setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleId);
         } else {
             switchToRuleAdmin();
@@ -1472,7 +1412,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user1), 1);
     }
 
-    function _accountApproveDenyOracleSetup(bool deny) public endWithStopPrank() {
+    function _accountApproveDenyOracleSetup(bool deny) public endWithStopPrank {
         switchToAppAdministrator();
         /// set up a non admin user an nft
         for (uint i; i < 5; i++) {
@@ -1481,7 +1421,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
         assertEq(testCaseNFT.balanceOf(user1), 5);
 
-        if(deny) {
+        if (deny) {
             // add the rule.
             uint32 ruleId = createAccountApproveDenyOracleRule(0);
             setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
@@ -1503,7 +1443,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user2), 1);
     }
 
-    function _tokenMaxDailyTradesSetup(bool tag) public endWithStopPrank() {
+    function _tokenMaxDailyTradesSetup(bool tag) public endWithStopPrank {
         switchToAppAdministrator();
         /// set up a non admin user an nft
         for (uint i; i < 5; i++) {
@@ -1513,7 +1453,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user1), 5);
         // add the rule.
         switchToRuleAdmin();
-        if(tag) {
+        if (tag) {
             uint32 ruleId = createTokenMaxDailyTradesRule("BoredGrape", "DiscoPunk", 1, 5);
             setTokenMaxDailyTradesRule(address(applicationNFTHandler), ruleId);
         } else {
@@ -1530,7 +1470,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user2), 1);
     }
 
-    function _accountMaxTransactionValueByRiskScoreSetup(bool period) public endWithStopPrank() {
+    function _accountMaxTransactionValueByRiskScoreSetup(bool period) public endWithStopPrank {
         switchToAppAdministrator();
         uint8[] memory riskScores = createUint8Array(0, 10, 40, 80);
         ///Mint NFT's (user1,2,3)
@@ -1545,15 +1485,15 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertEq(testCaseNFT.balanceOf(user2), 3);
 
         switchToRuleAdmin();
-        if(period) {
+        if (period) {
             ///Set Rule in NFTHandler
-            uint8 period = 24; 
-            uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, createUint48Array(17, 15, 12, 11), period);
+            uint8 _period = 24;
+            uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, createUint48Array(17, 15, 12, 11), _period);
             setAccountMaxTxValueByRiskRule(ruleId);
         } else {
             ///Set Rule in NFTHandler
             uint32 ruleId = createAccountMaxTxValueByRiskRule(riskScores, createUint48Array(17, 15, 12, 11));
-            setAccountMaxTxValueByRiskRule(ruleId); 
+            setAccountMaxTxValueByRiskRule(ruleId);
         }
         ///Set Risk Scores for users
         switchToRiskAdmin();
@@ -1563,12 +1503,12 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
         ///Set Pricing for NFTs 0-7
         switchToAppAdministrator();
-        for (uint i; i < 8; i++ ) {
+        for (uint i; i < 8; i++) {
             erc721Pricer.setSingleNFTPrice(address(testCaseNFT), i, (10 + i) * ATTO);
         }
     }
 
-    function _accountDenyForNoAccessLevelInNFTSetup() public endWithStopPrank() {
+    function _accountDenyForNoAccessLevelInNFTSetup() public endWithStopPrank {
         switchToAppAdministrator();
         /// set up a non admin user an nft
         for (uint i; i < 5; i++) {
@@ -1582,7 +1522,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         createAccountDenyForNoAccessLevelRule();
     }
 
-    function _accountMinMaxTokenBalanceSetup(bool tag) public endWithStopPrank() {
+    function _accountMinMaxTokenBalanceSetup(bool tag) public endWithStopPrank {
         switchToAppAdministrator();
         /// Mint NFTs for users 1, 2, 3
         for (uint i; i < 3; i++) {
@@ -1619,11 +1559,16 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         assertTrue(applicationAppManager.hasTag(user3, "MIN3"));
         /// Set rule bool to active
         switchToRuleAdmin();
-        if(tag) {
+        if (tag) {
             uint32 ruleId = createAccountMinMaxTokenBalanceRule(accs, minAmounts, maxAmounts, periods);
             setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleId);
         } else {
-            uint32 ruleId = createAccountMinMaxTokenBalanceRule(createBytes32Array(""), createUint256Array(1), createUint256Array(999999000000000000000000000000000000000000000000000000000000000000000000000), createUint16Array(720));
+            uint32 ruleId = createAccountMinMaxTokenBalanceRule(
+                createBytes32Array(""),
+                createUint256Array(1),
+                createUint256Array(999999000000000000000000000000000000000000000000000000000000000000000000000),
+                createUint16Array(720)
+            );
             setAccountMinMaxTokenBalanceRule(address(applicationNFTHandler), ruleId);
         }
 
@@ -1642,12 +1587,12 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user3, user2, 3); ///User 3 has min limit of 3
         testCaseNFT.safeTransferFrom(user3, user1, 1);
         assertEq(testCaseNFT.balanceOf(user3), 3);
-    } 
+    }
 
-    function _adminMinTokenBalanceSetup() public endWithStopPrank() {
+    function _adminMinTokenBalanceSetup() public endWithStopPrank {
         switchToAppAdministrator();
         /// Mint TokenId 0-6 to super admin
-        for (uint i; i < 7; i++ ) {
+        for (uint i; i < 7; i++) {
             ProtocolERC721(address(testCaseNFT)).safeMint(ruleBypassAccount);
         }
         /// we create a rule that sets the minimum amount to 5 tokens to be transferable in 1 year
@@ -1666,7 +1611,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(ruleBypassAccount, user1, 1);
     }
 
-    function _transferVolumeRuleSetup() public endWithStopPrank() {
+    function _transferVolumeRuleSetup() public endWithStopPrank {
         switchToAppAdministrator();
         // mint 10 nft's to non admin user
         for (uint i = 0; i < 10; i++) {
@@ -1680,7 +1625,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         testCaseNFT.safeTransferFrom(user1, user2, 0);
     }
 
-    function _transferVolumeRuleWithSupplySet() public endWithStopPrank() {
+    function _transferVolumeRuleWithSupplySet() public endWithStopPrank {
         switchToAppAdministrator();
         // mint 10 nft's to non admin user
         for (uint i = 0; i < 10; i++) {
@@ -1689,10 +1634,9 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         // apply the rule
         uint32 ruleId = createTokenMaxTradingVolumeRule(200, 2, Blocktime, 100);
         setTokenMaxTradingVolumeRule(address(applicationNFTHandler), ruleId);
-        
     }
 
-    function _collectionTokenMaxSupplyVolatilitySetup() public endWithStopPrank() {
+    function _collectionTokenMaxSupplyVolatilitySetup() public endWithStopPrank {
         switchToAppAdministrator();
         /// Mint tokens to specific supply
         for (uint i = 0; i < 10; i++) {
@@ -1705,14 +1649,14 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         setTokenMaxSupplyVolatilityRule(address(applicationNFTHandler), ruleId);
         /// set blocktime to within rule period
         vm.warp(Blocktime + 13 hours);
-        
+
         switchToAppAdministrator();
         ProtocolERC721(address(testCaseNFT)).safeMint(user1);
         /// mint tokens to the cap
         ProtocolERC721(address(testCaseNFT)).safeMint(user1);
     }
 
-    function _NFTValuationOrigSetup() public endWithStopPrank() {
+    function _NFTValuationOrigSetup() public endWithStopPrank {
         switchToAppAdministrator();
         /// mint NFTs and set price to $1USD for each token
         for (uint i = 0; i < 10; i++) {
@@ -1787,16 +1731,16 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         */
     }
 
-    function _upgradeAppManager721Setup() public endWithStopPrank() {
+    function _upgradeAppManager721Setup() public endWithStopPrank {
         switchToAppAdministrator();
-        address newAdmin = address(75);
+        address _newAdmin = address(75);
         /// create a new app manager
-        applicationAppManager2 = new ApplicationAppManager(newAdmin, "Castlevania2", false);
+        applicationAppManager2 = new ApplicationAppManager(_newAdmin, "Castlevania2", false);
         /// propose a new AppManager
         ProtocolTokenCommon(address(testCaseNFT)).proposeAppManagerAddress(address(applicationAppManager2));
         switchToNewAdmin();
         applicationAppManager2.addAppAdministrator(address(appAdministrator));
-        
+
         /// confirm the app manager
         switchToAppAdministrator();
         applicationAppManager2.confirmAppManager(address(testCaseNFT));
@@ -1842,7 +1786,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         amm = setupTradingRuleTests();
         _fundThreeAccounts();
         /// set the rule
-        if(tag) {
+        if (tag) {
             uint32 ruleId = createAccountMaxSellSizeRule("AccountMaxSellSize", 1, 36); /// tag, maxNFtsPerPeriod, period
             setAccountMaxSellSizeRule(address(applicationNFTHandler), ruleId);
         } else {
@@ -1892,7 +1836,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         for (uint i; i < (erc721Liq * tokenPercentage) / 10000 - 1; i++) {
             _testBuyNFT(i, amm);
         }
-    } 
+    }
 
     function _accountMaxBuySizeRuleSetup() public endWithStopPrank {
         switchToAppAdministrator();

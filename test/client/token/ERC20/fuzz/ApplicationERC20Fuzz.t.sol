@@ -27,43 +27,45 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.mint(appAdministrator, _supply);
         assertEq(applicationCoin.balanceOf(appAdministrator), _supply);
     }
+
     function testERC20_ApplicationERC20Fuzz_BalanceERC20_MaxSupply_Positive(uint256 _supply, uint256 _mintAmount) public endWithStopPrank {
         _mintAmount = bound(_mintAmount, 1, type(uint256).max);
         switchToAppAdministrator();
         applicationCoin.setMaxSupply(_supply);
-        if (_supply >= applicationCoin.getMaxSupply() || _supply == 0){
+        if (_supply >= applicationCoin.getMaxSupply() || _supply == 0) {
             applicationCoin.mint(appAdministrator, _mintAmount);
             assertEq(applicationCoin.balanceOf(appAdministrator), _mintAmount);
-        } else{
+        } else {
             assertEq(applicationCoin.balanceOf(appAdministrator), 0);
         }
     }
+
     function testERC20_ApplicationERC20Fuzz_BalanceERC20_MaxSupply_Negative(uint256 _supply, uint256 _mintAmount) public endWithStopPrank {
         _mintAmount = bound(_mintAmount, 1, type(uint256).max);
         switchToAppAdministrator();
         applicationCoin.setMaxSupply(_supply);
-        if (_supply < applicationCoin.getMaxSupply() && _supply != 0){
+        if (_supply < applicationCoin.getMaxSupply() && _supply != 0) {
             vm.expectRevert(abi.encodeWithSignature("ExceedingMaxSupply()"));
             applicationCoin.mint(appAdministrator, _mintAmount);
             assertEq(applicationCoin.balanceOf(appAdministrator), 0);
-        } 
+        }
     }
+
     function testERC20_ApplicationERC20Fuzz_setMaxSupply_Positive(uint256 _supply) public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.setMaxSupply(_supply);
-        assertEq(applicationCoin.getMaxSupply(),_supply);
+        assertEq(applicationCoin.getMaxSupply(), _supply);
     }
 
     function testERC20_ApplicationERC20Fuzz_setMaxSupply_NotAppAdmin(uint256 _supply) public endWithStopPrank {
         vm.expectRevert(abi.encodeWithSignature("NotAppAdministrator()"));
         applicationCoin.setMaxSupply(_supply);
-        assertEq(applicationCoin.getMaxSupply(),0);
+        assertEq(applicationCoin.getMaxSupply(), 0);
     }
 
     function testERC20_ApplicationERC20Fuzz_Transfer_Positive(uint8 _addressIndex, uint256 _amount) public endWithStopPrank {
         switchToAppAdministrator();
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1);
-        address _user1 = addressList[0];
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         applicationCoin.mint(appAdministrator, _amount);
         applicationCoin.transfer(_user1, _amount);
         assertEq(applicationCoin.balanceOf(_user1), _amount);
@@ -82,8 +84,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20Fuzz_Transfer_NotOwned(uint8 _addressIndex, uint256 _amount) public endWithStopPrank {
         _amount = bound(_amount, 1, type(uint256).max);
         switchToAppAdministrator();
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1);
-        address _user1 = addressList[0];
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         applicationCoin.mint(appAdministrator, _amount);
         switchToUser();
         vm.expectRevert("ERC20: transfer amount exceeds balance");
@@ -92,35 +93,28 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     }
 
     function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Positive(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
-        // if the transferAmount is the max, adust so the internal arithmetic works
-        _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max-1));
+        _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max - 1));
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1);
-        address _user1 = addressList[0];
-        // Then we add the rule.
-        uint32 ruleId;
+        address _user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         switchToRuleAdmin();
-        ruleId = createTokenMinimumTransactionRule(_transferAmount);
+        uint32 ruleId = createTokenMinimumTransactionRule(_transferAmount);
         setTokenMinimumTransactionRule(address(applicationCoinHandler), ruleId);
         switchToAppAdministrator();
-        /// now we perform the transfer
         applicationCoin.transfer(_user1, _transferAmount + 1);
         assertEq(applicationCoin.balanceOf(_user1), _transferAmount + 1);
     }
 
     function testERC20_ApplicationERC20Fuzz_TokenMinTransactionSize_Negative(uint8 _addressIndex, uint128 _transferAmount) public endWithStopPrank {
         // if the transferAmount is the max, adjust so the internal arithmetic works
-        _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max-1));
+        _transferAmount = uint128(bound(uint256(_transferAmount), 1, type(uint128).max - 1));
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
-        address _user1 = addressList[0];
-        address _user2 = addressList[1];
+        (address _user1, address _user2) = _get2RandomAddresses(_addressIndex);
         // Then we add the rule.
         uint32 ruleId;
         switchToRuleAdmin();
         ruleId = createTokenMinimumTransactionRule(_transferAmount);
         setTokenMinimumTransactionRule(address(applicationCoinHandler), ruleId);
-        switchToAppAdministrator();        
+        switchToAppAdministrator();
         vm.stopPrank();
         vm.startPrank(_user1);
         // now we check for proper failure
@@ -133,22 +127,12 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         _amountSeed = uint24(bound(uint256(_amountSeed), 1, 167770));
         switchToAppAdministrator();
         if (_tag == "") _tag = bytes32("TEST");
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
-        address _richUser;
-        address _user1;
-        address _user2;
-        address _user3;
+        (address _richUser, address _user1, address _user2, address _user3) = _get4RandomAddresses(_addressIndex);
         // set up amounts
-        uint256 maxAmount;
-        uint256 minAmount;
+        uint256 maxAmount = _amountSeed * 100;
+        uint256 minAmount = _amountSeed;
         {
             applicationCoin.mint(appAdministrator, type(uint256).max);
-            _richUser = addressList[0];
-            _user1 = addressList[1];
-            _user2 = addressList[2];
-            _user3 = addressList[3];
-            maxAmount = _amountSeed * 100;
-            minAmount = _amountSeed;
         }
         {
             /// set up a non admin user with tokens
@@ -160,12 +144,9 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         }
         {
             ///Add Tag to account
-            applicationAppManager.addTag(_user1, _tag); ///add tag
-            assertTrue(applicationAppManager.hasTag(_user1, _tag));
-            applicationAppManager.addTag(_user2, _tag); ///add tag
-            assertTrue(applicationAppManager.hasTag(_user2, _tag));
-            applicationAppManager.addTag(_user3, _tag); ///add tag
-            assertTrue(applicationAppManager.hasTag(_user3, _tag));
+            address[3] memory tempAddresses = [_user1, _user2, _user3];
+            for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
+            for (uint i; i < tempAddresses.length; i++) assertTrue(applicationAppManager.hasTag(tempAddresses[i], _tag));
         }
         {
             ///perform transfer that checks rule
@@ -182,18 +163,12 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         _amountSeed = uint24(bound(uint256(_amountSeed), 2, 167770));
         switchToAppAdministrator();
         if (_tag != "") {
-            address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
-            address _user1;
-            address _user2;
+            (address _user1, address _user2) = _get2RandomAddresses(_addressIndex);
             // set up amounts
-            uint256 maxAmount;
-            uint256 minAmount;
+            uint256 maxAmount = _amountSeed * 100;
+            uint256 minAmount = _amountSeed;
             {
                 applicationCoin.mint(appAdministrator, type(uint256).max);
-                _user1 = addressList[1];
-                _user2 = addressList[2];
-                maxAmount = _amountSeed * 100;
-                minAmount = _amountSeed;
             }
             {
                 /// set up a non admin user with tokens
@@ -219,20 +194,12 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_OverMaxBalance(bytes32 _tag, uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         switchToAppAdministrator();
         if (_tag != "") {
-            address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
-            address _richUser;
-            address _user1;
-            address _user2;
-            address _user3;
+            (address _richUser, address _user1, address _user2, address _user3) = _get4RandomAddresses(_addressIndex);
             // set up amounts
             uint256 maxAmount;
             uint256 minAmount;
             {
                 applicationCoin.mint(appAdministrator, type(uint256).max);
-                _richUser = addressList[0];
-                _user1 = addressList[1];
-                _user2 = addressList[2];
-                _user3 = addressList[3];
                 // set up amounts(accounting for too big and too small numbers)
                 if (_amountSeed == 0) {
                     _amountSeed = 1;
@@ -255,27 +222,22 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
             }
             {
                 ///Add Tag to account
-                applicationAppManager.addTag(_user1, _tag); ///add tag
-                applicationAppManager.addTag(_user2, _tag); ///add tag
-                applicationAppManager.addTag(_user3, _tag); ///add tag
+                address[3] memory tempAddresses = [_user1, _user2, _user3];
+                for (uint i; i < tempAddresses.length; i++) applicationAppManager.addTag(tempAddresses[i], _tag); ///add tag
             }
             {
                 /// make sure the maximum rule fail results in revert
                 vm.startPrank(_richUser);
                 vm.expectRevert(abi.encodeWithSignature("OverMaxBalance()"));
-                applicationCoin.transfer(_user2, maxAmount+1);
+                applicationCoin.transfer(_user2, maxAmount + 1);
             }
         }
     }
 
-
     function testERC20_ApplicationERC20Fuzz_AccountApproveDenyOracle_Positive(uint8 _addressIndex) public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
-        address _user1 = addressList[0];
-        address _user2 = addressList[1];
-        address _user3 = addressList[2];
+        (address _user1, address _user2, address _user3) = _get3RandomAddresses(_addressIndex);
         /// set up a non admin user with tokens
         applicationCoin.transfer(_user1, 100000);
         assertEq(applicationCoin.balanceOf(_user1), 100000);
@@ -300,9 +262,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20Fuzz_AccountApproveDenyOracle_Denied(uint8 _addressIndex) public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
-        address _user1 = addressList[0];
-        address _user3 = addressList[2];
+        (address _user1, address _user3) = _get2RandomAddresses(_addressIndex);
         /// set up a non admin user with tokens
         applicationCoin.transfer(_user1, 100000);
         assertEq(applicationCoin.balanceOf(_user1), 100000);
@@ -325,9 +285,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20Fuzz_AccountApproveDenyOracle_NotApproved(uint8 _addressIndex) public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
-        address _user1 = addressList[0];
-        address _user3 = addressList[2];
+        (address _user1, address _user3) = _get2RandomAddresses(_addressIndex);
         /// set up a non admin user with tokens
         applicationCoin.transfer(_user1, 100000);
         assertEq(applicationCoin.balanceOf(_user1), 100000);
@@ -344,13 +302,16 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         assertEq(applicationCoin.balanceOf(_user3), 0);
     }
 
+    function _parameterizeRiskAndPeriod(uint8 _risk, uint8 _period) internal pure returns (uint8 period, uint8 risk) {
+        period = _period > 6 ? _period / 6 + 1 : 1;
+        risk = _parameterizeRisk(_risk);
+    }
 
     function testERC20_ApplicationERC20Fuzz_MaxTxSizePerPeriodByRiskRuleERC20_NextPeriod_Negative(uint8 _risk, uint8 _period) public endWithStopPrank {
         vm.warp(Blocktime);
         /// we create the rule
         uint8[] memory _riskScore = createUint8Array(25, 50, 75);
-        uint8 period = _period > 6 ? _period / 6 + 1 : 1;
-        uint8 risk = uint8((uint16(_risk) * 100) / 256);
+        (uint8 period, uint8 risk) = _parameterizeRiskAndPeriod(_risk, _period);
         /// we give some trillions to user1 to spend
         applicationCoin.mint(user1, 10_000_000_000_000 * (10 ** 18));
 
@@ -377,24 +338,24 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
         /// now, if the user's risk profile is in the highest range, this transfer should revert
         if (risk >= _riskScore[2]) {
-             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
         }
         applicationCoin.transfer(user2, 1 * (10 ** 18));
         /// 2
         /// if the user's risk profile is in the second to the highest range, this transfer should revert
         if (risk >= _riskScore[2]) {
-             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
         } else if (risk >= _riskScore[1]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 10000000000000000000000));
-        } 
+        }
         applicationCoin.transfer(user2, 10_000 * (10 ** 18) - 1);
         /// 10_001
         /// if the user's risk profile is in the second to the lowest range, this transfer should revert
         if (risk >= _riskScore[2]) {
-             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
         } else if (risk >= _riskScore[1]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -406,7 +367,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.transfer(user2, 100_000_000 * (10 ** 18) - 10_000 * (10 ** 18));
         /// 100_000_000 - 10_000 + 10_001 = 100_000_000 + 1 = 100_000_001
         if (risk >= _riskScore[2]) {
-             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
         } else if (risk >= _riskScore[1]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -422,8 +383,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         vm.warp(Blocktime);
         /// we create the rule parameters
         uint8[] memory _riskScore = createUint8Array(25, 50, 75);
-        uint8 period = _period > 6 ? _period / 6 + 1 : 1;
-        uint8 risk = uint8((uint16(_risk) * 100) / 256);
+        (uint8 period, uint8 risk) = _parameterizeRiskAndPeriod(_risk, _period);
         /// we give some trillions to user1 to spend
         applicationCoin.mint(user1, 10_000_000_000_000 * (10 ** 18));
 
@@ -450,8 +410,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         vm.warp(Blocktime);
         /// we create the rule
         uint8[] memory _riskScore = createUint8Array(25, 50, 75);
-        uint8 period = _period > 6 ? _period / 6 + 1 : 1;
-        uint8 risk = uint8((uint16(_risk) * 100) / 256);
+        (uint8 period, uint8 risk) = _parameterizeRiskAndPeriod(_risk, _period);
         /// we give some trillions to user1 to spend
         applicationCoin.mint(user1, 10_000_000_000_000 * (10 ** 18));
 
@@ -477,7 +436,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         vm.warp(block.timestamp + (uint256(period) * 1 hours) / 2);
         /// now, if the user's risk profile is in the highest range, this transfer should revert
         if (risk >= _riskScore[2]) {
-             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
         }
         console.log(risk);
@@ -485,7 +444,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         /// 2
         /// if the user's risk profile is in the second to the highest range, this transfer should revert
         if (risk >= _riskScore[2]) {
-             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
         } else if (risk >= _riskScore[1]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -496,7 +455,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         /// 10_001
         /// if the user's risk profile is in the lowest range, this transfer should revert
         if (risk >= _riskScore[2]) {
-             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
         } else if (risk >= _riskScore[1]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -509,7 +468,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         applicationCoin.transfer(user2, 100_000_000 * (10 ** 18) - 10_000 * (10 ** 18));
         /// 100_000_000 - 10_000 + 10_001 = 100_000_000 + 1 = 100_000_001
         if (risk >= _riskScore[2]) {
-             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
         } else if (risk >= _riskScore[1]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
@@ -521,11 +480,10 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         console.log(risk);
         applicationCoin.transfer(user2, 1_000_000_000_000 * (10 ** 18) - 100_000_000 * (10 ** 18));
         /// if passed: 1_000_000_000_000 - 100_000_000 + 100_000_001 = 1_000_000_000_000 + 1 = 1_000_000_000_001
-
     }
 
     function testERC20_ApplicationERC20Fuzz_TransactionLimitByRiskScore_Positive(uint8 _risk) public endWithStopPrank {
-        uint8 risk = uint8((uint16(_risk) * 100) / 256);
+        uint8 risk = _parameterizeRisk(_risk);
         uint8[] memory riskScores = createUint8Array(25, 50, 75);
         // make sure it at least always falls into the range
         risk = uint8(bound(uint256(risk), 0, 75));
@@ -547,7 +505,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     }
 
     function testERC20_ApplicationERC20Fuzz_TransactionLimitByRiskScore_Negative(uint8 _risk) public endWithStopPrank {
-        uint8 risk = uint8((uint16(_risk) * 100) / 256);
+        uint8 risk = _parameterizeRisk(_risk);
         uint8[] memory riskScores = createUint8Array(25, 50, 75);
         // make sure it at least always falls into the range
         risk = uint8(bound(uint256(risk), 0, 75));
@@ -566,29 +524,25 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         vm.startPrank(user1);
 
         if (risk >= riskScores[2]) {
-             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
-        } 
+        }
         applicationCoin.transfer(user2, 11 * (10 ** 18));
 
         if (risk >= riskScores[2]) {
-             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
+            bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 1000000000000000000));
         } else if (risk >= riskScores[1]) {
             bytes4 selector = bytes4(keccak256("OverMaxTxValueByRiskScore(uint8,uint256)"));
             vm.expectRevert(abi.encodeWithSelector(selector, risk, 10000000000000000000000));
-        } 
+        }
         applicationCoin.transfer(user2, 10001 * (10 ** 18));
     }
 
     function testERC20_ApplicationERC20Fuzz_AccountMaxValueByRiskScore_Positive(uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
-        address _user1 = addressList[0];
-        address _user2 = addressList[1];
-        address _user3 = addressList[2];
-        address _user4 = addressList[3];
+        (address _user1, address _user2, address _user3, address _user4) = _get4RandomAddresses(_addressIndex);
         /// set up a non admin user with tokens
         applicationCoin.transfer(_user1, type(uint256).max);
         assertEq(applicationCoin.balanceOf(_user1), type(uint256).max);
@@ -608,9 +562,8 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         setAccountMaxValueByRiskRule(ruleId);
         /// we set a risk score for user2, user3 and user4
         switchToRiskAdmin();
-        applicationAppManager.addRiskScore(_user2, _riskScore[3]);
-        applicationAppManager.addRiskScore(_user3, _riskScore[2]);
-        applicationAppManager.addRiskScore(_user4, _riskScore[1]);
+        address[3] memory tempAddresses = [_user4, _user3, _user2];
+        for (uint i; i < tempAddresses.length; i++) applicationAppManager.addRiskScore(tempAddresses[i], _riskScore[i + 1]);
 
         ///Execute transfers
         vm.stopPrank();
@@ -622,11 +575,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20Fuzz_AccountMaxValueByRiskScore_Negative(uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
-        address _user1 = addressList[0];
-        address _user2 = addressList[1];
-        address _user3 = addressList[2];
-        address _user4 = addressList[3];
+        (address _user1, address _user2, address _user3, address _user4) = _get4RandomAddresses(_addressIndex);
         /// set up a non admin user with tokens
         applicationCoin.transfer(_user1, type(uint256).max);
         assertEq(applicationCoin.balanceOf(_user1), type(uint256).max);
@@ -648,10 +597,8 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         setAccountMaxValueByRiskRule(ruleId);
         /// we set a risk score for user2, user3 and user4
         switchToRiskAdmin();
-        applicationAppManager.addRiskScore(_user2, _riskScore[3]);
-        applicationAppManager.addRiskScore(_user3, _riskScore[2]);
-        applicationAppManager.addRiskScore(_user4, _riskScore[1]);
-
+        address[3] memory tempAddresses = [_user4, _user3, _user2];
+        for (uint i; i < tempAddresses.length; i++) applicationAppManager.addRiskScore(tempAddresses[i], _riskScore[i + 1]);
         ///Execute transfers
         vm.stopPrank();
         vm.startPrank(_user1);
@@ -667,9 +614,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20Fuzz_AccountMaxValueByAccessLevel_Positive(uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
-        address _user1 = addressList[0];
-        address _user3 = addressList[2];
+        (address _user1, address _user3) = _get2RandomAddresses(_addressIndex);
         /// set up a non admin user with tokens
         applicationCoin.transfer(_user1, type(uint256).max);
         assertEq(applicationCoin.balanceOf(_user1), type(uint256).max);
@@ -680,10 +625,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         if (_amountSeed > 167770) {
             _amountSeed = 167770;
         }
-        uint48 accessBalance1 = _amountSeed;
-        uint48 accessBalance2 = _amountSeed + 100;
-        uint48 accessBalance3 = _amountSeed + 500;
-        uint48 accessBalance4 = _amountSeed + 1000;
+        (uint48 accessBalance1, uint48 accessBalance2, uint48 accessBalance3, uint48 accessBalance4) = _createAccessBalances(_amountSeed);
         // add the rule.
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRule(ruleId);
@@ -703,9 +645,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20Fuzz_AccountMaxValueByAccessLevel_NoAccessLevel(uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
-        address _user1 = addressList[0];
-        address _user2 = addressList[1];
+        (address _user1, address _user2) = _get2RandomAddresses(_addressIndex);
         /// set up a non admin user with tokens
         applicationCoin.transfer(_user1, type(uint256).max);
         assertEq(applicationCoin.balanceOf(_user1), type(uint256).max);
@@ -716,10 +656,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         if (_amountSeed > 167770) {
             _amountSeed = 167770;
         }
-        uint48 accessBalance1 = _amountSeed;
-        uint48 accessBalance2 = _amountSeed + 100;
-        uint48 accessBalance3 = _amountSeed + 500;
-        uint48 accessBalance4 = _amountSeed + 1000;
+        (uint48 accessBalance1, uint48 accessBalance2, uint48 accessBalance3, uint48 accessBalance4) = _createAccessBalances(_amountSeed);
         // add the rule.
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRule(ruleId);
@@ -734,9 +671,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20Fuzz_AccountMaxValueByAccessLevel_NoBalancesNegative(uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
-        address _user1 = addressList[0];
-        address _user3 = addressList[2];
+        (address _user1, address _user3) = _get2RandomAddresses(_addressIndex);
         /// set up a non admin user with tokens
         applicationCoin.transfer(_user1, type(uint256).max);
         assertEq(applicationCoin.balanceOf(_user1), type(uint256).max);
@@ -747,10 +682,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         if (_amountSeed > 167770) {
             _amountSeed = 167770;
         }
-        uint48 accessBalance1 = _amountSeed;
-        uint48 accessBalance2 = _amountSeed + 100;
-        uint48 accessBalance3 = _amountSeed + 500;
-        uint48 accessBalance4 = _amountSeed + 1000;
+        (uint48 accessBalance1, uint48 accessBalance2, uint48 accessBalance3, uint48 accessBalance4) = _createAccessBalances(_amountSeed);
         // add the rule.
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRule(ruleId);
@@ -770,9 +702,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     function testERC20_ApplicationERC20Fuzz_AccountMaxValueByAccessLevel_BalancesNegative(uint8 _addressIndex, uint24 _amountSeed) public endWithStopPrank {
         switchToAppAdministrator();
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
-        address _user1 = addressList[0];
-        address _user4 = addressList[3];
+        (address _user1, address _user4) = _get2RandomAddresses(_addressIndex);
         /// set up a non admin user with tokens
         applicationCoin.transfer(_user1, type(uint256).max);
         assertEq(applicationCoin.balanceOf(_user1), type(uint256).max);
@@ -783,10 +713,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         if (_amountSeed > 167770) {
             _amountSeed = 167770;
         }
-        uint48 accessBalance1 = _amountSeed;
-        uint48 accessBalance2 = _amountSeed + 100;
-        uint48 accessBalance3 = _amountSeed + 500;
-        uint48 accessBalance4 = _amountSeed + 1000;
+        (uint48 accessBalance1, uint48 accessBalance2, uint48 accessBalance3, uint48 accessBalance4) = _createAccessBalances(_amountSeed);
         // add the rule.
         uint32 ruleId = createAccountMaxValueByAccessLevelRule(0, accessBalance1, accessBalance2, accessBalance3, accessBalance4);
         setAccountMaxValueByAccessLevelRule(ruleId);
@@ -847,31 +774,24 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         }
     }
 
-
     function testERC20_ApplicationERC20Fuzz_AccountMinMaxTokenBalance_Positive2(uint8 _addressIndex, uint256 _amountSeed, bytes32 tag1, bytes32 tag2, bytes32 tag3) public endWithStopPrank {
         switchToAppAdministrator();
         _amountSeed = bound(_amountSeed, 1, 1000);
-        if(tag1 == "") tag1  = "TAG1";
-        if(tag2 =="") tag2  = "TAG2";
-        if(tag3 == "") tag3  = "TAG3";
-        if(tag1 == tag2 || tag1 == tag3){
-            tag1  = "TAG1";
-            tag2  = "TAG2";
-            tag3  = "TAG3";
+        if (tag1 == "") tag1 = "TAG1";
+        if (tag2 == "") tag2 = "TAG2";
+        if (tag3 == "") tag3 = "TAG3";
+        if (tag1 == tag2 || tag1 == tag3) {
+            tag1 = "TAG1";
+            tag2 = "TAG2";
+            tag3 = "TAG3";
         }
         applicationCoin.mint(appAdministrator, type(uint256).max);
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
-        rich_user = addressList[0];
-        user1 = addressList[1];
+        (rich_user, user1) = _get2RandomAddresses(_addressIndex);
         // Set up the rule conditions
         vm.warp(Blocktime);
         bytes32[] memory accs = createBytes32Array(tag1, tag2, tag3);
         uint256[] memory minAmounts = createUint256Array((_amountSeed * (10 ** 18)), (_amountSeed + 1000) * (10 ** 18), (_amountSeed + 2000) * (10 ** 18));
-        uint256[] memory maxAmounts = createUint256Array(
-            999999 * BIGNUMBER,
-            99999 * BIGNUMBER,
-            99999 * BIGNUMBER
-        );
+        uint256[] memory maxAmounts = createUint256Array(999999 * BIGNUMBER, 99999 * BIGNUMBER, 99999 * BIGNUMBER);
         /// 720 = 1 month, 4380 = 6 months, 17520 = 2 years
         uint16[] memory periods = createUint16Array(720, 4380, 17520);
 
@@ -889,7 +809,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         vm.stopPrank();
         vm.startPrank(rich_user);
         /// make sure a transfer that is acceptable will still pass within the freeze window.
-        uint256 transferAmount = (applicationCoin.balanceOf(rich_user) - (minAmounts[0] - 1))-1;
+        uint256 transferAmount = (applicationCoin.balanceOf(rich_user) - (minAmounts[0] - 1)) - 1;
         applicationCoin.transfer(user1, transferAmount);
         assertEq(transferAmount, applicationCoin.balanceOf(user1));
     }
@@ -898,10 +818,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         _amountSeed = uint24(bound(_amountSeed, 1, type(uint24).max / 10000));
         if (_feeSeed > 10000) _feeSeed = 10000;
         if (_feeSeed <= 0) _feeSeed = 1;
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
-        address fromUser = addressList[0];
-        address treasury = addressList[1];
-        address toUser = addressList[2];
+        (address fromUser, address treasury, address toUser) = _get3RandomAddresses(_addressIndex);
         uint256 fromUserBalance = type(uint256).max - 1;
         applicationCoin.mint(fromUser, fromUserBalance);
         uint256 maxBalance = type(uint256).max;
@@ -933,10 +850,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         if (_discountSeed >= 0) _discountSeed = -1;
         if (_discountSeed < -10000) _discountSeed = -10000;
 
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
-        address fromUser = addressList[0];
-        address treasury = addressList[1];
-        address toUser = addressList[2];
+        (address fromUser, address treasury, address toUser) = _get3RandomAddresses(_addressIndex);
         uint256 fromUserBalance = type(uint256).max - 1;
         applicationCoin.mint(fromUser, fromUserBalance);
         uint256 maxBalance = type(uint256).max;
@@ -971,15 +885,12 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         assertEq(applicationCoin.balanceOf(toUser), _amountSeed - (_amountSeed * feeCalculus) / 10000);
         assertEq(applicationCoin.balanceOf(targetAccount), (_amountSeed * feeCalculus) / 10000);
     }
-    
+
     function testERC20_ApplicationERC20Fuzz_TransactionFeeTable_StandardFee_TransferFrom_Positive(uint8 _addressIndex, uint24 _amountSeed, int24 _feeSeed) public endWithStopPrank {
         _amountSeed = uint24(bound(_amountSeed, 1, type(uint24).max / 10000));
         if (_feeSeed > 10000) _feeSeed = 10000;
         if (_feeSeed <= 0) _feeSeed = 1;
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
-        address fromUser = addressList[0];
-        address treasury = addressList[1];
-        address toUser = addressList[2];
+        (address fromUser, address treasury, address toUser) = _get3RandomAddresses(_addressIndex);
         uint256 fromUserBalance = type(uint256).max - 1;
         applicationCoin.mint(fromUser, fromUserBalance);
         uint256 maxBalance = type(uint256).max;
@@ -1012,10 +923,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         if (_discountSeed >= 0) _discountSeed = -1;
         if (_discountSeed < -10000) _discountSeed = -10000;
 
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
-        address fromUser = addressList[0];
-        address treasury = addressList[1];
-        address toUser = addressList[2];
+        (address fromUser, address treasury, address toUser) = _get3RandomAddresses(_addressIndex);
         uint256 fromUserBalance = type(uint256).max - 1;
         applicationCoin.mint(fromUser, fromUserBalance);
         uint256 maxBalance = type(uint256).max;
@@ -1053,10 +961,9 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     }
 
     function testERC20_ApplicationERC20Fuzz_TokenMaxTradingVolume_Positive(uint8 _addressIndex, uint8 _period, uint24 _maxPercent) public endWithStopPrank {
-        _period = uint8(bound(_period,1,type(uint8).max));
-        _maxPercent = uint24(bound(_maxPercent,1,99999));
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
-        rich_user = addressList[0];
+        _period = uint8(bound(_period, 1, type(uint8).max));
+        _maxPercent = uint24(bound(_maxPercent, 1, 99999));
+        rich_user = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5)[0];
 
         switchToAppAdministrator();
         /// load non admin users with game coin
@@ -1074,10 +981,9 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
     }
 
     function testERC20_ApplicationERC20Fuzz_TokenMaxTradingVolume_Negative(uint8 _addressIndex, uint8 _period, uint24 _maxPercent) public endWithStopPrank {
-        _period = uint8(bound(_period,1,type(uint8).max));
-        _maxPercent = uint24(bound(_maxPercent,1,99999));
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
-        rich_user = addressList[0];
+        _period = uint8(bound(_period, 1, type(uint8).max));
+        _maxPercent = uint24(bound(_maxPercent, 1, 99999));
+        rich_user = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5)[0];
 
         switchToAppAdministrator();
         /// load non admin users with game coin
@@ -1101,8 +1007,6 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         assertEq(applicationCoin.balanceOf(user2), 0);
     }
 
-
-
     function testERC20_ApplicationERC20Fuzz_TokenMaxSupplyVolatility_Mint_Negative(uint8 _addressIndex, uint256 amount, uint16 volLimit) public endWithStopPrank {
         switchToAppAdministrator();
         vm.warp(Blocktime);
@@ -1112,15 +1016,14 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         uint256 volume = uint256(volLimit) * 10;
         amount = bound(amount, (initialSupply - volume), initialSupply);
         uint8 rulePeriod = 24; /// 24 hours
-        uint64 startTime = Blocktime; /// default timestamp
+        uint64 _startTime = Blocktime; /// default timestamp
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1);
-        user1 = addressList[0];
+        user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
         applicationCoin.mint(ruleBypassAccount, initialSupply);
         switchToRuleBypassAccount();
         /// create and activate rule
-        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, startTime, tokenSupply);
+        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
@@ -1130,8 +1033,7 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         console.log(amount);
         vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
         applicationCoin.mint(user1, amount);
-        assertEq(applicationCoin.balanceOf(user1),0);
-           
+        assertEq(applicationCoin.balanceOf(user1), 0);
     }
 
     function testERC20_ApplicationERC20Fuzz_TokenMaxSupplyVolatility_Mint_Positive(uint8 _addressIndex, uint256 amount, uint16 volLimit) public endWithStopPrank {
@@ -1143,15 +1045,14 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         uint256 volume = uint256(volLimit) * 10;
         amount = bound(amount, 1, (initialSupply / volume));
         uint8 rulePeriod = 24; /// 24 hours
-        uint64 startTime = Blocktime; /// default timestamp
+        uint64 _startTime = Blocktime; /// default timestamp
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1);
-        user1 = addressList[0];
+        user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
         applicationCoin.mint(ruleBypassAccount, initialSupply);
         switchToRuleBypassAccount();
         /// create and activate rule
-        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, startTime, tokenSupply);
+        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
@@ -1160,7 +1061,6 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         console.log(volume);
         console.log(amount);
         applicationCoin.mint(user1, amount);
-           
     }
 
     function testERC20_ApplicationERC20Fuzz_TokenMaxSupplyVolatility_Burn_Positive(uint8 _addressIndex, uint256 amount, uint16 volLimit) public endWithStopPrank {
@@ -1172,15 +1072,14 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         uint256 volume = uint256(volLimit) * 10;
         amount = bound(amount, 1, (initialSupply / volume));
         uint8 rulePeriod = 24; /// 24 hours
-        uint64 startTime = Blocktime; /// default timestamp
+        uint64 _startTime = Blocktime; /// default timestamp
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1);
-        user1 = addressList[0];
+        user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
         applicationCoin.mint(ruleBypassAccount, initialSupply);
         switchToRuleBypassAccount();
         /// create and activate rule
-        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, startTime, tokenSupply);
+        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
@@ -1189,7 +1088,6 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         console.log(volume);
         console.log(amount);
         applicationCoin.mint(user1, amount);
-           
     }
 
     function testERC20_ApplicationERC20Fuzz_TokenMaxSupplyVolatility_Burn_Negative(uint8 _addressIndex, uint256 amount, uint16 volLimit) public endWithStopPrank {
@@ -1201,15 +1099,14 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         uint256 volume = uint256(volLimit) * 10;
         amount = bound(amount, (initialSupply - volume), initialSupply);
         uint8 rulePeriod = 24; /// 24 hours
-        uint64 startTime = Blocktime; /// default timestamp
+        uint64 _startTime = Blocktime; /// default timestamp
         uint256 tokenSupply = 0; /// calls totalSupply() for the token
-        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1);
-        user1 = addressList[0];
+        user1 = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1)[0];
         /// mint initial supply
         applicationCoin.mint(ruleBypassAccount, initialSupply);
         switchToRuleBypassAccount();
         /// create and activate rule
-        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, startTime, tokenSupply);
+        uint32 ruleId = createTokenMaxSupplyVolatilityRule(volLimit, rulePeriod, _startTime, tokenSupply);
         setTokenMaxSupplyVolatilityRule(address(applicationCoinHandler), ruleId);
         /// test mint
         vm.stopPrank();
@@ -1219,7 +1116,12 @@ contract ApplicationERC20FuzzTest is TestCommonFoundry, ERC20Util {
         console.log(amount);
         vm.expectRevert(abi.encodeWithSignature("OverMaxSupplyVolatility()"));
         applicationCoin.mint(user1, amount);
-           
     }
 
+    function _createAccessBalances(uint24 _amountSeed) internal pure returns (uint48 accessBalance1, uint48 accessBalance2, uint48 accessBalance3, uint48 accessBalance4) {
+        accessBalance1 = _amountSeed;
+        accessBalance2 = _amountSeed + 100;
+        accessBalance3 = _amountSeed + 500;
+        accessBalance4 = _amountSeed + 1000;
+    }
 }
