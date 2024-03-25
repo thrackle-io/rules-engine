@@ -1,5 +1,5 @@
 # ProtocolERC20
-[Git Source](https://github.com/thrackle-io/tron/blob/bcbcc01a5b28a551282aabeb3b2db849eb2ab94f/src/client/token/ERC20/ProtocolERC20.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/764000f27aa19925e60dae8d757a097eec620706/src/client/token/ERC20/ProtocolERC20.sol)
 
 **Inherits:**
 ERC20, ERC165, ERC20Burnable, ERC20FlashMint, Pausable, [ProtocolTokenCommon](/src/client/token/ProtocolTokenCommon.sol/abstract.ProtocolTokenCommon.md), [IProtocolERC20Errors](/src/common/IErrors.sol/interface.IProtocolERC20Errors.md), ReentrancyGuard
@@ -168,9 +168,33 @@ function flashLoan(IERC3156FlashBorrower receiver, address token, uint256 amount
 |`data`|`bytes`|arbitrary data structure for user params|
 
 
-### connectHandlerToToken
+### setMaxSupply
 
 These are simply to get rid of the compiler warnings.
+
+*Function sets the Max Supply for tokens. If left at 0, infinite supply.*
+
+
+```solidity
+function setMaxSupply(uint256 _maxSupply) external appAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_maxSupply`|`uint256`|maximum supply of tokens allowed.|
+
+
+### getMaxSupply
+
+*Function gets the Max Supply for tokens.*
+
+
+```solidity
+function getMaxSupply() external view returns (uint256);
+```
+
+### connectHandlerToToken
 
 *Function to connect Token to previously deployed Handler contract*
 
