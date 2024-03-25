@@ -32,8 +32,6 @@ contract DummyTreasury {
 }
 
 contract ApplicationERC721ExampleTest is TestCommonFoundry {
-
-
     function setUp() public {
         vm.warp(Blocktime);
         setUpProcotolAndCreateERC20AndDiamondHandler();
@@ -44,7 +42,7 @@ contract ApplicationERC721ExampleTest is TestCommonFoundry {
         assertEq(version, "1.1.0");
     }
 
-    function testERC721_ApplicationERC721Examples_OwnerOrAdminMint() public endWithStopPrank() {
+    function testERC721_ApplicationERC721Examples_OwnerOrAdminMint() public endWithStopPrank {
         /// since this is the default implementation, we only need to test the negative case
         switchToUser();
         vm.expectRevert(0x2a79d188);

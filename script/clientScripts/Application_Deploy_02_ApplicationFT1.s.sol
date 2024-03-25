@@ -56,7 +56,7 @@ contract ApplicationDeployFT1Script is Script, DeployBase {
         coin1.connectHandlerToToken(address(applicationCoinHandlerDiamond));
 
         /// Register the tokens with the application's app manager
-        applicationAppManager.registerToken("Frankenstein Coin", address(coin1));
+        applicationAppManager.registerToken("FRANK", address(coin1));
 
         vm.stopBroadcast();
     }

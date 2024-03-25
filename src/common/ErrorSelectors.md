@@ -51,7 +51,6 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x3e237976 | UnderMinBalance()                                                |
 | 0x4bdf3b46 | RuleDoesNotExist()                                               |
 | 0x7a78c901 | UnderMinTxSize()                                                 |
-| 0x68cf9ce3 | GlobalControllerNotConnected()                                   |
 | 0x028a6c58 | InputArraysMustHaveSameLength()                                  |
 | 0x1390f2a1 | IndexOutOfRange()                                                |
 | 0x7d9b7dbc | PercentageValueLessThan100()                                     |
@@ -69,7 +68,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x0e0449c8 | DateInThePast(uint256)                                           |
 | 0x0e0449c8 | DateInThePast(uint256)                                           |
 | 0xa7fb7b4b | TxnInFreezeWindow()                                              |
-| 0x91985774 | OverMaxSellSize()                                       |
+| 0x91985774 | OverMaxSellSize()                                                |
 | 0x522df7fd | StartTimeNotValid()                                              |
 | 0xce406c16 | OverMaxTxValueByRiskScore(uint8,uint256)                         |
 | 0xd3bfb295 | InvalidHourOfTheDay()                                            |

@@ -117,6 +117,7 @@ abstract contract TestCommon is
     FacetCut[] _ruleProcessorFacetCuts;
 
     uint256 constant ATTO = 10 ** 18;
+    uint256 constant BIGNUMBER = 10 ** 70;
 
     // shared objects
     RuleProcessorDiamond public ruleProcessor;
@@ -158,8 +159,13 @@ abstract contract TestCommon is
     HandlerDiamond public boredWhaleHandler;
     ApplicationERC721 public boredReptilianNFT;
     HandlerDiamond public boredReptileHandler;
+    ApplicationERC20 public boredCoin;
+    HandlerDiamond public boredCoinHandler;
+    ApplicationERC20 public reptileToken;
+    HandlerDiamond public reptileTokenHandler;
 
     ApplicationERC721Pricing public openOcean; 
+    ApplicationERC20Pricing public uniBase;
 
     bool public testDeployments = true;
 

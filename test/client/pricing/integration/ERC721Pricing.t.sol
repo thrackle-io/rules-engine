@@ -12,10 +12,8 @@ import "test/util/TestCommonFoundry.sol";
  * @notice It simulates an NFT-marketplace price source.
  */
 contract ERC721PricingTest is TestCommonFoundry {
-
     function setUp() public {
         setUpProtocolAndAppManagerAndPricingAndTokens();
-
     }
 
     function testPricing_ERC721Pricing_PricerVersion() public view {
@@ -29,6 +27,12 @@ contract ERC721PricingTest is TestCommonFoundry {
         assertEq(openOcean.getNFTPrice(address(boredWhaleNFT), 1), 5000 * (10 ** 18));
         openOcean.setSingleNFTPrice(address(boredReptilianNFT), 1, 666 * (10 ** 16));
         assertEq(openOcean.getNFTPrice(address(boredReptilianNFT), 1), 666 * (10 ** 16));
+    }
+
+    function testPricing_ERC721Pricing_SettingSingleNFTPrice_Negative() public {
+        switchToUser();
+        vm.expectRevert("Ownable: caller is not the owner");
+        openOcean.setSingleNFTPrice(address(boredWhaleNFT), 1, 5000 * (10 ** 18));
     }
 
     /// Testing setting the price for a whole NFT contract under the right conditions
@@ -53,14 +57,15 @@ contract ERC721PricingTest is TestCommonFoundry {
      * @notice currently not supporting ERC1155.
      */
     function testPricing_ERC721Pricing_SettingSingleNFTPrice_InvalidContract() public {
-        vm.expectRevert();
+        bytes4 selector = bytes4(keccak256("NotAnNFTContract(address)"));
+        vm.expectRevert(abi.encodeWithSelector(selector, 0xBABE));
         openOcean.setSingleNFTPrice(address(0xBABE), 1, 5000 * (10 ** 18));
     }
 
     /// Testing that the pricing contract won't allow price setting to anyone but the owner
-    function testPricing_ERC721Pricing_SettingSingleNFTPrice_NotOwner() public endWithStopPrank() {
+    function testPricing_ERC721Pricing_SettingSingleNFTPrice_NotOwner() public endWithStopPrank {
         vm.startPrank(bob);
-        vm.expectRevert();
+        vm.expectRevert("Ownable: caller is not the owner");
         openOcean.setSingleNFTPrice(address(boredWhaleNFT), 1, 5000 * (10 ** 18));
     }
 }

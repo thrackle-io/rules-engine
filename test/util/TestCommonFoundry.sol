@@ -13,9 +13,8 @@ import "test/util/EndWithStopPrank.sol";
  * _create = deploy contract, return the contract
  */
 abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
-
-    modifier ifDeplomentTestsEnabled() {
-        if(testDeployments) {
+    modifier ifDeploymentTestsEnabled() {
+        if (testDeployments) {
             _;
         }
     }
@@ -25,13 +24,12 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
      * @return diamond fully configured rules processor diamond
      */
     function _createRulesProcessorDiamond() public returns (RuleProcessorDiamond diamond) {
-        
         // Start by deploying the DiamonInit contract.
         DiamondInit diamondInit = new DiamondInit();
         _addNativeFacetsToFacetCut();
         _addStorageFacetsToFacetCut();
         _addProcessingFacetsToFacetCut();
-        
+
         // Build the DiamondArgs.
         RuleProcessorDiamondArgs memory diamondArgs = RuleProcessorDiamondArgs({
             init: address(diamondInit),
@@ -40,7 +38,7 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
         });
 
         /// Build the diamond
-        vm.expectEmit(false,false,false,false);
+        vm.expectEmit(false, false, false, false);
         emit AD1467_RuleProcessorDiamondDeployed();
         RuleProcessorDiamond ruleProcessorInternal = new RuleProcessorDiamond(_ruleProcessorFacetCuts, diamondArgs);
         // Deploy the diamond.
@@ -61,7 +59,6 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
 
         // Version
         _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(versionFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("VersionFacet")}));
-
     }
 
     function _addProcessingFacetsToFacetCut() public {
@@ -80,22 +77,34 @@ abstract contract TestCommonFoundry is TestCommon, EndWithStopPrank {
 
         _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(erc721RuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ERC721RuleProcessorFacet")}));
 
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(applicationRiskProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ApplicationRiskProcessorFacet")}));
+        _ruleProcessorFacetCuts.push(
+            FacetCut({facetAddress: address(applicationRiskProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ApplicationRiskProcessorFacet")})
+        );
 
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(applicationAccessLevelProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ApplicationAccessLevelProcessorFacet")}));
+        _ruleProcessorFacetCuts.push(
+            FacetCut({facetAddress: address(applicationAccessLevelProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ApplicationAccessLevelProcessorFacet")})
+        );
 
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(applicationPauseProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ApplicationPauseProcessorFacet")}));
+        _ruleProcessorFacetCuts.push(
+            FacetCut({facetAddress: address(applicationPauseProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ApplicationPauseProcessorFacet")})
+        );
 
-        // Tagged 
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(erc20TaggedRuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ERC20TaggedRuleProcessorFacet")}));
+        // Tagged
+        _ruleProcessorFacetCuts.push(
+            FacetCut({facetAddress: address(erc20TaggedRuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ERC20TaggedRuleProcessorFacet")})
+        );
 
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(erc721TaggedRuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ERC721TaggedRuleProcessorFacet")}));
+        _ruleProcessorFacetCuts.push(
+            FacetCut({facetAddress: address(erc721TaggedRuleProcessorFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("ERC721TaggedRuleProcessorFacet")})
+        );
 
         // Validation
-        _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(ruleApplicationValidationFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("RuleApplicationValidationFacet")}));
+        _ruleProcessorFacetCuts.push(
+            FacetCut({facetAddress: address(ruleApplicationValidationFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("RuleApplicationValidationFacet")})
+        );
     }
 
-function _addStorageFacetsToFacetCut() public {
+    function _addStorageFacetsToFacetCut() public {
         // Rule Processing Facets
         RuleDataFacet ruleDataFacet = new RuleDataFacet();
         TaggedRuleDataFacet taggedRuleDataFacet = new TaggedRuleDataFacet();
@@ -105,15 +114,15 @@ function _addStorageFacetsToFacetCut() public {
         _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(ruleDataFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("RuleDataFacet")}));
 
         _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(appRuleDataFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("AppRuleDataFacet")}));
-    
+
         _ruleProcessorFacetCuts.push(FacetCut({facetAddress: address(taggedRuleDataFacet), action: FacetCutAction.Add, functionSelectors: _createSelectorArray("TaggedRuleDataFacet")}));
-   
     }
+
     /**
      * @dev Create the selector array for the facet
      * @return _selectors loaded selector array
      */
-    function _createSelectorArray(string memory _facet) public returns(bytes4[] memory _selectors){
+    function _createSelectorArray(string memory _facet) public returns (bytes4[] memory _selectors) {
         string[] memory _inputs = new string[](3);
         _inputs[0] = "python3";
         _inputs[1] = "script/python/get_selectors.py";
@@ -127,7 +136,6 @@ function _addStorageFacetsToFacetCut() public {
      * @return diamond fully configured ERC20 Handler diamond
      */
     function _createERC20HandlerDiamond() public returns (HandlerDiamond diamond) {
-        
         FacetCut[] memory _erc20HandlerFacetCuts = new FacetCut[](8);
         // Start by deploying the DiamonInit contract.
         DiamondInit diamondInit = new DiamondInit();
@@ -140,14 +148,13 @@ function _addStorageFacetsToFacetCut() public {
             "ProtocolNativeFacet",
             // // Raw implementation facets.
             "ProtocolRawFacet",
-            // ERC20 Handler Facets 
+            // ERC20 Handler Facets
             "ERC20HandlerMainFacet",
             "ERC20TaggedRuleFacet",
             "ERC20NonTaggedRuleFacet",
             "TradingRuleFacet",
             "FeesFacet"
         ];
-
 
         // Loop on each facet, deploy them and create the FacetCut.
         for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
@@ -182,7 +189,6 @@ function _addStorageFacetsToFacetCut() public {
      * @return diamond fully configured ERC721 Handler diamond
      */
     function _createERC721HandlerDiamond() public returns (HandlerDiamond diamond) {
-        
         FacetCut[] memory _erc721HandlerFacetCuts = new FacetCut[](7);
         // Start by deploying the DiamonInit contract.
         DiamondInit diamondInit = new DiamondInit();
@@ -201,7 +207,6 @@ function _addStorageFacetsToFacetCut() public {
             "ERC721NonTaggedRuleFacet",
             "TradingRuleFacet"
         ];
-
 
         // Loop on each facet, deploy them and create the FacetCut.
         for (uint256 facetIndex = 0; facetIndex < facets.length; facetIndex++) {
@@ -231,11 +236,10 @@ function _addStorageFacetsToFacetCut() public {
         return handlerInternal;
     }
 
-   
     /**
-     * @dev Deploy and set up the main protocol contracts. 
+     * @dev Deploy and set up the main protocol contracts.
      */
-    function setUpProtocol() public endWithStopPrank() {
+    function setUpProtocol() public endWithStopPrank {
         switchToSuperAdmin();
         ruleProcessor = _createRulesProcessorDiamond();
     }
@@ -244,7 +248,7 @@ function _addStorageFacetsToFacetCut() public {
      * @dev Deploy and set up the main protocol contracts. This includes:
      * 1. ProcessorDiamond 2. AppManager
      */
-    function setUpProtocolAndAppManager() public endWithStopPrank() {
+    function setUpProtocolAndAppManager() public endWithStopPrank {
         switchToSuperAdmin();
         ruleProcessor = _createRulesProcessorDiamond();
         applicationAppManager = _createAppManager();
@@ -253,7 +257,7 @@ function _addStorageFacetsToFacetCut() public {
         applicationHandler = ApplicationHandler(applicationAppManager.getHandlerAddress());
     }
 
-    function setUpProtocolAndAppManagerAndTokensWithERC721HandlerDiamond() public endWithStopPrank() {
+    function setUpProtocolAndAppManagerAndTokensWithERC721HandlerDiamond() public endWithStopPrank {
         setUpProtocolAndAppManager();
         (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
         (applicationNFTv2, applicationNFTHandlerv2) = deployAndSetupERC721("ToughTurtles", "THTR");
@@ -270,7 +274,7 @@ function _addStorageFacetsToFacetCut() public {
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
         /// connect the pricers to both handlers
-        switchToRuleAdmin(); 
+        switchToRuleAdmin();
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
@@ -279,18 +283,20 @@ function _addStorageFacetsToFacetCut() public {
         oracleDenied = _createOracleDenied();
     }
 
-
     /**
-     * @dev Deploy and set up the protocol with app manager and 2 supported ERC721 tokens with pricing contract 
-     * ERC721 tokens and Pricing contract are named for Pricing.t.sol 
+     * @dev Deploy and set up the protocol with app manager and 2 supported ERC721 tokens with pricing contract
+     * ERC721 tokens and Pricing contract are named for Pricing.t.sol
      */
-    
+
     function setUpProtocolAndAppManagerAndPricingAndTokens() public {
         setUpProtocolAndAppManager();
         (boredWhaleNFT, boredWhaleHandler) = deployAndSetupERC721("Bored Whale Island Club", "BWYC");
         (boredReptilianNFT, boredReptileHandler) = deployAndSetupERC721("Board Reptilian Spaceship Club", "BRSC");
+        (boredCoin, boredCoinHandler) = deployAndSetupERC20("Bored Whale Coin", "BRDC");
+        (reptileToken, reptileTokenHandler) = deployAndSetupERC20("Reptile Token", "RTR");
         /// Deploy the pricing contract
         openOcean = _createERC721Pricing();
+        uniBase = _createERC20Pricing();
     }
 
     /**
@@ -361,9 +367,9 @@ function _addStorageFacetsToFacetCut() public {
     ///--------------SPECIALIZED CREATE FUNCTIONS---------------
 
     /**
-     * @dev Deploy and set up Specialized ERC20 token and handler 
+     * @dev Deploy and set up Specialized ERC20 token and handler
      */
-    function setUpProcotolAndCreateERC20AndHandlerSpecialOwner() public endWithStopPrank() {
+    function setUpProcotolAndCreateERC20AndHandlerSpecialOwner() public endWithStopPrank {
         setUpProtocolAndAppManager();
 
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
@@ -392,7 +398,7 @@ function _addStorageFacetsToFacetCut() public {
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
-        switchToRuleAdmin(); 
+        switchToRuleAdmin();
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
@@ -406,7 +412,7 @@ function _addStorageFacetsToFacetCut() public {
      * @dev Deploy and set up the main protocol contracts. This includes:
      * 1. ProcessorDiamond, 2. AppManager with its handler connected, 3. ApplicationERC20 with its handler, and default price
      */
-    function setUpProtocolAndAppManagerAndTokensUpgradeable() public endWithStopPrank() {
+    function setUpProtocolAndAppManagerAndTokensUpgradeable() public endWithStopPrank {
         setUpProtocolAndAppManager();
 
         // create the ERC20 and connect it to its handler
@@ -415,8 +421,8 @@ function _addStorageFacetsToFacetCut() public {
         /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
         erc20Pricer.setSingleTokenPrice(address(applicationCoin), 1 * (10 ** 18)); //setting at $1
-        
-        /// create ERC721 
+
+        /// create ERC721
         (applicationNFT, applicationNFTHandler) = deployAndSetupERC721("FRANKENSTEIN", "FRK");
         switchToAppAdministrator();
 
@@ -437,32 +443,31 @@ function _addStorageFacetsToFacetCut() public {
         erc721Pricer = new ApplicationERC721Pricing();
         erc20Pricer = new ApplicationERC20Pricing();
 
-
         /// set up the pricer for erc721
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFTU), 1 * (10 ** 18)); //setting at $1
         /// connect the pricers to handler
-        switchToRuleAdmin(); 
+        switchToRuleAdmin();
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
         switchToAppAdministrator();
-        
+
         oracleApproved = _createOracleApproved();
         oracleDenied = _createOracleDenied();
     }
 
     /**
-     * @dev Deploy and set up ERC20 token with DIAMOND handler 
+     * @dev Deploy and set up ERC20 token with DIAMOND handler
      */
-    function setUpProcotolAndCreateERC20AndDiamondHandler() public endWithStopPrank() {
+    function setUpProcotolAndCreateERC20AndDiamondHandler() public endWithStopPrank {
         setUpProtocolAndAppManager();
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
         // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
-        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("Frankenstein Coin", "FRANK");
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
         (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
-        
+
         switchToAppAdministrator();
         /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
@@ -477,11 +482,11 @@ function _addStorageFacetsToFacetCut() public {
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
-        switchToRuleAdmin(); 
-        vm.expectEmit(true,false,false,false);
+        switchToRuleAdmin();
+        vm.expectEmit(true, false, false, false);
         emit AD1467_ERC721PricingAddressSet(address(erc721Pricer));
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
-        vm.expectEmit(true,false,false,false);
+        vm.expectEmit(true, false, false, false);
         emit AD1467_ERC20PricingAddressSet(address(erc20Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
@@ -494,16 +499,16 @@ function _addStorageFacetsToFacetCut() public {
     }
 
     /**
-     * @dev Deploy and set up ERC20 token with DIAMOND handler 
+     * @dev Deploy and set up ERC20 token with DIAMOND handler
      */
-    function setUpProcotolAndCreateERC721MinAndDiamondHandler() public endWithStopPrank() {
+    function setUpProcotolAndCreateERC721MinAndDiamondHandler() public endWithStopPrank {
         setUpProtocolAndAppManager();
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
         // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
-        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("Frankenstein Coin", "FRANK");
+        (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("FRANK", "FRK");
         (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
-        
+
         switchToAppAdministrator();
         /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
@@ -518,7 +523,7 @@ function _addStorageFacetsToFacetCut() public {
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(minimalNFT), 1 * (10 ** 18)); //setting at $1
-        switchToRuleAdmin(); 
+        switchToRuleAdmin();
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
@@ -529,16 +534,16 @@ function _addStorageFacetsToFacetCut() public {
     }
 
     /**
-     * @dev Deploy and set up ERC20 token with DIAMOND handler 
+     * @dev Deploy and set up ERC20 token with DIAMOND handler
      */
-    function setUpProcotolAndCreateERC721MinLegacyAndDiamondHandler() public endWithStopPrank() {
+    function setUpProcotolAndCreateERC721MinLegacyAndDiamondHandler() public endWithStopPrank {
         setUpProtocolAndAppManager();
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
         // this ERC20Handler has to be created specially so that the owner is the appAdministrator. This is so we can access it directly in the tests.
         (applicationCoin, applicationCoinHandler) = deployAndSetupERC20("Frankenstein Coin", "FRANK");
         (applicationCoin2, applicationCoinHandler2) = deployAndSetupERC20("application2", "GMC2");
-        
+
         switchToAppAdministrator();
         /// set up the pricer for erc20
         erc20Pricer = _createERC20Pricing();
@@ -553,7 +558,7 @@ function _addStorageFacetsToFacetCut() public {
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(minimalNFTLegacy), 1 * (10 ** 18)); //setting at $1
-        switchToRuleAdmin(); 
+        switchToRuleAdmin();
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
@@ -564,9 +569,9 @@ function _addStorageFacetsToFacetCut() public {
     }
 
     /**
-     * @dev Deploy and set up ERC20 token with DIAMOND handler 
+     * @dev Deploy and set up ERC20 token with DIAMOND handler
      */
-    function setUpProcotolAndCreateERC20MinAndDiamondHandler() public endWithStopPrank() {
+    function setUpProcotolAndCreateERC20MinAndDiamondHandler() public endWithStopPrank {
         setUpProtocolAndAppManager();
         /// NOTE: this set up logic must be different because the handler must be owned by appAdministrator so it may be called directly. It still
         /// requires a token be attached and registered for permissions in appManager
@@ -588,7 +593,7 @@ function _addStorageFacetsToFacetCut() public {
         /// set up the pricer for erc20
         erc721Pricer = _createERC721Pricing();
         erc721Pricer.setNFTCollectionPrice(address(applicationNFT), 1 * (10 ** 18)); //setting at $1
-        switchToRuleAdmin(); 
+        switchToRuleAdmin();
         applicationHandler.setNFTPricingAddress(address(erc721Pricer));
         applicationHandler.setERC20PricingAddress(address(erc20Pricer));
 
@@ -598,7 +603,7 @@ function _addStorageFacetsToFacetCut() public {
         oracleDenied = _createOracleDenied();
     }
 
-    function deployAndSetupERC721(string memory name, string memory symbol) internal endWithStopPrank() returns(ApplicationERC721 erc721, HandlerDiamond handler) {
+    function deployAndSetupERC721(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc721 = _createERC721(name, symbol, applicationAppManager);
         handler = _createERC721HandlerDiamond();
@@ -610,7 +615,7 @@ function _addStorageFacetsToFacetCut() public {
         applicationAppManager.registerToken(name, address(erc721));
     }
 
-    function deployAndSetupERC721NoRegister(string memory name, string memory symbol) internal endWithStopPrank() returns(ApplicationERC721 erc721, HandlerDiamond handler) {
+    function deployAndSetupERC721NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc721 = _createERC721(name, symbol, applicationAppManager);
         handler = _createERC721HandlerDiamond();
@@ -620,7 +625,7 @@ function _addStorageFacetsToFacetCut() public {
         erc721.connectHandlerToToken(address(handler));
     }
 
-    function deployAndSetupERC721Min(string memory name, string memory symbol) internal endWithStopPrank() returns(MinimalERC721 erc721, HandlerDiamond handler) {
+    function deployAndSetupERC721Min(string memory name, string memory symbol) internal endWithStopPrank returns (MinimalERC721 erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc721 = _createERC721Min(name, symbol, applicationAppManager);
         handler = _createERC721HandlerDiamond();
@@ -632,7 +637,7 @@ function _addStorageFacetsToFacetCut() public {
         applicationAppManager.registerToken(name, address(erc721));
     }
 
-    function deployAndSetupERC721MinLegacy(string memory name, string memory symbol) internal endWithStopPrank() returns(MinimalERC721Legacy erc721, HandlerDiamond handler) {
+    function deployAndSetupERC721MinLegacy(string memory name, string memory symbol) internal endWithStopPrank returns (MinimalERC721Legacy erc721, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc721 = new MinimalERC721Legacy(name, symbol);
         handler = _createERC721HandlerDiamond();
@@ -644,7 +649,7 @@ function _addStorageFacetsToFacetCut() public {
         applicationAppManager.registerToken(name, address(erc721));
     }
 
-    function deployAndSetupERC20(string memory name, string memory symbol) internal endWithStopPrank() returns(ApplicationERC20 erc20, HandlerDiamond handler) {
+    function deployAndSetupERC20(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc20 = _createERC20(name, symbol, applicationAppManager);
         handler = _createERC20HandlerDiamond();
@@ -653,12 +658,12 @@ function _addStorageFacetsToFacetCut() public {
         switchToAppAdministrator();
         erc20.connectHandlerToToken(address(handler));
         /// register the token
-        vm.expectEmit(true,true,false,false);
+        vm.expectEmit(true, true, false, false);
         emit AD1467_TokenRegistered(name, address(erc20));
         applicationAppManager.registerToken(name, address(erc20));
     }
 
-    function deployAndSetupERC20NoRegister(string memory name, string memory symbol) internal endWithStopPrank() returns(ApplicationERC20 erc20, HandlerDiamond handler) {
+    function deployAndSetupERC20NoRegister(string memory name, string memory symbol) internal endWithStopPrank returns (ApplicationERC20 erc20, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc20 = _createERC20(name, symbol, applicationAppManager);
         handler = _createERC20HandlerDiamond();
@@ -668,7 +673,7 @@ function _addStorageFacetsToFacetCut() public {
         erc20.connectHandlerToToken(address(handler));
     }
 
-    function deployAndSetupERC20Min(string memory name, string memory symbol) internal endWithStopPrank() returns(MinimalERC20 erc20, HandlerDiamond handler) {
+    function deployAndSetupERC20Min(string memory name, string memory symbol) internal endWithStopPrank returns (MinimalERC20 erc20, HandlerDiamond handler) {
         switchToSuperAdmin();
         erc20 = _createERC20Min(name, symbol, applicationAppManager);
         handler = _createERC20HandlerDiamond();
@@ -681,14 +686,19 @@ function _addStorageFacetsToFacetCut() public {
     }
 
     /**
-     * @dev Deploy and set up an ERC20Handler specialized for Handler Testing 
+     * @dev Deploy and set up an ERC20Handler specialized for Handler Testing
      * @param _ruleProcessor rule processor
      * @param _appManager previously created appManager
      * @param _token ERC20
-     * @param _appAdmin App Admin Address 
+     * @param _appAdmin App Admin Address
      * @return handler ERC20 handler
      */
-    function _createERC20HandlerSpecialized(RuleProcessorDiamond _ruleProcessor, ApplicationAppManager _appManager,ApplicationERC20 _token, address _appAdmin) public returns (HandlerDiamond handler) {
+    function _createERC20HandlerSpecialized(
+        RuleProcessorDiamond _ruleProcessor,
+        ApplicationAppManager _appManager,
+        ApplicationERC20 _token,
+        address _appAdmin
+    ) public returns (HandlerDiamond handler) {
         handler = _createERC20HandlerDiamond();
         ERC20HandlerMainFacet(address(handler)).initialize(address(_ruleProcessor), address(_appManager), address(_appAdmin));
         switchToAppAdministrator();
@@ -713,7 +723,7 @@ function _addStorageFacetsToFacetCut() public {
     }
 
     function switchToRuleBypassAccount() public {
-        switchToAppAdministrator(); 
+        switchToAppAdministrator();
         applicationAppManager.addRuleBypassAccount(ruleBypassAccount);
         vm.stopPrank();
         vm.startPrank(ruleBypassAccount);
@@ -737,7 +747,7 @@ function _addStorageFacetsToFacetCut() public {
         vm.stopPrank(); //stop interacting as the previous admin
         vm.startPrank(user); //interact as the user
     }
-    
+
     /**
      * @dev Function to set the super admin as the calling address. It stores the current address for future resetting
      *
@@ -750,5 +760,59 @@ function _addStorageFacetsToFacetCut() public {
     function switchToNewAdmin() public {
         vm.stopPrank();
         vm.startPrank(newAdmin);
+    }
+
+    function _addAdminsToAddressArray() public {
+        ADDRESSES = [
+            address(0xFF1),
+            address(0xFF2),
+            address(0xFF3),
+            address(0xFF4),
+            address(0xFF5),
+            address(0xFF6),
+            address(0xFF7),
+            address(0xFF8),
+            address(superAdmin),
+            address(appAdministrator),
+            address(ruleAdmin),
+            address(riskAdmin),
+            address(accessLevelAdmin)
+        ];
+    }
+
+    function _grantAdminRolesToAdmins() public {
+        switchToAppAdministrator();
+        applicationAppManager.addAccessLevelAdmin(accessLevelAdmin);
+        applicationAppManager.addRiskAdmin(riskAdmin);
+        applicationAppManager.addRuleAdministrator(ruleAdmin);
+    }
+
+    function _get1RandomAddress(uint8 _addressIndex) internal view returns (address randomUser) {
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 1);
+        randomUser = addressList[0];
+    }
+
+    function _get2RandomAddresses(uint8 _addressIndex) internal view returns (address, address) {
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 2);
+        return (addressList[0], addressList[1]);
+    }
+
+    function _get3RandomAddresses(uint8 _addressIndex) internal view returns (address, address, address) {
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 3);
+        return (addressList[0], addressList[1], addressList[2]);
+    }
+
+    function _get4RandomAddresses(uint8 _addressIndex) internal view returns (address, address, address, address) {
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 4);
+        return (addressList[0], addressList[1], addressList[2], addressList[3]);
+    }
+
+    function _get5RandomAddresses(uint8 _addressIndex) internal view returns (address, address, address, address, address) {
+        address[] memory addressList = getUniqueAddresses(_addressIndex % ADDRESSES.length, 5);
+        return (addressList[0], addressList[1], addressList[2], addressList[3], addressList[4]);
+    }
+
+    function _parameterizeRisk(uint8 _risk) internal pure returns (uint8 risk) {
+        risk = uint8((uint16(_risk) * 100) / 256);
     }
 }

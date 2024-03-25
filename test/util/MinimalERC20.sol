@@ -12,7 +12,7 @@ import "src/client/token/handler/diamond/ERC20HandlerMainFacet.sol";
  * @title Minimal ERC20 Protocol Contract
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
  */
-contract MinimalERC20 is ERC20, IProtocolTokenMin, ProtocolTokenCommon, ERC20Burnable {
+contract MinimalERC20 is IProtocolTokenMin, ERC20, ProtocolTokenCommon, ERC20Burnable {
     IProtocolTokenHandler _handler;
 
     constructor(string memory _name, string memory _symbol, address _appManagerAddress) ERC20(_name, _symbol) {
