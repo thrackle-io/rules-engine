@@ -40,7 +40,7 @@
 [localDeploymentFoundry-url]: ./nft/DEPLOYMENT-LOCAL.md
 [testnetDeployment-url]: ./nft/DEPLOYMENT-TESTNET.md
 [mainnetDeployment-url]: ./nft/DEPLOYMENT-MAINNET.md
-[customizations-url]: ./nft/CUSTOMIZATIONS.md
+[customizations-url]: ../rules/CUSTOMIZATIONS.md
 [deployAppManager]: DEPLOY-APPMANAGER.md
 [deployProtocol]: DEPLOY-PROTOCOL.md
 [environment-url]: ./SET-ENVIRONMENT.md

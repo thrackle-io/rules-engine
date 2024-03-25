@@ -218,8 +218,8 @@ Keccak256: 0x5cb9147a971eae9c63c04beb424326d7db091a71473987979b49bb1e189f3457
 
 
 <!-- These are the body links -->
-[createAdminRole-url]: ../permissions/ADMIN-CONFIG.md
-[deployAppManager-url]: ./DEPLOY-APPMANAGER.md 
+[createAdminRole-url]: ./ADMIN-CONFIG.md
+[deployAppManager-url]: ../deployment/DEPLOY-APPMANAGER.md 
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor

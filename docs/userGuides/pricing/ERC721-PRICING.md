@@ -6,7 +6,7 @@ This is a protocol template for an ERC721-pricing contract. Any custom-made pric
 
 # Deployment
 
-Refer to the deployment document [here](../deployment/DEPLOY-PRICING.md).
+Refer to the deployment document [here](./DEPLOY-PRICING.md).
 
 # Public Functions
 

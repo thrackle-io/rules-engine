@@ -71,7 +71,7 @@ To be able to use third-party pricing solutions with the protocol, you must make
 
 Once your pricing modules have been deployed, it is time to set their addresses in your appManager handler. The appManager handler needs both variables set to work:
 
-Signing with a ruleAdmin private key (see [admin roles](./ADMIN-CONFIG.md)), do:
+Signing with a ruleAdmin private key (see [admin roles](../permissions/ADMIN-CONFIG.md)), do:
 - For ERC20 pricer:
     ```
     cast send $APP_MANAGER_HANDLER "setERC20PricingAddress(address)()" $APPLICATION_ERC20_PRICER --private-key $RULE_ADMIN_KEY --rpc-url $ETH_RPC_URL
@@ -82,7 +82,7 @@ Signing with a ruleAdmin private key (see [admin roles](./ADMIN-CONFIG.md)), do:
     ```
 
 <!-- These are the body links -->
-[environment-url]: ./SET-ENVIRONMENT.md
+[environment-url]: ../deployment/SET-ENVIRONMENT.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
