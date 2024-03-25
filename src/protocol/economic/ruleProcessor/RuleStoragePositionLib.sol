@@ -27,6 +27,7 @@ library RuleStoragePositionLib {
     bytes32 constant TOKEN_MAX_DAILY_TRADES_POSITION = bytes32(uint256(keccak256("token-max-daily-trades")) - 1);
     bytes32 constant AMM_FEE_RULE_POSITION = bytes32(uint256(keccak256("AMM.fee-rule")) - 1);
     bytes32 constant ACC_MAX_VALUE_OUT_ACCESS_LEVEL_POSITION = bytes32(uint256(keccak256("account-max-value-out-by-access-level")) - 1);
+    bytes32 constant ENABLED_ACTIONS = bytes32(uint256(keccak256("enabled-actions")) - 1);
 
     /**
      * @dev Function to store Trade rules
@@ -199,6 +200,17 @@ library RuleStoragePositionLib {
      */
     function accountMaxValueOutByAccessLevelStorage() internal pure returns (IRuleStorage.AccountMaxValueOutByAccessLevelS storage ds) {
         bytes32 position = ACC_MAX_VALUE_OUT_ACCESS_LEVEL_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
+
+    /**
+     * @dev Function to access storage for EnabledActions
+     * @return ds Data Storage for RuleApplicationValidationFacet - EnabledActions
+     */
+    function enabledActions() internal pure returns (IRuleStorage.EnabledActions storage ds) {
+        bytes32 position = ENABLED_ACTIONS;
         assembly {
             ds.slot := position
         }

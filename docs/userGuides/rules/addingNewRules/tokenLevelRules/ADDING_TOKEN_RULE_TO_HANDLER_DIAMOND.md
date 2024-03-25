@@ -42,7 +42,7 @@ The following function uses the ruleId we received when we created the instance 
 ```c
     function setTokenMinTxSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
         TokenMinTxSizeS storage data = lib.tokenMinTxSizeStorage();
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(createActionTypesArray(_action), _ruleId);
         for (uint i; i < _actions.length; ) {
             data.tokenMinTxSize[_actions[i]].ruleId = _ruleId;
             data.tokenMinTxSize[_actions[i]].active = true;

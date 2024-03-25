@@ -65,10 +65,10 @@ The following function uses the ruleId we received when we created the instance 
 
 ```c
     function setAccountMaxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
-        ruleProcessor.validateAccountMaxValueByRiskScore(_ruleId);
+        ruleProcessor.validateAccountMaxValueByRiskScore(createActionTypesArray(_action), _ruleId);
         accountMaxValueByRiskScoreId = _ruleId;
         accountMaxValueByRiskScoreActive = true;
-        emit ApplicationRuleApplied(BALANCE_BY_RISK, _ruleId);
+        emit ApplicationRuleApplied(ACC_MAX_VALUE_BY_RISK_SCORE, _ruleId);
     }
 ```
 
@@ -78,9 +78,9 @@ The following function is used to activate/deactivate the instance of the rule t
     function activateAccountMaxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress) {
         accountMaxValueByRiskScoreActive = _on;
         if (_on) {
-            emit ApplicationHandlerActivated(BALANCE_BY_RISK);
+            emit ApplicationHandlerActivated(ACC_MAX_VALUE_BY_RISK_SCORE);
         } else {
-            emit ApplicationHandlerDeactivated(BALANCE_BY_RISK);
+            emit ApplicationHandlerDeactivated(ACC_MAX_VALUE_BY_RISK_SCORE);
         }
     }
 ```

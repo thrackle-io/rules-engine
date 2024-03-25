@@ -28,7 +28,7 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ITokenHandler
      * @param _ruleId Rule Id to set
      */
     function setTokenMaxSupplyVolatilityId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxSupplyVolatility(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxSupplyVolatility(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setTokenMaxSupplyVolatilityIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MAX_SUPPLY_VOLATILITY, _actions[i], _ruleId);
@@ -69,7 +69,7 @@ contract HandlerTokenMaxSupplyVolatility is RuleAdministratorOnly, ITokenHandler
      */
     // slither-disable-next-line calls-loop
     function setTokenMaxSupplyVolatilityIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxSupplyVolatility(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMaxSupplyVolatility(createActionTypesArray(_action), _ruleId);
         TokenMaxSupplyVolatilityS storage data = lib.tokenMaxSupplyVolatilityStorage();
         data.tokenMaxSupplyVolatility[_action].ruleId = _ruleId;
         data.tokenMaxSupplyVolatility[_action].active = true;

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {INonTaggedRules, ITaggedRules, IFeeRules, IApplicationRules} from "./RuleDataInterfaces.sol";
+import "../../../common/ActionEnum.sol";
 
 /**
  * @title IRuleStorage
@@ -12,14 +13,14 @@ import {INonTaggedRules, ITaggedRules, IFeeRules, IApplicationRules} from "./Rul
 interface IRuleStorage {
     /**
      * Note The following are market-related oppertation rules. Checks depend on the
-     * accuracy of the method to determine when a transfer is part of a trade and what 
+     * accuracy of the method to determine when a transfer is part of a trade and what
      * direction it is taking (buy or sell).
      */
     /// ******** Account Max Trade Sizes ********
     struct AccountMaxTradeSizeS {
         /// ruleIndex => userType => rules
         mapping(uint32 => mapping(bytes32 => ITaggedRules.AccountMaxTradeSize)) accountMaxTradeSizeRules;
-        mapping(uint32 => uint64) startTimes;///Time the rule is applied
+        mapping(uint32 => uint64) startTimes; ///Time the rule is applied
         uint32 accountMaxTradeSizeIndex;
     }
 
@@ -94,7 +95,7 @@ interface IRuleStorage {
         mapping(uint32 => mapping(uint8 => uint48)) accountMaxValueOutByAccessLevelRules;
         uint32 accountMaxValueOutByAccessLevelIndex;
     }
-    
+
     /*****************************************
     *************** NFT Rules ****************
     /*****************************************/
@@ -130,5 +131,10 @@ interface IRuleStorage {
     struct AMMFeeRuleS {
         mapping(uint32 => IFeeRules.AMMFeeRule) ammFeeRules;
         uint32 ammFeeRuleIndex;
+    }
+
+    /// ******** Storage of RuleApplicationValidationFacet ********
+    struct EnabledActions {
+        mapping(bytes32 => mapping(ActionTypes => bool)) isActionEnabled;
     }
 }

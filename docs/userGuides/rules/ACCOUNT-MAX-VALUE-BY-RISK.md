@@ -21,9 +21,9 @@ risk scores      balances         resultant logic
 ## Applies To Actions:
 
 - [x] MINT
-- [x] BURN
+- [ ] BURN
 - [x] BUY
-- [x] SELL
+- [ ] SELL
 - [x] TRANSFER(Peer to Peer)
   
 ## Scope 
@@ -195,14 +195,14 @@ This rule does not require any data to be recorded.
 - **event AD1467_ProtocolRuleCreated(bytes32 indexed ruleType, uint32 indexed ruleId, bytes32[] extraTags)**: 
     - Emitted when: the rule has been created in the protocol.
     - Parameters:
-        - ruleType: "BALANCE_BY_RISK".
+        - ruleType: "ACC_MAX_VALUE_BY_RISK_SCORE".
         - ruleId: the index of the rule created in the protocol by rule type.
         - extraTags: an empty array.
 
 - **event AD1467_ApplicationHandlerApplied(bytes32 indexed ruleType, ActionTypes _action, address indexed handlerAddress, uint32 indexed ruleId)**:
     - Emitted when: rule has been applied in an application handler.
     - Parameters: 
-        - ruleType: "BALANCE_BY_RISK".
+        - ruleType: "ACC_MAX_VALUE_BY_RISK_SCORE".
         - action: the protocol action the rule is being applied to.
         - handlerAddress: the address of the application handler where the rule has been applied.
         - ruleId: the index of the rule created in the protocol by rule type.

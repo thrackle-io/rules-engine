@@ -167,7 +167,7 @@ contract AppRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents, II
         ApplicationRuleStorage.AccountMaxValueByRiskScore memory rule = ApplicationRuleStorage.AccountMaxValueByRiskScore(_riskScores, _maxValue);
         data.accountMaxValueByRiskScoreRules[ruleId] = rule;
         ++data.accountMaxValueByRiskScoreIndex;
-        emit AD1467_ProtocolRuleCreated(BALANCE_BY_RISK, ruleId, new bytes32[](0));
+        emit AD1467_ProtocolRuleCreated(ACC_MAX_VALUE_BY_RISK_SCORE, ruleId, new bytes32[](0));
         return ruleId;
     }
 }

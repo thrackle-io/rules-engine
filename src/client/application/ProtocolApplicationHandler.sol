@@ -15,6 +15,8 @@ import "src/client/token/ITokenInterface.sol";
 import {IApplicationHandlerEvents, ICommonApplicationHandlerEvents} from "src/common/IEvents.sol";
 import {IZeroAddressError, IAppHandlerErrors} from "src/common/IErrors.sol";
 import "src/client/application/ProtocolApplicationHandlerCommon.sol";
+// import {IZeroAddressError, IInputErrors, IAppHandlerErrors} from "src/common/IErrors.sol";
+import "src/client/common/ActionTypesArray.sol";
 
 /**
  * @title Protocol Application Handler Contract
@@ -24,10 +26,12 @@ import "src/client/application/ProtocolApplicationHandlerCommon.sol";
  */
 contract ProtocolApplicationHandler is
     ProtocolApplicationHandlerCommon,
+    ActionTypesArray,
     Ownable,
     RuleAdministratorOnly,
     IApplicationHandlerEvents,
     ICommonApplicationHandlerEvents,
+    IInputErrors,
     IZeroAddressError,
     IAppHandlerErrors
 {
@@ -348,9 +352,10 @@ contract ProtocolApplicationHandler is
      */
     // slither-disable-next-line calls-loop
     function setAccountMaxValueByRiskScoreIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(ruleProcessor).validateAccountMaxValueByRiskScore(_ruleId);
+        IRuleProcessor(ruleProcessor).validateAccountMaxValueByRiskScore(createActionTypesArray(_action), _ruleId);
         accountMaxValueByRiskScore[_action].ruleId = _ruleId;
         accountMaxValueByRiskScore[_action].active = true;
+        emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_BY_RISK_SCORE, _ruleId);
     }
 
     /**
@@ -393,6 +398,7 @@ contract ProtocolApplicationHandler is
      * @param _actions action types in which to apply the rules
      */
     function setAccountDenyForNoAccessLevelId(ActionTypes[] calldata _actions) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxValueByAccessLevel(_actions, 0);
         for (uint i; i < _actions.length; ++i) {
             setAccountDenyForNoAccessLevelIdUpdate(_actions[i]);
             emit AD1467_ApplicationRuleApplied(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions[i], 0);
@@ -463,6 +469,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxValueOutByAccessLevel(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions[i], _ruleId);
@@ -478,9 +485,7 @@ contract ProtocolApplicationHandler is
     function setAccountMaxValueByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByAccessLevel();
-        for (uint i; i < _actions.length; ++i) {
-            setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
-        }
+        for (uint i; i < _actions.length; ++i) setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions, _ruleIds);
     }
 
@@ -501,7 +506,7 @@ contract ProtocolApplicationHandler is
      */
     // slither-disable-next-line calls-loop
     function setAccountMaxValuebyAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(ruleProcessor).validateAccountMaxValueByAccessLevel(_ruleId);
+        ruleProcessor.validateAccountMaxValueOutByAccessLevel(createActionTypeArray(_actions), _ruleId);
         accountMaxValueByAccessLevel[_action].ruleId = _ruleId;
         accountMaxValueByAccessLevel[_action].active = true;
     }
@@ -631,6 +636,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxTxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxTxValueByRiskScore(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxTxValueByRiskScoreIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions[i], _ruleId);

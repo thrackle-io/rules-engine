@@ -21,7 +21,7 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
      * @param _ruleId Rule Id to set
      */
     function setTokenMinTxSizeId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(lib.handlerBaseStorage().appManager) {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_actions, _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setTokenMinTxSizeIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationHandlerActionApplied(TOKEN_MIN_TX_SIZE, _actions[i], _ruleId);
@@ -62,7 +62,7 @@ contract HandlerTokenMinTxSize is RuleAdministratorOnly, ITokenHandlerEvents, IA
      */
     // slither-disable-next-line calls-loop
     function setTokenMinTxSizeIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(_ruleId);
+        IRuleProcessor(lib.handlerBaseStorage().ruleProcessor).validateTokenMinTxSize(createActionTypesArray(_action), _ruleId);
         TokenMinTxSizeS storage data = lib.tokenMinTxSizeStorage();
         data.tokenMinTxSize[_action].ruleId = _ruleId;
         data.tokenMinTxSize[_action].active = true;
