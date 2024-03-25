@@ -10,13 +10,14 @@ is an overview of this deployment process:
 ![Protocol deployment sequence diagram](../images/ProtocolDeployment.png)
 
 1. Open a new terminal
-2. Set the RPC URL
+2. Create a fresh .env: `touch .env`
+3. Set the RPC URL
    1. Choose the RPC URL that corresponds with the desired environment and chain.
    2. Export it to zsh. The following is an example when working with a local blockchain in the localhost:
         ````
         export ETH_RPC_URL=http://localhost:8545
         ````
-3. Set the Protocol Owner Private Key
+4. Set the Protocol Owner Private Key
    1. This is the private key for the account that will "own" all the protocol contracts and has full permissions to upgrade. It is recommended that this address is a disposable address, and that the ownership of the protocol pass to a multi-signature wallet immediately after deployment. 
    
       *NOTE: This account needs to have sufficient funds to cover deployment costs and ownership transfer.*
@@ -24,18 +25,18 @@ is an overview of this deployment process:
         ````
         export DEPLOYMENT_OWNER_KEY=desired private key
         ```` 
-4. Set the Protocol Owner Address
+5. Set the Protocol Owner Address
    1. This is the account derived from the private key from step 3.
    2. Export it to zsh
         ````
         export DEPLOYMENT_OWNER=<address derived from owner private key>
         ````
-5. In the same terminal as above, ensure that the Foundry installation is current (see troubleshooting section)
+6. In the same terminal as above, ensure that the Foundry installation is current (see troubleshooting section)
    ````
    foundryUp
    ````
 
-6. In the same terminal as above, navigate to the cloned repo directory and run the build script.
+7. In the same terminal as above, navigate to the cloned repo directory and run the build script.
    ````
 	bash script/deploy/DeployProtocol.sh
    ````
@@ -46,26 +47,26 @@ is an overview of this deployment process:
    export FOUNDRY_PROFILE=local
    ````
 
-7. Take note of the output and locate the following addresses(from terminal output or broadcast/DeployAllModulesPt1.s.sol/<YOUR_CHAIN_ID>/run-latest.json). Example:
+8. Take note of the output and locate the following addresses(from terminal output or broadcast/DeployAllModulesPt1.s.sol/<YOUR_CHAIN_ID>/run-latest.json). Example:
    ```
    "hash": "0x1902f5f3c6f2ed24ae3a64c8ddb41e72fb71b57c3404278c965dee920aa6f40f",
    "transactionType": "CREATE",
    "contractName": "RuleProcessorDiamond",
    "contractAddress": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8"
    ```
-8. Note the address for the following contract deployments
+9. Note the address for the following contract deployments
    1. RuleProcessorDiamond
    2. Export it to zsh
         ````
         export RULE_PROCESSOR_DIAMOND=0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8(substitute with your deployed RuleProcessorDiamond contract address)
         ````
-9. Set the version of the protocol:
+10. Set the version of the protocol:
    ```
    cast send $RULE_PROCESSOR_DIAMOND "updateVersion(string)()" <PROTOCOL_VERSION> --private-key $DEPLOYMENT_OWNER_KEY --rpc-url ETH_RPC_URL
    ```
    *substitute <PROTOCOL_VERSION> with the proper value. i.e: "1.1.0".*
 
-10. (Optional) If a multi-sig wallet is to hold the protocol's ownership, then:
+11. (Optional) If a multi-sig wallet is to hold the protocol's ownership, then:
       1. Export the multi-sig address to zsh:
          ```
          export MULTISIG_WALLET=<MULTI-SIG_ADDRESS>
