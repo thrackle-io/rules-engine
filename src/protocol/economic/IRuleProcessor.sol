@@ -59,23 +59,18 @@ interface IRuleProcessor {
     function checkBalanceByAccessLevelPasses(uint32 _ruleId, uint8 _accessLevel, uint256 _balance, uint256 _amountToTransfer) external view;
 
     /**
-     * @dev This function receives a rule id for AccountMaxBuySize details and checks that transaction passes.
+     * @dev Rule checks if recipient balance + amount exceeded max amount for that action type during rule period, prevent transactions for that action for freeze period
      * @param ruleId Rule identifier for rule arguments
-     * @param boughtInPeriod Number of tokens purchased within purchase Period
+     * @param transactedInPeriod Number of tokens transacted during Period
      * @param amount Number of tokens to be transferred
      * @param toTags Account tags applied to sender via App Manager
-     * @param lastUpdateTime block.timestamp of most recent transaction from sender.
+     * @param lastTransactionTime block.timestamp of most recent transaction transaction from sender for action type.
+     * @return cumulativeTotal total amount of tokens bought or sold within Trade period.
+     * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through 
+     * tags and check for specific application. This was done in a minimal way to allow for  
+     * modifications later while not duplicating rule check logic.
      */
-    function checkAccountMaxBuySize(uint32 ruleId, uint256 boughtInPeriod, uint256 amount, bytes32[] calldata toTags, uint64 lastUpdateTime) external view returns (uint256);
-
-    /**
-     * @dev This function receives a rule id for AccountMaxSellSize details and checks that transaction passes.
-     * @param ruleId Rule identifier for rule arguments
-     * @param amount Number of tokens to be transferred
-     * @param fromTags Account tags applied to sender via App Manager
-     * @param lastUpdateTime block.timestamp of most recent transaction from sender.
-     */
-    function checkAccountMaxSellSize(uint32 ruleId, uint256 salesInPeriod, uint256 amount, bytes32[] calldata fromTags, uint64 lastUpdateTime) external view returns (uint256);
+    function checkAccountMaxTradeSize(uint32 ruleId, uint256 transactedInPeriod, uint256 amount, bytes32[] memory toTags, uint64 lastTransactionTime) external view returns (uint256);
 
     /**
      * @dev Check the minimum/maximum rule through the AMM Swap
@@ -161,6 +156,16 @@ interface IRuleProcessor {
     function checkAccountMaxTxValueByRiskScore(uint32 ruleId, uint128 _valueTransactedInPeriod, uint128 amount, uint64 lastTxDate, uint8 riskScore) external view returns (uint128);
 
     /**
+     * @dev Function receives a rule id, retrieves the rule data and checks if the Token Max Buy Sell Volume Rule passes
+     * @param ruleId id of the rule to be checked
+     * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
+     * @param amountToTransfer total number of tokens to be transferred in transaction.
+     * @param lastTransactionTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
+     * @param totalWithinPeriod total amount of tokens sold within current period
+     */
+    function checkTokenMaxBuySellVolume(uint32 ruleId, uint256 currentTotalSupply, uint256 amountToTransfer, uint64 lastTransactionTime, uint256 totalWithinPeriod) external view returns (uint256);
+
+    /**
      * @dev Ensure that AccountDenyForNoAccessLevel passes.
      * @param _accessLevel account access level
      *
@@ -183,32 +188,6 @@ interface IRuleProcessor {
      * @param _dataServer address of the Application Rule Processor Diamond contract
      */
     function checkPauseRules(address _dataServer) external view;
-
-    /**
-     * @dev Function receives a rule id, retrieves the rule data and checks if the TokenMaxBuyVolume Rule passes
-     * @param ruleId id of the rule to be checked
-     * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
-     * @param amountToTransfer total number of tokens to be transferred in transaction.
-     * @param lastPurchaseTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
-     */
-    function checkTokenMaxBuyVolume(
-        uint32 ruleId,
-        uint256 currentTotalSupply,
-        uint256 amountToTransfer,
-        uint64 lastPurchaseTime,
-        uint256 totalBoughtInPeriod
-    ) external view returns (uint256);
-
-    /**
-     * @dev Function receives a rule id, retrieves the rule data and checks if the TokenMaxSellVolume Rule passes
-     * @param ruleId id of the rule to be checked
-     * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
-     * @param amountToTransfer total number of tokens to be transferred in transaction.
-     * @param lastSellTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
-     * @param totalSoldInPeriod total amount of tokens sold during period.
-     */
-    function checkTokenMaxSellVolume(uint32 ruleId, uint256 currentTotalSupply, uint256 amountToTransfer, uint64 lastSellTime, uint256 totalSoldInPeriod) external view returns (uint256);
-
 
     /**
      * @dev Rule checks if the token max trading volume rule will be violated.
@@ -282,13 +261,7 @@ interface IRuleProcessor {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateAccountMaxBuySize(uint32 _ruleId) external view;
-
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
-    function validateAccountMaxSellSize(uint32 _ruleId) external view;
+    function validateAccountMaxTradeSize(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule
@@ -312,13 +285,7 @@ interface IRuleProcessor {
      * @dev Validate the existence of the rule
      * @param _ruleId Rule Identifier
      */
-    function validateTokenMaxBuyVolume(uint32 _ruleId) external view;
-
-    /**
-     * @dev Validate the existence of the rule
-     * @param _ruleId Rule Identifier
-     */
-    function validateTokenMaxSellVolume(uint32 _ruleId) external view;
+    function validateTokenMaxBuySellVolume(uint32 _ruleId) external view;
 
     /**
      * @dev Validate the existence of the rule

@@ -17,9 +17,9 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
     using RuleProcessorCommonLib for bytes32[]; 
 
 
-    /********************** Account Max Buy Size ***********************/
+    /********************** Account Max Trade Size ***********************/
     /**
-     * @dev Function add an Account Max Buy Size rule
+     * @dev Function add an Account Max Trade Size rule
      * @dev Function has RuleAdministratorOnly Modifier and takes AppManager Address Param
      * @param _appManagerAddr Address of App Manager
      * @param _accountTypes Types of Accounts
@@ -28,10 +28,10 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _startTime timestamp period to start
      * @return position of new rule in array
      */
-    function addAccountMaxBuySize(
+    function addAccountMaxTradeSize(
         address _appManagerAddr,
         bytes32[] calldata _accountTypes,
-        uint256[] calldata _maxSizes,
+        uint192[] calldata _maxSizes,
         uint16[] calldata _periods,
         uint64 _startTime
     ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
@@ -39,9 +39,8 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
         /// since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
         if (_accountTypes.length == 0) revert InvalidRuleInput();
         _accountTypes.validateTags();
-        return _addAccountMaxBuySize(_accountTypes, _maxSizes, _periods, _startTime);
+        return _addAccountMaxTradeSize(_accountTypes, _maxSizes, _periods, _startTime);
     }
-
     /**
      * @dev Internal Function to avoid stack too deep error
      * @param _accountTypes Types of Accounts
@@ -50,74 +49,27 @@ contract TaggedRuleDataFacet is Context, RuleAdministratorOnly, IEconomicEvents,
      * @param _startTime timestamp for first period to start
      * @return position of new rule in array
      */
-    function _addAccountMaxBuySize(bytes32[] calldata _accountTypes, uint256[] calldata _maxSizes, uint16[] calldata _periods, uint64 _startTime) internal returns (uint32) {
-        RuleS.AccountMaxBuySizeS storage data = Storage.accountMaxBuySizeStorage();
-        uint32 index = data.accountMaxBuySizeIndex;
+    function _addAccountMaxTradeSize(bytes32[] calldata _accountTypes, uint192[] calldata _maxSizes, uint16[] calldata _periods, uint64 _startTime) internal returns (uint32) {
+        RuleS.AccountMaxTradeSizeS storage data = Storage.accountMaxTradeSizeStorage();
+        uint32 index = data.accountMaxTradeSizeIndex;
         _startTime.validateTimestamp();
         for (uint256 i; i < _accountTypes.length; ) {
-            if (_maxSizes[i] == 0 || _periods[i] == 0) revert ZeroValueNotPermited();
-            data.accountMaxBuySizeRules[index][_accountTypes[i]] = TaggedRules.AccountMaxBuySize(_maxSizes[i], _periods[i]);
+            if (_periods[i] == 0 || _maxSizes[0] == 0) revert ZeroValueNotPermited();
+            data.accountMaxTradeSizeRules[index][_accountTypes[i]] = TaggedRules.AccountMaxTradeSize(_maxSizes[i], _periods[i]);
 
             unchecked {
                 ++i;
             }
         }
         data.startTimes[index] = _startTime;
-        emit AD1467_ProtocolRuleCreated(ACCOUNT_MAX_BUY_SIZE, index, _accountTypes);
-        ++data.accountMaxBuySizeIndex;
+        emit AD1467_ProtocolRuleCreated(ACCOUNT_MAX_TRADE_SIZE, index, _accountTypes);
+        ++data.accountMaxTradeSizeIndex;
         return index;
     }
 
-    /********************** Account Max Sell Size **********************/
 
-    /**
-     * @dev Function to add an Account Max Sell Size rules
-     * @param _appManagerAddr Address of App Manager
-     * @param _accountTypes Types of Accounts
-     * @param _maxSizes Allowed total sell sizes
-     * @param _period Amount of hours that define the periods
-     * @param _startTime rule starts
-     * @return position of new rule in array
-     */
-    function addAccountMaxSellSize(
-        address _appManagerAddr,
-        bytes32[] calldata _accountTypes,
-        uint192[] calldata _maxSizes,
-        uint16[] calldata _period,
-        uint64 _startTime
-    ) external ruleAdministratorOnly(_appManagerAddr) returns (uint32) {
-        if (_appManagerAddr == address(0)) revert ZeroAddress();
-        if (_accountTypes.length != _maxSizes.length || _accountTypes.length != _period.length) revert InputArraysMustHaveSameLength();
-        /// since all the arrays must have matching lengths, it is only necessary to check for one of them being empty.
-        if (_accountTypes.length == 0) revert InvalidRuleInput();
-        _accountTypes.validateTags();
-        return _addAccountMaxSellSize(_accountTypes, _maxSizes, _period, _startTime);
-    }
 
-    /**
-     * @dev Internal Function to avoid stack too deep error
-     * @param _accountTypes Types of Accounts
-     * @param _maxSizes Allowed total sell limits
-     * @param _period Period for sales
-     * @param _startTime rule starts
-     * @return position of new rule in array
-     */
-    function _addAccountMaxSellSize(bytes32[] calldata _accountTypes, uint192[] calldata _maxSizes, uint16[] calldata _period, uint64 _startTime) internal returns (uint32) {
-        RuleS.AccountMaxSellSizeS storage data = Storage.accountMaxSellSizeStorage();
-        uint32 index = data.AccountMaxSellSizesIndex;
-        _startTime.validateTimestamp();
-        for (uint256 i; i < _accountTypes.length; ) {
-            if (_maxSizes[i] == 0 || _period[i] == 0) revert ZeroValueNotPermited();
-            data.AccountMaxSellSizesRules[index][_accountTypes[i]] = TaggedRules.AccountMaxSellSize(_maxSizes[i], _period[i]);
-            unchecked {
-                ++i;
-            }
-        }
-        data.startTimes[index] = _startTime;
-        emit AD1467_ProtocolRuleCreated(ACCOUNT_MAX_SELL_SIZE, index, _accountTypes);
-        ++data.AccountMaxSellSizesIndex;
-        return index;
-    }
+
 
     /********************** Account Min Max Token Balance ***********************/
 

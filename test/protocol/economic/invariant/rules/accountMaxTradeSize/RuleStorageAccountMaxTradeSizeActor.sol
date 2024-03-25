@@ -5,11 +5,11 @@ import {RuleStorageInvariantActorCommon} from "test/protocol/economic/invariant/
 import "test/util/TestCommonFoundry.sol";
 
 /**
- * @title RuleStorageAccountMaxSellSizeActor
+ * @title RuleStorageAccountMaxTradeSizeActor
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55
- * @dev This is the rule storage handler for the AccountMaxSellSize rule. It will create the rule in the diamond and keep a total of how many it adds.
+ * @dev This is the rule storage handler for the AccountMaxTradeSize rule. It will create the rule in the diamond and keep a total of how many it adds.
  */
-contract RuleStorageAccountMaxSellSizeActor is TestCommonFoundry, RuleStorageInvariantActorCommon {
+contract RuleStorageAccountMaxTradeSizeActor is TestCommonFoundry, RuleStorageInvariantActorCommon {
 
     constructor(RuleProcessorDiamond _processor, ApplicationAppManager _applicationAppManager){
         processor = _processor;
@@ -19,8 +19,8 @@ contract RuleStorageAccountMaxSellSizeActor is TestCommonFoundry, RuleStorageInv
     /**
      * @dev add the rule to the diamond 
      */
-    function addAccountMaxSellSize(bytes32 _tag, uint192 _max, uint16 _period) public returns (uint32 _ruleId){
-        _ruleId = TaggedRuleDataFacet(address(processor)).addAccountMaxSellSize(
+    function addAccountMaxTradeSize(bytes32 _tag, uint192 _max, uint16 _period) public returns (uint32 _ruleId){
+        _ruleId = TaggedRuleDataFacet(address(processor)).addAccountMaxTradeSize(
             address(appManager), 
             createBytes32Array(_tag), 
             createUint192Array(_max), 

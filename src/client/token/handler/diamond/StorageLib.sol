@@ -27,6 +27,8 @@ library StorageLib {
     bytes32 constant TOKEN_MAX_DAILY_TRADES_HANDLER_POSITION = bytes32(uint256(keccak256("nft-max-daily-trades-position")) - 1);
     bytes32 constant NFT_VALUATION_LIMIT_POSITION = bytes32(uint256(keccak256("nft-valuation-position")) - 1);
     bytes32 constant INITIALIZED_POSITION = bytes32(uint256(keccak256("initialized-position")) - 1);
+    bytes32 constant TOKEN_MAX_BUY_SELL_VOLUME_HANDLER_POSITION = bytes32(uint256(keccak256("token-max-buy-sell-position")) - 1);
+    bytes32 constant ACCOUNT_MAX_TRADE_SIZE_HANDLER_POSITION = bytes32(uint256(keccak256("account-max-trading-size-handler-postion")) - 1);
     
     /**
      * @dev Function to store the Initialized flag
@@ -62,44 +64,22 @@ library StorageLib {
     }
 
     /**
-     * @dev Function to store Account Max Buy Size rules
-     * @return ds Data Storage of Account Max Buy Size Rule
+     * @dev Function to store Max Trade Size rules
+     * @return ds Data Storage of Max Trade Size Rule
      */
-    function accountMaxBuySizeStorage() internal pure returns (AccountMaxBuySizeS storage ds) {
-        bytes32 position = ACCOUNT_MAX_BUY_SIZE_HANDLER_POSITION;
+    function accountMaxTradeSizeStorage() internal pure returns (AccountMaxTradeSizeS storage ds) {
+        bytes32 position = ACCOUNT_MAX_TRADE_SIZE_HANDLER_POSITION;
         assembly {
             ds.slot := position
         }
     }
 
     /**
-     * @dev Function to store Max Sell Size rules
-     * @return ds Data Storage of Max Sell Size Rule
+     * @dev Function to store Token Max Buy Sell Volume rules
+     * @return ds Data Storage of Token Max Buy Sell Volume Rule
      */
-    function accountMaxSellSizeStorage() internal pure returns (AccountMaxSellSizeS storage ds) {
-        bytes32 position = ACCOUNT_MAX_SELL_SIZE_HANDLER_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
-
-    /**
-     * @dev Function to store Token Max Buy Volume rules
-     * @return ds Data Storage of Token Max Buy Volume Rule
-     */
-    function tokenMaxBuyVolumeStorage() internal pure returns (TokenMaxBuyVolumeS storage ds) {
-        bytes32 position = TOKEN_MAX_BUY_VOLUME_HANDLER_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
-
-    /**
-     * @dev Function to store Token Max Sell Volume rules
-     * @return ds Data Storage of Token Max Sell Volume Rule
-     */
-    function tokenMaxSellVolumeStorage() internal pure returns (TokenMaxSellVolumeS storage ds) {
-        bytes32 position = TOKEN_MAX_SELL_VOLUME_HANDLER_POSITION;
+    function tokenMaxBuySellVolumeStorage() internal pure returns (TokenMaxBuySellVolumeS storage ds) {
+        bytes32 position = TOKEN_MAX_BUY_SELL_VOLUME_HANDLER_POSITION;
         assembly {
             ds.slot := position
         }

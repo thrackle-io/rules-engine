@@ -69,6 +69,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x0e0449c8 | DateInThePast(uint256)                                           |
 | 0xa7fb7b4b | TxnInFreezeWindow()                                              |
 | 0x91985774 | OverMaxSellSize()                                                |
+| 0x523976c2 | OverMaxSize()                                                 |
 | 0x522df7fd | StartTimeNotValid()                                              |
 | 0xce406c16 | OverMaxTxValueByRiskScore(uint8,uint256)                         |
 | 0xd3bfb295 | InvalidHourOfTheDay()                                            |
@@ -86,6 +87,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0x6f65fbb7 | BalanceAmountsShouldHave5Levels(uint8)                           |
 | 0x8312246e | OverMaxAccValueByRiskScore()                                     |
 | 0x2b3f1e6e | InvalidTimeUnit()                                                |
+| 0x523976c2 | InvalidAction()                                                  |
 | 0x90b8ec18 | TransferFailed()                                                 |
 | 0xfe5d1090 | RiskLevelCannotExceed99()                                        |
 | 0x06b5c782 | TokenNotAvailableToWithdraw()                                    |
@@ -102,8 +104,7 @@ An online Keccak-256 hash digester can be found at https://emn178.github.io/onli
 | 0xa3afb2e2 | MaxTagLimitReached()                                             |
 | 0x7de8c17d | NoAddressToRemove()                                              |
 | 0xf9432cf8 | WithdrawalAmountsShouldHave5Levels(uint8)                        |
-| 0x6a46d1f4 | OverMaxBuyVolume()                                               |
-| 0x806a3391 | OverMaxSellVolume()                                              |
+| 0xfa006f25 | OverMaxVolume()                                                  |
 | 0x009da0ce | OverMaxTradingVolume()                                           |
 | 0xa93074f9 | MintFeeNotReached()                                              |
 | 0x834f37b6 | TreasuryAddressCannotBeTokenContract()                           |

@@ -2,19 +2,19 @@
 pragma solidity ^0.8.17;
 
 import "test/protocol/economic/invariant/rules/util/RuleStorageInvariantCommon.sol";
-import {RuleStorageTokenMaxSellVolumeActor} from "./RuleStorageTokenMaxSellVolumeActor.sol";
-import "./RuleStorageTokenMaxSellVolumeActorManager.sol";
+import {RuleStorageTokenMaxBuySellVolumeActor} from "./RuleStorageTokenMaxBuySellVolumeActor.sol";
+import "./RuleStorageTokenMaxBuySellVolumeActorManager.sol";
 
 /**
- * @title RuleStorageTokenMaxSellVolumeMultiTest
+ * @title RuleStorageTokenMaxBuySellVolumeMultiTest
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55
  * @dev This is the multi actor rule storage invariant test for multiple actors.
  */
 
-contract RuleStorageTokenMaxSellVolumeMultiTest is RuleStorageInvariantCommon {
-    RuleStorageTokenMaxSellVolumeActorManager actorManager;
-    RuleStorageTokenMaxSellVolumeActor[] actors;
-    NonTaggedRules.TokenMaxSellVolume ruleBefore;
+contract RuleStorageTokenMaxBuySellVolumeMultiTest is RuleStorageInvariantCommon {
+    RuleStorageTokenMaxBuySellVolumeActorManager actorManager;
+    RuleStorageTokenMaxBuySellVolumeActor[] actors;
+    NonTaggedRules.TokenMaxBuySellVolume ruleBefore;
 
     function setUp() public {
         prepRuleStorageInvariant();
@@ -24,7 +24,7 @@ contract RuleStorageTokenMaxSellVolumeMultiTest is RuleStorageInvariantCommon {
             switchToSuperAdmin();
             actorAppManager.addAppAdministrator(appAdministrator);
             actors.push(
-                new RuleStorageTokenMaxSellVolumeActor(
+                new RuleStorageTokenMaxBuySellVolumeActor(
                     ruleProcessor,
                     actorAppManager
                 )
@@ -36,9 +36,9 @@ contract RuleStorageTokenMaxSellVolumeMultiTest is RuleStorageInvariantCommon {
                 );
             }
         }
-        actorManager = new RuleStorageTokenMaxSellVolumeActorManager(actors);
+        actorManager = new RuleStorageTokenMaxBuySellVolumeActorManager(actors);
         switchToRuleAdmin();
-        index = RuleDataFacet(address(ruleProcessor)).addTokenMaxSellVolume(
+        index = RuleDataFacet(address(ruleProcessor)).addTokenMaxBuySellVolume(
             address(applicationAppManager),
             5000,
             24,
@@ -46,12 +46,12 @@ contract RuleStorageTokenMaxSellVolumeMultiTest is RuleStorageInvariantCommon {
             uint64(block.timestamp)
         );
         ruleBefore = ERC20RuleProcessorFacet(address(ruleProcessor))
-            .getTokenMaxSellVolume(index);
+            .getTokenMaxBuySellVolume(index);
         targetContract(address(actorManager));
     }
 
     // The total amount of rules will never decrease.
-    function invariant_rulesTotalTokenMaxSellVolumeNeverDecreases()
+    function invariant_rulesTotalTokenMaxBuySellVolumeNeverDecreases()
         public
         view
     {
@@ -63,12 +63,12 @@ contract RuleStorageTokenMaxSellVolumeMultiTest is RuleStorageInvariantCommon {
         assertLe(
             index + 1,
             ERC20RuleProcessorFacet(address(ruleProcessor))
-                .getTotalTokenMaxSellVolume()
+                .getTotalTokenMaxBuySellVolume()
         );
     }
 
     // The biggest ruleId in a rule type will always be the same as the total amount of rules registered in the protocol for that rule type - 1.
-    function invariant_rulesTotalTokenMaxSellVolumeEqualsAppBalances()
+    function invariant_rulesTotalTokenMaxBuySellVolumeEqualsAppBalances()
         public
         view
     {
@@ -79,33 +79,33 @@ contract RuleStorageTokenMaxSellVolumeMultiTest is RuleStorageInvariantCommon {
         console.log(total);
         console.log(
             ERC20RuleProcessorFacet(address(ruleProcessor))
-                .getTotalTokenMaxSellVolume()
+                .getTotalTokenMaxBuySellVolume()
         );
         // adding 1 to total for the initial rule created in the setup function
         assertEq(
             total + 1,
             ERC20RuleProcessorFacet(address(ruleProcessor))
-                .getTotalTokenMaxSellVolume()
+                .getTotalTokenMaxBuySellVolume()
         );
     }
 
     // There can be only a total of 2**32 of each rule type.
-    function invariant_rulesTotalTokenMaxSellVolumeLessThanMax() public view {
+    function invariant_rulesTotalTokenMaxBuySellVolumeLessThanMax() public view {
         assertLe(
             ERC20RuleProcessorFacet(address(ruleProcessor))
-                .getTotalTokenMaxSellVolume(),
+                .getTotalTokenMaxBuySellVolume(),
             maxRuleCount
         );
     }
 
     /// The next ruleId created in a specific rule type will always be the same as the previous ruleId + 1.
-    function invariant_rulesTotalTokenMaxSellVolumeIncrementsByOne() public {
+    function invariant_rulesTotalTokenMaxBuySellVolumeIncrementsByOne() public {
         uint256 previousTotal = ERC20RuleProcessorFacet(address(ruleProcessor))
-            .getTotalTokenMaxSellVolume();
+            .getTotalTokenMaxBuySellVolume();
         // not incrementing previousTotal by one due to zero based ruleId
         assertEq(
             previousTotal,
-            RuleDataFacet(address(ruleProcessor)).addTokenMaxSellVolume(
+            RuleDataFacet(address(ruleProcessor)).addTokenMaxBuySellVolume(
                 address(applicationAppManager),
                 5000,
                 24,
@@ -116,10 +116,10 @@ contract RuleStorageTokenMaxSellVolumeMultiTest is RuleStorageInvariantCommon {
     }
 
     // Rules can never be modified.
-    function invariant_TokenMaxSellVolumeImmutable() public view {
-        NonTaggedRules.TokenMaxSellVolume
+    function invariant_TokenMaxBuySellVolumeImmutable() public view {
+        NonTaggedRules.TokenMaxBuySellVolume
             memory ruleAfter = ERC20RuleProcessorFacet(address(ruleProcessor))
-                .getTokenMaxSellVolume(index);
+                .getTokenMaxBuySellVolume(index);
         assertEq(ruleBefore.tokenPercentage, ruleAfter.tokenPercentage);
         assertEq(ruleBefore.period, ruleAfter.period);
         assertEq(ruleBefore.totalSupply, ruleAfter.totalSupply);

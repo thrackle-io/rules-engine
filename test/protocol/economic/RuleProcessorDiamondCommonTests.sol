@@ -115,62 +115,10 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
         VersionFacet(address(ruleProcessor)).updateVersion("6,6,6"); // this is done to avoid upgrade_version-script replace this version
     }
 
-    /*********************** AccountMaxBuySize *******************/
-    function _createAccountMaxBuySetUp() internal returns (uint32) {
+    /************************ AccountMaxTradeSize *************************/
+    function _createAccountMaxTradeSetUp() internal returns (uint32) {
         switchToRuleAdmin();
-        bytes32[] memory accs = createBytes32Array("Oscar", "Tayler", "Shane");
-        uint256[] memory pAmounts = createUint256Array(1000, 2000, 3000);
-        uint16[] memory pPeriods = createUint16Array(100, 101, 102);
-        uint64 sTime = 16;
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(address(applicationAppManager), accs, pAmounts, pPeriods, sTime);
-        return ruleId;
-    }
-
-    /// Simple setting and getting
-    function testProtocol_RuleProcessorDiamond_AccountMaxBuySizeSettingStorage() public endWithStopPrank ifDeploymentTestsEnabled {
-        uint32 _index = _createAccountMaxBuySetUp();
-        assertEq(_index, 0);
-    }
-
-    /// Test only ruleAdministrators can add AccountMaxBuySize Rule
-    function testProtocol_RuleProcessorDiamond_AccountMaxBuySizeSettingRuleWithoutAppAdministratorAccount() public endWithStopPrank ifDeploymentTestsEnabled {
-        vm.startPrank(address(0xDEAD)); //interact as a different user
-        vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(
-            address(applicationAppManager),
-            createBytes32Array("Oscar", "Tayler", "Shane"),
-            createUint256Array(1000, 2000, 3000),
-            createUint16Array(100, 101, 102),
-            16
-        );
-    }
-
-    /// Test mismatched arrays sizes
-    function testProtocol_RuleProcessorDiamond_AccountMaxBuySizeSettingWithArraySizeMismatch() public endWithStopPrank ifDeploymentTestsEnabled {
-        switchToRuleAdmin();
-        vm.expectRevert(0x028a6c58);
-        TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxBuySize(
-            address(applicationAppManager),
-            createBytes32Array("Oscar", "Tayler", "Shane"),
-            createUint256Array(1000, 2000),
-            createUint16Array(100, 101, 102),
-            16
-        );
-    }
-
-    /// Test total rules
-    function testProtocol_RuleProcessorDiamond_AccountMaxBuySizeTotalRules() public endWithStopPrank ifDeploymentTestsEnabled {
-        uint256[101] memory _indexes;
-        for (uint8 i = 0; i < _indexes.length; i++) {
-            _indexes[i] = _createAccountMaxBuySetUp();
-        }
-        assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAccountMaxBuySize(), _indexes.length);
-    }
-
-    /************************ AccountMaxSellSize *************************/
-    function _createAccountMaxSellSetUp() internal returns (uint32) {
-        switchToRuleAdmin();
-        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxSellSize(
+        uint32 ruleId = TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxTradeSize(
             address(applicationAppManager),
             createBytes32Array("Oscar", "Tayler", "Shane"),
             createUint192Array(1000, 2000, 3000),
@@ -181,26 +129,26 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
     }
 
     /// Simple setting and getting
-    function testProtocol_RuleProcessorDiamond_AccountMaxSellSizeSetting() public endWithStopPrank ifDeploymentTestsEnabled {
-        uint32 _index = _createAccountMaxSellSetUp();
-        TaggedRules.AccountMaxSellSize memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMaxSellSize(_index, "Oscar");
+    function testProtocol_RuleProcessorDiamond_AccountMaxTradeSizeSetting() public endWithStopPrank ifDeploymentTestsEnabled {
+        uint32 _index = _createAccountMaxTradeSetUp();
+        TaggedRules.AccountMaxTradeSize memory rule = ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getAccountMaxTradeSize(_index, "Oscar");
         assertEq(rule.maxSize, 1000);
         assertEq(rule.period, 24);
         assertEq(_index, 0);
     }
 
-    /// Test only ruleAdministrators can add AccountMaxSellSize Rule
-    function testProtocol_RuleProcessorDiamond_AccountMaxSellSizeSettingWithoutAppAdministratorAccount() public endWithStopPrank ifDeploymentTestsEnabled {
+    /// Test only ruleAdministrators can add AccountMaxTradeSize Rule
+    function testProtocol_RuleProcessorDiamond_AccountMaxTradeSizeSettingWithoutAppAdministratorAccount() public endWithStopPrank ifDeploymentTestsEnabled {
         vm.startPrank(address(0xDEAD)); //interact as a different user
         vm.expectRevert(0xd66c3008);
-        TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxSellSize(address(applicationAppManager), createBytes32Array("Oscar"), createUint192Array(1000), createUint16Array(24), Blocktime);
+        TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxTradeSize(address(applicationAppManager), createBytes32Array("Oscar"), createUint192Array(1000), createUint16Array(24), Blocktime);
     }
 
     /// Test mismatched arrays sizes
-    function testProtocol_RuleProcessorDiamond_AccountMaxSellSizeSettingWithArraySizeMismatch() public endWithStopPrank ifDeploymentTestsEnabled {
+    function testProtocol_RuleProcessorDiamond_AccountMaxTradeSizeSettingWithArraySizeMismatch() public endWithStopPrank ifDeploymentTestsEnabled {
         switchToRuleAdmin();
         vm.expectRevert(0x028a6c58);
-        TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxSellSize(
+        TaggedRuleDataFacet(address(ruleProcessor)).addAccountMaxTradeSize(
             address(applicationAppManager),
             createBytes32Array("Oscar", "Tayler", "Shane"),
             createUint192Array(1000),
@@ -210,12 +158,12 @@ abstract contract RuleProcessorDiamondCommonTests is Test, TestCommonFoundry, ER
     }
 
     /// Test total rules
-    function testProtocol_RuleProcessorDiamond_AccountMaxSellSizeTotalRules() public endWithStopPrank ifDeploymentTestsEnabled {
+    function testProtocol_RuleProcessorDiamond_AccountMaxTradeSizeTotalRules() public endWithStopPrank ifDeploymentTestsEnabled {
         uint256[101] memory _indexes;
         for (uint8 i = 0; i < _indexes.length; i++) {
-            _indexes[i] = _createAccountMaxSellSetUp();
+            _indexes[i] = _createAccountMaxTradeSetUp();
         }
-        assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAccountMaxSellSize(), _indexes.length);
+        assertEq(ERC20TaggedRuleProcessorFacet(address(ruleProcessor)).getTotalAccountMaxTradeSize(), _indexes.length);
     }
 
     /************************ PurchaseFeeByVolumeRule **********************/

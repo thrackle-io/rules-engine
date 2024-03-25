@@ -15,33 +15,18 @@ interface IRuleStorage {
      * accuracy of the method to determine when a transfer is part of a trade and what 
      * direction it is taking (buy or sell).
      */
-    
-    /// ******** Account Max Buy Sizes ********
-    struct AccountMaxBuySizeS {
+    /// ******** Account Max Trade Sizes ********
+    struct AccountMaxTradeSizeS {
         /// ruleIndex => userType => rules
-        mapping(uint32 => mapping(bytes32 => ITaggedRules.AccountMaxBuySize)) accountMaxBuySizeRules;
+        mapping(uint32 => mapping(bytes32 => ITaggedRules.AccountMaxTradeSize)) accountMaxTradeSizeRules;
         mapping(uint32 => uint64) startTimes;///Time the rule is applied
-        uint32 accountMaxBuySizeIndex;
+        uint32 accountMaxTradeSizeIndex;
     }
 
-    /// ******** Account Max Sell Sizes ********
-    struct AccountMaxSellSizeS {
-        /// ruleIndex => userType => rules
-        mapping(uint32 => mapping(bytes32 => ITaggedRules.AccountMaxSellSize)) AccountMaxSellSizesRules;
-        mapping(uint32 => uint64) startTimes;///Time the rule is applied
-        uint32 AccountMaxSellSizesIndex;
-    }
-
-    /// ******** Token Max Buy Volume ********
-    struct TokenMaxBuyVolumeS {
-        mapping(uint32 => INonTaggedRules.TokenMaxBuyVolume) tokenMaxBuyVolumeRules;
-        uint32 tokenMaxBuyVolumeIndex;
-    }
-
-    /// ******** Token Max Sell Volume Rules ********
-    struct TokenMaxSellVolumeS {
-        mapping(uint32 => INonTaggedRules.TokenMaxSellVolume) tokenMaxSellVolumeRules;
-        uint32 tokenMaxSellVolumeIndex;
+    /// ******** Token Max Buy Sell Volume ********
+    struct TokenMaxBuySellVolumeS {
+        mapping(uint32 => INonTaggedRules.TokenMaxBuySellVolume) tokenMaxBuySellVolumeRules;
+        uint32 tokenMaxBuySellVolumeIndex;
     }
 
     /// ******** Token Purchase Fee By Volume Rules ********

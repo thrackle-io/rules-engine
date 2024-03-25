@@ -217,35 +217,35 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     }
 
     /**
-     * @dev Rule checks if recipient balance + amount exceeded purchaseAmount during purchase period, prevent purchases for freeze period
+     * @dev Rule checks if recipient balance + amount exceeded max amount for that action type during rule period, prevent transactions for that action for freeze period
      * @param ruleId Rule identifier for rule arguments
-     * @param boughtInPeriod Number of tokens bought during Period
+     * @param transactedInPeriod Number of tokens transacted during Period
      * @param amount Number of tokens to be transferred
      * @param toTags Account tags applied to sender via App Manager
-     * @param lastUpdateTime block.timestamp of most recent transaction from sender.
-     * @return cumulativeTotal total amount of tokens bought within buy period.
+     * @param lastTransactionTime block.timestamp of most recent transaction transaction from sender for action type.
+     * @return cumulativeTotal total amount of tokens bought or sold within Trade period.
      * @notice If the rule applies to all users, it checks blank tag only. Otherwise loop through 
      * tags and check for specific application. This was done in a minimal way to allow for  
      * modifications later while not duplicating rule check logic.
      */
-    function checkAccountMaxBuySize(uint32 ruleId, uint256 boughtInPeriod, uint256 amount, bytes32[] memory toTags, uint64 lastUpdateTime) external view returns (uint256) {
+    function checkAccountMaxTradeSize(uint32 ruleId, uint256 transactedInPeriod, uint256 amount, bytes32[] memory toTags, uint64 lastTransactionTime) external view returns (uint256) {
         toTags.checkMaxTags();
-        uint64 startTime = getAccountMaxBuySizeStart(ruleId);
+        uint64 startTime = getAccountMaxTradeSizeStart(ruleId);
         uint256 cumulativeTotal = 0;
         // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
         // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
         // slither-disable-next-line timestamp
         if (startTime <= block.timestamp){
-            if(getAccountMaxBuySize(ruleId, BLANK_TAG).period > 0){
+            if (getAccountMaxTradeSize(ruleId, BLANK_TAG).period > 0){
                 toTags = new bytes32[](1);
                 toTags[0] = BLANK_TAG;
             }
-            for (uint i = 0; i < toTags.length; ) {
-                TaggedRules.AccountMaxBuySize memory rule = getAccountMaxBuySize(ruleId, toTags[i]);
-                if (rule.period > 0) {
-                    if (startTime.isWithinPeriod(rule.period, lastUpdateTime)) cumulativeTotal = boughtInPeriod + amount;
+            for (uint i = 0; i < toTags.length;) {
+                TaggedRules.AccountMaxTradeSize memory rule = getAccountMaxTradeSize(ruleId, toTags[i]);
+                if (rule.period > 0 && rule.maxSize > 0) {
+                    if (startTime.isWithinPeriod(rule.period, lastTransactionTime)) cumulativeTotal = transactedInPeriod + amount;
                     else cumulativeTotal = amount;
-                    if (cumulativeTotal > rule.maxSize) revert TxnInFreezeWindow();
+                    if (cumulativeTotal > rule.maxSize) revert OverMaxSize();
                 }
                 unchecked {
                     ++i;
@@ -256,103 +256,35 @@ contract ERC20TaggedRuleProcessorFacet is IRuleProcessorErrors, IInputErrors, IT
     }
 
     /**
-     * @dev Function get the account max buy size rule in the rule set that belongs to an account type
+     * @dev Function get the account max Trade size rule in the rule set that belongs to an account type
      * @param _index position of rule in array
      * @param _accountType Type of account
      * @return AccountMaxBuySize rule at index position
      */
-    function getAccountMaxBuySize(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.AccountMaxBuySize memory) {
-        RuleS.AccountMaxBuySizeS storage data = Storage.accountMaxBuySizeStorage();
-        return (data.accountMaxBuySizeRules[_index][_accountType]);
+    function getAccountMaxTradeSize(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.AccountMaxTradeSize memory) {
+        RuleS.AccountMaxTradeSizeS storage data = Storage.accountMaxTradeSizeStorage();
+        return (data.accountMaxTradeSizeRules[_index][_accountType]);
     }
 
     /**
-     * @dev Function get the account max buy size rule start timestamp
+     * @dev Function get the account max trade size rule start timestamp
      * @param _index position of rule in array
      * @return startTime startTimestamp of rule at index position
      */
-    function getAccountMaxBuySizeStart(uint32 _index) public view returns (uint64 startTime) {
+    function getAccountMaxTradeSizeStart(uint32 _index) public view returns (uint64 startTime) {
         // check one of the required non zero values to check for existence, if not, revert
-        _index.checkRuleExistence(getTotalAccountMaxBuySize());
-        RuleS.AccountMaxBuySizeS storage data = Storage.accountMaxBuySizeStorage();
-        if (_index >= data.accountMaxBuySizeIndex) revert IndexOutOfRange();
+        _index.checkRuleExistence(getTotalAccountMaxTradeSize());
+        RuleS.AccountMaxTradeSizeS storage data = Storage.accountMaxTradeSizeStorage();
+        if (_index >= data.accountMaxTradeSizeIndex) revert IndexOutOfRange();
         return data.startTimes[_index];
     }
 
     /**
-     * @dev Function to get total account max buy size rules
+     * @dev Function to get total account max trade size rules
      * @return Total length of array
      */
-    function getTotalAccountMaxBuySize() public view returns (uint32) {
-        RuleS.AccountMaxBuySizeS storage data = Storage.accountMaxBuySizeStorage();
-        return data.accountMaxBuySizeIndex;
-    }
-
-    /**
-     * @dev Sell rule functions similar to account max buy size rule but "resets" at 12 utc after maxSize is exceeded
-     * @param ruleId Rule identifier for rule arguments
-     * @param amount Number of tokens to be transferred
-     * @param fromTags Account tags applied to sender via App Manager
-     * @param lastUpdateTime block.timestamp of most recent transaction from sender.
-     * @return cumulativeSales Total tokens sold within sell period.
-     */
-    function checkAccountMaxSellSize(uint32 ruleId, uint256 salesInPeriod, uint256 amount, bytes32[] memory fromTags, uint64 lastUpdateTime) external view returns (uint256) {
-        fromTags.checkMaxTags();
-        uint64 startTime = getAccountMaxSellSizeStartByIndex(ruleId);
-        uint256 cumulativeSales = 0;
-        // We are not using timestamps to generate a PRNG. and our period evaluation is adherent to the 15 second rule:
-        // If the scale of your time-dependent event can vary by 15 seconds and maintain integrity, it is safe to use a block.timestamp
-        // slither-disable-next-line timestamp
-        if (startTime <= block.timestamp){
-            if(getAccountMaxSellSize(ruleId, BLANK_TAG).period > 0){
-                fromTags = new bytes32[](1);
-                fromTags[0] = BLANK_TAG;
-            }
-            for (uint i = 0; i < fromTags.length; ) {
-                TaggedRules.AccountMaxSellSize memory rule = getAccountMaxSellSize(ruleId, fromTags[i]);
-                if (rule.period > 0) {
-                    if (startTime.isWithinPeriod(rule.period, lastUpdateTime)) cumulativeSales = salesInPeriod + amount;
-                    else cumulativeSales = amount;
-                    if (cumulativeSales > rule.maxSize) revert OverMaxSellSize();
-                }
-                unchecked {
-                    ++i;
-                }
-            }
-        }
-        return cumulativeSales;
-    }
-
-    /**
-     * @dev Function to get Sell rule at index
-     * @param _index Position of rule in array
-     * @param _accountType Types of Accounts
-     * @return AccountMaxSellSize at position in array
-     */
-    function getAccountMaxSellSize(uint32 _index, bytes32 _accountType) public view returns (TaggedRules.AccountMaxSellSize memory) {
-        // No need to check the rule existence or index since it was already checked in getAccountMaxSellSizeStartByIndex
-        RuleS.AccountMaxSellSizeS storage data = Storage.accountMaxSellSizeStorage();
-        return data.AccountMaxSellSizesRules[_index][_accountType];
-    }
-
-    /**
-    * @dev Function get the account max buy size rule start timestamp
-     * @param _index Position of rule in array
-     * @return startTime rule start timestamp.
-     */
-    function getAccountMaxSellSizeStartByIndex(uint32 _index) public view returns (uint64 startTime) {
-        _index.checkRuleExistence(getTotalAccountMaxSellSize());
-        RuleS.AccountMaxSellSizeS storage data = Storage.accountMaxSellSizeStorage();
-        if (_index >= data.AccountMaxSellSizesIndex) revert IndexOutOfRange();
-        return data.startTimes[_index];
-    }
-
-    /**
-     * @dev Function to get total Sell rules
-     * @return Total length of array
-     */
-    function getTotalAccountMaxSellSize() public view returns (uint32) {
-        RuleS.AccountMaxSellSizeS storage data = Storage.accountMaxSellSizeStorage();
-        return data.AccountMaxSellSizesIndex;
+    function getTotalAccountMaxTradeSize() public view returns (uint32) {
+        RuleS.AccountMaxTradeSizeS storage data = Storage.accountMaxTradeSizeStorage();
+        return data.accountMaxTradeSizeIndex;
     }
 }

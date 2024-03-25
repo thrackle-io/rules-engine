@@ -5,11 +5,11 @@ import {RuleStorageInvariantActorCommon} from "test/protocol/economic/invariant/
 import "test/util/TestCommonFoundry.sol";
 
 /**
- * @title RuleStorageAccountMaxBuySizeActor
+ * @title RuleStorageTokenMaxBuySellVolumeActor
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55
- * @dev This is the rule storage handler for the AccountMaxBuySize rule. It will create the rule in the diamond and keep a total of how many it adds.
+ * @dev This is the rule storage handler for the TokenMaxBuySellVolume rule. It will create the rule in the diamond and keep a total of how many it adds.
  */
-contract RuleStorageAccountMaxBuySizeActor is TestCommonFoundry, RuleStorageInvariantActorCommon {
+contract RuleStorageTokenMaxBuySellVolumeActor is TestCommonFoundry, RuleStorageInvariantActorCommon {
 
     constructor(RuleProcessorDiamond _processor, ApplicationAppManager _applicationAppManager){
         processor = _processor;
@@ -19,12 +19,12 @@ contract RuleStorageAccountMaxBuySizeActor is TestCommonFoundry, RuleStorageInva
     /**
      * @dev add the rule to the diamond 
      */
-    function addAccountMaxBuySize(bytes32 _tag, uint256 _max, uint16 _period) public returns (uint32 _ruleId){
-        _ruleId = TaggedRuleDataFacet(address(processor)).addAccountMaxBuySize(
+    function addTokenMaxBuySellVolume(uint16 _supplyPercentage, uint16 _period, uint256 _totalSupply) public returns (uint32 _ruleId){
+        _ruleId = RuleDataFacet(address(processor)).addTokenMaxBuySellVolume(
             address(appManager), 
-            createBytes32Array(_tag), 
-            createUint256Array(_max), 
-            createUint16Array(_period), 
+            _supplyPercentage,
+            _period,
+            _totalSupply,
             uint64(block.timestamp)
         );
         ++totalRules;

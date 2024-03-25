@@ -224,85 +224,48 @@ contract ERC20RuleProcessorFacet is IInputErrors, IRuleProcessorErrors, IERC20Er
     }
 
     /**
-     * @dev Function receives a rule id, retrieves the rule data and checks if the Token Max Buy Volume Rule passes
+     * @dev Function receives a rule id, retrieves the rule data and checks if the Token Max Buy Sell Volume Rule passes
      * @param ruleId id of the rule to be checked
      * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
      * @param amountToTransfer total number of tokens to be transferred in transaction.
-     * @param lastPurchaseTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
-     * @param boughtInPeriod total amount of tokens purchased in current period
+     * @param lastTransactionTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
+     * @param totalWithinPeriod total amount of tokens sold within current period
      */
-    function checkTokenMaxBuyVolume(
-        uint32 ruleId,
-        uint256 currentTotalSupply,
-        uint256 amountToTransfer,
-        uint64 lastPurchaseTime,
-        uint256 boughtInPeriod
+    function checkTokenMaxBuySellVolume(
+        uint32 ruleId, 
+        uint256 currentTotalSupply, 
+        uint256 amountToTransfer,  
+        uint64 lastTransactionTime, 
+        uint256 totalWithinPeriod
     ) external view returns (uint256) {
-        NonTaggedRules.TokenMaxBuyVolume memory rule = getTokenMaxBuyVolume(ruleId);
-        uint256 totalBoughtInPeriod = rule.startTime.isWithinPeriod(rule.period, lastPurchaseTime) ?
-            amountToTransfer + boughtInPeriod : amountToTransfer;
+        uint256 totalForPeriod;
+        NonTaggedRules.TokenMaxBuySellVolume memory rule = getTokenMaxBuySellVolume(ruleId);
+        totalForPeriod = rule.startTime.isWithinPeriod(rule.period, lastTransactionTime) ?
+            amountToTransfer + totalWithinPeriod : amountToTransfer;
         uint256 totalSupply = rule.totalSupply == 0 ? currentTotalSupply: rule.totalSupply;
-        uint16 percentOfTotalSupply = uint16(((totalBoughtInPeriod) * _BASIS_POINT) / totalSupply);
-        if (percentOfTotalSupply >= rule.tokenPercentage) revert OverMaxBuyVolume();
-        return totalBoughtInPeriod;
+        uint16 percentOfTotalSupply = uint16(((totalForPeriod) * _BASIS_POINT) / totalSupply);
+        if (percentOfTotalSupply >= rule.tokenPercentage) revert OverMaxVolume();
+        return totalForPeriod;
     }
 
     /**
-     * @dev Function get Token Max Buy Volume by index
-     * @param _index position of rule in array
-     * @return tokenMaxBuyVolumeRules rule at index position
-     */
-    function getTokenMaxBuyVolume(uint32 _index) public view returns (NonTaggedRules.TokenMaxBuyVolume memory) {
-        _index.checkRuleExistence(getTotalTokenMaxBuyVolume());
-        RuleS.TokenMaxBuyVolumeS storage data = Storage.accountMaxBuyVolumeStorage();
-        return data.tokenMaxBuyVolumeRules[_index];
-    }
-
-    /**
-     * @dev Function to get total Token Max Buy Volume rules
-     * @return Total length of array
-     */
-    function getTotalTokenMaxBuyVolume() public view returns (uint32) {
-        RuleS.TokenMaxBuyVolumeS storage data = Storage.accountMaxBuyVolumeStorage();
-        return data.tokenMaxBuyVolumeIndex;
-    }
-
-    /**
-     * @dev Function receives a rule id, retrieves the rule data and checks if the Token Max Sell Volume Rule passes
-     * @param ruleId id of the rule to be checked
-     * @param currentTotalSupply total supply value passed in by the handler. This is for ERC20 tokens with a fixed total supply.
-     * @param amountToTransfer total number of tokens to be transferred in transaction.
-     * @param lastSellTime time of the most recent purchase from AMM. This starts the check if current transaction is within a purchase window.
-     * @param soldWithinPeriod total amount of tokens sold within current period
-     */
-    function checkTokenMaxSellVolume(uint32 ruleId, uint256 currentTotalSupply, uint256 amountToTransfer, uint64 lastSellTime, uint256 soldWithinPeriod) external view returns (uint256) {
-        NonTaggedRules.TokenMaxSellVolume memory rule = getTokenMaxSellVolume(ruleId);
-        uint256 totalSoldInPeriod = rule.startTime.isWithinPeriod(rule.period, lastSellTime) ? 
-            amountToTransfer + soldWithinPeriod : amountToTransfer; 
-        uint256 totalSupply = rule.totalSupply == 0 ? currentTotalSupply: rule.totalSupply;
-        uint16 percentOfTotalSupply = uint16(((totalSoldInPeriod) * _BASIS_POINT) / totalSupply);
-        if (percentOfTotalSupply >= rule.tokenPercentage) revert OverMaxSellVolume();
-        return totalSoldInPeriod;
-    }
-
-    /**
-     * @dev Function get Token Max Sell Volume by index
+     * @dev Function get Token Max Buy Sell Volume by index
      * @param _index position of rule in array
      * @return tokenMaxSellVolumeRules rule at index position
      */
-    function getTokenMaxSellVolume(uint32 _index) public view returns (NonTaggedRules.TokenMaxSellVolume memory) {
-        _index.checkRuleExistence(getTotalTokenMaxSellVolume());
-        RuleS.TokenMaxSellVolumeS storage data = Storage.accountMaxSellVolumeStorage();
-        return data.tokenMaxSellVolumeRules[_index];
+    function getTokenMaxBuySellVolume(uint32 _index) public view returns (NonTaggedRules.TokenMaxBuySellVolume memory) {
+        _index.checkRuleExistence(getTotalTokenMaxBuySellVolume());
+        RuleS.TokenMaxBuySellVolumeS storage data = Storage.accountMaxBuySellVolumeStorage();
+        return data.tokenMaxBuySellVolumeRules[_index];
     }
 
     /**
-     * @dev Function to get total Token Max Sell Volume rules
+     * @dev Function to get total Token Max Buy Sell Volume rules
      * @return Total length of array
      */
-    function getTotalTokenMaxSellVolume() public view returns (uint32) {
-        RuleS.TokenMaxSellVolumeS storage data = Storage.accountMaxSellVolumeStorage();
-        return data.tokenMaxSellVolumeIndex;
+    function getTotalTokenMaxBuySellVolume() public view returns (uint32) {
+        RuleS.TokenMaxBuySellVolumeS storage data = Storage.accountMaxBuySellVolumeStorage();
+        return data.tokenMaxBuySellVolumeIndex;
     }
 
 }

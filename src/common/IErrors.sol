@@ -47,6 +47,7 @@ interface IERC20Errors {
     error OracleTypeInvalid();
     error OverMaxBuyVolume();
     error OverMaxSellVolume();
+    error OverMaxVolume();
     error OverMaxTradingVolume();
     error OverMaxSupplyVolatility();
 }
@@ -60,6 +61,7 @@ interface ITagRuleErrors {
     error UnderMinBalance();
     error TxnInFreezeWindow();
     error OverMaxSellSize();
+    error OverMaxSize();
 }
 
 interface IInputErrors {
