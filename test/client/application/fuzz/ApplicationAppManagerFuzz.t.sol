@@ -542,19 +542,23 @@ contract ApplicationAppManagerFuzzTest is TestCommonFoundry {
         vm.stopPrank();
         vm.startPrank(sender);
         console.log(address(sender));
-        if ((sender != appAdministrator))
-            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
-        applicationAppManager.removeTag(address(0xBABE), Tag3);
-        if ((sender == appAdministrator)) assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag3));
-        if ((sender != appAdministrator))
-            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
-        applicationAppManager.removeTag(address(0xBABE), Tag2);
-        if ((sender == appAdministrator)) assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag2));
-        if ((sender != appAdministrator))
-            vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
-        applicationAppManager.removeTag(address(0xBABE), Tag1);
-        if ((sender == appAdministrator)) {
-            assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag1));
+        if (Tag3 != "") {
+            if ((sender != appAdministrator))
+                vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+            applicationAppManager.removeTag(address(0xBABE), Tag3);
+            if ((sender == appAdministrator)) assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag3));
+        }
+        if (Tag2 != "") {
+            if ((sender != appAdministrator))
+                vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+            applicationAppManager.removeTag(address(0xBABE), Tag2);
+            if ((sender == appAdministrator)) assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag2));
+        }
+        if (Tag1 != "") {
+            if ((sender != appAdministrator))
+                vm.expectRevert(abi.encodePacked("AccessControl: account ", Strings.toHexString(sender), " is missing role 0x371a0078bf8859908953848339bea5f1d5775487f6c2f50fd279fcc2cafd8c60"));
+            applicationAppManager.removeTag(address(0xBABE), Tag1);
+            if ((sender == appAdministrator)) assertFalse(applicationAppManager.hasTag(address(0xBABE), Tag1));
         }
     }
 
