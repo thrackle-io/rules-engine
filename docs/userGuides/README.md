@@ -12,7 +12,9 @@ This guide is intended to be a user-friendly introduction to the rules protocol.
 |----------|-------------|
 |[Deployment Guides][deploymentGuide-url] | This section contains documents on how to deploy the protocol, pricing modules, and create application rules in order to quickly get started.|
 |[Rule Guide][ruleGuide-url] | This section can be thought of as a reference to the available rules that come pre packaged within the protocol and their various perks and quirks. It will also contain guides on how to create custom rules.|
-|[Handler Guide][handlerGuide-url] | This teaches you about the application handler and how it works within the context of the main protocol. This is critical to understand if you're going to go about creating your own custom rules.|
+|[Application Handler Guide][handlerGuide-url] | This teaches you about the application handler and how it works within the context of the main protocol. This is critical to understand if you're going to go about creating your own custom rules.|
+|[Fungible Token Handlers Guide][fungibleTokenHandlerGuide-url] | This teaches you about the fungible token handler and how it works within the context of the main protocol. If you wanted to make rules surrounding ERC20s, you'll want to take a look at this quickly just to understand how it all works together.|
+|[NonFungible Token Handlers Guide][nonfungibleTokenHandlerGuide-url] | This teaches you about the non fungible token handler and how it works within the context of the main protocol. If you wanted to make rules surrounding NFTs, you'll want to take a look at this quickly just to understand how it all works together.|
 |[Tag Guide][tag-url]| This section contains documents on how to create and use tags within the rules protocol. Tags are a useful mechanism to allow application administrators to divide users into segments so a particular rule only applies to specific segments of users. The applicability will vary depending on the rule so see the documentation for each rule to understand how and when tags will apply.|
 |[Access Level Guide][accessLevel-url]| This section contains documents on access levels, a feature that enables you to enable and block access according to broadly defined conditions, useful for game onboarding and compliance processes.|
 |[Admin Roles][adminRoles-url]| This section contains documentation on what admin roles are available and gives you the information you need on to configure how your application will be governed and administered.|
@@ -156,6 +158,8 @@ Formatting at the commandline:
 [riskScore-url]: ./riskScore/README.md
 [glossary-url]: ./GLOSSARY.md
 [handlerGuide-url]: ./Architecture/Client/Application/APPLICATION-HANDLER.md
+[fungibleTokenHandlerGuide-url]: ./Architecture/Client/AssetHandler/FUNGIBLE-TOKEN-HANDLER.md
+[nonfungibleTokenHandlerGuide-url]: ./Architecture/Client/AssetHandler/NON-FUNGIBLE-TOKEN-HANDLER.md
 
 <!-- These are the header links -->
 [version-image]: https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge&logo=appveyor
