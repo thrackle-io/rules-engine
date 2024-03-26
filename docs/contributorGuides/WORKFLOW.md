@@ -15,6 +15,20 @@ This document seeks to inform onboarding developers and project managers as to h
 
 2. Perform development in the previously mentioned branch and push changes to the GitHub repository daily to show progress. All commit messages should describe the changes in the commit in such a way that end-users can read when the commit is eventually exposed to the customers.
 
+    a. Get an initial implementation in place. Follow check effects pattern and/or [FREI](https://www.nascent.xyz/idea/youre-writing-require-statements-wrong).
+
+    b. Be sure to make use of the solidity [nat spec](https://docs.soliditylang.org/en/develop/natspec-format.html) features to document your code along the way.
+
+    c. Every line of assembly, if utilized, should be commented on and documented as to what it does.
+
+    d. Write initial [tests](https://book.getfoundry.sh/forge/tests). Use Foundry's `forge coverage` to see how much of the codebase has been covered by tests. Cleanup the implementation based on results. Repeat this process until the implementation is complete and the tests pass.
+
+    e. Run the [slither](https://github.com/crytic/slither) static analyzer. This will detect if in theory there are holes in the implementation.
+
+    f. Depending on the change, consider writing [fuzz tests](https://book.getfoundry.sh/forge/fuzz-testing). A good fuzz test should consider all valid inputs, and include as many state transition assertions as possible (think: is this function monotonically in/decreasing, should it be always less than something else, etc.)
+
+    g. Submit your PR for peer review.
+
 3. Transitioning to Ready for Review
 
     a. When development is completed for the branch, create/submit a pull request in GitHub for another team member to peer review. 
@@ -37,7 +51,7 @@ This document seeks to inform onboarding developers and project managers as to h
 
     b. The feature has been tested to verify the functionality (run through the functional test)
 
-    c. Unit [tests](https://book.getfoundry.sh/forge/tests) are added and complete successfully
+    c. Unit tests are added and complete successfully
 
     d. The code/chain runs and maintains compatibility with previously committed features
 
