@@ -18,7 +18,7 @@
 
 
 <!-- These are the body links -->
-[createAdminRole-url]: ./ADMIN-CONFIG.md
+[createAdminRole-url]: ../permissions/ADMIN-CONFIG.md
 [deploymentDirectory-url]: ./DEPLOYMENT-DIRECTORY.md
 [environment-url]: ./SET-ENVIRONMENT.md
 
