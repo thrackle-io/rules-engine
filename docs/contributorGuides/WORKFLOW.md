@@ -59,3 +59,4 @@ This document seeks to inform onboarding developers and project managers as to h
 
 5. Once code is modified as necessary to address any peer review concerns, the last peer reviewer will merge the ticket into main (or applicable primary trunk in the repository) and update the ticket status to the Done.
 
+6. Be sure to set up monitoring once the PR is merged and deployed via [Openzeppelin Defender](https://docs.openzeppelin.com/defender/v2/module/monitor).
