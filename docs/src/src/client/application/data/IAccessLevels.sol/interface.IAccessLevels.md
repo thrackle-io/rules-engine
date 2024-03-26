@@ -1,5 +1,5 @@
 # IAccessLevels
-[Git Source](https://github.com/thrackle-io/tron/blob/764000f27aa19925e60dae8d757a097eec620706/src/client/application/data/IAccessLevels.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/17f0c18311739ad27e810cec2eb3f45ea28c2fd7/src/client/application/data/IAccessLevels.sol)
 
 **Inherits:**
 [IDataModule](/src/client/application/data/IDataModule.sol/interface.IDataModule.md), [IAccessLevelErrors](/src/common/IErrors.sol/interface.IAccessLevelErrors.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md)
