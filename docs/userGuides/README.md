@@ -37,10 +37,6 @@ This guide is intended to be a user-friendly introduction to the rules protocol.
 ## API 
 API documentation for the smart contract suite can be found [here](src/src/README.md).
 
-
-
-In order to facilitate testing and deployment, the following resources were created:
-
 ## Deployment Scripts
 
 ### Local Deployments
