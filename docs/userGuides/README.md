@@ -134,9 +134,28 @@ ACTION_BURN=4
 ```
 
 ---
+## Monitoring
+
+Once you have deployed your smart contracts, you can monitor them using [Openzeppelin Defender](https://docs.openzeppelin.com/defender/v2/module/monitor). It helps you to keep an eye on your smart contracts and detect potential security vulnerabilities. There are some key events that we recommend you observing if you intend to create a monitoring setup for your project.
+
+| Event | Contract Name | Description |
+|-------|---------------|-------------|
+| AD1467_HandlerConnected | "ApplicationAppManager/ProtocolERC20{U}/ProtocolERC721{U}"  | Emits whenever a handler is connected, whether that be an application handler or a token handler |
+| AD1467_AppManagerDeployed | ApplicationAppManager | Emits whenever a new application manager is deployed |
+| AD1467_AppManagerDeployedForUpgrade |	ApplicationAppManager | Emits whenever a new application manager is deployed as an upgrade to a previous application manager |
+| AD1467_AppAdministrator | ApplicationAppManager | Emits whenever an application administrator is set |
+| AD1467_SuperAdministrator |	ApplicationAppManager | Emits whenever a super administrator is set |
+| AD1467_RuleBypassAccount	| ApplicationAppManager | Emits whenever a rule bypass account role is set or removed |
+| AD1467_ApplicationHandlerDeployed	| ApplicationHandler | Emits whenever a new application handler is deployed |
+| AD1467_ERC721PricingAddressSet	| ApplicationHandler | Emits whenever an ERC721 pricer is set |
+| AD1467_ERC20PricingAddressSet	| ApplicationHandler | Emits whenever an ERC20 pricer is set |
+| AD1467_HandlerDeployed |	"APPLICATION_ERC20_HANDLER/APPLICATION_ERC721_HANDLER" | Emits whenever a new application handler is deployed |
+| AD1467_NFTValuationLimitUpdated |	APPLICATION_ERC721_HANDLER | Emits whenever the NFT valuation limit is updated |
+---
 ## Prettier Formatter
 
 The [solidity prettier formatter](https://github.com/prettier-solidity/prettier-plugin-solidity) is utilized within this repository.
+
 Installation:
 
 > npm install
