@@ -6,6 +6,15 @@
 
 This guide is intended to be a user-friendly introduction to the rules protocol. It will provide a walkthrough of how to get started with the protocol, as well as provide a reference for the available rules and how to create custom rules.
 
+## Installation and Tooling
+##### This is designed to be tested and deployed with Foundry. All that should be required is to install python, then install [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run:
+
+`forge build` in the project directory to install the submodules.
+
+`pip install eth-abi`
+
+`foundryup`
+
 ## Index
 
 | Document | Description |
@@ -28,16 +37,46 @@ This guide is intended to be a user-friendly introduction to the rules protocol.
 ## API 
 API documentation for the smart contract suite can be found [here](src/src/README.md).
 
-## Tooling
-##### This is designed to be tested and deployed with Foundry. All that should be required is to install python, then install [foundry](https://book.getfoundry.sh/getting-started/installation), pull the code, and then run:
 
-`forge build` in the project directory to install the submodules.
-
-`pip install eth-abi`
-
-`foundryup`
 
 In order to facilitate testing and deployment, the following resources were created:
+
+## Deployment Scripts
+
+### Local Deployments
+
+For local deployments, use Anvil's local blockchain in combination with the deployment scripts. To run anvil simply do ` anvil` in a dedicated terminal window. then, in a separate terminal:
+
+```
+forge script <SCRIPT_FILE_LOCATION> --ffi --rpc-url <ETH_RPC_URL>  --broadcast --verify -vvvv
+```
+
+##### Note: an ETH_RPC_URL can be found in the .env file.
+
+#### Deploy The Protocol
+
+`scripts/deploy/DeployProtocol.sh`
+This script is responsible for deploying all the protocol contracts. Take into account that no application-specific contracts are deployed here.
+
+#### Deploy Some Test Game Tokens
+
+`script/clientScripts/Application_Deploy_01_AppManager.s.sol`
+`script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol`
+`script/clientScripts/Application_Deploy_03_ApplicationFT2.s.sol`
+`script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol`
+`script/clientScripts/Application_Deploy_05_Oracle.s.sol`
+`script/clientScripts/Application_Deploy_06_Pricing.s.sol`
+These scripts deploy the contracts that are specific for games, emulating the steps that a application dev would follow. They will deploy 2 ERC20s and 2 ERC721 tokens, among the other setup contracts.
+
+If anvil is not listening to the commands in the scripts, make sure you have exported the local foundry profile `export FOUNDRY_PROFILE=local`.
+
+### Testnet Deployment
+
+coming soon...
+
+### Mainnet Deployment
+
+coming soon...
 
 ---
 ## Test Scripts
@@ -47,9 +86,6 @@ All tests are located inside the `test/` directory. To run a test, simply run in
 ```
 forge test --ffi --match-path <TEST_FILE_LOCATION> -vvvv
 ```
----
-## Deployment Scripts
-
 ---
 ## Deployment Test Scripts
 
@@ -73,43 +109,6 @@ To run, open a terminal in the root directory and run the following command:
 Repeat the process for each desired test. If a configuration error is encountered, it should notify and give instructions to fix.
 
 ---
-
-### Local Deployments
-
-For local deployments, use Anvil's local blockchain in combination with the deployment scripts. To run anvil simply do ` anvil` in a dedicated terminal window. then, in a separate terminal:
-
-```
-forge script <SCRIPT_FILE_LOCATION> --ffi --rpc-url <ETH_RPC_URL>  --broadcast --verify -vvvv
-```
-
-##### Note: an ETH_RPC_URL can be found in the .env file.
-
-### Testnet Deployment
-
-coming soon...
-
-### Mainnet Deployment
-
-coming soon...
-
-### Deploy The Ecosystem
-
-#### Deploy The Protocol
-
-`scripts/deploy/DeployProtocol.sh`
-This script is responsible for deploying all the protocol contracts. Take into account that no application-specific contracts are deployed here.
-
-#### Deploy Some Test Game Tokens
-
-`script/clientScripts/Application_Deploy_01_AppManager.s.sol`
-`script/clientScripts/Application_Deploy_02_ApplicationFT1.s.sol`
-`script/clientScripts/Application_Deploy_03_ApplicationFT2.s.sol`
-`script/clientScripts/Application_Deploy_04_ApplicationNFT.s.sol`
-`script/clientScripts/Application_Deploy_05_Oracle.s.sol`
-`script/clientScripts/Application_Deploy_06_Pricing.s.sol`
-These scripts deploy the contracts that are specific for games, emulating the steps that a application dev would follow. They will deploy 2 ERC20s and 2 ERC721 tokens, among the other setup contracts.
-
-If anvil is not listening to the commands in the scripts, make sure you have exported the local foundry profile `export FOUNDRY_PROFILE=local`.
 
 ### Other Relevant Scripts
 
@@ -136,7 +135,8 @@ ACTION_BURN=4
 ---
 ## Monitoring
 
-Once you have deployed your smart contracts, you can monitor them using [Openzeppelin Defender](https://docs.openzeppelin.com/defender/v2/module/monitor). It helps you to keep an eye on your smart contracts and detect potential security vulnerabilities. There are some key events that we recommend you observing if you intend to create a monitoring setup for your project.
+Once you have deployed your smart contracts, you can monitor them using [Openzeppelin Defender](https://docs.openzeppelin.com/defender/v2/module/monitor). It helps you to keep an eye on your smart contracts and detect potential security vulnerabilities. There are some key events that we recommend you observing if you intend to create a monitoring setup for your project:
+
 
 | Event | Contract Name | Description |
 |-------|---------------|-------------|
@@ -151,7 +151,9 @@ Once you have deployed your smart contracts, you can monitor them using [Openzep
 | AD1467_ERC20PricingAddressSet	| ApplicationHandler | Emits whenever an ERC20 pricer is set |
 | AD1467_HandlerDeployed |	"APPLICATION_ERC20_HANDLER/APPLICATION_ERC721_HANDLER" | Emits whenever a new application handler is deployed |
 | AD1467_NFTValuationLimitUpdated |	APPLICATION_ERC721_HANDLER | Emits whenever the NFT valuation limit is updated |
+
 ---
+
 ## Prettier Formatter
 
 The [solidity prettier formatter](https://github.com/prettier-solidity/prettier-plugin-solidity) is utilized within this repository.
