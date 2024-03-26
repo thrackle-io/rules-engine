@@ -65,7 +65,7 @@ In order for US-Dollar-based application rules to function properly, the protoco
 
 # Third-Party Pricing Solutions
 
-To be able to use third-party pricing solutions with the protocol, you must make sure that the third party contract complies with our interfaces. If they don't, an adapter contract will have to be deployed. For more information see the [third-party solution guide](../pricing/THIRD-PARTY-SOLUTIONS.md).
+To be able to use third-party pricing solutions with the protocol, you must make sure that the third party contract complies with our interfaces. If they don't, an adapter contract will have to be deployed. For more information see the [third-party solution guide](./THIRD-PARTY-SOLUTIONS.md).
 
 # Pricing Module Configuration 
 

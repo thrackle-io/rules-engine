@@ -11,10 +11,7 @@ This document seeks to inform onboarding developers and project managers as to h
 
     b. Set the Assignee within the ticket as the team member working the ticket
 
-    c. Create a branch from the ticket in Jira using the Create branch button:
-
-Open image-20230823-201618.png
-image-20230823-201618.png
+    c. Create a branch from the ticket in Jira using the Create branch button
 
 2. Perform development in the previously mentioned branch and push changes to the GitHub repository daily to show progress. All commit messages should describe the changes in the commit in such a way that end-users can read when the commit is eventually exposed to the customers.
 
@@ -40,10 +37,11 @@ image-20230823-201618.png
 
     b. The feature has been tested to verify the functionality (run through the functional test)
 
-    c. Unit tests are added and complete successfully
+    c. Unit [tests](https://book.getfoundry.sh/forge/tests) are added and complete successfully
 
     d. The code/chain runs and maintains compatibility with previously committed features
 
     e. Documentation has been updated to showcase the feature (to include the README.md if necessary)
 
 5. Once code is modified as necessary to address any peer review concerns, the last peer reviewer will merge the ticket into main (or applicable primary trunk in the repository) and update the ticket status to the Done.
+

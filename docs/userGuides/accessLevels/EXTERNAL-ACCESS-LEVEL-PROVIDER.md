@@ -1,7 +1,7 @@
 # External Access Level Provider
 [![Project Version][version-image]][version-url]
 
-An external access level provider may be utilized. In order to switch to an external access level provider, the external provider contract must conform to the IAccessLevels interface or an adapter contract that conforms to the interface must be used. Once the external provider contract is deployed, the [AppManager](../../../src/client/application/AppManager.sol) must be pointed to the new provider.
+An external access level provider may be utilized when you need to rely on controls and data passports provided by external systems. In order to switch to an external access level provider, the external provider contract must conform to the IAccessLevels interface or an adapter contract that conforms to the interface must be used. Once the external provider contract is deployed, the [AppManager](../../../src/client/application/AppManager.sol) must be pointed to the new provider.
 
 ## Required functions for the External Access Level Provider
 
