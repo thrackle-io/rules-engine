@@ -719,7 +719,6 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util{
 /* AccountMaxTxValueByRiskScore */
     function testApplication_ApplicationCommonTests_AccountMaxTxValueByRiskScoreAtomicFullSet() public ifDeploymentTestsEnabled {
         uint32[] memory ruleIds = new uint32[](5);
-        uint8[] memory riskScores = createUint8Array(10, 25, 50, 75, 90);
         // Set up rule
         ruleIds[0] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 99), createUint48Array(70, 50, 40, 30, 20));
         ruleIds[1] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 98), createUint48Array(70, 50, 40, 30, 20));
@@ -741,7 +740,6 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util{
 
     function testApplication_ApplicationCommonTests_AccountMaxTxValueByRiskScoreAtomicFullReSet() public ifDeploymentTestsEnabled {
         uint32[] memory ruleIds = new uint32[](5);
-        uint8[] memory riskScores = createUint8Array(10, 25, 50, 75, 90);
         // Set up rule
         ruleIds[0] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 99), createUint48Array(70, 50, 40, 30, 20));
         ruleIds[1] = createAccountMaxTxValueByRiskRule(createUint8Array(20, 40, 60, 80, 98), createUint48Array(70, 50, 40, 30, 20));
@@ -832,7 +830,6 @@ abstract contract ApplicationCommonTests is Test, TestCommonFoundry, ERC721Util{
 
     /* AccountDenyForNoAccessLevel */
     function testApplication_ApplicationCommonTests_AccountDenyForNoAccessLevelAtomicFullSet() public ifDeploymentTestsEnabled {
-        uint32[] memory ruleIds = new uint32[](5);
         // Set up rule
         createAccountDenyForNoAccessLevelRule();
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);

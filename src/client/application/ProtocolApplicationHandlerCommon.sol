@@ -13,7 +13,7 @@ import {IInputErrors} from "src/common/IErrors.sol";
  */
 abstract contract ProtocolApplicationHandlerCommon is IInputErrors{
 
-    uint8 lastPossibleAction = 4;
+    uint8 constant lastPossibleAction = 4;
 
     /**
      * @dev Validate the full atomic rule setter function parameters

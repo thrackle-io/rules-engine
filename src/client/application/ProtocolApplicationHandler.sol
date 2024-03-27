@@ -360,7 +360,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
         } else {
-            emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
+            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
         }
     }
 
@@ -389,7 +389,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      */
     function setAccountDenyForNoAccessLevelId(ActionTypes[] calldata _actions) external ruleAdministratorOnly(appManagerAddress) {
         for (uint i; i < _actions.length; ) {
-            setAccountDenyForNoAccessLevelIdUpdate(_actions[i], 0);  
+            setAccountDenyForNoAccessLevelIdUpdate(_actions[i]);  
             emit AD1467_ApplicationRuleApplied(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions[i], 0);
             unchecked {
                 ++i;
@@ -405,7 +405,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
     function setAccountDenyForNoAccessLevelIdFull(ActionTypes[] calldata _actions) external ruleAdministratorOnly(appManagerAddress) {
         clearAccountDenyForNoAccessLevel(); 
         for (uint i; i < _actions.length; ) {
-            setAccountDenyForNoAccessLevelIdUpdate(_actions[i], 0);
+            setAccountDenyForNoAccessLevelIdUpdate(_actions[i]);
             unchecked {
                 ++i;
             }
@@ -429,11 +429,9 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
      * @dev Set the ActivateAccountDenyForNoAccessLevelRuleId. 
      * @notice that setting a rule will automatically activate it.
      * @param _action the action type to set the rule
-     * @param _ruleId Rule Id to set
      */
     // slither-disable-next-line calls-loop
-    function setAccountDenyForNoAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal {
-        accountDenyForNoAccessLevel[_action].ruleId = _ruleId;
+    function setAccountDenyForNoAccessLevelIdUpdate(ActionTypes _action) internal {
         accountDenyForNoAccessLevel[_action].active = true;            
     }
 
@@ -452,7 +450,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions);
         } else {
-            emit AD1467_ApplicationHandlerActivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions);
+            emit AD1467_ApplicationHandlerDeactivated(ACCOUNT_DENY_FOR_NO_ACCESS_LEVEL, _actions);
         }
     }
 
@@ -539,7 +537,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions);
         } else {
-            emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions);
+            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions);
         }
     }
 
@@ -637,7 +635,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions);
         } else {
-            emit AD1467_ApplicationHandlerActivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions);
+            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions);
         }
     }
 
@@ -733,7 +731,7 @@ contract ProtocolApplicationHandler is ProtocolApplicationHandlerCommon, Ownable
         if (_on) {
             emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
         } else {
-            emit AD1467_ApplicationHandlerActivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
+            emit AD1467_ApplicationHandlerDeactivated(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions);
         }
     }
 
