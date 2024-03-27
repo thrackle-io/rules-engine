@@ -314,6 +314,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxValueByRiskScore(_actions, _ruleIds);
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions[i], _ruleId);
@@ -330,6 +331,7 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByRiskScore();
         for (uint i; i < _actions.length; ++i) {
+            ruleProcessor.validateAccountMaxValueByRiskScore(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
@@ -485,7 +487,13 @@ contract ProtocolApplicationHandler is
     function setAccountMaxValueByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds) external ruleAdministratorOnly(appManagerAddress) {
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueByAccessLevel();
-        for (uint i; i < _actions.length; ++i) setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
+        for (uint i; i < _actions.length; ++i) {
+            ruleProcessor.validateAccountMaxValueOutByAccessLevel(createActionTypesArray(_actions[i]), _ruleIds[i]);
+            setAccountMaxValuebyAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
+            unchecked {
+                ++i;
+            }
+        }
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_BY_ACCESS_LEVEL, _actions, _ruleIds);
     }
 
@@ -552,6 +560,7 @@ contract ProtocolApplicationHandler is
      * @param _ruleId Rule Id to set
      */
     function setAccountMaxValueOutByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress) {
+        ruleProcessor.validateAccountMaxValueOutByAccessLevel(_actions[i], _ruleId);
         for (uint i; i < _actions.length; ++i) {
             setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleId);
             emit AD1467_ApplicationRuleApplied(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions[i], _ruleId);
@@ -568,6 +577,7 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxValueOutByAccessLevel();
         for (uint i; i < _actions.length; ++i) {
+            ruleProcessor.validateAccountMaxValueOutByAccessLevel(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxValueOutByAccessLevelIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_VALUE_OUT_ACCESS_LEVEL, _actions, _ruleIds);
@@ -653,6 +663,7 @@ contract ProtocolApplicationHandler is
         validateRuleInputFull(_actions, _ruleIds);
         clearAccountMaxTxValueByRiskScore();
         for (uint i; i < _actions.length; ++i) {
+            ruleProcessor.validateAccountMaxTxValueByRiskScore(createActionTypesArray(_actions[i]), _ruleIds[i]);
             setAccountMaxTxValueByRiskScoreIdUpdate(_actions[i], _ruleIds[i]);
         }
         emit AD1467_ApplicationRuleAppliedFull(ACC_MAX_TX_VALUE_BY_RISK_SCORE, _actions, _ruleIds);
