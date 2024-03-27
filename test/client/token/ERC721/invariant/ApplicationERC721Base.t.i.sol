@@ -1,40 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "test/util/TestCommonFoundry.sol";
-import "src/client/application/data/IDataModule.sol";
+import "./ApplicationERC721Common.t.i.sol";
 
 /**
  * @title ApplicationERC721BasicInvariantTest
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55, @VoR0220
  * @dev This is the invariant test for ERC721 general functionality.
  */
-contract ApplicationERC721BasicInvariantTest is TestCommonFoundry {
-    address msgSender;
-    uint256 value;
-    uint256 tokenId;
-    address target;
-    address USER1;
-    address USER2;
-    address USER3;
+contract ApplicationERC721BasicInvariantTest is ApplicationERC721Common {
     
     function setUp() public {
-        setUpProtocolAndAppManagerAndTokensWithERC721HandlerDiamond();
-        switchToAppAdministrator();
-        address[] memory addressList = getUniqueAddresses(block.timestamp % ADDRESSES.length, 4);
-        USER1 = addressList[0];
-        USER2 = addressList[1];
-        USER3 = addressList[2];
-        target = addressList[3];
-        applicationNFT.safeMint(USER1);
-        applicationNFT.safeMint(USER2);
-        applicationNFT.safeMint(USER3);
-        vm.stopPrank();
-        targetSender(USER1);
-        targetSender(USER2);
-        targetSender(USER3);
-        targetSender(target);
-        targetContract(address(applicationNFT));
+        prepERC721AndEnvironment();
     }
 
 
@@ -45,28 +22,27 @@ contract ApplicationERC721BasicInvariantTest is TestCommonFoundry {
     }
 
     // Querying the owner of an invalid token should throw
-    function invariant_ERC721_external_ownerOfInvalidTokenMustRevert() public virtual {
+    function invariant_ERC721_external_ownerOfInvalidTokenMustRevert() public {
         vm.expectRevert("ERC721: invalid token ID");
         applicationNFT.ownerOf(type(uint256).max);
     }
 
     // Approving an invalid token should throw
-    function invariant_ERC721_external_approvingInvalidTokenMustRevert() public virtual {
+    function invariant_ERC721_external_approvingInvalidTokenMustRevert() public {
         vm.expectRevert("ERC721: invalid token ID");
         applicationNFT.approve(address(0), type(uint256).max);
     }
 
     // transferFrom a token that the caller is not approved for should revert
-    function invariant_ERC721_external_transferFromNotApproved() public virtual {
+    function invariant_ERC721_external_transferFromNotApproved() public {
         uint256 selfBalance = applicationNFT.balanceOf(USER1);
         if(!(selfBalance > 0))return;        
-        if(!(target != target))return;
         if(!(target != USER1))return;
         uint tokenId2 = applicationNFT.tokenOfOwnerByIndex(USER1, 0);
         bool isApproved = applicationNFT.isApprovedForAll(USER1, target);
         address approved = applicationNFT.getApproved(tokenId2);
         if(!(approved != target && !isApproved))return;
-        vm.expectRevert("ERC721: Invalid token owner query should have reverted");
+        vm.expectRevert("ERC721: caller is not token owner or approved");
         applicationNFT.transferFrom(USER1, target, tokenId2);
     }
 

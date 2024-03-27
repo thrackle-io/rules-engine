@@ -1,42 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "test/util/TestCommonFoundry.sol";
-import "src/client/application/data/IDataModule.sol";
+import "./ApplicationERC721Common.t.i.sol";
 
 /**
  * @title ApplicationERC721MintBurnInvariantTest
  * @author @ShaneDuncan602, @oscarsernarosero, @TJ-Everett, @mpetersoCode55, @VoR0220
  * @dev This is the invariant test for ERC721 mint and burn functionality.
  */
-contract ApplicationERC721MintBurnInvariantTest is TestCommonFoundry {
-    address msgSender;
-    uint256 value;
-    uint256 amount;
-    uint256 tokenId;
-    address target;
-    address USER1;
-    address USER2;
-    address USER3;
-    
+contract ApplicationERC721MintBurnInvariantTest is ApplicationERC721Common {
     function setUp() public {
-        setUpProtocolAndAppManagerAndTokensWithERC721HandlerDiamond();
-        switchToAppAdministrator();
-        address[] memory addressList = getUniqueAddresses(block.timestamp % ADDRESSES.length, 4);
-        USER1 = addressList[0];
-        USER2 = addressList[1];
-        USER3 = addressList[2];
-        target = addressList[3];
-        amount = block.timestamp % 2;
-        applicationNFT.safeMint(USER1);
-        applicationNFT.safeMint(USER2);
-        applicationNFT.safeMint(USER3);
-        applicationNFT.safeMint(target);
-        vm.stopPrank();
-        targetSender(USER2);
-        targetSender(USER3);
-        targetSender(target);
-        targetContract(address(applicationNFT));
+        prepERC721AndEnvironment();
     }
 
 // The burn function should destroy tokens and reduce the total supply
