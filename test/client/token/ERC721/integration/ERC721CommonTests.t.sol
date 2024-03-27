@@ -951,7 +951,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
         ruleIds[4] = createTokenMaxDailyTradesRule("BoredGrape5", "DiscoPunk", 1, 45);
         ActionTypes[] memory actions = createActionTypeArray(ActionTypes.P2P_TRANSFER, ActionTypes.SELL, ActionTypes.BUY, ActionTypes.MINT, ActionTypes.BURN);
         // Apply the rules to all actions
-
+        setTokenMaxDailyTradesRuleFull(address(applicationNFTHandler), actions, ruleIds);
         // Reset with a partial list of rules and insure that the changes are saved correctly
         ruleIds = new uint32[](2);
         ruleIds[0] = createTokenMaxDailyTradesRule("BoredGrape6", "DiscoPunk", 1, 65);
@@ -1691,7 +1691,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
         /// switch to rule admin to deactive rule for set up
         switchToRuleAdmin();
-        applicationHandler.activateAccountMaxValueByAccessLevel(false);
+        applicationHandler.activateAccountMaxValueByAccessLevel(createActionTypeArrayAll(), false);
 
         switchToAppAdministrator();
         /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
@@ -1721,7 +1721,7 @@ abstract contract ERC721CommonTests is TestCommonFoundry, ERC721Util {
 
         ///reactivate rule
         switchToRuleAdmin();
-        applicationHandler.activateAccountMaxValueByAccessLevel(true);
+        applicationHandler.activateAccountMaxValueByAccessLevel(createActionTypeArrayAll(), true);
         /// calc expected valuation for user based on tokens * collection price
         /** 
         expected calculated total should be $50 USD since we take total number of tokens owned * collection price 

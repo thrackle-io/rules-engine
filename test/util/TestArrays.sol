@@ -471,4 +471,17 @@ abstract contract TestArrays {
         array[4] = arg5;
     }
 
+    /**
+     * @dev This function creates a uint8 array for Action Types to be used in tests 
+     * @notice This function creates a uint8 array size of 5
+     * @return array uint8[] 
+     */
+    function createActionTypeArrayAll() public pure returns(ActionTypes[] memory array) {
+        array = new ActionTypes[](5);
+        array[0] = ActionTypes.P2P_TRANSFER;
+        array[1] = ActionTypes.BURN;
+        array[2] = ActionTypes.MINT;
+        array[3] = ActionTypes.SELL;
+        array[4] = ActionTypes.BUY;
+    }
 }

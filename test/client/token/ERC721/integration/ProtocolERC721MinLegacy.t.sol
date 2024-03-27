@@ -955,7 +955,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
 
         /// switch to rule admin to deactive rule for set up 
         switchToRuleAdmin();
-        applicationHandler.activateAccountMaxValueByAccessLevel(false);
+        applicationHandler.activateAccountMaxValueByAccessLevel(createActionTypeArrayAll(), false);
 
         switchToAppAdministrator();
         /// create new collection and mint enough tokens to exceed the nftValuationLimit set in handler
@@ -985,7 +985,7 @@ contract ProtocolERC721MinLegacyTest is TestCommonFoundry, DummyNFTAMM, ERC721Ut
 
         ///reactivate rule 
         switchToRuleAdmin();
-        applicationHandler.activateAccountMaxValueByAccessLevel(true); 
+        applicationHandler.activateAccountMaxValueByAccessLevel(createActionTypeArrayAll(), true); 
         /// calc expected valuation for user based on tokens * collection price
         /** 
         expected calculated total should be $50 USD since we take total number of tokens owned * collection price 

@@ -143,7 +143,7 @@ contract ApplicationERC20ComplexFuzzTest is TestCommonFoundry, ERC20Util {
 
         switchToRuleAdmin();
         /// let's deactivate the rule before minting to avoid triggering the rule
-        applicationHandler.activateAccountMaxTxValueByRiskScore(false);
+        applicationHandler.activateAccountMaxTxValueByRiskScore(createActionTypeArrayAll(), false);
         switchToAppAdministrator();
         /// let get some trillions to user2 to spend
         applicationCoin.mint(user2, 90_000_000_000_000 * (10 ** 18));
