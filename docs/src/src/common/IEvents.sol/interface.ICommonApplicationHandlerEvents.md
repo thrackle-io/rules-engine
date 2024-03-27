@@ -1,5 +1,5 @@
 # ICommonApplicationHandlerEvents
-[Git Source](https://github.com/thrackle-io/tron/blob/67919752074a6ad99319926c762bce79963a8aa4/src/common/IEvents.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/12b8f8795779c791ed3113763e21492860614b51/src/common/IEvents.sol)
 
 Common Application Handler Events Library
 
@@ -12,6 +12,12 @@ Rule deactivated
 
 
 ```solidity
+event AD1467_ApplicationHandlerDeactivated(bytes32 indexed ruleType, ActionTypes[] actions);
+```
+
+### AD1467_ApplicationHandlerDeactivated
+
+```solidity
 event AD1467_ApplicationHandlerDeactivated(bytes32 indexed ruleType);
 ```
 
@@ -21,6 +27,12 @@ Rule activated
 
 ```solidity
 event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType);
+```
+
+### AD1467_ApplicationHandlerActivated
+
+```solidity
+event AD1467_ApplicationHandlerActivated(bytes32 indexed ruleType, ActionTypes[] actions);
 ```
 
 ### AD1467_RulesBypassedViaRuleBypassAccount

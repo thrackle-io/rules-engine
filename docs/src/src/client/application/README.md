@@ -6,3 +6,4 @@
 - [IAppManager](IAppManager.sol/interface.IAppManager.md)
 - [IAppManagerUser](IAppManagerUser.sol/interface.IAppManagerUser.md)
 - [ProtocolApplicationHandler](ProtocolApplicationHandler.sol/contract.ProtocolApplicationHandler.md)
+- [ProtocolApplicationHandlerCommon](ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md)

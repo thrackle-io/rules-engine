@@ -1,8 +1,8 @@
 # ProtocolApplicationHandler
-[Git Source](https://github.com/thrackle-io/tron/blob/67919752074a6ad99319926c762bce79963a8aa4/src/client/application/ProtocolApplicationHandler.sol)
+[Git Source](https://github.com/thrackle-io/tron/blob/12b8f8795779c791ed3113763e21492860614b51/src/client/application/ProtocolApplicationHandler.sol)
 
 **Inherits:**
-Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IInputErrors](/src/common/IErrors.sol/interface.IInputErrors.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md)
+[ProtocolApplicationHandlerCommon](/src/client/application/ProtocolApplicationHandlerCommon.sol/abstract.ProtocolApplicationHandlerCommon.md), Ownable, [RuleAdministratorOnly](/src/protocol/economic/RuleAdministratorOnly.sol/contract.RuleAdministratorOnly.md), [IApplicationHandlerEvents](/src/common/IEvents.sol/interface.IApplicationHandlerEvents.md), [ICommonApplicationHandlerEvents](/src/common/IEvents.sol/interface.ICommonApplicationHandlerEvents.md), [IZeroAddressError](/src/common/IErrors.sol/interface.IZeroAddressError.md), [IAppHandlerErrors](/src/common/IErrors.sol/interface.IAppHandlerErrors.md)
 
 **Author:**
 @ShaneDuncan602, @oscarsernarosero, @TJ-Everett
@@ -41,74 +41,40 @@ IRuleProcessor immutable ruleProcessor;
 ```
 
 
-### accountMaxValueByRiskScoreId
-Risk Rule Ids
+### accountMaxValueByAccessLevel
+Rule mappings
 
 
 ```solidity
-uint32 private accountMaxValueByRiskScoreId;
+mapping(ActionTypes => Rule) accountMaxValueByAccessLevel;
 ```
 
 
-### accountMaxTransactionValueByRiskScoreId
+### accountMaxValueByRiskScore
 
 ```solidity
-uint32 private accountMaxTransactionValueByRiskScoreId;
+mapping(ActionTypes => Rule) accountMaxValueByRiskScore;
 ```
 
 
-### accountMaxValueByRiskScoreActive
-Risk Rule on-off switches
-
+### accountMaxTxValueByRiskScore
 
 ```solidity
-bool private accountMaxValueByRiskScoreActive;
+mapping(ActionTypes => Rule) accountMaxTxValueByRiskScore;
 ```
 
 
-### accountMaxTransactionValueByRiskScoreActive
+### accountMaxValueOutByAccessLevel
 
 ```solidity
-bool private accountMaxTransactionValueByRiskScoreActive;
+mapping(ActionTypes => Rule) accountMaxValueOutByAccessLevel;
 ```
 
 
-### accountMaxValueByAccessLevelId
-AccessLevel Rule Ids
-
+### accountDenyForNoAccessLevel
 
 ```solidity
-uint32 private accountMaxValueByAccessLevelId;
-```
-
-
-### accountMaxValueOutByAccessLevelId
-
-```solidity
-uint32 private accountMaxValueOutByAccessLevelId;
-```
-
-
-### accountMaxValueByAccessLevelActive
-AccessLevel Rule on-off switches
-
-
-```solidity
-bool private accountMaxValueByAccessLevelActive;
-```
-
-
-### accountDenyForNoAccessLevelRuleActive
-
-```solidity
-bool private accountDenyForNoAccessLevelRuleActive;
-```
-
-
-### accountMaxValueOutByAccessLevelActive
-
-```solidity
-bool private accountMaxValueOutByAccessLevelActive;
+mapping(ActionTypes => Rule) accountDenyForNoAccessLevel;
 ```
 
 
@@ -199,8 +165,14 @@ constructor(address _ruleProcessorProxyAddress, address _appManagerAddress);
 
 
 ```solidity
-function requireApplicationRulesChecked() public view returns (bool);
+function requireApplicationRulesChecked(ActionTypes _action) public view returns (bool);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the current action type|
+
 **Returns**
 
 |Name|Type|Description|
@@ -247,7 +219,13 @@ Based on the Handler Type retrieve pricing valuations
 
 
 ```solidity
-function _checkRiskRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation) internal;
+function _checkRiskRules(
+    address _from,
+    address _to,
+    uint128 _balanceValuation,
+    uint128 _transferValuation,
+    ActionTypes _action
+) internal;
 ```
 **Parameters**
 
@@ -257,6 +235,7 @@ function _checkRiskRules(address _from, address _to, uint128 _balanceValuation, 
 |`_to`|`address`|address of the to account|
 |`_balanceValuation`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
 |`_transferValuation`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
+|`_action`|`ActionTypes`|the current user action|
 
 
 ### _checkAccessLevelRules
@@ -265,8 +244,13 @@ function _checkRiskRules(address _from, address _to, uint128 _balanceValuation, 
 
 
 ```solidity
-function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValuation, uint128 _transferValuation)
-    internal;
+function _checkAccessLevelRules(
+    address _from,
+    address _to,
+    uint128 _balanceValuation,
+    uint128 _transferValuation,
+    ActionTypes _action
+) internal;
 ```
 **Parameters**
 
@@ -276,6 +260,7 @@ function _checkAccessLevelRules(address _from, address _to, uint128 _balanceValu
 |`_to`|`address`|address of the to account|
 |`_balanceValuation`|`uint128`|recepient address current total application valuation in USD with 18 decimals of precision|
 |`_transferValuation`|`uint128`|valuation of the token being transferred in USD with 18 decimals of precision|
+|`_action`|`ActionTypes`|the current user action|
 
 
 ### setNFTPricingAddress
@@ -428,12 +413,62 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setAccountMaxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setAccountMaxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId)
+    external
+    ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`|action types in which to apply the rules|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### setAccountMaxValueByRiskScoreIdFull
+
+that setting a rule will automatically activate it.
+
+*Set the accountMaxValueByRiskScoreRule. Restricted to app administrators only.*
+
+
+```solidity
+function setAccountMaxValueByRiskScoreIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds)
+    external
+    ruleAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`|actions to have the rule applied to|
+|`_ruleIds`|`uint32[]`|Rule Id corresponding to the actions|
+
+
+### clearAccountMaxValueByRiskScore
+
+*Clear the rule data structure*
+
+
+```solidity
+function clearAccountMaxValueByRiskScore() internal;
+```
+
+### setAccountMaxValueByRiskScoreIdUpdate
+
+that setting a rule will automatically activate it.
+
+*Set the AccountMaxValuebyAccessLevelRuleId.*
+
+
+```solidity
+function setAccountMaxValueByRiskScoreIdUpdate(ActionTypes _action, uint32 _ruleId) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type to set the rule|
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
@@ -443,12 +478,15 @@ function setAccountMaxValueByRiskScoreId(uint32 _ruleId) external ruleAdministra
 
 
 ```solidity
-function activateAccountMaxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAccountMaxValueByRiskScore(ActionTypes[] calldata _actions, bool _on)
+    external
+    ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`|action types|
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
@@ -458,8 +496,14 @@ function activateAccountMaxValueByRiskScore(bool _on) external ruleAdministrator
 
 
 ```solidity
-function isAccountMaxValueByRiskScoreActive() external view returns (bool);
+function isAccountMaxValueByRiskScoreActive(ActionTypes _action) external view returns (bool);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type|
+
 **Returns**
 
 |Name|Type|Description|
@@ -469,17 +513,126 @@ function isAccountMaxValueByRiskScoreActive() external view returns (bool);
 
 ### getAccountMaxValueByRiskScoreId
 
-*Retrieve the accountMaxValueByRiskScore Rule id*
+*Retrieve the accountMaxValueByRiskScore rule id*
 
 
 ```solidity
-function getAccountMaxValueByRiskScoreId() external view returns (uint32);
+function getAccountMaxValueByRiskScoreId(ActionTypes _action) external view returns (uint32);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|action type|
+
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint32`|accountMaxValueByRiskScoreId rule id|
+
+
+### setAccountDenyForNoAccessLevelId
+
+that setting a rule will automatically activate it.
+
+*Set the activateAccountDenyForNoAccessLevel. Restricted to app administrators only.*
+
+
+```solidity
+function setAccountDenyForNoAccessLevelId(ActionTypes[] calldata _actions)
+    external
+    ruleAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`|action types in which to apply the rules|
+
+
+### setAccountDenyForNoAccessLevelIdFull
+
+that setting a rule will automatically activate it.
+
+*Set the activateAccountDenyForNoAccessLevel. Restricted to app administrators only.*
+
+
+```solidity
+function setAccountDenyForNoAccessLevelIdFull(ActionTypes[] calldata _actions)
+    external
+    ruleAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`|actions to have the rule applied to|
+
+
+### clearAccountDenyForNoAccessLevel
+
+*Clear the rule data structure*
+
+
+```solidity
+function clearAccountDenyForNoAccessLevel() internal;
+```
+
+### setAccountDenyForNoAccessLevelIdUpdate
+
+that setting a rule will automatically activate it.
+
+*Set the ActivateAccountDenyForNoAccessLevelRuleId.*
+
+
+```solidity
+function setAccountDenyForNoAccessLevelIdUpdate(ActionTypes _action) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type to set the rule|
+
+
+### activateAccountDenyForNoAccessLevelRule
+
+*enable/disable rule. Disabling a rule will save gas on transfer transactions.*
+
+
+```solidity
+function activateAccountDenyForNoAccessLevelRule(ActionTypes[] calldata _actions, bool _on)
+    external
+    ruleAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`|action types|
+|`_on`|`bool`|boolean representing if a rule must be checked or not.|
+
+
+### isAccountDenyForNoAccessLevelActive
+
+*Tells you if the AccountDenyForNoAccessLevel Rule is active or not.*
+
+
+```solidity
+function isAccountDenyForNoAccessLevelActive(ActionTypes _action) external view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|boolean representing if the rule is active|
 
 
 ### setAccountMaxValueByAccessLevelId
@@ -490,12 +643,62 @@ that setting a rule will automatically activate it.
 
 
 ```solidity
-function setAccountMaxValueByAccessLevelId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setAccountMaxValueByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId)
+    external
+    ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`|action types in which to apply the rules|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### setAccountMaxValueByAccessLevelIdFull
+
+that setting a rule will automatically activate it.
+
+*Set the accountMaxValueByAccessLevelRule. Restricted to app administrators only.*
+
+
+```solidity
+function setAccountMaxValueByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds)
+    external
+    ruleAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`|actions to have the rule applied to|
+|`_ruleIds`|`uint32[]`|Rule Id corresponding to the actions|
+
+
+### clearAccountMaxValueByAccessLevel
+
+*Clear the rule data structure*
+
+
+```solidity
+function clearAccountMaxValueByAccessLevel() internal;
+```
+
+### setAccountMaxValuebyAccessLevelIdUpdate
+
+that setting a rule will automatically activate it.
+
+*Set the AccountMaxValuebyAccessLevelRuleId.*
+
+
+```solidity
+function setAccountMaxValuebyAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type to set the rule|
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
@@ -505,12 +708,15 @@ function setAccountMaxValueByAccessLevelId(uint32 _ruleId) external ruleAdminist
 
 
 ```solidity
-function activateAccountMaxValueByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAccountMaxValueByAccessLevel(ActionTypes[] calldata _actions, bool _on)
+    external
+    ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`|action types|
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
@@ -520,8 +726,14 @@ function activateAccountMaxValueByAccessLevel(bool _on) external ruleAdministrat
 
 
 ```solidity
-function isAccountMaxValueByAccessLevelActive() external view returns (bool);
+function isAccountMaxValueByAccessLevelActive(ActionTypes _action) external view returns (bool);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type|
+
 **Returns**
 
 |Name|Type|Description|
@@ -535,8 +747,14 @@ function isAccountMaxValueByAccessLevelActive() external view returns (bool);
 
 
 ```solidity
-function getAccountMaxValueByAccessLevelId() external view returns (uint32);
+function getAccountMaxValueByAccessLevelId(ActionTypes _action) external view returns (uint32);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|action type|
+
 **Returns**
 
 |Name|Type|Description|
@@ -544,50 +762,70 @@ function getAccountMaxValueByAccessLevelId() external view returns (uint32);
 |`<none>`|`uint32`|accountMaxValueByAccessLevelId rule id|
 
 
-### activateAccountDenyForNoAccessLevelRule
-
-*enable/disable rule. Disabling a rule will save gas on transfer transactions.*
-
-
-```solidity
-function activateAccountDenyForNoAccessLevelRule(bool _on) external ruleAdministratorOnly(appManagerAddress);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_on`|`bool`|boolean representing if a rule must be checked or not.|
-
-
-### isAccountDenyForNoAccessLevelActive
-
-*Tells you if the AccountDenyForNoAccessLevel Rule is active or not.*
-
-
-```solidity
-function isAccountDenyForNoAccessLevelActive() external view returns (bool);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|boolean representing if the rule is active|
-
-
 ### setAccountMaxValueOutByAccessLevelId
 
 that setting a rule will automatically activate it.
 
-*Set the accountMaxValueOutByAccessLevel Rule. Restricted to app administrators only.*
+*Set the AccountMaxValueOutByAccessLevel. Restricted to app administrators only.*
 
 
 ```solidity
-function setAccountMaxValueOutByAccessLevelId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setAccountMaxValueOutByAccessLevelId(ActionTypes[] calldata _actions, uint32 _ruleId)
+    external
+    ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`|action types in which to apply the rules|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### setAccountMaxValueOutByAccessLevelIdFull
+
+that setting a rule will automatically activate it.
+
+*Set the AccountMaxValueOutByAccessLevel. Restricted to app administrators only.*
+
+
+```solidity
+function setAccountMaxValueOutByAccessLevelIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds)
+    external
+    ruleAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`|actions to have the rule applied to|
+|`_ruleIds`|`uint32[]`|Rule Id corresponding to the actions|
+
+
+### clearAccountMaxValueOutByAccessLevel
+
+*Clear the rule data structure*
+
+
+```solidity
+function clearAccountMaxValueOutByAccessLevel() internal;
+```
+
+### setAccountMaxValueOutByAccessLevelIdUpdate
+
+that setting a rule will automatically activate it.
+
+*Set the AccountMaxValueOutByAccessLevelRuleId.*
+
+
+```solidity
+function setAccountMaxValueOutByAccessLevelIdUpdate(ActionTypes _action, uint32 _ruleId) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type to set the rule|
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
@@ -597,23 +835,32 @@ function setAccountMaxValueOutByAccessLevelId(uint32 _ruleId) external ruleAdmin
 
 
 ```solidity
-function activateAccountMaxValueOutByAccessLevel(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAccountMaxValueOutByAccessLevel(ActionTypes[] calldata _actions, bool _on)
+    external
+    ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`|action types|
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
 ### isAccountMaxValueOutByAccessLevelActive
 
-*Tells you if the accountMaxValueOutByAccessLevel Rule is active or not.*
+*Tells you if the AccountMaxValueOutByAccessLevel Rule is active or not.*
 
 
 ```solidity
-function isAccountMaxValueOutByAccessLevelActive() external view returns (bool);
+function isAccountMaxValueOutByAccessLevelActive(ActionTypes _action) external view returns (bool);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type|
+
 **Returns**
 
 |Name|Type|Description|
@@ -623,12 +870,18 @@ function isAccountMaxValueOutByAccessLevelActive() external view returns (bool);
 
 ### getAccountMaxValueOutByAccessLevelId
 
-*Retrieve the accountMaxValueOutByAccessLevel Rule rule id*
+*Retrieve the accountMaxValueOutByAccessLevel rule id*
 
 
 ```solidity
-function getAccountMaxValueOutByAccessLevelId() external view returns (uint32);
+function getAccountMaxValueOutByAccessLevelId(ActionTypes _action) external view returns (uint32);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|action type|
+
 **Returns**
 
 |Name|Type|Description|
@@ -636,35 +889,70 @@ function getAccountMaxValueOutByAccessLevelId() external view returns (uint32);
 |`<none>`|`uint32`|accountMaxValueOutByAccessLevelId rule id|
 
 
-### getAccountMaxTxValueByRiskScoreId
-
-*Retrieve the AccountMaxTransactionValueByRiskScore rule id*
-
-
-```solidity
-function getAccountMaxTxValueByRiskScoreId() external view returns (uint32);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint32`|accountMaxTransactionValueByRiskScoreId rule id for specified token|
-
-
 ### setAccountMaxTxValueByRiskScoreId
 
 that setting a rule will automatically activate it.
 
-*Set the AccountMaxTransactionValueByRiskScore Rule. Restricted to app administrators only.*
+*Set the accountMaxTxValueByRiskScore. Restricted to app administrators only.*
 
 
 ```solidity
-function setAccountMaxTxValueByRiskScoreId(uint32 _ruleId) external ruleAdministratorOnly(appManagerAddress);
+function setAccountMaxTxValueByRiskScoreId(ActionTypes[] calldata _actions, uint32 _ruleId)
+    external
+    ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`|action types in which to apply the rules|
+|`_ruleId`|`uint32`|Rule Id to set|
+
+
+### setAccountMaxTxValueByRiskScoreIdFull
+
+that setting a rule will automatically activate it.
+
+*Set the accountMaxTxValueByRiskScore. Restricted to app administrators only.*
+
+
+```solidity
+function setAccountMaxTxValueByRiskScoreIdFull(ActionTypes[] calldata _actions, uint32[] calldata _ruleIds)
+    external
+    ruleAdministratorOnly(appManagerAddress);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_actions`|`ActionTypes[]`|actions to have the rule applied to|
+|`_ruleIds`|`uint32[]`|Rule Id corresponding to the actions|
+
+
+### clearAccountMaxTxValueByRiskScore
+
+*Clear the rule data structure*
+
+
+```solidity
+function clearAccountMaxTxValueByRiskScore() internal;
+```
+
+### setAccountMaxTxValueByRiskScoreIdUpdate
+
+that setting a rule will automatically activate it.
+
+*Set the AccountMaxTxValueByRiskScoreRuleId.*
+
+
+```solidity
+function setAccountMaxTxValueByRiskScoreIdUpdate(ActionTypes _action, uint32 _ruleId) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type to set the rule|
 |`_ruleId`|`uint32`|Rule Id to set|
 
 
@@ -674,28 +962,58 @@ function setAccountMaxTxValueByRiskScoreId(uint32 _ruleId) external ruleAdminist
 
 
 ```solidity
-function activateAccountMaxTxValueByRiskScore(bool _on) external ruleAdministratorOnly(appManagerAddress);
+function activateAccountMaxTxValueByRiskScore(ActionTypes[] calldata _actions, bool _on)
+    external
+    ruleAdministratorOnly(appManagerAddress);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_actions`|`ActionTypes[]`|action types|
 |`_on`|`bool`|boolean representing if a rule must be checked or not.|
 
 
 ### isAccountMaxTxValueByRiskScoreActive
 
-*Tells you if the accountMaxTransactionValueByRiskScore Rule is active or not.*
+*Tells you if the accountMaxTxValueByRiskScore Rule is active or not.*
 
 
 ```solidity
-function isAccountMaxTxValueByRiskScoreActive() external view returns (bool);
+function isAccountMaxTxValueByRiskScoreActive(ActionTypes _action) external view returns (bool);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|the action type|
+
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`bool`|boolean representing if the rule is active for specified token|
+|`<none>`|`bool`|boolean representing if the rule is active|
+
+
+### getAccountMaxTxValueByRiskScoreId
+
+*Retrieve the AccountMaxTxValueByRiskScore rule id*
+
+
+```solidity
+function getAccountMaxTxValueByRiskScoreId(ActionTypes _action) external view returns (uint32);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_action`|`ActionTypes`|action type|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint32`|accountMaxTxValueByRiskScoreId rule id|
 
 
 ### activatePauseRule
