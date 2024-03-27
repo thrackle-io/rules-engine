@@ -22,10 +22,10 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util, RulePr
             /// grab the deployed diamond addresses and set superAdmin and forkTest bool
             vm.warp(Blocktime);
             superAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
-            appAdministrator = vm.envAddress("APP_ADMIN_01");
+            appAdministrator = vm.envAddress("APP_ADMIN");
             ruleAdmin = vm.envAddress("LOCAL_RULE_ADMIN");
-            user1 = vm.envAddress("KEVIN");
-            user2 = vm.envAddress("SAM");
+            user1 = vm.envAddress("ANVIL_ADDRESS_2");
+            user2 = vm.envAddress("ANVIL_ADDRESS_3");
             applicationNFT = ApplicationERC721(vm.envAddress("APPLICATION_ERC721_ADDRESS_1"));
             applicationNFTHandler = HandlerDiamond(payable(vm.envAddress("APPLICATION_ERC721_HANDLER")));
             applicationCoin = ApplicationERC20(vm.envAddress("APPLICATION_ERC20_ADDRESS"));

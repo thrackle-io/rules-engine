@@ -29,8 +29,8 @@ contract ApplicationAdminRolesScript is Script {
     function setUp() public {}
 
     function run() public {
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY_01");
-        appAdminAddress = vm.envAddress("APP_ADMIN_01");
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
         vm.startBroadcast(appAdminKey);
         ApplicationAppManager applicationAppManager = ApplicationAppManager(vm.envAddress("APPLICATION_APP_MANAGER"));
         /**

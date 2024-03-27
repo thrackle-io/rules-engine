@@ -36,9 +36,9 @@ contract ApplicationDeployAppManagerAndAssetsScript is Script {
         vm.startBroadcast(privateKey);
         ApplicationAppManager applicationAppManager = new ApplicationAppManager(vm.envAddress("LOCAL_DEPLOYMENT_OWNER"), "Castlevania", false);
         ApplicationHandler applicationHandler = new ApplicationHandler(vm.envAddress("RULE_PROCESSOR_DIAMOND"), address(applicationAppManager));
-        applicationAppManager.addAppAdministrator(vm.envAddress("APP_ADMIN_01"));
-        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY_01");
-        appAdminAddress = vm.envAddress("APP_ADMIN_01");
+        applicationAppManager.addAppAdministrator(vm.envAddress("APP_ADMIN"));
+        appAdminKey = vm.envUint("APP_ADMIN_PRIVATE_KEY");
+        appAdminAddress = vm.envAddress("APP_ADMIN");
         vm.stopBroadcast();
         vm.startBroadcast(appAdminKey);
         applicationAppManager.setNewApplicationHandlerAddress(address(applicationHandler));
