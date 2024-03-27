@@ -64,7 +64,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     function testERC20_ERC20CommonTests_OracleApproveEventEmission_Positive() public endWithStopPrank {
-        switchToAppAdministrator();
+        switchToSuperAdmin();
         vm.expectEmit(true, false, false, false);
         emit AD1467_OracleListChanged(true, ADDRESSES);
         oracleApproved.addToApprovedList(ADDRESSES);
@@ -72,7 +72,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_OracleApproveEventEmission_Negative() public endWithStopPrank {
         // switch to an address other than the owner
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         vm.expectRevert("Ownable: caller is not the owner");
         oracleApproved.addToApprovedList(ADDRESSES);
     }
@@ -96,7 +96,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     function testERC20_ERC20CommonTests_OracleDeniedEventEmission_Positive() public endWithStopPrank {
-        switchToAppAdministrator();
+        switchToSuperAdmin();
         vm.expectEmit(true, false, false, false);
         emit AD1467_OracleListChanged(true, ADDRESSES);
         oracleDenied.addToDeniedList(ADDRESSES);
@@ -104,7 +104,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
     function testERC20_ERC20CommonTests_OracleDeniedEventEmission_Negative() public endWithStopPrank {
         // switch to an address other than the owner
-        switchToSuperAdmin();
+        switchToAppAdministrator();
         vm.expectRevert("Ownable: caller is not the owner");
         oracleDenied.addToDeniedList(ADDRESSES);
     }
@@ -287,7 +287,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         // add the rule.
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
-        switchToAppAdministrator();
+        switchToSuperAdmin();
         // add a blocked address
         badBoys.push(address(69));
         oracleDenied.addToDeniedList(badBoys);
@@ -310,7 +310,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
 
         uint32 ruleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
-        switchToAppAdministrator();
+        switchToSuperAdmin();
 
         // add approved addresses
         goodBoys.push(address(59));
@@ -337,9 +337,10 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         uint32 ruleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
         /// first mint to user
-        switchToAppAdministrator();
+        switchToSuperAdmin();
         goodBoys.push(address(user5));
         oracleApproved.addToApprovedList(goodBoys);
+        switchToAppAdministrator();
         testCaseToken.transfer(user5, 10000);
         /// burn some tokens as user
         /// burns do not check for the recipient address as it is address(0)
@@ -351,7 +352,7 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
         /// add address(0) to deny list and switch oracle rule to deny list
         uint32 ruleId = createAccountApproveDenyOracleRule(0);
         setAccountApproveDenyOracleRule(address(applicationCoinHandler), ruleId);
-        switchToAppAdministrator();
+        switchToSuperAdmin();
         badBoys.push(address(0));
         oracleDenied.addToDeniedList(badBoys);
         /// attempt to burn (should fail)
@@ -361,13 +362,13 @@ abstract contract ERC20CommonTests is TestCommonFoundry, DummyAMM, ERC20Util {
     }
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_AddSingleAddress_Approved() public endWithStopPrank {
-        switchToAppAdministrator();
+        switchToSuperAdmin();
         oracleApproved.addAddressToApprovedList(address(59));
         assertEq(oracleApproved.isApproved(address(59)), true);
     }
 
     function testERC20_ERC20CommonTests_AccountApproveDenyOracle_AddSingleAddress_Denied() public endWithStopPrank {
-        switchToAppAdministrator();
+        switchToSuperAdmin();
         oracleDenied.addAddressToDeniedList(address(69));
         assertEq(oracleDenied.isDenied(address(69)), true);
     }

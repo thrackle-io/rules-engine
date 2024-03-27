@@ -21,7 +21,7 @@ contract RuleProcessorDiamondTest is Test, TestCommonFoundry, ERC721Util, RulePr
         if (vm.envAddress("DEPLOYMENT_OWNER") != address(0x0)) {
             /// grab the deployed diamond addresses and set superAdmin and forkTest bool
             vm.warp(Blocktime);
-            superAdmin = vm.envAddress("LOCAL_DEPLOYMENT_OWNER");
+            superAdmin = vm.envAddress("DEPLOYMENT_OWNER");
             appAdministrator = vm.envAddress("APP_ADMIN");
             ruleAdmin = vm.envAddress("LOCAL_RULE_ADMIN");
             user1 = vm.envAddress("ANVIL_ADDRESS_2");

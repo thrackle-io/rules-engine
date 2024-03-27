@@ -100,8 +100,8 @@ else
 
 fi
 
-sed -i '' 's/LOCAL_DEPLOYMENT_OWNER=.*/LOCAL_DEPLOYMENT_OWNER='$APP_ADMIN_1'/g' $ENV_FILE
-sed -i '' 's/LOCAL_DEPLOYMENT_OWNER_KEY=.*/LOCAL_DEPLOYMENT_OWNER_KEY='$APP_ADMIN_1_KEY'/g' $ENV_FILE
+sed -i '' 's/DEPLOYMENT_OWNER=.*/DEPLOYMENT_OWNER='$APP_ADMIN_1'/g' $ENV_FILE
+sed -i '' 's/DEPLOYMENT_OWNER_KEY=.*/DEPLOYMENT_OWNER_KEY='$APP_ADMIN_1_KEY'/g' $ENV_FILE
 
 if [ "$ALREADY_DEPLOYED" = "y" ]; then
     echo "Protocol already deployed skipping Protocol Deployment Scripts"
@@ -138,6 +138,19 @@ else
     echo export APP_ADMIN_1_KEY=$APP_ADMIN_1_KEY | tee -a $OUTPUTFILE
     echo export RULE_PROCESSOR_DIAMOND=$RULE_PROCESSOR_DIAMOND | tee -a $OUTPUTFILE
 
+fi
+
+# Setup the APP_ADMIN address in the .env file before starting the Application specific deploy scripts.
+APP_ADMIN=$(sed -n 's/ANVIL_ADDRESS_1=//p' .env)
+APP_ADMIN_PRIVATE_KEY=$(sed -n 's/ANVIL_PRIVATE_KEY_1=//p' .env) 
+
+os=$(uname -a)
+if [[ $os == *"Darwin"* ]]; then
+  sed -i '' 's/^APP_ADMIN=.*/APP_ADMIN='$APP_ADMIN'/g' $ENV_FILE
+  sed -i '' 's/^APP_ADMIN_PRIVATE_KEY=.*/APP_ADMIN_PRIVATE_KEY='$APP_ADMIN_PRIVATE_KEY'/g' $ENV_FILE
+else
+  sed -i 's/^APP_ADMIN=.*/APP_ADMIN='$APP_ADMIN'/g' $ENV_FILE
+  sed -i 's/^APP_ADMIN_PRIVATE_KEY=.*/APP_ADMIN_PRIVATE_KEY='$APP_ADMIN_PRIVATE_KEY'/g' $ENV_FILE
 fi
 
 forge script script/clientScripts/Application_Deploy_01_AppManager.s.sol --ffi --broadcast --rpc-url $ETH_RPC_URL $GAS_ARGUMENT_SCRIPT

@@ -22,13 +22,13 @@ is an overview of this deployment process:
       *NOTE: This account needs to have sufficient funds to cover deployment costs and ownership transfer.*
    2. Export it to zsh
         ````
-        export LOCAL_DEPLOYMENT_OWNER_KEY=desired private key
+        export DEPLOYMENT_OWNER_KEY=desired private key
         ```` 
 4. Set the Protocol Owner Address
    1. This is the account derived from the private key from step 3.
    2. Export it to zsh
         ````
-        export LOCAL_DEPLOYMENT_OWNER=<address derived from owner private key>
+        export DEPLOYMENT_OWNER=<address derived from owner private key>
         ````
 5. In the same terminal as above, ensure that the Foundry installation is current (see troubleshooting section)
    ````
@@ -61,7 +61,7 @@ is an overview of this deployment process:
         ````
 9. Set the version of the protocol:
    ```
-   cast send $RULE_PROCESSOR_DIAMOND "updateVersion(string)()" <PROTOCOL_VERSION> --private-key $LOCAL_DEPLOYMENT_OWNER_KEY --rpc-url ETH_RPC_URL
+   cast send $RULE_PROCESSOR_DIAMOND "updateVersion(string)()" <PROTOCOL_VERSION> --private-key $DEPLOYMENT_OWNER_KEY --rpc-url ETH_RPC_URL
    ```
    *substitute <PROTOCOL_VERSION> with the proper value. i.e: "1.1.0".*
 
@@ -72,7 +72,7 @@ is an overview of this deployment process:
          ```   
       2. Transfer the ownership to multi-sig wallet.
          ```
-         cast send $RULE_PROCESSOR_DIAMOND "transferOwnership(address)" $MULTISIG_ADDRESS --private-key $LOCAL_DEPLOYMENT_OWNER_KEY --rpc-url ETH_RPC_URL
+         cast send $RULE_PROCESSOR_DIAMOND "transferOwnership(address)" $MULTISIG_ADDRESS --private-key $DEPLOYMENT_OWNER_KEY --rpc-url ETH_RPC_URL
          ```
       3. Check that the owner is the multi-sig wallet:
          ```

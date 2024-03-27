@@ -107,7 +107,7 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
 
         assertEq(applicationNFT.balanceOf(_user1), 5);
 
-        switchToAppAdministrator();
+        switchToSuperAdmin();
         // add a blacklist address
         badBoys.push(_user3);
         oracleDenied.addToDeniedList(badBoys);
@@ -130,7 +130,7 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         // check the allowed list type
         ruleId = createAccountApproveDenyOracleRule(1);
         setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
-        switchToAppAdministrator();
+        switchToSuperAdmin();
         // add an allowed address
         goodBoys.push(randomUser);
         oracleApproved.addToApprovedList(goodBoys);
@@ -1018,7 +1018,9 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
         {
             if (priceA % 2 == 0) {
                 badBoys.push(_user4);
+                switchToSuperAdmin();
                 oracleDenied.addToDeniedList(badBoys);
+                switchToAppAdministrator();
                 uint32 ruleId = createAccountApproveDenyOracleRule(0);
                 setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
             } else {
@@ -1026,7 +1028,9 @@ contract ApplicationERC721ComplexFuzzTest is TestCommonFoundry, ERC721Util {
                 goodBoys.push(_user2);
                 goodBoys.push(_user3);
                 goodBoys.push(address(0xee55));
+                switchToSuperAdmin();
                 oracleApproved.addToApprovedList(goodBoys);
+                switchToAppAdministrator();
                 uint32 ruleId = createAccountApproveDenyOracleRule(1);
                 setAccountApproveDenyOracleRule(address(applicationNFTHandler), ruleId);
             }
